@@ -39,7 +39,11 @@ public class ProtoDeserializer implements DeserializationSchema<Row>{
             List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
             Row row = new Row(fields.size());
             for (Descriptors.FieldDescriptor field: fields) {
-                row.setField(field.getIndex(), proto.getField(field));
+                if(field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
+                    row.setField(field.getIndex(), proto.getField(field).toString());
+                } else {
+                    row.setField(field.getIndex(), proto.getField(field));
+                }
             }
             return row;
         } catch (ReflectiveOperationException e) {

@@ -14,6 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+import static com.gojek.esb.participant.ParticipantStatus.Enum.ACCEPTED;
+import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -63,6 +65,18 @@ public class ProtoDeserializerTest {
 
         assertEquals(expectedOrderNumber, row.getField(participantLogFieldIndex("order_id")));
         assertEquals(expectedIterationNumber, row.getField(participantLogFieldIndex("iteration_number")));
+    }
+
+    @Test
+    public void shouldDeserializeEnumAsString() throws IOException{
+
+        byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(protoBytes);
+
+        assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
+        assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
     }
 
     private int participantLogFieldIndex(String order_id) {
