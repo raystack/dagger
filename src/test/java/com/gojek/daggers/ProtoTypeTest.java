@@ -1,5 +1,8 @@
 package com.gojek.daggers;
 
+import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.table.api.Types;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -40,5 +43,20 @@ public class ProtoTypeTest {
             assertEquals(ProtoType.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
             assertTrue(exception.getCause() instanceof ReflectiveOperationException);
         }
+    }
+
+    @Test
+    public void shouldGiveMappedFlinkTypes(){
+
+        ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey");
+        ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey");
+
+        assertArrayEquals(
+                new TypeInformation[]{Types.STRING(),Types.STRING(), Types.ROW(), Types.STRING(), Types.STRING(), Types.STRING(), Types.ROW()}
+                , participantKeyProtoType.getFieldTypes());
+
+        assertArrayEquals(
+                new TypeInformation[]{Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.ROW(), Types.ROW()}
+                , bookingKeyProtoType.getFieldTypes());
     }
 }
