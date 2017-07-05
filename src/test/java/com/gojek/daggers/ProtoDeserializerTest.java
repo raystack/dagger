@@ -29,12 +29,12 @@ public class ProtoDeserializerTest {
     ProtoType protoType;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         initMocks(this);
     }
 
     @Test
-    public void shouldGetTypeInfomationFromProtoType(){
+    public void shouldGetTypeInfomationFromProtoType() {
 
         String[] expectedFieldNames = {"field1", "field2"};
         TypeInformation<?>[] expectedTypes = {Types.DOUBLE, Types.STRING};
@@ -44,13 +44,13 @@ public class ProtoDeserializerTest {
         TypeInformation<Row> actualType = new ProtoDeserializer(BookingLogKey.class.getTypeName(), protoType).getProducedType();
         assertTrue(actualType instanceof RowTypeInfo);
 
-        RowTypeInfo actualRowType = (RowTypeInfo)actualType;
+        RowTypeInfo actualRowType = (RowTypeInfo) actualType;
         assertArrayEquals(actualRowType.getFieldNames(), expectedFieldNames);
         assertArrayEquals(actualRowType.getFieldTypes(), expectedTypes);
     }
 
     @Test
-    public void shouldAlwaysReturnFalseForEndOfStream(){
+    public void shouldAlwaysReturnFalseForEndOfStream() {
         assertFalse(new ProtoDeserializer(BookingLogKey.class.getTypeName(), protoType).isEndOfStream(null));
     }
 
@@ -60,7 +60,7 @@ public class ProtoDeserializerTest {
         String expectedOrderNumber = "111";
         int expectedIterationNumber = 10;
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setOrderId(expectedOrderNumber)
-                                                .setIterationNumber(expectedIterationNumber).build().toByteArray();
+                .setIterationNumber(expectedIterationNumber).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
         Row row = protoDeserializer.deserialize(protoBytes);
@@ -70,7 +70,7 @@ public class ProtoDeserializerTest {
     }
 
     @Test
-    public void shouldDeserializeEnumAsString() throws IOException{
+    public void shouldDeserializeEnumAsString() throws IOException {
 
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
@@ -82,12 +82,12 @@ public class ProtoDeserializerTest {
     }
 
     @Test
-    public void shouldDeserializeNestedMessagesAsSubRows() throws IOException{
+    public void shouldDeserializeNestedMessagesAsSubRows() throws IOException {
         Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(10l).setNanos(10).build();
         DriverLocation expectedDriverLocation = DriverLocation.newBuilder().setAccuracy(111l).setLatitude(222l).build();
         byte[] protoBytes = ParticipantLogMessage.newBuilder()
-                                .setEventTimestamp(expectedTimestamp)
-                                .setLocation(expectedDriverLocation).build().toByteArray();
+                .setEventTimestamp(expectedTimestamp)
+                .setLocation(expectedDriverLocation).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
         Row row = protoDeserializer.deserialize(protoBytes);
@@ -101,7 +101,7 @@ public class ProtoDeserializerTest {
         assertEquals(expectedDriverLocation.getLatitude(), locationRow.getField(0));
     }
 
-    private int participantLogFieldIndex(String order_id) {
-        return ParticipantLogMessage.getDescriptor().findFieldByName(order_id).getIndex();
+    private int participantLogFieldIndex(String propertyName) {
+        return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 }

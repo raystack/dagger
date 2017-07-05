@@ -11,12 +11,11 @@ import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
 
-public class ProtoDeserializer implements DeserializationSchema<Row>{
+public class ProtoDeserializer implements DeserializationSchema<Row> {
 
     private ProtoType protoType;
     private Method protoParser;
@@ -35,7 +34,7 @@ public class ProtoDeserializer implements DeserializationSchema<Row>{
     @Override
     public Row deserialize(byte[] message) throws IOException {
         try {
-            GeneratedMessageV3 proto = (GeneratedMessageV3)protoParser.invoke(null, message);
+            GeneratedMessageV3 proto = (GeneratedMessageV3) protoParser.invoke(null, message);
             return getRow(proto);
         } catch (ReflectiveOperationException e) {
             throw new ProtoDeserializationExcpetion(e);
@@ -45,13 +44,12 @@ public class ProtoDeserializer implements DeserializationSchema<Row>{
     private Row getRow(GeneratedMessageV3 proto) {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
-        for (Descriptors.FieldDescriptor field: fields) {
-            if(field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
+        for (Descriptors.FieldDescriptor field : fields) {
+            if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
                 row.setField(field.getIndex(), proto.getField(field).toString());
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {
                 row.setField(field.getIndex(), getRow((GeneratedMessageV3) proto.getField(field)));
-            }
-            else {
+            } else {
                 row.setField(field.getIndex(), proto.getField(field));
             }
         }
