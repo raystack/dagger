@@ -12,7 +12,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
 public class ProtoType {
     public static final String PROTO_CLASS_MISCONFIGURED_ERROR = "Proto class is misconfigured";
-    private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>(){{
+    private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>() {{
         put(JavaType.STRING, Types.STRING());
         put(JavaType.BOOLEAN, Types.BOOLEAN());
         put(JavaType.DOUBLE, Types.DOUBLE());
@@ -50,11 +50,15 @@ public class ProtoType {
     private TypeInformation[] getFieldTypes(Descriptor descriptor) {
         return descriptor.getFields().stream()
                 .map(fieldDescriptor -> {
-                    if(fieldDescriptor.getJavaType() == JavaType.MESSAGE){
+                    if (fieldDescriptor.getJavaType() == JavaType.MESSAGE) {
                         return getRowType(fieldDescriptor.getMessageType());
                     }
                     return TYPE_MAP.get(fieldDescriptor.getJavaType());
                 }).toArray(TypeInformation[]::new);
+    }
+
+    public TypeInformation<Row> getRowType() {
+        return Types.ROW(getFieldNames(protoFieldDescriptor), getFieldTypes(protoFieldDescriptor));
     }
 
     private TypeInformation<Row> getRowType(Descriptor messageType) {

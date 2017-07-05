@@ -1,10 +1,7 @@
 package com.gojek.daggers;
 
-import com.gojek.esb.booking.BookingLogKey;
-import com.gojek.esb.participant.DriverLocation;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
-import com.google.protobuf.Timestamp;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
 import org.apache.flink.table.api.Types;
@@ -63,6 +60,6 @@ public class ProtoDeserializer implements DeserializationSchema<Row> {
 
     @Override
     public TypeInformation<Row> getProducedType() {
-        return Types.ROW(protoType.getFieldNames(), protoType.getFieldTypes());
+        return protoType.getRowType();
     }
 }
