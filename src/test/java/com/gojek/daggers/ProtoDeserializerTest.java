@@ -38,15 +38,11 @@ public class ProtoDeserializerTest {
 
         String[] expectedFieldNames = {"field1", "field2"};
         TypeInformation<?>[] expectedTypes = {Types.DOUBLE, Types.STRING};
-        when(protoType.getFieldNames()).thenReturn(expectedFieldNames);
-        when(protoType.getFieldTypes()).thenReturn(expectedTypes);
+        RowTypeInfo expectedRowType = new RowTypeInfo();
+        when(protoType.getRowType()).thenReturn(expectedRowType);
 
         TypeInformation<Row> actualType = new ProtoDeserializer(BookingLogKey.class.getTypeName(), protoType).getProducedType();
-        assertTrue(actualType instanceof RowTypeInfo);
-
-        RowTypeInfo actualRowType = (RowTypeInfo) actualType;
-        assertArrayEquals(actualRowType.getFieldNames(), expectedFieldNames);
-        assertArrayEquals(actualRowType.getFieldTypes(), expectedTypes);
+        assertEquals(expectedRowType, actualType);
     }
 
     @Test

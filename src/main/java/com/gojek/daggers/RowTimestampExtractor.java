@@ -2,17 +2,17 @@ package com.gojek.daggers;
 
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
+import org.apache.flink.table.sources.DefinedRowtimeAttribute;
 import org.apache.flink.types.Row;
 
 import javax.annotation.Nullable;
 
-public class TimestampExtractor implements AssignerWithPeriodicWatermarks<Row>{
+public class RowTimestampExtractor implements AssignerWithPeriodicWatermarks<Row>{
 
     private int timestampRowIndex;
     private long currentTimestamp;
 
-    public TimestampExtractor(int timestampRowIndex) {
-
+    public RowTimestampExtractor(int timestampRowIndex) {
         this.timestampRowIndex = timestampRowIndex;
     }
 

@@ -2,6 +2,7 @@ package com.gojek.daggers;
 
 import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
@@ -70,6 +71,17 @@ public class ProtoTypeTest {
 
         assertEquals(expectedTimestampRow, fieldTypes[participantLogFieldIndex("event_timestamp")]);
         assertEquals(driverLocationRow, fieldTypes[participantLogFieldIndex("location")]);
+    }
+
+    @Test
+    public void shouldGiveNamesAndTypes(){
+        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
+
+        RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
+
+        assertEquals("order_id", rowType.getFieldNames()[0]);
+        assertEquals(Types.DOUBLE(), rowType.getFieldTypes()[participantLogFieldIndex("receive_delay")]);
+
     }
 
     private int participantLogFieldIndex(String propertyName) {
