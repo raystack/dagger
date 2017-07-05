@@ -1,6 +1,5 @@
 package com.gojek.daggers;
 
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.Types;
 import org.junit.Test;
@@ -49,14 +48,19 @@ public class ProtoTypeTest {
     public void shouldGiveMappedFlinkTypes(){
 
         ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey");
-        ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey");
+        ProtoType participantMessageProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogMessage");
 
         assertArrayEquals(
-                new TypeInformation[]{Types.STRING(),Types.STRING(), Types.ROW(), Types.STRING(), Types.STRING(), Types.STRING(), Types.ROW()}
+                new TypeInformation[]{Types.STRING(), Types.STRING(), Types.ROW(), Types.STRING(), Types.STRING(), Types.STRING(), Types.ROW()}
                 , participantKeyProtoType.getFieldTypes());
 
         assertArrayEquals(
-                new TypeInformation[]{Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.ROW(), Types.ROW()}
-                , bookingKeyProtoType.getFieldTypes());
+                new TypeInformation[]{
+                        Types.STRING(),Types.STRING(), Types.ROW(), Types.STRING(), Types.STRING(), Types.INT(), Types.STRING(),
+                        Types.ROW(),Types.INT(),Types.DOUBLE(),Types.INT(),Types.DOUBLE(),Types.ROW(),Types.ROW(), Types.STRING(),
+                        Types.STRING(),Types.STRING()
+                }
+                , participantMessageProtoType.getFieldTypes());
+
     }
 }
