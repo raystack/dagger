@@ -1,7 +1,9 @@
 package com.gojek.daggers;
 
 import com.gojek.esb.booking.BookingLogKey;
+import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
+import com.google.protobuf.Timestamp;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -77,6 +79,26 @@ public class ProtoDeserializerTest {
 
         assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
         assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
+    }
+
+    @Test
+    public void shouldDeserializeNestedMessagesAsSubRows() throws IOException{
+        Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(10l).setNanos(10).build();
+        DriverLocation expectedDriverLocation = DriverLocation.newBuilder().setAccuracy(111l).setLatitude(222l).build();
+        byte[] protoBytes = ParticipantLogMessage.newBuilder()
+                                .setEventTimestamp(expectedTimestamp)
+                                .setLocation(expectedDriverLocation).build().toByteArray();
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(protoBytes);
+
+        Row eventTimestampRow = (Row) row.getField(participantLogFieldIndex("event_timestamp"));
+        assertEquals(expectedTimestamp.getSeconds(), eventTimestampRow.getField(0));
+        assertEquals(expectedTimestamp.getNanos(), eventTimestampRow.getField(1));
+
+        Row locationRow = (Row) row.getField(participantLogFieldIndex("location"));
+        assertEquals(expectedDriverLocation.getAccuracy(), locationRow.getField(3));
+        assertEquals(expectedDriverLocation.getLatitude(), locationRow.getField(0));
     }
 
     private int participantLogFieldIndex(String order_id) {
