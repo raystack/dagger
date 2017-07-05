@@ -1,8 +1,9 @@
 package com.gojek.daggers;
 
-import com.google.protobuf.Descriptors;
+import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.Types;
+import org.apache.flink.types.Row;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,23 +24,40 @@ public class ProtoType {
         put(JavaType.BYTE_STRING, Types.STRING());
     }};
 
-    private Descriptors.Descriptor protoFieldDescriptor;
+    private Descriptor protoFieldDescriptor;
 
     public ProtoType(String protoClassName) {
         try {
             Class<?> protoClass = Class.forName(protoClassName);
-            protoFieldDescriptor = (Descriptors.Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
+            protoFieldDescriptor = (Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
         } catch (ReflectiveOperationException exception) {
             throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
         }
     }
 
     public String[] getFieldNames() {
-        return protoFieldDescriptor.getFields().stream().map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
+        return getFieldNames(protoFieldDescriptor);
+    }
+
+    private String[] getFieldNames(Descriptor descriptor) {
+        return descriptor.getFields().stream().map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
     }
 
     public TypeInformation[] getFieldTypes() {
-        return protoFieldDescriptor.getFields().stream()
-                .map(fieldDescriptor -> TYPE_MAP.get(fieldDescriptor.getJavaType())).toArray(TypeInformation[]::new);
+        return getFieldTypes(protoFieldDescriptor);
+    }
+
+    private TypeInformation[] getFieldTypes(Descriptor descriptor) {
+        return descriptor.getFields().stream()
+                .map(fieldDescriptor -> {
+                    if(fieldDescriptor.getJavaType() == JavaType.MESSAGE){
+                        return getRowType(fieldDescriptor.getMessageType());
+                    }
+                    return TYPE_MAP.get(fieldDescriptor.getJavaType());
+                }).toArray(TypeInformation[]::new);
+    }
+
+    private TypeInformation<Row> getRowType(Descriptor messageType) {
+        return Types.ROW(getFieldNames(messageType), getFieldTypes(messageType));
     }
 }
