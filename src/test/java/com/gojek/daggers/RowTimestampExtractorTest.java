@@ -21,11 +21,11 @@ public class RowTimestampExtractorTest {
         RowTimestampExtractor rowTimestampExtractor = new RowTimestampExtractor(timestampRowIndex);
         long actualTimestamp = rowTimestampExtractor.extractTimestamp(protoRow, 0l);
 
-        assertEquals(epochTime(expectedTimestamp), actualTimestamp);
+        assertEquals(epochMilliSecondTime(expectedTimestamp), actualTimestamp);
     }
 
-    private long epochTime(Timestamp expectedTimestamp) {
-        return expectedTimestamp.getSeconds() + expectedTimestamp.getNanos()/(1000*1000);
+    private long epochMilliSecondTime(Timestamp expectedTimestamp) {
+        return expectedTimestamp.getSeconds() * 1000 + expectedTimestamp.getNanos()/1000;
     }
 
     @Test
@@ -38,6 +38,6 @@ public class RowTimestampExtractorTest {
         RowTimestampExtractor rowTimestampExtractor = new RowTimestampExtractor(timestampRowIndex);
         rowTimestampExtractor.extractTimestamp(protoRow, 0l);
 
-        assertEquals(epochTime(expectedTimestamp), rowTimestampExtractor.getCurrentWatermark().getTimestamp());
+        assertEquals(epochMilliSecondTime(expectedTimestamp), rowTimestampExtractor.getCurrentWatermark().getTimestamp());
     }
 }
