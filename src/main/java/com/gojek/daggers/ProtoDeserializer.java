@@ -14,24 +14,36 @@ import java.util.List;
 
 public class ProtoDeserializer implements DeserializationSchema<Row> {
 
+    private String protoClassName;
     private ProtoType protoType;
-    private Method protoParser;
+    private transient Method protoParser;
     private final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
 
     public ProtoDeserializer(String protoClassName, ProtoType protoType) {
+        this.protoClassName = protoClassName;
         this.protoType = protoType;
+    }
+
+    private Method createProtoParser() {
         try {
             Class<?> protoClass = Class.forName(protoClassName);
-            protoParser = protoClass.getMethod("parseFrom", byte[].class);
+            return protoClass.getMethod("parseFrom", byte[].class);
         } catch (ReflectiveOperationException exception) {
             throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
         }
     }
 
+    private Method getProtoParser(){
+       if(protoParser == null){
+           protoParser = createProtoParser();
+       }
+       return protoParser;
+    }
+
     @Override
     public Row deserialize(byte[] message) throws IOException {
         try {
-            GeneratedMessageV3 proto = (GeneratedMessageV3) protoParser.invoke(null, message);
+            GeneratedMessageV3 proto = (GeneratedMessageV3) getProtoParser().invoke(null, message);
             return getRow(proto);
         } catch (ReflectiveOperationException e) {
             throw new ProtoDeserializationExcpetion(e);

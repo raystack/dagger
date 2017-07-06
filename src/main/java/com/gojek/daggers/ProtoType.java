@@ -5,12 +5,13 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
-public class ProtoType {
+public class ProtoType implements Serializable{
     public static final String PROTO_CLASS_MISCONFIGURED_ERROR = "Proto class is misconfigured";
     private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>() {{
         put(JavaType.STRING, Types.STRING());
@@ -24,19 +25,36 @@ public class ProtoType {
         put(JavaType.BYTE_STRING, Types.STRING());
     }};
 
-    private Descriptor protoFieldDescriptor;
+    private transient Descriptor protoFieldDescriptor;
+    private String protoClassName;
+
+    public ProtoType(){
+       this.protoClassName = "xxx";
+    }
 
     public ProtoType(String protoClassName) {
+        this.protoClassName = protoClassName;
+        this.protoFieldDescriptor = createFieldDescriptor();
+    }
+
+    private Descriptor getProtoFieldDescriptor(){
+        if(protoFieldDescriptor == null){
+            protoFieldDescriptor = createFieldDescriptor();
+        }
+        return protoFieldDescriptor;
+    }
+
+    private Descriptor createFieldDescriptor() {
         try {
             Class<?> protoClass = Class.forName(protoClassName);
-            protoFieldDescriptor = (Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
+            return (Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
         } catch (ReflectiveOperationException exception) {
             throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
         }
     }
 
     public String[] getFieldNames() {
-        return getFieldNames(protoFieldDescriptor);
+        return getFieldNames(getProtoFieldDescriptor());
     }
 
     private String[] getFieldNames(Descriptor descriptor) {
@@ -44,7 +62,7 @@ public class ProtoType {
     }
 
     public TypeInformation[] getFieldTypes() {
-        return getFieldTypes(protoFieldDescriptor);
+        return getFieldTypes(getProtoFieldDescriptor());
     }
 
     private TypeInformation[] getFieldTypes(Descriptor descriptor) {
@@ -58,7 +76,7 @@ public class ProtoType {
     }
 
     public TypeInformation<Row> getRowType() {
-        return Types.ROW(getFieldNames(protoFieldDescriptor), getFieldTypes(protoFieldDescriptor));
+        return Types.ROW(getFieldNames(getProtoFieldDescriptor()), getFieldTypes(getProtoFieldDescriptor()));
     }
 
     private TypeInformation<Row> getRowType(Descriptor messageType) {
