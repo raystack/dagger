@@ -28,7 +28,7 @@ public class RowTimestampExtractor implements AssignerWithPeriodicWatermarks<Row
         long timestampSeconds = (long) timestampRow.getField(0);
         int timestampNanos = (int) timestampRow.getField(1);
 
-        currentTimestamp = timestampSeconds * 1000 ;
+        currentTimestamp = timestampSeconds * 1000 + timestampNanos/1000;
         return currentTimestamp;
     }
 }
