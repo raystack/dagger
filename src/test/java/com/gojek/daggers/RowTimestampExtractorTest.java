@@ -13,7 +13,7 @@ public class RowTimestampExtractorTest {
 
     @Test
     public void shouldRetrieveTimestampBasedOnRowIndex() throws IOException {
-        Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(100l).setNanos(111).build();
+        Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(100l).setNanos(111000).build();
         ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(expectedTimestamp).build();
         Row protoRow = new ProtoDeserializer(ParticipantLogKey.class.getName(), new ProtoType(ParticipantLogKey.class.getName())).deserialize(proto.toByteArray());
         int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();

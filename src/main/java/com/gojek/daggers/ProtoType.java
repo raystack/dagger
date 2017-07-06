@@ -28,10 +28,6 @@ public class ProtoType implements Serializable{
     private transient Descriptor protoFieldDescriptor;
     private String protoClassName;
 
-    public ProtoType(){
-       this.protoClassName = "xxx";
-    }
-
     public ProtoType(String protoClassName) {
         this.protoClassName = protoClassName;
         this.protoFieldDescriptor = createFieldDescriptor();
