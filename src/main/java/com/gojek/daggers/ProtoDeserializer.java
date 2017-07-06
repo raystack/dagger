@@ -4,7 +4,6 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
-import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
