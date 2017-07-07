@@ -1,34 +1,40 @@
 package com.gojek.daggers.config;
 
-import com.gojek.daggers.config.commandline.CommandlineConfigurationProvider;
-import com.gojek.daggers.config.system.EnvironmentConfigurationProvider;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Map;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationsTest {
 
+    private ConfigurationProviderFactory providerFactory;
+
+    @Before
+    public void setUp(){
+        System.setProperty("key", "envValue");
+        providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
+    }
+
     @Test
-    public void shouldProvideFromEnvironment() {
-        System.setProperty("key", "value");
+    public void shouldProvideFromEnvironmentBasedOnConfigProperty() {
+        System.setProperty("ConfigSource", "ENVIRONMENT");
 
-        Map<String, String> conf = Configurations.from(EnvironmentConfigurationProvider.class.getName(), null);
+        ConfigurationProvider provider = providerFactory.Provider();
 
-        assertTrue(conf.containsKey("key"));
-        assertTrue(conf.get("key").equals("value"));
+        assertEquals(provider.get().get("key"), "envValue");
+
     }
 
     @Test
     public void shouldProvideFromCommandline() {
+        System.setProperty("ConfigSource", "ARGS");
 
-        Map<String, String> conf = Configurations.from(CommandlineConfigurationProvider.class.getName(), "--key value");
+        ConfigurationProvider provider = providerFactory.Provider();
 
-        assertTrue(conf.containsKey("key"));
-        assertTrue(conf.get("key").equals("value"));
+        assertEquals(provider.get().get("key"), "argValue");
     }
 }

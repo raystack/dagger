@@ -9,32 +9,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CommandlineConfigurationProviderTest {
-    private CommandlineConfigurationProvider commandlineConfigurationProvider;
-
-    @Before
-    public void setUp() throws Exception {
-        commandlineConfigurationProvider = new CommandlineConfigurationProvider();
-    }
-
-    @Test
-    public void shouldProvideFromNullInput() throws Exception {
-        Map<String, String> configurations = commandlineConfigurationProvider.get(null);
-
-        assert configurations != null;
-        assertTrue(configurations.size() == 0);
-    }
 
     @Test
     public void shouldProvideFromEmptyInput() throws Exception {
-        Map<String, String> configurations = commandlineConfigurationProvider.get("");
+        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{}).get();
 
-        assert configurations != null;
         assertTrue(configurations.size() == 0);
     }
 
     @Test
     public void shouldProvideFromOneValidInput() throws Exception {
-        Map<String, String> configurations = commandlineConfigurationProvider.get("--key value");
+        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).get();
 
         assertEquals(1, configurations.size());
 
@@ -44,7 +29,7 @@ public class CommandlineConfigurationProviderTest {
 
     @Test
     public void shouldProvideFromMultipleValidInputs() throws Exception {
-        Map<String, String> configurations = commandlineConfigurationProvider.get("--key value --k v");
+        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).get();
 
         assertEquals(2, configurations.size());
 

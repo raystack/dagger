@@ -22,7 +22,7 @@ public class EnvironmentConfigurationProviderTest {
     @Test
     public void shouldProvideNonNullConfigurationMap() {
 
-        Map<String, String> stringStringMap = environmentConfigurationProvider.get(null);
+        Map<String, String> stringStringMap = environmentConfigurationProvider.get();
 
         assert stringStringMap != null;
     }
@@ -31,7 +31,7 @@ public class EnvironmentConfigurationProviderTest {
     public void shouldProvideSystemConfiguration() {
         System.setProperty("key", "value");
 
-        Map<String, String> stringStringMap = environmentConfigurationProvider.get(null);
+        Map<String, String> stringStringMap = environmentConfigurationProvider.get();
 
         assertTrue(stringStringMap.containsKey("key"));
     }
