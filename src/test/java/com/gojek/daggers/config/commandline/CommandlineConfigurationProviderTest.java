@@ -1,10 +1,8 @@
 package com.gojek.daggers.config.commandline;
 
+import com.gojek.daggers.config.CommandlineConfigurationProvider;
 import org.apache.flink.configuration.Configuration;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

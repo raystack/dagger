@@ -3,7 +3,6 @@ package com.gojek.daggers.parser;
 import org.apache.flink.configuration.Configuration;
 
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class KafkaEnvironmentVariables {
 
