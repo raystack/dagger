@@ -3,7 +3,6 @@ package com.gojek.daggers.sink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.hdfs.DFSClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
 
