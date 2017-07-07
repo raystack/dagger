@@ -4,8 +4,6 @@ import com.gojek.daggers.DaggerConfigurationException;
 import com.gojek.daggers.config.commandline.CommandlineConfigurationProvider;
 import com.gojek.daggers.config.system.EnvironmentConfigurationProvider;
 
-import java.util.Map;
-
 public class ConfigurationProviderFactory{
 
     private String[] args;
