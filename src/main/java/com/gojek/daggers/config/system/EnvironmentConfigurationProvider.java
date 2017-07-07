@@ -2,13 +2,12 @@ package com.gojek.daggers.config.system;
 
 import com.gojek.daggers.config.ConfigurationProvider;
 import org.apache.flink.api.java.utils.ParameterTool;
-
-import java.util.Map;
+import org.apache.flink.configuration.Configuration;
 
 public class EnvironmentConfigurationProvider implements ConfigurationProvider {
 
     @Override
-    public Map<String, String> get() {
-        return ParameterTool.fromSystemProperties().toMap();
+    public Configuration get() {
+        return ParameterTool.fromSystemProperties().getConfiguration();
     }
 }

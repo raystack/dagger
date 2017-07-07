@@ -1,5 +1,6 @@
 package com.gojek.daggers.config.commandline;
 
+import org.apache.flink.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,30 +13,30 @@ public class CommandlineConfigurationProviderTest {
 
     @Test
     public void shouldProvideFromEmptyInput() throws Exception {
-        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{}).get();
+        Configuration configurations = new CommandlineConfigurationProvider(new String[]{}).get();
 
-        assertTrue(configurations.size() == 0);
+        assertTrue(configurations.keySet().size() == 0);
     }
 
     @Test
     public void shouldProvideFromOneValidInput() throws Exception {
-        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).get();
+        Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).get();
 
-        assertEquals(1, configurations.size());
+        assertEquals(1, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
-        assertTrue(configurations.get("key").equals("value"));
+        assertTrue(configurations.getString("key", "").equals("value"));
     }
 
     @Test
     public void shouldProvideFromMultipleValidInputs() throws Exception {
-        Map<String, String> configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).get();
+        Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).get();
 
-        assertEquals(2, configurations.size());
+        assertEquals(2, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
-        assertTrue(configurations.get("key").equals("value"));
+        assertTrue(configurations.getString("key", "").equals("value"));
         assertTrue(configurations.containsKey("k"));
-        assertTrue(configurations.get("k").equals("v"));
+        assertTrue(configurations.getString("k", "").equals("v"));
     }
 }

@@ -1,5 +1,6 @@
 package com.gojek.daggers.config.system;
 
+import org.apache.flink.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,19 +21,13 @@ public class EnvironmentConfigurationProviderTest {
     }
 
     @Test
-    public void shouldProvideNonNullConfigurationMap() {
-
-        Map<String, String> stringStringMap = environmentConfigurationProvider.get();
-
-        assert stringStringMap != null;
-    }
-
-    @Test
     public void shouldProvideSystemConfiguration() {
         System.setProperty("key", "value");
+        System.setProperty("key2", "value2");
 
-        Map<String, String> stringStringMap = environmentConfigurationProvider.get();
+        Configuration stringStringMap = environmentConfigurationProvider.get();
 
-        assertTrue(stringStringMap.containsKey("key"));
+        assertEquals(stringStringMap.getString("key",""), "value");
+        assertEquals(stringStringMap.getString("key2",""), "value2");
     }
 }

@@ -1,7 +1,7 @@
 package com.gojek.daggers.config;
 
-import java.util.Map;
+import org.apache.flink.configuration.Configuration;
 
 public interface ConfigurationProvider {
-    Map<String, String> get();
+    Configuration get();
 }

@@ -25,7 +25,7 @@ public class ConfigurationsTest {
 
         ConfigurationProvider provider = providerFactory.Provider();
 
-        assertEquals(provider.get().get("key"), "envValue");
+        assertEquals(provider.get().getString("key", ""), "envValue");
 
     }
 
@@ -35,6 +35,6 @@ public class ConfigurationsTest {
 
         ConfigurationProvider provider = providerFactory.Provider();
 
-        assertEquals(provider.get().get("key"), "argValue");
+        assertEquals(provider.get().getString("key", ""), "argValue");
     }
 }
