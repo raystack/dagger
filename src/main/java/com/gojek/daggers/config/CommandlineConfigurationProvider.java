@@ -1,6 +1,5 @@
-package com.gojek.daggers.config.commandline;
+package com.gojek.daggers.config;
 
-import com.gojek.daggers.config.ConfigurationProvider;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
