@@ -8,7 +8,7 @@ import java.util.Map;
 public class EnvironmentConfigurationProvider implements ConfigurationProvider {
 
     @Override
-    public Map<String, String> get(String input) {
+    public Map<String, String> get() {
         return ParameterTool.fromSystemProperties().toMap();
     }
 }
