@@ -1,8 +1,6 @@
 package com.gojek.daggers.config;
 
 import com.gojek.daggers.DaggerConfigurationException;
-import com.gojek.daggers.config.commandline.CommandlineConfigurationProvider;
-import com.gojek.daggers.config.system.EnvironmentConfigurationProvider;
 
 public class ConfigurationProviderFactory{
 
@@ -16,7 +14,7 @@ public class ConfigurationProviderFactory{
     public ConfigurationProvider Provider() {
         switch (System.getProperty("ConfigSource")){
             case "ENVIRONMENT":
-                return new EnvironmentConfigurationProvider();
+                return new EnvironmentConfigurationProvider(System.getenv());
             case "ARGS":
                 return new CommandlineConfigurationProvider(args);
             default:
