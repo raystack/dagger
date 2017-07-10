@@ -25,7 +25,7 @@ object KafkaParticipantLogSQLProcessor {
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     val parallelism = parameters.getInteger("PARALLELISM", 1)
     env.setParallelism(parallelism)
-    val autoWatermarkInterval = parameters.getInteger("AUTO_WATERMARK_INTERVAL", 10000)
+    val autoWatermarkInterval = parameters.getInteger("WATERMARK_INTERVAL_MS", 10000)
     env.getConfig.setAutoWatermarkInterval(autoWatermarkInterval)
 
     val props = KafkaEnvironmentVariables.parse(parameters)
@@ -38,7 +38,7 @@ object KafkaParticipantLogSQLProcessor {
     val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicName, new ProtoDeserializer(protoClassName, protoType), props)
 
     val rowTimeAttributeName = parameters.getString("ROWTIME_ATTRIBUTE_NAME", "")
-    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(2), protoType, rowTimeAttributeName)
+    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(parameters.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0)), protoType, rowTimeAttributeName)
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     tableEnv.registerTableSource(topicName, tableSource)
@@ -47,7 +47,7 @@ object KafkaParticipantLogSQLProcessor {
 
     resultTable2.toAppendStream[Row]
       .addSink(new InfluxRowSink(new InfluxDBFactoryWrapper(), resultTable2.getSchema.getColumnNames, parameters))
-    env.execute("DE Flink Kafka SQL Example")
+    env.execute(parameters.getString("FLINK_JOB_ID", "SQL Flink job"))
   }
 
 }
