@@ -14,7 +14,7 @@ import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
 
-object KafkaParticipantLogSQLProcessor {
+object KafkaProtoSQLProcessor {
 
   def main(args: Array[String]) {
 
