@@ -1,5 +1,6 @@
 package com.gojek.daggers
 
+import java.util
 import java.util.TimeZone
 
 import com.gojek.daggers.config.ConfigurationProviderFactory
@@ -33,15 +34,14 @@ object KafkaProtoSQLProcessor {
     val protoClassName: String = parameters.getString("PROTO_CLASS_NAME", "")
 
     val protoType: ProtoType = new ProtoType(protoClassName)
-    val topicName = parameters.getString("TOPIC_NAME", "")
-
-    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicName, new ProtoDeserializer(protoClassName, protoType), props)
+    val topicNames: util.List[String] =  util.Arrays.asList(parameters.getString("TOPIC_NAMES", "").split(","): _*)
+    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, protoType), props)
 
     val rowTimeAttributeName = parameters.getString("ROWTIME_ATTRIBUTE_NAME", "")
     val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(parameters.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0)), protoType, rowTimeAttributeName)
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
-    tableEnv.registerTableSource(topicName, tableSource)
+    tableEnv.registerTableSource(parameters.getString("TABLE_NAME", ""), tableSource)
 
     val resultTable2 = tableEnv.sql(parameters.getString("SQL_QUERY", ""))
 
