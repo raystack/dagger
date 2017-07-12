@@ -1,10 +1,9 @@
 package com.gojek.daggers;
 
-import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.streaming.util.serialization.DeserializationSchema;
+import org.apache.flink.streaming.util.serialization.KeyedDeserializationSchema;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 
-public class ProtoDeserializer implements DeserializationSchema<Row> {
+public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
 
     private String protoClassName;
     private ProtoType protoType;
@@ -40,16 +39,6 @@ public class ProtoDeserializer implements DeserializationSchema<Row> {
        return protoParser;
     }
 
-    @Override
-    public Row deserialize(byte[] message) throws IOException {
-        try {
-            GeneratedMessageV3 proto = (GeneratedMessageV3) getProtoParser().invoke(null, message);
-            return getRow(proto);
-        } catch (ReflectiveOperationException e) {
-            throw new ProtoDeserializationExcpetion(e);
-        }
-    }
-
     private Row getRow(GeneratedMessageV3 proto) {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
@@ -65,6 +54,16 @@ public class ProtoDeserializer implements DeserializationSchema<Row> {
             }
         }
         return row;
+    }
+
+    @Override
+    public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {
+        try {
+            GeneratedMessageV3 proto = (GeneratedMessageV3) getProtoParser().invoke(null, message);
+            return getRow(proto);
+        } catch (ReflectiveOperationException e) {
+            throw new ProtoDeserializationExcpetion(e);
+        }
     }
 
     @Override
