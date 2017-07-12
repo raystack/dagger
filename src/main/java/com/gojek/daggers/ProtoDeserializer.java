@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -53,6 +54,8 @@ public class ProtoDeserializer implements DeserializationSchema<Row> {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
         for (Descriptors.FieldDescriptor field : fields) {
+            if(field.isMapField() || field.isRepeated()) continue;
+
             if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
                 row.setField(field.getIndex(), proto.getField(field).toString());
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {

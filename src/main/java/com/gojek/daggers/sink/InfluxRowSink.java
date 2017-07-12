@@ -5,6 +5,8 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -12,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class InfluxRowSink extends RichSinkFunction<Row> {
+    private final static Logger logger = LoggerFactory.getLogger(InfluxRowSink.class.getName());
+
     private InfluxDB influxDB;
     private InfluxDBFactoryWrapper influxDBFactory;
     private String[] columnNames;
@@ -49,9 +53,9 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
 
     @Override
     public void invoke(Row row) throws Exception {
+        logger.info("row to influx: " +  row);
         Point.Builder pointBuilder = Point.measurement(measurementName);
         Map<String, Object> fields = new HashMap<>();
-
         for(int i=0; i < columnNames.length; i++){
             String columnName = columnNames[i];
             if(columnName.equals("window_timestamp")){
