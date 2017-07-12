@@ -15,7 +15,8 @@ public class RowTimestampExtractorTest {
     public void shouldRetrieveTimestampBasedOnRowIndex() throws IOException {
         Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(100l).setNanos(111000).build();
         ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(expectedTimestamp).build();
-        Row protoRow = new ProtoDeserializer(ParticipantLogKey.class.getName(), new ProtoType(ParticipantLogKey.class.getName())).deserialize(proto.toByteArray());
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), new ProtoType(ParticipantLogKey.class.getName()));
+        Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
         int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
 
         RowTimestampExtractor rowTimestampExtractor = new RowTimestampExtractor(timestampRowIndex);
@@ -33,7 +34,8 @@ public class RowTimestampExtractorTest {
 
         Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(100l).setNanos(111).build();
         ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(expectedTimestamp).build();
-        Row protoRow = new ProtoDeserializer(ParticipantLogKey.class.getName(), new ProtoType(ParticipantLogKey.class.getName())).deserialize(proto.toByteArray());
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), new ProtoType(ParticipantLogKey.class.getName()));
+        Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
         int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
         RowTimestampExtractor rowTimestampExtractor = new RowTimestampExtractor(timestampRowIndex);
         rowTimestampExtractor.extractTimestamp(protoRow, 0l);

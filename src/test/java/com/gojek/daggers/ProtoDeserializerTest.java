@@ -59,7 +59,7 @@ public class ProtoDeserializerTest {
                 .setIterationNumber(expectedIterationNumber).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(protoBytes);
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
 
         assertEquals(expectedOrderNumber, row.getField(participantLogFieldIndex("order_id")));
         assertEquals(expectedIterationNumber, row.getField(participantLogFieldIndex("iteration_number")));
@@ -71,7 +71,7 @@ public class ProtoDeserializerTest {
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(protoBytes);
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
 
         assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
         assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
@@ -86,7 +86,7 @@ public class ProtoDeserializerTest {
                 .setLocation(expectedDriverLocation).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(protoBytes);
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
 
         Row eventTimestampRow = (Row) row.getField(participantLogFieldIndex("event_timestamp"));
         assertEquals(expectedTimestamp.getSeconds(), eventTimestampRow.getField(0));
