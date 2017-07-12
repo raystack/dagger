@@ -54,7 +54,9 @@ public class ProtoType implements Serializable{
     }
 
     private String[] getFieldNames(Descriptor descriptor) {
-        return descriptor.getFields().stream().map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
+        return descriptor.getFields().stream()
+                    .filter(fieldDescriptor -> !fieldDescriptor.isRepeated() || !fieldDescriptor.isMapField())
+                    .map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
     }
 
     public TypeInformation[] getFieldTypes() {
@@ -63,6 +65,7 @@ public class ProtoType implements Serializable{
 
     private TypeInformation[] getFieldTypes(Descriptor descriptor) {
         return descriptor.getFields().stream()
+                .filter(fieldDescriptor -> !fieldDescriptor.isRepeated() || !fieldDescriptor.isMapField())
                 .map(fieldDescriptor -> {
                     if (fieldDescriptor.getJavaType() == JavaType.MESSAGE) {
                         return getRowType(fieldDescriptor.getMessageType());
