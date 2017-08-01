@@ -17,12 +17,12 @@ public class ProtoTypeTest {
         ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey");
 
         assertArrayEquals(
-                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit"}
-                , participantKeyProtoType.getFieldNames());
+                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit"},
+                participantKeyProtoType.getFieldNames());
 
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", "audit"}
-                , bookingKeyProtoType.getFieldNames());
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", "audit"},
+                bookingKeyProtoType.getFieldNames());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ProtoTypeTest {
     }
 
     @Test
-    public void shouldGiveSimpleMappedFlinkTypes(){
+    public void shouldGiveSimpleMappedFlinkTypes() {
         ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
@@ -59,7 +59,7 @@ public class ProtoTypeTest {
     }
 
     @Test
-    public void shouldGiveSubRowMappedField(){
+    public void shouldGiveSubRowMappedField() {
         ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
@@ -74,7 +74,7 @@ public class ProtoTypeTest {
     }
 
     @Test
-    public void shouldGiveNamesAndTypes(){
+    public void shouldGiveNamesAndTypes() {
         ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
 
         RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();

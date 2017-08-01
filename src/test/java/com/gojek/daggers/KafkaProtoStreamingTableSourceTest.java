@@ -24,27 +24,27 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class KafkaProtoStreamingTableSourceTest {
 
     @Mock
-    StreamExecutionEnvironment streamEnv;
+    private StreamExecutionEnvironment streamEnv;
 
     @Mock
-    SingleOutputStreamOperator dataStream;
+    private SingleOutputStreamOperator dataStream;
 
     @Mock
-    DataStreamSource dataStreamSource;
+    private DataStreamSource dataStreamSource;
 
     @Mock
-    FlinkKafkaConsumerBase flinkConsumer;
+    private FlinkKafkaConsumerBase flinkConsumer;
 
     @Mock
-    ProtoType protoType;
+    private ProtoType protoType;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         initMocks(this);
     }
 
     @Test
-    public void shouldAssignInjectedTimestampExtractor(){
+    public void shouldAssignInjectedTimestampExtractor() {
         when(streamEnv.addSource(any())).thenReturn(dataStreamSource);
         when(dataStreamSource.assignTimestampsAndWatermarks(any(AssignerWithPeriodicWatermarks.class))).thenReturn(dataStream);
         RowTimestampExtractor expectedRowTimestampExtractor = new RowTimestampExtractor(1);
@@ -57,13 +57,13 @@ public class KafkaProtoStreamingTableSourceTest {
     }
 
     @Test
-    public void shouldUseInjectedNameForRowtimeAttribute(){
+    public void shouldUseInjectedNameForRowtimeAttribute() {
         String expectedRowTimeAttribute = "window_timestamp";
         assertEquals(expectedRowTimeAttribute, new KafkaProtoStreamingTableSource(null, null, protoType, "window_timestamp").getRowtimeAttribute());
     }
 
     @Test
-    public void shouldGiveBackRowTypesComingFromProtoType(){
+    public void shouldGiveBackRowTypesComingFromProtoType() {
         RowTypeInfo expectedRowType = new RowTypeInfo();
         when(protoType.getRowType()).thenReturn(expectedRowType);
         KafkaProtoStreamingTableSource kafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(flinkConsumer, null, protoType, "");
