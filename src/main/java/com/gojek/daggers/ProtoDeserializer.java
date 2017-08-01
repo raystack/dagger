@@ -16,7 +16,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private String protoClassName;
     private ProtoType protoType;
     private transient Method protoParser;
-    private final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
+    private static final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
 
     public ProtoDeserializer(String protoClassName, ProtoType protoType) {
         this.protoClassName = protoClassName;
@@ -32,8 +32,8 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         }
     }
 
-    private Method getProtoParser(){
-       if(protoParser == null){
+    private Method getProtoParser() {
+       if (protoParser == null) {
            protoParser = createProtoParser();
        }
        return protoParser;
@@ -43,7 +43,9 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
         for (Descriptors.FieldDescriptor field : fields) {
-            if(field.isMapField() || field.isRepeated()) continue;
+            if (field.isMapField() || field.isRepeated()) {
+                continue;
+            }
 
             if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
                 row.setField(field.getIndex(), proto.getField(field).toString());

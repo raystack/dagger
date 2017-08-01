@@ -1,7 +1,6 @@
 package com.gojek.daggers.config;
 
 import com.gojek.daggers.DaggerConfigurationException;
-import org.slf4j.Logger;
 
 import java.util.Arrays;
 
@@ -18,7 +17,7 @@ public class ConfigurationProviderFactory {
         });
     }
 
-    public ConfigurationProvider Provider() {
+    public ConfigurationProvider provider() {
         if (System.getProperties().containsKey("ConfigSource")) {
             String configSource = System.getProperty("ConfigSource");
             switch (configSource) {

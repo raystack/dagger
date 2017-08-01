@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationsTest {
@@ -15,7 +14,7 @@ public class ConfigurationsTest {
     private ConfigurationProviderFactory providerFactory;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         System.setProperty("key", "envValue");
         providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
     }
@@ -24,7 +23,7 @@ public class ConfigurationsTest {
     public void shouldProvideFromEnvironmentBasedOnConfigProperty() {
         System.setProperty("ConfigSource", "ENVIRONMENT");
 
-        ConfigurationProvider provider = providerFactory.Provider();
+        ConfigurationProvider provider = providerFactory.provider();
 
         assertEquals(provider.get().getString("key", ""), "envValue");
 
@@ -34,7 +33,7 @@ public class ConfigurationsTest {
     public void shouldProvideFromCommandline() {
         System.setProperty("ConfigSource", "ARGS");
 
-        ConfigurationProvider provider = providerFactory.Provider();
+        ConfigurationProvider provider = providerFactory.provider();
 
         assertEquals(provider.get().getString("key", ""), "argValue");
     }

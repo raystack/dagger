@@ -18,7 +18,7 @@ public class KafkaEnvironmentVariables {
         configuration.toMap().entrySet()
                 .stream()
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
-                .forEach( e -> props.setProperty(parseVarName(e.getKey()), e.getValue()));
+                .forEach(e -> props.setProperty(parseVarName(e.getKey()), e.getValue()));
         return props;
     }
 

@@ -28,13 +28,16 @@ public class InfluxRowSinkTest {
     private Configuration parameters;
 
     @Mock
-    InfluxDBFactoryWrapper influxDBFactory;
+    private InfluxDBFactoryWrapper influxDBFactory;
 
     @Mock
-    InfluxDB influxDb;
+    private InfluxDB influxDb;
 
     @Mock
-    InfluxRowSink influxRowSink;
+    private InfluxRowSink influxRowSink;
+
+    private static final int INFLUX_BATCH_SIZE = 100;
+    private static final int INFLUX_FLUSH_DURATION = 1000;
 
     @Before
     public void setUp() throws Exception {
@@ -42,8 +45,8 @@ public class InfluxRowSinkTest {
         parameters.setString("INFLUX_URL", "http://localhost:1111");
         parameters.setString("INFLUX_USERNAME", "usr");
         parameters.setString("INFLUX_PASSWORD", "pwd");
-        parameters.setInteger("INFLUX_BATCH_SIZE", 100);
-        parameters.setInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 1000);
+        parameters.setInteger("INFLUX_BATCH_SIZE", INFLUX_BATCH_SIZE);
+        parameters.setInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", INFLUX_FLUSH_DURATION);
         parameters.setString("INFLUX_DATABASE", "dagger_test");
         parameters.setString("INFLUX_RETENTION_POLICY", "two_day_policy");
         parameters.setString("INFLUX_MEASUREMENT_NAME", "test_table");
@@ -60,14 +63,14 @@ public class InfluxRowSinkTest {
     public void shouldCallInfluxDbFactoryOnOpen() throws Exception {
         setupInfluxDB(new String[]{});
 
-        verify(influxDBFactory).connect("http://localhost:1111", "usr", "pwd" );
+        verify(influxDBFactory).connect("http://localhost:1111", "usr", "pwd");
     }
 
     @Test
-    public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception{
+    public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
         setupInfluxDB(new String[]{});
 
-        verify(influxDb).enableBatch(100, 1000, TimeUnit.MILLISECONDS );
+        verify(influxDb).enableBatch(INFLUX_BATCH_SIZE, INFLUX_FLUSH_DURATION, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -92,15 +95,18 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldWriteRowToInfluxAsfields() throws Exception {
+        final int numberOfRows = 3;
+        final String expectedFieldZeroValue = "abc";
+        final int expectedFieldOneValue = 100;
         Instant now = Instant.now();
-        Row simpleFieldsRow = new Row(3);
-        simpleFieldsRow.setField(0, "abc");
-        simpleFieldsRow.setField(1, 100);
+        Row simpleFieldsRow = new Row(numberOfRows);
+        simpleFieldsRow.setField(0, expectedFieldZeroValue);
+        simpleFieldsRow.setField(1, expectedFieldOneValue);
         simpleFieldsRow.setField(2, Timestamp.from(now));
         String[] rowColumns = {"field1", "field2", "window_timestamp"};
         Point expectedPoint = Point.measurement("test_table")
-                                    .addField(rowColumns[0], "abc")
-                                    .addField(rowColumns[1], 100)
+                                    .addField(rowColumns[0], expectedFieldZeroValue)
+                                    .addField(rowColumns[1], expectedFieldOneValue)
                                     .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
         setupInfluxDB(rowColumns);
@@ -115,15 +121,18 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldWriteRowWithTagColumns() throws Exception {
+        final int numberOfRows = 3;
+        final String expectedFieldZeroValue = "abc";
+        final int expectedFieldOneValue = 100;
         Instant now = Instant.now();
-        Row simpleFieldsRow = new Row(3);
-        simpleFieldsRow.setField(0, "abc");
-        simpleFieldsRow.setField(1, 100);
+        Row simpleFieldsRow = new Row(numberOfRows);
+        simpleFieldsRow.setField(0, expectedFieldZeroValue);
+        simpleFieldsRow.setField(1, expectedFieldOneValue);
         simpleFieldsRow.setField(2, Timestamp.from(now));
         String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
         Point expectedPoint = Point.measurement("test_table")
-                .tag(rowColumns[0], "abc")
-                .addField(rowColumns[1], 100)
+                .tag(rowColumns[0], expectedFieldZeroValue)
+                .addField(rowColumns[1], expectedFieldOneValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
         setupInfluxDB(rowColumns);
@@ -136,3 +145,4 @@ public class InfluxRowSinkTest {
         assertEquals(expectedPoint.lineProtocol(), pointArg.getValue().lineProtocol());
     }
 }
+
