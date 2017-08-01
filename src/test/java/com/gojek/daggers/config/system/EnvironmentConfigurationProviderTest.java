@@ -22,7 +22,7 @@ public class EnvironmentConfigurationProviderTest {
 
         Configuration stringStringMap = new EnvironmentConfigurationProvider(environmentParameters).get();
 
-        assertEquals(stringStringMap.getString("key",""), "value");
-        assertEquals(stringStringMap.getString("key2",""), "value2");
+        assertEquals(stringStringMap.getString("key", ""), "value");
+        assertEquals(stringStringMap.getString("key2", ""), "value2");
     }
 }

@@ -19,7 +19,7 @@ object KafkaProtoSQLProcessor {
 
   def main(args: Array[String]) {
 
-    val parameters: Configuration = new ConfigurationProviderFactory(args).Provider().get()
+    val parameters: Configuration = new ConfigurationProviderFactory(args).provider().get()
 
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     val env = StreamExecutionEnvironment.getExecutionEnvironment

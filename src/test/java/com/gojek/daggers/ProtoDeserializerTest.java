@@ -26,7 +26,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ProtoDeserializerTest {
 
     @Mock
-    ProtoType protoType;
+    private ProtoType protoType;
 
     @Before
     public void setUp() {
@@ -54,12 +54,12 @@ public class ProtoDeserializerTest {
     public void shouldDeserializeProtoAsRowWithSimpelFields() throws IOException {
 
         String expectedOrderNumber = "111";
-        int expectedIterationNumber = 10;
+        final int expectedIterationNumber = 10;
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setOrderId(expectedOrderNumber)
                 .setIterationNumber(expectedIterationNumber).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
         assertEquals(expectedOrderNumber, row.getField(participantLogFieldIndex("order_id")));
         assertEquals(expectedIterationNumber, row.getField(participantLogFieldIndex("iteration_number")));
@@ -71,7 +71,7 @@ public class ProtoDeserializerTest {
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
         assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
         assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
@@ -79,22 +79,28 @@ public class ProtoDeserializerTest {
 
     @Test
     public void shouldDeserializeNestedMessagesAsSubRows() throws IOException {
-        Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(10l).setNanos(10).build();
-        DriverLocation expectedDriverLocation = DriverLocation.newBuilder().setAccuracy(111l).setLatitude(222l).build();
+        final int expectedSeconds = 10;
+        final int expectedNanoSeconds = 10;
+        final int expectedAccuracy = 111;
+        final int expectedLatitude = 222;
+        final int accuracyFieldIndex = 3;
+        final int latitudeFieldIndex = 0;
+        Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(expectedSeconds).setNanos(expectedNanoSeconds).build();
+        DriverLocation expectedDriverLocation = DriverLocation.newBuilder().setAccuracy(expectedAccuracy).setLatitude(expectedLatitude).build();
         byte[] protoBytes = ParticipantLogMessage.newBuilder()
                 .setEventTimestamp(expectedTimestamp)
                 .setLocation(expectedDriverLocation).build().toByteArray();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
 
-        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0 );
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
         Row eventTimestampRow = (Row) row.getField(participantLogFieldIndex("event_timestamp"));
         assertEquals(expectedTimestamp.getSeconds(), eventTimestampRow.getField(0));
         assertEquals(expectedTimestamp.getNanos(), eventTimestampRow.getField(1));
 
         Row locationRow = (Row) row.getField(participantLogFieldIndex("location"));
-        assertEquals(expectedDriverLocation.getAccuracy(), locationRow.getField(3));
-        assertEquals(expectedDriverLocation.getLatitude(), locationRow.getField(0));
+        assertEquals(expectedDriverLocation.getAccuracy(), locationRow.getField(accuracyFieldIndex));
+        assertEquals(expectedDriverLocation.getLatitude(), locationRow.getField(latitudeFieldIndex));
     }
 
     private int participantLogFieldIndex(String propertyName) {
