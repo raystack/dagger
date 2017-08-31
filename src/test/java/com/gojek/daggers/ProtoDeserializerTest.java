@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
-import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
+import static com.gojek.esb.participant.ParticipantStatus.Enum.ACCEPTED;
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -74,7 +74,7 @@ public class ProtoDeserializerTest {
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
         assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
-        assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
+        assertEquals(ACCEPTED .toString(), row.getField(participantLogFieldIndex("status")));
     }
 
     @Test
