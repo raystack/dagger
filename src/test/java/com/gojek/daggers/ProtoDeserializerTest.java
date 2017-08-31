@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
-import static com.gojek.esb.participant.ParticipantStatus.Enum.ACCEPTED;
+import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
