@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -47,7 +48,7 @@ public class KafkaProtoStreamingTableSourceTest {
     public void shouldAssignInjectedTimestampExtractor() {
         when(streamEnv.addSource(any())).thenReturn(dataStreamSource);
         when(dataStreamSource.assignTimestampsAndWatermarks(any(AssignerWithPeriodicWatermarks.class))).thenReturn(dataStream);
-        RowTimestampExtractor expectedRowTimestampExtractor = new RowTimestampExtractor(1);
+        RowTimestampExtractor expectedRowTimestampExtractor = new RowTimestampExtractor(1, new Configuration());
 
         DataStream<Row> actualDataStream = new KafkaProtoStreamingTableSource(flinkConsumer, expectedRowTimestampExtractor, protoType, "window_timestamp").getDataStream(streamEnv);
 
