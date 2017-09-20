@@ -1,5 +1,6 @@
 package com.gojek.daggers.sink;
 
+import com.google.common.base.Strings;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
@@ -64,10 +65,12 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
             } else if (columnName.startsWith("tag_")) {
                 pointBuilder.tag(columnName, (String) row.getField(i));
             } else {
-                fields.put(columnName, row.getField(i));
+                if (!(Strings.isNullOrEmpty(columnName) || row.getField(i) == null)) {
+                    fields.put(columnName, row.getField(i));
+                }
+
             }
         }
-
         influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
     }
 }
