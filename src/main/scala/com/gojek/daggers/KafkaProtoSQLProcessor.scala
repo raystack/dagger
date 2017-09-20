@@ -30,6 +30,8 @@ object KafkaProtoSQLProcessor {
     val autoWatermarkInterval = parameters.getInteger("WATERMARK_INTERVAL_MS", 10000)
     env.getConfig.setAutoWatermarkInterval(autoWatermarkInterval)
 
+    println(parameters.getInteger("WATERMARK_INTERVAL_MS", 10000))
+    println(parameters.getInteger("WATERMARK_DELAY_MS", 10000))
     val props = KafkaEnvironmentVariables.parse(parameters)
 
     val protoClassName: String = parameters.getString("PROTO_CLASS_NAME", "")
@@ -39,7 +41,7 @@ object KafkaProtoSQLProcessor {
     val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, protoType), props)
 
     val rowTimeAttributeName = parameters.getString("ROWTIME_ATTRIBUTE_NAME", "")
-    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(parameters.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0)), protoType, rowTimeAttributeName)
+    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(parameters.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0), parameters), protoType, rowTimeAttributeName)
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     tableEnv.registerTableSource(parameters.getString("TABLE_NAME", ""), tableSource)
