@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.Types;
@@ -55,7 +56,7 @@ public class ProtoType implements Serializable {
 
     private String[] getFieldNames(Descriptor descriptor) {
         return descriptor.getFields().stream()
-                    .filter(fieldDescriptor -> !fieldDescriptor.isRepeated() || !fieldDescriptor.isMapField())
+            .filter(fieldDescriptor -> !fieldDescriptor.isMapField())
                     .map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
     }
 
@@ -63,15 +64,23 @@ public class ProtoType implements Serializable {
         return getFieldTypes(getProtoFieldDescriptor());
     }
 
+    private TypeInformation mapFieldType(Descriptors.FieldDescriptor fieldDescriptor) {
+        if (fieldDescriptor.getJavaType() == JavaType.MESSAGE) {
+            if (fieldDescriptor.isRepeated()) {
+                return Types.OBJECT_ARRAY(getRowType(fieldDescriptor.getMessageType()));
+            }
+            return getRowType(fieldDescriptor.getMessageType());
+        }
+        if (fieldDescriptor.isRepeated()) {
+            return Types.PRIMITIVE_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
+        }
+        return TYPE_MAP.get(fieldDescriptor.getJavaType());
+    }
+
     private TypeInformation[] getFieldTypes(Descriptor descriptor) {
         return descriptor.getFields().stream()
-                .filter(fieldDescriptor -> !fieldDescriptor.isRepeated() || !fieldDescriptor.isMapField())
-                .map(fieldDescriptor -> {
-                    if (fieldDescriptor.getJavaType() == JavaType.MESSAGE) {
-                        return getRowType(fieldDescriptor.getMessageType());
-                    }
-                    return TYPE_MAP.get(fieldDescriptor.getJavaType());
-                }).toArray(TypeInformation[]::new);
+            .filter(fieldDescriptor -> !fieldDescriptor.isMapField())
+            .map(this::mapFieldType).toArray(TypeInformation[]::new);
     }
 
     public TypeInformation<Row> getRowType() {
