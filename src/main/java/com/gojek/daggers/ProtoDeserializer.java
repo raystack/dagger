@@ -8,6 +8,7 @@ import org.apache.flink.types.Row;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,14 +44,18 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
         for (Descriptors.FieldDescriptor field : fields) {
-            if (field.isMapField() || field.isRepeated()) {
+            if (field.isMapField()) {
                 continue;
             }
 
             if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
                 row.setField(field.getIndex(), proto.getField(field).toString());
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {
-                row.setField(field.getIndex(), getRow((GeneratedMessageV3) proto.getField(field)));
+                if (field.isRepeated()) {
+                    row.setField(field.getIndex(), getRow((List<GeneratedMessageV3>) proto.getField(field)));
+                } else {
+                    row.setField(field.getIndex(), getRow((GeneratedMessageV3) proto.getField(field)));
+                }
             } else {
                 row.setField(field.getIndex(), proto.getField(field));
             }
@@ -58,11 +63,18 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         return row;
     }
 
+    private Object[] getRow(List<GeneratedMessageV3> protos) {
+        ArrayList<Row> rows = new ArrayList<>();
+        protos.forEach(generatedMessageV3 -> rows.add(getRow(generatedMessageV3)));
+        return rows.toArray();
+    }
+
     @Override
     public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {
         try {
             GeneratedMessageV3 proto = (GeneratedMessageV3) getProtoParser().invoke(null, message);
-            return getRow(proto);
+            Row row = getRow(proto);
+            return row;
         } catch (ReflectiveOperationException e) {
             throw new ProtoDeserializationExcpetion(e);
         }

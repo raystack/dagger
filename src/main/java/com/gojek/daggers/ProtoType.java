@@ -8,6 +8,7 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
@@ -55,7 +56,9 @@ public class ProtoType implements Serializable {
     }
 
     private String[] getFieldNames(Descriptor descriptor) {
-        return descriptor.getFields().stream()
+        List<Descriptors.FieldDescriptor> fields = descriptor.getFields();
+
+        return fields.stream()
             .filter(fieldDescriptor -> !fieldDescriptor.isMapField())
                     .map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
     }
