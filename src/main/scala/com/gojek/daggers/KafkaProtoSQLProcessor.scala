@@ -3,7 +3,7 @@ package com.gojek.daggers
 import java.util
 import java.util.TimeZone
 
-import com.gojek.dagger.udf.S2Id
+import com.gojek.dagger.udf.{ElementAt, S2Id}
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.daggers.parser.KafkaEnvironmentVariables
 import com.gojek.daggers.sink.{InfluxDBFactoryWrapper, InfluxRowSink}
@@ -46,6 +46,7 @@ object KafkaProtoSQLProcessor {
 
     tableEnv.registerTableSource(parameters.getString("TABLE_NAME", ""), tableSource)
     tableEnv.registerFunction("S2Id", new S2Id())
+    tableEnv.registerFunction("ElementAt",new ElementAt(protoClassName))
 
     val resultTable2 = tableEnv.sql(parameters.getString("SQL_QUERY", ""))
 
