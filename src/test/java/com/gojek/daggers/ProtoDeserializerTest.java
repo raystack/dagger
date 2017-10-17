@@ -16,12 +16,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import static com.gojek.esb.participant.ParticipantStatus.Enum.ACCEPTED;
+
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 
 @RunWith(MockitoJUnitRunner.class)
