@@ -9,7 +9,7 @@ import com.gojek.daggers.parser.KafkaEnvironmentVariables
 import com.gojek.daggers.sink.{InfluxDBFactoryWrapper, InfluxRowSink}
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010
 import org.apache.flink.table.api.TableEnvironment
@@ -29,6 +29,12 @@ object KafkaProtoSQLProcessor {
     env.setParallelism(parallelism)
     val autoWatermarkInterval = configuration.getInteger("WATERMARK_INTERVAL_MS", 10000)
     env.getConfig.setAutoWatermarkInterval(autoWatermarkInterval)
+
+    env.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 10000))
+    env.getCheckpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
+    env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("PAUSE_BETWEEN_CHECKPOINTS", 5000))
+    env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 60000))
+    env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
 
     println(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000))
     println(configuration.getInteger("WATERMARK_DELAY_MS", 10000))
