@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.esb.booking.BookingLogKey;
+import com.gojek.esb.gofood.AuditEntityLogMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.google.protobuf.Timestamp;
@@ -15,15 +16,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
-import static org.junit.Assert.assertEquals;
+import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-
-
-import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtoDeserializerTest {
@@ -77,7 +78,7 @@ public class ProtoDeserializerTest {
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
         assertEquals(GO_AUTO.toString(), row.getField(participantLogFieldIndex("service_type")));
-        assertEquals(ACCEPTED .toString(), row.getField(participantLogFieldIndex("status")));
+        assertEquals(ACCEPTED.toString(), row.getField(participantLogFieldIndex("status")));
     }
 
     @Test
@@ -106,7 +107,36 @@ public class ProtoDeserializerTest {
         assertEquals(expectedDriverLocation.getLatitude(), locationRow.getField(latitudeFieldIndex));
     }
 
+    @Test
+    public void shouldDeserializeProtobufMapAsSubRows() throws IOException {
+        String auditId = "1";
+        HashMap currentState = new HashMap<String, String>();
+        currentState.put("force_close", "true");
+        currentState.put("image", "example.png");
+
+        byte[] protoBytes = AuditEntityLogMessage.newBuilder()
+                .putAllCurrentState(currentState)
+                .setAuditId(auditId).build().toByteArray();
+
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+
+        Object[] currentStateRowList = (Object[]) row.getField(auditEntityLogFieldIndex("current_state"));
+
+        assertTrue(currentState.keySet().contains(((Row) currentStateRowList[0]).getField(0)));
+        assertTrue(currentState.values().contains(((Row) currentStateRowList[0]).getField(1)));
+        assertTrue(currentState.keySet().contains(((Row) currentStateRowList[1]).getField(0)));
+        assertTrue(currentState.values().contains(((Row) currentStateRowList[1]).getField(1)));
+
+        assertEquals(auditId, row.getField(auditEntityLogFieldIndex("audit_id")));
+    }
+
     private int participantLogFieldIndex(String propertyName) {
         return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int auditEntityLogFieldIndex(String propertyName) {
+        return AuditEntityLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 }

@@ -59,7 +59,6 @@ public class ProtoType implements Serializable {
         List<Descriptors.FieldDescriptor> fields = descriptor.getFields();
 
         return fields.stream()
-            .filter(fieldDescriptor -> !fieldDescriptor.isMapField())
                     .map(fieldDescriptor -> fieldDescriptor.getName()).toArray(String[]::new);
     }
 
@@ -82,7 +81,6 @@ public class ProtoType implements Serializable {
 
     private TypeInformation[] getFieldTypes(Descriptor descriptor) {
         return descriptor.getFields().stream()
-            .filter(fieldDescriptor -> !fieldDescriptor.isMapField())
             .map(this::mapFieldType).toArray(TypeInformation[]::new);
     }
 
