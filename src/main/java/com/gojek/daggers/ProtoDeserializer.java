@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.protobuf.MapEntry;
+
 
 public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
 
@@ -34,10 +36,10 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     }
 
     private Method getProtoParser() {
-       if (protoParser == null) {
-           protoParser = createProtoParser();
-       }
-       return protoParser;
+        if (protoParser == null) {
+            protoParser = createProtoParser();
+        }
+        return protoParser;
     }
 
     private Row getRow(GeneratedMessageV3 proto) {
@@ -45,6 +47,8 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         Row row = new Row(fields.size());
         for (Descriptors.FieldDescriptor field : fields) {
             if (field.isMapField()) {
+                List<MapEntry<Object, Object>> mapEntries = (List<MapEntry<Object, Object>>) proto.getField(field);
+                row.setField(field.getIndex(), getMapRow(mapEntries));
                 continue;
             }
 
@@ -67,6 +71,19 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         ArrayList<Row> rows = new ArrayList<>();
         protos.forEach(generatedMessageV3 -> rows.add(getRow(generatedMessageV3)));
         return rows.toArray();
+    }
+
+    private Object[] getMapRow(List<MapEntry<Object, Object>> protos) {
+        ArrayList<Row> rows = new ArrayList<>();
+        protos.forEach(entry -> rows.add(getRow(entry)));
+        return rows.toArray();
+    }
+
+    private Row getRow(MapEntry<Object, Object> protos) {
+        Row row = new Row(2);
+        row.setField(0, protos.getKey());
+        row.setField(1, protos.getValue());
+        return row;
     }
 
     @Override
