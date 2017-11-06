@@ -1,9 +1,11 @@
 package com.gojek.daggers;
 
 import com.gojek.esb.booking.BookingLogKey;
+import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.gofood.AuditEntityLogMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
+import com.gojek.esb.types.RouteProto;
 import com.google.protobuf.Timestamp;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -108,6 +110,33 @@ public class ProtoDeserializerTest {
     }
 
     @Test
+    public void shouldDeserializeArrayOfObjectAsSubRows() throws IOException {
+        byte[] protoBytes = BookingLogMessage.newBuilder()
+                .setOrderNumber("EXAMPLE_ORDER_1")
+                .addRoutes(RouteProto.Route.newBuilder().setDistanceInKms(1.0f).setRouteOrder(4).build())
+                .addRoutes(RouteProto.Route.newBuilder().setDistanceInKms(2.0f).setRouteOrder(5).build())
+                .addRoutes(RouteProto.Route.newBuilder().setDistanceInKms(3.0f).setRouteOrder(6).build())
+                .build().toByteArray();
+
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+
+        Object[] routes = (Object[]) row.getField(bookingLogFieldIndex("routes"));
+        Row firstRouteRow = (Row) routes[0];
+        assertEquals(firstRouteRow.getField(routeFieldIndex("distance_in_kms")), 1.0f);
+        assertEquals(firstRouteRow.getField(routeFieldIndex("route_order")), 4);
+
+        Row secondRouteRow = (Row) routes[1];
+        assertEquals(secondRouteRow.getField(routeFieldIndex("distance_in_kms")), 2.0f);
+        assertEquals(secondRouteRow.getField(routeFieldIndex("route_order")), 5);
+
+        Row thirdRouteRow = (Row) routes[2];
+        assertEquals(thirdRouteRow.getField(routeFieldIndex("distance_in_kms")), 3.0f);
+        assertEquals(thirdRouteRow.getField(routeFieldIndex("route_order")), 6);
+    }
+
+    @Test
     public void shouldDeserializeProtobufMapAsSubRows() throws IOException {
         String auditId = "1";
         HashMap currentState = new HashMap<String, String>();
@@ -138,5 +167,13 @@ public class ProtoDeserializerTest {
 
     private int auditEntityLogFieldIndex(String propertyName) {
         return AuditEntityLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int bookingLogFieldIndex(String propertyName) {
+        return BookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int routeFieldIndex(String propertyName) {
+        return RouteProto.Route.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 }
