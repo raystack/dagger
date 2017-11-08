@@ -169,5 +169,31 @@ public class InfluxRowSinkTest {
 
         assertEquals(expectedPoint.lineProtocol(), pointArg.getValue().lineProtocol());
     }
+
+    @Test
+    public void shouldWriteRowWithLabelColumns() throws Exception {
+        final int numberOfRows = 3;
+        final String expectedFieldZeroValue = "abc";
+        final int expectedFieldOneValue = 100;
+        Instant now = Instant.now();
+        Row simpleFieldsRow = new Row(numberOfRows);
+        simpleFieldsRow.setField(0, expectedFieldZeroValue);
+        simpleFieldsRow.setField(1, expectedFieldOneValue);
+        simpleFieldsRow.setField(2, Timestamp.from(now));
+        String[] rowColumns = {"label_field1", "field2", "window_timestamp"};
+        Point expectedPoint = Point.measurement("test_table")
+                .tag(rowColumns[0].substring("label_".length()), expectedFieldZeroValue)
+                .addField(rowColumns[1], expectedFieldOneValue)
+                .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
+
+        setupInfluxDB(rowColumns);
+
+        influxRowSink.invoke(simpleFieldsRow);
+
+        ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
+        verify(influxDb).write(any(), any(), pointArg.capture());
+
+        assertEquals(expectedPoint.lineProtocol(), pointArg.getValue().lineProtocol());
+    }
 }
 
