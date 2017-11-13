@@ -2,6 +2,7 @@ package com.gojek.daggers;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.UnmodifiableLazyStringList;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.KeyedDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -61,7 +62,13 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
                     row.setField(field.getIndex(), getRow((GeneratedMessageV3) proto.getField(field)));
                 }
             } else {
-                row.setField(field.getIndex(), proto.getField(field));
+                if (field.isRepeated()) {
+                    if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.STRING) {
+                        row.setField(field.getIndex(), getRow((UnmodifiableLazyStringList) proto.getField(field)));
+                    }
+                } else {
+                    row.setField(field.getIndex(), proto.getField(field));
+                }
             }
         }
         return row;
@@ -85,6 +92,15 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         row.setField(1, protos.getValue());
         return row;
     }
+
+    private String[] getRow(UnmodifiableLazyStringList listField) {
+        String[] list = new String[listField.size()];
+        for (int listIndex = 0; listIndex < listField.size(); listIndex++) {
+            list[listIndex] = listField.get(listIndex);
+        }
+        return list;
+    }
+
 
     @Override
     public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {

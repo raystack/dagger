@@ -3,6 +3,7 @@ package com.gojek.daggers;
 import com.gojek.esb.booking.BookingLogKey;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.gofood.AuditEntityLogMessage;
+import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
@@ -137,6 +138,29 @@ public class ProtoDeserializerTest {
     }
 
     @Test
+    public void shouldDeserializeArrayOfString() throws IOException {
+        byte[] protoBytes = LoginRequestMessage.newBuilder()
+                .setRequestId("EXAMPLE-ID-01")
+                .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-01")
+                .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-02")
+                .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-03")
+                .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-04")
+                .build().toByteArray();
+
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(LoginRequestMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+
+        String[] registeredDevices = (String[]) row.getField(loginRequestFieldIndex("registered_device"));
+
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-01", registeredDevices[0]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-02", registeredDevices[1]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-03", registeredDevices[2]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-04", registeredDevices[3]);
+
+    }
+
+    @Test
     public void shouldDeserializeProtobufMapAsSubRows() throws IOException {
         String auditId = "1";
         HashMap currentState = new HashMap<String, String>();
@@ -175,5 +199,9 @@ public class ProtoDeserializerTest {
 
     private int routeFieldIndex(String propertyName) {
         return RouteProto.Route.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int loginRequestFieldIndex(String propertyName) {
+        return LoginRequestMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 }
