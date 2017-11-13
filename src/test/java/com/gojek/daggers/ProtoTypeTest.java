@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.esb.booking.BookingLogMessage;
+import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -66,7 +67,7 @@ public class ProtoTypeTest {
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
         TypeInformation<Row> expectedTimestampRow = Types.ROW(new String[]{"seconds", "nanos"},
-                                                                new TypeInformation<?>[]{Types.LONG(), Types.INT()});
+                new TypeInformation<?>[]{Types.LONG(), Types.INT()});
         TypeInformation<Row> driverLocationRow = Types.ROW(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed"},
                 new TypeInformation<?>[]{Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE()});
 
@@ -81,14 +82,25 @@ public class ProtoTypeTest {
         TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
 
         TypeInformation<Row> locationType = Types.ROW(new String[]{"name", "address", "latitude", "longitude", "type",
-            "note"}, new TypeInformation<?>[]{Types.STRING(), Types.STRING(), Types.DOUBLE(), Types.DOUBLE(),
-            Types.STRING(), Types.STRING()});
+                "note"}, new TypeInformation<?>[]{Types.STRING(), Types.STRING(), Types.DOUBLE(), Types.DOUBLE(),
+                Types.STRING(), Types.STRING()});
         TypeInformation<?> expectedRoutesRow = Types.OBJECT_ARRAY(Types.ROW(new String[]{"start", "end",
-            "distance_in_kms", "estimated_duration", "route_order"}, new TypeInformation<?>[]{locationType, locationType,
-            Types.FLOAT(), Types.ROW(new String[]{"seconds", "nanos"}, new TypeInformation<?>[]{Types.LONG(),
-            Types.INT()}), Types.INT()}));
+                "distance_in_kms", "estimated_duration", "route_order"}, new TypeInformation<?>[]{locationType, locationType,
+                Types.FLOAT(), Types.ROW(new String[]{"seconds", "nanos"}, new TypeInformation<?>[]{Types.LONG(),
+                Types.INT()}), Types.INT()}));
 
         assertEquals(expectedRoutesRow, fieldTypes[bookingLogFieldIndex("routes")]);
+    }
+
+    @Test
+    public void shouldProcessArrayForStringData() {
+        ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName());
+
+        TypeInformation[] fieldTypes = loginRequestMessageProtoType.getFieldTypes();
+
+        TypeInformation<?> registeredDeviceType = Types.OBJECT_ARRAY(Types.STRING());
+
+        assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("registered_device")]);
     }
 
     //Add test for array of primitive data type. Couldn't find a proto which uses array of primitive data type.
@@ -111,6 +123,10 @@ public class ProtoTypeTest {
 
     private int bookingLogFieldIndex(String propertyName) {
         return BookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int loginRequestFieldIndex(String propertyName) {
+        return LoginRequestMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 
 }

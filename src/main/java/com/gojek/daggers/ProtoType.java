@@ -74,6 +74,9 @@ public class ProtoType implements Serializable {
             return getRowType(fieldDescriptor.getMessageType());
         }
         if (fieldDescriptor.isRepeated()) {
+            if (fieldDescriptor.getJavaType() == JavaType.STRING) {
+                return Types.OBJECT_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
+            }
             return Types.PRIMITIVE_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
         }
         return TYPE_MAP.get(fieldDescriptor.getJavaType());
