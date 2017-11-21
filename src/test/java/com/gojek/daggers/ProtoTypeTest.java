@@ -82,8 +82,8 @@ public class ProtoTypeTest {
         TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
 
         TypeInformation<Row> locationType = Types.ROW(new String[]{"name", "address", "latitude", "longitude", "type",
-                "note"}, new TypeInformation<?>[]{Types.STRING(), Types.STRING(), Types.DOUBLE(), Types.DOUBLE(),
-                Types.STRING(), Types.STRING()});
+                "note", "place_id"}, new TypeInformation<?>[]{Types.STRING(), Types.STRING(), Types.DOUBLE(), Types.DOUBLE(),
+                Types.STRING(), Types.STRING(), Types.STRING()});
         TypeInformation<?> expectedRoutesRow = Types.OBJECT_ARRAY(Types.ROW(new String[]{"start", "end",
                 "distance_in_kms", "estimated_duration", "route_order"}, new TypeInformation<?>[]{locationType, locationType,
                 Types.FLOAT(), Types.ROW(new String[]{"seconds", "nanos"}, new TypeInformation<?>[]{Types.LONG(),
