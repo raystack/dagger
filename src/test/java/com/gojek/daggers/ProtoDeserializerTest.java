@@ -4,6 +4,7 @@ import com.gojek.esb.booking.BookingLogKey;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.gofood.AuditEntityLogMessage;
 import com.gojek.esb.login.LoginRequestMessage;
+import com.gojek.esb.logs.ApiLogMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
@@ -161,6 +162,28 @@ public class ProtoDeserializerTest {
     }
 
     @Test
+    public void shouldDeserializeArrayOfStringInApiLog() throws IOException {
+        byte[] protoBytes = ApiLogMessage.newBuilder()
+                .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-01")
+                .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-02")
+                .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-03")
+                .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-04")
+                .build().toByteArray();
+
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ApiLogMessage.class.getTypeName(), protoType);
+
+        Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+
+        String[] registeredDevices = (String[]) row.getField(apiLogMessageFieldIndex("request_headers_extra"));
+
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-01", registeredDevices[0]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-02", registeredDevices[1]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-03", registeredDevices[2]);
+        assertEquals("EXAMPLE-REGISTERED-DEVICE-04", registeredDevices[3]);
+
+    }
+
+    @Test
     public void shouldDeserializeProtobufMapAsSubRows() throws IOException {
         String auditId = "1";
         HashMap currentState = new HashMap<String, String>();
@@ -203,5 +226,9 @@ public class ProtoDeserializerTest {
 
     private int loginRequestFieldIndex(String propertyName) {
         return LoginRequestMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+    }
+
+    private int apiLogMessageFieldIndex(String propertyName) {
+        return ApiLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 }
