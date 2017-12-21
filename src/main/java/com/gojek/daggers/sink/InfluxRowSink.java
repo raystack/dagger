@@ -63,7 +63,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
                 Timestamp field = (Timestamp) row.getField(i);
                 pointBuilder.time(field.getTime(), TimeUnit.MILLISECONDS);
             } else if (columnName.startsWith("tag_")) {
-                pointBuilder.tag(columnName, (String) row.getField(i));
+                pointBuilder.tag(columnName, String.valueOf(row.getField(i)));
             } else if (columnName.startsWith("label_")) {
                 pointBuilder.tag(columnName.substring("label_".length()), ((String) row.getField(i)));
             } else {
