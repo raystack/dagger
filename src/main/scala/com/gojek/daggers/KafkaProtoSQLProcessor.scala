@@ -35,6 +35,7 @@ object KafkaProtoSQLProcessor {
     env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("PAUSE_BETWEEN_CHECKPOINTS", 5000))
     env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 60000))
     env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
+    env.getConfig.setGlobalJobParameters(configuration);
 
     println(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000))
     println(configuration.getInteger("WATERMARK_DELAY_MS", 10000))
