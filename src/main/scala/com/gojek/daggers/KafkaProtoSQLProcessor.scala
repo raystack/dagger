@@ -3,7 +3,7 @@ package com.gojek.daggers
 import java.util
 import java.util.TimeZone
 
-import com.gojek.dagger.udf.{ElementAt, S2Id, ServiceArea, ServiceAreaId, DistinctCount, Distance}
+import com.gojek.dagger.udf.{Distance, DistinctCount, ElementAt, S2Id, ServiceArea, ServiceAreaId}
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.daggers.parser.KafkaEnvironmentVariables
 import com.gojek.daggers.sink.{InfluxDBFactoryWrapper, InfluxRowSink}
@@ -11,7 +11,8 @@ import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer010, FlinkKafkaProducer010}
+import org.apache.flink.streaming.util.serialization.SerializationSchema
 import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
@@ -47,6 +48,8 @@ object KafkaProtoSQLProcessor {
     val topicNames: util.List[String] =  util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
     val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, protoType), props)
 
+
+
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
     val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0), configuration), protoType, rowTimeAttributeName)
     val tableEnv = TableEnvironment.getTableEnvironment(env)
@@ -60,9 +63,12 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("Distance", new Distance())
 
     val resultTable2 = tableEnv.sql(configuration.getString("SQL_QUERY", ""))
+    val kafkaSerializer = new ProtoSerializer(protoClassName, resultTable2.getSchema.getColumnNames)
+    val kafkaProducer = new FlinkKafkaProducer010("p-esb-kafka-mirror-b-01:6667", "test_demand_dagger_kafka_sink", kafkaSerializer)
+    val sink = SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames)
 
     resultTable2.toAppendStream[Row]
-      .addSink(new InfluxRowSink(new InfluxDBFactoryWrapper(), resultTable2.getSchema.getColumnNames, configuration))
+      .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames))
     env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
   }
 
