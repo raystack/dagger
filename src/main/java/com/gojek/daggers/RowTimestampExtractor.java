@@ -10,28 +10,28 @@ import java.time.Instant;
 
 public class RowTimestampExtractor implements AssignerWithPeriodicWatermarks<Row> {
 
-    private int timestampRowIndex;
-    private int watermarkDelay;
-    private long currentTimestamp;
+  private int timestampRowIndex;
+  private int watermarkDelay;
+  private long currentTimestamp;
 
-    public RowTimestampExtractor(int timestampRowIndex, Configuration config) {
-        this.timestampRowIndex = timestampRowIndex;
-        this.watermarkDelay = config.getInteger("WATERMARK_DELAY_MS", 0);
-    }
+  public RowTimestampExtractor(int timestampRowIndex, Configuration config) {
+    this.timestampRowIndex = timestampRowIndex;
+    this.watermarkDelay = config.getInteger("WATERMARK_DELAY_MS", 0);
+  }
 
-    @Nullable
-    @Override
-    public Watermark getCurrentWatermark() {
-        return new Watermark(currentTimestamp - this.watermarkDelay);
-    }
+  @Nullable
+  @Override
+  public Watermark getCurrentWatermark() {
+    return new Watermark(currentTimestamp - this.watermarkDelay);
+  }
 
-    @Override
-    public long extractTimestamp(Row element, long previousElementTimestamp) {
-        Row timestampRow = (Row) element.getField(timestampRowIndex);
-        long timestampSeconds = (long) timestampRow.getField(0);
-        long timestampNanos = (int) timestampRow.getField(1);
+  @Override
+  public long extractTimestamp(Row element, long previousElementTimestamp) {
+    Row timestampRow = (Row) element.getField(timestampRowIndex);
+    long timestampSeconds = (long) timestampRow.getField(0);
+    long timestampNanos = (int) timestampRow.getField(1);
 
-        currentTimestamp = Instant.ofEpochSecond(timestampSeconds, timestampNanos).toEpochMilli();
-        return currentTimestamp;
-    }
+    currentTimestamp = Instant.ofEpochSecond(timestampSeconds, timestampNanos).toEpochMilli();
+    return currentTimestamp;
+  }
 }

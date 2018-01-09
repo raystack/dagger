@@ -3,16 +3,14 @@ package com.gojek.daggers
 import java.util
 import java.util.TimeZone
 
-import com.gojek.dagger.udf.{Distance, DistinctCount, ElementAt, S2Id, ServiceArea, ServiceAreaId}
+import com.gojek.dagger.udf._
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.daggers.parser.KafkaEnvironmentVariables
-import com.gojek.daggers.sink.{InfluxDBFactoryWrapper, InfluxRowSink}
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer010, FlinkKafkaProducer010}
-import org.apache.flink.streaming.util.serialization.SerializationSchema
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010
 import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
@@ -45,9 +43,8 @@ object KafkaProtoSQLProcessor {
     val protoClassName: String = configuration.getString("PROTO_CLASS_NAME", "")
 
     val protoType: ProtoType = new ProtoType(protoClassName)
-    val topicNames: util.List[String] =  util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
+    val topicNames: util.List[String] = util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
     val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, protoType), props)
-
 
 
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
@@ -56,16 +53,13 @@ object KafkaProtoSQLProcessor {
 
     tableEnv.registerTableSource(configuration.getString("TABLE_NAME", ""), tableSource)
     tableEnv.registerFunction("S2Id", new S2Id())
-    tableEnv.registerFunction("ElementAt",new ElementAt(protoClassName))
-    tableEnv.registerFunction("ServiceArea",new ServiceArea())
-    tableEnv.registerFunction("ServiceAreaId",new ServiceAreaId())
-    tableEnv.registerFunction("DistinctCount",new DistinctCount())
+    tableEnv.registerFunction("ElementAt", new ElementAt(protoClassName))
+    tableEnv.registerFunction("ServiceArea", new ServiceArea())
+    tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
+    tableEnv.registerFunction("DistinctCount", new DistinctCount())
     tableEnv.registerFunction("Distance", new Distance())
 
     val resultTable2 = tableEnv.sql(configuration.getString("SQL_QUERY", ""))
-    val kafkaSerializer = new ProtoSerializer(protoClassName, resultTable2.getSchema.getColumnNames)
-    val kafkaProducer = new FlinkKafkaProducer010("p-esb-kafka-mirror-b-01:6667", "test_demand_dagger_kafka_sink", kafkaSerializer)
-    val sink = SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames)
 
     resultTable2.toAppendStream[Row]
       .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames))

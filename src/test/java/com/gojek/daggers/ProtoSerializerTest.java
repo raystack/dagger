@@ -87,7 +87,7 @@ public class ProtoSerializerTest {
     String protoClassName = "com.gojek.esb.aggregate.supply.AggregatedSupply";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames);
     long startTimeInSeconds = Time.now() / 1000;
-    long endTimeInSeconds = (Time.now()+10000) / 1000;
+    long endTimeInSeconds = (Time.now() + 10000) / 1000;
 
     Row element = new Row(5);
     Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);
@@ -125,7 +125,7 @@ public class ProtoSerializerTest {
     String protoClassNamePrefix = "com.gojek.esb.aggregate.supply.AggregatedSupply";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames);
     long startTimeInSeconds = Time.now() / 1000;
-    long endTimeInSeconds = (Time.now()+10000) / 1000;
+    long endTimeInSeconds = (Time.now() + 10000) / 1000;
 
     Row element = new Row(6);
     Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);
@@ -157,5 +157,4 @@ public class ProtoSerializerTest {
     Assert.assertEquals("BIKE", actualValue.getVehicleType().toString());
     Assert.assertEquals(2L, actualValue.getUniqueDrivers());
   }
-
 }
