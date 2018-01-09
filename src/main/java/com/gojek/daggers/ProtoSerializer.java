@@ -1,8 +1,9 @@
 package com.gojek.daggers;
 
+import com.gojek.daggers.protoHandler.ProtoHandler;
+import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Timestamp;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.types.Row;
 
@@ -12,7 +13,6 @@ import java.lang.reflect.Method;
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
   private static final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
-  public static final int MILLI_TO_SECONDS = 1000;
   private String protoClassNamePrefix;
   private String[] columnNames;
 
@@ -50,24 +50,9 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
       Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(columnNames[index]);
       if (fieldDescriptor == null) {
         continue;
-
       }
-      if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE && fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp")) {
-        java.sql.Timestamp timestampField = (java.sql.Timestamp) element.getField(index);
-        long timestampSeconds = timestampField.getTime() / MILLI_TO_SECONDS;
-        int timestampNanos = timestampField.getNanos();
-        Timestamp timestamp = Timestamp
-            .newBuilder()
-            .setSeconds(timestampSeconds)
-            .setNanos(timestampNanos)
-            .build();
-        builder.setField(fieldDescriptor, timestamp);
-      } else if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
-        builder.setField(fieldDescriptor, fieldDescriptor.getEnumType().findValueByName(String.valueOf(element.getField(index))));
-      } else {
-        builder.setField(fieldDescriptor, element.getField(index));
-      }
-
+      ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+      builder = protoHandler.populate(builder, element.getField(index));
     }
     return builder.build();
   }
