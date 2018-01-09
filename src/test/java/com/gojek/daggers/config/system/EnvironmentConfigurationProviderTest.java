@@ -13,16 +13,16 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentConfigurationProviderTest {
 
-    @Test
-    public void shouldProvideSystemConfiguration() {
-        HashMap<String, String> environmentParameters = new HashMap<String, String>() {{
-            put("key", "value");
-            put("key2", "value2");
-        }};
+  @Test
+  public void shouldProvideSystemConfiguration() {
+    HashMap<String, String> environmentParameters = new HashMap<String, String>() {{
+      put("key", "value");
+      put("key2", "value2");
+    }};
 
-        Configuration stringStringMap = new EnvironmentConfigurationProvider(environmentParameters).get();
+    Configuration stringStringMap = new EnvironmentConfigurationProvider(environmentParameters).get();
 
-        assertEquals(stringStringMap.getString("key", ""), "value");
-        assertEquals(stringStringMap.getString("key2", ""), "value2");
-    }
+    assertEquals(stringStringMap.getString("key", ""), "value");
+    assertEquals(stringStringMap.getString("key2", ""), "value2");
+  }
 }

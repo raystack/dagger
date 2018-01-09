@@ -11,30 +11,31 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationsTest {
 
-    private ConfigurationProviderFactory providerFactory;
+  private ConfigurationProviderFactory providerFactory;
 
-    @Before
-    public void setUp() {
-        System.setProperty("key", "envValue");
-        providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
-    }
+  @Before
+  public void setUp() {
+    System.setProperty("key", "envValue");
+    providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
+  }
 
-    @Ignore @Test
-    public void shouldProvideFromEnvironmentBasedOnConfigProperty() {
-        System.setProperty("ConfigSource", "ENVIRONMENT");
+  @Ignore
+  @Test
+  public void shouldProvideFromEnvironmentBasedOnConfigProperty() {
+    System.setProperty("ConfigSource", "ENVIRONMENT");
 
-        ConfigurationProvider provider = providerFactory.provider();
+    ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals(provider.get().getString("key", ""), "envValue");
+    assertEquals(provider.get().getString("key", ""), "envValue");
 
-    }
+  }
 
-    @Test
-    public void shouldProvideFromCommandline() {
-        System.setProperty("ConfigSource", "ARGS");
+  @Test
+  public void shouldProvideFromCommandline() {
+    System.setProperty("ConfigSource", "ARGS");
 
-        ConfigurationProvider provider = providerFactory.provider();
+    ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals(provider.get().getString("key", ""), "argValue");
-    }
+    assertEquals(provider.get().getString("key", ""), "argValue");
+  }
 }

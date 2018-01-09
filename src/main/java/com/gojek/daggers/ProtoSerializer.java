@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
   private static final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
+  public static final int MILLI_TO_SECONDS = 1000;
   private String protoClassNamePrefix;
   private String[] columnNames;
 
@@ -47,11 +48,13 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
     DynamicMessage.Builder builder = DynamicMessage.newBuilder(descriptor);
     for (int index = 0; index < numberOfElements; index++) {
       Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(columnNames[index]);
-      if (fieldDescriptor == null)
+      if (fieldDescriptor == null) {
         continue;
+
+      }
       if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE && fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp")) {
         java.sql.Timestamp timestampField = (java.sql.Timestamp) element.getField(index);
-        long timestampSeconds = timestampField.getTime() / 1000;
+        long timestampSeconds = timestampField.getTime() / MILLI_TO_SECONDS;
         int timestampNanos = timestampField.getNanos();
         Timestamp timestamp = Timestamp
             .newBuilder()

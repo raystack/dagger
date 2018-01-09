@@ -2,14 +2,13 @@ package com.gojek.daggers;
 
 import com.gojek.daggers.sink.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.InfluxRowSink;
-import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.types.Row;
 
 public class SinkFactory {
-  public static SinkFunction<Row> getSinkFunction(Configuration configuration, String[] columnNames){
+  public static SinkFunction<Row> getSinkFunction(Configuration configuration, String[] columnNames) {
     String sink = configuration.getString("SINK_TYPE", "influx");
     if (sink.equals("kafka")) {
       String outputProtoPrefix = configuration.getString("OUTPUT_PROTO_CLASS_PREFIX", "");

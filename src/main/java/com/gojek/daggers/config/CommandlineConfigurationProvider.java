@@ -5,17 +5,17 @@ import org.apache.flink.configuration.Configuration;
 
 public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
-    private String[] args;
+  private String[] args;
 
-    public CommandlineConfigurationProvider(String[] args) {
+  public CommandlineConfigurationProvider(String[] args) {
 
-        this.args = args;
-    }
+    this.args = args;
+  }
 
-    @Override
-    public Configuration get() {
-        System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
-        ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(e -> System.out.println(e));
-        return ParameterTool.fromArgs(args).getConfiguration();
-    }
+  @Override
+  public Configuration get() {
+    System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
+    ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(e -> System.out.println(e));
+    return ParameterTool.fromArgs(args).getConfiguration();
+  }
 }
