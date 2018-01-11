@@ -19,8 +19,9 @@ public class TimestampProtoHandler implements ProtoHandler {
 
   @Override
   public DynamicMessage.Builder populate(DynamicMessage.Builder builder, Object field) {
-    if (!canPopulate())
+    if (!canPopulate()) {
       return builder;
+    }
     java.sql.Timestamp timestampField = (java.sql.Timestamp) field;
     long timestampSeconds = timestampField.getTime() / MILLI_TO_SECONDS;
     int timestampNanos = timestampField.getNanos();
