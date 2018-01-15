@@ -10,22 +10,20 @@ import org.apache.flink.types.Row;
 
 public class KafkaProtoStreamingTableSource implements StreamTableSource<Row>, DefinedRowtimeAttribute {
 
-  private final FlinkKafkaConsumerBase kafkaConsumer;
+  private final FlinkKafkaConsumerBase<Row> kafkaConsumer;
   private final RowTimestampExtractor rowTimestampExtractor;
-  private ProtoType protoType;
   private String rowTimeAttributeName;
 
-  public KafkaProtoStreamingTableSource(FlinkKafkaConsumerBase kafkaConsumer, RowTimestampExtractor rowTimestampExtractor, ProtoType protoType, String rowTimeAttributeName) {
+  public KafkaProtoStreamingTableSource(FlinkKafkaConsumerBase<Row> kafkaConsumer, RowTimestampExtractor rowTimestampExtractor, String rowTimeAttributeName) {
 
     this.kafkaConsumer = kafkaConsumer;
     this.rowTimestampExtractor = rowTimestampExtractor;
-    this.protoType = protoType;
     this.rowTimeAttributeName = rowTimeAttributeName;
   }
 
   @Override
   public TypeInformation<Row> getReturnType() {
-    return protoType.getRowType();
+    return kafkaConsumer.getProducedType();
   }
 
   @Override

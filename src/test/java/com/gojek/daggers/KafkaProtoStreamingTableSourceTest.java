@@ -50,7 +50,7 @@ public class KafkaProtoStreamingTableSourceTest {
     when(dataStreamSource.assignTimestampsAndWatermarks(any(AssignerWithPeriodicWatermarks.class))).thenReturn(dataStream);
     RowTimestampExtractor expectedRowTimestampExtractor = new RowTimestampExtractor(1, new Configuration());
 
-    DataStream<Row> actualDataStream = new KafkaProtoStreamingTableSource(flinkConsumer, expectedRowTimestampExtractor, protoType, "window_timestamp").getDataStream(streamEnv);
+    DataStream<Row> actualDataStream = new KafkaProtoStreamingTableSource(flinkConsumer, expectedRowTimestampExtractor, "window_timestamp").getDataStream(streamEnv);
 
     assertEquals(dataStream, actualDataStream);
     verify(streamEnv).addSource(flinkConsumer);
@@ -60,14 +60,14 @@ public class KafkaProtoStreamingTableSourceTest {
   @Test
   public void shouldUseInjectedNameForRowtimeAttribute() {
     String expectedRowTimeAttribute = "window_timestamp";
-    assertEquals(expectedRowTimeAttribute, new KafkaProtoStreamingTableSource(null, null, protoType, "window_timestamp").getRowtimeAttribute());
+    assertEquals(expectedRowTimeAttribute, new KafkaProtoStreamingTableSource(null, null, "window_timestamp").getRowtimeAttribute());
   }
 
   @Test
   public void shouldGiveBackRowTypesComingFromProtoType() {
     RowTypeInfo expectedRowType = new RowTypeInfo();
-    when(protoType.getRowType()).thenReturn(expectedRowType);
-    KafkaProtoStreamingTableSource kafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(flinkConsumer, null, protoType, "");
+    when(flinkConsumer.getProducedType()).thenReturn(expectedRowType);
+    KafkaProtoStreamingTableSource kafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(flinkConsumer, null, "");
 
     assertEquals(expectedRowType, kafkaProtoStreamingTableSource.getReturnType());
   }

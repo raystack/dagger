@@ -20,9 +20,9 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
   private ProtoType protoType;
   private transient Method protoParser;
 
-  public ProtoDeserializer(String protoClassName, ProtoType protoType) {
+  public ProtoDeserializer(String protoClassName) {
     this.protoClassName = protoClassName;
-    this.protoType = protoType;
+    this.protoType = new ProtoType(protoClassName);
   }
 
   private Method createProtoParser() {
