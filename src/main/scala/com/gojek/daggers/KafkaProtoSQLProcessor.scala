@@ -42,13 +42,12 @@ object KafkaProtoSQLProcessor {
 
     val protoClassName: String = configuration.getString("PROTO_CLASS_NAME", "")
 
-    val protoType: ProtoType = new ProtoType(protoClassName)
     val topicNames: util.List[String] = util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
-    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, protoType), props)
+    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName), props)
 
 
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
-    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0), configuration), protoType, rowTimeAttributeName)
+    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0), configuration), rowTimeAttributeName)
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     tableEnv.registerTableSource(configuration.getString("TABLE_NAME", ""), tableSource)

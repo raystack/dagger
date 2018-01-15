@@ -9,9 +9,6 @@ import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
 import com.google.protobuf.Timestamp;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +22,6 @@ import java.util.HashMap;
 import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,20 +36,8 @@ public class ProtoDeserializerTest {
   }
 
   @Test
-  public void shouldGetTypeInfomationFromProtoType() {
-
-    String[] expectedFieldNames = {"field1", "field2"};
-    TypeInformation<?>[] expectedTypes = {Types.DOUBLE, Types.STRING};
-    RowTypeInfo expectedRowType = new RowTypeInfo();
-    when(protoType.getRowType()).thenReturn(expectedRowType);
-
-    TypeInformation<Row> actualType = new ProtoDeserializer(BookingLogKey.class.getTypeName(), protoType).getProducedType();
-    assertEquals(expectedRowType, actualType);
-  }
-
-  @Test
   public void shouldAlwaysReturnFalseForEndOfStream() {
-    assertFalse(new ProtoDeserializer(BookingLogKey.class.getTypeName(), protoType).isEndOfStream(null));
+    assertFalse(new ProtoDeserializer(BookingLogKey.class.getTypeName()).isEndOfStream(null));
   }
 
   @Test
@@ -63,7 +47,7 @@ public class ProtoDeserializerTest {
     final int expectedIterationNumber = 10;
     byte[] protoBytes = ParticipantLogMessage.newBuilder().setOrderId(expectedOrderNumber)
         .setIterationNumber(expectedIterationNumber).build().toByteArray();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -75,7 +59,7 @@ public class ProtoDeserializerTest {
   public void shouldDeserializeEnumAsString() throws IOException {
 
     byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -96,7 +80,7 @@ public class ProtoDeserializerTest {
     byte[] protoBytes = ParticipantLogMessage.newBuilder()
         .setEventTimestamp(expectedTimestamp)
         .setLocation(expectedDriverLocation).build().toByteArray();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -118,7 +102,7 @@ public class ProtoDeserializerTest {
         .addRoutes(RouteProto.Route.newBuilder().setDistanceInKms(3.0f).setRouteOrder(6).build())
         .build().toByteArray();
 
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -146,7 +130,7 @@ public class ProtoDeserializerTest {
         .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-04")
         .build().toByteArray();
 
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(LoginRequestMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(LoginRequestMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -168,7 +152,7 @@ public class ProtoDeserializerTest {
         .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-04")
         .build().toByteArray();
 
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ApiLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ApiLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -192,7 +176,7 @@ public class ProtoDeserializerTest {
         .putAllCurrentState(currentState)
         .setAuditId(auditId).build().toByteArray();
 
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), protoType);
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName());
 
     Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
