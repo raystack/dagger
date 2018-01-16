@@ -7,6 +7,8 @@ import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +31,12 @@ public class ProtoType implements Serializable {
 
   private transient Descriptor protoFieldDescriptor;
   private String protoClassName;
+    private String rowtimeAttributeName;
 
-  public ProtoType(String protoClassName) {
+  ProtoType(String protoClassName, String rowtimeAttributeName) {
     this.protoClassName = protoClassName;
     this.protoFieldDescriptor = createFieldDescriptor();
+    this.rowtimeAttributeName = rowtimeAttributeName;
   }
 
   private Descriptor getProtoFieldDescriptor() {
@@ -88,7 +92,16 @@ public class ProtoType implements Serializable {
   }
 
   public TypeInformation<Row> getRowType() {
-    return Types.ROW(getFieldNames(getProtoFieldDescriptor()), getFieldTypes(getProtoFieldDescriptor()));
+    ArrayList<String> fieldNames = new ArrayList<>();
+    ArrayList<TypeInformation> fieldTypes = new ArrayList<>();
+    fieldNames.addAll(Arrays.asList(getFieldNames(getProtoFieldDescriptor())));
+    fieldTypes.addAll(Arrays.asList(getFieldTypes(getProtoFieldDescriptor())));
+    fieldNames.add(rowtimeAttributeName);
+    fieldTypes.add(org.apache.flink.api.common.typeinfo.Types.SQL_TIMESTAMP);
+    TypeInformation<Row> rowTypeInformation = org.apache.flink.api.common.typeinfo.Types.ROW_NAMED(fieldNames.toArray(new String[0]), fieldTypes.toArray(new TypeInformation[0]));
+
+
+    return rowTypeInformation;
   }
 
   private TypeInformation<Row> getRowType(Descriptor messageType) {
