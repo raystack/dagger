@@ -34,23 +34,22 @@ object KafkaProtoSQLProcessor {
     env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("PAUSE_BETWEEN_CHECKPOINTS", 5000))
     env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 60000))
     env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
-    env.getConfig.setGlobalJobParameters(configuration);
+    env.getConfig.setGlobalJobParameters(configuration)
 
-    println(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000))
-    println(configuration.getInteger("WATERMARK_DELAY_MS", 10000))
     val props = KafkaEnvironmentVariables.parse(configuration)
 
     val protoClassName: String = configuration.getString("PROTO_CLASS_NAME", "")
+    val timestampProtoIndex: Integer = configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 1)
+    val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
     val topicNames: util.List[String] = util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
-    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName), props)
+    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, timestampProtoIndex, rowTimeAttributeName), props)
 
-
-    val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
-    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, new RowTimestampExtractor(configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 0), configuration), rowTimeAttributeName)
+    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     tableEnv.registerTableSource(configuration.getString("TABLE_NAME", ""), tableSource)
+
     tableEnv.registerFunction("S2Id", new S2Id())
     tableEnv.registerFunction("ElementAt", new ElementAt(protoClassName))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
@@ -59,7 +58,7 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("Distance", new Distance())
     tableEnv.registerFunction("AppBetaUsers", new AppBetaUsers())
 
-    val resultTable2 = tableEnv.sql(configuration.getString("SQL_QUERY", ""))
+    val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
 
     resultTable2.toAppendStream[Row]
       .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames))

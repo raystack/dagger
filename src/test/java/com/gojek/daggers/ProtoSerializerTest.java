@@ -6,7 +6,6 @@ import com.gojek.esb.aggregate.supply.AggregatedSupplyKey;
 import com.gojek.esb.aggregate.supply.AggregatedSupplyMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.util.Time;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +21,7 @@ public class ProtoSerializerTest {
     String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type"};
     String protoClassName = "com.gojek.esb.aggregate.demand.AggregatedDemand";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames);
-    long seconds = Time.now() / 1000;
+    long seconds = System.currentTimeMillis()  / 1000;
 
     Row element = new Row(5);
     Timestamp timestamp = new java.sql.Timestamp(seconds * 1000);
@@ -53,7 +52,7 @@ public class ProtoSerializerTest {
     String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type", "unique_customers"};
     String protoClassNamePrefix = "com.gojek.esb.aggregate.demand.AggregatedDemand";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames);
-    long seconds = Time.now() / 1000;
+    long seconds = System.currentTimeMillis()  / 1000;
 
     Row element = new Row(6);
     Timestamp timestamp = new java.sql.Timestamp(seconds * 1000);
@@ -86,8 +85,8 @@ public class ProtoSerializerTest {
     String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type"};
     String protoClassName = "com.gojek.esb.aggregate.supply.AggregatedSupply";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames);
-    long startTimeInSeconds = Time.now() / 1000;
-    long endTimeInSeconds = (Time.now() + 10000) / 1000;
+    long startTimeInSeconds = System.currentTimeMillis()   / 1000;
+    long endTimeInSeconds = (System.currentTimeMillis()  + 10000) / 1000;
 
     Row element = new Row(5);
     Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);
@@ -124,8 +123,8 @@ public class ProtoSerializerTest {
     String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type", "unique_drivers"};
     String protoClassNamePrefix = "com.gojek.esb.aggregate.supply.AggregatedSupply";
     ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames);
-    long startTimeInSeconds = Time.now() / 1000;
-    long endTimeInSeconds = (Time.now() + 10000) / 1000;
+    long startTimeInSeconds = System.currentTimeMillis()   / 1000;
+    long endTimeInSeconds = (System.currentTimeMillis()  + 10000) / 1000;
 
     Row element = new Row(6);
     Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);

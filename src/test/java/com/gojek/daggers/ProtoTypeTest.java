@@ -15,8 +15,8 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveAllColumnNamesOfProto() throws ClassNotFoundException {
-    ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey");
-    ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey");
+    ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime");
+    ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime");
 
     assertArrayEquals(
         new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit"},
@@ -30,7 +30,7 @@ public class ProtoTypeTest {
   @Test
   public void shouldThrowConfigurationExceptionWhenClassNotFound() {
     try {
-      new ProtoType("com.gojek.esb.participant.ParticipantLogKey211");
+      new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime");
       fail();
     } catch (DaggerConfigurationException exception) {
       assertEquals(ProtoType.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
@@ -41,7 +41,7 @@ public class ProtoTypeTest {
   @Test
   public void shouldThrowConfigurationExceptionWhenClassIsNotProto() {
     try {
-      new ProtoType(String.class.getName());
+      new ProtoType(String.class.getName(), "rowtime");
       fail();
     } catch (DaggerConfigurationException exception) {
       assertEquals(ProtoType.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
@@ -51,7 +51,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveSimpleMappedFlinkTypes() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime");
 
     TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -62,7 +62,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveSubRowMappedField() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime");
 
     TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -77,7 +77,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldProcessArrayForObjectData() {
-    ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName());
+    ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime");
 
     TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
 
@@ -94,7 +94,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldProcessArrayForStringData() {
-    ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName());
+    ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime");
 
     TypeInformation[] fieldTypes = loginRequestMessageProtoType.getFieldTypes();
 
@@ -107,7 +107,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveNamesAndTypes() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime");
 
     RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
 
