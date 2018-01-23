@@ -57,6 +57,7 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
     tableEnv.registerFunction("DistinctCount", new DistinctCount())
     tableEnv.registerFunction("Distance", new Distance())
+    tableEnv.registerFunction("AppBetaUsers", new AppBetaUsers())
 
     val resultTable2 = tableEnv.sql(configuration.getString("SQL_QUERY", ""))
 
