@@ -61,7 +61,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
 
   @Override
   public void invoke(Row row) throws Exception {
-      LOGGER.info("trying row to influx: " + row);
+      LOGGER.info("row to influx: " + row);
       Point.Builder pointBuilder = Point.measurement(measurementName);
       Map<String, Object> fields = new HashMap<>();
       for (int i = 0; i < columnNames.length; i++) {
