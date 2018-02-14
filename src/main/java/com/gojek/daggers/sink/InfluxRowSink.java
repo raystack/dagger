@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 public class InfluxRowSink extends RichSinkFunction<Row> {
   private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
@@ -40,9 +43,13 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
         parameters.getString("INFLUX_USERNAME", ""),
         parameters.getString("INFLUX_PASSWORD", "")
     );
+
+    BiConsumer<Iterable<Point>, Throwable> exceptionHandler = (points, throwable) -> {
+        points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
+    };
     influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
         parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
-        TimeUnit.MILLISECONDS
+        TimeUnit.MILLISECONDS,  Executors.defaultThreadFactory(), exceptionHandler
     );
   }
 
@@ -54,25 +61,24 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
 
   @Override
   public void invoke(Row row) throws Exception {
-    LOGGER.info("row to influx: " + row);
-    Point.Builder pointBuilder = Point.measurement(measurementName);
-    Map<String, Object> fields = new HashMap<>();
-    for (int i = 0; i < columnNames.length; i++) {
-      String columnName = columnNames[i];
-      if (columnName.equals("window_timestamp")) {
-        Timestamp field = (Timestamp) row.getField(i);
-        pointBuilder.time(field.getTime(), TimeUnit.MILLISECONDS);
-      } else if (columnName.startsWith("tag_")) {
-        pointBuilder.tag(columnName, String.valueOf(row.getField(i)));
-      } else if (columnName.startsWith("label_")) {
-        pointBuilder.tag(columnName.substring("label_".length()), ((String) row.getField(i)));
-      } else {
-        if (!(Strings.isNullOrEmpty(columnName) || row.getField(i) == null)) {
-          fields.put(columnName, row.getField(i));
-        }
-
+      LOGGER.info("trying row to influx: " + row);
+      Point.Builder pointBuilder = Point.measurement(measurementName);
+      Map<String, Object> fields = new HashMap<>();
+      for (int i = 0; i < columnNames.length; i++) {
+          String columnName = columnNames[i];
+          if (columnName.equals("window_timestamp")) {
+              Timestamp field = (Timestamp) row.getField(i);
+              pointBuilder.time(field.getTime(), TimeUnit.MILLISECONDS);
+          } else if (columnName.startsWith("tag_")) {
+              pointBuilder.tag(columnName, String.valueOf(row.getField(i)));
+          } else if (columnName.startsWith("label_")) {
+              pointBuilder.tag(columnName.substring("label_".length()), ((String) row.getField(i)));
+          } else {
+              if (!(Strings.isNullOrEmpty(columnName) || row.getField(i) == null)) {
+                  fields.put(columnName, row.getField(i));
+              }
+          }
       }
-    }
-    influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
+      influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
   }
 }
