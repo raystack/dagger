@@ -13,7 +13,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +69,7 @@ public class InfluxRowSinkTest {
   public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
     setupInfluxDB(new String[]{});
 
-    verify(influxDb).enableBatch(INFLUX_BATCH_SIZE, INFLUX_FLUSH_DURATION, TimeUnit.MILLISECONDS);
+    verify(influxDb).enableBatch(eq(INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
   }
 
   @Test
