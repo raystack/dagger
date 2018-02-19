@@ -22,10 +22,15 @@ public class SinkFactory {
       // Use kafka partitioner
       FlinkKafkaPartitioner partitioner = null;
 
-      return new FlinkKafkaProducer010<Row>(outputTopic,
+      FlinkKafkaProducer010<Row> flinkKafkaProducer = new FlinkKafkaProducer010<Row>(outputTopic,
               protoSerializer,
               FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList),
               partitioner);
+
+      // don't commit to source kafka if we can publish to output kafka
+      flinkKafkaProducer.setFlushOnCheckpoint(true);
+
+      return flinkKafkaProducer;
     }
     return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration);
   }

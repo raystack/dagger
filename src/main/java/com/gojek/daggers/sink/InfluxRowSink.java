@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
