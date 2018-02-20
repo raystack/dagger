@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 
 public class InfluxRowSink extends RichSinkFunction<Row> implements CheckpointedFunction {
   private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
@@ -29,16 +28,16 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
   private String databaseName;
   private String retentionPolicy;
   private String measurementName;
-  private Exception influxError;
+  private InfluxErrorHandler errorHandler;
 
-  public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters) {
+  public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler) {
     this.influxDBFactory = influxDBFactory;
     this.columnNames = columnNames;
     this.parameters = parameters;
+    this.errorHandler = errorHandler;
     databaseName = parameters.getString("INFLUX_DATABASE", "");
     retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
     measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
-    influxError = null;
   }
 
   @Override
@@ -48,13 +47,9 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         parameters.getString("INFLUX_PASSWORD", "")
     );
 
-    BiConsumer<Iterable<Point>, Throwable> exceptionHandler = (points, throwable) -> {
-        influxError = new Exception(throwable);
-        points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
-    };
     influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
         parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
-        TimeUnit.MILLISECONDS,  Executors.defaultThreadFactory(), exceptionHandler
+        TimeUnit.MILLISECONDS,  Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
     );
   }
 
@@ -84,20 +79,20 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
               }
           }
       }
-      if (influxError != null) {
-          throw influxError;
+      if (errorHandler.hasError()) {
+          throw errorHandler.getError();
       }
       influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
   }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        if (influxError != null) {
-            throw influxError;
+        if (errorHandler.hasError()) {
+            throw errorHandler.getError();
         }
         influxDB.flush();
-        if (influxError != null) {
-            throw influxError;
+        if (errorHandler.hasError()) {
+            throw errorHandler.getError();
         }
     }
 
