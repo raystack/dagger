@@ -40,18 +40,19 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
   }
 
-  @Override
-  public void open(Configuration unusedDepricatedParameters) throws Exception {
-    influxDB = influxDBFactory.connect(parameters.getString("INFLUX_URL", ""),
-        parameters.getString("INFLUX_USERNAME", ""),
-        parameters.getString("INFLUX_PASSWORD", "")
-    );
+    @Override
+    public void open(Configuration unusedDepricatedParameters) throws Exception {
+        errorHandler.init();
+        influxDB = influxDBFactory.connect(parameters.getString("INFLUX_URL", ""),
+                parameters.getString("INFLUX_USERNAME", ""),
+                parameters.getString("INFLUX_PASSWORD", "")
+        );
 
-    influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
-        parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
-        TimeUnit.MILLISECONDS,  Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
-    );
-  }
+        influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
+                parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
+                TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
+        );
+    }
 
   @Override
   public void close() throws Exception {
