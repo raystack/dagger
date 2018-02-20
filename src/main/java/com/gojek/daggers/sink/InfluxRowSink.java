@@ -2,6 +2,9 @@ package com.gojek.daggers.sink;
 
 import com.google.common.base.Strings;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
 import org.influxdb.InfluxDB;
@@ -16,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-public class InfluxRowSink extends RichSinkFunction<Row> {
+public class InfluxRowSink extends RichSinkFunction<Row> implements CheckpointedFunction {
   private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
 
   private InfluxDB influxDB;
@@ -26,6 +29,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
   private String databaseName;
   private String retentionPolicy;
   private String measurementName;
+  private Exception influxError;
 
   public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters) {
     this.influxDBFactory = influxDBFactory;
@@ -34,6 +38,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
     databaseName = parameters.getString("INFLUX_DATABASE", "");
     retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
     measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
+    influxError = null;
   }
 
   @Override
@@ -44,6 +49,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
     );
 
     BiConsumer<Iterable<Point>, Throwable> exceptionHandler = (points, throwable) -> {
+        influxError = new Exception(throwable);
         points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
     };
     influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
@@ -59,7 +65,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
   }
 
   @Override
-  public void invoke(Row row) throws Exception {
+  public void invoke(Row row, Context context) throws Exception {
       LOGGER.info("row to influx: " + row);
       Point.Builder pointBuilder = Point.measurement(measurementName);
       Map<String, Object> fields = new HashMap<>();
@@ -78,6 +84,25 @@ public class InfluxRowSink extends RichSinkFunction<Row> {
               }
           }
       }
+      if (influxError != null) {
+          throw influxError;
+      }
       influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
   }
+
+    @Override
+    public void snapshotState(FunctionSnapshotContext context) throws Exception {
+        if (influxError != null) {
+            throw influxError;
+        }
+        influxDB.flush();
+        if (influxError != null) {
+            throw influxError;
+        }
+    }
+
+    @Override
+    public void initializeState(FunctionInitializationContext context) throws Exception {
+        // do nothing
+    }
 }
