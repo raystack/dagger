@@ -86,7 +86,7 @@ public class InfluxRowSinkTest {
 
     Row row = new Row(1);
     row.setField(0, "some field");
-    influxRowSink.invoke(row);
+    influxRowSink.invoke(row, null);
 
     verify(influxDb).write(eq("dagger_test"), eq("two_day_policy"), any());
   }
@@ -109,7 +109,7 @@ public class InfluxRowSinkTest {
 
     setupInfluxDB(rowColumns);
 
-    influxRowSink.invoke(simpleFieldsRow);
+    influxRowSink.invoke(simpleFieldsRow, null);
 
     ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
     verify(influxDb).write(any(), any(), pointArg.capture());
@@ -134,7 +134,7 @@ public class InfluxRowSinkTest {
 
     setupInfluxDB(rowColumns);
 
-    influxRowSink.invoke(simpleFieldsRow);
+    influxRowSink.invoke(simpleFieldsRow, null);
 
     ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
     verify(influxDb).write(any(), any(), pointArg.capture());
@@ -160,7 +160,7 @@ public class InfluxRowSinkTest {
 
     setupInfluxDB(rowColumns);
 
-    influxRowSink.invoke(simpleFieldsRow);
+    influxRowSink.invoke(simpleFieldsRow, null);
 
     ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
     verify(influxDb).write(any(), any(), pointArg.capture());
@@ -186,7 +186,7 @@ public class InfluxRowSinkTest {
 
     setupInfluxDB(rowColumns);
 
-    influxRowSink.invoke(simpleFieldsRow);
+    influxRowSink.invoke(simpleFieldsRow, null);
 
     ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
     verify(influxDb).write(any(), any(), pointArg.capture());
@@ -212,7 +212,7 @@ public class InfluxRowSinkTest {
 
     setupInfluxDB(rowColumns);
 
-    influxRowSink.invoke(simpleFieldsRow);
+    influxRowSink.invoke(simpleFieldsRow, null);
 
     ArgumentCaptor<Point> pointArg = ArgumentCaptor.forClass(Point.class);
     verify(influxDb).write(any(), any(), pointArg.capture());
