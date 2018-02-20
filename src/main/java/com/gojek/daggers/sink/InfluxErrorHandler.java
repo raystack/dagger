@@ -12,14 +12,18 @@ public class InfluxErrorHandler implements Serializable {
 
     private Exception error = null;
 
-    private BiConsumer<Iterable<Point>, Throwable> exceptionHandler = (points, throwable) -> {
-        if (throwable instanceof Exception) {
-            error = (Exception) throwable;
-        } else {
-            error = new Exception(throwable);
-        }
-        points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
-    };
+    private BiConsumer<Iterable<Point>, Throwable> exceptionHandler = null;
+
+    public void init() {
+        exceptionHandler = (points, throwable) -> {
+            if (throwable instanceof Exception) {
+                error = (Exception) throwable;
+            } else {
+                error = new Exception(throwable);
+            }
+            points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
+        };
+    }
 
     public BiConsumer<Iterable<Point>, Throwable> getExceptionHandler() {
         return exceptionHandler;
