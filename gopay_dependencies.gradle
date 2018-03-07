@@ -1,0 +1,4 @@
+dependencies {
+    compile group: 'com.gopay', name: 'gopay-transaction-client-proto', version: '0.0.20-RELEASE'
+    compile group: 'com.gopay', name: 'gopay-external-proto', version: '0.0.1-RELEASE'
+}
