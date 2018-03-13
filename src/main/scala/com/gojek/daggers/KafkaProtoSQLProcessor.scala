@@ -1,6 +1,5 @@
 package com.gojek.daggers
 
-import java.util
 import java.util.TimeZone
 
 import com.gojek.dagger.udf._
@@ -10,10 +9,11 @@ import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010
 import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
+
+import scala.collection.JavaConversions._
 
 object KafkaProtoSQLProcessor {
 
@@ -36,22 +36,19 @@ object KafkaProtoSQLProcessor {
     env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
     env.getConfig.setGlobalJobParameters(configuration)
 
-    val props = KafkaEnvironmentVariables.parse(configuration)
-
-    val protoClassName: String = configuration.getString("PROTO_CLASS_NAME", "")
-    val timestampProtoIndex: Integer = configuration.getInteger("EVENT_TIMESTAMP_FIELD_INDEX", 1)
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
-    val topicNames: util.List[String] = util.Arrays.asList(configuration.getString("TOPIC_NAMES", "").split(","): _*)
-    val kafkaConsumer = new FlinkKafkaConsumer010[Row](topicNames, new ProtoDeserializer(protoClassName, timestampProtoIndex, rowTimeAttributeName), props)
+    val streams = new Streams(configuration.getString("STREAMS", ""), rowTimeAttributeName)
 
-    val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
-    tableEnv.registerTableSource(configuration.getString("TABLE_NAME", ""), tableSource)
+    for ((tableName, kafkaConsumer) <- streams.getStreams) {
+      val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
+      tableEnv.registerTableSource(tableName, tableSource)
+    }
 
     tableEnv.registerFunction("S2Id", new S2Id())
-    tableEnv.registerFunction("ElementAt", new ElementAt(protoClassName))
+    tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
     tableEnv.registerFunction("DistinctCount", new DistinctCount())
