@@ -46,7 +46,14 @@ object KafkaProtoSQLProcessor {
       val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
       tableEnv.registerTableSource(tableName, tableSource)
     }
-
+    val lifeTime = configuration.getLong("JOB_LIFE_IN_MS", 0)
+    if (lifeTime != 0L) {
+      val timer = new java.util.Timer()
+      val task = new java.util.TimerTask {
+        override def run(): Unit = System.exit(0)
+      }
+      timer.schedule(task, lifeTime)
+    }
     tableEnv.registerFunction("S2Id", new S2Id())
     tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
