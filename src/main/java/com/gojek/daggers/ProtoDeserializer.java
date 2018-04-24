@@ -1,14 +1,12 @@
 package com.gojek.daggers;
 
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.GeneratedMessageV3;
-import com.google.protobuf.MapEntry;
+import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.KeyedDeserializationSchema;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private String protoClassName;
     private ProtoType protoType;
     private int timestampFieldIndex;
-    private transient Method protoParser;
+    private Descriptors.Descriptor descriptor;
 
     public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName) {
         this.protoClassName = protoClassName;
@@ -29,28 +27,28 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         this.timestampFieldIndex = timestampFieldIndex;
     }
 
-    private Method createProtoParser() {
+    Descriptors.Descriptor createProtoParser() {
         try {
             Class<?> protoClass = Class.forName(protoClassName);
-            return protoClass.getMethod("parseFrom", byte[].class);
+            return (Descriptors.Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
         } catch (ReflectiveOperationException exception) {
             throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
         }
     }
 
-    private Method getProtoParser() {
-        if (protoParser == null) {
-            protoParser = createProtoParser();
+    private Descriptors.Descriptor getProtoParser() {
+        if (descriptor == null) {
+            descriptor = createProtoParser();
         }
-        return protoParser;
+        return descriptor;
     }
 
-    private Row getRow(GeneratedMessageV3 proto) {
+    private Row getRow(DynamicMessage proto) {
         List<Descriptors.FieldDescriptor> fields = proto.getDescriptorForType().getFields();
         Row row = new Row(fields.size());
         for (Descriptors.FieldDescriptor field : fields) {
             if (field.isMapField()) {
-                List<MapEntry<Object, Object>> mapEntries = (List<MapEntry<Object, Object>>) proto.getField(field);
+                List<DynamicMessage> mapEntries = (List<DynamicMessage>) proto.getField(field);
                 row.setField(field.getIndex(), getMapRow(mapEntries));
                 continue;
             }
@@ -59,9 +57,9 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
                 row.setField(field.getIndex(), proto.getField(field).toString());
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {
                 if (field.isRepeated()) {
-                    row.setField(field.getIndex(), getRow((List<GeneratedMessageV3>) proto.getField(field)));
+                    row.setField(field.getIndex(), getRow((List<DynamicMessage>) proto.getField(field)));
                 } else {
-                    row.setField(field.getIndex(), getRow((GeneratedMessageV3) proto.getField(field)));
+                    row.setField(field.getIndex(), getRow((DynamicMessage) proto.getField(field)));
                 }
             } else {
                 if (field.isRepeated()) {
@@ -76,22 +74,23 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         return row;
     }
 
-    private Object[] getRow(List<GeneratedMessageV3> protos) {
+    private Object[] getRow(List<DynamicMessage> protos) {
         ArrayList<Row> rows = new ArrayList<>();
         protos.forEach(generatedMessageV3 -> rows.add(getRow(generatedMessageV3)));
         return rows.toArray();
     }
 
-    private Object[] getMapRow(List<MapEntry<Object, Object>> protos) {
+    private Object[] getMapRow(List<DynamicMessage> protos) {
         ArrayList<Row> rows = new ArrayList<>();
-        protos.forEach(entry -> rows.add(getRow(entry)));
+        protos.forEach(entry -> rows.add(getRowFromMap(entry)));
         return rows.toArray();
     }
 
-    private Row getRow(MapEntry<Object, Object> protos) {
+    private Row getRowFromMap(DynamicMessage protos) {
         Row row = new Row(2);
-        row.setField(0, protos.getKey());
-        row.setField(1, protos.getValue());
+        Object[] keyValue = protos.getAllFields().values().toArray();
+        row.setField(0, keyValue[0]);
+        row.setField(1, keyValue[1]);
         return row;
     }
 
@@ -107,21 +106,21 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     @Override
     public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {
         try {
-            GeneratedMessageV3 proto = (GeneratedMessageV3) getProtoParser().invoke(null, message);
+            DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), message);
             return addTimestampFieldToRow(getRow(proto), proto);
-        } catch (ReflectiveOperationException e) {
+        } catch (RuntimeException e) {
             throw new ProtoDeserializationExcpetion(e);
         }
     }
 
-    private Row addTimestampFieldToRow(Row row, GeneratedMessageV3 proto) {
+    private Row addTimestampFieldToRow(Row row, DynamicMessage proto) {
         Descriptors.FieldDescriptor fieldDescriptor = proto.getDescriptorForType().getFields().get(timestampFieldIndex);
 
         Row finalRecord = new Row(row.getArity() + 1);
         for (int fieldIndex = 0; fieldIndex < row.getArity(); fieldIndex++) {
             finalRecord.setField(fieldIndex, row.getField(fieldIndex));
         }
-        Row timestampRow = getRow((GeneratedMessageV3) proto.getField(fieldDescriptor));
+        Row timestampRow = getRow((DynamicMessage) proto.getField(fieldDescriptor));
         long timestampSeconds = (long) timestampRow.getField(0);
         long timestampNanos = (int) timestampRow.getField(1);
 
