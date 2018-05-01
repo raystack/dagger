@@ -33,7 +33,7 @@ public class ProtoTypeTest {
       new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime");
       fail();
     } catch (DaggerConfigurationException exception) {
-      assertEquals(ProtoType.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
+      assertEquals(DescriptorStore.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
       assertTrue(exception.getCause() instanceof ReflectiveOperationException);
     }
   }
@@ -44,7 +44,7 @@ public class ProtoTypeTest {
       new ProtoType(String.class.getName(), "rowtime");
       fail();
     } catch (DaggerConfigurationException exception) {
-      assertEquals(ProtoType.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
+      assertEquals(DescriptorStore.PROTO_CLASS_MISCONFIGURED_ERROR, exception.getMessage());
       assertTrue(exception.getCause() instanceof ReflectiveOperationException);
     }
   }

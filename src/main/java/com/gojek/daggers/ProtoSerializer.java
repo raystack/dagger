@@ -7,36 +7,18 @@ import com.google.protobuf.DynamicMessage;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.types.Row;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
-  private static final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
   private String protoClassNamePrefix;
   private String[] columnNames;
-  private Map<String, Descriptors.Descriptor> descriptorMap;
 
   public ProtoSerializer(String protoClassNamePrefix, String[] columnNames) {
     this.protoClassNamePrefix = protoClassNamePrefix;
     this.columnNames = columnNames;
-    descriptorMap = new HashMap<>();
   }
 
   private Descriptors.Descriptor getDescriptor(String className) {
-    Descriptors.Descriptor desc = descriptorMap.get(className);
-    if (desc == null) {
-      try {
-        Class<?> protoClass = Class.forName(className);
-        desc = (Descriptors.Descriptor) protoClass.getMethod("getDescriptor")
-                .invoke(null);
-        descriptorMap.put(className, desc);
-      } catch (ReflectiveOperationException e) {
-        throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, e);
-      }
-    }
-    return desc;
+    return DescriptorStore.get(className);
   }
 
   @Override
