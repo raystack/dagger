@@ -15,7 +15,6 @@ import java.util.List;
 
 public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
 
-    private static final String PROTO_CLASS_MISCONFIGURED_ERROR = "proto class is misconfigured";
     private String protoClassName;
     private ProtoType protoType;
     private int timestampFieldIndex;
@@ -28,12 +27,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     }
 
     Descriptors.Descriptor createProtoParser() {
-        try {
-            Class<?> protoClass = Class.forName(protoClassName);
-            return (Descriptors.Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
-        } catch (ReflectiveOperationException exception) {
-            throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
-        }
+        return DescriptorStore.get(protoClassName);
     }
 
     private Descriptors.Descriptor getProtoParser() {
