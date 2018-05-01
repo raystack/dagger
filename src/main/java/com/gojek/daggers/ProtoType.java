@@ -16,7 +16,6 @@ import java.util.Map;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
 public class ProtoType implements Serializable {
-  public static final String PROTO_CLASS_MISCONFIGURED_ERROR = "Proto class is misconfigured";
   private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>() {{
     put(JavaType.STRING, Types.STRING());
     put(JavaType.BOOLEAN, Types.BOOLEAN());
@@ -47,12 +46,7 @@ public class ProtoType implements Serializable {
   }
 
   private Descriptor createFieldDescriptor() {
-    try {
-      Class<?> protoClass = Class.forName(protoClassName);
-      return (Descriptor) protoClass.getMethod("getDescriptor").invoke(null);
-    } catch (ReflectiveOperationException exception) {
-      throw new DaggerConfigurationException(PROTO_CLASS_MISCONFIGURED_ERROR, exception);
-    }
+    return DescriptorStore.get(protoClassName);
   }
 
   public String[] getFieldNames() {
