@@ -9,6 +9,7 @@ import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
 import com.google.protobuf.Timestamp;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtoDeserializerTest {
+
+  @Before
+  public void before() {
+    DescriptorStore.load(new Configuration());
+  }
 
   @Mock
   private ProtoType protoType;
