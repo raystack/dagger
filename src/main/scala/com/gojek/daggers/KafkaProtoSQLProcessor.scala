@@ -21,6 +21,8 @@ object KafkaProtoSQLProcessor {
 
     val configuration: Configuration = new ConfigurationProviderFactory(args).provider().get()
 
+    DescriptorStore.load(configuration);
+
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)

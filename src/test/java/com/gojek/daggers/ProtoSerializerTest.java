@@ -5,8 +5,10 @@ import com.gojek.esb.aggregate.demand.AggregatedDemandMessage;
 import com.gojek.esb.aggregate.supply.AggregatedSupplyKey;
 import com.gojek.esb.aggregate.supply.AggregatedSupplyMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -15,6 +17,11 @@ import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_RIDE;
 import static com.gojek.esb.types.VehicleTypeProto.VehicleType.Enum.BIKE;
 
 public class ProtoSerializerTest {
+
+  @Before
+  public void setup() {
+    DescriptorStore.load(new Configuration());
+  }
 
   @Test
   public void shouldSerializeKeyForDemandProto() throws InvalidProtocolBufferException {
