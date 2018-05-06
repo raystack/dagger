@@ -23,6 +23,7 @@ public class DescriptorStore {
             client = StencilClientFactory.getClient();
         }
         client.load();
+        StencilClient.setInstance(client);
     }
 
     public static Descriptors.Descriptor get(String className) {
