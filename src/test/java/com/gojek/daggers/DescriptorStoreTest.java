@@ -1,18 +1,11 @@
 package com.gojek.daggers;
 
 import com.google.protobuf.Descriptors;
-import org.apache.flink.configuration.Configuration;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class DescriptorStoreTest {
-
-    @Before
-    public void before() {
-        DescriptorStore.load(new Configuration());
-    }
 
     @Test
     public void get() {
