@@ -38,7 +38,7 @@ object KafkaProtoSQLProcessor {
 
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
-    val streams = new Streams(configuration.getString("STREAMS", ""), rowTimeAttributeName)
+    val streams = new Streams(configuration, rowTimeAttributeName)
 
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
@@ -55,7 +55,7 @@ object KafkaProtoSQLProcessor {
       timer.schedule(task, lifeTime)
     }
     tableEnv.registerFunction("S2Id", new S2Id())
-    tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue))
+    tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue, configuration.toMap))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
     tableEnv.registerFunction("DistinctCount", new DistinctCount())
