@@ -20,7 +20,7 @@ public class SinkFactory {
         String outputBrokerList = configuration.getString("OUTPUT_KAFKA_BROKER", "");
         String outputTopic = configuration.getString("OUTPUT_KAFKA_TOPIC", "");
 
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoPrefix, columnNames);
+        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoPrefix, columnNames, configuration.toMap());
 
         // Use kafka partitioner
         FlinkKafkaPartitioner partitioner = null;

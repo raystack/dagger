@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.gojek.de.stencil.DescriptorStore;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -30,9 +31,11 @@ public class ProtoType implements Serializable {
 
   private transient Descriptor protoFieldDescriptor;
   private String protoClassName;
-    private String rowtimeAttributeName;
+  private String rowtimeAttributeName;
+  private Map<String, String> configs;
 
-  ProtoType(String protoClassName, String rowtimeAttributeName) {
+  ProtoType(String protoClassName, String rowtimeAttributeName, Map<String, String> configs) {
+    this.configs = configs;
     this.protoClassName = protoClassName;
     this.protoFieldDescriptor = createFieldDescriptor();
     this.rowtimeAttributeName = rowtimeAttributeName;
@@ -46,7 +49,12 @@ public class ProtoType implements Serializable {
   }
 
   private Descriptor createFieldDescriptor() {
-    return DescriptorStore.get(protoClassName);
+    DescriptorStore.loadClientIfNull(configs);
+    Descriptors.Descriptor dsc = DescriptorStore.get(protoClassName);
+    if (dsc == null) {
+      throw new DaggerProtoException();
+    }
+    return dsc;
   }
 
   public String[] getFieldNames() {

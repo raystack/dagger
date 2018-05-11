@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,7 +28,7 @@ public class RowTimestampExtractorTest {
     final int expectedNanos = 111000000;
     Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(expectedSeconds).setNanos(expectedNanos).build();
     ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(expectedTimestamp).build();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime");
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", new HashMap<>());
     Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
     int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
 
@@ -53,7 +54,7 @@ public class RowTimestampExtractorTest {
     Timestamp actualTimestamp = Timestamp.newBuilder().setSeconds(actualTimestampSeconds).setNanos(expectedMilliseconds).build();
     Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(expectedSeconds).setNanos(expectedMilliseconds).build();
     ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(actualTimestamp).build();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime");
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", new HashMap<>());
     Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
     int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
 

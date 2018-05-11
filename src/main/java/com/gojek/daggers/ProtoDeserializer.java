@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.gojek.de.stencil.DescriptorStore;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
@@ -18,23 +20,22 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private String protoClassName;
     private ProtoType protoType;
     private int timestampFieldIndex;
-    private Descriptors.Descriptor descriptor;
+    private Map<String, String> configs;
 
-    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName) {
+    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, Map<String, String> configs) {
         this.protoClassName = protoClassName;
-        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName);
+        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, configs);
         this.timestampFieldIndex = timestampFieldIndex;
-    }
-
-    Descriptors.Descriptor createProtoParser() {
-        return DescriptorStore.get(protoClassName);
+        this.configs = configs;
     }
 
     private Descriptors.Descriptor getProtoParser() {
-        if (descriptor == null) {
-            descriptor = createProtoParser();
+        DescriptorStore.loadClientIfNull(configs);
+        Descriptors.Descriptor dsc = DescriptorStore.get(protoClassName);
+        if (dsc == null) {
+            throw new DaggerProtoException();
         }
-        return descriptor;
+        return dsc;
     }
 
     private Row getRow(DynamicMessage proto) {
@@ -103,7 +104,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
             DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), message);
             return addTimestampFieldToRow(getRow(proto), proto);
         } catch (RuntimeException e) {
-            throw new ProtoDeserializationExcpetion(e);
+            throw new DaggerProtoException(e);
         }
     }
 
