@@ -2,6 +2,7 @@ package com.gojek.daggers;
 
 
 import com.google.gson.Gson;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 
@@ -16,8 +17,11 @@ public class Streams {
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private Configuration configuration;
 
-    public Streams(String jsonArrayString, String rowTimeAttributeName) {
+    public Streams(Configuration configuration, String rowTimeAttributeName) {
+        this.configuration = configuration;
+        String jsonArrayString = configuration.getString("STREAMS", "");
         Gson gson = new Gson();
         Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
@@ -38,7 +42,7 @@ public class Streams {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
-        return new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName), kafkaProps);
+        return new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, configuration.toMap()), kafkaProps);
     }
 
     public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {

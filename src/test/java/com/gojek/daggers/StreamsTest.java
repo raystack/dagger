@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 import org.junit.Test;
@@ -23,7 +24,9 @@ public class StreamsTest {
                 + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
                 + "        }\n"
                 + "]";
-        Streams streams = new Streams(jsonArray, "rowtime");
+        Configuration configuration = new Configuration();
+        configuration.setString("STREAMS", jsonArray);
+        Streams streams = new Streams(configuration, "rowtime");
         Map<String, FlinkKafkaConsumer011<Row>> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
