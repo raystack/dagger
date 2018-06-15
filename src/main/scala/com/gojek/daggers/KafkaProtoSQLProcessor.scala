@@ -4,7 +4,6 @@ import java.util.TimeZone
 
 import com.gojek.dagger.udf._
 import com.gojek.daggers.config.ConfigurationProviderFactory
-import com.gojek.daggers.parser.KafkaEnvironmentVariables
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -55,6 +54,7 @@ object KafkaProtoSQLProcessor {
       timer.schedule(task, lifeTime)
     }
     tableEnv.registerFunction("S2Id", new S2Id())
+    tableEnv.registerFunction("GEOHASH", new GeoHash())
     tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue, configuration.toMap))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
