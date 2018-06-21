@@ -84,8 +84,8 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private Row getRowFromMap(DynamicMessage protos) {
         Row row = new Row(2);
         Object[] keyValue = protos.getAllFields().values().toArray();
-        row.setField(0, keyValue[0]);
-        row.setField(1, keyValue[1]);
+        row.setField(0, keyValue.length > 0 ? keyValue[0] : "");
+        row.setField(1, keyValue.length > 1 ? keyValue[1] : "");
         return row;
     }
 
