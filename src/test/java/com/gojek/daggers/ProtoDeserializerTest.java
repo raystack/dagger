@@ -190,6 +190,31 @@ public class ProtoDeserializerTest {
     assertEquals(auditId, row.getField(auditEntityLogFieldIndex("audit_id")));
   }
 
+  @Test
+  public void shouldDeserializeProtobufMapOfNullValueAsSubRows() throws IOException {
+    String auditId = "1";
+    HashMap currentState = new HashMap<String, String>();
+    currentState.put("force_close", "true");
+    currentState.put("image", "");
+
+    byte[] protoBytes = AuditEntityLogMessage.newBuilder()
+            .putAllCurrentState(currentState)
+            .setAuditId(auditId).build().toByteArray();
+
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), 3, "rowtime", new HashMap<>());
+
+    Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+
+    Object[] currentStateRowList = (Object[]) row.getField(auditEntityLogFieldIndex("current_state"));
+
+    assertTrue(currentState.keySet().contains(((Row) currentStateRowList[0]).getField(0)));
+    assertTrue(currentState.values().contains(((Row) currentStateRowList[0]).getField(1)));
+    assertTrue(currentState.keySet().contains(((Row) currentStateRowList[1]).getField(0)));
+    assertTrue(currentState.values().contains(((Row) currentStateRowList[1]).getField(1)));
+
+    assertEquals(auditId, row.getField(auditEntityLogFieldIndex("audit_id")));
+  }
+
   private int participantLogFieldIndex(String propertyName) {
     return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
   }
