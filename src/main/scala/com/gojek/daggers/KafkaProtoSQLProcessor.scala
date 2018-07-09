@@ -55,6 +55,7 @@ object KafkaProtoSQLProcessor {
     }
     tableEnv.registerFunction("S2Id", new S2Id())
     tableEnv.registerFunction("GEOHASH", new GeoHash())
+    tableEnv.registerFunction("DistinctByCurrentStatus", new DistinctByCurrentStatus)
     tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue, configuration.toMap))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
