@@ -1,5 +1,7 @@
 package com.gojek.daggers;
 
+import com.gojek.de.stencil.StencilClient;
+import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.ParticipantLogMessage;
@@ -9,16 +11,15 @@ import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
-import java.util.HashMap;
-
 import static org.junit.Assert.*;
 
 public class ProtoTypeTest {
+  private static final StencilClient STENCIL_CLIENT = StencilClientFactory.getClient();
 
   @Test
   public void shouldGiveAllColumnNamesOfProto() throws ClassNotFoundException {
-    ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", new HashMap<>());
-    ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", new HashMap<>());
+    ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", STENCIL_CLIENT);
+    ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", STENCIL_CLIENT);
 
     assertArrayEquals(
         new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit"},
@@ -31,17 +32,17 @@ public class ProtoTypeTest {
 
   @Test(expected = DaggerProtoException.class)
   public void shouldThrowConfigurationExceptionWhenClassNotFound() {
-    new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", new HashMap<>());
+    new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", STENCIL_CLIENT);
   }
 
   @Test(expected = DaggerProtoException.class)
   public void shouldThrowConfigurationExceptionWhenClassIsNotProto() {
-      new ProtoType(String.class.getName(), "rowtime", new HashMap<>());
+      new ProtoType(String.class.getName(), "rowtime", STENCIL_CLIENT);
   }
 
   @Test
   public void shouldGiveSimpleMappedFlinkTypes() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", new HashMap<>());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
 
     TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -52,7 +53,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveSubRowMappedField() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", new HashMap<>());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
 
     TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -67,7 +68,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldProcessArrayForObjectData() {
-    ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", new HashMap<>());
+    ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
 
     TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
 
@@ -84,7 +85,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldProcessArrayForStringData() {
-    ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", new HashMap<>());
+    ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", STENCIL_CLIENT);
 
     TypeInformation[] fieldTypes = loginRequestMessageProtoType.getFieldTypes();
 
@@ -97,7 +98,7 @@ public class ProtoTypeTest {
 
   @Test
   public void shouldGiveNamesAndTypes() {
-    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", new HashMap<>());
+    ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
 
     RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
 

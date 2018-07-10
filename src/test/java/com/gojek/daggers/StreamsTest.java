@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.gojek.de.stencil.StencilClientFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
@@ -26,7 +27,7 @@ public class StreamsTest {
                 + "]";
         Configuration configuration = new Configuration();
         configuration.setString("STREAMS", jsonArray);
-        Streams streams = new Streams(configuration, "rowtime");
+        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient());
         Map<String, FlinkKafkaConsumer011<Row>> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
