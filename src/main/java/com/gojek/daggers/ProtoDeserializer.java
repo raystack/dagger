@@ -1,6 +1,6 @@
 package com.gojek.daggers;
 
-import com.gojek.de.stencil.DescriptorStore;
+import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -12,26 +12,23 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 
 public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
 
     private String protoClassName;
     private ProtoType protoType;
     private int timestampFieldIndex;
-    private Map<String, String> configs;
+    private StencilClient stencilClient;
 
-    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, Map<String, String> configs) {
+    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClient stencilClient) {
         this.protoClassName = protoClassName;
-        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, configs);
+        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, stencilClient);
         this.timestampFieldIndex = timestampFieldIndex;
-        this.configs = configs;
+        this.stencilClient = stencilClient;
     }
 
     private Descriptors.Descriptor getProtoParser() {
-        DescriptorStore.loadClientIfNull(configs);
-        Descriptors.Descriptor dsc = DescriptorStore.get(protoClassName);
+        Descriptors.Descriptor dsc = stencilClient.get(protoClassName);
         if (dsc == null) {
             throw new DaggerProtoException();
         }

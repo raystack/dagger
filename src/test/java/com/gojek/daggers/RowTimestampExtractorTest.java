@@ -1,5 +1,7 @@
 package com.gojek.daggers;
 
+import com.gojek.de.stencil.StencilClient;
+import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.participant.ParticipantLogKey;
 import com.google.protobuf.Timestamp;
 import org.apache.flink.configuration.Configuration;
@@ -9,11 +11,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
 public class RowTimestampExtractorTest {
+  private static final StencilClient STENCIL_CLIENT = StencilClientFactory.getClient();
 
   private Configuration config;
 
@@ -28,7 +30,7 @@ public class RowTimestampExtractorTest {
     final int expectedNanos = 111000000;
     Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(expectedSeconds).setNanos(expectedNanos).build();
     ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(expectedTimestamp).build();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", new HashMap<>());
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", STENCIL_CLIENT);
     Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
     int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
 
@@ -54,7 +56,7 @@ public class RowTimestampExtractorTest {
     Timestamp actualTimestamp = Timestamp.newBuilder().setSeconds(actualTimestampSeconds).setNanos(expectedMilliseconds).build();
     Timestamp expectedTimestamp = Timestamp.newBuilder().setSeconds(expectedSeconds).setNanos(expectedMilliseconds).build();
     ParticipantLogKey proto = ParticipantLogKey.newBuilder().setEventTimestamp(actualTimestamp).build();
-    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", new HashMap<>());
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getName(), 2, "rowtime", STENCIL_CLIENT);
     Row protoRow = protoDeserializer.deserialize(null, proto.toByteArray(), null, 0, 0);
     int timestampRowIndex = ParticipantLogKey.getDescriptor().findFieldByName("event_timestamp").getIndex();
 

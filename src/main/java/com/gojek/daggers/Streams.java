@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 
+import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
@@ -18,9 +19,11 @@ public class Streams {
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private Configuration configuration;
+    private StencilClient stencilClient;
 
-    public Streams(Configuration configuration, String rowTimeAttributeName) {
+    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClient stencilClient) {
         this.configuration = configuration;
+        this.stencilClient = stencilClient;
         String jsonArrayString = configuration.getString("STREAMS", "");
         Gson gson = new Gson();
         Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
@@ -42,7 +45,7 @@ public class Streams {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
-        return new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, configuration.toMap()), kafkaProps);
+        return new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps);
     }
 
     public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
