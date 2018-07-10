@@ -4,6 +4,7 @@ import java.util.TimeZone
 
 import com.gojek.dagger.udf._
 import com.gojek.daggers.config.ConfigurationProviderFactory
+import com.gojek.de.stencil.StencilClientFactory
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -28,16 +29,21 @@ object KafkaProtoSQLProcessor {
     val autoWatermarkInterval = configuration.getInteger("WATERMARK_INTERVAL_MS", 10000)
     env.getConfig.setAutoWatermarkInterval(autoWatermarkInterval)
 
-    env.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 10000))
+    env.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 300000))
     env.getCheckpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
-    env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("PAUSE_BETWEEN_CHECKPOINTS", 5000))
-    env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 60000))
+    env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("PAUSE_BETWEEN_CHECKPOINTS", 30000))
+    env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 180000))
     env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
     env.getConfig.setGlobalJobParameters(configuration)
 
+    val enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false)
+
+    val stencilClient = if (!enableRemoteStencil) StencilClientFactory.getClient() else StencilClientFactory.getClient(
+      configuration.getString("STENCIL_URL", ""), configuration.toMap)
+
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
-    val streams = new Streams(configuration, rowTimeAttributeName)
+    val streams = new Streams(configuration, rowTimeAttributeName, stencilClient)
 
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
@@ -56,7 +62,7 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("S2Id", new S2Id())
     tableEnv.registerFunction("GEOHASH", new GeoHash())
     tableEnv.registerFunction("DistinctByCurrentStatus", new DistinctByCurrentStatus)
-    tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue, configuration.toMap))
+    tableEnv.registerFunction("ElementAt", new ElementAt(streams.getProtos.entrySet().iterator().next().getValue, stencilClient))
     tableEnv.registerFunction("ServiceArea", new ServiceArea())
     tableEnv.registerFunction("ServiceAreaId", new ServiceAreaId())
     tableEnv.registerFunction("DistinctCount", new DistinctCount())
@@ -67,7 +73,7 @@ object KafkaProtoSQLProcessor {
     val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
 
     resultTable2.toAppendStream[Row]
-      .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames))
+      .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
     env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
   }
 

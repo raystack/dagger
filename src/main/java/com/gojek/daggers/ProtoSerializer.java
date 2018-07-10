@@ -2,29 +2,26 @@ package com.gojek.daggers;
 
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
-import com.gojek.de.stencil.DescriptorStore;
+import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.types.Row;
 
-import java.util.Map;
-
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
   private String protoClassNamePrefix;
   private String[] columnNames;
-  private Map<String, String> configs;
+  private StencilClient stencilClient;
 
-  public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, Map<String, String> configs) {
+  public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClient stencilClient) {
     this.protoClassNamePrefix = protoClassNamePrefix;
     this.columnNames = columnNames;
-    this.configs = configs;
+    this.stencilClient = stencilClient;
   }
 
   private Descriptors.Descriptor getDescriptor(String className) {
-      DescriptorStore.loadClientIfNull(configs);
-      Descriptors.Descriptor dsc = DescriptorStore.get(className);
+      Descriptors.Descriptor dsc = stencilClient.get(className);
       if (dsc == null) {
           throw new DaggerProtoException();
       }
