@@ -10,6 +10,8 @@ import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.table.sources.tsextractors.ExistingField;
 import org.apache.flink.table.sources.wmstrategies.BoundedOutOfOrderTimestamps;
+import org.apache.flink.table.sources.wmstrategies.PreserveWatermarks;
+import org.apache.flink.table.sources.wmstrategies.WatermarkStrategy;
 import org.apache.flink.types.Row;
 
 import java.util.Collections;
@@ -20,11 +22,13 @@ public class KafkaProtoStreamingTableSource implements StreamTableSource<Row>, D
     private final FlinkKafkaConsumerBase<Row> kafkaConsumer;
     private String rowTimeAttributeName;
     private Long watermarkDelay;
+    private boolean disablePartitionWatermark;
 
-    public KafkaProtoStreamingTableSource(FlinkKafkaConsumerBase<Row> kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay) {
+    public KafkaProtoStreamingTableSource(FlinkKafkaConsumerBase<Row> kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay, boolean disablePartitionWatermark) {
         this.kafkaConsumer = kafkaConsumer;
         this.rowTimeAttributeName = rowTimeAttributeName;
         this.watermarkDelay = watermarkDelay;
+        this.disablePartitionWatermark = disablePartitionWatermark;
     }
 
     @Override
@@ -49,7 +53,8 @@ public class KafkaProtoStreamingTableSource implements StreamTableSource<Row>, D
 
     @Override
     public List<RowtimeAttributeDescriptor> getRowtimeAttributeDescriptors() {
-        return Collections.singletonList(new RowtimeAttributeDescriptor(rowTimeAttributeName, new ExistingField(rowTimeAttributeName), new BoundedOutOfOrderTimestamps(watermarkDelay)));
+        WatermarkStrategy ws =
+                disablePartitionWatermark ? new BoundedOutOfOrderTimestamps(watermarkDelay) : new PreserveWatermarks();
+        return Collections.singletonList(new RowtimeAttributeDescriptor(rowTimeAttributeName, new ExistingField(rowTimeAttributeName), ws));
     }
-
 }
