@@ -41,14 +41,14 @@ public class KafkaProtoStreamingTableSourceTest {
   @Test
   public void shouldUseInjectedNameForRowtimeAttribute() {
     String expectedRowTimeAttribute = "window_timestamp";
-    assertEquals(expectedRowTimeAttribute, new KafkaProtoStreamingTableSource(null, "window_timestamp", 0L).getRowtimeAttributeDescriptors().get(0).getAttributeName());
+    assertEquals(expectedRowTimeAttribute, new KafkaProtoStreamingTableSource(null, "window_timestamp", 0L, true).getRowtimeAttributeDescriptors().get(0).getAttributeName());
   }
 
   @Test
   public void shouldGiveBackRowTypesComingFromProtoType() {
     RowTypeInfo expectedRowType = new RowTypeInfo();
     when(flinkConsumer.getProducedType()).thenReturn(expectedRowType);
-    KafkaProtoStreamingTableSource kafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(flinkConsumer, "", 0L);
+    KafkaProtoStreamingTableSource kafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(flinkConsumer, "", 0L, true);
 
     assertEquals(expectedRowType, kafkaProtoStreamingTableSource.getReturnType());
   }
