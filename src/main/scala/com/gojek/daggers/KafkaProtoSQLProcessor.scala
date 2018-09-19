@@ -48,12 +48,7 @@ object KafkaProtoSQLProcessor {
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     for ((tableName, kafkaConsumer) <- streams.getStreams) {
-      val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(
-        kafkaConsumer,
-        rowTimeAttributeName,
-        configuration.getLong("WATERMARK_DELAY_MS", 10000),
-        configuration.getBoolean("DISABLE_PARTITION_WATERMARK", false)
-      )
+      val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
       tableEnv.registerTableSource(tableName, tableSource)
     }
     val lifeTime = configuration.getLong("JOB_LIFE_IN_MS", 0)
@@ -81,4 +76,5 @@ object KafkaProtoSQLProcessor {
       .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
     env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
   }
+
 }
