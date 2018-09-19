@@ -4,11 +4,9 @@ package com.gojek.daggers;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +15,6 @@ import java.util.regex.Pattern;
 
 public class Streams {
 
-    public static final int DEFAULT_WATERMARK_DELAY = 10000;
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
@@ -48,22 +45,7 @@ public class Streams {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
-        FlinkKafkaConsumer011 fc = new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps);
-
-        // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
-        if (!configuration.getBoolean("DISABLE_PARTITION_WATERMARK", false)) {
-            long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", DEFAULT_WATERMARK_DELAY);
-            fc.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<Row>() {
-                @Override
-                public long extractAscendingTimestamp(Row element) {
-                    int index = element.getArity() - 1;
-                    long ts = ((Timestamp) element.getField(index)).getTime();
-                    return ts - watermarkDelay;
-                }
-            });
-        }
-
-        return fc;
+        return new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps);
     }
 
     public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
