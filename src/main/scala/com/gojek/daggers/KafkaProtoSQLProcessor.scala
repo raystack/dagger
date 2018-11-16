@@ -43,12 +43,21 @@ object KafkaProtoSQLProcessor {
 
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
-    val streams = new Streams(configuration, rowTimeAttributeName, stencilClient)
+    val enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false)
+
+    val watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000)
+
+    val streams = new Streams(configuration, rowTimeAttributeName, stencilClient, enablePerPartitionWatermark, watermarkDelay)
 
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
     for ((tableName, kafkaConsumer) <- streams.getStreams) {
-      val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(kafkaConsumer, rowTimeAttributeName, configuration.getLong("WATERMARK_DELAY_MS", 10000))
+      val tableSource: KafkaProtoStreamingTableSource = new KafkaProtoStreamingTableSource(
+        kafkaConsumer,
+        rowTimeAttributeName,
+        watermarkDelay,
+        enablePerPartitionWatermark
+      )
       tableEnv.registerTableSource(tableName, tableSource)
     }
     val lifeTime = configuration.getLong("JOB_LIFE_IN_MS", 0)
@@ -76,5 +85,4 @@ object KafkaProtoSQLProcessor {
       .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
     env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
   }
-
 }
