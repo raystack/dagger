@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Base64;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -16,7 +18,8 @@ public class ConfigurationsTest {
   @Before
   public void setUp() {
     System.setProperty("key", "envValue");
-    providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
+    String[] args = {Base64.getEncoder().encodeToString("[\"--key\", \"argValue\"]".getBytes())};
+    providerFactory = new ConfigurationProviderFactory(args);
   }
 
   @Ignore
