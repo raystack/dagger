@@ -27,7 +27,7 @@ public class StreamsTest {
                 + "]";
         Configuration configuration = new Configuration();
         configuration.setString("STREAMS", jsonArray);
-        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient());
+        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient(), false, 0);
         Map<String, FlinkKafkaConsumer011<Row>> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
