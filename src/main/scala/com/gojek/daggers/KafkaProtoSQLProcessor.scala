@@ -3,6 +3,7 @@ package com.gojek.daggers
 import java.util.TimeZone
 
 import com.gojek.dagger.udf._
+import com.gojek.dagger.udf.dart.store.RedisConfig
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.de.stencil.StencilClientFactory
 import org.apache.flink.api.scala._
@@ -78,6 +79,9 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("Distance", new Distance())
     tableEnv.registerFunction("AppBetaUsers", new AppBetaUsers())
     tableEnv.registerFunction("KeyValue", new KeyValue())
+    val redisServer = configuration.getString("REDIS_SERVER", "localhost")
+    tableEnv.registerFunction("DartContains", DartContains.withRedisDataStore(new RedisConfig(redisServer)))
+
 
     val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
 
