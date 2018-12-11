@@ -1,5 +1,8 @@
 package com.gojek.daggers.sink;
 
+import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
+import com.gojek.daggers.sink.influx.InfluxErrorHandler;
+import com.gojek.daggers.sink.influx.InfluxRowSink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.influxdb.InfluxDB;

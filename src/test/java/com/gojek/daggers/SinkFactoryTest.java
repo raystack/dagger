@@ -1,6 +1,6 @@
 package com.gojek.daggers;
 
-import com.gojek.daggers.sink.InfluxRowSink;
+import com.gojek.daggers.sink.influx.InfluxRowSink;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import org.apache.flink.api.common.functions.Function;
