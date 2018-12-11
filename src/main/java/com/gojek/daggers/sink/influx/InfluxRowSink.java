@@ -1,4 +1,4 @@
-package com.gojek.daggers.sink;
+package com.gojek.daggers.sink.influx;
 
 import com.google.common.base.Strings;
 import org.apache.flink.configuration.Configuration;

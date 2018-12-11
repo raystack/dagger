@@ -1,9 +1,10 @@
 package com.gojek.daggers;
 
-import com.gojek.daggers.sink.InfluxDBFactoryWrapper;
-import com.gojek.daggers.sink.InfluxErrorHandler;
-import com.gojek.daggers.sink.InfluxRowSink;
-import com.gojek.daggers.sink.LogSink;
+import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
+import com.gojek.daggers.sink.influx.InfluxErrorHandler;
+import com.gojek.daggers.sink.influx.InfluxRowSink;
+import com.gojek.daggers.sink.log.LogSink;
+import com.gojek.daggers.sink.timescale.TimeScaleSink;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
@@ -37,6 +38,8 @@ public class SinkFactory {
         return flinkKafkaProducer;
       case "log":
         return new LogSink(columnNames);
+      case "timescale" :
+        return new TimeScaleSink(columnNames);
       default :
         return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
     }
