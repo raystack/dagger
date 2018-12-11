@@ -1,4 +1,4 @@
-package com.gojek.daggers.sink;
+package com.gojek.daggers.sink.log;
 
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;

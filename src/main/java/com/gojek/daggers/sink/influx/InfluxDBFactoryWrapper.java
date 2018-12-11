@@ -1,4 +1,4 @@
-package com.gojek.daggers.sink;
+package com.gojek.daggers.sink.influx;
 
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
