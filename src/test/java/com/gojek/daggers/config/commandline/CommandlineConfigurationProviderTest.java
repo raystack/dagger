@@ -4,6 +4,8 @@ import com.gojek.daggers.config.CommandlineConfigurationProvider;
 import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 
+import java.util.Base64;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -36,5 +38,14 @@ public class CommandlineConfigurationProviderTest {
     assertTrue(configurations.getString("key", "").equals("value"));
     assertTrue(configurations.containsKey("k"));
     assertTrue(configurations.getString("k", "").equals("v"));
+  }
+
+  @Test
+  public void shouldUseEncodedArgsIfProvided() {
+    String args = Base64.getEncoder().encodeToString("[\"--key\", \"value\"]".getBytes());
+    Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).get();
+
+    assertTrue(configurations.containsKey("key"));
+    assertTrue(configurations.getString("key", "").equals("value"));
   }
 }
