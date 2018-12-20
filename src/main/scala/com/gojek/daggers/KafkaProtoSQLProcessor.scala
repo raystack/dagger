@@ -60,13 +60,14 @@ object KafkaProtoSQLProcessor {
       )
       tableEnv.registerTableSource(tableName, tableSource)
     }
-    val lifeTime = configuration.getLong("JOB_LIFE_IN_MS", 0)
-    if (lifeTime != 0L) {
+    val lifeTimeInMs = configuration.getLong("JOB_LIFE_IN_MIN", 0) * 60000
+
+    if (lifeTimeInMs != 0L) {
       val timer = new java.util.Timer()
       val task = new java.util.TimerTask {
         override def run(): Unit = System.exit(0)
       }
-      timer.schedule(task, lifeTime)
+      timer.schedule(task, lifeTimeInMs)
     }
     tableEnv.registerFunction("S2Id", new S2Id())
     tableEnv.registerFunction("GEOHASH", new GeoHash())
