@@ -106,7 +106,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     }
 
     private Row addTimestampFieldToRow(Row row, DynamicMessage proto) {
-        Descriptors.FieldDescriptor fieldDescriptor = proto.getDescriptorForType().getFields().get(timestampFieldIndex);
+        Descriptors.FieldDescriptor fieldDescriptor = proto.getDescriptorForType().findFieldByNumber(timestampFieldIndex);
 
         Row finalRecord = new Row(row.getArity() + 1);
         for (int fieldIndex = 0; fieldIndex < row.getArity(); fieldIndex++) {
