@@ -74,7 +74,7 @@ object KafkaProtoSQLProcessor {
     val redisServer = configuration.getString("REDIS_SERVER", "localhost")
     tableEnv.registerFunction("DartContains", DartContains.withRedisDataStore(new RedisConfig(redisServer)))
     tableEnv.registerFunction("DartGet", DartGet.withRedisDataStore(new RedisConfig(redisServer)))
-
+    tableEnv.registerFunction("Features", new Features(stencilClient))
 
     val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
 
