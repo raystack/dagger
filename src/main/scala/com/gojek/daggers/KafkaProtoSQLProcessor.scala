@@ -1,5 +1,6 @@
 package com.gojek.daggers
 
+import java.util
 import java.util.TimeZone
 
 import com.gojek.dagger.udf._
@@ -38,8 +39,10 @@ object KafkaProtoSQLProcessor {
 
     val enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false)
 
+    val stencilUrls: util.List[String] = configuration.getString("STENCIL_URL", "").split(",").map(_.trim).toList
+
     val stencilClient = if (!enableRemoteStencil) StencilClientFactory.getClient() else StencilClientFactory.getClient(
-      configuration.getString("STENCIL_URL", ""), configuration.toMap)
+      stencilUrls, configuration.toMap)
 
     val rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")
 
