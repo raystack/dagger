@@ -8,6 +8,7 @@ import com.gojek.dagger.udf.dart.store.RedisConfig
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.de.stencil.StencilClientFactory
 import org.apache.flink.api.scala._
+import org.apache.flink.client.program.ProgramInvocationException
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
@@ -79,10 +80,16 @@ object KafkaProtoSQLProcessor {
     tableEnv.registerFunction("DartGet", DartGet.withRedisDataStore(new RedisConfig(redisServer)))
     tableEnv.registerFunction("Features", new Features())
 
-    val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
+    try {
+      val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
 
-    resultTable2.toAppendStream[Row]
-      .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
-    env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
+      resultTable2.toAppendStream[Row]
+        .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
+      env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
+    } catch {
+      case e: Exception => {
+        throw new ProgramInvocationException(e)
+      }
+    }
   }
 }
