@@ -4,12 +4,14 @@ import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogKey;
 import com.gojek.esb.booking.BookingLogMessage;
+import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.gofood.AuditEntityLogMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.logs.ApiLogMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
+import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
 import org.apache.flink.types.Row;
 import org.junit.Before;
@@ -33,6 +35,9 @@ public class ProtoDeserializerTest {
 
   @Mock
   private ProtoType protoType;
+
+  @Mock
+  private StencilClient stencilClient;
 
   @Before
   public void setUp() {
@@ -217,6 +222,25 @@ public class ProtoDeserializerTest {
     assertTrue(currentState.values().contains(((Row) currentStateRowList[1]).getField(1)));
 
     assertEquals(auditId, row.getField(auditEntityLogFieldIndex("audit_id")));
+  }
+
+  @Test
+  public void shouldIgnoreStructWhileDeserialising() throws IOException {
+    byte[] protoBytes = TestNestedRepeatedMessage.newBuilder()
+            .addMetadata(Struct.getDefaultInstance())
+            .addMetadata(Struct.getDefaultInstance())
+            .setNumberField(5)
+            .build().toByteArray();
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+    Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
+    assertNull(row.getField(4));
+    assertEquals(row.getField(2), 5);
+  }
+
+  @Test(expected = DaggerProtoException.class)
+  public void shouldThrowExceptionIfNotAbleToDeserialise() throws IOException {
+    ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+    Row row = protoDeserializer.deserialize(null, null, null, 0, 0);
   }
 
   private int participantLogFieldIndex(String propertyName) {

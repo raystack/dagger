@@ -48,6 +48,9 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
             if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
                 row.setField(field.getIndex(), proto.getField(field).toString());
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {
+                if (field.toProto().getTypeName().equals(".google.protobuf.Struct")) {
+                    continue;
+                }
                 if (field.isRepeated()) {
                     row.setField(field.getIndex(), getRow((List<DynamicMessage>) proto.getField(field)));
                 } else {
