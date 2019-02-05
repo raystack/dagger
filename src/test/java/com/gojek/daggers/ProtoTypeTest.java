@@ -3,8 +3,10 @@ package com.gojek.daggers;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogMessage;
+import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.ParticipantLogMessage;
+import gojek.esb.clevertap.ClevertapEventLog;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.api.Types;
@@ -107,6 +109,36 @@ public class ProtoTypeTest {
 
   }
 
+  @Test
+  public void shouldGiveAllNamesAndTypesIncludingStructFields() {
+    ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLog.ClevertapEventLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+    assertEquals(10, clevertapMessageProtoType.getFieldNames().length);
+    assertEquals(10, clevertapMessageProtoType.getFieldTypes().length);
+  }
+
+  @Test
+  public void shouldReturnRowTypeForStructFields() {
+    ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLog.ClevertapEventLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+    assertEquals(Types.ROW(), clevertapMessageProtoType.getFieldTypes()[7]);
+    assertEquals(Types.ROW(), clevertapMessageProtoType.getFieldTypes()[8]);
+    assertEquals(Types.ROW(), clevertapMessageProtoType.getFieldTypes()[9]);
+    assertEquals("profile_data", clevertapMessageProtoType.getFieldNames()[7]);
+    assertEquals("event_properties", clevertapMessageProtoType.getFieldNames()[8]);
+    assertEquals("key_values", clevertapMessageProtoType.getFieldNames()[9]);
+  }
+
+  @Test
+  public void shouldGiveAllNamesAndTypesIncludingPrimitiveArrayFields() {
+    ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+    assertEquals(Types.PRIMITIVE_ARRAY(Types.INT()), testNestedRepeatedMessage.getFieldTypes()[3]);
+  }
+
+  @Test
+  public void shouldGiveNameAndTypeForRepeatingStructType() {
+    ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+    assertEquals("metadata", testNestedRepeatedMessage.getFieldNames()[4]);
+    assertEquals(Types.OBJECT_ARRAY(Types.ROW()), testNestedRepeatedMessage.getFieldTypes()[4]);
+  }
 
   private int participantLogFieldIndex(String propertyName) {
     return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();

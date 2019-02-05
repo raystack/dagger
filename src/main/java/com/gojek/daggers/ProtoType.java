@@ -9,10 +9,10 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
@@ -73,6 +73,12 @@ public class ProtoType implements Serializable {
 
   private TypeInformation mapFieldType(Descriptors.FieldDescriptor fieldDescriptor) {
     if (fieldDescriptor.getJavaType() == JavaType.MESSAGE) {
+      if (fieldDescriptor.toProto().getTypeName().equals(".google.protobuf.Struct")) {
+        if (fieldDescriptor.isRepeated()) {
+          return Types.OBJECT_ARRAY(getRowTypeForStruct(fieldDescriptor.getMessageType()));
+        }
+        return getRowTypeForStruct(fieldDescriptor.getMessageType());
+      }
       if (fieldDescriptor.isRepeated()) {
         return Types.OBJECT_ARRAY(getRowType(fieldDescriptor.getMessageType()));
       }
@@ -107,5 +113,20 @@ public class ProtoType implements Serializable {
 
   private TypeInformation<Row> getRowType(Descriptor messageType) {
     return Types.ROW(getFieldNames(messageType), getFieldTypes(messageType));
+  }
+
+  private TypeInformation<Row> getRowTypeForStruct(Descriptor messageType) {
+    List<Descriptors.FieldDescriptor> fields = messageType.getFields();
+    String[] names = fields
+            .stream()
+            .filter(fieldDescriptor -> fieldDescriptor.toProto().getTypeName().equals(".google.protobuf.Struct"))
+            .map(fieldDescriptor -> fieldDescriptor.getName())
+            .toArray(String[]::new);
+    TypeInformation[] types = fields
+            .stream()
+            .filter(fieldDescriptor -> fieldDescriptor.toProto().getTypeName().equals(".google.protobuf.Struct"))
+            .map(this::mapFieldType)
+            .toArray(TypeInformation[]::new);
+    return Types.ROW(names, types);
   }
 }
