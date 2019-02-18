@@ -20,6 +20,6 @@ public class EnumProtoHandler implements ProtoHandler {
         if (!canPopulate()) {
             return builder;
         }
-        return builder.setField(fieldDescriptor, fieldDescriptor.getEnumType().findValueByName(String.valueOf(field)));
+        return builder.setField(fieldDescriptor, fieldDescriptor.getEnumType().findValueByName(String.valueOf(field).trim()));
     }
 }
