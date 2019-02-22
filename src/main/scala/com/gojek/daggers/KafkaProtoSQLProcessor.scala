@@ -36,7 +36,7 @@ object KafkaProtoSQLProcessor {
       env.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 30000))
       env.getCheckpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
       env.getCheckpointConfig.setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 900000))
-      env.getCheckpointConfig.setMinPauseBetweenCheckpoints(config.getLong("CHECKPOINT_MIN_PAUSE", 5000))
+      env.getCheckpointConfig.setMinPauseBetweenCheckpoints(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000))
       env.getCheckpointConfig.setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1))
       env.getConfig.setGlobalJobParameters(configuration)
 
