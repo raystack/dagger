@@ -1,0 +1,18 @@
+{
+  "id" : "0c1afa62-2114-485c-9f4e-95c0a437a189",
+  "name" : "customers_customer_11223344545",
+  "request" : {
+    "url" : "/customers/customer/11223344545",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 404,
+    "body" : "{\"_index\":\"customers\",\"_type\":\"customer\",\"_id\":\"11223344545\",\"found\":false}",
+    "headers" : {
+      "content-type" : "application/json; charset=UTF-8"
+    }
+  },
+  "uuid" : "0c1afa62-2114-485c-9f4e-95c0a437a189",
+  "persistent" : true,
+  "insertionIndex" : 2
+}

@@ -2,18 +2,22 @@ package com.gojek.daggers
 
 import java.util
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 import com.gojek.dagger.udf._
 import com.gojek.dagger.udf.dart.store.RedisConfig
+import com.gojek.daggers.async.connector.ESAsyncConnector
 import com.gojek.daggers.config.ConfigurationProviderFactory
-import com.gojek.de.stencil.StencilClientFactory
+import com.gojek.de.stencil.{StencilClient, StencilClientFactory}
+import com.timgroup.statsd.NonBlockingStatsDClient
 import org.apache.flink.api.scala._
 import org.apache.flink.client.program.ProgramInvocationException
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.streaming.api.datastream.AsyncDataStream
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
-import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
+import org.apache.flink.table.api.{Table, TableEnvironment}
 import org.apache.flink.types.Row
 
 import scala.collection.JavaConversions._
@@ -83,12 +87,15 @@ object KafkaProtoSQLProcessor {
       tableEnv.registerFunction("Features", new Features())
 
       val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
+      val value = resultTable2.toAppendStream[Row]
 
-      resultTable2.toAppendStream[Row]
-        .addSink(SinkFactory.getSinkFunction(configuration, resultTable2.getSchema.getColumnNames, stencilClient))
+      val deNormaliseStream = new DeNormaliseStream(value, configuration, resultTable2, stencilClient)
+      deNormaliseStream.apply()
+
       env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
     } catch {
       case e: Exception => {
+        e.printStackTrace()
         throw new ProgramInvocationException(e)
       }
     }
