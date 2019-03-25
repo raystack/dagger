@@ -1,18 +1,18 @@
 {
-  "id" : "53d144ce-7402-4e46-badb-4029ce4be39d",
-  "name" : "customers_customer_2129",
-  "request" : {
-    "url" : "/customers/customer/2129",
-    "method" : "GET"
+  "id": "53d144ce-7402-4e46-badb-4029ce4be39d",
+  "name": "customers_customer_2129",
+  "request": {
+    "url": "/customers/customer/2129",
+    "method": "GET"
   },
-  "response" : {
-    "status" : 200,
-    "body" : "{\"_index\":\"customers\",\"_type\":\"customer\",\"_id\":\"2129\",\"_version\":1,\"found\":true,\"_source\":{\"created_at\":\"2016-01-18T08:55:26.16Z\",\"customer_id\":2129,\"email\":\"mtsalis@ymail.com\",\"is_fb_linked\":false,\"name\":\"salis muhammad\",\"phone\":\"mtsalis@ymail.com\",\"type\":\"customer\"}}",
-    "headers" : {
-      "content-type" : "application/json; charset=UTF-8"
+  "response": {
+    "status": 200,
+    "body": "{\"_index\":\"customers\",\"_type\":\"customer\",\"_id\":\"2129\",\"_version\":1,\"found\":true,\"_source\":{\"created_at\":\"2016-01-18T08:55:26.16Z\",\"customer_id\":2129,\"email\":\"mtsalis@ymail.com\",\"is_fb_linked\":false,\"name\":\"salis muhammad\",\"phone\":\"mtsalis@ymail.com\",\"type\":\"customer\"}}",
+    "headers": {
+      "content-type": "application/json; charset=UTF-8"
     }
   },
-  "uuid" : "53d144ce-7402-4e46-badb-4029ce4be39d",
-  "persistent" : true,
-  "insertionIndex" : 1
+  "uuid": "53d144ce-7402-4e46-badb-4029ce4be39d",
+  "persistent": true,
+  "insertionIndex": 1
 }

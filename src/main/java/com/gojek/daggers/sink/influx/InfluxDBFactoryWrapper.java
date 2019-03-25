@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class InfluxDBFactoryWrapper implements Serializable {
 
-  public InfluxDB connect(String url, String username, String password) {
-    return InfluxDBFactory.connect(url, username, password);
-  }
+    public InfluxDB connect(String url, String username, String password) {
+        return InfluxDBFactory.connect(url, username, password);
+    }
 }

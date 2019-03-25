@@ -11,8 +11,8 @@ import java.util.Map;
 
 public class MapProtoHandler implements ProtoHandler {
 
-    private Descriptors.FieldDescriptor fieldDescriptor;
     private static final Logger LOGGER = LoggerFactory.getLogger(MapProtoHandler.class.getName());
+    private Descriptors.FieldDescriptor fieldDescriptor;
 
     public MapProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
 

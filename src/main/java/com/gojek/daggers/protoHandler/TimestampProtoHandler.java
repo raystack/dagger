@@ -3,6 +3,9 @@ package com.gojek.daggers.protoHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Timestamp;
+import org.apache.flink.types.Row;
+
+import java.time.Instant;
 
 public class TimestampProtoHandler implements ProtoHandler {
     public static final int MILLI_TO_SECONDS = 1000;
@@ -22,15 +25,41 @@ public class TimestampProtoHandler implements ProtoHandler {
         if (!canPopulate()) {
             return builder;
         }
-        java.sql.Timestamp timestampField = (java.sql.Timestamp) field;
-        long timestampSeconds = timestampField.getTime() / MILLI_TO_SECONDS;
-        int timestampNanos = timestampField.getNanos();
-        Timestamp timestamp = Timestamp
-                .newBuilder()
+        Timestamp timestamp = null;
+        if (field instanceof java.sql.Timestamp) {
+            timestamp = convertSqlTimestamp((java.sql.Timestamp) field);
+        }
+        if (field instanceof Row) {
+            Row timeField = (Row) field;
+            if (timeField.getArity() == 2) {
+                timestamp = Timestamp.newBuilder()
+                        .setSeconds((Long) timeField.getField(0))
+                        .setNanos((int) timeField.getField(1))
+                        .build();
+            }
+        }
+
+        if (field instanceof String) {
+            timestamp = Timestamp.newBuilder().setSeconds(Instant.parse(((String) field)).getEpochSecond()).build();
+        }
+
+        if (field instanceof Number) {
+            timestamp = Timestamp.newBuilder().setSeconds(((Number) field).longValue()).build();
+        }
+
+        if (timestamp != null) {
+            builder.setField(fieldDescriptor, timestamp);
+        }
+        return builder;
+    }
+
+    private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {
+        long timestampSeconds = field.getTime() / MILLI_TO_SECONDS;
+        int timestampNanos = field.getNanos();
+        return Timestamp.newBuilder()
                 .setSeconds(timestampSeconds)
                 .setNanos(timestampNanos)
                 .build();
-        builder.setField(fieldDescriptor, timestamp);
-        return builder;
+
     }
 }

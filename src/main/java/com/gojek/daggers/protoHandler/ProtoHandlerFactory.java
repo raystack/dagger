@@ -20,6 +20,9 @@ public class ProtoHandlerFactory {
         return Arrays.asList(
                 new MapProtoHandler(fieldDescriptor),
                 new TimestampProtoHandler(fieldDescriptor),
-                new EnumProtoHandler(fieldDescriptor));
+                new EnumProtoHandler(fieldDescriptor),
+                new RepeatedMessageProtoHandler(fieldDescriptor),
+                new MessageProtoHandler(fieldDescriptor)
+        );
     }
 }

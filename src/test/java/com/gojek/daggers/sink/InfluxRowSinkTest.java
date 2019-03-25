@@ -36,6 +36,8 @@ public class InfluxRowSinkTest {
 
     private static final int INFLUX_BATCH_SIZE = 100;
     private static final int INFLUX_FLUSH_DURATION = 1000;
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
     private Configuration parameters;
     @Mock
     private InfluxDBFactoryWrapper influxDBFactory;
@@ -43,11 +45,7 @@ public class InfluxRowSinkTest {
     private InfluxDB influxDb;
     @Mock
     private InfluxRowSink influxRowSink;
-
     private InfluxErrorHandler influxErrorHandler = new InfluxErrorHandler();
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
