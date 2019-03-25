@@ -14,35 +14,35 @@ import static org.mockito.Mockito.*;
 
 public class SinkFactoryTest {
 
-  private static StencilClient stencilClient = StencilClientFactory.getClient();
+    private static StencilClient stencilClient = StencilClientFactory.getClient();
 
-  @Test
-  public void shouldGiveInfluxSinkWhenConfiguredToUseInflux() throws Exception {
-    Configuration configuration = mock(Configuration.class);
-    when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
-    Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
+    @Test
+    public void shouldGiveInfluxSinkWhenConfiguredToUseInflux() throws Exception {
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
+        Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
 
-    assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
-  }
+        assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
+    }
 
-  @Test
-  public void shouldGiveInfluxWhenConfiguredToUseNothing() throws Exception {
-    Configuration configuration = mock(Configuration.class);
-    when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
-    Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
+    @Test
+    public void shouldGiveInfluxWhenConfiguredToUseNothing() throws Exception {
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
+        Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
 
-    assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
-  }
+        assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
+    }
 
-  @Test
-  public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
-    Configuration configuration = mock(Configuration.class);
-    when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-    when(configuration.getString(eq("OUTPUT_PROTO_CLASS_PREFIX"), anyString())).thenReturn("output_proto");
-    when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
-    when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
-    Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
+    @Test
+    public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
+        when(configuration.getString(eq("OUTPUT_PROTO_CLASS_PREFIX"), anyString())).thenReturn("output_proto");
+        when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
 
-    assertThat(sinkFunction, instanceOf(FlinkKafkaProducer010.class));
-  }
+        assertThat(sinkFunction, instanceOf(FlinkKafkaProducer010.class));
+    }
 }

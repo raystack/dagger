@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class Streams {
+    private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
-    private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private Configuration configuration;
     private StencilClient stencilClient;
     private boolean enablePerPartitionWatermark;
@@ -38,6 +38,11 @@ public class Streams {
             String tableName = streamConfig.getOrDefault("TABLE_NAME", "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
         }
+    }
+
+    private static String parseVarName(String varName, String kafkaPrefix) {
+        String[] names = varName.toLowerCase().replaceAll(kafkaPrefix, "").split("_");
+        return String.join(".", names);
     }
 
     private FlinkKafkaConsumer011<Row> getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
@@ -74,10 +79,5 @@ public class Streams {
 
     public LinkedHashMap<String, String> getProtos() {
         return protoClassForTable;
-    }
-
-    private static String parseVarName(String varName, String kafkaPrefix) {
-        String[] names = varName.toLowerCase().replaceAll(kafkaPrefix, "").split("_");
-        return String.join(".", names);
     }
 }

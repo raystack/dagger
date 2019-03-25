@@ -12,33 +12,35 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.types.Row;
 
+import static com.gojek.daggers.Constants.OUTPUT_PROTO_CLASS_PREFIX_KEY;
+
 public class SinkFactory {
-  public static SinkFunction<Row> getSinkFunction(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
-    String sink = configuration.getString("SINK_TYPE", "influx");
-    switch (sink) {
-      case "kafka":
-        String outputProtoPrefix = configuration.getString("OUTPUT_PROTO_CLASS_PREFIX", "");
-        String outputBrokerList = configuration.getString("OUTPUT_KAFKA_BROKER", "");
-        String outputTopic = configuration.getString("OUTPUT_KAFKA_TOPIC", "");
+    public static SinkFunction<Row> getSinkFunction(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
+        String sink = configuration.getString("SINK_TYPE", "influx");
+        switch (sink) {
+            case "kafka":
+                String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
+                String outputBrokerList = configuration.getString("OUTPUT_KAFKA_BROKER", "");
+                String outputTopic = configuration.getString("OUTPUT_KAFKA_TOPIC", "");
 
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoPrefix, columnNames, stencilClient);
+                ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoPrefix, columnNames, stencilClient);
 
-        // Use kafka partitioner
-        FlinkKafkaPartitioner partitioner = null;
+                // Use kafka partitioner
+                FlinkKafkaPartitioner partitioner = null;
 
-        FlinkKafkaProducer010<Row> flinkKafkaProducer = new FlinkKafkaProducer010<Row>(outputTopic,
-                protoSerializer,
-                FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList),
-                partitioner);
+                FlinkKafkaProducer010<Row> flinkKafkaProducer = new FlinkKafkaProducer010<Row>(outputTopic,
+                        protoSerializer,
+                        FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList),
+                        partitioner);
 
-        // don't commit to source kafka if we can publish to output kafka
-        flinkKafkaProducer.setFlushOnCheckpoint(true);
+                // don't commit to source kafka if we can publish to output kafka
+                flinkKafkaProducer.setFlushOnCheckpoint(true);
 
-        return flinkKafkaProducer;
-      case "log":
-        return new LogSink(columnNames);
-      default :
-        return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
+                return flinkKafkaProducer;
+            case "log":
+                return new LogSink(columnNames);
+            default:
+                return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
+        }
     }
-  }
 }

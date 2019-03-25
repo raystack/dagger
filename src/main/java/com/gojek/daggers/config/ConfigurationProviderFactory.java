@@ -6,30 +6,30 @@ import java.util.Arrays;
 
 public class ConfigurationProviderFactory {
 
-  private String[] args;
+    private String[] args;
 
-  public ConfigurationProviderFactory(String[] args) {
+    public ConfigurationProviderFactory(String[] args) {
 
-    this.args = args;
-    System.out.println("Arguments are : ");
-    Arrays.asList(args).stream().forEach(s -> {
-      System.out.println(s);
-    });
-  }
-
-  public ConfigurationProvider provider() {
-    if (System.getProperties().containsKey("ConfigSource")) {
-      String configSource = System.getProperty("ConfigSource");
-      switch (configSource) {
-        case "ENVIRONMENT":
-          return new EnvironmentConfigurationProvider(System.getenv());
-        case "ARGS":
-          return new CommandlineConfigurationProvider(args);
-        default:
-          throw new DaggerConfigurationException("Config source not provided");
-
-      }
+        this.args = args;
+        System.out.println("Arguments are : ");
+        Arrays.asList(args).stream().forEach(s -> {
+            System.out.println(s);
+        });
     }
-    return new CommandlineConfigurationProvider(args);
-  }
+
+    public ConfigurationProvider provider() {
+        if (System.getProperties().containsKey("ConfigSource")) {
+            String configSource = System.getProperty("ConfigSource");
+            switch (configSource) {
+                case "ENVIRONMENT":
+                    return new EnvironmentConfigurationProvider(System.getenv());
+                case "ARGS":
+                    return new CommandlineConfigurationProvider(args);
+                default:
+                    throw new DaggerConfigurationException("Config source not provided");
+
+            }
+        }
+        return new CommandlineConfigurationProvider(args);
+    }
 }
