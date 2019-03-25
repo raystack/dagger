@@ -7,15 +7,15 @@ import java.util.Map;
 
 public class EnvironmentConfigurationProvider implements ConfigurationProvider {
 
-  private Map<String, String> environmentParameters;
+    private Map<String, String> environmentParameters;
 
-  public EnvironmentConfigurationProvider(Map<String, String> environmentParameters) {
+    public EnvironmentConfigurationProvider(Map<String, String> environmentParameters) {
 
-    this.environmentParameters = environmentParameters;
-  }
+        this.environmentParameters = environmentParameters;
+    }
 
-  @Override
-  public Configuration get() {
-    return ParameterTool.fromMap(environmentParameters).getConfiguration();
-  }
+    @Override
+    public Configuration get() {
+        return ParameterTool.fromMap(environmentParameters).getConfiguration();
+    }
 }

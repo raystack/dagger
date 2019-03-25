@@ -1,7 +1,8 @@
 package com.gojek.daggers.async.connector;
 
+import com.gojek.daggers.Constants;
+import com.google.protobuf.Descriptors.Descriptor;
 import com.timgroup.statsd.StatsDClient;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -10,24 +11,25 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
+import java.util.Map;
 
-public class ESAsyncConnector extends RichAsyncFunction<Row, Tuple2<String, String>> {
+import static com.gojek.daggers.Constants.*;
+
+
+public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     private static final String ASPECT = "es.call.count";
-
     private static StatsDClient statsd;
-    private final Integer connectTimeout;
-    private final Integer socketTimeout;
-    private final int maxRetryTimeout;
-    private String[] host;
+    private static Descriptor descriptor;
     private RestClient esClient;
+    private Integer fieldIndex;
+    private Map<String, String> configuration;
 
-    public ESAsyncConnector(String esHosts, int connectTimeout, int socketTimeout, int maxRetryTimeout, StatsDClient statsd) {
+    public ESAsyncConnector(StatsDClient statsd, Descriptor descriptor, Integer fieldIndex, Map<String, String> configuration) {
         this.statsd = statsd;
-        this.connectTimeout = connectTimeout;
-        this.socketTimeout = socketTimeout;
-        this.maxRetryTimeout = maxRetryTimeout;
-        this.host = esHosts.split(",");
+        this.descriptor = descriptor;
+        this.fieldIndex = fieldIndex;
+        this.configuration = configuration;
     }
 
     @Override
@@ -39,32 +41,45 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Tuple2<String, Stri
     }
 
     protected RestClient getEsClient() {
+        Integer connectTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_CONNECT_TIMEOUT_KEY);
+        Integer socketTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_SOCKET_TIMEOUT_KEY);
+        Integer retryTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_MAX_RETRY_TIMEOUT_KEY);
         return RestClient.builder(
-                getHttpHosts(host)
+                getHttpHosts(getEsHost())
         ).setRequestConfigCallback(requestConfigBuilder ->
                 requestConfigBuilder
                         .setConnectTimeout(connectTimeout)
                         .setSocketTimeout(socketTimeout))
-                .setMaxRetryTimeoutMillis(maxRetryTimeout).build();
+                .setMaxRetryTimeoutMillis(retryTimeout).build();
     }
 
     private HttpHost[] getHttpHosts(String[] hosts) {
         HttpHost[] httpHosts = new HttpHost[hosts.length];
         for (int i = 0; i < httpHosts.length; i++) {
-            String[] strings = host[i].split(":");
+            String[] strings = getEsHost()[i].split(":");
             httpHosts[i] = new HttpHost(strings[0], Integer.parseInt(strings[1]));
         }
         return httpHosts;
     }
 
     @Override
-    public void asyncInvoke(Row input, ResultFuture<Tuple2<String, String>> resultFuture) {
-        String customerId = (String) input.getField(5);
-        String esEndpoint = String.format("/customers/customer/%s", customerId);
+    public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
+        Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
+        String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
+
         Request request = new Request("GET", esEndpoint);
         statsd.increment(ASPECT);
-        EsResponseHandler esResponseHandler = new EsResponseHandler(statsd, input, resultFuture, customerId);
+        EsResponseHandler esResponseHandler = new EsResponseHandler(statsd, input, resultFuture, descriptor, fieldIndex);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
+    }
+
+    private Integer getIntegerConfig(Map<String, String> fieldConfiguration, String key) {
+        return Integer.valueOf(fieldConfiguration.get(key));
+    }
+
+    private String[] getEsHost() {
+        String host = configuration.get(ASYNC_IO_ES_HOST_KEY);
+        return host.split(",");
     }
 }
