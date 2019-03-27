@@ -30,7 +30,6 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
     @Override
     public byte[] serializeKey(Row element) {
-//    return new byte[0];
         return serialize(element, "Key");
     }
 

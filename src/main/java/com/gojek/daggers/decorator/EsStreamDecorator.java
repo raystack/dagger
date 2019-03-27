@@ -2,7 +2,6 @@ package com.gojek.daggers.decorator;
 
 import com.gojek.daggers.async.connector.ESAsyncConnector;
 import com.gojek.de.stencil.StencilClient;
-import com.google.protobuf.Descriptors;
 import com.timgroup.statsd.StatsDClient;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -37,9 +36,7 @@ public class EsStreamDecorator implements StreamDecorator {
         if (!canDecorate())
             return inputStream;
         Integer streamTimeout = getIntegerConfig(configuration, "stream_timeout");
-        String descriptorType = configuration.get("type");
-        Descriptors.Descriptor descriptor = stencilClient.get(descriptorType);
-        ESAsyncConnector esConnector = new ESAsyncConnector(statsDClient, descriptor, fieldIndex, configuration);
+        ESAsyncConnector esConnector = new ESAsyncConnector(statsDClient, fieldIndex, configuration, stencilClient);
         return AsyncDataStream.orderedWait(inputStream, esConnector, streamTimeout, TimeUnit.MILLISECONDS, asyncIOCapacity);
     }
 
