@@ -1,7 +1,7 @@
 package com.gojek.daggers.async.connector;
 
-import com.gojek.daggers.Constants;
-import com.google.protobuf.Descriptors.Descriptor;
+import com.gojek.de.stencil.StencilClient;
+import com.google.protobuf.Descriptors;
 import com.timgroup.statsd.StatsDClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -20,16 +20,16 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     private static final String ASPECT = "es.call.count";
     private static StatsDClient statsd;
-    private static Descriptor descriptor;
     private RestClient esClient;
     private Integer fieldIndex;
     private Map<String, String> configuration;
+    private StencilClient stencilClient;
 
-    public ESAsyncConnector(StatsDClient statsd, Descriptor descriptor, Integer fieldIndex, Map<String, String> configuration) {
+    public ESAsyncConnector(StatsDClient statsd, Integer fieldIndex, Map<String, String> configuration, StencilClient stencilClient) {
         this.statsd = statsd;
-        this.descriptor = descriptor;
         this.fieldIndex = fieldIndex;
         this.configuration = configuration;
+        this.stencilClient = stencilClient;
     }
 
     @Override
@@ -66,9 +66,10 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
-
         Request request = new Request("GET", esEndpoint);
         statsd.increment(ASPECT);
+        String descriptorType = configuration.get("type");
+        Descriptors.Descriptor descriptor = stencilClient.get(descriptorType);
         EsResponseHandler esResponseHandler = new EsResponseHandler(statsd, input, resultFuture, descriptor, fieldIndex);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
