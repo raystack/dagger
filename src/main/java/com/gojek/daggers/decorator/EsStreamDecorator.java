@@ -36,7 +36,7 @@ public class EsStreamDecorator implements StreamDecorator {
         if (!canDecorate())
             return inputStream;
         Integer streamTimeout = getIntegerConfig(configuration, "stream_timeout");
-        ESAsyncConnector esConnector = new ESAsyncConnector(statsDClient, fieldIndex, configuration, stencilClient);
+        ESAsyncConnector esConnector = new ESAsyncConnector(fieldIndex, configuration, stencilClient);
         return AsyncDataStream.orderedWait(inputStream, esConnector, streamTimeout, TimeUnit.MILLISECONDS, asyncIOCapacity);
     }
 
