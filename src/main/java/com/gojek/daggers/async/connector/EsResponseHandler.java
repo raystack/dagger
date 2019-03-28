@@ -25,15 +25,15 @@ public class EsResponseHandler implements ResponseListener {
     private static final String RESPONSE_ASPECT = "es.response.time";
     private static final String FOUR_XX_ASPECT = "es.4XX.failed.count";
     private static final String FIVE_XX_ASPECT = "es.5XX.failed.count";
-    private StatsDClient statsDClient;
+//    private StatsDClient statsDClient;
     private Row input;
     private ResultFuture<Row> resultFuture;
     private long startTime;
     private Descriptor descriptor;
     private Integer fieldIndex;
 
-    public EsResponseHandler(StatsDClient statsDClient, Row input, ResultFuture<Row> resultFuture, Descriptor descriptor, Integer fieldIndex) {
-        this.statsDClient = statsDClient;
+    public EsResponseHandler(Row input, ResultFuture<Row> resultFuture, Descriptor descriptor, Integer fieldIndex) {
+//        this.statsDClient = statsDClient;
         this.input = input;
         this.resultFuture = resultFuture;
         this.descriptor = descriptor;
@@ -49,18 +49,18 @@ public class EsResponseHandler implements ResponseListener {
         ResponseBuilder responseBuilder = new ResponseBuilder(input);
         try {
             if (response.getStatusLine().getStatusCode() == 200) {
-                statsDClient.increment(SUCCESS_ASPECT);
+//                statsDClient.increment(SUCCESS_ASPECT);
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             } else {
-                statsDClient.increment(FOUR_XX_ASPECT);
+//                statsDClient.increment(FOUR_XX_ASPECT);
                 System.err.println("ElasticSearch Service 4XX Error : Code : 404");
             }
         } catch (IOException e) {
-            statsDClient.increment(EXCEPTION_ASPECT);
+//            statsDClient.increment(EXCEPTION_ASPECT);
         } finally {
-            statsDClient.time(RESPONSE_ASPECT,
-                    getElapsedTimeInMillis(startTime));
+//            statsDClient.time(RESPONSE_ASPECT,
+//                    getElapsedTimeInMillis(startTime));
             resultFuture.complete(singleton(responseBuilder.build()));
         }
     }
@@ -68,14 +68,14 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onFailure(Exception e) {
         if (e instanceof ResponseException) {
-            statsDClient.increment(FOUR_XX_ASPECT);
+//            statsDClient.increment(FOUR_XX_ASPECT);
             System.err.println("ElasticSearch Service 4XX Error : Code : 4XX");
         } else {
-            statsDClient.increment(FIVE_XX_ASPECT);
+//            statsDClient.increment(FIVE_XX_ASPECT);
             System.err.println("ElasticSearch Service 5XX Error : Code : 5XX");
         }
-        statsDClient.increment(EXCEPTION_ASPECT);
-        statsDClient.time(RESPONSE_ASPECT, getElapsedTimeInMillis(startTime));
+//        statsDClient.increment(EXCEPTION_ASPECT);
+//        statsDClient.time(RESPONSE_ASPECT, getElapsedTimeInMillis(startTime));
         resultFuture.complete(singleton(input));
     }
 

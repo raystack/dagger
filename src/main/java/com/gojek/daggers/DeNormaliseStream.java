@@ -6,7 +6,6 @@ import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
-import com.timgroup.statsd.NonBlockingStatsDClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.scala.DataStream;
 import org.apache.flink.table.api.Table;
@@ -38,9 +37,9 @@ public class DeNormaliseStream {
     }
 
     private void deNormaliseUsingEs() {
-        NonBlockingStatsDClient statsd = new NonBlockingStatsDClient(ASYNC_IO_PREFIX,
-                configuration.getString(ASYNC_IO_STATSD_HOST_KEY, ASYNC_IO_STATSD_HOST_DEFAULT),
-                configuration.getInteger(ASYNC_IO_STATSD_PORT_KEY, ASYNC_IO_STATSD_PORT_DEFAULT));
+//        NonBlockingStatsDClient statsd = new NonBlockingStatsDClient(ASYNC_IO_PREFIX,
+//                configuration.getString(ASYNC_IO_STATSD_HOST_KEY, ASYNC_IO_STATSD_HOST_DEFAULT),
+//                configuration.getInteger(ASYNC_IO_STATSD_PORT_KEY, ASYNC_IO_STATSD_PORT_DEFAULT));
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
         Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
         String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
@@ -56,7 +55,7 @@ public class DeNormaliseStream {
             Map<String, String> fieldConfiguration = ((Map<String, String>) asyncConfig.get(fieldName));
             int asyncIOCapacity = configuration.getInteger(ASYNC_IO_CAPCITY_KEY, ASYNC_IO_CAPCITY_DEFAULT);
             int fieldIndex = fieldDescriptor.getIndex();
-            StreamDecorator streamDecorator = StreamDecoratorFactory.getStreamDecorator(fieldConfiguration, fieldIndex, statsd, stencilClient, asyncIOCapacity, size);
+            StreamDecorator streamDecorator = StreamDecoratorFactory.getStreamDecorator(fieldConfiguration, fieldIndex, stencilClient, asyncIOCapacity, size);
             columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);
         }
