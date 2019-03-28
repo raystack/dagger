@@ -12,14 +12,14 @@ import java.util.concurrent.TimeUnit;
 
 public class EsStreamDecorator implements StreamDecorator {
     private Map<String, String> configuration;
-    private StatsDClient statsDClient;
+//    private StatsDClient statsDClient;
     private StencilClient stencilClient;
     private Integer asyncIOCapacity;
     private Integer fieldIndex;
 
-    public EsStreamDecorator(Map<String, String> configuration, StatsDClient statsDClient, StencilClient stencilClient, Integer asyncIOCapacity, Integer fieldIndex) {
+    public EsStreamDecorator(Map<String, String> configuration, StencilClient stencilClient, Integer asyncIOCapacity, Integer fieldIndex) {
         this.configuration = configuration;
-        this.statsDClient = statsDClient;
+//        this.statsDClient = statsDClient;
         this.stencilClient = stencilClient;
         this.asyncIOCapacity = asyncIOCapacity;
         this.fieldIndex = fieldIndex;
@@ -36,7 +36,7 @@ public class EsStreamDecorator implements StreamDecorator {
         if (!canDecorate())
             return inputStream;
         Integer streamTimeout = getIntegerConfig(configuration, "stream_timeout");
-        ESAsyncConnector esConnector = new ESAsyncConnector(statsDClient, fieldIndex, configuration, stencilClient);
+        ESAsyncConnector esConnector = new ESAsyncConnector(fieldIndex, configuration, stencilClient);
         return AsyncDataStream.orderedWait(inputStream, esConnector, streamTimeout, TimeUnit.MILLISECONDS, asyncIOCapacity);
     }
 
