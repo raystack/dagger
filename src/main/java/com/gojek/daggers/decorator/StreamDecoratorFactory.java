@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 public class StreamDecoratorFactory {
-    private static List<StreamDecorator> getAsyncTypes(Map<String, String> configuration, Integer fieldIndex, StatsDClient statsDClient, StencilClient stencilClient, Integer asyncIOCapacity) {
+    private static List<StreamDecorator> getAsyncTypes(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity) {
         return Arrays.asList(
-                new EsStreamDecorator(configuration, statsDClient, stencilClient, asyncIOCapacity, fieldIndex),
+                new EsStreamDecorator(configuration, stencilClient, asyncIOCapacity, fieldIndex),
                 new TimestampDecorator(configuration, fieldIndex)
         );
     }
 
-    public static StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StatsDClient statsDClient, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
-        return getAsyncTypes(configuration, fieldIndex, statsDClient, stencilClient, asyncIOCapacity)
+    public static StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
+        return getAsyncTypes(configuration, fieldIndex, stencilClient, asyncIOCapacity)
                 .stream()
                 .filter(StreamDecorator::canDecorate)
                 .findFirst()
