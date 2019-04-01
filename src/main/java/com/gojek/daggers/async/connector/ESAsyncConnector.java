@@ -1,8 +1,9 @@
 package com.gojek.daggers.async.connector;
 
+import com.gojek.daggers.async.connector.metric.Aspects;
+import com.gojek.daggers.async.connector.metric.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
-import com.timgroup.statsd.StatsDClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -18,15 +19,13 @@ import static com.gojek.daggers.Constants.*;
 
 public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
-    private static final String ASPECT = "es.call.count";
-//    private static StatsDClient statsd;
     private RestClient esClient;
     private Integer fieldIndex;
     private Map<String, String> configuration;
     private StencilClient stencilClient;
+    private StatsManager statsManager;
 
     public ESAsyncConnector(Integer fieldIndex, Map<String, String> configuration, StencilClient stencilClient) {
-//        this.statsd = statsd;
         this.fieldIndex = fieldIndex;
         this.configuration = configuration;
         this.stencilClient = stencilClient;
@@ -38,6 +37,8 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         if (esClient == null) {
             esClient = getEsClient();
         }
+        statsManager = new StatsManager(getRuntimeContext());
+        statsManager.register();
     }
 
     protected RestClient getEsClient() {
@@ -67,10 +68,10 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
-//        statsd.increment(ASPECT);
+        statsManager.getMeter(Aspects.CALL_COUNT).markEvent();
         String descriptorType = configuration.get("type");
         Descriptors.Descriptor descriptor = stencilClient.get(descriptorType);
-        EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex);
+        EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
     }
