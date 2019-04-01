@@ -1,7 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.daggers.async.connector.EsResponseHandler;
-import com.gojek.daggers.builder.ResponseBuilder;
+import com.gojek.daggers.async.connector.metric.StatsManager;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.aggregate.demand.AggregatedDemandKey;
 import com.gojek.esb.aggregate.demand.AggregatedDemandMessage;
@@ -30,8 +30,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_RIDE;
@@ -376,7 +374,7 @@ public class ProtoSerializerTest {
 
         ResultFuture resultFutureMock = mock(ResultFuture.class);
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
-        EsResponseHandler esResponseHandler = new EsResponseHandler(bookingRow, resultFutureMock, descriptor, 0);
+        EsResponseHandler esResponseHandler = new EsResponseHandler(bookingRow, resultFutureMock, descriptor, 0, mock(StatsManager.class));
 
 
         Response response = mock(Response.class);
