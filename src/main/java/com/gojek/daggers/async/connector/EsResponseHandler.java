@@ -2,10 +2,9 @@ package com.gojek.daggers.async.connector;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gojek.daggers.async.connector.metric.StatsManager;
 import com.gojek.daggers.builder.ResponseBuilder;
-import com.google.gson.Gson;
 import com.google.protobuf.Descriptors.Descriptor;
-import com.timgroup.statsd.StatsDClient;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.apache.http.util.EntityUtils;
@@ -16,28 +15,25 @@ import org.elasticsearch.client.ResponseListener;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.gojek.daggers.async.connector.metric.Aspects.*;
 import static com.gojek.daggers.utils.RowMaker.makeRow;
 import static java.util.Collections.singleton;
 
 public class EsResponseHandler implements ResponseListener {
-    private static final String SUCCESS_ASPECT = "es.success.count";
-    private static final String EXCEPTION_ASPECT = "es.failed.count";
-    private static final String RESPONSE_ASPECT = "es.response.time";
-    private static final String FOUR_XX_ASPECT = "es.4XX.failed.count";
-    private static final String FIVE_XX_ASPECT = "es.5XX.failed.count";
-//    private StatsDClient statsDClient;
     private Row input;
     private ResultFuture<Row> resultFuture;
     private long startTime;
     private Descriptor descriptor;
     private Integer fieldIndex;
+    private StatsManager statsManager;
 
-    public EsResponseHandler(Row input, ResultFuture<Row> resultFuture, Descriptor descriptor, Integer fieldIndex) {
-//        this.statsDClient = statsDClient;
+
+    public EsResponseHandler(Row input, ResultFuture<Row> resultFuture, Descriptor descriptor, Integer fieldIndex, StatsManager statsManager) {
         this.input = input;
         this.resultFuture = resultFuture;
         this.descriptor = descriptor;
         this.fieldIndex = fieldIndex;
+        this.statsManager = statsManager;
     }
 
     void start() {
@@ -49,18 +45,17 @@ public class EsResponseHandler implements ResponseListener {
         ResponseBuilder responseBuilder = new ResponseBuilder(input);
         try {
             if (response.getStatusLine().getStatusCode() == 200) {
-//                statsDClient.increment(SUCCESS_ASPECT);
+                statsManager.getCounter(SUCCESS_RESPONSE).inc();
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             } else {
-//                statsDClient.increment(FOUR_XX_ASPECT);
+                statsManager.getMeter(FOUR_XX_RESPONSE).markEvent();
                 System.err.println("ElasticSearch Service 4XX Error : Code : 404");
             }
         } catch (IOException e) {
-//            statsDClient.increment(EXCEPTION_ASPECT);
+            statsManager.getCounter(EXCEPTION).inc();
         } finally {
-//            statsDClient.time(RESPONSE_ASPECT,
-//                    getElapsedTimeInMillis(startTime));
+            statsManager.getHistogram(SUCCESS_RESPONSE_TIME).update(getElapsedTimeInMillis(startTime));
             resultFuture.complete(singleton(responseBuilder.build()));
         }
     }
@@ -68,14 +63,14 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onFailure(Exception e) {
         if (e instanceof ResponseException) {
-//            statsDClient.increment(FOUR_XX_ASPECT);
+            statsManager.getCounter(FOUR_XX_RESPONSE).inc();
             System.err.println("ElasticSearch Service 4XX Error : Code : 4XX");
         } else {
-//            statsDClient.increment(FIVE_XX_ASPECT);
+            statsManager.getCounter(FIVE_XX_RESPONSE).inc();
             System.err.println("ElasticSearch Service 5XX Error : Code : 5XX");
         }
-//        statsDClient.increment(EXCEPTION_ASPECT);
-//        statsDClient.time(RESPONSE_ASPECT, getElapsedTimeInMillis(startTime));
+        statsManager.getCounter(EXCEPTION).inc();
+        statsManager.getHistogram(FAILED_RESPONSE_TIME).update(getElapsedTimeInMillis(startTime));
         resultFuture.complete(singleton(input));
     }
 
@@ -83,7 +78,8 @@ public class EsResponseHandler implements ResponseListener {
         ObjectMapper objectMapper = new ObjectMapper();
         Row rowData = new Row(descriptor.getFields().size());
         try {
-            Map<String,Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
+            });
             rowData = makeRow((Map<String, Object>) (map.get("_source")), descriptor);
         } catch (IOException e) {
             e.printStackTrace();
