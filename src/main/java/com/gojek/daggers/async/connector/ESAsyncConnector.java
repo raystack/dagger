@@ -37,7 +37,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         if (esClient == null) {
             esClient = getEsClient();
         }
-        statsManager = new StatsManager(getRuntimeContext());
+        statsManager = new StatsManager(getRuntimeContext(), true);
         statsManager.register();
     }
 
@@ -68,7 +68,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
-        statsManager.getMeter(Aspects.CALL_COUNT).markEvent();
+        statsManager.markEvent(Aspects.CALL_COUNT);
         String descriptorType = configuration.get("type");
         Descriptors.Descriptor descriptor = stencilClient.get(descriptorType);
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);

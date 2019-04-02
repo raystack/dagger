@@ -1,7 +1,6 @@
 package com.gojek.daggers.async.connector.metric;
 
 import com.codahale.metrics.SlidingTimeWindowReservoir;
-import com.codahale.metrics.SlidingWindowReservoir;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
@@ -18,21 +17,25 @@ import static com.gojek.daggers.async.connector.metric.Aspects.*;
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
     private RuntimeContext runtimeContext;
+    private Boolean enabled;
     private HashMap<Aspects, Counter> counterMap;
     private HashMap<Aspects, Meter> meterMap;
 
-    public StatsManager(RuntimeContext runtimeContext) {
+    public StatsManager(RuntimeContext runtimeContext, Boolean enabled) {
         this.runtimeContext = runtimeContext;
+        this.enabled = enabled;
         counterMap = new HashMap<>();
         histogramMap = new HashMap<>();
         meterMap = new HashMap<>();
     }
 
     public void register() {
-        MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup("es");
-        registerCounters(metricGroup);
-        registerHistograms(metricGroup);
-        registerMeters(metricGroup);
+        if (enabled) {
+            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup("es");
+            registerCounters(metricGroup);
+            registerHistograms(metricGroup);
+            registerMeters(metricGroup);
+        }
     }
 
     private void registerHistograms(MetricGroup metricGroup) {
@@ -57,15 +60,18 @@ public class StatsManager {
         return new com.codahale.metrics.Histogram(new SlidingTimeWindowReservoir(10, TimeUnit.SECONDS));
     }
 
-    public Counter getCounter(Aspects aspect) {
-        return counterMap.get(aspect);
+    public void incCounter(Aspects aspect) {
+        if (enabled)
+            counterMap.get(aspect).inc();
     }
 
-    public Histogram getHistogram(Aspects aspects) {
-        return histogramMap.get(aspects);
+    public void updateHistogram(Aspects aspects, long value) {
+        if (enabled)
+            histogramMap.get(aspects).update(value);
     }
 
-    public Meter getMeter(Aspects aspect) {
-        return meterMap.get(aspect);
+    public void markEvent(Aspects aspect) {
+        if (enabled)
+            meterMap.get(aspect).markEvent();
     }
 }
