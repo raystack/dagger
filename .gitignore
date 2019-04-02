@@ -7,3 +7,4 @@ classes
 config/checkstyle
 generated
 .pairs
+target/
