@@ -45,17 +45,17 @@ public class EsResponseHandler implements ResponseListener {
         ResponseBuilder responseBuilder = new ResponseBuilder(input);
         try {
             if (response.getStatusLine().getStatusCode() == 200) {
-                statsManager.getCounter(SUCCESS_RESPONSE).inc();
+                statsManager.incCounter(SUCCESS_RESPONSE);
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             } else {
-                statsManager.getMeter(FOUR_XX_RESPONSE).markEvent();
+                statsManager.markEvent(FOUR_XX_RESPONSE);
                 System.err.println("ElasticSearch Service 4XX Error : Code : 404");
             }
         } catch (IOException e) {
-            statsManager.getCounter(EXCEPTION).inc();
+            statsManager.incCounter(EXCEPTION);
         } finally {
-            statsManager.getHistogram(SUCCESS_RESPONSE_TIME).update(getElapsedTimeInMillis(startTime));
+            statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
             resultFuture.complete(singleton(responseBuilder.build()));
         }
     }
@@ -63,14 +63,14 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onFailure(Exception e) {
         if (e instanceof ResponseException) {
-            statsManager.getCounter(FOUR_XX_RESPONSE).inc();
+            statsManager.incCounter(FOUR_XX_RESPONSE);
             System.err.println("ElasticSearch Service 4XX Error : Code : 4XX");
         } else {
-            statsManager.getCounter(FIVE_XX_RESPONSE).inc();
+            statsManager.incCounter(FIVE_XX_RESPONSE);
             System.err.println("ElasticSearch Service 5XX Error : Code : 5XX");
         }
-        statsManager.getCounter(EXCEPTION).inc();
-        statsManager.getHistogram(FAILED_RESPONSE_TIME).update(getElapsedTimeInMillis(startTime));
+        statsManager.incCounter(EXCEPTION);
+        statsManager.updateHistogram(FAILED_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
         resultFuture.complete(singleton(input));
     }
 
