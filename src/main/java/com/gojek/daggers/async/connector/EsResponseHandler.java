@@ -49,7 +49,7 @@ public class EsResponseHandler implements ResponseListener {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             } else {
-                statsManager.markEvent(FOUR_XX_RESPONSE);
+                statsManager.incCounter(FOUR_XX_RESPONSE);
                 System.err.println("ElasticSearch Service 4XX Error : Code : 404");
             }
         } catch (IOException e) {

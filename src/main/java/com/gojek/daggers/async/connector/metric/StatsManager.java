@@ -34,7 +34,6 @@ public class StatsManager {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup("es");
             registerCounters(metricGroup);
             registerHistograms(metricGroup);
-            registerMeters(metricGroup);
         }
     }
 
@@ -49,11 +48,8 @@ public class StatsManager {
         counterMap.put(SUCCESS_RESPONSE, metricGroup.counter(SUCCESS_RESPONSE.getValue()));
         counterMap.put(EXCEPTION, metricGroup.counter(EXCEPTION.getValue()));
         counterMap.put(FIVE_XX_RESPONSE, metricGroup.counter(FIVE_XX_RESPONSE.getValue()));
-    }
-
-    private void registerMeters(MetricGroup metricGroup) {
-        meterMap.put(CALL_COUNT, metricGroup.meter(CALL_COUNT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-        meterMap.put(FOUR_XX_RESPONSE, metricGroup.meter(FOUR_XX_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        counterMap.put(CALL_COUNT, metricGroup.counter(CALL_COUNT.getValue()));
+        counterMap.put(FOUR_XX_RESPONSE, metricGroup.counter(FOUR_XX_RESPONSE.getValue()));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {
@@ -70,8 +66,4 @@ public class StatsManager {
             histogramMap.get(aspects).update(value);
     }
 
-    public void markEvent(Aspects aspect) {
-        if (enabled)
-            meterMap.get(aspect).markEvent();
-    }
 }
