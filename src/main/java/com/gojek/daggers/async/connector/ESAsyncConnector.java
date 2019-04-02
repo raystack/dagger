@@ -19,6 +19,7 @@ import static com.gojek.daggers.Constants.*;
 
 public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
+    private Descriptors.Descriptor descriptor;
     private RestClient esClient;
     private Integer fieldIndex;
     private Map<String, String> configuration;
@@ -29,11 +30,16 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.fieldIndex = fieldIndex;
         this.configuration = configuration;
         this.stencilClient = stencilClient;
+
     }
 
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
+
+        String descriptorType = this.configuration.get("type");
+        this.descriptor = stencilClient.get(descriptorType);
+
         if (esClient == null) {
             esClient = getEsClient();
         }
@@ -69,8 +75,6 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
         statsManager.markEvent(Aspects.CALL_COUNT);
-        String descriptorType = configuration.get("type");
-        Descriptors.Descriptor descriptor = stencilClient.get(descriptorType);
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
