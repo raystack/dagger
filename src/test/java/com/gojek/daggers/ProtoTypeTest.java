@@ -18,7 +18,8 @@ import static org.junit.Assert.assertEquals;
 
 //import gojek.esb.clevertap.ClevertapEventLog;
 
-public class ProtoTypeTest {
+public class
+ProtoTypeTest {
     private static final StencilClient STENCIL_CLIENT = StencilClientFactory.getClient();
 
     @Test
