@@ -45,15 +45,15 @@ public class EsResponseHandler implements ResponseListener {
         ResponseBuilder responseBuilder = new ResponseBuilder(input);
         try {
             if (response.getStatusLine().getStatusCode() == 200) {
-                statsManager.incCounter(SUCCESS_RESPONSE);
+                statsManager.markEvent(SUCCESSES);
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             } else {
-                statsManager.incCounter(FOUR_XX_RESPONSE);
+                statsManager.markEvent(FOUR_XX_FAILURES);
                 System.err.println("ElasticSearch Service 4XX Error : Code : 404");
             }
         } catch (IOException e) {
-            statsManager.incCounter(EXCEPTION);
+            statsManager.markEvent(FAILURES);
         } finally {
             statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
             resultFuture.complete(singleton(responseBuilder.build()));
@@ -63,13 +63,13 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onFailure(Exception e) {
         if (e instanceof ResponseException) {
-            statsManager.incCounter(FOUR_XX_RESPONSE);
+            statsManager.markEvent(FOUR_XX_FAILURES);
             System.err.println("ElasticSearch Service 4XX Error : Code : 4XX");
         } else {
-            statsManager.incCounter(FIVE_XX_RESPONSE);
+            statsManager.markEvent(FIVE_XX_FAILURES);
             System.err.println("ElasticSearch Service 5XX Error : Code : 5XX");
         }
-        statsManager.incCounter(EXCEPTION);
+        statsManager.markEvent(FAILURES);
         statsManager.updateHistogram(FAILED_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
         resultFuture.complete(singleton(input));
     }
