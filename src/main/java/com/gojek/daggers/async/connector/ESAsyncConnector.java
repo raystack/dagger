@@ -74,7 +74,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
-        statsManager.incCounter(Aspects.CALL_COUNT);
+        statsManager.markEvent(Aspects.TOTAL_CALLS);
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
