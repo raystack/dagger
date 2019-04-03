@@ -1,13 +1,13 @@
 package com.gojek.daggers.async.connector.metric;
 
 public enum Aspects {
-    SUCCESS_RESPONSE("successCount"),
-    EXCEPTION("failedCount"),
+    SUCCESSES("successes"),
+    FAILURES("failures"),
     SUCCESS_RESPONSE_TIME("successResponseTime"),
     FAILED_RESPONSE_TIME("failedResponseTime"),
-    FOUR_XX_RESPONSE("4XXFailedCount"),
-    FIVE_XX_RESPONSE("5XXFailedCount"),
-    CALL_COUNT("callCount");
+    FOUR_XX_FAILURES("4XXFailures"),
+    FIVE_XX_FAILURES("5XXFailures"),
+    TOTAL_CALLS("totalCalls");
 
     private String value;
 

@@ -18,13 +18,11 @@ public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
     private RuntimeContext runtimeContext;
     private Boolean enabled;
-    private HashMap<Aspects, Counter> counterMap;
     private HashMap<Aspects, Meter> meterMap;
 
     public StatsManager(RuntimeContext runtimeContext, Boolean enabled) {
         this.runtimeContext = runtimeContext;
         this.enabled = enabled;
-        counterMap = new HashMap<>();
         histogramMap = new HashMap<>();
         meterMap = new HashMap<>();
     }
@@ -32,8 +30,8 @@ public class StatsManager {
     public void register() {
         if (enabled) {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup("es");
-            registerCounters(metricGroup);
             registerHistograms(metricGroup);
+            registerMeters(metricGroup);
         }
     }
 
@@ -44,21 +42,16 @@ public class StatsManager {
                 .histogram(FAILED_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
     }
 
-    private void registerCounters(MetricGroup metricGroup) {
-        counterMap.put(SUCCESS_RESPONSE, metricGroup.counter(SUCCESS_RESPONSE.getValue()));
-        counterMap.put(EXCEPTION, metricGroup.counter(EXCEPTION.getValue()));
-        counterMap.put(FIVE_XX_RESPONSE, metricGroup.counter(FIVE_XX_RESPONSE.getValue()));
-        counterMap.put(CALL_COUNT, metricGroup.counter(CALL_COUNT.getValue()));
-        counterMap.put(FOUR_XX_RESPONSE, metricGroup.counter(FOUR_XX_RESPONSE.getValue()));
+    private void registerMeters(MetricGroup metricGroup) {
+        meterMap.put(TOTAL_CALLS, metricGroup.meter(TOTAL_CALLS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FOUR_XX_FAILURES, metricGroup.meter(FOUR_XX_FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(SUCCESSES, metricGroup.meter(SUCCESSES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FAILURES, metricGroup.meter(FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FIVE_XX_FAILURES, metricGroup.meter(FIVE_XX_FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {
         return new com.codahale.metrics.Histogram(new SlidingTimeWindowReservoir(10, TimeUnit.SECONDS));
-    }
-
-    public void incCounter(Aspects aspect) {
-        if (enabled)
-            counterMap.get(aspect).inc();
     }
 
     public void updateHistogram(Aspects aspects, long value) {
@@ -66,4 +59,8 @@ public class StatsManager {
             histogramMap.get(aspects).update(value);
     }
 
+    public void markEvent(Aspects aspect) {
+        if (enabled)
+            meterMap.get(aspect).markEvent();
+    }
 }
