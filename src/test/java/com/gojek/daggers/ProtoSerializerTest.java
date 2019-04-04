@@ -14,8 +14,6 @@ import com.gojek.esb.types.BookingStatusProto;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
-import com.timgroup.statsd.StatsDClient;
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.apache.http.HttpEntity;
@@ -375,7 +373,7 @@ public class ProtoSerializerTest {
 
         ResultFuture resultFutureMock = mock(ResultFuture.class);
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
-        EsResponseHandler esResponseHandler = new EsResponseHandler(bookingRow, resultFutureMock, descriptor, 0, new StatsManager(null, false));
+        EsResponseHandler esResponseHandler = new EsResponseHandler(bookingRow, resultFutureMock, descriptor, 0, new StatsManager(null, "es.customer_profile", false));
 
 
         Response response = mock(Response.class);
