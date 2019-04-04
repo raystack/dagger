@@ -20,24 +20,29 @@ public class RowMaker {
     private static Object fetchTypeAppropriateValue(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor) {
         switch (fieldDescriptor.getJavaType()) {
             case INT:
-                return Integer.parseInt(inputMap.getOrDefault(fieldDescriptor.getName(), "0").toString());
+                return Integer.parseInt(getValueFor(inputMap, fieldDescriptor, "0"));
             case LONG:
-                return Long.parseLong(inputMap.getOrDefault(fieldDescriptor.getName(), "0").toString());
+                return Long.parseLong(getValueFor(inputMap, fieldDescriptor, "0"));
             case FLOAT:
-                return Float.parseFloat(inputMap.getOrDefault(fieldDescriptor.getName(), "0").toString());
+                return Float.parseFloat(getValueFor(inputMap, fieldDescriptor, "0"));
             case DOUBLE:
-                return Double.parseDouble(inputMap.getOrDefault(fieldDescriptor.getName(), "0").toString());
+                return Double.parseDouble(getValueFor(inputMap, fieldDescriptor, "0"));
             case BOOLEAN:
-                return Boolean.parseBoolean(inputMap.getOrDefault(fieldDescriptor.getName(), "").toString());
+                return Boolean.parseBoolean(getValueFor(inputMap, fieldDescriptor, "false"));
             case BYTE_STRING:
                 return new byte[0];
             case STRING:
-                return inputMap.getOrDefault(fieldDescriptor.getName(), "").toString();
+                return getValueFor(inputMap, fieldDescriptor, "");
             case MESSAGE:
             case ENUM:
                 return inputMap.getOrDefault(fieldDescriptor.getName(), null);
             default:
                 return null;
         }
+    }
+
+    private static String getValueFor(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor, String defaultValue) {
+        Object input = inputMap.get(fieldDescriptor.getName());
+        return input == null ? defaultValue : input.toString();
     }
 }
