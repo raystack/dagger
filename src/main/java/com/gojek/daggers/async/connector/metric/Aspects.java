@@ -1,13 +1,18 @@
 package com.gojek.daggers.async.connector.metric;
 
 public enum Aspects {
-    SUCCESSES("successes"),
-    FAILURES("failures"),
+    DOCUMENT_FOUND("documentFound"),
+    ERROR_PARSING_RESPONSE("parse_errors"),
     SUCCESS_RESPONSE_TIME("successResponseTime"),
-    FAILED_RESPONSE_TIME("failedResponseTime"),
-    FOUR_XX_FAILURES("4XXFailures"),
-    FIVE_XX_FAILURES("5XXFailures"),
-    TOTAL_CALLS("totalCalls");
+    FAILURES_ON_ES_RESPONSE_TIME("failedOnESResponseTime"),
+    FAILURES_ON_ES("failuresOnES5XX"),
+    DOCUMENT_NOT_FOUND_ON_ES("documentNotFoundOnES404"),
+    REQUEST_ERROR("requestError"),
+    REQUEST_ERRORS_RESPONSE_TIME("requestErrorsResponseTime"),
+    OTHER_ERRORS("otherErrors"),
+    OTHER_ERRORS_RESPONSE_TIME("otherErrorsResponseTime"),
+    TOTAL_CALLS("totalCalls"),
+    TOTAL_FAILED_REQUESTS("totalFailures");
 
     private String value;
 

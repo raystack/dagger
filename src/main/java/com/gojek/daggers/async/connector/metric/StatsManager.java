@@ -4,7 +4,6 @@ import com.codahale.metrics.SlidingTimeWindowReservoir;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
-import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
@@ -16,12 +15,14 @@ import static com.gojek.daggers.async.connector.metric.Aspects.*;
 
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
+    private final String groupName;
     private RuntimeContext runtimeContext;
     private Boolean enabled;
     private HashMap<Aspects, Meter> meterMap;
 
-    public StatsManager(RuntimeContext runtimeContext, Boolean enabled) {
+    public StatsManager(RuntimeContext runtimeContext, String groupName, Boolean enabled) {
         this.runtimeContext = runtimeContext;
+        this.groupName = groupName;
         this.enabled = enabled;
         histogramMap = new HashMap<>();
         meterMap = new HashMap<>();
@@ -29,7 +30,7 @@ public class StatsManager {
 
     public void register() {
         if (enabled) {
-            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup("es");
+            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupName);
             registerHistograms(metricGroup);
             registerMeters(metricGroup);
         }
@@ -38,16 +39,23 @@ public class StatsManager {
     private void registerHistograms(MetricGroup metricGroup) {
         histogramMap.put(SUCCESS_RESPONSE_TIME, metricGroup
                 .histogram(SUCCESS_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
-        histogramMap.put(FAILED_RESPONSE_TIME, metricGroup
-                .histogram(FAILED_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+        histogramMap.put(OTHER_ERRORS_RESPONSE_TIME, metricGroup
+                .histogram(OTHER_ERRORS_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+        histogramMap.put(REQUEST_ERRORS_RESPONSE_TIME, metricGroup
+                .histogram(REQUEST_ERRORS_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+        histogramMap.put(FAILURES_ON_ES_RESPONSE_TIME, metricGroup
+                .histogram(FAILURES_ON_ES_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
     }
 
     private void registerMeters(MetricGroup metricGroup) {
         meterMap.put(TOTAL_CALLS, metricGroup.meter(TOTAL_CALLS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-        meterMap.put(FOUR_XX_FAILURES, metricGroup.meter(FOUR_XX_FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-        meterMap.put(SUCCESSES, metricGroup.meter(SUCCESSES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-        meterMap.put(FAILURES, metricGroup.meter(FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-        meterMap.put(FIVE_XX_FAILURES, metricGroup.meter(FIVE_XX_FAILURES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(DOCUMENT_FOUND, metricGroup.meter(DOCUMENT_FOUND.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(ERROR_PARSING_RESPONSE, metricGroup.meter(ERROR_PARSING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FAILURES_ON_ES, metricGroup.meter(FAILURES_ON_ES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(REQUEST_ERROR, metricGroup.meter(REQUEST_ERROR.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(TOTAL_FAILED_REQUESTS, metricGroup.meter(TOTAL_FAILED_REQUESTS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(OTHER_ERRORS, metricGroup.meter(OTHER_ERRORS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(DOCUMENT_NOT_FOUND_ON_ES, metricGroup.meter(DOCUMENT_NOT_FOUND_ON_ES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {

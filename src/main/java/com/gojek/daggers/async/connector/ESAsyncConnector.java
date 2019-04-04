@@ -43,7 +43,8 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         if (esClient == null) {
             esClient = getEsClient();
         }
-        statsManager = new StatsManager(getRuntimeContext(), true);
+        String groupName = "es." + this.configuration.get(FIELD_NAME_KEY);
+        statsManager = new StatsManager(getRuntimeContext(), groupName, true);
         statsManager.register();
     }
 
