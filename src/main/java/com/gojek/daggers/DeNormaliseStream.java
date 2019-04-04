@@ -55,6 +55,7 @@ public class DeNormaliseStream {
             Map<String, String> fieldConfiguration = ((Map<String, String>) asyncConfig.get(fieldName));
             int asyncIOCapacity = configuration.getInteger(ASYNC_IO_CAPCITY_KEY, ASYNC_IO_CAPCITY_DEFAULT);
             int fieldIndex = fieldDescriptor.getIndex();
+            fieldConfiguration.put(FIELD_NAME_KEY,fieldName);
             StreamDecorator streamDecorator = StreamDecoratorFactory.getStreamDecorator(fieldConfiguration, fieldIndex, stencilClient, asyncIOCapacity, size);
             columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);

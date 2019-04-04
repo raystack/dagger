@@ -19,6 +19,7 @@ public class Constants {
     public static Integer ASYNC_IO_CAPCITY_DEFAULT = 30;
     public static String ASYNC_IO_KEY = "ASYNC_IO";
     public static String OUTPUT_PROTO_CLASS_PREFIX_KEY = "OUTPUT_PROTO_CLASS_PREFIX";
+    public static String FIELD_NAME_KEY = "field_name";
 
 
 }
