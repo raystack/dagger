@@ -48,7 +48,7 @@ public class StatsManager {
     }
 
     private void registerMeters(MetricGroup metricGroup) {
-        meterMap.put(TOTAL_CALLS, metricGroup.meter(TOTAL_CALLS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(TOTAL_ES_CALLS, metricGroup.meter(TOTAL_ES_CALLS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(DOCUMENT_FOUND, metricGroup.meter(DOCUMENT_FOUND.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(ERROR_PARSING_RESPONSE, metricGroup.meter(ERROR_PARSING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(FAILURES_ON_ES, metricGroup.meter(FAILURES_ON_ES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
@@ -56,6 +56,7 @@ public class StatsManager {
         meterMap.put(TOTAL_FAILED_REQUESTS, metricGroup.meter(TOTAL_FAILED_REQUESTS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(OTHER_ERRORS, metricGroup.meter(OTHER_ERRORS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(DOCUMENT_NOT_FOUND_ON_ES, metricGroup.meter(DOCUMENT_NOT_FOUND_ON_ES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(EMPTY_INPUT, metricGroup.meter(EMPTY_INPUT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {

@@ -2,8 +2,10 @@ package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.connector.metric.Aspects;
 import com.gojek.daggers.async.connector.metric.StatsManager;
+import com.gojek.daggers.builder.ResponseBuilder;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -13,8 +15,10 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.gojek.daggers.Constants.*;
+import static java.util.Collections.singleton;
 
 
 public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
@@ -73,12 +77,22 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
+        if (isEmpty(id)) {
+            ResponseBuilder responseBuilder = new ResponseBuilder(input);
+            resultFuture.complete(singleton(responseBuilder.build()));
+            statsManager.markEvent(Aspects.EMPTY_INPUT);
+            return;
+        }
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
-        statsManager.markEvent(Aspects.TOTAL_CALLS);
+        statsManager.markEvent(Aspects.TOTAL_ES_CALLS);
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
+    }
+
+    private boolean isEmpty(Object value) {
+        return Objects.isNull(value) || StringUtils.isEmpty(value.toString());
     }
 
     private Integer getIntegerConfig(Map<String, String> fieldConfiguration, String key) {

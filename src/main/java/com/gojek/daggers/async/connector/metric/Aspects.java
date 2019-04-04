@@ -11,9 +11,9 @@ public enum Aspects {
     REQUEST_ERRORS_RESPONSE_TIME("requestErrorsResponseTime"),
     OTHER_ERRORS("otherErrors"),
     OTHER_ERRORS_RESPONSE_TIME("otherErrorsResponseTime"),
-    TOTAL_CALLS("totalCalls"),
-    TOTAL_FAILED_REQUESTS("totalFailures");
-
+    TOTAL_ES_CALLS("totalESCalls"),
+    TOTAL_FAILED_REQUESTS("totalFailures"),
+    EMPTY_INPUT("emptyInput");
     private String value;
 
     Aspects(String value) {
