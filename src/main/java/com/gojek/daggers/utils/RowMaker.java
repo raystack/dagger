@@ -34,8 +34,9 @@ public class RowMaker {
             case STRING:
                 return getValueFor(inputMap, fieldDescriptor, "");
             case MESSAGE:
-            case ENUM:
                 return inputMap.getOrDefault(fieldDescriptor.getName(), null);
+            case ENUM:
+                fieldDescriptor.getEnumType().findValueByNumber(0).getName();
             default:
                 return null;
         }
