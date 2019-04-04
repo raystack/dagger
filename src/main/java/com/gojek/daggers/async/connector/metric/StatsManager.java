@@ -57,6 +57,8 @@ public class StatsManager {
         meterMap.put(OTHER_ERRORS, metricGroup.meter(OTHER_ERRORS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(DOCUMENT_NOT_FOUND_ON_ES, metricGroup.meter(DOCUMENT_NOT_FOUND_ON_ES.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(EMPTY_INPUT, metricGroup.meter(EMPTY_INPUT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(OTHER_ERRORS_PROCESSING_RESPONSE, metricGroup.meter(OTHER_ERRORS_PROCESSING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(ERROR_READING_RESPONSE, metricGroup.meter(ERROR_READING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {
