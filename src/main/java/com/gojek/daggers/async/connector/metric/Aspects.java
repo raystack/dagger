@@ -2,7 +2,7 @@ package com.gojek.daggers.async.connector.metric;
 
 public enum Aspects {
     DOCUMENT_FOUND("documentFound"),
-    ERROR_PARSING_RESPONSE("parse_errors"),
+    ERROR_PARSING_RESPONSE("parseErrors"),
     SUCCESS_RESPONSE_TIME("successResponseTime"),
     FAILURES_ON_ES_RESPONSE_TIME("failedOnESResponseTime"),
     FAILURES_ON_ES("failuresOnES5XX"),
@@ -13,7 +13,10 @@ public enum Aspects {
     OTHER_ERRORS_RESPONSE_TIME("otherErrorsResponseTime"),
     TOTAL_ES_CALLS("totalESCalls"),
     TOTAL_FAILED_REQUESTS("totalFailures"),
-    EMPTY_INPUT("emptyInput");
+    EMPTY_INPUT("emptyInput"),
+    ERROR_READING_RESPONSE("errorReadingResponse"),
+    OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse");
+
     private String value;
 
     Aspects(String value) {

@@ -7,6 +7,7 @@ import com.gojek.daggers.builder.ResponseBuilder;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
@@ -49,10 +50,20 @@ public class EsResponseHandler implements ResponseListener {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 enrichRow(responseBuilder, responseBody, descriptor);
             }
-        } catch (Exception e) {
+        } catch (ParseException e) {
             statsManager.markEvent(ERROR_PARSING_RESPONSE);
-            System.err.printf("ESResponseHandler : error parsing response %s\n", e.getMessage());
-        } finally {
+            System.err.printf("ESResponseHandler : error parsing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            statsManager.markEvent(ERROR_READING_RESPONSE);
+            System.err.printf("ESResponseHandler : error reading response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            e.printStackTrace();
+        } catch (Exception e) {
+            statsManager.markEvent(OTHER_ERRORS_PROCESSING_RESPONSE);
+            System.err.printf("ESResponseHandler : other errors processing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            e.printStackTrace();
+        }
+        finally {
             statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
             resultFuture.complete(singleton(responseBuilder.build()));
         }
