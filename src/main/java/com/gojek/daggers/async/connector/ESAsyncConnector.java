@@ -83,7 +83,6 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-        Instant start = Instant.now();
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         if (isEmpty(id)) {
             resultFuture.complete(singleton(new ResponseBuilder(input).build()));
@@ -96,7 +95,6 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
-        statsManager.updateHistogram(Aspects.EVENT_PROCESSING_TIME, Duration.between(start, Instant.now()).toMillis());
     }
 
     private boolean isEmpty(Object value) {

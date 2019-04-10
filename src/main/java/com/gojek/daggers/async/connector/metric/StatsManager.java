@@ -45,8 +45,6 @@ public class StatsManager {
                 .histogram(REQUEST_ERRORS_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
         histogramMap.put(FAILURES_ON_ES_RESPONSE_TIME, metricGroup
                 .histogram(FAILURES_ON_ES_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
-        histogramMap.put(EVENT_PROCESSING_TIME, metricGroup
-                .histogram(EVENT_PROCESSING_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
     }
 
     private void registerMeters(MetricGroup metricGroup) {

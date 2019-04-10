@@ -16,8 +16,7 @@ public enum Aspects {
     EMPTY_INPUT("emptyInput"),
     ERROR_READING_RESPONSE("errorReadingResponse"),
     OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse"),
-    TIMEOUTS("timeouts"),
-    EVENT_PROCESSING_TIME("eventProcessingTime");
+    TIMEOUTS("timeouts");
 
     private String value;
 
