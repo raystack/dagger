@@ -45,6 +45,8 @@ public class StatsManager {
                 .histogram(REQUEST_ERRORS_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
         histogramMap.put(FAILURES_ON_ES_RESPONSE_TIME, metricGroup
                 .histogram(FAILURES_ON_ES_RESPONSE_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+        histogramMap.put(EVENT_PROCESSING_TIME, metricGroup
+                .histogram(EVENT_PROCESSING_TIME.getValue(), new DropwizardHistogramWrapper(getHistogram())));
     }
 
     private void registerMeters(MetricGroup metricGroup) {
@@ -59,6 +61,7 @@ public class StatsManager {
         meterMap.put(EMPTY_INPUT, metricGroup.meter(EMPTY_INPUT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(OTHER_ERRORS_PROCESSING_RESPONSE, metricGroup.meter(OTHER_ERRORS_PROCESSING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(ERROR_READING_RESPONSE, metricGroup.meter(ERROR_READING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(TIMEOUTS, metricGroup.meter(TIMEOUTS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
     private com.codahale.metrics.Histogram getHistogram() {

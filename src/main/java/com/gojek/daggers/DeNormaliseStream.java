@@ -37,9 +37,6 @@ public class DeNormaliseStream {
     }
 
     private void deNormaliseUsingEs() {
-//        NonBlockingStatsDClient statsd = new NonBlockingStatsDClient(ASYNC_IO_PREFIX,
-//                configuration.getString(ASYNC_IO_STATSD_HOST_KEY, ASYNC_IO_STATSD_HOST_DEFAULT),
-//                configuration.getInteger(ASYNC_IO_STATSD_PORT_KEY, ASYNC_IO_STATSD_PORT_DEFAULT));
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
         Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
         String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
@@ -53,9 +50,9 @@ public class DeNormaliseStream {
                 continue;
             }
             Map<String, String> fieldConfiguration = ((Map<String, String>) asyncConfig.get(fieldName));
-            int asyncIOCapacity = configuration.getInteger(ASYNC_IO_CAPCITY_KEY, ASYNC_IO_CAPCITY_DEFAULT);
+            int asyncIOCapacity = Integer.valueOf(fieldConfiguration.getOrDefault(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
             int fieldIndex = fieldDescriptor.getIndex();
-            fieldConfiguration.put(FIELD_NAME_KEY,fieldName);
+            fieldConfiguration.put(FIELD_NAME_KEY, fieldName);
             StreamDecorator streamDecorator = StreamDecoratorFactory.getStreamDecorator(fieldConfiguration, fieldIndex, stencilClient, asyncIOCapacity, size);
             columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);
