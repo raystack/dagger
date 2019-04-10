@@ -14,6 +14,8 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,14 +47,19 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.descriptor = stencilClient.get(descriptorType);
 
         if (esClient == null) {
-            esClient = getEsClient();
+            esClient = createESClient();
         }
         String groupName = "es." + this.configuration.get(FIELD_NAME_KEY);
         statsManager = new StatsManager(getRuntimeContext(), groupName, true);
         statsManager.register();
     }
 
-    protected RestClient getEsClient() {
+    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+        statsManager.markEvent(Aspects.TIMEOUTS);
+        resultFuture.complete(singleton(new ResponseBuilder(input).build()));
+    }
+
+    protected RestClient createESClient() {
         Integer connectTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_CONNECT_TIMEOUT_KEY);
         Integer socketTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_SOCKET_TIMEOUT_KEY);
         Integer retryTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_MAX_RETRY_TIMEOUT_KEY);
@@ -76,10 +83,10 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
+        Instant start = Instant.now();
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         if (isEmpty(id)) {
-            ResponseBuilder responseBuilder = new ResponseBuilder(input);
-            resultFuture.complete(singleton(responseBuilder.build()));
+            resultFuture.complete(singleton(new ResponseBuilder(input).build()));
             statsManager.markEvent(Aspects.EMPTY_INPUT);
             return;
         }
@@ -89,6 +96,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);
+        statsManager.updateHistogram(Aspects.EVENT_PROCESSING_TIME, Duration.between(start, Instant.now()).toMillis());
     }
 
     private boolean isEmpty(Object value) {
@@ -103,4 +111,6 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         String host = configuration.get(ASYNC_IO_ES_HOST_KEY);
         return host.split(",");
     }
+
+
 }

@@ -374,8 +374,7 @@ public class ProtoSerializerTest {
         ResultFuture resultFutureMock = mock(ResultFuture.class);
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         EsResponseHandler esResponseHandler = new EsResponseHandler(bookingRow, resultFutureMock, descriptor, 0, new StatsManager(null, "es.customer_profile", false));
-
-
+        esResponseHandler.start();
         Response response = mock(Response.class);
         StatusLine statusLineMock = mock(StatusLine.class);
         when(statusLineMock.getStatusCode()).thenReturn(200);

@@ -14,16 +14,18 @@ import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.ResponseListener;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Map;
 
 import static com.gojek.daggers.async.connector.metric.Aspects.*;
 import static com.gojek.daggers.utils.RowMaker.makeRow;
+import static java.time.Duration.between;
 import static java.util.Collections.singleton;
 
 public class EsResponseHandler implements ResponseListener {
     private Row input;
     private ResultFuture<Row> resultFuture;
-    private long startTime;
+    private Instant startTime;
     private Descriptor descriptor;
     private Integer fieldIndex;
     private StatsManager statsManager;
@@ -37,8 +39,8 @@ public class EsResponseHandler implements ResponseListener {
         this.statsManager = statsManager;
     }
 
-    void start() {
-        startTime = System.nanoTime();
+    public void start() {
+        startTime = Instant.now();
     }
 
     @Override
@@ -62,9 +64,8 @@ public class EsResponseHandler implements ResponseListener {
             statsManager.markEvent(OTHER_ERRORS_PROCESSING_RESPONSE);
             System.err.printf("ESResponseHandler : other errors processing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
             e.printStackTrace();
-        }
-        finally {
-            statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
+        } finally {
+            statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             resultFuture.complete(singleton(responseBuilder.build()));
         }
     }
@@ -74,7 +75,7 @@ public class EsResponseHandler implements ResponseListener {
         if (e instanceof ResponseException) {
             if (isRetryStatus((ResponseException) e)) {
                 statsManager.markEvent(FAILURES_ON_ES);
-                statsManager.updateHistogram(FAILURES_ON_ES_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
+                statsManager.updateHistogram(FAILURES_ON_ES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                 System.err.printf("ESResponseHandler : all nodes unresponsive %s\n", e.getMessage());
             } else {
                 if (isNotFound((ResponseException) e)) {
@@ -82,13 +83,13 @@ public class EsResponseHandler implements ResponseListener {
                 } else {
                     statsManager.markEvent(REQUEST_ERROR);
                 }
-                statsManager.updateHistogram(REQUEST_ERRORS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
+                statsManager.updateHistogram(REQUEST_ERRORS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                 System.err.printf("ESResponseHandler : request error %s\n", e.getMessage());
             }
         } else {
             statsManager.markEvent(OTHER_ERRORS);
             //TimeoutException
-            statsManager.updateHistogram(OTHER_ERRORS_RESPONSE_TIME, getElapsedTimeInMillis(startTime));
+            statsManager.updateHistogram(OTHER_ERRORS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             System.err.printf("ESResponseHandler some other errors :  %s \n", e.getMessage());
         }
         statsManager.markEvent(TOTAL_FAILED_REQUESTS);
@@ -125,7 +126,4 @@ public class EsResponseHandler implements ResponseListener {
         }
     }
 
-    private long getElapsedTimeInMillis(long startTime) {
-        return (System.nanoTime() - startTime) / 1000000;
-    }
 }
