@@ -41,10 +41,8 @@ public class DeNormaliseStreamTest {
         Configuration configuration = mock(Configuration.class);
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("log");
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(true);
-        when(configuration.getString(ASYNC_IO_STATSD_HOST_KEY, ASYNC_IO_STATSD_HOST_DEFAULT)).thenReturn("localhost");
         when(configuration.getString(ASYNC_IO_ES_HOST_KEY, ASYNC_IO_ES_HOST_DEFAULT)).thenReturn("localhost");
         when(configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "")).thenReturn("com.gojek.esb.fraud.EnrichedBookingLog");
-        when(configuration.getInteger(ASYNC_IO_CAPCITY_KEY, ASYNC_IO_CAPCITY_DEFAULT)).thenReturn(30);
         when(configuration.getString(ASYNC_IO_KEY, "")).thenReturn("{\n" +
                 "  \"booking_log_message\": { \n" +
                 "  \"source\": \"input\"\n" +

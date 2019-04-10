@@ -1,7 +1,6 @@
 package com.gojek.daggers.decorator;
 
 import com.gojek.de.stencil.StencilClient;
-import com.timgroup.statsd.StatsDClient;
 
 import java.util.Arrays;
 import java.util.List;
