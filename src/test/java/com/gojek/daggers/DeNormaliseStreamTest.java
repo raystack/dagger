@@ -1,5 +1,6 @@
 package com.gojek.daggers;
 
+import com.gojek.daggers.async.DeNormaliseStream;
 import com.gojek.de.stencil.ClassLoadStencilClient;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.fraud.EnrichedBookingLogMessage;

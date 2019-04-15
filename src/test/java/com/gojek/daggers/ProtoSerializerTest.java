@@ -1,7 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.daggers.async.connector.EsResponseHandler;
-import com.gojek.daggers.async.connector.metric.StatsManager;
+import com.gojek.daggers.async.metric.StatsManager;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.aggregate.demand.AggregatedDemandKey;
 import com.gojek.esb.aggregate.demand.AggregatedDemandMessage;
