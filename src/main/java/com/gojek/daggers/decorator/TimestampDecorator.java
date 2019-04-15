@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 import java.sql.Timestamp;
 import java.util.Map;
 
-public class TimestampDecorator extends MapDecorator {
+public class TimestampDecorator implements MapDecorator {
     private Map<String, String> configuration;
     private Integer fieldIndex;
 

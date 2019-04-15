@@ -6,12 +6,12 @@ import org.apache.flink.types.Row;
 
 import java.util.Map;
 
-public class InputDecorator extends MapDecorator {
+public class InputDecorator implements MapDecorator {
     private Map<String, String> configuration;
     private Integer fieldIndex;
     private int outputProtoSize;
 
-    public InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
+    InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
         this.configuration = configuration;
         this.fieldIndex = fieldIndex;
         this.outputProtoSize = outputProtoSize;
