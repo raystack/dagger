@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 
 import java.util.Map;
 
-public class EsStreamDecorator extends AsyncDecorator {
+public class EsStreamDecorator implements AsyncDecorator {
     private Map<String, String> configuration;
     private StencilClient stencilClient;
     private Integer asyncIOCapacity;

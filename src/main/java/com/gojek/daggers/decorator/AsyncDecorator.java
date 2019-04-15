@@ -7,15 +7,16 @@ import org.apache.flink.types.Row;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class AsyncDecorator implements StreamDecorator {
-    public abstract Integer getAsyncIOCapacity();
+public interface AsyncDecorator extends StreamDecorator {
 
-    public abstract AsyncFunction getAsyncFunction();
+    Integer getAsyncIOCapacity();
 
-    public abstract Integer getStreamTimeout();
+    AsyncFunction getAsyncFunction();
+
+    Integer getStreamTimeout();
 
     @Override
-    public DataStream<Row> decorate(DataStream<Row> inputStream) {
+    default DataStream<Row> decorate(DataStream<Row> inputStream) {
         return AsyncDataStream.orderedWait(inputStream, getAsyncFunction(), getStreamTimeout(), TimeUnit.MILLISECONDS, getAsyncIOCapacity());
     }
 
