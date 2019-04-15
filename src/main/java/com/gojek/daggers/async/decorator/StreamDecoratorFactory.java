@@ -1,4 +1,4 @@
-package com.gojek.daggers.decorator;
+package com.gojek.daggers.async.decorator;
 
 import com.gojek.de.stencil.StencilClient;
 
