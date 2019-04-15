@@ -6,7 +6,7 @@ import org.apache.flink.types.Row;
 
 import java.util.Map;
 
-public class InputDecorator implements StreamDecorator {
+public class InputDecorator extends MapDecorator {
     private Map<String, String> configuration;
     private Integer fieldIndex;
     private int outputProtoSize;
@@ -24,11 +24,7 @@ public class InputDecorator implements StreamDecorator {
     }
 
     @Override
-    public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        return inputStream.map(this::enrichInput);
-    }
-
-    private Row enrichInput(Row input) {
+    public Row map(Row input) {
         ResponseBuilder responseBuilder = new ResponseBuilder(outputProtoSize);
         responseBuilder.with(fieldIndex, input);
         return responseBuilder.build();
