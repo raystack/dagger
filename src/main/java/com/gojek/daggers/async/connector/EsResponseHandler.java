@@ -2,8 +2,8 @@ package com.gojek.daggers.async.connector;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gojek.daggers.async.connector.metric.StatsManager;
-import com.gojek.daggers.builder.ResponseBuilder;
+import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.async.builder.ResponseBuilder;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.gojek.daggers.async.connector.metric.Aspects.*;
+import static com.gojek.daggers.async.metric.Aspects.*;
 import static com.gojek.daggers.utils.RowMaker.makeRow;
 import static java.time.Duration.between;
 import static java.util.Collections.singleton;
