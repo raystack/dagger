@@ -34,7 +34,13 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.fieldIndex = fieldIndex;
         this.configuration = configuration;
         this.stencilClient = stencilClient;
+    }
 
+    ESAsyncConnector(Integer fieldIndex, Map<String, String> configuration, StencilClient stencilClient, RestClient esClient){
+        this.fieldIndex = fieldIndex;
+        this.configuration = configuration;
+        this.stencilClient = stencilClient;
+        this.esClient = esClient;
     }
 
     @Override
@@ -57,7 +63,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         resultFuture.complete(singleton(new ResponseBuilder(input).build()));
     }
 
-    protected RestClient createESClient() {
+    private RestClient createESClient() {
         Integer connectTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_CONNECT_TIMEOUT_KEY);
         Integer socketTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_SOCKET_TIMEOUT_KEY);
         Integer retryTimeout = getIntegerConfig(configuration, ASYNC_IO_ES_MAX_RETRY_TIMEOUT_KEY);
@@ -74,7 +80,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         HttpHost[] httpHosts = new HttpHost[hosts.length];
         for (int i = 0; i < httpHosts.length; i++) {
             String[] strings = getEsHost()[i].split(":");
-            httpHosts[i] = new HttpHost(strings[0], Integer.parseInt(strings[1]));
+            httpHosts[i] = new HttpHost(strings[0].trim(), Integer.parseInt(strings[1].trim()));
         }
         return httpHosts;
     }
@@ -107,6 +113,4 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         String host = configuration.get(ASYNC_IO_ES_HOST_KEY);
         return host.split(",");
     }
-
-
 }
