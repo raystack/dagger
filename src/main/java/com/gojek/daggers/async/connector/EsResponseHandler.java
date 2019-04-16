@@ -30,7 +30,6 @@ public class EsResponseHandler implements ResponseListener {
     private Integer fieldIndex;
     private StatsManager statsManager;
 
-
     public EsResponseHandler(Row input, ResultFuture<Row> resultFuture, Descriptor descriptor, Integer fieldIndex, StatsManager statsManager) {
         this.input = input;
         this.resultFuture = resultFuture;
@@ -100,7 +99,6 @@ public class EsResponseHandler implements ResponseListener {
         return e.getResponse().getStatusLine().getStatusCode() == 404;
     }
 
-
     private static boolean isRetryStatus(ResponseException e) {
         int statusCode = e.getResponse().getStatusLine().getStatusCode();
         switch (statusCode) {
@@ -116,8 +114,7 @@ public class EsResponseHandler implements ResponseListener {
         ObjectMapper objectMapper = new ObjectMapper();
         Row rowData = new Row(descriptor.getFields().size());
         try {
-            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
-            });
+            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
             rowData = makeRow((Map<String, Object>) (map.get("_source")), descriptor);
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,5 +122,4 @@ public class EsResponseHandler implements ResponseListener {
             responseBuilder.with(fieldIndex, rowData);
         }
     }
-
 }
