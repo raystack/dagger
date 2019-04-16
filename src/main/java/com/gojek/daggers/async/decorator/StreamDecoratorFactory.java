@@ -10,8 +10,7 @@ public class StreamDecoratorFactory {
     private static List<StreamDecorator> getAllDecorators(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
         return Arrays.asList(
                 new EsStreamDecorator(configuration, stencilClient, asyncIOCapacity, fieldIndex),
-                new TimestampDecorator(configuration, fieldIndex),
-                new InputDecorator(configuration, fieldIndex, outputProtoSize)
+                new TimestampDecorator(configuration, fieldIndex)
         );
     }
 
