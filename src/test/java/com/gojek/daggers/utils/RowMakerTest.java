@@ -1,16 +1,12 @@
 package com.gojek.daggers.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gojek.esb.customer.CustomerLogMessage;
-import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
 import org.apache.flink.types.Row;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

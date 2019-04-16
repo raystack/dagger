@@ -91,7 +91,7 @@ public class DeNormaliseStreamTest {
         DeNormaliseStream deNormaliseStream = new DeNormaliseStream(dataStream, configuration, table, stencilClient);
 
 
-        new MockUp<StreamDecoratorFactory>() {
+        MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
             public StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
                 EsStreamDecorator mock = mock(EsStreamDecorator.class);
@@ -104,6 +104,7 @@ public class DeNormaliseStreamTest {
 
         verify(resultStream).addSink(any(SinkFunction.class));
         verify(dataStream, never()).addSink(any(SinkFunction.class));
+        mockUp.tearDown();
     }
 
 

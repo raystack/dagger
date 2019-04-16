@@ -2,8 +2,8 @@ package com.gojek.daggers.async.connector;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gojek.daggers.async.metric.StatsManager;
 import com.gojek.daggers.async.builder.ResponseBuilder;
+import com.gojek.daggers.async.metric.StatsManager;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -114,7 +114,8 @@ public class EsResponseHandler implements ResponseListener {
         ObjectMapper objectMapper = new ObjectMapper();
         Row rowData = new Row(descriptor.getFields().size());
         try {
-            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
+            });
             rowData = makeRow((Map<String, Object>) (map.get("_source")), descriptor);
         } catch (IOException e) {
             e.printStackTrace();
