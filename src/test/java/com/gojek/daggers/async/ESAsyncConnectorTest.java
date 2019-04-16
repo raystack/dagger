@@ -1,6 +1,7 @@
-package com.gojek.daggers.async.connector;
+package com.gojek.daggers.async;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.gojek.daggers.async.connector.ESAsyncConnector;
 import com.gojek.esb.customer.CustomerLogMessage;
 import com.google.protobuf.Descriptors;
 import com.timgroup.statsd.StatsDClient;

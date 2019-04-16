@@ -1,8 +1,8 @@
 package com.gojek.daggers.async.connector;
 
-import com.gojek.daggers.async.connector.metric.Aspects;
-import com.gojek.daggers.async.connector.metric.StatsManager;
-import com.gojek.daggers.builder.ResponseBuilder;
+import com.gojek.daggers.async.metric.Aspects;
+import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.async.builder.ResponseBuilder;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
@@ -14,8 +14,6 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 

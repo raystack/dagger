@@ -4,6 +4,7 @@ import com.gojek.daggers.decorator.EsStreamDecorator;
 import com.gojek.daggers.decorator.StreamDecorator;
 import com.gojek.daggers.decorator.StreamDecoratorFactory;
 import com.gojek.daggers.decorator.TimestampDecorator;
+import com.gojek.daggers.async.DeNormaliseStream;
 import com.gojek.de.stencil.ClassLoadStencilClient;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.fraud.EnrichedBookingLogMessage;

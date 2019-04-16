@@ -1,7 +1,8 @@
-package com.gojek.daggers;
+package com.gojek.daggers.async;
 
-import com.gojek.daggers.decorator.StreamDecorator;
-import com.gojek.daggers.decorator.StreamDecoratorFactory;
+import com.gojek.daggers.SinkFactory;
+import com.gojek.daggers.async.decorator.StreamDecorator;
+import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;

@@ -5,6 +5,7 @@ import java.util.TimeZone
 
 import com.gojek.dagger.udf._
 import com.gojek.dagger.udf.dart.store.RedisConfig
+import com.gojek.daggers.async.DeNormaliseStream
 import com.gojek.daggers.config.ConfigurationProviderFactory
 import com.gojek.de.stencil.StencilClientFactory
 import org.apache.flink.api.scala._
