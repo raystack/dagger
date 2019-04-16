@@ -1,4 +1,4 @@
-package com.gojek.daggers.decorator;
+package com.gojek.daggers.async.decorator;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;

@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.connector;
+package com.gojek.daggers.async;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 

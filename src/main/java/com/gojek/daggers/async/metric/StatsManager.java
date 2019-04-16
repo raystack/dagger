@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.connector.metric;
+package com.gojek.daggers.async.metric;
 
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -11,7 +11,7 @@ import org.apache.flink.metrics.MetricGroup;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.gojek.daggers.async.connector.metric.Aspects.*;
+import static com.gojek.daggers.async.metric.Aspects.*;
 
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
