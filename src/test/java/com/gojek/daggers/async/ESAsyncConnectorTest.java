@@ -2,6 +2,7 @@ package com.gojek.daggers.async;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.async.connector.ESAsyncConnector;
+import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.customer.CustomerLogMessage;
 import com.google.protobuf.Descriptors;
 import com.timgroup.statsd.StatsDClient;
@@ -16,11 +17,11 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
-@Ignore
 public class ESAsyncConnectorTest {
 
     ResultFuture<Row> resultFuture;
@@ -34,7 +35,7 @@ public class ESAsyncConnectorTest {
     public void setUp() throws Exception {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
 //        esAsyncConnector = new ESAsyncConnector("localhost:8081", 5000, 5000, 5000, statsd, descriptor);
-        esAsyncConnector = null;
+        esAsyncConnector = new ESAsyncConnector(0, new HashMap<>(), mock(StencilClient.class));
         resultFuture = mock(ResultFuture.class);
         esAsyncConnector.open(mock(Configuration.class));
         wireMockServer = new WireMockServer(8081);
