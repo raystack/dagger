@@ -1,17 +1,16 @@
-package com.gojek.daggers.decorator;
+package com.gojek.daggers.async.decorator;
 
-import com.gojek.daggers.builder.ResponseBuilder;
-import org.apache.flink.streaming.api.datastream.DataStream;
+import com.gojek.daggers.async.builder.ResponseBuilder;
 import org.apache.flink.types.Row;
 
 import java.util.Map;
 
-public class InputDecorator implements StreamDecorator {
+public class InputDecorator implements MapDecorator {
     private Map<String, String> configuration;
     private Integer fieldIndex;
     private int outputProtoSize;
 
-    public InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
+    InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
         this.configuration = configuration;
         this.fieldIndex = fieldIndex;
         this.outputProtoSize = outputProtoSize;
@@ -24,11 +23,7 @@ public class InputDecorator implements StreamDecorator {
     }
 
     @Override
-    public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        return inputStream.map(this::enrichInput);
-    }
-
-    private Row enrichInput(Row input) {
+    public Row map(Row input) {
         ResponseBuilder responseBuilder = new ResponseBuilder(outputProtoSize);
         responseBuilder.with(fieldIndex, input);
         return responseBuilder.build();

@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.connector.metric;
+package com.gojek.daggers.async.metric;
 
 public enum Aspects {
     DOCUMENT_FOUND("documentFound"),
