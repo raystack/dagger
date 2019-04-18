@@ -13,7 +13,7 @@ import org.apache.flink.client.program.ProgramInvocationException
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
-import org.apache.flink.table.api.TableEnvironment
+import org.apache.flink.table.api.{Table, TableEnvironment}
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
 
@@ -83,9 +83,11 @@ object KafkaProtoSQLProcessor {
       tableEnv.registerFunction("DartGet", DartGet.withRedisDataStore(new RedisConfig(redisServer)))
       tableEnv.registerFunction("Features", new Features())
       tableEnv.registerFunction("TimestampFromUnix", new TimestampFromUnix())
+      tableEnv.registerFunction("ConcurrentTransactions", new ConcurrentTransactions(7200))
+      tableEnv.registerFunction("SecondsElapsed", new SecondsElapsed())
 
       val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
-      val value = resultTable2.toAppendStream[Row]
+      val value = resultTable2.toRetractStream[Row].map(_._2)
 
       val deNormaliseStream = new DeNormaliseStream(value, configuration, resultTable2, stencilClient)
       deNormaliseStream.apply()
