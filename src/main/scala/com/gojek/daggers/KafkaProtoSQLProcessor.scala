@@ -87,7 +87,8 @@ object KafkaProtoSQLProcessor {
       tableEnv.registerFunction("SecondsElapsed", new SecondsElapsed())
 
       val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
-      val value = resultTable2.toRetractStream[Row].map(_._2)
+      // TODO to be replaced with upsert stream later
+      val value = resultTable2.toRetractStream[Row].filter(_._1 == true).map(_._2)
 
       val deNormaliseStream = new DeNormaliseStream(value, configuration, resultTable2, stencilClient)
       deNormaliseStream.apply()
