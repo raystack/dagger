@@ -21,7 +21,10 @@ public class LogSink extends RichSinkFunction<Row> {
     public void invoke(Row row, Context context) throws Exception {
         Map map = new HashMap<String, String>();
         for (int i = 0; i < columnNames.length; i++) {
-            map.put(columnNames[i], row.getField(i).toString());
+            Object field = row.getField(i);
+            if (field != null) {
+                map.put(columnNames[i], field.toString());
+            }
         }
         LOGGER.info(map.toString());
     }
