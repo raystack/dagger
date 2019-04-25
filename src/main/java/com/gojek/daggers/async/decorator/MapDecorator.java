@@ -8,7 +8,7 @@ public interface MapDecorator extends MapFunction<Row, Row>, StreamDecorator {
 
     @Override
     default DataStream<Row> decorate(DataStream<Row> inputStream) {
-        return inputStream.map(this::map);
+        return inputStream.map(r -> this.map(r));
     }
 
 }
