@@ -17,7 +17,7 @@ public class RowMaker {
         return row;
     }
 
-    private static Object fetchTypeAppropriateValue(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor) {
+    public static Object fetchTypeAppropriateValue(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor) {
         switch (fieldDescriptor.getJavaType()) {
             case INT:
                 return Integer.parseInt(getValueFor(inputMap, fieldDescriptor, "0"));
@@ -30,13 +30,23 @@ public class RowMaker {
             case BOOLEAN:
                 return Boolean.parseBoolean(getValueFor(inputMap, fieldDescriptor, "false"));
             case BYTE_STRING:
-                return new byte[0];
+                throw new RuntimeException("BYTE_STRING is not supported yet");
             case STRING:
                 return getValueFor(inputMap, fieldDescriptor, "");
             case MESSAGE:
-                return inputMap.getOrDefault(fieldDescriptor.getName(), null);
+                if (fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp")) {
+                    return inputMap.getOrDefault(fieldDescriptor.getName(), null);
+                } else {
+                    throw new RuntimeException("Complex Message types are not supported yet");
+                }
             case ENUM:
-                fieldDescriptor.getEnumType().findValueByNumber(0).getName();
+                String input = inputMap.getOrDefault(fieldDescriptor.getName(), 0).toString();
+                try {
+                    int enumPosition = Integer.parseInt(input);
+                    return fieldDescriptor.getEnumType().findValueByNumber(enumPosition).getName();
+                } catch (NumberFormatException e) {
+                    return input;
+                }
             default:
                 return null;
         }
