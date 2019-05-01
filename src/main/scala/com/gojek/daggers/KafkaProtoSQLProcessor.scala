@@ -84,6 +84,7 @@ object KafkaProtoSQLProcessor {
       tableEnv.registerFunction("Features", new Features())
       tableEnv.registerFunction("TimestampFromUnix", new TimestampFromUnix())
       tableEnv.registerFunction("ConcurrentTransactions", new ConcurrentTransactions(7200))
+      tableEnv.registerFunction("SecondsElapsed", new SecondsElapsed())
 
       val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
       // TODO to be replaced with upsert stream later
