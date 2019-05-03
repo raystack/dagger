@@ -2,7 +2,7 @@ package com.gojek.daggers.utils;
 
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.customer.CustomerLogMessage;
-import com.gojek.esb.fraud.EnrichedBookingLogMessage;
+import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
 import com.google.protobuf.Descriptors;
 import org.apache.flink.types.Row;
 import org.junit.After;
@@ -14,10 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.gojek.esb.types.GenderTypeProto.GenderType.Enum.MALE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RowMakerTest {
 
@@ -203,16 +201,6 @@ public class RowMakerTest {
         Assert.assertNull(value);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void rowMakerThrowsRunTimeExceptionForComplexMessageTypes() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        Descriptors.Descriptor descriptor = EnrichedBookingLogMessage.getDescriptor();
-        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_log");
-
-        RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
-    }
-
     @Test
     public void rowMakerShouldReturnEnumStringGivenEnumStringForFieldDescriptorOfTypeEnum() {
         Map<String, Object> inputMap = new HashMap<>();
@@ -257,7 +245,6 @@ public class RowMakerTest {
     @Test
     public void rowMakerShouldReturnDefaultEnumStringIfInputIsAStringAndNotInTheProtoDefinitionForFieldDescriptorOfTypeEnum() {
         Map<String, Object> inputMap = new HashMap<>();
-
         inputMap.put("status", "dummy");
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
@@ -265,9 +252,20 @@ public class RowMakerTest {
         Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
 
         Assert.assertEquals("UNKNOWN", value);
-
     }
 
+    @Test
+    public void rowMakerShouldReturnDefaultEnumStringIfInputIsNullForFieldDescriptorOfTypeEnum() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        inputMap.put("status", null);
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertEquals("UNKNOWN", value);
+    }
 
     @Test
     public void rowMakerShouldReturnEnumStringGivenEnumPositionForFieldDescriptorOfTypeEnum() {
@@ -280,6 +278,61 @@ public class RowMakerTest {
         Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
 
         Assert.assertEquals("DRIVER_FOUND", value);
+
+    }
+
+    @Test
+    public void rowMakerHandleTimestampMessagesByReturningTheValueAvailableInInputMap() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        String inputTimestamp = "2019-03-28T05:50:13Z";
+        inputMap.put("event_timestamp", inputTimestamp);
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        assertEquals(inputTimestamp, value.toString());
+
+    }
+
+    @Test
+    public void rowMakerHandleTimestampMessagesByReturningNullForValuesNotAvailableInMap() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertNull(value);
+    }
+
+    @Test
+    public void rowMakerHandleTimestampMessagesByReturningNullForNonParseableTimeStamps() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        inputMap.put("event_timestamp", "2");
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertNull(value);
+
+    }
+
+    @Test
+    public void rowMakerHandleNonTimeStampMessagesByReturningNulls() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        inputMap.put("metadata", null);
+        Descriptors.Descriptor descriptor = DriverProfileFlattenLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("metadata");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertNull(value);
 
     }
 }
