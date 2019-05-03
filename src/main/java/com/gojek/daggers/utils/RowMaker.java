@@ -4,9 +4,12 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import org.apache.flink.types.Row;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
+// TODO Need for Refactoring this class
 public class RowMaker {
     public static Row makeRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) {
         List<FieldDescriptor> descriptorFields = descriptor.getFields();
@@ -35,12 +38,24 @@ public class RowMaker {
                 return getValueFor(inputMap, fieldDescriptor, "");
             case MESSAGE:
                 if (fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp")) {
-                    return inputMap.getOrDefault(fieldDescriptor.getName(), null);
+                    Object inputTimeStamp = inputMap.get(fieldDescriptor.getName());
+                    if (inputTimeStamp == null) {
+                        return null;
+                    }
+                    try {
+                        Instant.parse(inputTimeStamp.toString());
+                    } catch (DateTimeParseException e) {
+                        return null;
+                    }
+                    return inputTimeStamp.toString();
                 } else {
-                    throw new RuntimeException("Complex Message types are not supported yet");
+                    return null;
+//                    return new Row(fieldDescriptor.getMessageType().getFields().size());
+                    //TODO not handling complex types
                 }
             case ENUM:
-                String input = inputMap.getOrDefault(fieldDescriptor.getName(), 0).toString();
+                Object mapInput = inputMap.get(fieldDescriptor.getName());
+                String input = mapInput != null ? mapInput.toString() : "0";
                 try {
                     int enumPosition = Integer.parseInt(input);
                     Descriptors.EnumValueDescriptor valueByNumber = fieldDescriptor.getEnumType().findValueByNumber(enumPosition);
