@@ -240,6 +240,34 @@ public class RowMakerTest {
 
     }
 
+    @Test
+    public void rowMakerShouldReturnDefaultEnumStringIfInputIsAEnumPositionAndNotInTheProtoDefinitionForFieldDescriptorOfTypeEnum() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        inputMap.put("status", -1);
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertEquals("UNKNOWN", value);
+
+    }
+
+    @Test
+    public void rowMakerShouldReturnDefaultEnumStringIfInputIsAStringAndNotInTheProtoDefinitionForFieldDescriptorOfTypeEnum() {
+        Map<String, Object> inputMap = new HashMap<>();
+
+        inputMap.put("status", "dummy");
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+
+        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+
+        Assert.assertEquals("UNKNOWN", value);
+
+    }
+
 
     @Test
     public void rowMakerShouldReturnEnumStringGivenEnumPositionForFieldDescriptorOfTypeEnum() {

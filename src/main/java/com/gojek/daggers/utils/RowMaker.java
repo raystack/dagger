@@ -43,9 +43,11 @@ public class RowMaker {
                 String input = inputMap.getOrDefault(fieldDescriptor.getName(), 0).toString();
                 try {
                     int enumPosition = Integer.parseInt(input);
-                    return fieldDescriptor.getEnumType().findValueByNumber(enumPosition).getName();
+                    Descriptors.EnumValueDescriptor valueByNumber = fieldDescriptor.getEnumType().findValueByNumber(enumPosition);
+                    return valueByNumber != null ? valueByNumber.getName() : fieldDescriptor.getEnumType().findValueByNumber(0).getName();
                 } catch (NumberFormatException e) {
-                    return input;
+                    Descriptors.EnumValueDescriptor valueByName = fieldDescriptor.getEnumType().findValueByName(input);
+                    return valueByName != null ? valueByName.getName() : fieldDescriptor.getEnumType().findValueByNumber(0).getName();
                 }
             default:
                 return null;
