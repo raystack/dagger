@@ -11,7 +11,6 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
 
     }
 
-    @Override
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
 
     }
