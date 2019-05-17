@@ -1,29 +1,32 @@
-package com.gojek.daggers;
+package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.async.decorator.EsStreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
 import com.gojek.daggers.async.decorator.TimestampDecorator;
-import com.gojek.daggers.async.DeNormaliseStream;
-import com.gojek.de.stencil.ClassLoadStencilClient;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.fraud.EnrichedBookingLogMessage;
+import javafx.util.Pair;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.api.scala.DataStream;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.types.Row;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.gojek.daggers.Constants.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class DeNormaliseStreamTest {
+public class AshikoProcessorTest {
 
     private Configuration configuration;
     private Table table;
@@ -36,16 +39,6 @@ public class DeNormaliseStreamTest {
         when(table.getSchema()).thenReturn(mock(TableSchema.class));
         configuration = mock(Configuration.class);
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("log");
-    }
-
-    @Test
-    public void shouldAddSinkDirectlyWhenAsyncIsDisabled() {
-        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
-        DeNormaliseStream deNormaliseStream = new DeNormaliseStream(dataStream, configuration, table, new ClassLoadStencilClient());
-        deNormaliseStream.apply();
-
-        verify(dataStream).addSink(any(SinkFunction.class));
-        verify(dataStream, never()).javaStream();
     }
 
     @Test
@@ -83,14 +76,10 @@ public class DeNormaliseStreamTest {
                 "    \"source\": \"timestamp\"\n" +
                 "  }\n" +
                 "}");
-
         org.apache.flink.streaming.api.datastream.DataStream resultStream = mock(org.apache.flink.streaming.api.datastream.DataStream.class);
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("com.gojek.esb.fraud.EnrichedBookingLogMessage")).thenReturn(EnrichedBookingLogMessage.getDescriptor());
-        when(dataStream.javaStream()).thenReturn(resultStream);
-        DeNormaliseStream deNormaliseStream = new DeNormaliseStream(dataStream, configuration, table, stencilClient);
-
-
+        AshikoProcessor ashikoProcessor = new AshikoProcessor(configuration, stencilClient);
         MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
             public StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
@@ -99,14 +88,13 @@ public class DeNormaliseStreamTest {
                 return mock;
             }
         };
+        Pair<DataStream<Row>, String[]> result = ashikoProcessor.process(dataStream);
+        String[] expectedColumnNames = {"booking_log", "customer_profile", "driver_profile", "event_timestamp"};
 
-        deNormaliseStream.apply();
-
-        verify(resultStream).addSink(any(SinkFunction.class));
+        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getValue()));
         verify(dataStream, never()).addSink(any(SinkFunction.class));
         mockUp.tearDown();
     }
-
 
     @Test
     public void shouldCallResultStreamWhenAsyncIsEnabledWhenOneFieldMappedInConfig() {
@@ -118,15 +106,11 @@ public class DeNormaliseStreamTest {
                 "    \"source\": \"timestamp\"\n" +
                 "  }\n" +
                 "}");
-
         org.apache.flink.streaming.api.datastream.DataStream resultStream = mock(org.apache.flink.streaming.api.datastream.DataStream.class);
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("com.gojek.esb.fraud.EnrichedBookingLogMessage")).thenReturn(EnrichedBookingLogMessage.getDescriptor());
-        when(dataStream.javaStream()).thenReturn(resultStream);
-        DeNormaliseStream deNormaliseStream = new DeNormaliseStream(dataStream, configuration, table, stencilClient);
-
-
-        new MockUp<StreamDecoratorFactory>() {
+        AshikoProcessor ashikoProcessor = new AshikoProcessor(configuration, stencilClient);
+        MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
             public StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
                 TimestampDecorator mock = mock(TimestampDecorator.class);
@@ -134,11 +118,13 @@ public class DeNormaliseStreamTest {
                 return mock;
             }
         };
+        Pair<DataStream<Row>, String[]> result = ashikoProcessor.process(dataStream);
+        String[] expectedColumnNames = new String[4];
+        expectedColumnNames[3] = "event_timestamp";
 
-        deNormaliseStream.apply();
-
-        verify(resultStream).addSink(any(SinkFunction.class));
+        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getValue()));
         verify(dataStream, never()).addSink(any(SinkFunction.class));
+        mockUp.tearDown();
     }
 
 }

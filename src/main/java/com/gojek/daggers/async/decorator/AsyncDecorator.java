@@ -19,5 +19,4 @@ public interface AsyncDecorator extends StreamDecorator {
     default DataStream<Row> decorate(DataStream<Row> inputStream) {
         return AsyncDataStream.orderedWait(inputStream, getAsyncFunction(), getStreamTimeout(), TimeUnit.MILLISECONDS, getAsyncIOCapacity());
     }
-
 }
