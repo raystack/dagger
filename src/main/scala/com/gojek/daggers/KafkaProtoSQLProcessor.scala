@@ -1,19 +1,19 @@
 package com.gojek.daggers
 
-import java.util
 import java.util.TimeZone
+import javafx.util.Pair
 
 import com.gojek.dagger.udf._
 import com.gojek.dagger.udf.dart.store.RedisConfig
-import com.gojek.daggers.async.DeNormaliseStream
 import com.gojek.daggers.config.ConfigurationProviderFactory
+import com.gojek.daggers.postprocessor.PostProcessorFactory
 import com.gojek.de.stencil.StencilClientFactory
 import org.apache.flink.api.scala._
 import org.apache.flink.client.program.ProgramInvocationException
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
-import org.apache.flink.table.api.{Table, TableEnvironment}
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic, datastream}
+import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
 
@@ -43,7 +43,7 @@ object KafkaProtoSQLProcessor {
 
       val enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false)
 
-      val stencilUrls: util.List[String] = configuration.getString("STENCIL_URL", "").split(",").map(_.trim).toList
+      val stencilUrls: List[String] = configuration.getString("STENCIL_URL", "").split(",").map(_.trim).toList
 
       val stencilClient = if (!enableRemoteStencil) StencilClientFactory.getClient() else StencilClientFactory.getClient(
         stencilUrls, configuration.toMap)
@@ -88,10 +88,17 @@ object KafkaProtoSQLProcessor {
 
       val resultTable2 = tableEnv.sqlQuery(configuration.getString("SQL_QUERY", ""))
       // TODO to be replaced with upsert stream later
-      val value = resultTable2.toRetractStream[Row].filter(_._1 == true).map(_._2)
+      val sqlResultStream: DataStream[Row] = resultTable2.toRetractStream[Row].filter(_._1 == true).map(_._2)
 
-      val deNormaliseStream = new DeNormaliseStream(value, configuration, resultTable2, stencilClient)
-      deNormaliseStream.apply()
+      val postProcessor = PostProcessorFactory.getPostProcesssor(configuration, stencilClient)
+
+      val tuple: Pair[datastream.DataStream[Row], Array[String]] =
+        if (postProcessor.isPresent)
+          postProcessor.get().process(sqlResultStream.javaStream)
+        else
+          new Pair(sqlResultStream.javaStream, resultTable2.getSchema.getColumnNames)
+
+      tuple.getKey.addSink(SinkFactory.getSinkFunction(configuration, tuple.getValue, stencilClient))
 
       env.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"))
     } catch {
