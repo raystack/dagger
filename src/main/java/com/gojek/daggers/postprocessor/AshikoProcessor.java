@@ -1,50 +1,38 @@
-package com.gojek.daggers.async;
+package com.gojek.daggers.postprocessor;
 
-import com.gojek.daggers.SinkFactory;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.Descriptors.Descriptor;
+import javafx.util.Pair;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.scala.DataStream;
-import org.apache.flink.table.api.Table;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
 import java.util.Map;
 
 import static com.gojek.daggers.Constants.*;
 
-public class DeNormaliseStream {
-    private DataStream<Row> dataStream;
+public class AshikoProcessor implements PostProcessor {
+
     private Configuration configuration;
-    private Table table;
     private StencilClient stencilClient;
 
-    public DeNormaliseStream(DataStream<Row> dataStream, Configuration configuration, Table table, StencilClient stencilClient) {
-        this.dataStream = dataStream;
+    public AshikoProcessor(Configuration configuration, StencilClient stencilClient) {
         this.configuration = configuration;
-        this.table = table;
         this.stencilClient = stencilClient;
     }
 
-    public void apply() {
-        if (!configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)) {
-            dataStream.addSink(SinkFactory.getSinkFunction(configuration, table.getSchema().getColumnNames(), stencilClient));
-            return;
-        }
-        deNormaliseUsingEs();
-    }
-
-    private void deNormaliseUsingEs() {
+    @Override
+    public Pair<DataStream<Row>, String[]> process(DataStream<Row> stream) {
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
         Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
         String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
-        Descriptor outputDescriptor = stencilClient.get(String.format("%sMessage", outputProtoPrefix));
+        Descriptors.Descriptor outputDescriptor = stencilClient.get(String.format("%sMessage", outputProtoPrefix));
         int size = outputDescriptor.getFields().size();
         String[] columnNames = new String[size];
-        org.apache.flink.streaming.api.datastream.DataStream<Row> resultStream = dataStream.javaStream();
+        DataStream<Row> resultStream = stream;
         for (Descriptors.FieldDescriptor fieldDescriptor : outputDescriptor.getFields()) {
             String fieldName = fieldDescriptor.getName();
             if (!asyncConfig.containsKey(fieldName)) {
@@ -58,6 +46,6 @@ public class DeNormaliseStream {
             columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);
         }
-        resultStream.addSink(SinkFactory.getSinkFunction(configuration, columnNames, stencilClient));
+        return new Pair<>(resultStream, columnNames);
     }
 }
