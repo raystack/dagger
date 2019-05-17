@@ -10,8 +10,7 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
 
     }
-
-    @Override
+    
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
 
     }
