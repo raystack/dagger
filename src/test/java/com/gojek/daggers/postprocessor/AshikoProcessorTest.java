@@ -1,12 +1,12 @@
 package com.gojek.daggers.postprocessor;
 
+import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.EsStreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
 import com.gojek.daggers.async.decorator.TimestampDecorator;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.fraud.EnrichedBookingLogMessage;
-import javafx.util.Pair;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.configuration.Configuration;
@@ -14,7 +14,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,10 +87,11 @@ public class AshikoProcessorTest {
                 return mock;
             }
         };
-        Pair<DataStream<Row>, String[]> result = ashikoProcessor.process(dataStream);
+        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getColumnNames());
+        StreamInfo result = ashikoProcessor.process(streamInfo);
         String[] expectedColumnNames = {"booking_log", "customer_profile", "driver_profile", "event_timestamp"};
 
-        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getValue()));
+        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getColumnNames()));
         verify(dataStream, never()).addSink(any(SinkFunction.class));
         mockUp.tearDown();
     }
@@ -118,11 +118,12 @@ public class AshikoProcessorTest {
                 return mock;
             }
         };
-        Pair<DataStream<Row>, String[]> result = ashikoProcessor.process(dataStream);
+        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getColumnNames());
+        StreamInfo result = ashikoProcessor.process(streamInfo);
         String[] expectedColumnNames = new String[4];
         expectedColumnNames[3] = "event_timestamp";
 
-        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getValue()));
+        Assert.assertEquals(true, Arrays.equals(expectedColumnNames, result.getColumnNames()));
         verify(dataStream, never()).addSink(any(SinkFunction.class));
         mockUp.tearDown();
     }
