@@ -1,11 +1,12 @@
 package com.gojek.daggers.postprocessor;
 
+import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
+import com.gojek.daggers.postprocessor.PostProcessor;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
-import javafx.util.Pair;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -25,14 +26,14 @@ public class AshikoProcessor implements PostProcessor {
     }
 
     @Override
-    public Pair<DataStream<Row>, String[]> process(DataStream<Row> stream) {
+    public StreamInfo process(StreamInfo streamInfo) {
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
         Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
         String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
         Descriptors.Descriptor outputDescriptor = stencilClient.get(String.format("%sMessage", outputProtoPrefix));
         int size = outputDescriptor.getFields().size();
         String[] columnNames = new String[size];
-        DataStream<Row> resultStream = stream;
+        DataStream<Row> resultStream = streamInfo.getDataStream();
         for (Descriptors.FieldDescriptor fieldDescriptor : outputDescriptor.getFields()) {
             String fieldName = fieldDescriptor.getName();
             if (!asyncConfig.containsKey(fieldName)) {
@@ -46,6 +47,6 @@ public class AshikoProcessor implements PostProcessor {
             columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);
         }
-        return new Pair<>(resultStream, columnNames);
+        return new StreamInfo(resultStream, columnNames);
     }
 }
