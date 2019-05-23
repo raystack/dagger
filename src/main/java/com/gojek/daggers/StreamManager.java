@@ -15,7 +15,6 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.scala.StreamTableEnvironment;
 import org.apache.flink.table.api.scala.TableConversions;
 import org.apache.flink.types.Row;
@@ -26,48 +25,28 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StreamManager {
-    private StreamInfo streamInfo;
     private Configuration configuration;
     private StencilClient stencilClient;
-    private StreamExecutionEnvironment environment;
+    private StreamExecutionEnvironment executionEnvironment;
     private StreamTableEnvironment tableEnvironment;
 
-
-    public StreamManager(Configuration configuration) {
-        this(configuration, StreamExecutionEnvironment.getExecutionEnvironment());
-    }
-
-    StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment) {
+    public StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
         this.configuration = configuration;
-        environment = executionEnvironment;
-    }
-
-    public StreamManager createTableEnv() {
-        tableEnvironment = TableEnvironment.getTableEnvironment(environment);
-        return this;
-    }
-
-    public StreamManager createStencilClient() {
-        Boolean enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false);
-        List<String> stencilUrls = Arrays.stream(configuration.getString("STENCIL_URL", "").split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-        stencilClient = enableRemoteStencil
-                ? StencilClientFactory.getClient(stencilUrls, configuration.toMap())
-                : StencilClientFactory.getClient();
-        return this;
+        this.executionEnvironment = executionEnvironment;
+        this.tableEnvironment = tableEnvironment;
     }
 
     public StreamManager registerConfigs() {
-        environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        environment.setParallelism(configuration.getInteger("PARALLELISM", 1));
-        environment.getConfig().setAutoWatermarkInterval(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000));
-        environment.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 30000));
-        environment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        environment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 900000));
-        environment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000));
-        environment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1));
-        environment.getConfig().setGlobalJobParameters(configuration);
+        createStencilClient();
+        executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        executionEnvironment.setParallelism(configuration.getInteger("PARALLELISM", 1));
+        executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000));
+        executionEnvironment.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 30000));
+        executionEnvironment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 900000));
+        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000));
+        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1));
+        executionEnvironment.getConfig().setGlobalJobParameters(configuration);
         return this;
     }
 
@@ -75,7 +54,7 @@ public class StreamManager {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
-        createStreams().getStreams().forEach((tableName, kafkaConsumer) -> {
+        getKafkaStreams().getStreams().forEach((tableName, kafkaConsumer) -> {
             KafkaProtoStreamingTableSource tableSource = new KafkaProtoStreamingTableSource(
                     kafkaConsumer,
                     rowTimeAttributeName,
@@ -88,16 +67,16 @@ public class StreamManager {
     }
 
     public StreamManager registerFunctions() {
+        String redisServer = configuration.getString("REDIS_SERVER", "localhost");
         tableEnvironment.registerFunction("S2Id", new S2Id());
         tableEnvironment.registerFunction("GEOHASH", new GeoHash());
-        tableEnvironment.registerFunction("ElementAt", new ElementAt(createStreams().getProtos().entrySet().iterator().next().getValue(), stencilClient));
+        tableEnvironment.registerFunction("ElementAt", new ElementAt(getKafkaStreams().getProtos().entrySet().iterator().next().getValue(), stencilClient));
         tableEnvironment.registerFunction("ServiceArea", new ServiceArea());
         tableEnvironment.registerFunction("ServiceAreaId", new ServiceAreaId());
         tableEnvironment.registerFunction("DistinctCount", new DistinctCount(), TypeInformation.of(Integer.class), TypeInformation.of(DistinctCountAccumulator.class));
         tableEnvironment.registerFunction("Distance", new Distance());
         tableEnvironment.registerFunction("AppBetaUsers", new AppBetaUsers());
         tableEnvironment.registerFunction("KeyValue", new KeyValue());
-        String redisServer = configuration.getString("REDIS_SERVER", "localhost");
         tableEnvironment.registerFunction("DartContains", DartContains.withRedisDataStore(new RedisConfig(redisServer)));
         tableEnvironment.registerFunction("DartGet", DartGet.withRedisDataStore(new RedisConfig(redisServer)));
         tableEnvironment.registerFunction("Features", new Features(), TypeInformation.of(Row[].class), TypeInformation.of(FeatureAccumulator.class));
@@ -107,33 +86,52 @@ public class StreamManager {
         return this;
     }
 
-    public StreamManager createStream() {
+    public StreamManager registerOutputStream() {
         Table table = tableEnvironment.sqlQuery(configuration.getString("SQL_QUERY", ""));
+        StreamInfo streamInfo = createStreamInfo(table);
+        streamInfo = addPostProcessor(streamInfo);
+        addSink(streamInfo);
+        return this;
+    }
+
+    public void execute() throws Exception {
+        executionEnvironment.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"));
+    }
+
+    protected StreamInfo createStreamInfo(Table table) {
         DataStream<Row> stream = new TableConversions(table)
                 .toRetractStream(TypeInformation.of(Row.class))
                 .javaStream()
                 .filter(value -> ((Boolean) value._1()))
                 .map(value -> value._2);
-        streamInfo = new StreamInfo(stream, table.getSchema().getColumnNames());
-        return this;
+        return new StreamInfo(stream, table.getSchema().getColumnNames());
     }
 
-    public StreamManager addPostProcessor() {
-        Optional<PostProcessor> postProcessor = PostProcessorFactory.getPostProcessor(configuration, stencilClient, streamInfo.getColumnNames());
-        postProcessor.ifPresent(p -> streamInfo = p.process(streamInfo));
-        return this;
+    private StreamInfo addPostProcessor(StreamInfo streamInfo) {
+        Optional<PostProcessor> postProcessor = getPostProcessor(streamInfo);
+        return postProcessor.map(p -> p.process(streamInfo)).orElse(streamInfo);
     }
 
-    public StreamManager addSink() {
+    private void addSink(StreamInfo streamInfo) {
         streamInfo.getDataStream().addSink(SinkFactory.getSinkFunction(configuration, streamInfo.getColumnNames(), stencilClient));
+    }
+
+    private StreamManager createStencilClient() {
+        Boolean enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false);
+        List<String> stencilUrls = Arrays.stream(configuration.getString("STENCIL_URL", "").split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        stencilClient = enableRemoteStencil
+                ? StencilClientFactory.getClient(stencilUrls, configuration.toMap())
+                : StencilClientFactory.getClient();
         return this;
     }
 
-    public void execute() throws Exception {
-        environment.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"));
+    private Optional<PostProcessor> getPostProcessor(StreamInfo streamInfo) {
+        return PostProcessorFactory.getPostProcessor(configuration, stencilClient, streamInfo.getColumnNames());
     }
 
-    private Streams createStreams() {
+    private Streams getKafkaStreams() {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
