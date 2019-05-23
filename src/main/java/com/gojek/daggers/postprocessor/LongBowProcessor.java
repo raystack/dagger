@@ -28,7 +28,7 @@ public class LongBowProcessor implements PostProcessor {
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
 //        DataStream<Row> writeStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowWriter(), 5000, TimeUnit.MILLISECONDS, 40);
-        DataStream<Row> readStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowReader(configuration, columnIndexMap), 5000, TimeUnit.MILLISECONDS, 40);
-        return new StreamInfo(readStream, new String[1]);
+//        DataStream<Row> readStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowReader(configuration, columnIndexMap), 5000, TimeUnit.MILLISECONDS, 40);
+        return new StreamInfo(streamInfo.getDataStream(), new String[1]);
     }
 }
