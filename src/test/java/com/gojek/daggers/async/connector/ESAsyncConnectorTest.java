@@ -1,8 +1,6 @@
 package com.gojek.daggers.async.connector;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.gojek.daggers.async.connector.ESAsyncConnector;
-import com.gojek.daggers.async.connector.EsResponseHandler;
 import com.gojek.daggers.async.metric.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.customer.CustomerLogMessage;
@@ -23,9 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
-import static com.gojek.daggers.Constants.FIELD_NAME_KEY;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
