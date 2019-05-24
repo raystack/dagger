@@ -2,6 +2,7 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.longbow.LongBowReader;
+import com.gojek.daggers.longbow.LongBowSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -27,8 +28,9 @@ public class LongBowProcessor implements PostProcessor {
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
+        LongBowSchema longBowSchema = new LongBowSchema(columnIndexMap);
 //        DataStream<Row> writeStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowWriter(), 5000, TimeUnit.MILLISECONDS, 40);
-//        DataStream<Row> readStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowReader(configuration, columnIndexMap), 5000, TimeUnit.MILLISECONDS, 40);
-        return new StreamInfo(streamInfo.getDataStream(), new String[1]);
+        DataStream<Row> readStream = AsyncDataStream.orderedWait(streamInfo.getDataStream(), (AsyncFunction) new LongBowReader(configuration, longBowSchema), 5000, TimeUnit.MILLISECONDS, 40);
+        return new StreamInfo(streamInfo.getDataStream(), streamInfo.getColumnNames());
     }
 }
