@@ -25,7 +25,7 @@ import static com.gojek.daggers.Constants.*;
 
 public class LongBowReader extends RichAsyncFunction<Row, Row> {
 
-    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("ts");
+    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private String projectID;
     private String instanceID;
     private LongBowSchema longBowSchema;
@@ -40,9 +40,9 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
 
 
     public LongBowReader(Configuration configuration, LongBowSchema longBowSchema) {
-        this.projectID = configuration.getString(LONGBOW_GCP_PROJECT_ID, LONGBOW_GCP_PROJECT_ID_DEFAULT);
-        this.instanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
-        this.daggerName = configuration.getString("FLINK_JOB_ID", "SQL Flink Job");
+        this.projectID = configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT);
+        this.instanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
+        this.daggerName = configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT);
         this.longBowSchema = longBowSchema;
     }
 
@@ -59,15 +59,16 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
     @Override
     public void close() throws Exception {
         super.close();
-        if(bigtableAsyncConnection != null)
+        if (bigtableAsyncConnection != null)
             bigtableAsyncConnection.close();
     }
 
     @Override
-    public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
+    public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         Scan scanRequest = new Scan();
-        scanRequest.withStartRow(longBowSchema.getStartRow(input), true);
-        scanRequest.withStopRow(longBowSchema.getEndRow(input), true);
+        long longBowDurationOffset = longBowSchema.getDurationInMillis(input);
+        scanRequest.withStartRow(longBowSchema.getKey(input, 0), true);
+        scanRequest.withStopRow(longBowSchema.getKey(input, longBowDurationOffset), true);
         longBowSchema
                 .getColumns(this::isData)
                 .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
