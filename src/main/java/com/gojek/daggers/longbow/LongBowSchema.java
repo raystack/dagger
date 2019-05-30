@@ -1,5 +1,6 @@
 package com.gojek.daggers.longbow;
 
+import com.gojek.daggers.exception.InvalidLongbowDurationException;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -21,22 +22,11 @@ public class LongBowSchema implements Serializable {
         this.columnIndexMap = columnIndexMap;
     }
 
-    public byte[] getStartRow(Row input) {
+    public byte[] getKey(Row input, long offset) {
         String longbowKey = (String) input.getField(columnIndexMap.get(LONGBOW_KEY));
-
         Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(ROWTIME));
-
-        long reversedTimestamp = Long.MAX_VALUE - rowTime.getTime();
+        long reversedTimestamp = Long.MAX_VALUE - (rowTime.getTime() - offset);
         String key = longbowKey + LONGBOW_DELIMITER + reversedTimestamp;
-        return Bytes.toBytes(key);
-    }
-
-    public byte[] getEndRow(Row input) {
-        String longbowKey = (String) input.getField(columnIndexMap.get(LONGBOW_KEY));
-        Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(ROWTIME));
-        String longbow_duration = (String) input.getField(columnIndexMap.get(LONGBOW_DURATION));
-        long reversedTimestamp = Long.MAX_VALUE - rowTime.getTime();
-        String key = longbowKey + LONGBOW_DELIMITER + (reversedTimestamp + getDurationInMillis(longbow_duration));
         return Bytes.toBytes(key);
     }
 
@@ -48,24 +38,27 @@ public class LongBowSchema implements Serializable {
         return columnIndexMap.get(column);
     }
 
-    public List<String> getColumns(Predicate<Map.Entry<String, Integer>> predicate) {
-        return columnIndexMap.entrySet()
+    public List<String> getColumns(Predicate<Map.Entry<String, Integer>> filterCondition) {
+        return columnIndexMap
+                .entrySet()
                 .stream()
-                .filter(predicate)
+                .filter(filterCondition)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
 
-    private long getDurationInMillis(String longbow_duration) {
+    public long getDurationInMillis(Row input) {
+        String longbow_duration = (String) input.getField(columnIndexMap.get(LONGBOW_DURATION));
         String durationUnit = longbow_duration.substring(longbow_duration.length() - 1);
         Long duration = Long.valueOf(longbow_duration.substring(0, longbow_duration.length() - 1));
         switch (durationUnit) {
-            case "h":
+            case HOUR_UNIT:
                 return TimeUnit.HOURS.toMillis(duration);
-            case "d":
+            case DAY_UNIT:
                 return TimeUnit.DAYS.toMillis(duration);
+
         }
-        return 0;
+        throw new InvalidLongbowDurationException(String.format("%s is a invalid longbow duration", longbow_duration));
     }
 
 }
