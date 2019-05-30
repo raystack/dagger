@@ -6,13 +6,18 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
+import org.apache.hadoop.hbase.client.AsyncTable;
+import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -52,12 +57,19 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
     }
 
     @Override
+    public void close() throws Exception {
+        super.close();
+        if(bigtableAsyncConnection != null)
+            bigtableAsyncConnection.close();
+    }
+
+    @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         Scan scanRequest = new Scan();
         scanRequest.withStartRow(longBowSchema.getStartRow(input), true);
         scanRequest.withStopRow(longBowSchema.getEndRow(input), true);
         longBowSchema
-                .getColumns(c -> c.getKey().contains(LONGBOW_DATA))
+                .getColumns(this::isData)
                 .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
         CompletableFuture scanFuture = asyncTable.scanAll(scanRequest);
         scanFuture.thenAccept(scanResult -> resultFuture.complete(getRow((List<Result>) scanResult, input)));
@@ -68,13 +80,12 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
         HashMap<String, Object> generatedDataMap = new HashMap<>();
         HashMap<String, Object> sqlDataMap = new HashMap<>();
         longBowSchema
-                .getColumns(c -> c.getKey().contains(LONGBOW_DATA))
+                .getColumns(this::isData)
                 .forEach(column -> generatedDataMap.put(column, parseColumnData(scanResult, column)));
         longBowSchema
-                .getColumns(c -> !c.getKey().contains(LONGBOW_DATA))
+                .getColumns(c -> !isData(c))
                 .forEach(s -> sqlDataMap.put(s, input.getField(longBowSchema.getIndex(s))));
         generatedDataMap.forEach((key, value) -> output.setField(longBowSchema.getIndex(key), value));
-        //Handle RowMaker
         sqlDataMap.forEach((key, value) -> output.setField(longBowSchema.getIndex(key), value));
 
         return Collections.singletonList(output);
@@ -85,6 +96,10 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
                 .stream()
                 .map(result -> Bytes.toString(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(column))))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isData(Map.Entry<String, Integer> c) {
+        return c.getKey().contains(LONGBOW_DATA);
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
