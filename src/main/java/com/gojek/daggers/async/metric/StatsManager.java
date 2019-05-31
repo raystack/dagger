@@ -59,6 +59,8 @@ public class StatsManager {
         meterMap.put(EMPTY_INPUT, metricGroup.meter(EMPTY_INPUT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(OTHER_ERRORS_PROCESSING_RESPONSE, metricGroup.meter(OTHER_ERRORS_PROCESSING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(ERROR_READING_RESPONSE, metricGroup.meter(ERROR_READING_RESPONSE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FAILURES_ON_BIGTABLE_WRITE_DOCUMENT, metricGroup.meter(FAILURES_ON_BIGTABLE_WRITE_DOCUMENT.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+        meterMap.put(FAILURES_ON_BIGTABLE_CREATE_TABLE, metricGroup.meter(FAILURES_ON_BIGTABLE_CREATE_TABLE.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
         meterMap.put(TIMEOUTS, metricGroup.meter(TIMEOUTS.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
     }
 
