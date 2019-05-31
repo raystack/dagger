@@ -100,7 +100,7 @@ public class LongBowSchemaTest {
     @Test
     public void shouldThrowExceptionForInvalidTimeUnit() {
         expectedException.expect(InvalidLongbowDurationException.class);
-        expectedException.expectMessage("15m is a invalid longbow duration");
+        expectedException.expectMessage("'15m' is a invalid duration string");
 
         int months = 15;
         Row rowsForMonths = getRow("driver1", "order1", defaultTimestamp, months + "m");

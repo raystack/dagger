@@ -65,7 +65,7 @@ public class LongBowReaderTest {
         currentTimestamp = new Timestamp(System.currentTimeMillis());
 
         columnIndexMap.put("longbow_key", 0);
-        columnIndexMap.put("data1", 1);
+        columnIndexMap.put("longbow_data1", 1);
         columnIndexMap.put("rowtime", 2);
         columnIndexMap.put("longbow_duration", 3);
 
@@ -94,7 +94,7 @@ public class LongBowReaderTest {
 
     @Test
     public void shouldPopulateOutputWithResults() throws Exception {
-        List<Result> results = getResults(getKeyValue("driver0", "data1", "order1"));
+        List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
         LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
@@ -112,8 +112,8 @@ public class LongBowReaderTest {
 
     @Test
     public void shouldPopulateOutputWithMultipleResults() throws Exception {
-        columnIndexMap.put("data2", 4);
-        List<Result> results = getResults(getKeyValue("driver0", "data1", "order1"), getKeyValue("driver0", "data2", "order2"));
+        columnIndexMap.put("longbow_data2", 4);
+        List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"), getKeyValue("driver0", "longbow_data2", "order2"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
         LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h", "order2");
