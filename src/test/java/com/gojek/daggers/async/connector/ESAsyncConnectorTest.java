@@ -1,7 +1,7 @@
 package com.gojek.daggers.async.connector;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.utils.stats.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.customer.CustomerLogMessage;
 import com.google.protobuf.Descriptors;

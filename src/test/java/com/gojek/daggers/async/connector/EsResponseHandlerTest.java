@@ -1,6 +1,6 @@
 package com.gojek.daggers.async.connector;
 
-import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.utils.stats.StatsManager;
 import com.gojek.daggers.utils.RowMaker;
 import com.gojek.esb.driverprofile.DriverProfileLogMessage;
 import com.google.protobuf.Descriptors;
