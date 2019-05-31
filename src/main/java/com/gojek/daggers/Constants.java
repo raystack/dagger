@@ -17,8 +17,10 @@ public class Constants {
     public final static String FIELD_NAME_KEY = "field_name";
     public final static String LONGBOW_KEY = "longbow_key";
     public final static String LONGBOW_DURATION = "longbow_duration";
+    public final static String LONGBOW_DOCUMENT_DURATION = "LONGBOW_DOCUMENT_DURATION";
+    public final static String LONGBOW_DOCUMENT_DURATION_DEFAULT = "90d";
     public final static String LONGBOW_DELIMITER = "#";
-    public final static String LONGBOW_DATA = "data";
+    public final static String LONGBOW_DATA = "longbow_data";
     public final static String LONGBOW_GCP_PROJECT_ID_KEY = "LONGBOW_GCP_PROJECT_ID";
     public final static String LONGBOW_GCP_PROJECT_ID_DEFAULT = "the-big-data-production-007";
     public final static String LONGBOW_GCP_INSTANCE_ID_KEY = "LONGBOW_GCP_INSTANCE_ID";
@@ -29,6 +31,6 @@ public class Constants {
     public final static String ROWTIME = "rowtime";
     public final static String HOUR_UNIT = "h";
     public final static String DAY_UNIT = "d";
-
-
+    public final static String SQL_QUERY = "SQL_QUERY";
+    public final static String SQL_QUERY_DEFAULT = "";
 }

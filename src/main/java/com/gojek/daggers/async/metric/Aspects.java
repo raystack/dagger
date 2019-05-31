@@ -16,6 +16,8 @@ public enum Aspects {
     EMPTY_INPUT("emptyInput"),
     ERROR_READING_RESPONSE("errorReadingResponse"),
     OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse"),
+    FAILURES_ON_BIGTABLE_WRITE_DOCUMENT("failedOnBigtableWriteDocument"),
+    FAILURES_ON_BIGTABLE_CREATE_TABLE("failedOnBigtableCreateTable"),
     TIMEOUTS("timeouts");
 
     private String value;

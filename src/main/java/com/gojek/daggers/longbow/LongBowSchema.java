@@ -49,16 +49,19 @@ public class LongBowSchema implements Serializable {
 
     public long getDurationInMillis(Row input) {
         String longbow_duration = (String) input.getField(columnIndexMap.get(LONGBOW_DURATION));
-        String durationUnit = longbow_duration.substring(longbow_duration.length() - 1);
-        Long duration = Long.valueOf(longbow_duration.substring(0, longbow_duration.length() - 1));
+        return getDurationInMillis(longbow_duration);
+    }
+
+    public long getDurationInMillis(String durationString) {
+        String durationUnit = durationString.substring(durationString.length() - 1);
+        Long duration = Long.valueOf(durationString.substring(0, durationString.length() - 1));
         switch (durationUnit) {
             case HOUR_UNIT:
                 return TimeUnit.HOURS.toMillis(duration);
             case DAY_UNIT:
                 return TimeUnit.DAYS.toMillis(duration);
-
         }
-        throw new InvalidLongbowDurationException(String.format("%s is a invalid longbow duration", longbow_duration));
+        throw new InvalidLongbowDurationException(String.format("'%s' is a invalid duration string", durationString));
     }
 
 }
