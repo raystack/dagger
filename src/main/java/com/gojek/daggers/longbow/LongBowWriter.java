@@ -118,8 +118,7 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
     public void setStatsManager(StatsManager statsManager) {
         this.statsManager = statsManager;
     }
-
-    @Override
+    
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         statsManager.markEvent(Aspects.TIMEOUTS);
         resultFuture.complete(Collections.singleton(input));
