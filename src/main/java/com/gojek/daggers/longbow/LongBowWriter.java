@@ -1,7 +1,7 @@
 package com.gojek.daggers.longbow;
 
-import com.gojek.daggers.async.metric.Aspects;
-import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.longbow.metric.LongBowAspects;
+import com.gojek.daggers.utils.stats.StatsManager;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -12,16 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gojek.daggers.Constants.*;
+import static java.time.Duration.between;
 
 public class LongBowWriter extends RichAsyncFunction<Row, Row> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongBowWriter.class.getName());
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
 
+    private Instant startTime;
     private StatsManager statsManager;
     private Configuration configuration;
     private LongBowSchema longbowSchema;
@@ -46,14 +49,26 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
         super.open(parameters);
         if (longBowStore == null)
             longBowStore = LongBowStore.create(configuration);
+
         if (statsManager == null)
             statsManager = new StatsManager(getRuntimeContext(), longBowStore.groupName(), true);
-        statsManager.register();
+        statsManager.register(LongBowAspects.values());
 
         if (!longBowStore.tableExists()) {
-            Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
-            String columnFamilyName = new String(COLUMN_FAMILY_NAME);
-            longBowStore.createTable(maxAgeDuration, columnFamilyName);
+            startTime = Instant.now();
+            try {
+                Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
+                String columnFamilyName = new String(COLUMN_FAMILY_NAME);
+                longBowStore.createTable(maxAgeDuration, columnFamilyName);
+                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(), maxAgeDuration, columnFamilyName);
+                statsManager.markEvent(LongBowAspects.SUCCESS_ON_CREATE_BIGTABLE);
+                statsManager.updateHistogram(LongBowAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+            } catch (Exception ex) {
+                LOGGER.error("failed to create table '{}'", longBowStore.tableName());
+                statsManager.markEvent(LongBowAspects.FAILURES_ON_CREATE_BIGTABLE);
+                statsManager.updateHistogram(LongBowAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                throw ex;
+            }
         }
         longBowStore.initialize();
     }
@@ -64,20 +79,27 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
         longbowSchema
                 .getColumns(c -> c.getKey().contains(LONGBOW_DATA))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), Bytes.toBytes((String) input.getField(longbowSchema.getIndex(column)))));
+        startTime = Instant.now();
         CompletableFuture<Void> writeFuture = longBowStore.put(putRequest);
         writeFuture
                 .exceptionally(this::logException)
-                .thenAccept(aVoid -> resultFuture.complete(Collections.singleton(input)));
+                .thenAccept(aVoid -> {
+                    resultFuture.complete(Collections.singleton(input));
+                    statsManager.markEvent(LongBowAspects.SUCCESS_ON_WRITE_DOCUMENT);
+                    statsManager.updateHistogram(LongBowAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                });
     }
 
     private Void logException(Throwable ex) {
-        statsManager.markEvent(Aspects.FAILURES_ON_BIGTABLE_WRITE_DOCUMENT);
-        LOGGER.error("LongBowWriter : failed to write document to BigTable: {}", ex.getMessage());
+        LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
+        ex.printStackTrace();
+        statsManager.markEvent(LongBowAspects.FAILURES_ON_WRITE_DOCUMENT);
+        statsManager.updateHistogram(LongBowAspects.FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return null;
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        statsManager.markEvent(Aspects.TIMEOUTS);
+        statsManager.markEvent(LongBowAspects.TIMEOUTS_ON_WRITER);
         resultFuture.complete(Collections.singleton(input));
     }
 }

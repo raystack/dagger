@@ -1,8 +1,8 @@
 package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.builder.ResponseBuilder;
-import com.gojek.daggers.async.metric.Aspects;
-import com.gojek.daggers.async.metric.StatsManager;
+import com.gojek.daggers.async.metric.AsyncAspects;
+import com.gojek.daggers.utils.stats.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
@@ -55,11 +55,11 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         }
         String groupName = "es." + this.configuration.get(FIELD_NAME_KEY);
         statsManager = new StatsManager(getRuntimeContext(), groupName, true);
-        statsManager.register();
+        statsManager.register(AsyncAspects.values());
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        statsManager.markEvent(Aspects.TIMEOUTS);
+        statsManager.markEvent(AsyncAspects.TIMEOUTS);
         resultFuture.complete(singleton(new ResponseBuilder(input).build()));
     }
 
@@ -90,12 +90,12 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         Object id = ((Row) input.getField(0)).getField(getIntegerConfig(configuration, ASYNC_IO_ES_INPUT_INDEX_KEY));
         if (isEmpty(id)) {
             resultFuture.complete(singleton(new ResponseBuilder(input).build()));
-            statsManager.markEvent(Aspects.EMPTY_INPUT);
+            statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
             return;
         }
         String esEndpoint = String.format(configuration.get(ASYNC_IO_ES_PATH_KEY), id);
         Request request = new Request("GET", esEndpoint);
-        statsManager.markEvent(Aspects.TOTAL_ES_CALLS);
+        statsManager.markEvent(AsyncAspects.TOTAL_ES_CALLS);
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, fieldIndex, statsManager);
         esResponseHandler.start();
         esClient.performRequestAsync(request, esResponseHandler);

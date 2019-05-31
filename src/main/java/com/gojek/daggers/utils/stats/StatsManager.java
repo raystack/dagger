@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.metric;
+package com.gojek.daggers.utils.stats;
 
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -11,7 +11,6 @@ import org.apache.flink.metrics.MetricGroup;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.gojek.daggers.async.metric.Aspects.values;
 
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
@@ -28,15 +27,15 @@ public class StatsManager {
         meterMap = new HashMap<>();
     }
 
-    public void register() {
+    public void register(Aspects[] aspects) {
         if (enabled) {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupName);
-            register(metricGroup);
+            register(metricGroup, aspects);
         }
     }
 
-    private void register(MetricGroup metricGroup) {
-        for (Aspects aspect : values()) {
+    private void register(MetricGroup metricGroup, Aspects[] aspects) {
+        for (Aspects aspect : aspects) {
             if (AspectType.Histogram.equals(aspect.getAspectType()))
                 histogramMap.put(aspect, metricGroup.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
             if (AspectType.Metric.equals(aspect.getAspectType()))

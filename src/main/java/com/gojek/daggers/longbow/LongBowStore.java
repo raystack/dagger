@@ -2,7 +2,6 @@ package com.gojek.daggers.longbow;
 
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.TableName;
@@ -10,8 +9,6 @@ import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
 import java.io.IOException;
@@ -21,7 +18,6 @@ import static com.gojek.daggers.Constants.*;
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
 public class LongBowStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongBowStore.class.getName());
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
     private String daggerID;
@@ -51,13 +47,13 @@ public class LongBowStore {
         return "longbow." + daggerID;
     }
 
-    public void createTable(Duration maxAgeDuration, String columnFamilyName) {
-        Table table = adminClient.createTable(CreateTableRequest.of(daggerID).addFamily(columnFamilyName,
+    public String tableName() { return daggerID; }
+
+    public void createTable(Duration maxAgeDuration, String columnFamilyName) throws Exception {
+        adminClient.createTable(CreateTableRequest.of(daggerID).addFamily(columnFamilyName,
                 GCRULES.union()
                         .rule(GCRULES.maxVersions(1))
                         .rule(GCRULES.maxAge(maxAgeDuration))));
-
-        LOGGER.info("LongBowWriter : table '{}' is created with maxAge '{}' on column family '{}'", table.getId(), maxAgeDuration, columnFamilyName);
     }
 
     public void initialize() {
