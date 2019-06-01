@@ -28,6 +28,7 @@ public class Constants {
     public final static String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
     public final static String DAGGER_NAME_KEY = "FLINK_JOB_ID";
     public final static String DAGGER_NAME_DEFAULT = "SQL Flink Job";
+    public final static String EVENT_TIMESTAMP = "event_timestamp";
     public final static String ROWTIME = "rowtime";
     public final static String HOUR_UNIT = "h";
     public final static String DAY_UNIT = "d";

@@ -72,7 +72,7 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
         longBowSchema
                 .getColumns(this::isData)
                 .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
-        CompletableFuture scanFuture = asyncTable.scanAll(scanRequest);
+        CompletableFuture<List<Result>> scanFuture = asyncTable.scanAll(scanRequest);
         scanFuture.thenAccept(scanResult -> resultFuture.complete(getRow((List<Result>) scanResult, input)));
     }
 
