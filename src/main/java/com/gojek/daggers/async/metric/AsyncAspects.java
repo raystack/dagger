@@ -1,9 +1,12 @@
 package com.gojek.daggers.async.metric;
 
-import static com.gojek.daggers.async.metric.AspectType.Histogram;
-import static com.gojek.daggers.async.metric.AspectType.Metric;
+import com.gojek.daggers.utils.stats.AspectType;
+import com.gojek.daggers.utils.stats.Aspects;
 
-public enum Aspects {
+import static com.gojek.daggers.utils.stats.AspectType.Histogram;
+import static com.gojek.daggers.utils.stats.AspectType.Metric;
+
+public enum AsyncAspects implements Aspects {
     DOCUMENT_FOUND("documentFound", Metric),
     ERROR_PARSING_RESPONSE("parseErrors", Metric),
     SUCCESS_RESPONSE_TIME("successResponseTime", Histogram),
@@ -19,22 +22,22 @@ public enum Aspects {
     EMPTY_INPUT("emptyInput", Metric),
     ERROR_READING_RESPONSE("errorReadingResponse", Metric),
     OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse", Metric),
-    FAILURES_ON_BIGTABLE_WRITE_DOCUMENT("failedOnBigtableWriteDocument", Metric),
-    FAILURES_ON_BIGTABLE_CREATE_TABLE("failedOnBigtableCreateTable", Metric),
     TIMEOUTS("timeouts", Metric);
 
     private String value;
     private AspectType aspectType;
 
-    Aspects(String value, AspectType aspectType) {
+    AsyncAspects(String value, AspectType aspectType) {
         this.value = value;
         this.aspectType = aspectType;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
 
+    @Override
     public AspectType getAspectType() {
         return aspectType;
     }
