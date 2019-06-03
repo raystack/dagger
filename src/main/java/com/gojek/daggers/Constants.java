@@ -26,6 +26,9 @@ public class Constants {
     public final static String LONGBOW_GCP_INSTANCE_ID_KEY = "LONGBOW_GCP_INSTANCE_ID";
     public final static String LONGBOW_GCP_INSTANCE_ID_DEFAULT = "de-prod";
     public final static String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
+    public final static Integer LONGBOW_ASYNC_TIMEOUT_DEFAULT = 5000;
+    public final static Integer LONGBOW_CAPACITY_DEFAULT = 40;
+
     public final static String DAGGER_NAME_KEY = "FLINK_JOB_ID";
     public final static String DAGGER_NAME_DEFAULT = "SQL Flink Job";
     public final static String EVENT_TIMESTAMP = "event_timestamp";
