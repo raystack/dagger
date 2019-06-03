@@ -13,10 +13,10 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public class LongBowSchemaTest {
+public class LongbowSchemaTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private LongBowSchema longBowSchema;
+    private LongbowSchema longBowSchema;
     private Row defaultRow;
     private Long defaultTimestampInMillis;
     private Timestamp defaultTimestamp;
@@ -24,7 +24,7 @@ public class LongBowSchemaTest {
     @Before
     public void setup() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
-        longBowSchema = new LongBowSchema(columnNames);
+        longBowSchema = new LongbowSchema(columnNames);
         defaultTimestampInMillis = 433321L;
         defaultTimestamp = new Timestamp(defaultTimestampInMillis);
         defaultRow = getRow("driver1", "order1", defaultTimestamp, "24h");
@@ -65,7 +65,7 @@ public class LongBowSchemaTest {
     @Test
     public void shouldGetColumnsForDataFilterForMultipleDataColumn() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-        longBowSchema = new LongBowSchema(columnNames);
+        longBowSchema = new LongbowSchema(columnNames);
 
         assertEquals(Arrays.asList("longbow_data1", "longbow_data2"), longBowSchema.getColumnNames(s -> s.getKey().contains("longbow_data")));
     }
@@ -73,7 +73,7 @@ public class LongBowSchemaTest {
     @Test
     public void shouldGetColumnsForNonDataFilterForMultipleDataColumn() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-        longBowSchema = new LongBowSchema(columnNames);
+        longBowSchema = new LongbowSchema(columnNames);
 
         assertEquals(Arrays.asList("longbow_key", "rowtime", "longbow_duration"), longBowSchema.getColumnNames(s -> !s.getKey().contains("longbow_data")));
     }
@@ -108,7 +108,7 @@ public class LongBowSchemaTest {
         expectedException.expectMessage("Missing required field: 'longbow_data'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
-        final LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+        final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
 
         longBowSchema.validateMandatoryFields();
     }
@@ -119,7 +119,7 @@ public class LongBowSchemaTest {
         expectedException.expectMessage("Missing required field: 'longbow_duration'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_data1", "event_timestamp"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
 
         longBowSchema.validateMandatoryFields();
     }
@@ -130,7 +130,7 @@ public class LongBowSchemaTest {
         expectedException.expectMessage("Missing required field: 'event_timestamp'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
 
         longBowSchema.validateMandatoryFields();
     }
@@ -141,7 +141,7 @@ public class LongBowSchemaTest {
         expectedException.expectMessage("Missing required field: 'rowtime'");
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
 
         longBowSchema.validateMandatoryFields();
     }
@@ -152,7 +152,7 @@ public class LongBowSchemaTest {
         expectedException.expectMessage("Missing required field: 'event_timestamp,rowtime'");
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
 
         longBowSchema.validateMandatoryFields();
     }
