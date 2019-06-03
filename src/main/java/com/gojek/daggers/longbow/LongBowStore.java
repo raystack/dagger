@@ -21,10 +21,10 @@ import static com.gojek.daggers.Constants.*;
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
 public class LongBowStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LongBowStore.class.getName());
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
     private String daggerID;
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongBowStore.class.getName());
     private AsyncTable<AdvancedScanResultConsumer> table;
 
     private LongBowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient, String daggerID) {
@@ -66,7 +66,7 @@ public class LongBowStore {
     }
 
     public CompletableFuture<Void> put(Put putRequest) {
-        if(table == null)
+        if (table == null)
             initialize();
         return table.put(putRequest);
     }

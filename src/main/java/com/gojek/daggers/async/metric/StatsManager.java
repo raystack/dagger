@@ -11,7 +11,7 @@ import org.apache.flink.metrics.MetricGroup;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.gojek.daggers.async.metric.Aspects.*;
+import static com.gojek.daggers.async.metric.Aspects.values;
 
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;

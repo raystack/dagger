@@ -9,27 +9,19 @@ import org.apache.flink.types.Row;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.gojek.daggers.Constants.*;
+import static com.gojek.daggers.Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT;
+import static com.gojek.daggers.Constants.LONGBOW_CAPACITY_DEFAULT;
 
 public class LongBowProcessor implements PostProcessor {
 
-//    private final List<String> columnNames;
     private AsyncProcessor asyncProcessor;
     private LongBowSchema longBowSchema;
     private LongBowWriter longbowWriter;
     private LongBowReader longbowReader;
 
-//    public LongBowProcessor(LongBowWriter longbowWriter, LongBowReader longbowReader, AsyncProcessor asyncProcessor, String[] columnNames) {
-//        this.asyncProcessor = asyncProcessor;
-//        Arrays.asList(columnNames);
-//        this.longbowWriter = longbowWriter;
-//        this.longbowReader = longbowReader;
-//    }
-
     public LongBowProcessor(LongBowWriter longbowWriter, LongBowReader longbowReader, AsyncProcessor asyncProcessor, LongBowSchema longBowSchema) {
         this.asyncProcessor = asyncProcessor;
         this.longBowSchema = longBowSchema;
-//        this.columnNames = Arrays.asList(columnNames);
         this.longbowWriter = longbowWriter;
         this.longbowReader = longbowReader;
     }
