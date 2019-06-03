@@ -1,6 +1,7 @@
 package com.gojek.daggers.async.connector;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.gojek.daggers.async.metric.AsyncAspects;
 import com.gojek.daggers.utils.stats.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.customer.CustomerLogMessage;
@@ -98,7 +99,8 @@ public class ESAsyncConnectorTest {
         esAsyncConnector.asyncInvoke(input, resultFuture);
 
         String groupName = "es.test";
-        StatsManager statsManager = new StatsManager(runtimeContext, groupName, true);
+        StatsManager statsManager = new StatsManager(runtimeContext, true);
+        statsManager.register(groupName, AsyncAspects.values());
         EsResponseHandler esResponseHandler = new EsResponseHandler(input, resultFuture, descriptor, 0, statsManager);
         esResponseHandler.start();
         Request request = new Request("GET", "/drivers/driver/11223344545");

@@ -54,8 +54,8 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
             esClient = createESClient();
         }
         String groupName = "es." + this.configuration.get(FIELD_NAME_KEY);
-        statsManager = new StatsManager(getRuntimeContext(), groupName, true);
-        statsManager.register(AsyncAspects.values());
+        statsManager = new StatsManager(getRuntimeContext(), true);
+        statsManager.register(groupName, AsyncAspects.values());
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
