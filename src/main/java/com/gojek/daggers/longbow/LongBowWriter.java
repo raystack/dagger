@@ -77,7 +77,7 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
         longbowSchema
-                .getColumns(c -> c.getKey().contains(LONGBOW_DATA))
+                .getColumnNames(c -> c.getKey().contains(LONGBOW_DATA))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), Bytes.toBytes((String) input.getField(longbowSchema.getIndex(column)))));
         startTime = Instant.now();
         CompletableFuture<Void> writeFuture = longBowStore.put(putRequest);

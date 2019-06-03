@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 public class LongBowSchemaTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    //    private HashMap<String, Integer> columnIndexMap;
     private LongBowSchema longBowSchema;
     private Row defaultRow;
     private Long defaultTimestampInMillis;
@@ -60,7 +59,7 @@ public class LongBowSchemaTest {
 
     @Test
     public void shouldGetColumnsForDataFilterForOneDataColumn() {
-        assertEquals(Arrays.asList("longbow_data1"), longBowSchema.getColumns(s -> s.getKey().contains("longbow_data")));
+        assertEquals(Arrays.asList("longbow_data1"), longBowSchema.getColumnNames(s -> s.getKey().contains("longbow_data")));
     }
 
     @Test
@@ -68,7 +67,7 @@ public class LongBowSchemaTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongBowSchema(columnNames);
 
-        assertEquals(Arrays.asList("longbow_data1", "longbow_data2"), longBowSchema.getColumns(s -> s.getKey().contains("longbow_data")));
+        assertEquals(Arrays.asList("longbow_data1", "longbow_data2"), longBowSchema.getColumnNames(s -> s.getKey().contains("longbow_data")));
     }
 
     @Test
@@ -76,7 +75,7 @@ public class LongBowSchemaTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongBowSchema(columnNames);
 
-        assertEquals(Arrays.asList("longbow_key", "rowtime", "longbow_duration"), longBowSchema.getColumns(s -> !s.getKey().contains("longbow_data")));
+        assertEquals(Arrays.asList("longbow_key", "rowtime", "longbow_duration"), longBowSchema.getColumnNames(s -> !s.getKey().contains("longbow_data")));
     }
 
     @Test

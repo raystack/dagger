@@ -47,7 +47,7 @@ public class LongBowSchema implements Serializable {
         return columnIndexMap.get(column);
     }
 
-    public List<String> getColumns(Predicate<Map.Entry<String, Integer>> filterCondition) {
+    public List<String> getColumnNames(Predicate<Map.Entry<String, Integer>> filterCondition) {
         return columnIndexMap
                 .entrySet()
                 .stream()
