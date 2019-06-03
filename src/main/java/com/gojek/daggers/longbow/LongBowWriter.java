@@ -51,8 +51,8 @@ public class LongBowWriter extends RichAsyncFunction<Row, Row> {
             longBowStore = LongBowStore.create(configuration);
 
         if (statsManager == null)
-            statsManager = new StatsManager(getRuntimeContext(), longBowStore.groupName(), true);
-        statsManager.register(LongBowAspects.values());
+            statsManager = new StatsManager(getRuntimeContext(), true);
+        statsManager.register(longBowStore.groupName(), LongBowAspects.values());
 
         if (!longBowStore.tableExists()) {
             startTime = Instant.now();

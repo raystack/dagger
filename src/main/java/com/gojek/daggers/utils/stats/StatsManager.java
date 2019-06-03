@@ -14,20 +14,18 @@ import java.util.concurrent.TimeUnit;
 
 public class StatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
-    private final String groupName;
     private RuntimeContext runtimeContext;
     private Boolean enabled;
     private HashMap<Aspects, Meter> meterMap;
 
-    public StatsManager(RuntimeContext runtimeContext, String groupName, Boolean enabled) {
+    public StatsManager(RuntimeContext runtimeContext, Boolean enabled) {
         this.runtimeContext = runtimeContext;
-        this.groupName = groupName;
         this.enabled = enabled;
         histogramMap = new HashMap<>();
         meterMap = new HashMap<>();
     }
 
-    public void register(Aspects[] aspects) {
+    public void register(String groupName, Aspects[] aspects) {
         if (enabled) {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupName);
             register(metricGroup, aspects);
