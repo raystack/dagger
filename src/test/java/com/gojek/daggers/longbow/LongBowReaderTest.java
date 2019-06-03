@@ -5,10 +5,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
-import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -19,10 +17,8 @@ import org.mockito.Mock;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -38,10 +34,7 @@ public class LongBowReaderTest {
     private Configuration configuration;
 
     @Mock
-    private BigtableAsyncConnection bigtableAsyncConnection;
-
-    @Mock
-    private AsyncTable<AdvancedScanResultConsumer> asyncTable;
+    private LongBowStore longBowStore;
 
     @Mock
     private ResultFuture<Row> outputFuture;
@@ -57,11 +50,8 @@ public class LongBowReaderTest {
         when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007")).thenReturn("test-project");
         when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn("test-job");
-
-        when(bigtableAsyncConnection.getTable(TableName.valueOf(Bytes.toBytes("test-job")))).thenReturn(asyncTable);
         scanFuture = new CompletableFuture<>();
         currentTimestamp = new Timestamp(System.currentTimeMillis());
-
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         longBowSchema = new LongBowSchema(columnNames);
     }
@@ -70,8 +60,8 @@ public class LongBowReaderTest {
     public void shouldPopulateOutputWithAllTheInputFieldsWhenResultIsEmpty() throws Exception {
         scanFuture = CompletableFuture.supplyAsync(ArrayList::new);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
-        when(asyncTable.scanAll(any(Scan.class))).thenReturn(scanFuture);
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
+        when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
         longBowReader.open(configuration);
         longBowReader.asyncInvoke(input, outputFuture);
@@ -90,9 +80,9 @@ public class LongBowReaderTest {
     public void shouldPopulateOutputWithResults() throws Exception {
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
-        when(asyncTable.scanAll(any(Scan.class))).thenReturn(scanFuture);
+        when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
         longBowReader.open(configuration);
         longBowReader.asyncInvoke(input, outputFuture);
@@ -108,12 +98,11 @@ public class LongBowReaderTest {
     public void shouldPopulateOutputWithMultipleResults() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongBowSchema(columnNames);
-
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"), getKeyValue("driver0", "longbow_data2", "order2"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h", "order2");
-        when(asyncTable.scanAll(any(Scan.class))).thenReturn(scanFuture);
+        when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
         longBowReader.open(configuration);
         longBowReader.asyncInvoke(input, outputFuture);
@@ -130,26 +119,12 @@ public class LongBowReaderTest {
     public void shouldHandleClose() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongBowSchema(columnNames);
-
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
-
-        longBowReader.close();
-
-        verify(bigtableAsyncConnection,times(1)).close();
-    }
-
-    @Test
-    public void shouldHandleCloseWhenClientIsNull() throws Exception {
-        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-        longBowSchema = new LongBowSchema(columnNames);
-
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, null);
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
 
         longBowReader.close();
 
-        //No assertion as it is checking for null condition. Asserting that null pointer exception is not thrown
+        verify(longBowStore,times(1)).close();
     }
-
 
     private ArrayList<Object> getData(String... orderDetails) {
         ArrayList<Object> data = new ArrayList<>();
