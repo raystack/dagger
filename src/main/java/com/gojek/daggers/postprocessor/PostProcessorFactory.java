@@ -1,5 +1,8 @@
 package com.gojek.daggers.postprocessor;
 
+import com.gojek.daggers.longbow.LongBowReader;
+import com.gojek.daggers.longbow.LongBowSchema;
+import com.gojek.daggers.longbow.LongBowWriter;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 
@@ -12,7 +15,10 @@ public class PostProcessorFactory {
         if (configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT))
             return Optional.of(new AshikoProcessor(configuration, stencilClient));
         if (configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT).contains(LONGBOW_KEY)) {
-            return Optional.of(new LongBowProcessor(configuration, columnNames));
+            final LongBowSchema longBowSchema = new LongBowSchema(columnNames);
+            LongBowWriter longbowWriter = new LongBowWriter(configuration, longBowSchema);
+            LongBowReader longbowReader = new LongBowReader(configuration, longBowSchema);
+            return Optional.of(new LongBowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longBowSchema));
         }
         return Optional.empty();
     }

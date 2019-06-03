@@ -19,6 +19,7 @@ import org.mockito.Mock;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,8 +34,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongBowReaderTest {
-
-    private HashMap<String, Integer> columnIndexMap = new HashMap<>();
 
     @Mock
     private Configuration configuration;
@@ -64,12 +63,8 @@ public class LongBowReaderTest {
         scanFuture = new CompletableFuture<>();
         currentTimestamp = new Timestamp(System.currentTimeMillis());
 
-        columnIndexMap.put("longbow_key", 0);
-        columnIndexMap.put("longbow_data1", 1);
-        columnIndexMap.put("rowtime", 2);
-        columnIndexMap.put("longbow_duration", 3);
-
-        longBowSchema = new LongBowSchema(columnIndexMap);
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
+        longBowSchema = new LongBowSchema(columnNames);
     }
 
     @Test
@@ -112,7 +107,9 @@ public class LongBowReaderTest {
 
     @Test
     public void shouldPopulateOutputWithMultipleResults() throws Exception {
-        columnIndexMap.put("longbow_data2", 4);
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
+        longBowSchema = new LongBowSchema(columnNames);
+
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"), getKeyValue("driver0", "longbow_data2", "order2"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
         LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
