@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.metric;
+package com.gojek.daggers.utils.stats;
 
 public enum AspectType {
     Histogram,
