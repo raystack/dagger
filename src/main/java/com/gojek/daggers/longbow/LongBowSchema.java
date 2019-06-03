@@ -80,8 +80,8 @@ public class LongBowSchema implements Serializable {
                         .stream()
                         .noneMatch(columnName -> columnName.contains(field)))
                 .collect(Collectors.joining(","));
-        if(StringUtils.isNotEmpty(missingFields))
-            throw new DaggerConfigurationException("Missing required field: '" + missingFields+ "'");
+        if (StringUtils.isNotEmpty(missingFields))
+            throw new DaggerConfigurationException("Missing required field: '" + missingFields + "'");
     }
 
 
