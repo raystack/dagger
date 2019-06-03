@@ -29,8 +29,7 @@ import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongBowReaderTest {
@@ -126,6 +125,31 @@ public class LongBowReaderTest {
         })));
         Assert.assertTrue(scanFuture.isDone());
     }
+
+    @Test
+    public void shouldHandleClose() throws Exception {
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
+        longBowSchema = new LongBowSchema(columnNames);
+
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, bigtableAsyncConnection);
+
+        longBowReader.close();
+
+        verify(bigtableAsyncConnection,times(1)).close();
+    }
+
+    @Test
+    public void shouldHandleCloseWhenClientIsNull() throws Exception {
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
+        longBowSchema = new LongBowSchema(columnNames);
+
+        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, null);
+
+        longBowReader.close();
+
+        //No assertion as it is checking for null condition. Asserting that null pointer exception is not thrown
+    }
+
 
     private ArrayList<Object> getData(String... orderDetails) {
         ArrayList<Object> data = new ArrayList<>();
