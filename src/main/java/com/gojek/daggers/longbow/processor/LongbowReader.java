@@ -1,5 +1,7 @@
-package com.gojek.daggers.longbow;
+package com.gojek.daggers.longbow.processor;
 
+import com.gojek.daggers.longbow.LongbowSchema;
+import com.gojek.daggers.longbow.LongbowStore;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -20,20 +22,20 @@ import java.util.stream.Collectors;
 import static com.gojek.daggers.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 import static com.gojek.daggers.Constants.LONGBOW_DATA;
 
-public class LongBowReader extends RichAsyncFunction<Row, Row> {
+public class LongbowReader extends RichAsyncFunction<Row, Row> {
 
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongBowReader.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
     private Configuration configuration;
-    private LongBowSchema longBowSchema;
-    private LongBowStore longBowStore;
+    private LongbowSchema longBowSchema;
+    private LongbowStore longBowStore;
 
-    LongBowReader(Configuration configuration, LongBowSchema longBowSchema, LongBowStore longBowStore) {
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowStore longBowStore) {
         this(configuration, longBowSchema);
         this.longBowStore = longBowStore;
     }
 
-    public LongBowReader(Configuration configuration, LongBowSchema longBowSchema) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
     }
@@ -42,7 +44,7 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
         if (longBowStore == null) {
-            longBowStore = LongBowStore.create(configuration);
+            longBowStore = LongbowStore.create(configuration);
         }
         longBowStore.initialize();
     }
@@ -69,7 +71,7 @@ public class LongBowReader extends RichAsyncFunction<Row, Row> {
     }
 
     private List<Result> logException(Throwable ex) {
-        LOGGER.error("LongBowReader : failed to scan document from BigTable: {}", ex.getMessage());
+        LOGGER.error("LongbowReader : failed to scan document from BigTable: {}", ex.getMessage());
         return Collections.emptyList();
     }
 

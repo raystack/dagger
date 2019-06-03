@@ -1,12 +1,13 @@
-package com.gojek.daggers.longbow;
+package com.gojek.daggers.longbow.processor;
 
 
+import com.gojek.daggers.longbow.LongbowSchema;
+import com.gojek.daggers.longbow.LongbowStore;
+import com.gojek.daggers.longbow.processor.LongbowReader;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
-import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -28,18 +29,18 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class LongBowReaderTest {
+public class LongbowReaderTest {
 
     @Mock
     private Configuration configuration;
 
     @Mock
-    private LongBowStore longBowStore;
+    private LongbowStore longBowStore;
 
     @Mock
     private ResultFuture<Row> outputFuture;
 
-    private LongBowSchema longBowSchema;
+    private LongbowSchema longBowSchema;
     private CompletableFuture<List<Result>> scanFuture;
     private Timestamp currentTimestamp;
 
@@ -53,14 +54,14 @@ public class LongBowReaderTest {
         scanFuture = new CompletableFuture<>();
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
-        longBowSchema = new LongBowSchema(columnNames);
+        longBowSchema = new LongbowSchema(columnNames);
     }
 
     @Test
     public void shouldPopulateOutputWithAllTheInputFieldsWhenResultIsEmpty() throws Exception {
         scanFuture = CompletableFuture.supplyAsync(ArrayList::new);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
         longBowReader.open(configuration);
@@ -80,7 +81,7 @@ public class LongBowReaderTest {
     public void shouldPopulateOutputWithResults() throws Exception {
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
@@ -97,10 +98,10 @@ public class LongBowReaderTest {
     @Test
     public void shouldPopulateOutputWithMultipleResults() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-        longBowSchema = new LongBowSchema(columnNames);
+        longBowSchema = new LongbowSchema(columnNames);
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"), getKeyValue("driver0", "longbow_data2", "order2"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h", "order2");
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
@@ -118,8 +119,8 @@ public class LongBowReaderTest {
     @Test
     public void shouldHandleClose() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-        longBowSchema = new LongBowSchema(columnNames);
-        LongBowReader longBowReader = new LongBowReader(configuration, longBowSchema, longBowStore);
+        longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
 
         longBowReader.close();
 

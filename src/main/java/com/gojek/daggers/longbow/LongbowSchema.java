@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 import static com.gojek.daggers.Constants.*;
 
-public class LongBowSchema implements Serializable {
+public class LongbowSchema implements Serializable {
     private static final String[] MANDATORY_FIELDS = new String[]{LONGBOW_KEY, LONGBOW_DATA, LONGBOW_DURATION, EVENT_TIMESTAMP, ROWTIME};
     private HashMap<String, Integer> columnIndexMap;
     private List<String> columnNames;
 
-    public LongBowSchema(String[] columnNames) {
+    public LongbowSchema(String[] columnNames) {
         this.columnNames = Arrays.asList(columnNames);
         this.columnIndexMap = new HashMap<>();
         for (int i = 0; i < columnNames.length; i++) {
