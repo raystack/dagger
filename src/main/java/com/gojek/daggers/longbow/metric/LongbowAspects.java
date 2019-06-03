@@ -6,7 +6,7 @@ import com.gojek.daggers.utils.stats.Aspects;
 import static com.gojek.daggers.utils.stats.AspectType.Histogram;
 import static com.gojek.daggers.utils.stats.AspectType.Metric;
 
-public enum LongBowAspects implements Aspects {
+public enum LongbowAspects implements Aspects {
     SUCCESS_ON_CREATE_BIGTABLE("successOnCreateBigTable", Metric),
     SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME("successOnCreateBigTableResponseTime", Histogram),
     FAILURES_ON_CREATE_BIGTABLE("failedOnCreateBigTable", Metric),
@@ -20,7 +20,7 @@ public enum LongBowAspects implements Aspects {
     private String value;
     private AspectType aspectType;
 
-    LongBowAspects(String value, AspectType aspectType) {
+    LongbowAspects(String value, AspectType aspectType) {
         this.value = value;
         this.aspectType = aspectType;
     }

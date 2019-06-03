@@ -2,9 +2,9 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.DaggerConfigurationException;
 import com.gojek.daggers.StreamInfo;
-import com.gojek.daggers.longbow.LongBowReader;
-import com.gojek.daggers.longbow.LongBowSchema;
-import com.gojek.daggers.longbow.LongBowWriter;
+import com.gojek.daggers.longbow.processor.LongbowReader;
+import com.gojek.daggers.longbow.LongbowSchema;
+import com.gojek.daggers.longbow.processor.LongbowWriter;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class LongBowProcessorTest {
+public class LongbowProcessorTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -44,8 +44,8 @@ public class LongBowProcessorTest {
         expectedException.expectMessage("Missing required field: 'longbow_data'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
-        final LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(new LongBowWriter(configuration, longBowSchema), new LongBowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
+        final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema), new LongbowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -57,8 +57,8 @@ public class LongBowProcessorTest {
         expectedException.expectMessage("Missing required field: 'longbow_duration'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_data1", "event_timestamp"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(new LongBowWriter(configuration, longBowSchema), new LongBowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema), new LongbowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -70,8 +70,8 @@ public class LongBowProcessorTest {
         expectedException.expectMessage("Missing required field: 'event_timestamp'");
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(new LongBowWriter(configuration, longBowSchema), new LongBowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema), new LongbowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -83,8 +83,8 @@ public class LongBowProcessorTest {
         expectedException.expectMessage("Missing required field: 'rowtime'");
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(new LongBowWriter(configuration, longBowSchema), new LongBowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema), new LongbowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -96,8 +96,8 @@ public class LongBowProcessorTest {
         expectedException.expectMessage("Missing required field: 'event_timestamp,rowtime'");
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(new LongBowWriter(configuration, longBowSchema), new LongBowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema), new LongbowReader(configuration, longBowSchema), asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -106,14 +106,14 @@ public class LongBowProcessorTest {
     @Test
     public void shouldChainFunctionsWhenAllFieldsPresentInQuery() {
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp", "longbow_data1"};
-        LongBowSchema longBowSchema = new LongBowSchema(columnNames);
-        LongBowWriter longbowWriter = new LongBowWriter(configuration, longBowSchema);
-        LongBowReader longbowReader = new LongBowReader(configuration, longBowSchema);
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema);
+        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema);
         DataStream<Row> writerStream = mock(DataStream.class);
         DataStream<Row> readerStream = mock(DataStream.class);
         when(asyncProcessor.orderedWait(dataStream, longbowWriter, 5000, TimeUnit.MILLISECONDS, 40)).thenReturn(writerStream);
         when(asyncProcessor.orderedWait(writerStream, longbowReader, 5000, TimeUnit.MILLISECONDS, 40)).thenReturn(readerStream);
-        LongBowProcessor longBowProcessor = new LongBowProcessor(longbowWriter, longbowReader, asyncProcessor, longBowSchema);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, longBowSchema);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
 

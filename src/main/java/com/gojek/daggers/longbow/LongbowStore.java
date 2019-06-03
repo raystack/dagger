@@ -20,26 +20,26 @@ import java.util.concurrent.CompletableFuture;
 import static com.gojek.daggers.Constants.*;
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
-public class LongBowStore {
+public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
     private String daggerID;
     private AsyncTable<AdvancedScanResultConsumer> table;
 
-    private LongBowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient, String daggerID) {
+    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient, String daggerID) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
         this.daggerID = daggerID;
     }
 
-    public static LongBowStore create(Configuration configuration) throws IOException {
+    public static LongbowStore create(Configuration configuration) throws IOException {
         String gcpProjectID = configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT);
         String gcpInstanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
         String daggerID = configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);
-        return new LongBowStore(bigtableTableAdminClient, bigtableAsyncConnection, daggerID);
+        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection, daggerID);
     }
 
     public boolean tableExists() {
