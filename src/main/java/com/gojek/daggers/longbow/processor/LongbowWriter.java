@@ -26,7 +26,6 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowWriter.class.getName());
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
 
-    private Instant startTime;
     private StatsManager statsManager;
     private Configuration configuration;
     private LongbowSchema longbowSchema;
@@ -57,7 +56,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         statsManager.register(longBowStore.groupName(), LongbowAspects.values());
 
         if (!longBowStore.tableExists()) {
-            startTime = Instant.now();
+            Instant startTime = Instant.now();
             try {
                 Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
@@ -81,18 +80,18 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         longbowSchema
                 .getColumnNames(c -> c.getKey().contains(LONGBOW_DATA))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), Bytes.toBytes((String) input.getField(longbowSchema.getIndex(column)))));
-        startTime = Instant.now();
+        Instant startTime = Instant.now();
         CompletableFuture<Void> writeFuture = longBowStore.put(putRequest);
         writeFuture
-                .exceptionally(this::logException)
+                .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(aVoid -> {
-                    resultFuture.complete(Collections.singleton(input));
                     statsManager.markEvent(LongbowAspects.SUCCESS_ON_WRITE_DOCUMENT);
                     statsManager.updateHistogram(LongbowAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                    resultFuture.complete(Collections.singleton(input));
                 });
     }
 
-    private Void logException(Throwable ex) {
+    private Void logException(Throwable ex, Instant startTime) {
         LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
         statsManager.markEvent(LongbowAspects.FAILURES_ON_WRITE_DOCUMENT);
@@ -101,7 +100,16 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+        LOGGER.error("LongbowWriter : timeout when writing document");
         statsManager.markEvent(LongbowAspects.TIMEOUTS_ON_WRITER);
         resultFuture.complete(Collections.singleton(input));
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        longBowStore.close();
+        statsManager.markEvent(LongbowAspects.CLOSE_CONNECTION_ON_WRITER);
+        LOGGER.error("LongbowWriter : Connection closed");
     }
 }
