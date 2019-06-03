@@ -18,7 +18,7 @@ public class PostProcessorFactory {
             final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
             LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema);
             LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema);
-            return Optional.of(new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longBowSchema));
+            return Optional.of(new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longBowSchema, configuration));
         }
         return Optional.empty();
     }

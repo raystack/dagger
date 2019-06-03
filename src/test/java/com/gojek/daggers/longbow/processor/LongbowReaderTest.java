@@ -3,7 +3,7 @@ package com.gojek.daggers.longbow.processor;
 
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.LongbowStore;
-import com.gojek.daggers.longbow.processor.LongbowReader;
+import com.gojek.daggers.utils.stats.StatsManager;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -40,6 +40,9 @@ public class LongbowReaderTest {
     @Mock
     private ResultFuture<Row> outputFuture;
 
+    @Mock
+    private StatsManager statsManager;
+
     private LongbowSchema longBowSchema;
     private CompletableFuture<List<Result>> scanFuture;
     private Timestamp currentTimestamp;
@@ -61,7 +64,7 @@ public class LongbowReaderTest {
     public void shouldPopulateOutputWithAllTheInputFieldsWhenResultIsEmpty() throws Exception {
         scanFuture = CompletableFuture.supplyAsync(ArrayList::new);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
-        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore, statsManager);
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
         longBowReader.open(configuration);
@@ -81,7 +84,7 @@ public class LongbowReaderTest {
     public void shouldPopulateOutputWithResults() throws Exception {
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore, statsManager);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h");
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
@@ -101,7 +104,7 @@ public class LongbowReaderTest {
         longBowSchema = new LongbowSchema(columnNames);
         List<Result> results = getResults(getKeyValue("driver0", "longbow_data1", "order1"), getKeyValue("driver0", "longbow_data2", "order2"));
         scanFuture = CompletableFuture.supplyAsync(() -> results);
-        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore, statsManager);
         Row input = getRow("driver0", "order1", currentTimestamp, "24h", "order2");
         when(longBowStore.scanAll(any(Scan.class))).thenReturn(scanFuture);
 
@@ -120,11 +123,11 @@ public class LongbowReaderTest {
     public void shouldHandleClose() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongbowSchema(columnNames);
-        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longBowStore, statsManager);
 
         longBowReader.close();
 
-        verify(longBowStore,times(1)).close();
+        verify(longBowStore, times(1)).close();
     }
 
     private ArrayList<Object> getData(String... orderDetails) {
