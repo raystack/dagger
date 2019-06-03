@@ -9,9 +9,12 @@ import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
 import org.threeten.bp.Duration;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gojek.daggers.Constants.*;
@@ -47,7 +50,9 @@ public class LongBowStore {
         return "longbow." + daggerID;
     }
 
-    public String tableName() { return daggerID; }
+    public String tableName() {
+        return daggerID;
+    }
 
     public void createTable(Duration maxAgeDuration, String columnFamilyName) throws Exception {
         adminClient.createTable(CreateTableRequest.of(daggerID).addFamily(columnFamilyName,
@@ -65,5 +70,18 @@ public class LongBowStore {
         if (table == null)
             initialize();
         return table.put(putRequest);
+    }
+
+    public CompletableFuture<List<Result>> scanAll(Scan scanRequest) {
+        if (table == null)
+            initialize();
+        return table.scanAll(scanRequest);
+    }
+
+    public void close() throws IOException {
+        if (tableClient != null)
+            tableClient.close();
+        if (adminClient != null)
+            adminClient.close();
     }
 }

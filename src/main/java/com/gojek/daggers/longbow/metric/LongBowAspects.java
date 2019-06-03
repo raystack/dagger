@@ -20,7 +20,7 @@ public enum LongBowAspects implements Aspects {
     private String value;
     private AspectType aspectType;
 
-    LongBowAspects(String value,  AspectType aspectType) {
+    LongBowAspects(String value, AspectType aspectType) {
         this.value = value;
         this.aspectType = aspectType;
     }
