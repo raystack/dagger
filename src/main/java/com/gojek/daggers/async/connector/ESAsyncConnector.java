@@ -36,7 +36,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.stencilClient = stencilClient;
     }
 
-    ESAsyncConnector(Integer fieldIndex, Map<String, String> configuration, StencilClient stencilClient, RestClient esClient){
+    ESAsyncConnector(Integer fieldIndex, Map<String, String> configuration, StencilClient stencilClient, RestClient esClient) {
         this.fieldIndex = fieldIndex;
         this.configuration = configuration;
         this.stencilClient = stencilClient;

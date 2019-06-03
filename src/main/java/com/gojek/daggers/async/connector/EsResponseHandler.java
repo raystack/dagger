@@ -38,6 +38,17 @@ public class EsResponseHandler implements ResponseListener {
         this.statsManager = statsManager;
     }
 
+    private static boolean isRetryStatus(ResponseException e) {
+        int statusCode = e.getResponse().getStatusLine().getStatusCode();
+        switch (statusCode) {
+            case 502:
+            case 503:
+            case 504:
+                return true;
+        }
+        return false;
+    }
+
     public void start() {
         startTime = Instant.now();
     }
@@ -97,17 +108,6 @@ public class EsResponseHandler implements ResponseListener {
 
     private boolean isNotFound(ResponseException e) {
         return e.getResponse().getStatusLine().getStatusCode() == 404;
-    }
-
-    private static boolean isRetryStatus(ResponseException e) {
-        int statusCode = e.getResponse().getStatusLine().getStatusCode();
-        switch (statusCode) {
-            case 502:
-            case 503:
-            case 504:
-                return true;
-        }
-        return false;
     }
 
     private void enrichRow(ResponseBuilder responseBuilder, String responseBody, Descriptor descriptor) {
