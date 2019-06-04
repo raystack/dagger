@@ -2,7 +2,7 @@ package com.gojek.daggers.longbow.processor;
 
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.LongbowStore;
-import com.gojek.daggers.longbow.metric.LongbowAspects;
+import com.gojek.daggers.longbow.metric.LongbowWriterAspects;
 import com.gojek.daggers.utils.stats.StatsManager;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -53,7 +53,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
 
         if (statsManager == null)
             statsManager = new StatsManager(getRuntimeContext(), true);
-        statsManager.register(longBowStore.groupName(), LongbowAspects.values());
+        statsManager.register(longBowStore.groupName(), LongbowWriterAspects.values());
 
         if (!longBowStore.tableExists()) {
             Instant startTime = Instant.now();
@@ -62,12 +62,12 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
                 longBowStore.createTable(maxAgeDuration, columnFamilyName);
                 LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(), maxAgeDuration, columnFamilyName);
-                statsManager.markEvent(LongbowAspects.SUCCESS_ON_CREATE_BIGTABLE);
-                statsManager.updateHistogram(LongbowAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                statsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
+                statsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             } catch (Exception ex) {
                 LOGGER.error("failed to create table '{}'", longBowStore.tableName());
-                statsManager.markEvent(LongbowAspects.FAILURES_ON_CREATE_BIGTABLE);
-                statsManager.updateHistogram(LongbowAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                statsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
+                statsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                 throw ex;
             }
         }
@@ -85,8 +85,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         writeFuture
                 .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(aVoid -> {
-                    statsManager.markEvent(LongbowAspects.SUCCESS_ON_WRITE_DOCUMENT);
-                    statsManager.updateHistogram(LongbowAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                    statsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
+                    statsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                     resultFuture.complete(Collections.singleton(input));
                 });
     }
@@ -94,14 +94,14 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private Void logException(Throwable ex, Instant startTime) {
         LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
-        statsManager.markEvent(LongbowAspects.FAILURES_ON_WRITE_DOCUMENT);
-        statsManager.updateHistogram(LongbowAspects.FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        statsManager.markEvent(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT);
+        statsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return null;
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowWriter : timeout when writing document");
-        statsManager.markEvent(LongbowAspects.TIMEOUTS_ON_WRITER);
+        statsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
         resultFuture.complete(Collections.singleton(input));
     }
 
@@ -109,7 +109,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     public void close() throws Exception {
         super.close();
         longBowStore.close();
-        statsManager.markEvent(LongbowAspects.CLOSE_CONNECTION_ON_WRITER);
+        statsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
         LOGGER.error("LongbowWriter : Connection closed");
     }
 }
