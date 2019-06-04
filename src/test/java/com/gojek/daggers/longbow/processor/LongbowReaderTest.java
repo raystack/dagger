@@ -3,6 +3,8 @@ package com.gojek.daggers.longbow.processor;
 
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.LongbowStore;
+import com.gojek.daggers.longbow.metric.LongbowReaderAspects;
+import com.gojek.daggers.longbow.metric.LongbowWriterAspects;
 import com.gojek.daggers.utils.stats.StatsManager;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import static com.gojek.daggers.longbow.metric.LongbowReaderAspects.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -78,6 +81,8 @@ public class LongbowReaderTest {
             Assert.assertEquals("24h", row.getField(3));
         })));
         Assert.assertTrue(scanFuture.isDone());
+        verify(statsManager, times(1)).markEvent(SUCCESS_ON_READ_DOCUMENT);
+        verify(statsManager, times(1)).updateHistogram(eq(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -96,6 +101,8 @@ public class LongbowReaderTest {
             Assert.assertEquals(getData("order1"), row.getField(1));
         })));
         Assert.assertTrue(scanFuture.isDone());
+        verify(statsManager, times(1)).markEvent(SUCCESS_ON_READ_DOCUMENT);
+        verify(statsManager, times(1)).updateHistogram(eq(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -128,6 +135,7 @@ public class LongbowReaderTest {
         longBowReader.close();
 
         verify(longBowStore, times(1)).close();
+        verify(statsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_READER);
     }
 
     private ArrayList<Object> getData(String... orderDetails) {
