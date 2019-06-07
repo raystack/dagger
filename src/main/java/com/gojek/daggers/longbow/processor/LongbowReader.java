@@ -3,7 +3,6 @@ package com.gojek.daggers.longbow.processor;
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.LongbowStore;
 import com.gojek.daggers.longbow.metric.LongbowReaderAspects;
-import com.gojek.daggers.longbow.metric.LongbowWriterAspects;
 import com.gojek.daggers.utils.stats.StatsManager;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -53,9 +52,9 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         super.open(parameters);
         if (longBowStore == null)
             longBowStore = LongbowStore.create(configuration);
-        if(statsManager == null)
+        if (statsManager == null)
             statsManager = new StatsManager(getRuntimeContext(), true);
-        statsManager.register(longBowStore.groupName(), LongbowReaderAspects.values());
+        statsManager.register("longbow.reader", LongbowReaderAspects.values());
         longBowStore.initialize();
     }
 
