@@ -28,9 +28,8 @@ public class Constants {
     public final static String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
     public final static Long LONGBOW_ASYNC_TIMEOUT_DEFAULT = 5000L;
     public final static String LONGBOW_ASYNC_TIMEOUT_KEY = "LONGBOW_ASYNC_TIMEOUT";
-    public final static Integer LONGBOW_THREAD_CAPACITY_DEFAULT = 40;
+    public final static Integer LONGBOW_THREAD_CAPACITY_DEFAULT = 30;
     public final static String LONGBOW_THREAD_CAPACITY_KEY = "LONGBOW_THREAD_CAPACITY";
-
     public final static String DAGGER_NAME_KEY = "FLINK_JOB_ID";
     public final static String DAGGER_NAME_DEFAULT = "SQL Flink Job";
     public final static String EVENT_TIMESTAMP = "event_timestamp";

@@ -64,7 +64,6 @@ public class LongbowWriterTest {
         when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
         when(configuration.getString("LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
-        when(longBowStore.groupName()).thenReturn("test-group");
         when(longBowStore.tableName()).thenReturn(daggerID);
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
@@ -126,7 +125,7 @@ public class LongbowWriterTest {
         verify(longBowStore, times(1)).put(captor.capture());
         Put actualPut = captor.getValue();
         Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874"))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), Bytes.toBytes(longbowData1));
+                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
 
         Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.getRow()));
         Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
@@ -161,8 +160,8 @@ public class LongbowWriterTest {
         verify(longBowStore, times(1)).put(captor.capture());
         Put actualPut = captor.getValue();
         Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874"))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), Bytes.toBytes(longbowData1))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), Bytes.toBytes(longbowData2));
+                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
+                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(), Bytes.toBytes(longbowData2));
 
         Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.getRow()));
         Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),

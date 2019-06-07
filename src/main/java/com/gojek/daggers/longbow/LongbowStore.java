@@ -46,10 +46,6 @@ public class LongbowStore {
         return adminClient.exists(daggerID);
     }
 
-    public String groupName() {
-        return "longbow." + daggerID;
-    }
-
     public String tableName() {
         return daggerID;
     }

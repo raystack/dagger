@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +54,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
 
         if (statsManager == null)
             statsManager = new StatsManager(getRuntimeContext(), true);
-        statsManager.register(longBowStore.groupName(), LongbowWriterAspects.values());
+        statsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (!longBowStore.tableExists()) {
             Instant startTime = Instant.now();
@@ -77,9 +78,11 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
+        Timestamp rowtime = (Timestamp) input.getField(longbowSchema.getIndex(ROWTIME));
         longbowSchema
                 .getColumnNames(c -> c.getKey().contains(LONGBOW_DATA))
-                .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), Bytes.toBytes((String) input.getField(longbowSchema.getIndex(column)))));
+                .forEach(column -> putRequest
+                        .addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(), Bytes.toBytes((String) input.getField(longbowSchema.getIndex(column)))));
         Instant startTime = Instant.now();
         CompletableFuture<Void> writeFuture = longBowStore.put(putRequest);
         writeFuture
