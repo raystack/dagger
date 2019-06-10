@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.gojek.daggers.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
@@ -130,6 +131,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowReader : timeout when reading document");
         statsManager.markEvent(TIMEOUTS_ON_READER);
-        super.timeout(input, resultFuture);
+        resultFuture.completeExceptionally(
+                new TimeoutException("Async function call has timed out."));
     }
 }

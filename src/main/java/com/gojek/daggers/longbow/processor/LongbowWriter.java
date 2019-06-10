@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.Constants.*;
 import static java.time.Duration.between;
@@ -105,7 +106,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowWriter : timeout when writing document");
         statsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
-        super.timeout(input, resultFuture);
+        resultFuture.completeExceptionally(
+                new TimeoutException("Async function call has timed out."));
     }
 
     @Override
