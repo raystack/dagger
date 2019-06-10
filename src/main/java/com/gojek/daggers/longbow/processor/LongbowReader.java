@@ -113,7 +113,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     }
 
     private List<String> getLongbowData(List<Result> resultScan, String column, Row input) {
-        if (resultScan.isEmpty() || Arrays.equals(resultScan.get(0).getRow(), longBowSchema.getKey(input, 0))) {
+        if (resultScan.isEmpty() || !Arrays.equals(resultScan.get(0).getRow(), longBowSchema.getKey(input, 0))) {
             LOGGER.error("LongbowReader : Last record not received");
             statsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
         }
