@@ -15,8 +15,8 @@ public enum LongbowWriterAspects implements Aspects {
     CLOSE_CONNECTION_ON_WRITER("closeConnectionOnWriter", Metric),
     SUCCESS_ON_WRITE_DOCUMENT("successOnWriteDocument", Metric),
     SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME("successOnWriteDocumentResponseTime", Histogram),
-    FAILURES_ON_WRITE_DOCUMENT("failedOnWriteDocument", Metric),
-    FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME("failedOnWriteDocumentResponseTime", Histogram);
+    FAILED_ON_WRITE_DOCUMENT("failedOnWriteDocument", Metric),
+    FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME("failedOnWriteDocumentResponseTime", Histogram);
 
     private String value;
     private AspectType aspectType;

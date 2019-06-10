@@ -97,21 +97,22 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private Void logException(Throwable ex, Instant startTime) {
         LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
-        statsManager.markEvent(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT);
-        statsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        statsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
+        statsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return null;
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowWriter : timeout when writing document");
         statsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
-        resultFuture.complete(Collections.singleton(input));
+        super.timeout(input, resultFuture);
     }
 
     @Override
     public void close() throws Exception {
         super.close();
-        longBowStore.close();
+        if (longBowStore != null)
+            longBowStore.close();
         statsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
         LOGGER.error("LongbowWriter : Connection closed");
     }

@@ -208,8 +208,8 @@ public class LongbowWriterTest {
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILURES_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
+        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test

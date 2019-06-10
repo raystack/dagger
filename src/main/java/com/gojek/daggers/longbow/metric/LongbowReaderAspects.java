@@ -11,8 +11,10 @@ public enum LongbowReaderAspects implements Aspects {
     CLOSE_CONNECTION_ON_READER("closeConnectionOnReader", Metric),
     SUCCESS_ON_READ_DOCUMENT("successOnReadDocument", Metric),
     SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME("successOnReadDocumentResponseTime", Histogram),
-    FAILURES_ON_READ_DOCUMENT("failedOnReadDocument", Metric),
-    FAILURES_ON_READ_DOCUMENT_RESPONSE_TIME("failedOnReadDocumentResponseTime", Histogram);
+    DOCUMENTS_READ_PER_SCAN("documentsReadPerScan", Histogram),
+    FAILED_ON_READ_DOCUMENT("failedOnReadDocument", Metric),
+    FAILED_ON_READ_DOCUMENT_RESPONSE_TIME("failedOnReadDocumentResponseTime", Histogram),
+    FAILED_TO_READ_LAST_RECORD("failedToReadLastRecord", Metric);
 
     private String value;
     private AspectType aspectType;

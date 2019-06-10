@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,7 +64,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         super.close();
         statsManager.markEvent(CLOSE_CONNECTION_ON_READER);
         LOGGER.error("LongbowReader : Connection closed");
-        longBowStore.close();
+        if (longBowStore != null)
+            longBowStore.close();
     }
 
     @Override
@@ -72,10 +74,10 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         long longBowDurationOffset = longBowSchema.getDurationInMillis(input);
         scanRequest.withStartRow(longBowSchema.getKey(input, 0), true);
         scanRequest.withStopRow(longBowSchema.getKey(input, longBowDurationOffset), true);
-        Instant startTime = Instant.now();
         longBowSchema
                 .getColumnNames(this::isLongbowData)
                 .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
+        Instant startTime = Instant.now();
         longBowStore
                 .scanAll(scanRequest)
                 .exceptionally(throwable -> logException(throwable, startTime))
@@ -85,14 +87,15 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     private void populateResult(List<Result> scanResult, Row input, ResultFuture<Row> resultFuture, Instant startTime) {
         statsManager.markEvent(SUCCESS_ON_READ_DOCUMENT);
         statsManager.updateHistogram(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        statsManager.updateHistogram(DOCUMENTS_READ_PER_SCAN, scanResult.size());
         resultFuture.complete(getRow(scanResult, input));
     }
 
     private List<Result> logException(Throwable ex, Instant startTime) {
         LOGGER.error("LongbowReader : failed to scan document from BigTable: {}", ex.getMessage());
         ex.printStackTrace();
-        statsManager.markEvent(FAILURES_ON_READ_DOCUMENT);
-        statsManager.updateHistogram(FAILURES_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        statsManager.markEvent(FAILED_ON_READ_DOCUMENT);
+        statsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return Collections.emptyList();
     }
 
@@ -101,7 +104,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         HashMap<String, Object> columnMap = new HashMap<>();
         longBowSchema
                 .getColumnNames(this::isLongbowData)
-                .forEach(name -> columnMap.put(name, getLongbowData(scanResult, name)));
+                .forEach(name -> columnMap.put(name, getLongbowData(scanResult, name, input)));
         longBowSchema
                 .getColumnNames(c -> !isLongbowData(c))
                 .forEach(name -> columnMap.put(name, input.getField(longBowSchema.getIndex(name))));
@@ -109,7 +112,11 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         return Collections.singletonList(output);
     }
 
-    private List<String> getLongbowData(List<Result> resultScan, String column) {
+    private List<String> getLongbowData(List<Result> resultScan, String column, Row input) {
+        if (resultScan.isEmpty() || Arrays.equals(resultScan.get(0).getRow(), longBowSchema.getKey(input, 0))) {
+            LOGGER.error("LongbowReader : Last record not received");
+            statsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
+        }
         return resultScan
                 .stream()
                 .map(result -> Bytes.toString(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(column))))
@@ -123,6 +130,6 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowReader : timeout when reading document");
         statsManager.markEvent(TIMEOUTS_ON_READER);
-        resultFuture.complete(Collections.emptyList());
+        super.timeout(input, resultFuture);
     }
 }

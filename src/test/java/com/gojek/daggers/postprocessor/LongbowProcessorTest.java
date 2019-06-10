@@ -114,13 +114,13 @@ public class LongbowProcessorTest {
         DataStream<Row> readerStream = mock(DataStream.class);
         when(configuration.getLong(Constants.LONGBOW_ASYNC_TIMEOUT_KEY,Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT)).thenReturn(Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT);
         when(configuration.getInteger(Constants.LONGBOW_THREAD_CAPACITY_KEY,Constants.LONGBOW_THREAD_CAPACITY_DEFAULT)).thenReturn(Constants.LONGBOW_THREAD_CAPACITY_DEFAULT);
-        when(asyncProcessor.orderedWait(dataStream, longbowWriter, 5000, TimeUnit.MILLISECONDS, 40)).thenReturn(writerStream);
-        when(asyncProcessor.orderedWait(writerStream, longbowReader, 5000, TimeUnit.MILLISECONDS, 40)).thenReturn(readerStream);
+        when(asyncProcessor.orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30)).thenReturn(writerStream);
+        when(asyncProcessor.orderedWait(writerStream, longbowReader, 15000, TimeUnit.MILLISECONDS, 30)).thenReturn(readerStream);
         LongbowProcessor longBowProcessor = new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
 
-        Mockito.verify(asyncProcessor, times(1)).orderedWait(dataStream, longbowWriter, 5000, TimeUnit.MILLISECONDS, 40);
-        Mockito.verify(asyncProcessor, times(1)).orderedWait(writerStream, longbowReader, 5000, TimeUnit.MILLISECONDS, 40);
+        Mockito.verify(asyncProcessor, times(1)).orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30);
+        Mockito.verify(asyncProcessor, times(1)).orderedWait(writerStream, longbowReader, 15000, TimeUnit.MILLISECONDS, 30);
     }
 }
