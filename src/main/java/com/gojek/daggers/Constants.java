@@ -22,9 +22,9 @@ public class Constants {
     public final static String LONGBOW_DELIMITER = "#";
     public final static String LONGBOW_DATA = "longbow_data";
     public final static String LONGBOW_GCP_PROJECT_ID_KEY = "LONGBOW_GCP_PROJECT_ID";
-    public final static String LONGBOW_GCP_PROJECT_ID_DEFAULT = "the-big-data-production-007";
+    public final static String LONGBOW_GCP_PROJECT_ID_DEFAULT = "godata-production";
     public final static String LONGBOW_GCP_INSTANCE_ID_KEY = "LONGBOW_GCP_INSTANCE_ID";
-    public final static String LONGBOW_GCP_INSTANCE_ID_DEFAULT = "de-prod";
+    public final static String LONGBOW_GCP_INSTANCE_ID_DEFAULT = "godata-id-daggers";
     public final static String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
     public final static Long LONGBOW_ASYNC_TIMEOUT_DEFAULT = 15000L;
     public final static String LONGBOW_ASYNC_TIMEOUT_KEY = "LONGBOW_ASYNC_TIMEOUT";
