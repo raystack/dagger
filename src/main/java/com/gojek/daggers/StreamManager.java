@@ -75,6 +75,7 @@ public class StreamManager {
         tableEnvironment.registerFunction("ServiceArea", new ServiceArea());
         tableEnvironment.registerFunction("ServiceAreaId", new ServiceAreaId());
         tableEnvironment.registerFunction("DistinctCount", new DistinctCount(), TypeInformation.of(Integer.class), TypeInformation.of(DistinctCountAccumulator.class));
+        tableEnvironment.registerFunction("DistinctByCurrentStatus", new DistinctByCurrentStatus(), TypeInformation.of(Integer.class), TypeInformation.of(DistinctByCurrentStatusState.class));
         tableEnvironment.registerFunction("Distance", new Distance());
         tableEnvironment.registerFunction("AppBetaUsers", new AppBetaUsers());
         tableEnvironment.registerFunction("KeyValue", new KeyValue());

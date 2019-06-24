@@ -121,6 +121,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ServiceArea"), any(ServiceArea.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ServiceAreaId"), any(ServiceAreaId.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctCount"), any(DistinctCount.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(DistinctCountAccumulator.class)));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctByCurrentStatus"), any(DistinctByCurrentStatus.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(DistinctByCurrentStatusState.class)));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Distance"), any(Distance.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("AppBetaUsers"), any(AppBetaUsers.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("KeyValue"), any(KeyValue.class));
