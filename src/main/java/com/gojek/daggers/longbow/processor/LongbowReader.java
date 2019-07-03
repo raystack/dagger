@@ -1,5 +1,6 @@
 package com.gojek.daggers.longbow.processor;
 
+import com.gojek.daggers.longbow.row.LongbowRow;
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.LongbowStore;
 import com.gojek.daggers.longbow.metric.LongbowReaderAspects;
@@ -15,12 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -35,18 +31,20 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
     private Configuration configuration;
     private LongbowSchema longBowSchema;
+    private LongbowRow longbowRow;
     private LongbowStore longBowStore;
     private StatsManager statsManager;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowStore longBowStore, StatsManager statsManager) {
-        this(configuration, longBowSchema);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, StatsManager statsManager) {
+        this(configuration, longBowSchema, longbowRow);
         this.longBowStore = longBowStore;
         this.statsManager = statsManager;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
+        this.longbowRow = longbowRow;
     }
 
     @Override
@@ -72,9 +70,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         Scan scanRequest = new Scan();
-        long longBowDurationOffset = longBowSchema.getDurationInMillis(input);
-        scanRequest.withStartRow(longBowSchema.getKey(input, 0), true);
-        scanRequest.withStopRow(longBowSchema.getKey(input, longBowDurationOffset), true);
+        scanRequest.withStartRow(longbowRow.getLatest(input), true);
+        scanRequest.withStopRow(longbowRow.getEarliest(input), true);
         longBowSchema
                 .getColumnNames(this::isLongbowData)
                 .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
@@ -83,6 +80,10 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
                 .scanAll(scanRequest)
                 .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(scanResult -> populateResult(scanResult, input, resultFuture, startTime));
+    }
+
+    public LongbowRow getLongbowRow() {
+        return longbowRow;
     }
 
     private void populateResult(List<Result> scanResult, Row input, ResultFuture<Row> resultFuture, Instant startTime) {
@@ -108,7 +109,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
                 .forEach(name -> columnMap.put(name, getLongbowData(scanResult, name, input)));
         longBowSchema
                 .getColumnNames(c -> !isLongbowData(c))
-                .forEach(name -> columnMap.put(name, input.getField(longBowSchema.getIndex(name))));
+                .forEach(name -> columnMap.put(name, longBowSchema.getValue(input, name)));
+
         columnMap.forEach((name, data) -> output.setField(longBowSchema.getIndex(name), data));
         return Collections.singletonList(output);
     }
