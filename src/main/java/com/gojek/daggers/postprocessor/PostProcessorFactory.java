@@ -1,5 +1,6 @@
 package com.gojek.daggers.postprocessor;
 
+import com.gojek.daggers.longbow.row.LongbowRowFactory;
 import com.gojek.daggers.longbow.processor.LongbowReader;
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.processor.LongbowWriter;
@@ -15,10 +16,10 @@ public class PostProcessorFactory {
         if (configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT))
             return Optional.of(new AshikoProcessor(configuration, stencilClient));
         if (configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT).contains(LONGBOW_KEY)) {
-            final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-            LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema);
-            LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema);
-            return Optional.of(new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longBowSchema, configuration));
+            final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
+            LongbowWriter longbowWriter = new LongbowWriter(configuration, longbowSchema);
+            LongbowReader longbowReader = new LongbowReader(configuration, longbowSchema, LongbowRowFactory.getLongbowRow(longbowSchema));
+            return Optional.of(new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longbowSchema, configuration));
         }
         return Optional.empty();
     }

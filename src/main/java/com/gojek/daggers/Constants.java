@@ -17,6 +17,8 @@ public class Constants {
     public final static String FIELD_NAME_KEY = "field_name";
     public final static String LONGBOW_KEY = "longbow_key";
     public final static String LONGBOW_DURATION = "longbow_duration";
+    public final static String LONGBOW_LATEST = "longbow_latest";
+    public final static String LONGBOW_EARLIEST = "longbow_earliest";
     public final static String LONGBOW_DOCUMENT_DURATION = "LONGBOW_DOCUMENT_DURATION";
     public final static String LONGBOW_DOCUMENT_DURATION_DEFAULT = "90d";
     public final static String LONGBOW_DELIMITER = "#";

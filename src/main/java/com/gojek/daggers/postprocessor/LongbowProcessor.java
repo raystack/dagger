@@ -31,7 +31,7 @@ public class LongbowProcessor implements PostProcessor {
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
-        longbowSchema.validateMandatoryFields();
+        longbowSchema.validateMandatoryFields(longbowReader.getLongbowRow());
         DataStream<Row> inputStream = streamInfo.getDataStream();
         Long longbowAsyncTimeout = configuration.getLong(LONGBOW_ASYNC_TIMEOUT_KEY, LONGBOW_ASYNC_TIMEOUT_DEFAULT);
         Integer longbowThreadCapacity = configuration.getInteger(LONGBOW_THREAD_CAPACITY_KEY, LONGBOW_THREAD_CAPACITY_DEFAULT);
