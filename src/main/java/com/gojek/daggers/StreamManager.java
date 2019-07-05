@@ -85,6 +85,10 @@ public class StreamManager {
         tableEnvironment.registerFunction("TimestampFromUnix", new TimestampFromUnix());
         tableEnvironment.registerFunction("ConcurrentTransactions", new ConcurrentTransactions(7200), TypeInformation.of(Integer.class), TypeInformation.of(ConcurrentState.class));
         tableEnvironment.registerFunction("SecondsElapsed", new SecondsElapsed());
+        tableEnvironment.registerFunction("StartOfWeek", new StartOfWeek());
+        tableEnvironment.registerFunction("EndOfWeek", new EndOfWeek());
+        tableEnvironment.registerFunction("StartOfMonth", new StartOfMonth());
+        tableEnvironment.registerFunction("EndOfMonth", new EndOfMonth());
         return this;
     }
 
