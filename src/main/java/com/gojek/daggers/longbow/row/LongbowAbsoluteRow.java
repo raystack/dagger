@@ -14,12 +14,12 @@ public class LongbowAbsoluteRow implements LongbowRow {
 
     @Override
     public byte[] getLatest(Row input) {
-        return longbowSchema.getAbsoluteKey(input, Long.parseLong((String) longbowSchema.getValue(input, LONGBOW_LATEST)));
+        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, LONGBOW_LATEST));
     }
 
     @Override
     public byte[] getEarliest(Row input) {
-        return longbowSchema.getAbsoluteKey(input, Long.parseLong((String) longbowSchema.getValue(input, LONGBOW_EARLIEST)));
+        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, LONGBOW_EARLIEST));
     }
 
     @Override
