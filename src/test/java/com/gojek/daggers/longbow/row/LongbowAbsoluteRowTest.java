@@ -22,7 +22,7 @@ public class LongbowAbsoluteRowTest {
     @Test
     public void shouldReturnLatestRow() {
         Row input = new Row(1);
-        when(longbowSchema.getValue(input, "longbow_latest")).thenReturn(String.valueOf(1000L));
+        when(longbowSchema.getValue(input, "longbow_latest")).thenReturn(1000L);
         LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
         longbowAbsoluteRow.getLatest(input);
 
@@ -32,7 +32,7 @@ public class LongbowAbsoluteRowTest {
     @Test
     public void shouldReturnEarliestRow() {
         Row input = new Row(1);
-        when(longbowSchema.getValue(input, "longbow_earliest")).thenReturn(String.valueOf(1000L));
+        when(longbowSchema.getValue(input, "longbow_earliest")).thenReturn(1000L);
         LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
         longbowAbsoluteRow.getEarliest(input);
 
