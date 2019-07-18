@@ -90,6 +90,7 @@ public class StreamManager {
         tableEnvironment.registerFunction("StartOfMonth", new StartOfMonth());
         tableEnvironment.registerFunction("EndOfMonth", new EndOfMonth());
         tableEnvironment.registerFunction("TimeInDate", new TimeInDate());
+        tableEnvironment.registerFunction("MapGet", new MapGet());
         return this;
     }
 
