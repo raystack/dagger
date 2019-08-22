@@ -8,6 +8,7 @@ import com.gojek.daggers.postprocessor.PostProcessor;
 import com.gojek.daggers.postprocessor.PostProcessorFactory;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -48,6 +49,8 @@ public class StreamManager {
         executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000));
         executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1));
         executionEnvironment.getConfig().setGlobalJobParameters(configuration);
+        tableEnvironment.queryConfig().withIdleStateRetentionTime(Time.hours(configuration.getInteger("MIN_IDLE_STATE_RETENTION_TIME", 8)),
+                Time.hours(configuration.getInteger("MAX_IDLE_STATE_RETENTION_TIME", 9)));
         return this;
     }
 
