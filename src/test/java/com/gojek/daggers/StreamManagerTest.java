@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment;
+import org.apache.flink.table.api.StreamQueryConfig;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.scala.StreamTableEnvironment;
 import org.apache.flink.types.Row;
@@ -61,6 +62,9 @@ public class StreamManagerTest {
     @Mock
     private DataStream<Row> dataStream;
 
+    @Mock
+    private StreamQueryConfig streamQueryConfig;
+
     @Before
     public void setup() {
 
@@ -80,8 +84,11 @@ public class StreamManagerTest {
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
         when(configuration.getString("SQL_QUERY", "")).thenReturn("");
+        when(configuration.getInteger("MIN_IDLE_STATE_RETENTION_TIME", 8)).thenReturn(8);
+        when(configuration.getInteger("MAX_IDLE_STATE_RETENTION_TIME", 9)).thenReturn(9);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
+        when(tableEnvironment.queryConfig()).thenReturn(streamQueryConfig);
 
         streamManager = new StreamManager(configuration, env, tableEnvironment);
     }
