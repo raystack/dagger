@@ -370,7 +370,7 @@ public class ProtoSerializerTest {
     @Test
     public void shouldThrowExceptionWhenTypeDoesNotMatch() {
         expectedException.expect(InvalidColumnMappingException.class);
-        expectedException.expectMessage("column invalid: type mismatch of column order_number");
+        expectedException.expectMessage("column invalid: type mismatch of column order_number, expecting STRING type");
 
         String[] columnNames = {"order_number"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
