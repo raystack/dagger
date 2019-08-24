@@ -367,4 +367,18 @@ public class ProtoSerializerTest {
         assertEquals("order_number", BookingLogMessage.parseFrom(bytes).getOrderNumber());
     }
 
+    @Test
+    public void shouldThrowExceptionWhenTypeDoesNotMatch() {
+        expectedException.expect(InvalidColumnMappingException.class);
+        expectedException.expectMessage("column invalid: type mismatch of column order_number");
+
+        String[] columnNames = {"order_number"};
+        String protoClassName = "com.gojek.esb.booking.BookingLog";
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        Row element = new Row(1);
+        element.setField(0, 1234);
+
+        protoSerializer.serializeValue(element);
+    }
+
 }
