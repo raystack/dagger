@@ -90,7 +90,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
             try{
                 builder = protoHandler.populate(builder, data);
             } catch (IllegalArgumentException e) {
-                String errMessage = String.format("column invalid: type mismatch of column %s", fieldDescriptor.getName());
+                String errMessage = String.format("column invalid: type mismatch of column %s, expecting %s type", fieldDescriptor.getName(), fieldDescriptor.getType());
                 throw new InvalidColumnMappingException(errMessage);
             }
 
