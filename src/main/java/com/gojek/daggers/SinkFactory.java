@@ -47,9 +47,9 @@ public class SinkFactory {
                 return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
         }
     }
-    // TODO: Remove this switch when migration to new portal is done
+    // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
     private static ProtoSerializer protoSerializerFactory(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
-        // Move content inside this block to getSinkFunction method
+        // [PORTAL_MIGRATION] Move content inside this block to getSinkFunction method
         if (configuration.getString(PORTAL_VERSION, "1") == "2") {
             String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
             String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, null);
