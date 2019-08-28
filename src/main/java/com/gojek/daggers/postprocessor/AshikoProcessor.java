@@ -28,8 +28,7 @@ public class AshikoProcessor implements PostProcessor {
     public StreamInfo process(StreamInfo streamInfo) {
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
         Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
-        String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
-        Descriptors.Descriptor outputDescriptor = stencilClient.get(String.format("%sMessage", outputProtoPrefix));
+        Descriptors.Descriptor outputDescriptor = this.outputDescriptor();
         int size = outputDescriptor.getFields().size();
         String[] columnNames = new String[size];
         DataStream<Row> resultStream = streamInfo.getDataStream();
@@ -47,5 +46,18 @@ public class AshikoProcessor implements PostProcessor {
             resultStream = streamDecorator.decorate(resultStream);
         }
         return new StreamInfo(resultStream, columnNames);
+    }
+
+    // TODO: Remove this switch when migration to new portal is done
+    private Descriptors.Descriptor outputDescriptor() {
+        // Move conteont inside this block to process method
+        if (configuration.getString(PORTAL_VERSION, "1") == "2") {
+            String protoClassName = configuration.getString(OUTPUT_PROTO_MESSAGE, "");
+            return stencilClient.get(protoClassName);
+        }
+
+        String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
+        String protoClassName = String.format("%sMessage", outputProtoPrefix);
+        return stencilClient.get(protoClassName);
     }
 }

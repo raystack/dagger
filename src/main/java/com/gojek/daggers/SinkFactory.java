@@ -13,17 +13,21 @@ import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartiti
 import org.apache.flink.types.Row;
 
 import static com.gojek.daggers.Constants.OUTPUT_PROTO_CLASS_PREFIX_KEY;
+import static com.gojek.daggers.Constants.OUTPUT_KAFKA_BROKER;
+import static com.gojek.daggers.Constants.OUTPUT_KAFKA_TOPIC;
+import static com.gojek.daggers.Constants.PORTAL_VERSION;
+import static com.gojek.daggers.Constants.OUTPUT_PROTO_MESSAGE;
+import static com.gojek.daggers.Constants.OUTPUT_PROTO_KEY;
 
 public class SinkFactory {
     public static SinkFunction<Row> getSinkFunction(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
         String sink = configuration.getString("SINK_TYPE", "influx");
         switch (sink) {
             case "kafka":
-                String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
-                String outputBrokerList = configuration.getString("OUTPUT_KAFKA_BROKER", "");
-                String outputTopic = configuration.getString("OUTPUT_KAFKA_TOPIC", "");
+                String outputBrokerList = configuration.getString(OUTPUT_KAFKA_BROKER, "");
+                String outputTopic = configuration.getString(OUTPUT_KAFKA_TOPIC, "");
 
-                ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoPrefix, columnNames, stencilClient);
+                ProtoSerializer protoSerializer = SinkFactory.protoSerializerFactory(configuration, columnNames, stencilClient);
 
                 // Use kafka partitioner
                 FlinkKafkaPartitioner partitioner = null;
@@ -42,5 +46,17 @@ public class SinkFactory {
             default:
                 return new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
         }
+    }
+    // TODO: Remove this switch when migration to new portal is done
+    private static ProtoSerializer protoSerializerFactory(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
+        // Move content inside this block to getSinkFunction method
+        if (configuration.getString(PORTAL_VERSION, "1") == "2") {
+            String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
+            String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, null);
+            return new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClient);
+        }
+
+        String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
+        return new ProtoSerializer(outputProtoPrefix, columnNames, stencilClient);
     }
 }
