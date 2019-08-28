@@ -10,15 +10,33 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.types.Row;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
+    // TODO: Remove following property when migration to new portal is done
     private String protoClassNamePrefix;
+
     private String[] columnNames;
     private StencilClient stencilClient;
 
+    private String keyProtoClassName;
+    private String messageProtoClassName;
+
+    // TODO: Remove following constructor when migration to new portal is done
     public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClient stencilClient) {
         this.protoClassNamePrefix = protoClassNamePrefix;
+        this.columnNames = columnNames;
+        this.stencilClient = stencilClient;
+    }
+
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClient stencilClient) {
+        if (Objects.isNull(messageProtoClassName)) {
+            throw new DaggerProtoException("messageProtoClassName is required");
+        }
+
+        this.keyProtoClassName = keyProtoClassName;
+        this.messageProtoClassName = messageProtoClassName;
         this.columnNames = columnNames;
         this.stencilClient = stencilClient;
     }
@@ -33,14 +51,27 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
     @Override
     public byte[] serializeKey(Row element) {
-        return serialize(element, "Key");
+        // TODO: Remove following block when migration to new portal is done
+        if (!Objects.isNull(protoClassNamePrefix)) {
+            return serialize(element, "Key");
+        }
+
+        if (Objects.isNull(keyProtoClassName)) {
+            return null;
+        }
+        return parse(element, getDescriptor(keyProtoClassName)).toByteArray();
     }
 
     @Override
     public byte[] serializeValue(Row element) {
-        return serialize(element, "Message");
+        // TODO: Remove following block when migration to new portal is done
+        if (!Objects.isNull(protoClassNamePrefix)) {
+            return serialize(element, "Message");
+        }
+        return parse(element, getDescriptor(messageProtoClassName)).toByteArray();
     }
 
+    // TODO: Remove this method when migration to new protal is done
     private byte[] serialize(Row element, String suffix) {
         return parse(element, getDescriptor(protoClassNamePrefix + suffix)).toByteArray();
     }
