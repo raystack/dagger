@@ -14,6 +14,8 @@ public class Constants {
     public final static String ASYNC_IO_CAPACITY_DEFAULT = "30";
     public final static String ASYNC_IO_KEY = "ASYNC_IO";
     public final static String OUTPUT_PROTO_CLASS_PREFIX_KEY = "OUTPUT_PROTO_CLASS_PREFIX";
+    public final static String OUTPUT_KAFKA_TOPIC = "OUTPUT_KAFKA_TOPIC";
+    public final static String OUTPUT_KAFKA_BROKER = "OUTPUT_KAFKA_BROKER";
     public final static String FIELD_NAME_KEY = "field_name";
     public final static String LONGBOW_KEY = "longbow_key";
     public final static String LONGBOW_DURATION = "longbow_duration";
@@ -40,4 +42,8 @@ public class Constants {
     public final static String DAY_UNIT = "d";
     public final static String SQL_QUERY = "SQL_QUERY";
     public final static String SQL_QUERY_DEFAULT = "";
+
+    public final static String PORTAL_VERSION = "PORTAL_VERSION";
+    public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
+    public final static String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
 }
