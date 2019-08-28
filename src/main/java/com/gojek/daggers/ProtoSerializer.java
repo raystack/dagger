@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
-    // TODO: Remove following property when migration to new portal is done
+    // TODO: [PORTAL_MIGRATION] Remove following property when migration to new portal is done
     private String protoClassNamePrefix;
 
     private String[] columnNames;
@@ -23,7 +23,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
     private String keyProtoClassName;
     private String messageProtoClassName;
 
-    // TODO: Remove following constructor when migration to new portal is done
+    // TODO: [PORTAL_MIGRATION] Remove following constructor when migration to new portal is done
     public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClient stencilClient) {
         this.protoClassNamePrefix = protoClassNamePrefix;
         this.columnNames = columnNames;
@@ -51,7 +51,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
     @Override
     public byte[] serializeKey(Row element) {
-        // TODO: Remove following block when migration to new portal is done
+        // TODO: [PORTAL_MIGRATION] Remove following block when migration to new portal is done
         if (!Objects.isNull(protoClassNamePrefix)) {
             return serialize(element, "Key");
         }
@@ -64,14 +64,14 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
     @Override
     public byte[] serializeValue(Row element) {
-        // TODO: Remove following block when migration to new portal is done
+        // TODO: [PORTAL_MIGRATION] Remove following block when migration to new portal is done
         if (!Objects.isNull(protoClassNamePrefix)) {
             return serialize(element, "Message");
         }
         return parse(element, getDescriptor(messageProtoClassName)).toByteArray();
     }
 
-    // TODO: Remove this method when migration to new protal is done
+    // TODO: [PORTAL_MIGRATION] Remove this method when migration to new protal is done
     private byte[] serialize(Row element, String suffix) {
         return parse(element, getDescriptor(protoClassNamePrefix + suffix)).toByteArray();
     }
