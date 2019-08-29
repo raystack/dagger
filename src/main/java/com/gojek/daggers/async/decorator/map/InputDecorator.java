@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.map;
 
 import com.gojek.daggers.async.builder.ResponseBuilder;
 import org.apache.flink.types.Row;
@@ -10,7 +10,7 @@ public class InputDecorator implements MapDecorator {
     private Integer fieldIndex;
     private int outputProtoSize;
 
-    InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
+    public InputDecorator(Map<String, String> configuration, Integer fieldIndex, int outputProtoSize) {
         this.configuration = configuration;
         this.fieldIndex = fieldIndex;
         this.outputProtoSize = outputProtoSize;

@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.map;
 
 import com.gojek.daggers.async.builder.ResponseBuilder;
 import org.apache.flink.types.Row;
@@ -10,7 +10,7 @@ public class TimestampDecorator implements MapDecorator {
     private Map<String, String> configuration;
     private Integer fieldIndex;
 
-    TimestampDecorator(Map<String, String> configuration, Integer fieldIndex) {
+    public TimestampDecorator(Map<String, String> configuration, Integer fieldIndex) {
         this.configuration = configuration;
         this.fieldIndex = fieldIndex;
     }
