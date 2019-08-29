@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.async;
 
 import com.gojek.daggers.async.connector.ESAsyncConnector;
 import com.gojek.de.stencil.StencilClient;
@@ -12,7 +12,7 @@ public class EsStreamDecorator implements AsyncDecorator {
     private Integer asyncIOCapacity;
     private Integer fieldIndex;
 
-    EsStreamDecorator(Map<String, String> configuration, StencilClient stencilClient, Integer asyncIOCapacity, Integer fieldIndex) {
+    public EsStreamDecorator(Map<String, String> configuration, StencilClient stencilClient, Integer asyncIOCapacity, Integer fieldIndex) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
         this.asyncIOCapacity = asyncIOCapacity;

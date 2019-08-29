@@ -16,8 +16,8 @@ public class ResponseBuilder implements Serializable {
     }
 
 
-    public ResponseBuilder with(int index, Object row) {
-        parentRow.setField(index, row);
+    public ResponseBuilder with(int index, Object value) {
+        parentRow.setField(index, value);
         return this;
     }
 

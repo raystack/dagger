@@ -1,5 +1,6 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.async;
 
+import com.gojek.daggers.async.decorator.StreamDecorator;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;

@@ -1,5 +1,6 @@
 package com.gojek.daggers.async.decorator;
 
+import com.gojek.daggers.async.decorator.map.TimestampDecorator;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,10 +1,10 @@
 package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
-import com.gojek.daggers.async.decorator.EsStreamDecorator;
+import com.gojek.daggers.async.decorator.async.EsStreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
-import com.gojek.daggers.async.decorator.TimestampDecorator;
+import com.gojek.daggers.async.decorator.map.TimestampDecorator;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.fraud.EnrichedBookingLogMessage;
 import mockit.Mock;

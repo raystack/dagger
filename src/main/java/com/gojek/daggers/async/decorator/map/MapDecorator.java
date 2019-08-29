@@ -1,5 +1,6 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.map;
 
+import com.gojek.daggers.async.decorator.StreamDecorator;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
