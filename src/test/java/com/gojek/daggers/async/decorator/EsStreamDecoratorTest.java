@@ -1,6 +1,7 @@
 package com.gojek.daggers.async.decorator;
 
 import com.gojek.daggers.async.connector.ESAsyncConnector;
+import com.gojek.daggers.async.decorator.async.EsStreamDecorator;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;

@@ -1,5 +1,6 @@
 package com.gojek.daggers.async.decorator;
 
+import com.gojek.daggers.async.decorator.map.InputDecorator;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 

@@ -1,5 +1,8 @@
 package com.gojek.daggers.async.decorator;
 
+import com.gojek.daggers.async.decorator.async.EsStreamDecorator;
+import com.gojek.daggers.async.decorator.map.InputDecorator;
+import com.gojek.daggers.async.decorator.map.TimestampDecorator;
 import com.gojek.de.stencil.StencilClient;
 
 import java.util.Arrays;
