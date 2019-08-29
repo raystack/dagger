@@ -51,7 +51,7 @@ public class AshikoProcessor implements PostProcessor {
     // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
     private Descriptors.Descriptor outputDescriptor() {
         // [PORTAL_MIGRATION] Move conteont inside this block to process method
-        if (configuration.getString(PORTAL_VERSION, "1") == "2") {
+        if (configuration.getString(PORTAL_VERSION, "1").equals("2")) {
             String protoClassName = configuration.getString(OUTPUT_PROTO_MESSAGE, "");
             return stencilClient.get(protoClassName);
         }
