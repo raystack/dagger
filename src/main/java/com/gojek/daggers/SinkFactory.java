@@ -50,7 +50,7 @@ public class SinkFactory {
     // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
     private static ProtoSerializer protoSerializerFactory(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
         // [PORTAL_MIGRATION] Move content inside this block to getSinkFunction method
-        if (configuration.getString(PORTAL_VERSION, "1") == "2") {
+        if (configuration.getString(PORTAL_VERSION, "1").equals("2")) {
             String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
             String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, null);
             return new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClient);
