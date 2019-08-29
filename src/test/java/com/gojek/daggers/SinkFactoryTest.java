@@ -41,6 +41,9 @@ public class SinkFactoryTest {
         when(configuration.getString(eq("OUTPUT_PROTO_CLASS_PREFIX"), anyString())).thenReturn("output_proto");
         when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        // TODO: [PORTAL_MIGRATION] Remove this mock when migration to new portal is done
+        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
+
         Function sinkFunction = SinkFactory.getSinkFunction(configuration, new String[]{}, stencilClient);
 
         assertThat(sinkFunction, instanceOf(FlinkKafkaProducer010.class));
