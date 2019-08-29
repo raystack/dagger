@@ -78,6 +78,9 @@ public class AshikoProcessorTest {
         org.apache.flink.streaming.api.datastream.DataStream resultStream = mock(org.apache.flink.streaming.api.datastream.DataStream.class);
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("com.gojek.esb.fraud.EnrichedBookingLogMessage")).thenReturn(EnrichedBookingLogMessage.getDescriptor());
+        // TODO: [PORTAL_MIGRATION] Remove this mock when migration to new portal is done
+        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
+
         AshikoProcessor ashikoProcessor = new AshikoProcessor(configuration, stencilClient);
         MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
@@ -106,6 +109,9 @@ public class AshikoProcessorTest {
                 "    \"source\": \"timestamp\"\n" +
                 "  }\n" +
                 "}");
+        // TODO: [PORTAL_MIGRATION] Remove this mock when migration to new portal is done
+        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
+
         org.apache.flink.streaming.api.datastream.DataStream resultStream = mock(org.apache.flink.streaming.api.datastream.DataStream.class);
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("com.gojek.esb.fraud.EnrichedBookingLogMessage")).thenReturn(EnrichedBookingLogMessage.getDescriptor());
