@@ -426,6 +426,21 @@ public class ProtoSerializerTest {
     }
 
     @Test
+    public void shouldReturnNullKeyWhenKeyIsEmptyString() throws InvalidProtocolBufferException {
+        String[] columnNames = { "s2_id_level" };
+        String protoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
+        ProtoSerializer protoSerializer = new ProtoSerializer("", protoMessage, columnNames,
+                StencilClientFactory.getClient());
+
+        Row element = new Row(1);
+        element.setField(0, 13);
+
+        byte[] bytes = protoSerializer.serializeKey(element);
+
+        assertNull(bytes);
+    }
+
+    @Test
     public void shouldSerializeKeyWithProvidedProto() throws InvalidProtocolBufferException {
         String[] columnNames = { "s2_id_level" };
         String protoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
