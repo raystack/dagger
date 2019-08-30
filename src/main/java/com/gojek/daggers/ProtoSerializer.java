@@ -56,7 +56,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
             return serialize(element, "Key");
         }
 
-        if (Objects.isNull(keyProtoClassName)) {
+        if (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) {
             return null;
         }
         return parse(element, getDescriptor(keyProtoClassName)).toByteArray();
