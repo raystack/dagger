@@ -10,7 +10,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.gojek.daggers.Constants.*;
@@ -28,23 +27,24 @@ public class AshikoProcessor implements PostProcessor {
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         String asyncConfigurationString = configuration.getString(ASYNC_IO_KEY, "");
-        Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, LinkedHashMap.class);
-
+        Map<String, Object> asyncConfig = new Gson().fromJson(asyncConfigurationString, Map.class);
         Descriptors.Descriptor outputDescriptor = this.outputDescriptor();
         int size = outputDescriptor.getFields().size();
         String[] columnNames = new String[size];
         DataStream<Row> resultStream = streamInfo.getDataStream();
-
-        for (String entry : asyncConfig.keySet()) {
-            Map<String, String> fieldConfiguration = ((Map<String, String>) asyncConfig.get(entry));
+        for (Descriptors.FieldDescriptor fieldDescriptor : outputDescriptor.getFields()) {
+            String fieldName = fieldDescriptor.getName();
+            if (!asyncConfig.containsKey(fieldName)) {
+                continue;
+            }
+            Map<String, String> fieldConfiguration = ((Map<String, String>) asyncConfig.get(fieldName));
             int asyncIOCapacity = Integer.valueOf(fieldConfiguration.getOrDefault(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-            int fieldIndex = outputDescriptor.findFieldByName(entry).getIndex();
-            fieldConfiguration.put(FIELD_NAME_KEY, entry);
+            int fieldIndex = fieldDescriptor.getIndex();
+            fieldConfiguration.put(FIELD_NAME_KEY, fieldName);
             StreamDecorator streamDecorator = StreamDecoratorFactory.getStreamDecorator(fieldConfiguration, fieldIndex, stencilClient, asyncIOCapacity, size);
-            columnNames[fieldIndex] = entry;
+            columnNames[fieldIndex] = fieldName;
             resultStream = streamDecorator.decorate(resultStream);
         }
-
         return new StreamInfo(resultStream, columnNames);
     }
 
