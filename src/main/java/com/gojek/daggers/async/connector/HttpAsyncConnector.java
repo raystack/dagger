@@ -58,14 +58,33 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        String body = (String) input.getField(Arrays.asList(columnNames).indexOf(configuration.get(EXTERNAL_SOURCE_HTTP_BODY_FIELD)));
+        String body = (String) input.getField(Arrays.asList(columnNames).indexOf(configuration.get(EXTERNAL_SOURCE_HTTP_BODY_FIELD_KEY)));
         BoundRequestBuilder postRequest = httpClient
-                .preparePost((String) configuration.get(EXTERNAL_SOURCE_HTTP_ENDPOINT))
-                .setBody(body)
-                .addHeader("Content-type", "application/json");
+                .preparePost((String) configuration.get(EXTERNAL_SOURCE_HTTP_ENDPOINT_KEY))
+                .setBody(body);
 
-        AsyncHandler httpResponseHandler = new HttpResponseHandler(input, resultFuture, configuration, columnNames, descriptor);
+        addCustomHeaders(postRequest);
+
+        Row outputRow = createOutputRow(input);
+
+        AsyncHandler httpResponseHandler = new HttpResponseHandler(outputRow, resultFuture, configuration, columnNames, descriptor);
         postRequest.execute(httpResponseHandler);
+    }
+
+    private Row createOutputRow(Row input) {
+        Row row = new Row(descriptor.getFields().size());
+        for (int index = 0; index < input.getArity(); index++) {
+            row.setField(index, input.getField(index));
+        }
+        return row;
+    }
+
+
+    private void addCustomHeaders(BoundRequestBuilder postRequest) {
+        Map<String, String> headerMap = (Map<String, String>) configuration.get(EXTERNAL_SOURCE_HTTP_HEADER_KEY);
+        headerMap.keySet().forEach(headerKey -> {
+            postRequest.addHeader(headerKey, headerMap.get(headerKey));
+        });
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
