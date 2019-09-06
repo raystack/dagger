@@ -21,6 +21,8 @@ public class PostProcessorFactory {
             LongbowReader longbowReader = new LongbowReader(configuration, longbowSchema, LongbowRowFactory.getLongbowRow(longbowSchema));
             return Optional.of(new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longbowSchema, configuration));
         }
+        if (configuration.getBoolean(EXTERNAL_SOURCE_ENABLED_KEY, EXTERNAL_SOURCE_ENABLED_KEY_DEFAULT))
+            return Optional.of(new ExternalSourceProcessor(configuration, stencilClient));
         return Optional.empty();
     }
 }
