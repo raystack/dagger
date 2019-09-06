@@ -9,6 +9,8 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.gojek.daggers.Constants.*;
@@ -18,6 +20,7 @@ public class ExternalSourceProcessor implements PostProcessor {
 
     private Configuration configuration;
     private StencilClient stencilClient;
+    private Map<String, Object> externalSourceConfig;
 
     public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient) {
         this.configuration = configuration;
@@ -27,26 +30,41 @@ public class ExternalSourceProcessor implements PostProcessor {
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         String externalSourceConfigString = configuration.getString(EXTERNAL_SOURCE_KEY, "");
-        Map<String, Object> externalSourceConfig = new Gson().fromJson(externalSourceConfigString, Map.class);
+        externalSourceConfig = new Gson().fromJson(externalSourceConfigString, Map.class);
         DataStream<Row> resultStream = streamInfo.getDataStream();
 
-        String[] columnNames = streamInfo.getColumnNames();
+        String[] inputColumnNames = streamInfo.getColumnNames();
+
+        String[] outputColumnNames = getColumnNames(inputColumnNames);
+
         for (String type : externalSourceConfig.keySet()) {
             ArrayList<Map<String, Object>> requests = (ArrayList) externalSourceConfig.get(type);
             String outputProto = outputProto();
 
             for (Map<String, Object> requestMap : requests) {
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                HttpDecorator httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, columnNames, outputProto);
+                HttpDecorator httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, inputColumnNames, outputProto);
                 resultStream = httpDecorator.decorate(resultStream);
             }
         }
-        return new StreamInfo(resultStream, columnNames);
+        return new StreamInfo(resultStream, outputColumnNames);
+    }
+
+    private String[] getColumnNames(String[] inputColumnNames) {
+        List<String> outputColumnNames = new ArrayList<>(Arrays.asList(inputColumnNames));
+        for (String type : externalSourceConfig.keySet()) {
+            ArrayList<Map<String, Object>> requests = (ArrayList) externalSourceConfig.get(type);
+            for (Map<String, Object> requestMap : requests) {
+                Map<String, Object> outputMaps = (Map<String, Object>) requestMap.get(EXTERNAL_SOURCE_OUTPUT_MAPPING_KEY);
+                outputColumnNames.addAll(outputMaps.keySet());
+            }
+        }
+        return outputColumnNames.toArray(new String[0]);
     }
 
     // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
     private String outputProto() {
-        // [PORTAL_MIGRATION] Move conteont inside this block to process method
+        // [PORTAL_MIGRATION] Move content inside this block to process method
         if (configuration.getString(PORTAL_VERSION, "1").equals("2")) {
             return configuration.getString(OUTPUT_PROTO_MESSAGE, "");
         }
