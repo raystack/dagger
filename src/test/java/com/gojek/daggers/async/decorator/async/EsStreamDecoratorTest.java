@@ -1,4 +1,4 @@
-package com.gojek.daggers.async.decorator;
+package com.gojek.daggers.async.decorator.async;
 
 import com.gojek.daggers.async.connector.ESAsyncConnector;
 import com.gojek.daggers.async.decorator.async.EsStreamDecorator;

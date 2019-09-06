@@ -42,5 +42,4 @@ public class TimestampDecoratorTest {
         assertEquals(result.getArity(), 1);
         assertTrue(result.getField(0) instanceof Timestamp);
     }
-
 }
