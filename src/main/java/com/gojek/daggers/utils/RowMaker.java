@@ -15,30 +15,30 @@ public class RowMaker {
         List<FieldDescriptor> descriptorFields = descriptor.getFields();
         Row row = new Row(descriptorFields.size());
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
-            row.setField(fieldDescriptor.getIndex(), fetchTypeAppropriateValue(inputMap, fieldDescriptor));
+            row.setField(fieldDescriptor.getIndex(), fetchTypeAppropriateValue(inputMap.get(fieldDescriptor.getName()), fieldDescriptor));
         }
         return row;
     }
 
-    public static Object fetchTypeAppropriateValue(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor) {
+    public static Object fetchTypeAppropriateValue(Object field, FieldDescriptor fieldDescriptor) {
         switch (fieldDescriptor.getJavaType()) {
             case INT:
-                return Integer.parseInt(getValueFor(inputMap, fieldDescriptor, "0"));
+                return Integer.parseInt(getValueFor(field, "0"));
             case LONG:
-                return Long.parseLong(getValueFor(inputMap, fieldDescriptor, "0"));
+                return Long.parseLong(getValueFor(field, "0"));
             case FLOAT:
-                return Float.parseFloat(getValueFor(inputMap, fieldDescriptor, "0"));
+                return Float.parseFloat(getValueFor(field, "0"));
             case DOUBLE:
-                return Double.parseDouble(getValueFor(inputMap, fieldDescriptor, "0"));
+                return Double.parseDouble(getValueFor(field, "0"));
             case BOOLEAN:
-                return Boolean.parseBoolean(getValueFor(inputMap, fieldDescriptor, "false"));
+                return Boolean.parseBoolean(getValueFor(field, "false"));
             case BYTE_STRING:
                 throw new RuntimeException("BYTE_STRING is not supported yet");
             case STRING:
-                return getValueFor(inputMap, fieldDescriptor, "");
+                return getValueFor(field, "");
             case MESSAGE:
                 if (fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp")) {
-                    Object inputTimeStamp = inputMap.get(fieldDescriptor.getName());
+                    Object inputTimeStamp = field;
                     if (inputTimeStamp == null) {
                         return null;
                     }
@@ -50,12 +50,10 @@ public class RowMaker {
                     return inputTimeStamp.toString();
                 } else {
                     return null;
-//                    return new Row(fieldDescriptor.getMessageType().getFields().size());
                     //TODO not handling complex types
                 }
             case ENUM:
-                Object mapInput = inputMap.get(fieldDescriptor.getName());
-                String input = mapInput != null ? mapInput.toString() : "0";
+                String input = field != null ? field.toString() : "0";
                 try {
                     int enumPosition = Integer.parseInt(input);
                     Descriptors.EnumValueDescriptor valueByNumber = fieldDescriptor.getEnumType().findValueByNumber(enumPosition);
@@ -69,8 +67,7 @@ public class RowMaker {
         }
     }
 
-    private static String getValueFor(Map<String, Object> inputMap, FieldDescriptor fieldDescriptor, String defaultValue) {
-        Object input = inputMap.get(fieldDescriptor.getName());
+    private static String getValueFor(Object input, String defaultValue) {
         return input == null ? defaultValue : input.toString();
     }
 }
