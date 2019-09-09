@@ -72,7 +72,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     }
 
     private Row createOutputRow(Row input) {
-        Row row = new Row(descriptor.getFields().size());
+        Row row = new Row(columnNames.length);
         for (int index = 0; index < input.getArity(); index++) {
             row.setField(index, input.getField(index));
         }
