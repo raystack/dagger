@@ -4,6 +4,8 @@ import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.jayway.jsonpath.InvalidJsonException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -21,16 +23,26 @@ public class ExternalSourceProcessor implements PostProcessor {
     private Configuration configuration;
     private StencilClient stencilClient;
     private Map<String, Object> externalSourceConfig;
+    private HttpDecorator httpDecorator;
 
     public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
     }
 
+    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient, HttpDecorator httpDecorator) {
+        this(configuration, stencilClient);
+        this.httpDecorator = httpDecorator;
+    }
+
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         String externalSourceConfigString = configuration.getString(EXTERNAL_SOURCE_KEY, "");
-        externalSourceConfig = new Gson().fromJson(externalSourceConfigString, Map.class);
+        try {
+            externalSourceConfig = new Gson().fromJson(externalSourceConfigString, Map.class);
+        } catch (JsonSyntaxException exception) {
+            throw new InvalidJsonException("Invalid JSON Given for " + EXTERNAL_SOURCE_KEY);
+        }
         DataStream<Row> resultStream = streamInfo.getDataStream();
 
         String[] inputColumnNames = streamInfo.getColumnNames();
@@ -43,7 +55,8 @@ public class ExternalSourceProcessor implements PostProcessor {
 
             for (Map<String, Object> requestMap : requests) {
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                HttpDecorator httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
+                if (httpDecorator == null)
+                    httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
                 resultStream = httpDecorator.decorate(resultStream);
             }
         }
