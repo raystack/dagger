@@ -43,7 +43,7 @@ public class ExternalSourceProcessor implements PostProcessor {
 
             for (Map<String, Object> requestMap : requests) {
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                HttpDecorator httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, inputColumnNames, outputProto);
+                HttpDecorator httpDecorator = new HttpDecorator(requestMap, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
                 resultStream = httpDecorator.decorate(resultStream);
             }
         }

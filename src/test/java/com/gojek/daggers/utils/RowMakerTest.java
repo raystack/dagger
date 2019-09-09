@@ -35,194 +35,143 @@ public class RowMakerTest {
         inputMap.put("customer_url", "https://www.abcd.com/1234");
         inputMap.put("active", "true");
         inputMap.put("sex", MALE);
-//        inputMap.put("new_user", false);
         inputMap.put("created_at", "2016-01-18T08:55:26.16Z");
         Row row = RowMaker.makeRow(inputMap, descriptor);
         assertNotNull(row);
     }
 
     @Test
-    public void rowMakerShouldFetchValueFromInputMapForFieldDescriptorOfTypeInt32() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchValueFromInputFieldForFieldDescriptorOfTypeInt32() {
         int actualValue = 1;
-        inputMap.put("cancel_reason_id", actualValue);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(actualValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchParseableStringValueAsIntFromInputMapForFieldDescriptorOfTypeInt32() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchParseableStringValueAsIntFromInputFieldForFieldDescriptorOfTypeInt32() {
         int actualValue = 1;
-        inputMap.put("cancel_reason_id", String.valueOf(actualValue));
+        String stringValue = String.valueOf(actualValue);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(stringValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
     public void rowMakerShouldFetchDefaultValueIfValueNotFoundForFieldDescriptorOfTypeInt32() {
-        Map<String, Object> inputMap = new HashMap<>();
         int defaultValue = 0;
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
         Assert.assertEquals(defaultValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchParsedFromMapValueForFieldDescriptorOfTypeInt64() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchParsedFromInputValueForFieldDescriptorOfTypeInt64() {
         long actualValue = 1L;
-        inputMap.put("toll_amount", String.valueOf(actualValue));
-
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("toll_amount");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(actualValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchValueForMapForFieldDescriptorOfTypeInt64() {
-        Map<String, Object> inputMap = new HashMap<>();
-        long actualValue = 1L;
-        inputMap.put("toll_amount", actualValue);
-
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
-        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("toll_amount");
-
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
-        Assert.assertEquals(actualValue, value);
-    }
-
-    @Test
-    public void rowMakerShouldFetchValueForMapForFieldDescriptorOfTypeBool() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchValueForFieldForFieldDescriptorOfTypeBool() {
         boolean actualValue = true;
-        inputMap.put("is_reblast", actualValue);
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(actualValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchParsedValueForMapForFieldDescriptorOfTypeBool() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchParsedValueForFieldForFieldDescriptorOfTypeBool() {
         boolean actualValue = true;
-        inputMap.put("is_reblast", String.valueOf(actualValue));
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(String.valueOf(actualValue), fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchDefaultValueIfValueNotPresentInMapForFieldDescriptorOfTypeBool() {
-        Map<String, Object> inputMap = new HashMap<>();
-
+    public void rowMakerShouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeBool() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
         Assert.assertEquals(false, value);
     }
 
     @Test
-    public void rowMakerShouldFetchParsedValueFromMapForFieldDescriptorOfTypeFloat() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchParsedValueFromFieldForFieldDescriptorOfTypeFloat() {
         float actualValue = 5.1f;
-        inputMap.put("total_unsubsidised_price", String.valueOf(actualValue));
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("total_unsubsidised_price");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(actualValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchValueFromMapForFieldDescriptorOfTypeFloat() {
-        Map<String, Object> inputMap = new HashMap<>();
-        float actualValue = 5.1f;
-        inputMap.put("total_unsubsidised_price", actualValue);
-
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
-        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("total_unsubsidised_price");
-
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
-        Assert.assertEquals(actualValue, value);
-    }
-
-    @Test
-    public void rowMakerShouldFetchDefaultValueWhenValueNotPresentInMapForFieldDescriptorOfTypeFloat() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchDefaultValueWhenValueNotPresentForFieldDescriptorOfTypeFloat() {
         float actualValue = 0.0f;
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("total_unsubsidised_price");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
-    public void rowMakerShouldFetchTimeStampAsStringFromMapForFieldDescriptorOfTypeTimeStamp() {
-        Map<String, Object> inputMap = new HashMap<>();
+    public void rowMakerShouldFetchTimeStampAsStringFromFieldForFieldDescriptorOfTypeTimeStamp() {
         String actualValue = "2018-08-30T02:21:39.975107Z";
-        inputMap.put("booking_creation_time", actualValue);
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(actualValue, fieldDescriptor);
         Assert.assertEquals(actualValue, value);
     }
 
     @Test
     public void rowMakerReturnsNullWhenTimeStampNotAvailableFieldDescriptorOfTypeTimeStamp() {
-        Map<String, Object> inputMap = new HashMap<>();
-
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
         Assert.assertNull(value);
     }
 
     @Test
     public void rowMakerShouldReturnEnumStringGivenEnumStringForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("status", "DRIVER_FOUND");
+        String inputField = "DRIVER_FOUND";
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(inputField, fieldDescriptor);
 
         Assert.assertEquals("DRIVER_FOUND", value);
     }
 
     @Test
     public void rowMakerShouldReturnDefaultEnumStringIfNotFoundForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
 
         Assert.assertEquals("UNKNOWN", value);
 
@@ -230,52 +179,40 @@ public class RowMakerTest {
 
     @Test
     public void rowMakerShouldReturnDefaultEnumStringIfInputIsAEnumPositionAndNotInTheProtoDefinitionForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("status", -1);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(-1, fieldDescriptor);
 
         Assert.assertEquals("UNKNOWN", value);
-
     }
 
     @Test
     public void rowMakerShouldReturnDefaultEnumStringIfInputIsAStringAndNotInTheProtoDefinitionForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-        inputMap.put("status", "dummy");
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue("dummy", fieldDescriptor);
 
         Assert.assertEquals("UNKNOWN", value);
     }
 
     @Test
     public void rowMakerShouldReturnDefaultEnumStringIfInputIsNullForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("status", null);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
 
         Assert.assertEquals("UNKNOWN", value);
     }
 
     @Test
     public void rowMakerShouldReturnEnumStringGivenEnumPositionForFieldDescriptorOfTypeEnum() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("status", 2);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(2, fieldDescriptor);
 
         Assert.assertEquals("DRIVER_FOUND", value);
 
@@ -283,14 +220,11 @@ public class RowMakerTest {
 
     @Test
     public void rowMakerHandleTimestampMessagesByReturningTheValueAvailableInInputMap() {
-        Map<String, Object> inputMap = new HashMap<>();
-
         String inputTimestamp = "2019-03-28T05:50:13Z";
-        inputMap.put("event_timestamp", inputTimestamp);
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(inputTimestamp, fieldDescriptor);
 
         assertEquals(inputTimestamp, value.toString());
 
@@ -298,25 +232,20 @@ public class RowMakerTest {
 
     @Test
     public void rowMakerHandleTimestampMessagesByReturningNullForValuesNotAvailableInMap() {
-        Map<String, Object> inputMap = new HashMap<>();
-
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
 
         Assert.assertNull(value);
     }
 
     @Test
     public void rowMakerHandleTimestampMessagesByReturningNullForNonParseableTimeStamps() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("event_timestamp", "2");
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue("2", fieldDescriptor);
 
         Assert.assertNull(value);
 
@@ -324,15 +253,11 @@ public class RowMakerTest {
 
     @Test
     public void rowMakerHandleNonTimeStampMessagesByReturningNulls() {
-        Map<String, Object> inputMap = new HashMap<>();
-
-        inputMap.put("metadata", null);
         Descriptors.Descriptor descriptor = DriverProfileFlattenLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("metadata");
 
-        Object value = RowMaker.fetchTypeAppropriateValue(inputMap, fieldDescriptor);
+        Object value = RowMaker.fetchTypeAppropriateValue(null, fieldDescriptor);
 
         Assert.assertNull(value);
-
     }
 }
