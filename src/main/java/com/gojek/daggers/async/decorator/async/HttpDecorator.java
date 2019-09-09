@@ -6,6 +6,8 @@ import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 
 import java.util.Map;
 
+import static com.gojek.daggers.Constants.EXTERNAL_SOURCE_STREAM_TIMEOUT;
+
 public class HttpDecorator implements AsyncDecorator {
     private Map<String, Object> configuration;
     private StencilClient stencilClient;
@@ -41,6 +43,6 @@ public class HttpDecorator implements AsyncDecorator {
 
     @Override
     public Integer getStreamTimeout() {
-        return Integer.valueOf((String) configuration.get("stream_timeout"));
+        return Integer.valueOf((String) configuration.get(EXTERNAL_SOURCE_STREAM_TIMEOUT));
     }
 }

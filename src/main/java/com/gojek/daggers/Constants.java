@@ -12,6 +12,7 @@ public class Constants {
     public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_KEY = "connect_timeout";
     public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_DEFAULT = "1000";
     public final static String EXTERNAL_SOURCE_KEY = "EXTERNAL_SOURCE";
+    public final static String EXTERNAL_SOURCE_STREAM_TIMEOUT = "stream_timeout";
     public final static String ASYNC_IO_ENABLED_KEY = "ASYNC_IO_ENABLED";
     public final static boolean ASYNC_IO_ENABLED_DEFAULT = false;
     public final static String ASYNC_IO_ES_HOST_KEY = "host";
