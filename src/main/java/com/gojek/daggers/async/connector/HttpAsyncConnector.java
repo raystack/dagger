@@ -35,6 +35,11 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.outputProto = outputProto;
     }
 
+    public HttpAsyncConnector(String[] columnNames, Map<String, Object> configuration, StencilClient stencilClient, String outputProto, AsyncHttpClient httpClient) {
+        this(columnNames, configuration, stencilClient, outputProto);
+        this.httpClient = httpClient;
+    }
+
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
@@ -51,24 +56,25 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         httpClient.close();
     }
 
-    private AsyncHttpClient createHttpClient() {
-        Integer connectTimeout = getIntegerConfig(configuration, ASYNC_IO_HTTP_CONNECT_TIMEOUT_KEY, ASYNC_IO_HTTP_CONNECT_TIMEOUT_DEFAULT);
-        return asyncHttpClient(config().setConnectTimeout(connectTimeout));
-    }
-
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        String body = (String) input.getField(Arrays.asList(columnNames).indexOf(configuration.get(EXTERNAL_SOURCE_HTTP_BODY_FIELD_KEY)));
-        BoundRequestBuilder postRequest = httpClient
-                .preparePost((String) configuration.get(EXTERNAL_SOURCE_HTTP_ENDPOINT_KEY))
-                .setBody(body);
+        String bodyColumnName = (String) configuration.get(EXTERNAL_SOURCE_HTTP_BODY_FIELD_KEY);
+        String endpoint = (String) configuration.get(EXTERNAL_SOURCE_HTTP_ENDPOINT_KEY);
+        validateInputs(bodyColumnName, endpoint);
+        String body = (String) input.getField(Arrays.asList(columnNames).indexOf(bodyColumnName));
 
+        BoundRequestBuilder postRequest = httpClient
+                .preparePost(endpoint)
+                .setBody(body);
         addCustomHeaders(postRequest);
 
         Row outputRow = createOutputRow(input);
-
         AsyncHandler httpResponseHandler = new HttpResponseHandler(outputRow, resultFuture, configuration, columnNames, descriptor);
         postRequest.execute(httpResponseHandler);
+    }
+
+    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+        resultFuture.complete(Collections.singleton(input));
     }
 
     private Row createOutputRow(Row input) {
@@ -79,16 +85,35 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         return row;
     }
 
+    private AsyncHttpClient createHttpClient() {
+        Integer connectTimeout = getIntegerConfig(configuration, ASYNC_IO_HTTP_CONNECT_TIMEOUT_KEY, ASYNC_IO_HTTP_CONNECT_TIMEOUT_DEFAULT);
+        return asyncHttpClient(config().setConnectTimeout(connectTimeout));
+    }
 
     private void addCustomHeaders(BoundRequestBuilder postRequest) {
-        Map<String, String> headerMap = (Map<String, String>) configuration.get(EXTERNAL_SOURCE_HTTP_HEADER_KEY);
+        Map<String, String> headerMap;
+        try {
+            headerMap = (Map<String, String>) configuration.get(EXTERNAL_SOURCE_HTTP_HEADER_KEY);
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Config for header should be a map");
+        }
+        if (headerMap == null)
+            return;
         headerMap.keySet().forEach(headerKey -> {
             postRequest.addHeader(headerKey, headerMap.get(headerKey));
         });
     }
 
-    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        resultFuture.complete(Collections.singleton(null));
+    private void validateInputs(String bodyColumnName, String endpoint) {
+        if (bodyColumnName == null) {
+            throw new IllegalArgumentException("Request body key should be passed");
+        }
+        if (!Arrays.asList(columnNames).contains(bodyColumnName)) {
+            throw new IllegalArgumentException("Request body should be selected through SQL Query");
+        }
+        if (endpoint == null) {
+            throw new IllegalArgumentException("Http Endpoint should be provided");
+        }
     }
 
     private Integer getIntegerConfig(Map<String, Object> fieldConfiguration, String key, String defaultValue) {
