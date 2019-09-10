@@ -8,6 +8,8 @@ public class Constants {
     public final static String EXTERNAL_SOURCE_HTTP_BODY_FIELD_KEY = "body_field";
     public final static String EXTERNAL_SOURCE_OUTPUT_MAPPING_KEY = "output_mapping";
     public final static String EXTERNAL_SOURCE_HTTP_HEADER_KEY = "headers";
+    public final static String EXTERNAL_SOURCE_FAIL_ON_ERRORS_KEY = "fail_on_errors";
+    public final static boolean EXTERNAL_SOURCE_FAIL_ON_ERRORS_DEFAULT = false;
     public final static String EXTERNAL_SOURCE_OUTPUT_MAPPING_PATH_KEY = "path";
     public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_KEY = "connect_timeout";
     public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_DEFAULT = "1000";
