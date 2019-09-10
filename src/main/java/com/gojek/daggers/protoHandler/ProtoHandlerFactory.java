@@ -22,6 +22,7 @@ public class ProtoHandlerFactory {
                 new TimestampProtoHandler(fieldDescriptor),
                 new EnumProtoHandler(fieldDescriptor),
                 new RepeatedMessageProtoHandler(fieldDescriptor),
+                new RepeatedProtoHandler(fieldDescriptor),
                 new MessageProtoHandler(fieldDescriptor)
         );
     }
