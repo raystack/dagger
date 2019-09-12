@@ -12,6 +12,7 @@ public enum ExternalSourceAspects implements Aspects {
     FAILURES_ON_HTTP_CALL_4XX("failuresOnHttp4XX", Metric),
     FAILURES_ON_HTTP_CALL_OTHER_STATUS("failuresOnHttpOtherStatus", Metric),
     FAILURES_ON_HTTP_CALL_OTHER_ERRORS("failuresOnHttpOtherErrors", Metric),
+    FAILURES_ON_READING_PATH("failuresOnReadingPath", Metric),
     TOTAL_HTTP_CALLS("totalHttpCalls", Metric),
     TOTAL_FAILED_REQUESTS("totalFailures", Metric),
     TIMEOUTS("timeouts", Metric),

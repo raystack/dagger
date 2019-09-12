@@ -7,6 +7,7 @@ import com.gojek.daggers.utils.RowMaker;
 import com.gojek.daggers.utils.stats.StatsManager;
 import com.google.protobuf.Descriptors;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.asynchttpclient.AsyncCompletionHandler;
@@ -72,7 +73,15 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
 
         outputMappingKeys.forEach(key -> {
             OutputMapping outputMappingKeyConfig = outputMappings.get(key);
-            Object value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
+            Object value;
+            try {
+                value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
+            } catch (PathNotFoundException e) {
+                completeExceptionally(resultFuture, e);
+                statsManager.markEvent(FAILURES_ON_READING_PATH);
+                LOGGER.error(e.getMessage());
+                return;
+            }
             Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
             if (fieldDescriptor == null)
                 completeExceptionally(resultFuture, new IllegalArgumentException("Field Descriptor not found for field: " + key));
