@@ -261,4 +261,30 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
     }
 
+    @Test
+    public void shouldThrowExceptionIfPathIsWrongIfFailOnErrorsTrue() throws Exception {
+        when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
+        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
+        outputMappings.put("surge_factor", outputMapping1);
+        when(outputMapping1.getPath()).thenReturn("$.wrong_path");
+        when(httpExternalSourceConfig.getOutputMapping()).thenReturn(outputMappings);
+
+        Row inputRow = new Row(2);
+        inputRow.setField(0, "body");
+        Row resultRow = new Row(2);
+        resultRow.setField(0, "body");
+        resultRow.setField(1, 0.732f);
+        columnNames = new String[]{"request_body", "surge_factor"};
+
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpExternalSourceConfig, columnNames, descriptor, statsManager);
+        httpResponseHandler.start();
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
+        httpResponseHandler.onCompleted(response);
+        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
+        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+    }
 }

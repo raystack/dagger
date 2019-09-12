@@ -3,16 +3,6 @@ package com.gojek.daggers;
 public class Constants {
     public final static String EXTERNAL_SOURCE_ENABLED_KEY = "EXTERNAL_SOURCE_ENABLED";
     public final static boolean EXTERNAL_SOURCE_ENABLED_KEY_DEFAULT = false;
-    public final static String EXTERNAL_SOURCE_HTTP_ENDPOINT_KEY = "endpoint";
-    public final static String EXTERNAL_SOURCE_HTTP_VERB_KEY = "verb";
-    public final static String EXTERNAL_SOURCE_HTTP_BODY_FIELD_KEY = "body_field";
-    public final static String EXTERNAL_SOURCE_OUTPUT_MAPPING_KEY = "output_mapping";
-    public final static String EXTERNAL_SOURCE_HTTP_HEADER_KEY = "headers";
-    public final static String EXTERNAL_SOURCE_FAIL_ON_ERRORS_KEY = "fail_on_errors";
-    public final static boolean EXTERNAL_SOURCE_FAIL_ON_ERRORS_DEFAULT = false;
-    public final static String EXTERNAL_SOURCE_OUTPUT_MAPPING_PATH_KEY = "path";
-    public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_KEY = "connect_timeout";
-    public final static String ASYNC_IO_HTTP_CONNECT_TIMEOUT_DEFAULT = "1000";
     public final static String EXTERNAL_SOURCE_KEY = "EXTERNAL_SOURCE";
     public final static String EXTERNAL_SOURCE_STREAM_TIMEOUT = "stream_timeout";
     public final static String ASYNC_IO_ENABLED_KEY = "ASYNC_IO_ENABLED";

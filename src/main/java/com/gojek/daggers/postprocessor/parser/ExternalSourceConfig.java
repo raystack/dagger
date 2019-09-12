@@ -18,11 +18,12 @@ import static com.gojek.daggers.Constants.EXTERNAL_SOURCE_KEY;
 public class ExternalSourceConfig {
     private List<HttpExternalSourceConfig> httpExternalSourceConfig;
 
+
+    private Map<String, Object> externalSourceConfigMap;
+
     public Set<String> getExternalSourceKeys() {
         return externalSourceConfigMap.keySet();
     }
-
-    private Map<String, Object> externalSourceConfigMap;
 
     public List<HttpExternalSourceConfig> getHttpExternalSourceConfig() {
         return httpExternalSourceConfig;
