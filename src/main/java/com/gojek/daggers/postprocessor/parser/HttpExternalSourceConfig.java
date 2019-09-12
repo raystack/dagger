@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HttpExternalSourceConfig implements Serializable {
+public class HttpExternalSourceConfig implements Serializable, Validator {
     private String endpoint;
     private String verb;
     private String bodyField;
@@ -16,8 +16,16 @@ public class HttpExternalSourceConfig implements Serializable {
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
 
-    private List<Object> mandatoryFields;
-    private List<String> fieldsMissing;
+    public HttpExternalSourceConfig(String endpoint, String verb, String bodyField, String streamTimeout, String connectTimeout, boolean failOnErrors, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+        this.endpoint = endpoint;
+        this.verb = verb;
+        this.bodyField = bodyField;
+        this.streamTimeout = streamTimeout;
+        this.connectTimeout = connectTimeout;
+        this.failOnErrors = failOnErrors;
+        this.headers = headers;
+        this.outputMapping = outputMapping;
+    }
 
     public String getConnectTimeout() {
         return connectTimeout;
@@ -62,13 +70,7 @@ public class HttpExternalSourceConfig implements Serializable {
         mandatoryFields.put("streamTimeout", streamTimeout);
         mandatoryFields.put("connectTimeout", connectTimeout);
         mandatoryFields.put("outputMapping", outputMapping);
-        fieldsMissing = new ArrayList<>();
-        mandatoryFields.forEach((key, value) -> {
-            if (value == null)
-                fieldsMissing.add(key);
-        });
-        if (fieldsMissing.size() != 0)
-            throw new IllegalArgumentException("Missing required fields: " + fieldsMissing.toString());
-        outputMapping.forEach((key, value) -> value.validate());
+
+        validateFields(mandatoryFields);
     }
 }
