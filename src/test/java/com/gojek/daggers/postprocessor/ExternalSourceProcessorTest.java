@@ -17,8 +17,6 @@ import org.mockito.Mock;
 import java.util.Arrays;
 
 import static com.gojek.daggers.Constants.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -43,12 +41,11 @@ public class ExternalSourceProcessorTest {
     @Before
     public void setup() {
         initMocks(this);
-        when(configuration.getBoolean(EXTERNAL_SOURCE_ENABLED_KEY, EXTERNAL_SOURCE_ENABLED_KEY_DEFAULT)).thenReturn(true);
-        when(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT)).thenReturn("30");
-        when(configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "")).thenReturn("com.gojek.esb.aggregate.surge.SurgeFactorLog");
         when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(SurgeFactorLogMessage.getDescriptor());
-        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
         when(httpDecorator.decorate(dataStream)).thenReturn(dataStream);
+        when(configuration.getString(PORTAL_VERSION, "1")).thenReturn("1");
+        when(configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "")).thenReturn("com.gojek.esb.aggregate.surge.SurgeFactorLog");
+        when(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT)).thenReturn(ASYNC_IO_CAPACITY_DEFAULT);
     }
 
     @Test
@@ -60,6 +57,7 @@ public class ExternalSourceProcessorTest {
                 "      \"verb\": \"post\",\n" +
                 "      \"body_field\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
+                "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +
                 "        \"content-type\": \"application/json\"\n" +
                 "      },\n" +
@@ -75,6 +73,7 @@ public class ExternalSourceProcessorTest {
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
+
         ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, httpDecorator);
         StreamInfo result = externalSourceProcessor.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number", "surge_factor"};
@@ -90,6 +89,7 @@ public class ExternalSourceProcessorTest {
                 "      \"verb\": \"post\",\n" +
                 "      \"body_field\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
+                "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +
                 "        \"content-type\": \"application/json\"\n" +
                 "      },\n" +
@@ -117,6 +117,7 @@ public class ExternalSourceProcessorTest {
                 "      \"verb\": \"post\",\n" +
                 "      \"body_field\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
+                "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +
                 "        \"content-type\": \"application/json\"\n" +
                 "      },\n" +
