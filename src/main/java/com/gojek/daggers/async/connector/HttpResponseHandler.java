@@ -1,6 +1,8 @@
 package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.metric.ExternalSourceAspects;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.OutputMapping;
 import com.gojek.daggers.utils.RowMaker;
 import com.gojek.daggers.utils.stats.StatsManager;
 import com.google.protobuf.Descriptors;
@@ -12,31 +14,37 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.gojek.daggers.Constants.*;
 import static com.gojek.daggers.async.metric.ExternalSourceAspects.*;
+import static java.time.Duration.between;
 
 public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseHandler.class.getName());
     private Row outputRow;
     private ResultFuture<Row> resultFuture;
-    private Map<String, Object> configuration;
+    private HttpExternalSourceConfig httpExternalSourceConfig;
     private String[] columnNames;
     private Descriptors.Descriptor descriptor;
     private StatsManager statsManager;
+    private Instant startTime;
 
-    public HttpResponseHandler(Row outputRow, ResultFuture<Row> resultFuture, Map<String, Object> configuration,
+    public HttpResponseHandler(Row outputRow, ResultFuture<Row> resultFuture, HttpExternalSourceConfig httpExternalSourceConfig,
                                String[] columnNames, Descriptors.Descriptor descriptor, StatsManager statsManager) {
         this.outputRow = outputRow;
         this.resultFuture = resultFuture;
-        this.configuration = configuration;
+        this.httpExternalSourceConfig = httpExternalSourceConfig;
         this.columnNames = columnNames;
         this.descriptor = descriptor;
         this.statsManager = statsManager;
+    }
+
+    public void start() {
+        startTime = Instant.now();
     }
 
     @Override
@@ -59,39 +67,35 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     }
 
     private void successHandler(Response response) {
-        Map<String, Object> outputMappings = getValidatedMapField(configuration, EXTERNAL_SOURCE_OUTPUT_MAPPING_KEY);
+        Map<String, OutputMapping> outputMappings = httpExternalSourceConfig.getOutputMapping();
         ArrayList<String> outputMappingKeys = new ArrayList<>(outputMappings.keySet());
 
         outputMappingKeys.forEach(key -> {
-            Map<String, String> outputMappingKeyConfig = getValidatedMapField(outputMappings, key);
-            Object value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.get(EXTERNAL_SOURCE_OUTPUT_MAPPING_PATH_KEY), Object.class);
+            OutputMapping outputMappingKeyConfig = outputMappings.get(key);
+            Object value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
             Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
+            if (fieldDescriptor == null)
+                completeExceptionally(resultFuture, new IllegalArgumentException("Field Descriptor not found for field: " + key));
             Integer fieldIndex = Arrays.asList(columnNames).indexOf(key);
             outputRow.setField(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
         });
         statsManager.markEvent(SUCCESS_RESPONSE);
+        statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         resultFuture.complete(Collections.singleton(outputRow));
     }
 
     private void failureHandler(ExternalSourceAspects aspect, String logMessage) {
+        statsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         statsManager.markEvent(aspect);
+        statsManager.markEvent(TOTAL_FAILED_REQUESTS);
         LOGGER.error(logMessage);
-        if ((boolean) configuration.getOrDefault(EXTERNAL_SOURCE_FAIL_ON_ERRORS_KEY, EXTERNAL_SOURCE_FAIL_ON_ERRORS_DEFAULT))
-            throw new RuntimeException(logMessage);
+        if (httpExternalSourceConfig.isFailOnErrors())
+            completeExceptionally(resultFuture, new RuntimeException(logMessage));
         resultFuture.complete(Collections.singleton(outputRow));
     }
 
-    private Map getValidatedMapField(Map<String, Object> map, String key) {
-        Map resultMap;
-        Object value = map.get(key);
-        if (value == null)
-            throw new IllegalArgumentException(key + " config should not be empty");
-        try {
-            resultMap = (Map) value;
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException(key + " config should be passed as a map");
-        }
-        return resultMap;
+    private void completeExceptionally(ResultFuture<Row> resultFuture, Exception exception) {
+        resultFuture.completeExceptionally(exception);
     }
 
 }

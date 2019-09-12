@@ -1,6 +1,7 @@
 package com.gojek.daggers.async.decorator.async;
 
 import com.gojek.daggers.async.connector.HttpAsyncConnector;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 
@@ -9,16 +10,16 @@ import java.util.Map;
 import static com.gojek.daggers.Constants.EXTERNAL_SOURCE_STREAM_TIMEOUT;
 
 public class HttpDecorator implements AsyncDecorator {
-    private Map<String, Object> configuration;
+    private HttpExternalSourceConfig httpExternalSourceConfig;
     private StencilClient stencilClient;
     private Integer asyncIOCapacity;
     private String type;
     private String[] columnNames;
     private String outputProto;
 
-    public HttpDecorator(Map<String, Object> configuration, StencilClient stencilClient, Integer asyncIOCapacity,
+    public HttpDecorator(HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient, Integer asyncIOCapacity,
                          String type, String[] columnNames, String outputProto) {
-        this.configuration = configuration;
+        this.httpExternalSourceConfig = httpExternalSourceConfig;
         this.stencilClient = stencilClient;
         this.asyncIOCapacity = asyncIOCapacity;
         this.type = type;
@@ -38,11 +39,11 @@ public class HttpDecorator implements AsyncDecorator {
 
     @Override
     public AsyncFunction getAsyncFunction() {
-        return new HttpAsyncConnector(columnNames, configuration, stencilClient, outputProto);
+        return new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto);
     }
 
     @Override
     public Integer getStreamTimeout() {
-        return Integer.valueOf((String) configuration.get(EXTERNAL_SOURCE_STREAM_TIMEOUT));
+        return Integer.valueOf(httpExternalSourceConfig.getStreamTimeout());
     }
 }
