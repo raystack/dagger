@@ -15,10 +15,10 @@ public class OutputMapping implements Serializable, Validator {
         return path;
     }
 
-    public void validate() throws IllegalArgumentException {
+    public HashMap<String, Object> getMandatoryFields() {
         HashMap<String, Object> mandatoryFields = new HashMap<>();
         mandatoryFields.put("path", path);
 
-        validateFields(mandatoryFields);
+        return mandatoryFields;
     }
 }
