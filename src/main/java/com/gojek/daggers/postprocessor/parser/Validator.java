@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface Validator {
-    void validate() throws IllegalArgumentException;
+    HashMap<String, Object> getMandatoryFields();
 
-    default void validateFields(HashMap<String, Object> mandatoryFields) {
+    default void validateFields() throws IllegalArgumentException {
         ArrayList fieldsMissing = new ArrayList<>();
         ArrayList<Object> nestedFields = new ArrayList<>();
-        mandatoryFields.forEach((key, value) -> {
+        getMandatoryFields().forEach((key, value) -> {
             if (value == null)
                 fieldsMissing.add(key);
             if (value instanceof Map)
@@ -21,7 +21,7 @@ public interface Validator {
 
         nestedFields.forEach(field -> {
             if (field instanceof Validator)
-                ((Validator) field).validate();
+                ((Validator) field).validateFields();
         });
     }
 }
