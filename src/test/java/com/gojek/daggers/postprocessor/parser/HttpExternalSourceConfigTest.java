@@ -8,6 +8,9 @@ import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class HttpExternalSourceConfigTest {
 
@@ -79,7 +82,7 @@ public class HttpExternalSourceConfigTest {
 
     @Test(expected = Test.None.class)
     public void shouldValidate() {
-        httpExternalSourceConfig.validate();
+        httpExternalSourceConfig.validateFields();
     }
 
     @Test
@@ -88,7 +91,7 @@ public class HttpExternalSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
 
         HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig(null, null, null, null, null, false, null, null);
-        httpExternalSourceConfig.validate();
+        httpExternalSourceConfig.validateFields();
     }
 
     @Test
@@ -97,7 +100,7 @@ public class HttpExternalSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
 
         HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig("localhost", "post", "body", null, null, false, null, null);
-        httpExternalSourceConfig.validate();
+        httpExternalSourceConfig.validateFields();
     }
 
     @Test
@@ -111,6 +114,22 @@ public class HttpExternalSourceConfigTest {
 
         httpExternalSourceConfig = new HttpExternalSourceConfig("http://localhost",
                 "post", "request_body", "4000", "1000", false, headerMap, outputMappings);
-        httpExternalSourceConfig.validate();
+        httpExternalSourceConfig.validateFields();
+    }
+
+    @Test
+    public void shouldReturnMandatoryFields() {
+        HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
+        expectedMandatoryFields.put("endpoint", "http://localhost");
+        expectedMandatoryFields.put("bodyField", "request_body");
+        expectedMandatoryFields.put("streamTimeout", "4000");
+        expectedMandatoryFields.put("connectTimeout", "1000");
+        expectedMandatoryFields.put("outputMapping", outputMapping);
+        HashMap<String, Object> actualMandatoryFields = httpExternalSourceConfig.getMandatoryFields();
+        assertEquals(expectedMandatoryFields.get("endpoint"), actualMandatoryFields.get("endpoint"));
+        assertEquals(expectedMandatoryFields.get("bodyField"), actualMandatoryFields.get("bodyField"));
+        assertEquals(expectedMandatoryFields.get("streamTimeout"), actualMandatoryFields.get("streamTimeout"));
+        assertEquals(expectedMandatoryFields.get("connectTimeout"), actualMandatoryFields.get("connectTimeout"));
+        assertEquals(outputMapping.getPath(), ((Map<String, OutputMapping>) actualMandatoryFields.get("outputMapping")).get("surge_factor").getPath());
     }
 }

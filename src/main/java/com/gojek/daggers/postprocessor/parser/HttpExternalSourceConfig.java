@@ -63,7 +63,7 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
         return new ArrayList<>(outputMapping.keySet());
     }
 
-    public void validate() throws IllegalArgumentException {
+    public HashMap<String, Object> getMandatoryFields() {
         HashMap<String, Object> mandatoryFields = new HashMap<>();
         mandatoryFields.put("endpoint", endpoint);
         mandatoryFields.put("bodyField", bodyField);
@@ -71,6 +71,6 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
         mandatoryFields.put("connectTimeout", connectTimeout);
         mandatoryFields.put("outputMapping", outputMapping);
 
-        validateFields(mandatoryFields);
+        return mandatoryFields;
     }
 }

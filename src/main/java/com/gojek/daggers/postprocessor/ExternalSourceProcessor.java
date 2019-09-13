@@ -44,7 +44,7 @@ public class ExternalSourceProcessor implements PostProcessor {
             String outputProto = outputProto();
 
             for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
-                httpExternalSourceConfig.validate();
+                httpExternalSourceConfig.validateFields();
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
                 if (httpDecorator == null)
                     httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
