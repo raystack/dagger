@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.dagger.udf.*;
+import com.gojek.dagger.udf.accumulator.array.ArrayAccumulator;
 import com.gojek.dagger.udf.accumulator.distance.DistanceAccumulator;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
@@ -10,6 +11,7 @@ import com.gojek.daggers.postprocessor.PostProcessorFactory;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import org.apache.flink.api.common.time.Time;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -21,6 +23,7 @@ import org.apache.flink.table.api.scala.StreamTableEnvironment;
 import org.apache.flink.table.api.scala.TableConversions;
 import org.apache.flink.types.Row;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -96,6 +99,7 @@ public class StreamManager {
         tableEnvironment.registerFunction("TimeInDate", new TimeInDate());
         tableEnvironment.registerFunction("MapGet", new MapGet());
         tableEnvironment.registerFunction("DistanceAggregator", new DistanceAggregator(), TypeInformation.of(Double.class), TypeInformation.of(DistanceAccumulator.class));
+        tableEnvironment.registerFunction("CollectArray", new CollectArray(), TypeInformation.of(new TypeHint<ArrayList<Object>>(){}), TypeInformation.of(ArrayAccumulator.class));
         return this;
     }
 
