@@ -4,7 +4,6 @@ import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.accumulator.distance.DistanceAccumulator;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
-import com.gojek.dagger.udf.accumulator.array.ArrayAccumulator;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
 import com.gojek.daggers.postprocessor.PostProcessor;
 import com.gojek.daggers.postprocessor.PostProcessorFactory;
@@ -97,7 +96,6 @@ public class StreamManager {
         tableEnvironment.registerFunction("TimeInDate", new TimeInDate());
         tableEnvironment.registerFunction("MapGet", new MapGet());
         tableEnvironment.registerFunction("DistanceAggregator", new DistanceAggregator(), TypeInformation.of(Double.class), TypeInformation.of(DistanceAccumulator.class));
-        tableEnvironment.registerFunction("CollectArray", new CollectArray(), TypeInformation.of(Row[].class), TypeInformation.of(ArrayAccumulator.class));
         return this;
     }
 
