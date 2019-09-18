@@ -93,7 +93,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         LOGGER.error("HTTP Connector : Timeout");
         if (httpExternalSourceConfig.isFailOnErrors())
             resultFuture.completeExceptionally(new TimeoutException("Timeout in HTTP Call"));
-        resultFuture.complete(Collections.singleton(input));
+        resultFuture.complete(Collections.singleton(createOutputRow(input)));
     }
 
     private Row createOutputRow(Row input) {
