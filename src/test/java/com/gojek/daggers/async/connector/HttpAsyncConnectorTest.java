@@ -154,13 +154,14 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
-    public void shouldPassTheInputInTimeoutIfFailOnErrorIsFalse() throws Exception {
+    public void shouldPassTheInputWithRowSizeCorrespondingToColumnNamesInTimeoutIfFailOnErrorIsFalse() throws Exception {
         Row inputRow = new Row(1);
         inputRow.setField(0, "test");
+        columnNames = new String[]{"test1", "test2"};
         when(httpExternalSourceConfig.isFailOnErrors()).thenReturn(false);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
         httpAsyncConnector.timeout(inputRow, resultFuture);
-        Row result = new Row(1);
+        Row result = new Row(2);
         result.setField(0, "test");
         verify(resultFuture, times(1)).complete(Collections.singleton(result));
     }
