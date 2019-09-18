@@ -20,16 +20,10 @@ public class ExternalSourceProcessor implements PostProcessor {
 
     private Configuration configuration;
     private StencilClient stencilClient;
-    private HttpDecorator httpDecorator;
 
     public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
-    }
-
-    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient, HttpDecorator httpDecorator) {
-        this(configuration, stencilClient);
-        this.httpDecorator = httpDecorator;
     }
 
     @Override
@@ -46,12 +40,15 @@ public class ExternalSourceProcessor implements PostProcessor {
             for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
                 httpExternalSourceConfig.validateFields();
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                if (httpDecorator == null)
-                    httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
+                HttpDecorator httpDecorator = getHttpDecorator(outputColumnNames, type, outputProto, httpExternalSourceConfig, asyncIOCapacity);
                 resultStream = httpDecorator.decorate(resultStream);
             }
         }
         return new StreamInfo(resultStream, outputColumnNames);
+    }
+
+    protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, String outputProto, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
+        return new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
     }
 
     private String[] getColumnNames(ExternalSourceConfig externalSourceConfig, String[] inputColumnNames) {

@@ -2,6 +2,7 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -37,6 +38,9 @@ public class ExternalSourceProcessorTest {
 
     @Mock
     private HttpDecorator httpDecorator;
+
+    @Mock
+    private HttpExternalSourceConfig httpExternalSourceConfig;
 
     @Before
     public void setup() {
@@ -74,8 +78,8 @@ public class ExternalSourceProcessorTest {
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
 
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, httpDecorator);
-        StreamInfo result = externalSourceProcessor.process(streamInfo);
+        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
+        StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number", "surge_factor"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
     }
@@ -102,8 +106,8 @@ public class ExternalSourceProcessorTest {
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, httpDecorator);
-        StreamInfo result = externalSourceProcessor.process(streamInfo);
+        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
+        StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
     }
@@ -136,8 +140,8 @@ public class ExternalSourceProcessorTest {
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, httpDecorator);
-        StreamInfo result = externalSourceProcessor.process(streamInfo);
+        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
+        StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number", "surge_factor", "surge"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
     }
@@ -150,8 +154,30 @@ public class ExternalSourceProcessorTest {
         when(configuration.getString(EXTERNAL_SOURCE_KEY, "")).thenReturn("test");
         String[] inputColumnNames = {"request_body", "order_number"};
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, httpDecorator);
-        externalSourceProcessor.process(streamInfo);
+        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
+        externalSourceProcessorMock.process(streamInfo);
+    }
+
+    @Test
+    public void shouldReturnHttpDecorator() {
+        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient);
+        String[] outputColumnNames = {"request_body", "order_number"};
+        HttpDecorator httpDecorator = externalSourceProcessor.getHttpDecorator(outputColumnNames, "http", "bookingLog", httpExternalSourceConfig, 40);
+        Assert.assertEquals("40", httpDecorator.getAsyncIOCapacity().toString());
+    }
+
+    class ExternalSourceProcessorMock extends ExternalSourceProcessor {
+
+        private HttpDecorator mockHttpDecorator;
+
+        public ExternalSourceProcessorMock(Configuration configuration, StencilClient stencilClient, HttpDecorator mockHttpDecorator) {
+            super(configuration, stencilClient);
+            this.mockHttpDecorator = mockHttpDecorator;
+        }
+
+        protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, String outputProto, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
+            return this.mockHttpDecorator;
+        }
     }
 
 }
