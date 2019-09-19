@@ -21,7 +21,7 @@ public class ExternalSourceConfigTest {
             "    {\n" +
             "      \"endpoint\": \"http://localhost:8000\",\n" +
             "      \"verb\": \"post\",\n" +
-            "      \"body_field\": \"request_body\",\n" +
+            "      \"body_column_from_sql\": \"request_body\",\n" +
             "      \"stream_timeout\": \"5000\",\n" +
             "      \"connect_timeout\": \"5000\",\n" +
             "      \"headers\": {\n" +
@@ -74,7 +74,7 @@ public class ExternalSourceConfigTest {
                 "post", "request_body", "5000", "5000", false, headerMap, outputMappings);
 
         HttpExternalSourceConfig actualHttpExternalSourceConfig = externalSourceConfig.getHttpExternalSourceConfig().get(0);
-        assertEquals(expectedHttpExternalSourceConfig.getBodyField(), actualHttpExternalSourceConfig.getBodyField());
+        assertEquals(expectedHttpExternalSourceConfig.getBodyColumnFromSql(), actualHttpExternalSourceConfig.getBodyColumnFromSql());
         assertEquals(expectedHttpExternalSourceConfig.getEndpoint(), actualHttpExternalSourceConfig.getEndpoint());
         assertEquals(expectedHttpExternalSourceConfig.getConnectTimeout(), actualHttpExternalSourceConfig.getConnectTimeout());
         assertEquals(expectedHttpExternalSourceConfig.getStreamTimeout(), actualHttpExternalSourceConfig.getStreamTimeout());

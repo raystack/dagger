@@ -9,17 +9,17 @@ import java.util.Map;
 public class HttpExternalSourceConfig implements Serializable, Validator {
     private String endpoint;
     private String verb;
-    private String bodyField;
+    private String bodyColumnFromSql;
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
 
-    public HttpExternalSourceConfig(String endpoint, String verb, String bodyField, String streamTimeout, String connectTimeout, boolean failOnErrors, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+    public HttpExternalSourceConfig(String endpoint, String verb, String bodyColumnFromSql, String streamTimeout, String connectTimeout, boolean failOnErrors, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
         this.endpoint = endpoint;
         this.verb = verb;
-        this.bodyField = bodyField;
+        this.bodyColumnFromSql = bodyColumnFromSql;
         this.streamTimeout = streamTimeout;
         this.connectTimeout = connectTimeout;
         this.failOnErrors = failOnErrors;
@@ -39,8 +39,8 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
         return verb;
     }
 
-    public String getBodyField() {
-        return bodyField;
+    public String getBodyColumnFromSql() {
+        return bodyColumnFromSql;
     }
 
     public String getStreamTimeout() {
@@ -66,7 +66,7 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
     public HashMap<String, Object> getMandatoryFields() {
         HashMap<String, Object> mandatoryFields = new HashMap<>();
         mandatoryFields.put("endpoint", endpoint);
-        mandatoryFields.put("bodyField", bodyField);
+        mandatoryFields.put("bodyColumnFromSql", bodyColumnFromSql);
         mandatoryFields.put("streamTimeout", streamTimeout);
         mandatoryFields.put("connectTimeout", connectTimeout);
         mandatoryFields.put("outputMapping", outputMapping);

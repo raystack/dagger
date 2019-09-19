@@ -59,7 +59,7 @@ public class ExternalSourceProcessorTest {
                 "    {\n" +
                 "      \"endpoint\": \"http://localhost:8000\",\n" +
                 "      \"verb\": \"post\",\n" +
-                "      \"body_field\": \"request_body\",\n" +
+                "      \"body_column_from_sql\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
                 "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +
@@ -91,7 +91,7 @@ public class ExternalSourceProcessorTest {
                 "    {\n" +
                 "      \"endpoint\": \"http://localhost:8000\",\n" +
                 "      \"verb\": \"post\",\n" +
-                "      \"body_field\": \"request_body\",\n" +
+                "      \"body_column_from_sql\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
                 "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +
@@ -119,7 +119,7 @@ public class ExternalSourceProcessorTest {
                 "    {\n" +
                 "      \"endpoint\": \"http://localhost:8000\",\n" +
                 "      \"verb\": \"post\",\n" +
-                "      \"body_field\": \"request_body\",\n" +
+                "      \"body_column_from_sql\": \"request_body\",\n" +
                 "      \"stream_timeout\": \"5000\",\n" +
                 "      \"connect_timeout\": \"5000\",\n" +
                 "      \"headers\": {\n" +

@@ -71,7 +71,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        String bodyColumnName = httpExternalSourceConfig.getBodyField();
+        String bodyColumnName = httpExternalSourceConfig.getBodyColumnFromSql();
         String endpoint = httpExternalSourceConfig.getEndpoint();
         validateInputs(bodyColumnName, resultFuture);
         String body = (String) input.getField(Arrays.asList(columnNames).indexOf(bodyColumnName));
