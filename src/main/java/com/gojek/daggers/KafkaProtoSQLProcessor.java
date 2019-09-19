@@ -24,7 +24,7 @@ public class KafkaProtoSQLProcessor {
                     .registerFunctions()
                     .registerOutputStream()
                     .execute();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             throw new ProgramInvocationException(e);
         }
