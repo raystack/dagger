@@ -50,7 +50,7 @@ public class HttpExternalSourceConfigTest {
 
     @Test
     public void shouldReturnBodyField() throws Exception {
-        Assert.assertEquals("request_body", httpExternalSourceConfig.getBodyField());
+        Assert.assertEquals("request_body", httpExternalSourceConfig.getBodyColumnFromSql());
     }
 
     @Test
@@ -87,7 +87,6 @@ public class HttpExternalSourceConfigTest {
 
     @Test
     public void shouldThrowExceptionIfAllFieldsMissing() {
-        expectedException.expectMessage("Missing required fields: [endpoint, bodyField, streamTimeout, connectTimeout, outputMapping]");
         expectedException.expect(IllegalArgumentException.class);
 
         HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig(null, null, null, null, null, false, null, null);
@@ -121,13 +120,13 @@ public class HttpExternalSourceConfigTest {
     public void shouldReturnMandatoryFields() {
         HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
         expectedMandatoryFields.put("endpoint", "http://localhost");
-        expectedMandatoryFields.put("bodyField", "request_body");
+        expectedMandatoryFields.put("bodyColumnFromSql", "request_body");
         expectedMandatoryFields.put("streamTimeout", "4000");
         expectedMandatoryFields.put("connectTimeout", "1000");
         expectedMandatoryFields.put("outputMapping", outputMapping);
         HashMap<String, Object> actualMandatoryFields = httpExternalSourceConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("endpoint"), actualMandatoryFields.get("endpoint"));
-        assertEquals(expectedMandatoryFields.get("bodyField"), actualMandatoryFields.get("bodyField"));
+        assertEquals(expectedMandatoryFields.get("bodyColumnFromSql"), actualMandatoryFields.get("bodyColumnFromSql"));
         assertEquals(expectedMandatoryFields.get("streamTimeout"), actualMandatoryFields.get("streamTimeout"));
         assertEquals(expectedMandatoryFields.get("connectTimeout"), actualMandatoryFields.get("connectTimeout"));
         assertEquals(outputMapping.getPath(), ((Map<String, OutputMapping>) actualMandatoryFields.get("outputMapping")).get("surge_factor").getPath());

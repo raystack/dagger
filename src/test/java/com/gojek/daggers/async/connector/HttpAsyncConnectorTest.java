@@ -87,7 +87,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldPerformPostRequestWithCorrectParameters() throws Exception {
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost:8080/test");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
 
         HashMap<String, String> headersMap = new HashMap<>();
         headersMap.put("content-type", "application/json");
@@ -109,7 +109,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionIfBodyFieldNotSetInInputRow() throws Exception {
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         columnNames = new String[]{"abc"};
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
         try {
@@ -124,7 +124,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldAddCustomHeaders() throws Exception {
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost:8080/test");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
 
         HashMap<String, String> headersMap = new HashMap<>();
         headersMap.put("content-type", "application/json");
