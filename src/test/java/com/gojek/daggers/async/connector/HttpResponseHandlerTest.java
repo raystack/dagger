@@ -172,7 +172,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldPopulateSingleResultFromHttpCallInInputRow() throws Exception {
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         HashMap<String, OutputMapping> outputMappings = new HashMap<>();
         outputMappings.put("surge_factor", outputMapping1);
         when(outputMapping1.getPath()).thenReturn("$.surge");
@@ -200,7 +200,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldPopulateMultipleResultsFromHttpCallInInputRow() throws Exception {
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         HashMap<String, OutputMapping> outputMappings = new HashMap<>();
         outputMappings.put("surge_factor", outputMapping1);
         when(outputMapping1.getPath()).thenReturn("$.surge");
@@ -234,7 +234,7 @@ public class HttpResponseHandlerTest {
         descriptor = BookingLogMessage.getDescriptor();
 
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         HashMap<String, OutputMapping> outputMappings = new HashMap<>();
         outputMappings.put("surge_factor", outputMapping1);
         when(outputMapping1.getPath()).thenReturn("$.surge");
@@ -264,7 +264,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowExceptionIfPathIsWrongIfFailOnErrorsTrue() throws Exception {
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
-        when(httpExternalSourceConfig.getBodyField()).thenReturn("request_body");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         HashMap<String, OutputMapping> outputMappings = new HashMap<>();
         outputMappings.put("surge_factor", outputMapping1);
         when(outputMapping1.getPath()).thenReturn("$.wrong_path");
