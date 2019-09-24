@@ -5,10 +5,6 @@ import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 
-import java.util.Map;
-
-import static com.gojek.daggers.Constants.EXTERNAL_SOURCE_STREAM_TIMEOUT;
-
 public class HttpDecorator implements AsyncDecorator {
     private HttpExternalSourceConfig httpExternalSourceConfig;
     private StencilClient stencilClient;
