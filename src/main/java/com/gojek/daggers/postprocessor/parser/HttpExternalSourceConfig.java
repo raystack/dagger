@@ -13,16 +13,18 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
+    private String type;
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
 
-    public HttpExternalSourceConfig(String endpoint, String verb, String bodyColumnFromSql, String streamTimeout, String connectTimeout, boolean failOnErrors, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+    public HttpExternalSourceConfig(String endpoint, String verb, String bodyColumnFromSql, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
         this.endpoint = endpoint;
         this.verb = verb;
         this.bodyColumnFromSql = bodyColumnFromSql;
         this.streamTimeout = streamTimeout;
         this.connectTimeout = connectTimeout;
         this.failOnErrors = failOnErrors;
+        this.type = type;
         this.headers = headers;
         this.outputMapping = outputMapping;
     }
@@ -49,6 +51,10 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
 
     public boolean isFailOnErrors() {
         return failOnErrors;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public Map<String, String> getHeaders() {

@@ -24,8 +24,6 @@ public class HttpDecoratorTest {
 
     private String type;
 
-    private String outputProto;
-
 
     @Before
     public void setUp() {
@@ -33,32 +31,31 @@ public class HttpDecoratorTest {
         when(httpExternalSourceConfig.getStreamTimeout()).thenReturn("3000");
         inputColumnNames = new String[]{"request_body", "order_number"};
         type = "http";
-        outputProto = "com.gojek.esb.aggregate.surge.SurgeFactorLog";
     }
 
     @Test
     public void canDecorateHttpAync() {
-        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames, outputProto);
+        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames);
         assertTrue(httpDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
         String type = "es";
-        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames, outputProto);
+        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames);
         assertFalse(httpDecorator.canDecorate());
     }
 
     @Test
     public void shouldReturnProvidedCapacity() {
-        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames, outputProto);
+        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames);
         assertEquals((Integer) 20, httpDecorator.getAsyncIOCapacity());
         assertNotEquals((Integer) 25, httpDecorator.getAsyncIOCapacity());
     }
 
     @Test
     public void shouldReturnHttpAsyncFunction() {
-        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames, outputProto);
+        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames);
         AsyncFunction asyncFunction = httpDecorator.getAsyncFunction();
         assertTrue(asyncFunction instanceof HttpAsyncConnector);
         assertTrue(asyncFunction instanceof RichAsyncFunction);
@@ -66,7 +63,7 @@ public class HttpDecoratorTest {
 
     @Test
     public void shouldReturnProvidedStreamTimeout() {
-        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames, outputProto);
+        HttpDecorator httpDecorator = new HttpDecorator(httpExternalSourceConfig, stencilClient, 20, type, inputColumnNames);
         assertEquals((Integer) 3000, httpDecorator.getStreamTimeout());
     }
 }

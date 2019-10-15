@@ -30,20 +30,18 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     private String[] columnNames;
     private HttpExternalSourceConfig httpExternalSourceConfig;
     private StencilClient stencilClient;
-    private String outputProto;
     private Descriptors.Descriptor descriptor;
     private StatsManager statsManager;
 
 
-    public HttpAsyncConnector(String[] columnNames, HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient, String outputProto) {
+    public HttpAsyncConnector(String[] columnNames, HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient) {
         this.columnNames = columnNames;
         this.httpExternalSourceConfig = httpExternalSourceConfig;
         this.stencilClient = stencilClient;
-        this.outputProto = outputProto;
     }
 
-    public HttpAsyncConnector(String[] columnNames, HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient, String outputProto, AsyncHttpClient httpClient, StatsManager statsManager) {
-        this(columnNames, httpExternalSourceConfig, stencilClient, outputProto);
+    public HttpAsyncConnector(String[] columnNames, HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient, StatsManager statsManager) {
+        this(columnNames, httpExternalSourceConfig, stencilClient);
         this.httpClient = httpClient;
         this.statsManager = statsManager;
     }
@@ -52,7 +50,9 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
 
-        this.descriptor = stencilClient.get(outputProto);
+        if (httpExternalSourceConfig.getType() != null) {
+            this.descriptor = stencilClient.get(httpExternalSourceConfig.getType());
+        }
         if (statsManager == null)
             statsManager = new StatsManager(getRuntimeContext(), true);
         statsManager.register("external.source.http", ExternalSourceAspects.values());
