@@ -11,16 +11,14 @@ public class HttpDecorator implements AsyncDecorator {
     private Integer asyncIOCapacity;
     private String type;
     private String[] columnNames;
-    private String outputProto;
 
     public HttpDecorator(HttpExternalSourceConfig httpExternalSourceConfig, StencilClient stencilClient, Integer asyncIOCapacity,
-                         String type, String[] columnNames, String outputProto) {
+                         String type, String[] columnNames) {
         this.httpExternalSourceConfig = httpExternalSourceConfig;
         this.stencilClient = stencilClient;
         this.asyncIOCapacity = asyncIOCapacity;
         this.type = type;
         this.columnNames = columnNames;
-        this.outputProto = outputProto;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class HttpDecorator implements AsyncDecorator {
 
     @Override
     public AsyncFunction getAsyncFunction() {
-        return new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto);
+        return new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient);
     }
 
     @Override

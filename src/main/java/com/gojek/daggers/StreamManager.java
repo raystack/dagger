@@ -26,7 +26,6 @@ import org.apache.flink.types.Row;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StreamManager {
@@ -125,8 +124,12 @@ public class StreamManager {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        Optional<PostProcessor> postProcessor = getPostProcessor(streamInfo);
-        return postProcessor.map(p -> p.process(streamInfo)).orElse(streamInfo);
+        List<PostProcessor> postProcessors = getPostProcessors(streamInfo);
+        StreamInfo postProcessedStream = streamInfo;
+        for (PostProcessor postProcessor : postProcessors) {
+            postProcessedStream = postProcessor.process(postProcessedStream);
+        }
+        return postProcessedStream;
     }
 
     private void addSink(StreamInfo streamInfo) {
@@ -144,8 +147,8 @@ public class StreamManager {
         return this;
     }
 
-    private Optional<PostProcessor> getPostProcessor(StreamInfo streamInfo) {
-        return PostProcessorFactory.getPostProcessor(configuration, stencilClient, streamInfo.getColumnNames());
+    private List<PostProcessor> getPostProcessors(StreamInfo streamInfo) {
+        return PostProcessorFactory.getPostProcessors(configuration, stencilClient, streamInfo.getColumnNames());
     }
 
     private Streams getKafkaStreams() {

@@ -2,8 +2,8 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
-import com.gojek.daggers.postprocessor.parser.ExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -17,43 +17,41 @@ import static com.gojek.daggers.Constants.*;
 
 public class ExternalSourceProcessor implements PostProcessor {
 
-
     private Configuration configuration;
     private StencilClient stencilClient;
+    private PostProcessorConfigHandler postProcessorConfigHandler;
 
-    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient) {
+    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient, PostProcessorConfigHandler postProcessorConfigHandler) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
+        this.postProcessorConfigHandler = postProcessorConfigHandler;
     }
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
-        String externalSourceConfigString = configuration.getString(EXTERNAL_SOURCE_KEY, "");
-        ExternalSourceConfig externalSourceConfig = ExternalSourceConfig.parse(externalSourceConfigString);
         DataStream<Row> resultStream = streamInfo.getDataStream();
-        String[] outputColumnNames = getColumnNames(externalSourceConfig, streamInfo.getColumnNames());
+        String[] outputColumnNames = getColumnNames(postProcessorConfigHandler, streamInfo.getColumnNames());
 
-        for (String type : externalSourceConfig.getExternalSourceKeys()) {
-            List<HttpExternalSourceConfig> httpExternalSourceConfigs = externalSourceConfig.getHttpExternalSourceConfig();
-            String outputProto = outputProto();
+        for (String type : postProcessorConfigHandler.getExternalSourceKeys()) {
+            List<HttpExternalSourceConfig> httpExternalSourceConfigs = postProcessorConfigHandler.getHttpExternalSourceConfig();
 
             for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
                 httpExternalSourceConfig.validateFields();
                 Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                HttpDecorator httpDecorator = getHttpDecorator(outputColumnNames, type, outputProto, httpExternalSourceConfig, asyncIOCapacity);
+                HttpDecorator httpDecorator = getHttpDecorator(outputColumnNames, type, httpExternalSourceConfig, asyncIOCapacity);
                 resultStream = httpDecorator.decorate(resultStream);
             }
         }
         return new StreamInfo(resultStream, outputColumnNames);
     }
 
-    protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, String outputProto, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
-        return new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames, outputProto);
+    protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
+        return new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames);
     }
 
-    private String[] getColumnNames(ExternalSourceConfig externalSourceConfig, String[] inputColumnNames) {
+    private String[] getColumnNames(PostProcessorConfigHandler postProcessorConfigHandler, String[] inputColumnNames) {
         List<String> outputColumnNames = new ArrayList<>(Arrays.asList(inputColumnNames));
-        outputColumnNames.addAll(externalSourceConfig.getColumns());
+        outputColumnNames.addAll(postProcessorConfigHandler.getColumns());
         return outputColumnNames.toArray(new String[0]);
     }
 
