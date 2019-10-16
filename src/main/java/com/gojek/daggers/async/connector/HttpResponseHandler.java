@@ -82,11 +82,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
                 LOGGER.error(e.getMessage());
                 return;
             }
-            Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
-            if (fieldDescriptor == null)
-                completeExceptionally(resultFuture, new IllegalArgumentException("Field Descriptor not found for field: " + key));
-            Integer fieldIndex = Arrays.asList(columnNames).indexOf(key);
-            outputRow.setField(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
+            int fieldIndex = Arrays.asList(columnNames).indexOf(key);
+            setField(key, value, fieldIndex);
         });
         statsManager.markEvent(SUCCESS_RESPONSE);
         statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
@@ -101,6 +98,21 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         if (httpExternalSourceConfig.isFailOnErrors())
             completeExceptionally(resultFuture, new RuntimeException(logMessage));
         resultFuture.complete(Collections.singleton(outputRow));
+    }
+
+    private void setField(String key, Object value, int fieldIndex) {
+        if (httpExternalSourceConfig.getType() == null) {
+            outputRow.setField(fieldIndex, value);
+        } else {
+            setFieldUsingType(key, value, fieldIndex);
+        }
+    }
+
+    private void setFieldUsingType(String key, Object value, Integer fieldIndex) {
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
+        if (fieldDescriptor == null)
+            completeExceptionally(resultFuture, new IllegalArgumentException("Field Descriptor not found for field: " + key));
+        outputRow.setField(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
     }
 
     private void completeExceptionally(ResultFuture<Row> resultFuture, Exception exception) {

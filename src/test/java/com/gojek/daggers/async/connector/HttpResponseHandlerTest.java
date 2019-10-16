@@ -177,6 +177,7 @@ public class HttpResponseHandlerTest {
         outputMappings.put("surge_factor", outputMapping1);
         when(outputMapping1.getPath()).thenReturn("$.surge");
         when(httpExternalSourceConfig.getOutputMapping()).thenReturn(outputMappings);
+        when(httpExternalSourceConfig.getType()).thenReturn("test");
 
         Row inputRow = new Row(2);
         inputRow.setField(0, "body");
@@ -206,6 +207,7 @@ public class HttpResponseHandlerTest {
         when(outputMapping1.getPath()).thenReturn("$.surge");
         when(httpExternalSourceConfig.getOutputMapping()).thenReturn(outputMappings);
         when(outputMapping2.getPath()).thenReturn("$.prediction");
+        when(httpExternalSourceConfig.getType()).thenReturn("test");
         outputMappings.put("s2_id_level", outputMapping2);
 
         Row inputRow = new Row(3);
@@ -230,10 +232,11 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowExcpetionIfFieldNotFoundInFieldDescriptor() throws Exception {
+    public void shouldThrowExcpetionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() throws Exception {
         descriptor = BookingLogMessage.getDescriptor();
 
         when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
+        when(httpExternalSourceConfig.getType()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
         when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         HashMap<String, OutputMapping> outputMappings = new HashMap<>();
         outputMappings.put("surge_factor", outputMapping1);
@@ -286,5 +289,34 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
         verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
         verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+    }
+
+    @Test
+    public void shouldPopulateResultAsObjectIfTypeIsNotPassed() throws Exception {
+        when(httpExternalSourceConfig.getEndpoint()).thenReturn("http://localhost");
+        when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
+        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
+        outputMappings.put("surge_factor", outputMapping1);
+        when(outputMapping1.getPath()).thenReturn("$.surge");
+        when(httpExternalSourceConfig.getOutputMapping()).thenReturn(outputMappings);
+        when(httpExternalSourceConfig.getType()).thenReturn(null);
+
+        Row inputRow = new Row(2);
+        inputRow.setField(0, "body");
+        Row resultRow = new Row(2);
+        resultRow.setField(0, "body");
+        resultRow.setField(1, 0.732);
+        columnNames = new String[]{"request_body", "surge_factor"};
+
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpExternalSourceConfig, columnNames, descriptor, statsManager);
+        httpResponseHandler.start();
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
+        httpResponseHandler.onCompleted(response);
+        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultRow));
     }
 }
