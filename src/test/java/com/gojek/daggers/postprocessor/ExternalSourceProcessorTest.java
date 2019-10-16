@@ -3,9 +3,9 @@ package com.gojek.daggers.postprocessor;
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
 import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
-import com.jayway.jsonpath.InvalidJsonException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Assert;
@@ -42,6 +42,10 @@ public class ExternalSourceProcessorTest {
     @Mock
     private HttpExternalSourceConfig httpExternalSourceConfig;
 
+    private ExternalSourceProcessorMock externalSourceProcessorMock;
+
+    private PostProcessorConfigHandler postProcessorConfigHandler;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -50,35 +54,40 @@ public class ExternalSourceProcessorTest {
         when(configuration.getString(PORTAL_VERSION, "1")).thenReturn("1");
         when(configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "")).thenReturn("com.gojek.esb.aggregate.surge.SurgeFactorLog");
         when(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT)).thenReturn(ASYNC_IO_CAPACITY_DEFAULT);
+
+        String postProcessorConfigString = "{\n" +
+                "  \"external_source\": {\n" +
+                "    \"http\": [\n" +
+                "      {\n" +
+                "        \"endpoint\": \"http://localhost:8000\",\n" +
+                "        \"verb\": \"post\",\n" +
+                "        \"body_column_from_sql\": \"request_body\",\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"connect_timeout\": \"5000\",\n" +
+                "        \"fail_on_errors\": \"true\", \n" +
+                "        \"headers\": {\n" +
+                "          \"content-type\": \"application/json\"\n" +
+                "        },\n" +
+                "        \"output_mapping\": {\n" +
+                "          \"surge_factor\": {\n" +
+                "            \"path\": \"$.data.tensor.values[0]\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  } \n" +
+                "}";
+
+        postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
     }
 
     @Test
     public void shouldAddColumnNameToExistingColumnNamesOnTheBasisOfConfigGiven() {
-        when(configuration.getString(EXTERNAL_SOURCE_KEY, "")).thenReturn("{\n" +
-                "  \"http\": [\n" +
-                "    {\n" +
-                "      \"endpoint\": \"http://localhost:8000\",\n" +
-                "      \"verb\": \"post\",\n" +
-                "      \"body_column_from_sql\": \"request_body\",\n" +
-                "      \"stream_timeout\": \"5000\",\n" +
-                "      \"connect_timeout\": \"5000\",\n" +
-                "      \"headers\": {\n" +
-                "        \"content-type\": \"application/json\"\n" +
-                "      },\n" +
-                "      \"output_mapping\": {\n" +
-                "        \"surge_factor\": {\n" +
-                "          \"path\": \"$.surge\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n");
-
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
 
-        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
         StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number", "surge_factor"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
@@ -86,27 +95,33 @@ public class ExternalSourceProcessorTest {
 
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {
-        when(configuration.getString(EXTERNAL_SOURCE_KEY, "")).thenReturn("{\n" +
-                "  \"http\": [\n" +
-                "    {\n" +
-                "      \"endpoint\": \"http://localhost:8000\",\n" +
-                "      \"verb\": \"post\",\n" +
-                "      \"body_column_from_sql\": \"request_body\",\n" +
-                "      \"stream_timeout\": \"5000\",\n" +
-                "      \"connect_timeout\": \"5000\",\n" +
-                "      \"headers\": {\n" +
-                "        \"content-type\": \"application/json\"\n" +
-                "      },\n" +
-                "      \"output_mapping\": {\n" +
+        String postProcessorConfigString = "{\n" +
+                "  \"external_source\": {\n" +
+                "    \"http\": [\n" +
+                "      {\n" +
+                "        \"endpoint\": \"http://localhost:8000\",\n" +
+                "        \"verb\": \"post\",\n" +
+                "        \"body_column_from_sql\": \"request_body\",\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"connect_timeout\": \"5000\",\n" +
+                "        \"fail_on_errors\": \"true\", \n" +
+                "        \"headers\": {\n" +
+                "          \"content-type\": \"application/json\"\n" +
+                "        },\n" +
+                "        \"output_mapping\": {\n" +
+                "        }\n" +
                 "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n");
+                "    ]\n" +
+                "  }\n" +
+                "}";
+
+        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
 
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
+
         StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
@@ -114,18 +129,20 @@ public class ExternalSourceProcessorTest {
 
     @Test
     public void shouldAddMultipleColumnNamesToExistingColumnNamesOnTheBasisOfConfigGiven() {
-        when(configuration.getString(EXTERNAL_SOURCE_KEY, "")).thenReturn("{\n" +
-                "  \"http\": [\n" +
-                "    {\n" +
-                "      \"endpoint\": \"http://localhost:8000\",\n" +
-                "      \"verb\": \"post\",\n" +
-                "      \"body_column_from_sql\": \"request_body\",\n" +
-                "      \"stream_timeout\": \"5000\",\n" +
-                "      \"connect_timeout\": \"5000\",\n" +
-                "      \"headers\": {\n" +
-                "        \"content-type\": \"application/json\"\n" +
-                "      },\n" +
-                "      \"output_mapping\": {\n" +
+        String postProcessorConfigString = "{\n" +
+                "  \"external_source\": {\n" +
+                "    \"http\": [\n" +
+                "      {\n" +
+                "        \"endpoint\": \"http://localhost:8000\",\n" +
+                "        \"verb\": \"post\",\n" +
+                "        \"body_column_from_sql\": \"request_body\",\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"connect_timeout\": \"5000\",\n" +
+                "        \"fail_on_errors\": \"true\", \n" +
+                "        \"headers\": {\n" +
+                "          \"content-type\": \"application/json\"\n" +
+                "        },\n" +
+                "        \"output_mapping\": {\n" +
                 "        \"surge_factor\": {\n" +
                 "          \"path\": \"$.surge\"\n" +
                 "        },\n" +
@@ -133,36 +150,27 @@ public class ExternalSourceProcessorTest {
                 "          \"path\": \"$.surge\"\n" +
                 "        }\n" +
                 "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n");
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
 
+        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
         StreamInfo result = externalSourceProcessorMock.process(streamInfo);
         String[] expectedOutputColumnNames = {"request_body", "order_number", "surge_factor", "surge"};
         Assert.assertEquals(true, Arrays.equals(expectedOutputColumnNames, result.getColumnNames()));
     }
 
-    @Test
-    public void shouldThrowExceptionIfExternalSourceKeyNotGiven() {
-        expectedException.expect(InvalidJsonException.class);
-        expectedException.expectMessage("Invalid JSON Given for EXTERNAL_SOURCE");
-
-        when(configuration.getString(EXTERNAL_SOURCE_KEY, "")).thenReturn("test");
-        String[] inputColumnNames = {"request_body", "order_number"};
-        StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
-        ExternalSourceProcessorMock externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator);
-        externalSourceProcessorMock.process(streamInfo);
-    }
 
     @Test
     public void shouldReturnHttpDecorator() {
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient);
+        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfigHandler);
         String[] outputColumnNames = {"request_body", "order_number"};
-        HttpDecorator httpDecorator = externalSourceProcessor.getHttpDecorator(outputColumnNames, "http", "bookingLog", httpExternalSourceConfig, 40);
+        HttpDecorator httpDecorator = externalSourceProcessor.getHttpDecorator(outputColumnNames, "http", httpExternalSourceConfig, 40);
         Assert.assertEquals("40", httpDecorator.getAsyncIOCapacity().toString());
     }
 
@@ -170,12 +178,12 @@ public class ExternalSourceProcessorTest {
 
         private HttpDecorator mockHttpDecorator;
 
-        public ExternalSourceProcessorMock(Configuration configuration, StencilClient stencilClient, HttpDecorator mockHttpDecorator) {
-            super(configuration, stencilClient);
+        public ExternalSourceProcessorMock(Configuration configuration, StencilClient stencilClient, HttpDecorator mockHttpDecorator, PostProcessorConfigHandler postProcessorConfigHandler) {
+            super(configuration, stencilClient, postProcessorConfigHandler);
             this.mockHttpDecorator = mockHttpDecorator;
         }
 
-        protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, String outputProto, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
+        protected HttpDecorator getHttpDecorator(String[] outputColumnNames, String type, HttpExternalSourceConfig httpExternalSourceConfig, Integer asyncIOCapacity) {
             return this.mockHttpDecorator;
         }
     }

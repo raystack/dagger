@@ -30,7 +30,7 @@ public class HttpExternalSourceConfigTest {
         outputMapping = new OutputMapping("$.surge");
         outputMappings.put("surge_factor", outputMapping);
         httpExternalSourceConfig = new HttpExternalSourceConfig("http://localhost",
-                "post", "request_body", "4000", "1000", false, headerMap, outputMappings);
+                "post", "request_body", "4000", "1000", false, "com.gojek.esb.booking.BookingLogMessage", headerMap, outputMappings);
     }
 
     @Test
@@ -64,6 +64,11 @@ public class HttpExternalSourceConfigTest {
     }
 
     @Test
+    public void shouldReturnType() throws Exception {
+        Assert.assertEquals("com.gojek.esb.booking.BookingLogMessage", httpExternalSourceConfig.getType());
+    }
+
+    @Test
     public void shouldReturnHeaderMap() throws Exception {
         Assert.assertEquals(headerMap, httpExternalSourceConfig.getHeaders());
     }
@@ -89,7 +94,7 @@ public class HttpExternalSourceConfigTest {
     public void shouldThrowExceptionIfAllFieldsMissing() {
         expectedException.expect(IllegalArgumentException.class);
 
-        HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig(null, null, null, null, null, false, null, null);
+        HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig(null, null, null, null, null, false, null, null, null);
         httpExternalSourceConfig.validateFields();
     }
 
@@ -98,7 +103,7 @@ public class HttpExternalSourceConfigTest {
         expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
         expectedException.expect(IllegalArgumentException.class);
 
-        HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig("localhost", "post", "body", null, null, false, null, null);
+        HttpExternalSourceConfig httpExternalSourceConfig = new HttpExternalSourceConfig("localhost", "post", "body", null, null, false, null, null, null);
         httpExternalSourceConfig.validateFields();
     }
 
@@ -112,7 +117,7 @@ public class HttpExternalSourceConfigTest {
         outputMappings.put("field", outputMappingWithNullField);
 
         httpExternalSourceConfig = new HttpExternalSourceConfig("http://localhost",
-                "post", "request_body", "4000", "1000", false, headerMap, outputMappings);
+                "post", "request_body", "4000", "1000", false, "", headerMap, outputMappings);
         httpExternalSourceConfig.validateFields();
     }
 

@@ -28,7 +28,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class HttpAsyncConnectorTest {
 
     private String[] columnNames;
-    private String outputProto;
 
 
     @Rule
@@ -59,26 +58,27 @@ public class HttpAsyncConnectorTest {
     public void setUp() throws Exception {
         initMocks(this);
         columnNames = new String[]{"request_body"};
-        outputProto = "com.gojek.esb.aggregate.surge.SurgeFactorLogMessage";
     }
 
     @Test
     public void shouldFetchDecriptorInOpen() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        String type = "com.gojek.esb.aggregate.surge.SurgeFactorLogMessage";
+        when(httpExternalSourceConfig.getType()).thenReturn(type);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.open(flinkConfiguration);
-        verify(stencilClient, times(1)).get(outputProto);
+        verify(stencilClient, times(1)).get(type);
     }
 
     @Test
     public void shouldRegisterStatsManagerInOpen() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.open(flinkConfiguration);
         verify(statsManager, times(1)).register("external.source.http", ExternalSourceAspects.values());
     }
 
     @Test
     public void shouldCloseHttpClient() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.close();
         verify(httpClient, times(1)).close();
         verify(statsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
@@ -100,7 +100,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody(requestBody)).thenReturn(boundRequestBuilder);
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.asyncInvoke(inputRow, resultFuture);
 
         verify(boundRequestBuilder, times(1)).execute(any(HttpResponseHandler.class));
@@ -111,7 +111,7 @@ public class HttpAsyncConnectorTest {
     public void shouldThrowExceptionIfBodyFieldNotSetInInputRow() throws Exception {
         when(httpExternalSourceConfig.getBodyColumnFromSql()).thenReturn("request_body");
         columnNames = new String[]{"abc"};
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         try {
             httpAsyncConnector.asyncInvoke(new Row(1), resultFuture);
         } catch (Exception e) {
@@ -137,7 +137,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody(requestBody)).thenReturn(boundRequestBuilder);
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.asyncInvoke(inputRow, resultFuture);
 
         verify(boundRequestBuilder, times(1)).addHeader("content-type", "application/json");
@@ -148,7 +148,7 @@ public class HttpAsyncConnectorTest {
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
         Row inputRow = new Row(1);
         when(httpExternalSourceConfig.isFailOnErrors()).thenReturn(true);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.timeout(inputRow, resultFuture);
         verify(resultFuture, times(1)).completeExceptionally(any(TimeoutException.class));
     }
@@ -159,7 +159,7 @@ public class HttpAsyncConnectorTest {
         inputRow.setField(0, "test");
         columnNames = new String[]{"test1", "test2"};
         when(httpExternalSourceConfig.isFailOnErrors()).thenReturn(false);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, outputProto, httpClient, statsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpExternalSourceConfig, stencilClient, httpClient, statsManager);
         httpAsyncConnector.timeout(inputRow, resultFuture);
         Row result = new Row(2);
         result.setField(0, "test");
