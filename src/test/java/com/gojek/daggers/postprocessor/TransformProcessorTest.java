@@ -61,7 +61,7 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("com.gojek.daggers.postprocessor.TransformProcessor.<init>(java.util.Map)");
+        expectedException.expectMessage("com.gojek.daggers.postprocessor.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;)");
         HashMap<String, String> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
@@ -95,7 +95,7 @@ public class TransformProcessorTest {
             this.mockMapFunction = mockMapFunction;
         }
 
-        protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className) {
+        protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) {
             return this.mockMapFunction;
         }
     }

@@ -21,9 +21,10 @@ public class TransformProcessor implements PostProcessor {
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> resultStream = streamInfo.getDataStream();
         for (TransformConfig transformConfig : transformConfigs) {
+            transformConfig.validateFields();
             String className = transformConfig.getTransformationClass();
             try {
-                MapFunction<Row, Row> mapFunction = getTransformMethod(transformConfig, className);
+                MapFunction<Row, Row> mapFunction = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
                 resultStream = streamInfo.getDataStream().map(mapFunction);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e.getMessage());
@@ -32,9 +33,9 @@ public class TransformProcessor implements PostProcessor {
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
     }
 
-    protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+    protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
-        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class);
-        return (MapFunction<Row, Row>) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments());
+        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class);
+        return (MapFunction<Row, Row>) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames);
     }
 }
