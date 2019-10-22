@@ -25,8 +25,6 @@ public class PostProcessorConfigHandler {
 
     private List<TransformConfig> transformConfig;
 
-    private Map postProcessorConfigMap;
-
     public Map<String, Object> getExternalSourceConfigMap() {
         return externalSourceConfigMap;
     }
@@ -47,7 +45,6 @@ public class PostProcessorConfigHandler {
         PostProcessorConfigHandler postProcessorConfigHandler = new PostProcessorConfigHandler();
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         try {
-            postProcessorConfigHandler.postProcessorConfigMap = new Gson().fromJson(configuration, Map.class);
             Type typeToken = new TypeToken<PostProcessorConfig>() {
             }.getType();
             postProcessorConfigHandler.postProcessorConfig = gson.fromJson(configuration, typeToken);
@@ -55,7 +52,7 @@ public class PostProcessorConfigHandler {
             throw new InvalidJsonException("Invalid JSON Given for " + POST_PROCESSOR_CONFIG_KEY);
         }
 
-        if (postProcessorConfigHandler.postProcessorConfig.getExternalSource() != null) {
+        if (postProcessorConfigHandler.postProcessorConfig.hasExternalSource()) {
             postProcessorConfigHandler.externalSourceConfigMap = postProcessorConfigHandler.postProcessorConfig.getExternalSource();
             Map<String, Object> externalSourceConfigMap = postProcessorConfigHandler.externalSourceConfigMap;
 
@@ -69,7 +66,7 @@ public class PostProcessorConfigHandler {
                 }
             }
         }
-        if (postProcessorConfigHandler.postProcessorConfig.getTransformers() != null) {
+        if (postProcessorConfigHandler.postProcessorConfig.hasTransformConfigs()) {
             Type typeToken = new TypeToken<List<TransformConfig>>() {
             }.getType();
             postProcessorConfigHandler.transformConfig = gson.fromJson(gson.toJson(postProcessorConfigHandler.postProcessorConfig.getTransformers()), typeToken);

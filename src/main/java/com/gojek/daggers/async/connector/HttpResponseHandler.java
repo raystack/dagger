@@ -1,6 +1,7 @@
 package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.metric.ExternalSourceAspects;
+import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.OutputMapping;
 import com.gojek.daggers.utils.RowMaker;
@@ -96,7 +97,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         statsManager.markEvent(TOTAL_FAILED_REQUESTS);
         LOGGER.error(logMessage);
         if (httpExternalSourceConfig.isFailOnErrors())
-            completeExceptionally(resultFuture, new RuntimeException(logMessage));
+            completeExceptionally(resultFuture, new HttpFailureException(logMessage));
         resultFuture.complete(Collections.singleton(outputRow));
     }
 
