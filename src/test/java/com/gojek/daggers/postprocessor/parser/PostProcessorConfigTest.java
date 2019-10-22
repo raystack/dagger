@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 public class PostProcessorConfigTest {
 
     @Rule
@@ -23,7 +25,7 @@ public class PostProcessorConfigTest {
     public void shouldReturnPostProcessorConfig() {
         externalSource.put("http", "test");
         postProcessorConfig = new PostProcessorConfig(externalSource, null);
-        Assert.assertEquals(externalSource, postProcessorConfig.getExternalSource());
+        assertEquals(externalSource, postProcessorConfig.getExternalSource());
     }
 
     @Test
@@ -32,7 +34,35 @@ public class PostProcessorConfigTest {
         transformationArguments.put("keyValue", "key");
         transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs);
-        Assert.assertEquals(transformConfigs, postProcessorConfig.getTransformers());
+        assertEquals(transformConfigs, postProcessorConfig.getTransformers());
+    }
+
+    @Test
+    public void shouldBeTrueWhenExternalSourceExists(){
+        externalSource.put("http", "test");
+        postProcessorConfig = new PostProcessorConfig(externalSource, null);
+        assertTrue(postProcessorConfig.hasExternalSource());
+    }
+
+    @Test
+    public void shouldBeFalseWhenExternalSourceDoesNotExists(){
+        postProcessorConfig = new PostProcessorConfig(null, null);
+        assertFalse(postProcessorConfig.hasExternalSource());
+    }
+
+    @Test
+    public void shouldBeTrueWhenTransformerSourceExists(){
+        Map<String, String> transformationArguments = new HashMap<>();
+        transformationArguments.put("keyValue", "key");
+        transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
+        postProcessorConfig = new PostProcessorConfig(null, transformConfigs);
+        assertTrue(postProcessorConfig.hasTransformConfigs());
+    }
+
+    @Test
+    public void shouldBeFalseWhenTransformerSourceDoesNotExists(){
+        postProcessorConfig = new PostProcessorConfig(null, null);
+        assertFalse(postProcessorConfig.hasTransformConfigs());
     }
 
 }

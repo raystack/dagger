@@ -1,6 +1,7 @@
 package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
+import com.gojek.daggers.exception.TransformClassNotDefinedException;
 import com.gojek.daggers.postprocessor.parser.TransformConfig;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -27,7 +28,7 @@ public class TransformProcessor implements PostProcessor {
                 MapFunction<Row, Row> mapFunction = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
                 resultStream = streamInfo.getDataStream().map(mapFunction);
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new TransformClassNotDefinedException(e.getMessage());
             }
         }
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
