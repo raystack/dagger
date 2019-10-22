@@ -18,7 +18,15 @@ public class PostProcessorConfig implements Serializable {
         return externalSource;
     }
 
+    public boolean hasExternalSource() {
+        return externalSource != null;
+    }
+
     public List<TransformConfig> getTransformers() {
         return transformers;
+    }
+
+    public boolean hasTransformConfigs() {
+        return transformers != null;
     }
 }
