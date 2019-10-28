@@ -28,7 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gojek.daggers.Constants.MAX_PARALLELISM_DEFAULT;
+import static com.gojek.daggers.Constants.MAX_PARALLELISM_KEY;
+
 public class StreamManager {
+
     private Configuration configuration;
     private StencilClient stencilClient;
     private StreamExecutionEnvironment executionEnvironment;
@@ -42,6 +46,7 @@ public class StreamManager {
 
     public StreamManager registerConfigs() {
         createStencilClient();
+        executionEnvironment.setMaxParallelism(configuration.getInteger(MAX_PARALLELISM_KEY, MAX_PARALLELISM_DEFAULT));
         executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         executionEnvironment.setParallelism(configuration.getInteger("PARALLELISM", 1));
         executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000));
