@@ -45,6 +45,8 @@ public class Constants {
     public final static String DAY_UNIT = "d";
     public final static String SQL_QUERY = "SQL_QUERY";
     public final static String SQL_QUERY_DEFAULT = "";
+    public static final int MAX_PARALLELISM_DEFAULT = 50;
+    public static final String MAX_PARALLELISM_KEY = "MAX_PARALLELISM";
 
     public final static String PORTAL_VERSION = "PORTAL_VERSION";
     public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
