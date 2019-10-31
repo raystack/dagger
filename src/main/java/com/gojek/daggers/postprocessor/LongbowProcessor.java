@@ -4,6 +4,7 @@ import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.processor.LongbowReader;
 import com.gojek.daggers.longbow.processor.LongbowWriter;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -38,6 +39,11 @@ public class LongbowProcessor implements PostProcessor {
         DataStream<Row> writeStream = asyncProcessor.orderedWait(inputStream, longbowWriter, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
         DataStream<Row> readStream = asyncProcessor.orderedWait(writeStream, longbowReader, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
         return new StreamInfo(readStream, streamInfo.getColumnNames());
+    }
+
+    @Override
+    public boolean canProcess(Configuration configuration, PostProcessorConfig postProcessorConfig) {
+        return false;
     }
 
 

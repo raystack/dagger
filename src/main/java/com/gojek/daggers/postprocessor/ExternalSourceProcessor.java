@@ -27,6 +27,12 @@ public class ExternalSourceProcessor implements PostProcessor {
     }
 
     @Override
+    public boolean canProcess(Configuration configuration, PostProcessorConfig postProcessorConfig) {
+        return postProcessorConfig.getExternalSource() != null;
+    }
+
+
+    @Override
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> resultStream = streamInfo.getDataStream();
         String[] outputColumnNames = getColumnNames(postProcessorConfig, streamInfo.getColumnNames());
