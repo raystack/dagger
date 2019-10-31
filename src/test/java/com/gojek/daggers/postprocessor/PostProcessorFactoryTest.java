@@ -38,7 +38,7 @@ public class PostProcessorFactoryTest {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
 
         Assert.assertEquals(1, postProcessors.size());
-        Assert.assertEquals(AshikoProcessor.class, postProcessors.get(0).getClass());
+        Assert.assertEquals(AshikoProcessorDeprecated.class, postProcessors.get(0).getClass());
     }
 
 
