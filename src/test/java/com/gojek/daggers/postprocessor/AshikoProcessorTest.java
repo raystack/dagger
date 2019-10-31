@@ -81,7 +81,7 @@ public class AshikoProcessorTest {
         // TODO: [PORTAL_MIGRATION] Remove this mock when migration to new portal is done
         when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
 
-        AshikoProcessor ashikoProcessor = new AshikoProcessor(configuration, stencilClient);
+        AshikoProcessorDeprecated ashikoProcessor = new AshikoProcessorDeprecated(configuration, stencilClient);
         MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
             public StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {
@@ -115,7 +115,7 @@ public class AshikoProcessorTest {
         org.apache.flink.streaming.api.datastream.DataStream resultStream = mock(org.apache.flink.streaming.api.datastream.DataStream.class);
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("com.gojek.esb.fraud.EnrichedBookingLogMessage")).thenReturn(EnrichedBookingLogMessage.getDescriptor());
-        AshikoProcessor ashikoProcessor = new AshikoProcessor(configuration, stencilClient);
+        AshikoProcessorDeprecated ashikoProcessor = new AshikoProcessorDeprecated(configuration, stencilClient);
         MockUp<StreamDecoratorFactory> mockUp = new MockUp<StreamDecoratorFactory>() {
             @Mock
             public StreamDecorator getStreamDecorator(Map<String, String> configuration, Integer fieldIndex, StencilClient stencilClient, Integer asyncIOCapacity, int outputProtoSize) {

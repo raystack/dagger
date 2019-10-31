@@ -3,6 +3,7 @@ package com.gojek.daggers.postprocessor;
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.StreamDecorator;
 import com.gojek.daggers.async.decorator.StreamDecoratorFactory;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
@@ -14,12 +15,12 @@ import java.util.Map;
 
 import static com.gojek.daggers.Constants.*;
 
-public class AshikoProcessor implements PostProcessor {
+public class AshikoProcessorDeprecated implements PostProcessor {
 
     private Configuration configuration;
     private StencilClient stencilClient;
 
-    public AshikoProcessor(Configuration configuration, StencilClient stencilClient) {
+    public AshikoProcessorDeprecated(Configuration configuration, StencilClient stencilClient) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
     }
@@ -46,6 +47,11 @@ public class AshikoProcessor implements PostProcessor {
             resultStream = streamDecorator.decorate(resultStream);
         }
         return new StreamInfo(resultStream, columnNames);
+    }
+
+    @Override
+    public boolean canProcess(Configuration configuration, PostProcessorConfig postProcessorConfig) {
+        return false;
     }
 
     // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
