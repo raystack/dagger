@@ -1,5 +1,7 @@
 package com.gojek.daggers.postprocessor.parser;
 
+import com.gojek.daggers.postprocessor.configs.ExternalSourceConfig;
+import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -10,8 +12,7 @@ import com.jayway.jsonpath.InvalidJsonException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.gojek.daggers.Constants.POST_PROCESSOR_CONFIG_KEY;
 
@@ -19,26 +20,16 @@ public class PostProcessorConfigHandler {
 
     private PostProcessorConfig postProcessorConfig;
 
-    private Map<String, Object> externalSourceConfigMap;
-
-    private List<HttpExternalSourceConfig> httpExternalSourceConfig;
-
-    private List<TransformConfig> transformConfig;
-
-    public Map<String, Object> getExternalSourceConfigMap() {
-        return externalSourceConfigMap;
-    }
-
-    public Set<String> getExternalSourceKeys() {
-        return externalSourceConfigMap.keySet();
+    public ExternalSourceConfig getExternalSourceConfig() {
+        return postProcessorConfig.getExternalSource();
     }
 
     public List<HttpExternalSourceConfig> getHttpExternalSourceConfig() {
-        return httpExternalSourceConfig;
+        return postProcessorConfig.getExternalSource().getHttpConfig();
     }
 
     public List<TransformConfig> getTransformConfig() {
-        return transformConfig;
+        return postProcessorConfig.getTransformers();
     }
 
     public static PostProcessorConfigHandler parse(String configuration) {
@@ -53,33 +44,15 @@ public class PostProcessorConfigHandler {
         }
 
         if (postProcessorConfigHandler.postProcessorConfig.hasExternalSource()) {
-            postProcessorConfigHandler.externalSourceConfigMap = postProcessorConfigHandler.postProcessorConfig.getExternalSource();
-            Map<String, Object> externalSourceConfigMap = postProcessorConfigHandler.externalSourceConfigMap;
+            if(postProcessorConfigHandler.getExternalSourceConfig().isEmpty())
+                throw new IllegalArgumentException("Invalid config type");
+        }
 
-            for (String externalSourceKey : externalSourceConfigMap.keySet()) {
-                if (externalSourceKey.equals("http")) {
-                    Type typeToken = new TypeToken<List<HttpExternalSourceConfig>>() {
-                    }.getType();
-                    postProcessorConfigHandler.httpExternalSourceConfig = gson.fromJson(gson.toJson(externalSourceConfigMap.get(externalSourceKey)), typeToken);
-                } else {
-                    throw new IllegalArgumentException("Invalid config type");
-                }
-            }
-        }
-        if (postProcessorConfigHandler.postProcessorConfig.hasTransformConfigs()) {
-            Type typeToken = new TypeToken<List<TransformConfig>>() {
-            }.getType();
-            postProcessorConfigHandler.transformConfig = gson.fromJson(gson.toJson(postProcessorConfigHandler.postProcessorConfig.getTransformers()), typeToken);
-        }
 
         return postProcessorConfigHandler;
     }
 
     public List<String> getColumns() {
-        ArrayList<String> columnNames = new ArrayList<>();
-        httpExternalSourceConfig.forEach(s -> {
-            columnNames.addAll(s.getColumns());
-        });
-        return columnNames;
+        return postProcessorConfig.getExternalSource().getColumnNames();
     }
 }

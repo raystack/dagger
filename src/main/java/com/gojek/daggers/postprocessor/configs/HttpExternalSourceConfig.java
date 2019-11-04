@@ -1,4 +1,7 @@
-package com.gojek.daggers.postprocessor.parser;
+package com.gojek.daggers.postprocessor.configs;
+
+import com.gojek.daggers.postprocessor.parser.OutputMapping;
+import com.gojek.daggers.postprocessor.parser.Validator;
 
 import java.io.Serializable;
 import java.util.ArrayList;

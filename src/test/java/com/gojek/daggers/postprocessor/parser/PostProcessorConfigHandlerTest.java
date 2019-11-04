@@ -1,5 +1,6 @@
 package com.gojek.daggers.postprocessor.parser;
 
+import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import com.jayway.jsonpath.InvalidJsonException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -7,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import static org.junit.Assert.*;
 
@@ -52,14 +52,6 @@ public class PostProcessorConfigHandlerTest {
     public void shouldParseGivenConfiguration() {
         PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(configuration);
         assertNotNull(postProcessorConfigHandler);
-    }
-
-    @Test
-    public void shouldReturnKeys() {
-        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(configuration);
-        HashSet<String> expectedKeys = new HashSet<>();
-        expectedKeys.add("http");
-        assertArrayEquals(expectedKeys.toArray(), postProcessorConfigHandler.getExternalSourceKeys().toArray());
     }
 
     @Test
@@ -125,9 +117,54 @@ public class PostProcessorConfigHandlerTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Invalid config type");
 
-        configuration = "{\"external_source\": {\"es\" : \"test\"}}";
+        configuration = "{\"external_source\": {\"wrong_key\" : \"test\"}}";
 
         PostProcessorConfigHandler.parse(configuration);
+    }
+
+
+    @Test
+    public void shouldNotThrowExceptionIfTypesOtherThanHttpPassedWithHttp() {
+        configuration = "{\"external_source\": {\n" +
+            "    \"http\": [\n" +
+                    "      {\n" +
+                    "        \"endpoint\": \"http://localhost:8000\",\n" +
+                    "        \"verb\": \"post\",\n" +
+                    "        \"body_column_from_sql\": \"request_body\",\n" +
+                    "        \"stream_timeout\": \"5000\",\n" +
+                    "        \"connect_timeout\": \"5000\",\n" +
+                    "        \"fail_on_errors\": \"true\", \n" +
+                    "        \"headers\": {\n" +
+                    "          \"content-type\": \"application/json\"\n" +
+                    "        },\n" +
+                    "        \"output_mapping\": {\n" +
+                    "          \"surge_factor\": {\n" +
+                    "            \"path\": \"$.data.tensor.values[0]\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      }\n" +
+                    "    ],\n" +
+                "\"wrong_key\" : \"test\"}}";
+
+        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(configuration);
+        HashMap<String, OutputMapping> outputMappings;
+        OutputMapping outputMapping;
+        HashMap<String, String> headerMap;
+        headerMap = new HashMap<>();
+        headerMap.put("content-type", "application/json");
+        outputMappings = new HashMap<>();
+        outputMapping = new OutputMapping("$.surge");
+        outputMappings.put("surge_factor", outputMapping);
+
+        HttpExternalSourceConfig expectedHttpExternalSourceConfig = new HttpExternalSourceConfig("http://localhost:8000",
+                "post", "request_body", "5000", "5000", false, "", headerMap, outputMappings);
+
+        HttpExternalSourceConfig actualHttpExternalSourceConfig = postProcessorConfigHandler.getHttpExternalSourceConfig().get(0);
+        assertEquals(expectedHttpExternalSourceConfig.getBodyColumnFromSql(), actualHttpExternalSourceConfig.getBodyColumnFromSql());
+        assertEquals(expectedHttpExternalSourceConfig.getEndpoint(), actualHttpExternalSourceConfig.getEndpoint());
+        assertEquals(expectedHttpExternalSourceConfig.getConnectTimeout(), actualHttpExternalSourceConfig.getConnectTimeout());
+        assertEquals(expectedHttpExternalSourceConfig.getStreamTimeout(), actualHttpExternalSourceConfig.getStreamTimeout());
+        assertEquals(expectedHttpExternalSourceConfig.getVerb(), actualHttpExternalSourceConfig.getVerb());
     }
 
     @Test
@@ -149,7 +186,7 @@ public class PostProcessorConfigHandlerTest {
                 "  ]\n" +
                 "}";
         PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(configuration);
-        assertTrue(postProcessorConfigHandler.getExternalSourceConfigMap().keySet().contains("http"));
+        assertTrue(postProcessorConfigHandler.getExternalSourceConfig().getHttpConfig().size() == 1);
     }
 
 }

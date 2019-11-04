@@ -1,7 +1,7 @@
 package com.gojek.daggers.async.decorator.async;
 
 import com.gojek.daggers.async.connector.HttpAsyncConnector;
-import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 
