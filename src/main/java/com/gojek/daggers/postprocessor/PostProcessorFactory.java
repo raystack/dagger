@@ -26,7 +26,7 @@ public class PostProcessorFactory {
         }
         if (configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
             PostProcessorConfigHandler postProcessorConfigHandler = parsePostProcessorConfig(configuration);
-            if (postProcessorConfigHandler.getExternalSourceConfigMap() != null) {
+            if (postProcessorConfigHandler.getExternalSourceConfig() != null) {
                 postProcessors.add(new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfigHandler));
             }
             if (postProcessorConfigHandler.getTransformConfig() != null) {

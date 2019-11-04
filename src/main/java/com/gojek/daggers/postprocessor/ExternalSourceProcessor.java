@@ -2,7 +2,7 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
-import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
@@ -31,16 +31,12 @@ public class ExternalSourceProcessor implements PostProcessor {
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> resultStream = streamInfo.getDataStream();
         String[] outputColumnNames = getColumnNames(postProcessorConfigHandler, streamInfo.getColumnNames());
-
-        for (String type : postProcessorConfigHandler.getExternalSourceKeys()) {
-            List<HttpExternalSourceConfig> httpExternalSourceConfigs = postProcessorConfigHandler.getHttpExternalSourceConfig();
-
-            for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
-                httpExternalSourceConfig.validateFields();
-                Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
-                HttpDecorator httpDecorator = getHttpDecorator(outputColumnNames, type, httpExternalSourceConfig, asyncIOCapacity);
-                resultStream = httpDecorator.decorate(resultStream);
-            }
+        List<HttpExternalSourceConfig> httpExternalSourceConfigs = postProcessorConfigHandler.getHttpExternalSourceConfig();
+        for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
+            httpExternalSourceConfig.validateFields();
+            Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
+            HttpDecorator httpDecorator = getHttpDecorator(outputColumnNames, "http", httpExternalSourceConfig, asyncIOCapacity);
+            resultStream = httpDecorator.decorate(resultStream);
         }
         return new StreamInfo(resultStream, outputColumnNames);
     }
