@@ -1,6 +1,6 @@
 package com.gojek.daggers.async.connector;
 
-import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.OutputMapping;
 import com.gojek.daggers.utils.stats.Aspects;
 import com.gojek.daggers.utils.stats.StatsManager;

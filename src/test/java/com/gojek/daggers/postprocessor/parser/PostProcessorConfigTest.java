@@ -1,6 +1,6 @@
 package com.gojek.daggers.postprocessor.parser;
 
-import org.junit.Assert;
+import com.gojek.daggers.postprocessor.configs.ExternalSourceConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,18 +14,18 @@ import static org.junit.Assert.*;
 
 public class PostProcessorConfigTest {
 
+    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>());
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     private PostProcessorConfig postProcessorConfig;
-    private Map<String, Object> externalSource = new HashMap<>();
     private List<TransformConfig> transformConfigs = new ArrayList<>();
 
     @Test
     public void shouldReturnPostProcessorConfig() {
-        externalSource.put("http", "test");
-        postProcessorConfig = new PostProcessorConfig(externalSource, null);
-        assertEquals(externalSource, postProcessorConfig.getExternalSource());
+
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null);
+        assertEquals(externalSourceConfig, postProcessorConfig.getExternalSource());
     }
 
     @Test
@@ -39,8 +39,7 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldBeTrueWhenExternalSourceExists(){
-        externalSource.put("http", "test");
-        postProcessorConfig = new PostProcessorConfig(externalSource, null);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null);
         assertTrue(postProcessorConfig.hasExternalSource());
     }
 

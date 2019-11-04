@@ -60,7 +60,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(true);
-        when(configuration.getString(POST_PROCESSOR_CONFIG_KEY, "")).thenReturn("{\"external_source\":{}}");
+        when(configuration.getString(POST_PROCESSOR_CONFIG_KEY, "")).thenReturn("{\"external_source\":{\"http\":[]}}");
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
 
@@ -86,7 +86,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(true);
-        when(configuration.getString(POST_PROCESSOR_CONFIG_KEY, "")).thenReturn("{\"external_source\":{}, \"transformers\" : []}");
+        when(configuration.getString(POST_PROCESSOR_CONFIG_KEY, "")).thenReturn("{\"external_source\":{\"http\":[]}, \"transformers\" : []}");
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
 
