@@ -1,19 +1,16 @@
 package com.gojek.daggers;
 
 import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
-import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment;
-import org.apache.flink.table.api.StreamQueryConfig;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.scala.StreamTableEnvironment;
+import org.apache.flink.table.api.TableConfig;
+import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +51,9 @@ public class StreamManagerTest {
     private ExecutionConfig executionConfig;
 
     @Mock
+    private TableConfig tableConfig;
+
+    @Mock
     private CheckpointConfig checkpointConfig;
 
     @Mock
@@ -61,9 +61,6 @@ public class StreamManagerTest {
 
     @Mock
     private DataStream<Row> dataStream;
-
-    @Mock
-    private StreamQueryConfig streamQueryConfig;
 
     @Before
     public void setup() {
@@ -88,7 +85,7 @@ public class StreamManagerTest {
         when(configuration.getInteger("MAX_IDLE_STATE_RETENTION_TIME", 9)).thenReturn(9);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
-        when(tableEnvironment.queryConfig()).thenReturn(streamQueryConfig);
+        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
 
         streamManager = new StreamManager(configuration, env, tableEnvironment);
     }
@@ -127,16 +124,16 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ElementAt"), any(ElementAt.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ServiceArea"), any(ServiceArea.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ServiceAreaId"), any(ServiceAreaId.class));
-        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctCount"), any(DistinctCount.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(DistinctCountAccumulator.class)));
-        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctByCurrentStatus"), any(DistinctByCurrentStatus.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(DistinctByCurrentStatusState.class)));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctCount"), any(DistinctCount.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DistinctByCurrentStatus"), any(DistinctByCurrentStatus.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Distance"), any(Distance.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("AppBetaUsers"), any(AppBetaUsers.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("KeyValue"), any(KeyValue.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DartContains"), any(DartContains.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("DartGet"), any(DartGet.class));
-        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Features"), any(Features.class), eq(TypeInformation.of(Row[].class)), eq(TypeInformation.of(FeatureAccumulator.class)));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Features"), any(Features.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
-        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ConcurrentTransactions"), any(ConcurrentTransactions.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(ConcurrentState.class)));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ConcurrentTransactions"), any(ConcurrentTransactions.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SecondsElapsed"), any(SecondsElapsed.class));
     }
 
