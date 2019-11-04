@@ -20,6 +20,10 @@ public class PostProcessorConfigHandler {
 
     private PostProcessorConfig postProcessorConfig;
 
+    public PostProcessorConfigHandler(PostProcessorConfig postProcessorConfig) {
+        this.postProcessorConfig = postProcessorConfig;
+    }
+
     public ExternalSourceConfig getExternalSourceConfig() {
         return postProcessorConfig.getExternalSource();
     }
@@ -32,27 +36,11 @@ public class PostProcessorConfigHandler {
         return postProcessorConfig.getTransformers();
     }
 
-    public static PostProcessorConfigHandler parse(String configuration) {
-        PostProcessorConfigHandler postProcessorConfigHandler = new PostProcessorConfigHandler();
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        try {
-            Type typeToken = new TypeToken<PostProcessorConfig>() {
-            }.getType();
-            postProcessorConfigHandler.postProcessorConfig = gson.fromJson(configuration, typeToken);
-        } catch (JsonSyntaxException exception) {
-            throw new InvalidJsonException("Invalid JSON Given for " + POST_PROCESSOR_CONFIG_KEY);
-        }
-
-        if (postProcessorConfigHandler.postProcessorConfig.hasExternalSource()) {
-            if(postProcessorConfigHandler.getExternalSourceConfig().isEmpty())
-                throw new IllegalArgumentException("Invalid config type");
-        }
-
-
-        return postProcessorConfigHandler;
+    public static PostProcessorConfigHandler parse(String configuration){
+        return new PostProcessorConfigHandler(PostProcessorConfig.parse(configuration));
     }
 
     public List<String> getColumns() {
-        return postProcessorConfig.getExternalSource().getColumnNames();
+        return postProcessorConfig.getColumns();
     }
 }
