@@ -90,7 +90,7 @@ public class AshikoProcessorTest {
                 return mock;
             }
         };
-        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getColumnNames());
+        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getFieldNames());
         StreamInfo result = ashikoProcessor.process(streamInfo);
         String[] expectedColumnNames = {"booking_log", "customer_profile", "driver_profile", "event_timestamp"};
 
@@ -124,7 +124,7 @@ public class AshikoProcessorTest {
                 return mock;
             }
         };
-        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getColumnNames());
+        StreamInfo streamInfo = new StreamInfo(dataStream, table.getSchema().getFieldNames());
         StreamInfo result = ashikoProcessor.process(streamInfo);
         String[] expectedColumnNames = new String[4];
         expectedColumnNames[3] = "event_timestamp";
