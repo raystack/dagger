@@ -3,7 +3,7 @@ package com.gojek.daggers.postprocessor;
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
 import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
-import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -19,19 +19,18 @@ public class ExternalSourceProcessor implements PostProcessor {
 
     private Configuration configuration;
     private StencilClient stencilClient;
-    private PostProcessorConfigHandler postProcessorConfigHandler;
-
-    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient, PostProcessorConfigHandler postProcessorConfigHandler) {
+    private PostProcessorConfig postProcessorConfig;
+    public ExternalSourceProcessor(Configuration configuration, StencilClient stencilClient, PostProcessorConfig postProcessorConfig) {
         this.configuration = configuration;
         this.stencilClient = stencilClient;
-        this.postProcessorConfigHandler = postProcessorConfigHandler;
+        this.postProcessorConfig = postProcessorConfig;
     }
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> resultStream = streamInfo.getDataStream();
-        String[] outputColumnNames = getColumnNames(postProcessorConfigHandler, streamInfo.getColumnNames());
-        List<HttpExternalSourceConfig> httpExternalSourceConfigs = postProcessorConfigHandler.getHttpExternalSourceConfig();
+        String[] outputColumnNames = getColumnNames(postProcessorConfig, streamInfo.getColumnNames());
+        List<HttpExternalSourceConfig> httpExternalSourceConfigs = postProcessorConfig.getExternalSource().getHttpConfig();
         for (HttpExternalSourceConfig httpExternalSourceConfig : httpExternalSourceConfigs) {
             httpExternalSourceConfig.validateFields();
             Integer asyncIOCapacity = Integer.valueOf(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT));
@@ -45,9 +44,9 @@ public class ExternalSourceProcessor implements PostProcessor {
         return new HttpDecorator(httpExternalSourceConfig, stencilClient, asyncIOCapacity, type, outputColumnNames);
     }
 
-    private String[] getColumnNames(PostProcessorConfigHandler postProcessorConfigHandler, String[] inputColumnNames) {
+    private String[] getColumnNames(PostProcessorConfig postProcessorConfig, String[] inputColumnNames) {
         List<String> outputColumnNames = new ArrayList<>(Arrays.asList(inputColumnNames));
-        outputColumnNames.addAll(postProcessorConfigHandler.getColumns());
+        outputColumnNames.addAll(postProcessorConfig.getColumns());
         return outputColumnNames.toArray(new String[0]);
     }
 
