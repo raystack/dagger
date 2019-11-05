@@ -4,7 +4,7 @@ import com.gojek.daggers.longbow.LongbowSchema;
 import com.gojek.daggers.longbow.processor.LongbowReader;
 import com.gojek.daggers.longbow.processor.LongbowWriter;
 import com.gojek.daggers.longbow.row.LongbowRowFactory;
-import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 
@@ -25,12 +25,12 @@ public class PostProcessorFactory {
             postProcessors.add(getLongBowProcessor(columnNames, configuration));
         }
         if (configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
-            PostProcessorConfigHandler postProcessorConfigHandler = parsePostProcessorConfig(configuration);
-            if (postProcessorConfigHandler.getExternalSourceConfig() != null) {
-                postProcessors.add(new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfigHandler));
+            PostProcessorConfig postProcessorConfig = parsePostProcessorConfig(configuration);
+            if (postProcessorConfig.getExternalSource() != null) {
+                postProcessors.add(new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfig));
             }
-            if (postProcessorConfigHandler.getTransformConfig() != null) {
-                postProcessors.add(new TransformProcessor(postProcessorConfigHandler.getTransformConfig()));
+            if (postProcessorConfig.getTransformers() != null) {
+                postProcessors.add(new TransformProcessor(postProcessorConfig.getTransformers()));
             }
         }
         return postProcessors;
@@ -44,8 +44,8 @@ public class PostProcessorFactory {
         return new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longbowSchema, configuration);
     }
 
-    private static PostProcessorConfigHandler parsePostProcessorConfig(Configuration configuration) {
+    private static PostProcessorConfig parsePostProcessorConfig(Configuration configuration) {
         String postProcessorConfigString = configuration.getString(POST_PROCESSOR_CONFIG_KEY, "");
-        return PostProcessorConfigHandler.parse(postProcessorConfigString);
+        return PostProcessorConfig.parse(postProcessorConfigString);
     }
 }

@@ -11,7 +11,6 @@ import com.jayway.jsonpath.InvalidJsonException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 import static com.gojek.daggers.Constants.POST_PROCESSOR_CONFIG_KEY;
 

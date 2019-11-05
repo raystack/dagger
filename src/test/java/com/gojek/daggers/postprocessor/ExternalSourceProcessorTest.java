@@ -3,7 +3,7 @@ package com.gojek.daggers.postprocessor;
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
 import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
-import com.gojek.daggers.postprocessor.parser.PostProcessorConfigHandler;
+import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import org.apache.flink.configuration.Configuration;
@@ -44,7 +44,7 @@ public class ExternalSourceProcessorTest {
 
     private ExternalSourceProcessorMock externalSourceProcessorMock;
 
-    private PostProcessorConfigHandler postProcessorConfigHandler;
+    private PostProcessorConfig postProcessorConfig;
 
     @Before
     public void setup() {
@@ -78,8 +78,8 @@ public class ExternalSourceProcessorTest {
                 "  } \n" +
                 "}";
 
-        postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
-        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
+        postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfig);
     }
 
     @Test
@@ -115,8 +115,8 @@ public class ExternalSourceProcessorTest {
                 "  }\n" +
                 "}";
 
-        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
-        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfig);
 
         String[] inputColumnNames = {"request_body", "order_number"};
 
@@ -155,8 +155,8 @@ public class ExternalSourceProcessorTest {
                 "  }\n" +
                 "}";
 
-        PostProcessorConfigHandler postProcessorConfigHandler = PostProcessorConfigHandler.parse(postProcessorConfigString);
-        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfigHandler);
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
+        externalSourceProcessorMock = new ExternalSourceProcessorMock(configuration, stencilClient, httpDecorator, postProcessorConfig);
         String[] inputColumnNames = {"request_body", "order_number"};
 
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
@@ -168,7 +168,7 @@ public class ExternalSourceProcessorTest {
 
     @Test
     public void shouldReturnHttpDecorator() {
-        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfigHandler);
+        ExternalSourceProcessor externalSourceProcessor = new ExternalSourceProcessor(configuration, stencilClient, postProcessorConfig);
         String[] outputColumnNames = {"request_body", "order_number"};
         HttpDecorator httpDecorator = externalSourceProcessor.getHttpDecorator(outputColumnNames, "http", httpExternalSourceConfig, 40);
         Assert.assertEquals("40", httpDecorator.getAsyncIOCapacity().toString());
@@ -178,8 +178,8 @@ public class ExternalSourceProcessorTest {
 
         private HttpDecorator mockHttpDecorator;
 
-        public ExternalSourceProcessorMock(Configuration configuration, StencilClient stencilClient, HttpDecorator mockHttpDecorator, PostProcessorConfigHandler postProcessorConfigHandler) {
-            super(configuration, stencilClient, postProcessorConfigHandler);
+        public ExternalSourceProcessorMock(Configuration configuration, StencilClient stencilClient, HttpDecorator mockHttpDecorator, PostProcessorConfig postProcessorConfig) {
+            super(configuration, stencilClient, postProcessorConfig);
             this.mockHttpDecorator = mockHttpDecorator;
         }
 
