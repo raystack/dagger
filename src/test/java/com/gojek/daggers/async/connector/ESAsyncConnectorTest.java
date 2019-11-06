@@ -12,6 +12,7 @@ import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.After;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -117,5 +119,12 @@ public class ESAsyncConnectorTest {
         result.setField(0, value);
         verify(resultFuture, times(1)).complete(Collections.singleton(result));
     }
+
+    @Test
+    public void shouldCreateHost() {
+        HttpHost[] httpHosts = esAsyncConnector.getHttpHosts("10.240.60.227:9200,10.240.60.229:9200,10.240.60.228:9200".split(","));
+        Arrays.stream(httpHosts).forEach(httpHost -> System.out.println(httpHost.getAddress()));
+    }
+
 
 }

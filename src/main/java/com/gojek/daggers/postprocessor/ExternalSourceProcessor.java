@@ -2,7 +2,7 @@ package com.gojek.daggers.postprocessor;
 
 import com.gojek.daggers.StreamInfo;
 import com.gojek.daggers.async.decorator.async.HttpDecorator;
-import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.PostProcessorConfig;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;

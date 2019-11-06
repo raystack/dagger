@@ -1,5 +1,7 @@
 package com.gojek.daggers.postprocessor.parser;
 
+import com.gojek.daggers.postprocessor.parser.Validator;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

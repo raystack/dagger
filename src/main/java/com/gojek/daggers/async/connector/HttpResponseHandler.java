@@ -2,7 +2,7 @@ package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.metric.ExternalSourceAspects;
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.daggers.postprocessor.parser.OutputMapping;
 import com.gojek.daggers.utils.RowMaker;
 import com.gojek.daggers.utils.stats.StatsManager;
