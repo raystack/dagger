@@ -1,6 +1,5 @@
 package com.gojek.daggers.postprocessor.parser;
 
-import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

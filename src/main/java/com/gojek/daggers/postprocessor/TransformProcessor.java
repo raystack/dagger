@@ -13,9 +13,6 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.Constants.POST_PROCESSOR_ENABLED_KEY;
-import static com.gojek.daggers.Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT;
-
 public class TransformProcessor implements PostProcessor {
     private List<TransformConfig> transformConfigs;
 

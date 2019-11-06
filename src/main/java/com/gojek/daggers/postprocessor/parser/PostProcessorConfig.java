@@ -1,6 +1,5 @@
 package com.gojek.daggers.postprocessor.parser;
 
-import com.gojek.daggers.postprocessor.configs.ExternalSourceConfig;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
