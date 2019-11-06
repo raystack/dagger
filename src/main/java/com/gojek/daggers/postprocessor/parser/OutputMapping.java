@@ -2,6 +2,7 @@ package com.gojek.daggers.postprocessor.parser;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class OutputMapping implements Serializable, Validator {
 
@@ -20,5 +21,18 @@ public class OutputMapping implements Serializable, Validator {
         mandatoryFields.put("path", path);
 
         return mandatoryFields;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OutputMapping that = (OutputMapping) o;
+        return Objects.equals(path, that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path);
     }
 }

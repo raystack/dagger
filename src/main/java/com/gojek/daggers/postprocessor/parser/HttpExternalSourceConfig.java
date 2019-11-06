@@ -1,7 +1,4 @@
-package com.gojek.daggers.postprocessor.configs;
-
-import com.gojek.daggers.postprocessor.parser.OutputMapping;
-import com.gojek.daggers.postprocessor.parser.Validator;
+package com.gojek.daggers.postprocessor.parser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +17,7 @@ public class HttpExternalSourceConfig implements Serializable, Validator {
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
 
-    public HttpExternalSourceConfig(String endpoint, String verb, String bodyColumnFromSql, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+    HttpExternalSourceConfig(String endpoint, String verb, String bodyColumnFromSql, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
         this.endpoint = endpoint;
         this.verb = verb;
         this.bodyColumnFromSql = bodyColumnFromSql;

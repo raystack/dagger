@@ -76,7 +76,7 @@ public class ESAsyncConnector extends RichAsyncFunction<Row, Row> {
                 .setMaxRetryTimeoutMillis(retryTimeout).build();
     }
 
-    private HttpHost[] getHttpHosts(String[] hosts) {
+    HttpHost[] getHttpHosts(String[] hosts) {
         HttpHost[] httpHosts = new HttpHost[hosts.length];
         for (int i = 0; i < httpHosts.length; i++) {
             String[] strings = getEsHost()[i].split(":");

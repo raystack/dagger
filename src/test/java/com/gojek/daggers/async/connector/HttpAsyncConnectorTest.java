@@ -1,7 +1,7 @@
 package com.gojek.daggers.async.connector;
 
 import com.gojek.daggers.async.metric.ExternalSourceAspects;
-import com.gojek.daggers.postprocessor.configs.HttpExternalSourceConfig;
+import com.gojek.daggers.postprocessor.parser.HttpExternalSourceConfig;
 import com.gojek.daggers.utils.stats.StatsManager;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
