@@ -13,12 +13,15 @@ import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -26,17 +29,20 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class EsAsyncConnectorTest {
 
     ResultFuture<Row> resultFuture;
 
+    @Mock
+    private Configuration configuration;
+
     private WireMockServer wireMockServer;
     private RuntimeContext runtimeContext;
     private Meter meter;
     private RestClient esClient;
-//    private Descriptors.Descriptor descriptor;
     private EsSourceConfig esSourceConfig;
     private HashMap<String, OutputMapping> outputMapping;
     private StatsManager statsManager;
@@ -46,10 +52,10 @@ public class EsAsyncConnectorTest {
     private Row outputData;
     private StencilClient stencilClient;
 
-
     @Before
     public void setUp() throws Exception {
-//        descriptor = CustomerLogMessage.getDescriptor();
+        initMocks(this);
+        when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn("test-job");
         streamRow = new Row(2);
         inputData = new Row(6);
         outputData = new Row(3);
@@ -85,6 +91,7 @@ public class EsAsyncConnectorTest {
         ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
+        esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
@@ -99,6 +106,7 @@ public class EsAsyncConnectorTest {
         ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
+        esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
@@ -111,6 +119,7 @@ public class EsAsyncConnectorTest {
         inputData.setField(2,"11223344545");
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager, esClient);
+        esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         Request request = new Request("GET", "/drivers/driver/11223344545");
@@ -120,10 +129,12 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
         ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
-
+        esClient = null;
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
+        esAsyncConnector.open(configuration);
         esAsyncConnector.timeout(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
     }
+
 }

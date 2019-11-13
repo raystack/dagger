@@ -32,16 +32,16 @@ public class InternalPostProcessorTest {
         Assert.assertTrue(internalPostProcessor.canProcess(postProcessorConfig));
     }
 
-    @Test
-    public void canNotProcessWhenInternalConfigIsEmpty() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
-
-        Assert.assertFalse(internalPostProcessor.canProcess(postProcessorConfig));
-    }
+//    @Test
+//    public void canNotProcessWhenInternalConfigIsEmpty() {
+//        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+//        ArrayList<TransformConfig> transformers = new ArrayList<>();
+//        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
+//        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
+//        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
+//
+//        Assert.assertFalse(internalPostProcessor.canProcess(postProcessorConfig));
+//    }
 
     @Test
     public void canNotProcessWhenInternalConfigIsNull() {
