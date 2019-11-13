@@ -135,4 +135,29 @@ public class EsSourceConfigTest {
         outputMapping.put("key", new OutputMapping("path"));
         assertEquals(keys, esSourceConfig.getOutputColumns());
     }
+
+    @Test
+    public void shouldReturnPathForOutputField(){
+        outputMapping.put("outputField", new OutputMapping("path"));
+        Assert.assertEquals("path", esSourceConfig.getPath("outputField"));
+    }
+
+    @Test
+    public void shouldReturnMandatoryFields() {
+        HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
+        expectedMandatoryFields.put("host", host);
+        expectedMandatoryFields.put("port", port);
+        expectedMandatoryFields.put("endpoint_pattern", endpointPattern);
+        expectedMandatoryFields.put("endpoint_variables", endpointVariables);
+        expectedMandatoryFields.put("type", type);
+        expectedMandatoryFields.put("capacity", capacity);
+        expectedMandatoryFields.put("connect_timeout", connectTimeout);
+        expectedMandatoryFields.put("retry_timeout", retryTimeout);
+        expectedMandatoryFields.put("socket_timeout", socketTimeout);
+        expectedMandatoryFields.put("stream_timeout", streamTimeout);
+        expectedMandatoryFields.put("fail_on_errors", failOnErrors);
+        expectedMandatoryFields.put("outputMapping", outputMapping);
+        HashMap<String, Object> actualMandatoryFields = esSourceConfig.getMandatoryFields();
+        assertArrayEquals(expectedMandatoryFields.values().toArray(), actualMandatoryFields.values().toArray());
+    }
 }
