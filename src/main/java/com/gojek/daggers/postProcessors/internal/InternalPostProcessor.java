@@ -9,7 +9,6 @@ import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigHandlerFactory;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.sql.SqlConfigTypePathParser;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
