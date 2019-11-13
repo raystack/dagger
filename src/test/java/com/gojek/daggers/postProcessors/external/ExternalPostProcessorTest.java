@@ -8,23 +8,24 @@ import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.es.EsStreamDecorator;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
+import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.gojek.daggers.utils.Constants.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -82,14 +83,28 @@ public class ExternalPostProcessorTest {
 
         String postProcessorConfigString = "{\n" +
                 "  \"external_source\": {\n" +
+                "    \"es\": [\n" +
+                "      {\n" +
+                "        \"host\": \"10.240.60.227:9200\",\n" +
+                "        \"output_mapping\": {\n" +
+                "          \"customer_profile\": {\n" +
+                "            \"path\": \"$._source\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        \"query_param_pattern\": \"/customers/customer/%s\",\n" +
+                "        \"query_param_variables\": \"customer_id\",\n" +
+                "        \"retry_timeout\": \"5000\",\n" +
+                "        \"socket_timeout\": \"6000\",\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\"\n" +
+                "      }\n" +
+                "    ],\n" +
                 "    \"http\": [\n" +
                 "      {\n" +
-                "        \"endpoint\": \"http://localhost:8000\",\n" +
-                "        \"verb\": \"post\",\n" +
                 "        \"body_column_from_sql\": \"request_body\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
                 "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": \"true\", \n" +
+                "        \"endpoint\": \"http://localhost:8000\",\n" +
+                "        \"fail_on_errors\": \"true\",\n" +
                 "        \"headers\": {\n" +
                 "          \"content-type\": \"application/json\"\n" +
                 "        },\n" +
@@ -97,14 +112,49 @@ public class ExternalPostProcessorTest {
                 "          \"surge_factor\": {\n" +
                 "            \"path\": \"$.data.tensor.values[0]\"\n" +
                 "          }\n" +
-                "        }\n" +
+                "        },\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"verb\": \"post\"\n" +
                 "      }\n" +
                 "    ]\n" +
-                "  } \n" +
+                "  },\n" +
+                "  \"internal_source\":[\n" +
+                "  \t{\n" +
+                "    \"output_field\": \"event_timestamp\",\n" +
+                "    \"value\": \"CURRENT_TIMESTAMP\",\n" +
+                "    \"type\": \"function\"\n" +
+                "  \t},\n" +
+                "  \t{\n" +
+                "    \"output_field\": \"s2_id_level\",\n" +
+                "    \"value\": \"7\",\n" +
+                "    \"type\": \"constant\"\n" +
+                "\t }\n" +
+                "\t],\n" +
+                "  \"transformers\": [\n" +
+                "    {\n" +
+                "      \"transformation_arguments\": {\n" +
+                "        \"keyColumnName\": \"s2id\",\n" +
+                "        \"valueColumnName\": \"features\"\n" +
+                "      },\n" +
+                "      \"transformation_class\": \"com.gojek.daggers.postprocessor.FeatureTransformer\"\n" +
+                "    }\n" +
+                "  ]\n" +
                 "}";
 
         postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
-        externalPostProcessor = new ExternalPostProcessorMock(stencilClient, externalSourceConfig, columnNameManager,httpStreamDecorator,esStreamDecorator);
+//        externalPostProcessor = new ExternalPostProcessorMock(stencilClient, externalSourceConfig, columnNameManager,httpStreamDecorator,esStreamDecorator);
+        externalPostProcessor = new ExternalPostProcessor(stencilClient, externalSourceConfig, columnNameManager);
+    }
+
+    @Test
+    public void shouldBeTrueWhenExternalSourceExists() {
+        assertTrue(externalPostProcessor.canProcess(postProcessorConfig));
+    }
+
+    @Test
+    public void shouldBeFalseWhenExternalSourceDoesNotExist() {
+        postProcessorConfig = new PostProcessorConfig(null, null, null);
+        assertFalse(externalPostProcessor.canProcess(postProcessorConfig));
     }
 
 //    @Test

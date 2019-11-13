@@ -40,10 +40,6 @@ public class PostProcessorConfig implements Serializable {
             throw new InvalidJsonException("Invalid JSON Given for " + POST_PROCESSOR_CONFIG_KEY);
         }
 
-        if (postProcessorConfig.hasExternalSource()) {
-            if (postProcessorConfig.externalSource.isEmpty())
-                throw new IllegalArgumentException("Invalid config type");
-        }
         return postProcessorConfig;
     }
 
@@ -60,7 +56,7 @@ public class PostProcessorConfig implements Serializable {
     }
 
     public boolean hasInternalSource() {
-        return internalSource != null && !internalSource.isEmpty();
+        return internalSource != null;
     }
 
     public boolean isEmpty() {

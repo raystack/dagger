@@ -18,15 +18,14 @@ import static org.junit.Assert.*;
 
 public class PostProcessorConfigTest {
 
-    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-
+    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
     private PostProcessorConfig postProcessorConfig;
-    private List<TransformConfig> transformConfigs = new ArrayList<>();
-    private String configuration = "{\"external_source\":{\"es\":[{\"host\":\"10.240.60.227:9200\",\"output_mapping\":{\"customer_profile\":{\"path\":\"$._source\"}},\"query_param_pattern\":\"/customers/customer/%s\",\"query_param_variables\":\"customer_id\",\"retry_timeout\":\"5000\",\"socket_timeout\":\"6000\",\"stream_timeout\":\"5000\",\"type\":\"com.gojek.esb.fraud.EnrichedBookingLogMessage\"}],\"http\":[{\"body_column_from_sql\":\"request_body\",\"connect_timeout\":\"5000\",\"endpoint\":\"http://localhost:8000\",\"fail_on_errors\":\"true\",\"headers\":{\"content-type\":\"application/json\"},\"output_mapping\":{\"surge_factor\":{\"path\":\"$.data.tensor.values[0]\"}},\"stream_timeout\":\"5000\",\"verb\":\"post\"}]},\"transformers\":[{\"transformation_arguments\":{\"keyColumnName\":\"s2id\",\"valueColumnName\":\"features\"},\"transformation_class\":\"com.gojek.daggers.postprocessor.FeatureTransformer\"}]}";
     private ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
+    private List<TransformConfig> transformConfigs = new ArrayList<>();
+    private String configuration = "{\n  \"external_source\": {\n    \"es\": [\n      {\n        \"host\": \"10.240.60.227:9200\",\n        \"output_mapping\": {\n          \"customer_profile\": {\n            \"path\": \"$._source\"\n          }\n        },\n        \"query_param_pattern\": \"/customers/customer/%s\",\n        \"query_param_variables\": \"customer_id\",\n        \"retry_timeout\": \"5000\",\n        \"socket_timeout\": \"6000\",\n        \"stream_timeout\": \"5000\",\n        \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\"\n      }\n    ],\n    \"http\": [\n      {\n        \"body_column_from_sql\": \"request_body\",\n        \"connect_timeout\": \"5000\",\n        \"endpoint\": \"http://localhost:8000\",\n        \"fail_on_errors\": \"true\",\n        \"headers\": {\n          \"content-type\": \"application/json\"\n        },\n        \"output_mapping\": {\n          \"surge_factor\": {\n            \"path\": \"$.data.tensor.values[0]\"\n          }\n        },\n        \"stream_timeout\": \"5000\",\n        \"verb\": \"post\"\n      }\n    ]\n  },\n  \"internal_source\":[\n  \t{\n    \"output_field\": \"event_timestamp\",\n    \"value\": \"CURRENT_TIMESTAMP\",\n    \"type\": \"function\"\n  \t},\n  \t{\n    \"output_field\": \"s2_id_level\",\n    \"value\": \"7\",\n    \"type\": \"constant\"\n\t }\n\t],\n  \"transformers\": [\n    {\n      \"transformation_arguments\": {\n        \"keyColumnName\": \"s2id\",\n        \"valueColumnName\": \"features\"\n      },\n      \"transformation_class\": \"com.gojek.daggers.postprocessor.FeatureTransformer\"\n    }\n  ]\n}";
 
     @Test
     public void shouldParseGivenConfiguration() {
@@ -36,10 +35,13 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldReturnColumns() {
-//        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
-//        ArrayList<String> expectedColumnNames = new ArrayList<>();
-//        expectedColumnNames.add("surge_factor");
-//        assertArrayEquals(expectedColumnNames.toArray(), postProcessorConfig.getOutputColumnNames().toArray());
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        ArrayList<String> expectedColumnNames = new ArrayList<>();
+        expectedColumnNames.add("surge_factor");
+        expectedColumnNames.add("customer_profile");
+        expectedColumnNames.add("event_timestamp");
+        expectedColumnNames.add("s2_id_level");
+        assertArrayEquals(expectedColumnNames.toArray(), postProcessorConfig.getOutputColumnNames().toArray());
     }
 
     @Test
@@ -114,95 +116,43 @@ public class PostProcessorConfigTest {
         PostProcessorConfig.parse(configuration);
     }
 
-//    @Test
-//    public void shouldThrowExceptionIfOnlyInvalidTypeIsPassed() {
-//        expectedException.expect(IllegalArgumentException.class);
-//        expectedException.expectMessage("Invalid config type");
-//
-//        configuration = "{\"external_source\": {\"wrong_key\" : \"test\"}}";
-//
-//        PostProcessorConfig.parse(configuration);
-//    }
-
-
     @Test
-    public void shouldNotThrowExceptionIfTypesOtherThanHttpPassedWithHttp() {
-        configuration = "{\"external_source\": {\n" +
-                "    \"http\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"http://localhost:8000\",\n" +
-                "        \"verb\": \"post\",\n" +
-                "        \"body_column_from_sql\": \"request_body\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": \"true\", \n" +
-                "        \"headers\": {\n" +
-                "          \"content-type\": \"application/json\"\n" +
-                "        },\n" +
-                "        \"output_mapping\": {\n" +
-                "          \"surge_factor\": {\n" +
-                "            \"path\": \"$.data.tensor.values[0]\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ],\n" +
-                "\"wrong_key\" : \"test\"}}";
-
-        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
-        HashMap<String, OutputMapping> outputMappings;
-        OutputMapping outputMapping;
-        HashMap<String, String> headerMap;
-        headerMap = new HashMap<>();
-        headerMap.put("content-type", "application/json");
-        outputMappings = new HashMap<>();
-        outputMapping = new OutputMapping("$.surge");
-        outputMappings.put("surge_factor", outputMapping);
-
-//        HttpSourceConfig expectedHttpExternalSourceConfig = new HttpSourceConfig("http://localhost:8000",
-//                "post", "request_body", bodyVariables, "5000", "5000", false, "", capacity, headerMap, outputMappings);
-//
-//        HttpSourceConfig actualHttpExternalSourceConfig = postProcessorConfig.getExternalSource().getHttpConfig().get(0);
-//        assertEquals(expectedHttpExternalSourceConfig.getBodyPattern(), actualHttpExternalSourceConfig.getBodyPattern());
-//        assertEquals(expectedHttpExternalSourceConfig.getEndpoint(), actualHttpExternalSourceConfig.getEndpoint());
-//        assertEquals(expectedHttpExternalSourceConfig.getConnectTimeout(), actualHttpExternalSourceConfig.getConnectTimeout());
-//        assertEquals(expectedHttpExternalSourceConfig.getStreamTimeout(), actualHttpExternalSourceConfig.getStreamTimeout());
-//        assertEquals(expectedHttpExternalSourceConfig.getVerb(), actualHttpExternalSourceConfig.getVerb());
-    }
-
-    @Test
-    public void shouldReturnExternalSourceConfigMap() {
-        configuration = "{\"external_source\": {\n" +
-                "    \"http\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"http://10.202.120.225/seldon/mlp-showcase/integrationtest/api/v0.1/predictions\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"es\": [\n" +
-                "      {\n" +
-                "        \"host\": \"10.240.60.227:9200\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  \"transformers\": [\n" +
-                "    {\n" +
-                "      \"transformation_class\": \"com.gojek.daggers.postprocessor.FeatureTransformer\",\n" +
-                "      \"transformation_arguments\": {\n" +
-                "        \"value\": \"features\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
-        assertTrue(postProcessorConfig.getExternalSource().getHttpConfig().size() == 1);
-        assertTrue(postProcessorConfig.getExternalSource().getEsConfig().size() == 1);
+    public void shouldBeTrueWhenNoneOfTheConfigsExist(){
+        postProcessorConfig = new PostProcessorConfig(null, null, null);
+        assertTrue(postProcessorConfig.isEmpty());
     }
 
 
     @Test
-    public void shouldReturnPostProcessorConfig() {
+    public void shouldBeFalseWhenExternalSourceConfigExist(){
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+
+    @Test
+    public void shouldBeFalseWhenInternalSourceExist(){
+        postProcessorConfig = new PostProcessorConfig(null, null, internalSource);
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldBeFalseWhenTransformConfigsExist(){
+        postProcessorConfig = new PostProcessorConfig(null, transformConfigs, null);
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldReturnExternalSourceConfig() {
 
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertEquals(externalSourceConfig, postProcessorConfig.getExternalSource());
+    }
+
+    @Test
+    public void shouldReturnInternalSourceConfig() {
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
+        assertEquals(internalSource, postProcessorConfig.getInternalSource());
     }
 
     @Test
@@ -210,20 +160,32 @@ public class PostProcessorConfigTest {
         Map<String, String> transformationArguments = new HashMap<>();
         transformationArguments.put("keyValue", "key");
         transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
-        postProcessorConfig = new PostProcessorConfig(null, transformConfigs,internalSource );
+        postProcessorConfig = new PostProcessorConfig(null, transformConfigs, internalSource);
         assertEquals(transformConfigs, postProcessorConfig.getTransformers());
     }
 
     @Test
     public void shouldBeTrueWhenExternalSourceExists() {
-        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null,internalSource );
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());
     }
 
     @Test
     public void shouldBeFalseWhenExternalSourceDoesNotExists() {
-        postProcessorConfig = new PostProcessorConfig(null, null,internalSource );
+        postProcessorConfig = new PostProcessorConfig(null, null, internalSource);
         assertFalse(postProcessorConfig.hasExternalSource());
+    }
+
+    @Test
+    public void shouldBeTrueWhenInternalSourceExists() {
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
+        assertTrue(postProcessorConfig.hasInternalSource());
+    }
+
+    @Test
+    public void shouldBeFalseWhenInternalSourceDoesNotExists() {
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+        assertFalse(postProcessorConfig.hasInternalSource());
     }
 
     @Test
@@ -231,13 +193,13 @@ public class PostProcessorConfigTest {
         Map<String, String> transformationArguments = new HashMap<>();
         transformationArguments.put("keyValue", "key");
         transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
-        postProcessorConfig = new PostProcessorConfig(null, transformConfigs,internalSource );
+        postProcessorConfig = new PostProcessorConfig(null, transformConfigs, internalSource);
         assertTrue(postProcessorConfig.hasTransformConfigs());
     }
 
     @Test
     public void shouldBeFalseWhenTransformerSourceDoesNotExists() {
-        postProcessorConfig = new PostProcessorConfig(null, null,internalSource );
+        postProcessorConfig = new PostProcessorConfig(null, null, internalSource);
         assertFalse(postProcessorConfig.hasTransformConfigs());
     }
 
