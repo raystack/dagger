@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import static com.gojek.daggers.metrics.AsyncAspects.EMPTY_INPUT;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.CLOSE_CONNECTION_ON_HTTP_CLIENT;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.TOTAL_HTTP_CALLS;
 import static org.mockito.Mockito.*;
@@ -112,6 +114,17 @@ public class HttpAsyncConnectorTest {
 
         verify(boundRequestBuilder, times(1)).execute(any(HttpResponseHandler.class));
         verify(statsManager, times(1)).markEvent(TOTAL_HTTP_CALLS);
+    }
+
+    @Test
+    public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+
+        httpAsyncConnector.asyncInvoke(streamData,resultFuture);
+
+        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(statsManager, times(1)).markEvent(EMPTY_INPUT);
     }
 
     @Test
