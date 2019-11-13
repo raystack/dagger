@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.external.es;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.metrics.AsyncAspects;
+import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -51,6 +52,7 @@ public class EsAsyncConnectorTest {
     private Row streamRow;
     private Row outputData;
     private StencilClient stencilClient;
+    private ColumnNameManager columnNameManager;
 
     @Before
     public void setUp() throws Exception {
@@ -77,7 +79,7 @@ public class EsAsyncConnectorTest {
         when(metricGroup.meter(any(), any())).thenReturn(meter);
         statsManager = new StatsManager(runtimeContext, false);
         inputColumnNames = new String[]{"order_id","event_timestamp","driver_id","customer_id","status", "service_area_id"};
-
+        columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
         stencilClient = mock(StencilClient.class);
     }
 
@@ -88,8 +90,6 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputWhenEndpointVariableIsEmpty() throws Exception {
-        ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
-
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -103,7 +103,6 @@ public class EsAsyncConnectorTest {
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
-        ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
         esAsyncConnector.open(configuration);
@@ -115,7 +114,6 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldEnrichOutputForCorrespondingEnrichmentKey() throws Exception {
-        ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
         inputData.setField(2,"11223344545");
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager, esClient);
@@ -128,7 +126,6 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
-        ColumnNameManager columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
         esClient = null;
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
         esAsyncConnector.open(configuration);
