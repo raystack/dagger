@@ -21,8 +21,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Map;
+import java.util.UnknownFormatConversionException;
 import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.AsyncAspects.INVALID_CONFIGURATION;
@@ -79,25 +81,33 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        RowManager rowManager = new RowManager(input);
-        Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
-        String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
-        String endpoint = httpSourceConfig.getEndpoint();
+        try {
+            RowManager rowManager = new RowManager(input);
+            Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
+            if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(bodyVariables).isEmpty()) {
+                resultFuture.complete(Collections.singleton(rowManager.getAll()));
+                statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
+                return;
+            }
+            String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
+            String endpoint = httpSourceConfig.getEndpoint();
+            BoundRequestBuilder postRequest = httpClient
+                    .preparePost(endpoint)
+                    .setBody(requestBody);
+            addCustomHeaders(postRequest);
 
-        if (StringUtils.isEmpty(requestBody) || Arrays.asList(bodyVariables).isEmpty()) {
-            resultFuture.complete(Collections.singleton(rowManager.getAll()));
-            statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
-            return;
+            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
+            statsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
+            httpResponseHandler.startTimer();
+            postRequest.execute(httpResponseHandler);
+        } catch (UnknownFormatConversionException e) {
+            statsManager.markEvent(INVALID_CONFIGURATION);
+            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern())));
+        } catch (IllegalFormatException e){
+            statsManager.markEvent(INVALID_CONFIGURATION);
+            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern())));
         }
-        BoundRequestBuilder postRequest = httpClient
-                .preparePost(endpoint)
-                .setBody(requestBody);
-        addCustomHeaders(postRequest);
 
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
-        statsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
-        httpResponseHandler.startTimer();
-        postRequest.execute(httpResponseHandler);
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
@@ -114,9 +124,9 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
-            if(inputColumnIndex == -1){
+            if (inputColumnIndex == -1) {
                 statsManager.markEvent(INVALID_CONFIGURATION);
-                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName)));
+                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the request variable", inputColumnName)));
                 return new Object[0];
             }
             inputColumnValues.add(rowManager.getFromInput(inputColumnIndex));
