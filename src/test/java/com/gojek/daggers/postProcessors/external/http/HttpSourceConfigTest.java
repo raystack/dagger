@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -173,5 +174,15 @@ public class HttpSourceConfigTest {
         assertEquals(expectedMandatoryFields.get("streamTimeout"), actualMandatoryFields.get("streamTimeout"));
         assertEquals(expectedMandatoryFields.get("connectTimeout"), actualMandatoryFields.get("connectTimeout"));
         assertEquals(outputMapping.getPath(), ((Map<String, OutputMapping>) actualMandatoryFields.get("outputMapping")).get("surge_factor").getPath());
+    }
+
+    @Test
+    public void shouldValidateWhenOutputMappingIsEmpty() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Missing required fields: [outputMapping]");
+
+        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>());
+
+        httpSourceConfig.validateFields();
     }
 }
