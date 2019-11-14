@@ -72,9 +72,9 @@ public class EsResponseHandler implements ResponseListener {
                 try {
                     outputValue = JsonPath.parse(responseBody).read(outputColumnPath, new HashMap<String, Object>().getClass());
                 } catch (PathNotFoundException exception) {
-                    resultFuture.completeExceptionally(exception);
                     statsManager.markEvent(FAILURES_ON_READING_PATH);
                     LOGGER.error(exception.getMessage());
+                    resultFuture.completeExceptionally(exception);
                     return;
                 }
                 int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);

@@ -117,6 +117,7 @@ public class ExternalPostProcessorTest {
     @Test
     public void shouldBeFalseWhenExternalSourceDoesNotExist() {
         postProcessorConfig = new PostProcessorConfig(null, null, null);
+
         assertFalse(externalPostProcessor.canProcess(postProcessorConfig));
     }
 

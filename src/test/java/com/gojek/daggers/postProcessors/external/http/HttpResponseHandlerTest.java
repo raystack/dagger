@@ -269,57 +269,74 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowExceptionIfPathIsWrongIfFailOnErrorsTrue() throws Exception {
-//        when(httpSourceConfig.getEndpoint()).thenReturn("http://localhost");
-//        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
-//        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
-//        outputMappings.put("surge_factor", outputMapping1);
-//        when(outputMapping1.getPath()).thenReturn("$.wrong_path");
-//        when(httpSourceConfig.getOutputMapping()).thenReturn(outputMappings);
-//
-//        Row inputRow = new Row(2);
-//        inputRow.setField(0, "body");
-//        Row resultRow = new Row(2);
-//        resultRow.setField(0, "body");
-//        resultRow.setField(1, 0.732f);
-//        columnNames = new String[]{"request_body", "surge_factor"};
+        outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
+        outputColumnNames = Arrays.asList("surge_factor");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, 0.732f);
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
 
-//        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpSourceConfig, columnNames, descriptor, statsManager);
-//        httpResponseHandler.start();
-//        when(response.getStatusCode()).thenReturn(200);
-//        when(response.getResponseBody()).thenReturn("{\n" +
-//                "  \"surge\": 0.732\n" +
-//                "}");
-//        httpResponseHandler.onCompleted(response);
-//        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
-//        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
-    }
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
+        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+}
+
+    @Test
+    public void shouldNotThrowExceptionIfPathIsWrongIfFailOnErrorsFalse() throws Exception {
+        outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
+        outputColumnNames = Arrays.asList("surge_factor");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, 0.732f);
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
+        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+}
 
     @Test
     public void shouldPopulateResultAsObjectIfTypeIsNotPassed() throws Exception {
-//        when(httpSourceConfig.getEndpoint()).thenReturn("http://localhost");
-//        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
-//        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
-//        outputMappings.put("surge_factor", outputMapping1);
-//        when(outputMapping1.getPath()).thenReturn("$.surge");
-//        when(httpSourceConfig.getOutputMapping()).thenReturn(outputMappings);
-//        when(httpSourceConfig.getType()).thenReturn(null);
-//
-//        Row inputRow = new Row(2);
-//        inputRow.setField(0, "body");
-//        Row resultRow = new Row(2);
-//        resultRow.setField(0, "body");
-//        resultRow.setField(1, 0.732);
-//        columnNames = new String[]{"request_body", "surge_factor"};
+        outputMapping.put("surge_factor", new OutputMapping("$.surge"));
+        outputColumnNames = Arrays.asList("surge_factor");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, 0.732);
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
 
-//        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpSourceConfig, columnNames, descriptor, statsManager);
-//        httpResponseHandler.start();
-//        when(response.getStatusCode()).thenReturn(200);
-//        when(response.getResponseBody()).thenReturn("{\n" +
-//                "  \"surge\": 0.732\n" +
-//                "}");
-//        httpResponseHandler.onCompleted(response);
-//        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
-//        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
-//        verify(resultFuture, times(1)).complete(Collections.singleton(resultRow));
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 }

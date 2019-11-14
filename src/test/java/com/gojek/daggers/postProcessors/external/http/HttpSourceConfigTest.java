@@ -101,6 +101,11 @@ public class HttpSourceConfigTest {
     }
 
     @Test
+    public void shouldReturnCapacity() {
+        Assert.assertEquals(Integer.valueOf(capacity), httpSourceConfig.getCapacity());
+    }
+
+    @Test
     public void shouldReturnColumnNames() {
         List<String> actualColumns = httpSourceConfig.getOutputColumns();
         String[] expectedColumns = {"surge_factor"};
