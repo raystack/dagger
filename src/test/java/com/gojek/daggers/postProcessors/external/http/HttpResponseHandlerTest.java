@@ -44,12 +44,6 @@ public class HttpResponseHandlerTest {
     @Mock
     private HttpSourceConfig httpSourceConfig;
 
-    @Mock
-    private OutputMapping outputMapping1;
-
-    @Mock
-    private OutputMapping outputMapping2;
-
     private Descriptors.Descriptor descriptor;
     private List<String> outputColumnNames;
     private String[] inputColumnNames;
@@ -75,7 +69,7 @@ public class HttpResponseHandlerTest {
         inputData = new Row(3);
         inputData.setField(1, "123456");
         streamData.setField(0, inputData);
-        streamData.setField(1, new Row(1));
+        streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
@@ -205,7 +199,7 @@ public class HttpResponseHandlerTest {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         Row resultStreamData = new Row(2);
-        Row outputData = new Row(1);
+        Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
@@ -224,68 +218,53 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPopulateMultipleResultsFromHttpCallInInputRow() throws Exception {
-//        when(httpSourceConfig.getEndpoint()).thenReturn("http://localhost");
-//        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
-//        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
-//        outputMappings.put("surge_factor", outputMapping1);
-//        when(outputMapping1.getPath()).thenReturn("$.surge");
-//        when(httpSourceConfig.getOutputMapping()).thenReturn(outputMappings);
-//        when(outputMapping2.getPath()).thenReturn("$.prediction");
-//        when(httpSourceConfig.getType()).thenReturn("test");
-//        outputMappings.put("s2_id_level", outputMapping2);
-//
-//        Row inputRow = new Row(3);
-//        inputRow.setField(0, "body");
-//        Row resultRow = new Row(3);
-//        resultRow.setField(0, "body");
-//        resultRow.setField(1, 0.732f);
-//        resultRow.setField(2, 345);
-//        columnNames = new String[]{"request_body", "surge_factor", "s2_id_level"};
+        outputMapping.put("surge_factor", new OutputMapping("$.surge"));
+        outputMapping.put("s2_id_level", new OutputMapping("$.prediction"));
+        outputColumnNames = Arrays.asList("surge_factor", "s2_id_level");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, 0.732f);
+        outputData.setField(1, 345);
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732,\n" +
+                "  \"prediction\": 345\n" +
+                "}");
 
-//        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpSourceConfig, columnNames, descriptor, statsManager);
-//        httpResponseHandler.start();
-//        when(response.getStatusCode()).thenReturn(200);
-//        when(response.getResponseBody()).thenReturn("{\n" +
-//                "  \"surge\": 0.732,\n" +
-//                "  \"prediction\": 345\n" +
-//                "}");
-//        httpResponseHandler.onCompleted(response);
-//        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
-//        verify(resultFuture, times(1)).complete(Collections.singleton(resultRow));
-//        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
+        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
-    public void shouldThrowExcpetionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() throws Exception {
-//        descriptor = BookingLogMessage.getDescriptor();
-//
-//        when(httpSourceConfig.getEndpoint()).thenReturn("http://localhost");
-//        when(httpSourceConfig.getType()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
-//        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
-//        HashMap<String, OutputMapping> outputMappings = new HashMap<>();
-//        outputMappings.put("surge_factor", outputMapping1);
-//        when(outputMapping1.getPath()).thenReturn("$.surge");
-//        when(httpSourceConfig.getOutputMapping()).thenReturn(outputMappings);
-//
-//        Row inputRow = new Row(2);
-//        inputRow.setField(0, "body");
-//        Row resultRow = new Row(2);
-//        resultRow.setField(0, "body");
-//        resultRow.setField(1, 0.732f);
-//        columnNames = new String[]{"request_body", "surge_factor"};
+    public void shouldThrowExceptionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() throws Exception {
+        httpConfigType = "com.gojek.esb.booking.BookingLogMessage";
+        descriptor = BookingLogMessage.getDescriptor();
+        outputMapping.put("surge_factor", new OutputMapping("$.surge"));
+        outputColumnNames = Arrays.asList("surge_factor");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n" +
+                "  \"surge\": 0.732\n" +
+                "}");
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
 
-//        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(inputRow, resultFuture, httpSourceConfig, columnNames, descriptor, statsManager);
-//        httpResponseHandler.start();
-//        when(response.getStatusCode()).thenReturn(200);
-//        when(response.getResponseBody()).thenReturn("{\n" +
-//                "  \"surge\": 0.732\n" +
-//                "}");
-//        try {
-//            httpResponseHandler.onCompleted(response);
-//        } catch (Exception e) {
-//
-//        }
-//        verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
+        httpResponseHandler.startTimer();
+        try {
+            httpResponseHandler.onCompleted(response);
+        } catch (Exception ignored) {
+        } finally {
+            verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
+        }
     }
 
     @Test
