@@ -34,30 +34,42 @@ public class PostProcessorFactoryTest {
         initMocks(this);
     }
 
-//    @Test
-//    public void shouldReturnAshikoProcessor() {
-//        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(true);
-//        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
-//        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
-//
-//        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
-//
-//        Assert.assertEquals(1, postProcessors.size());
-//        Assert.assertEquals(AshikoProcessorDeprecated.class, postProcessors.get(0).getClass());
-//    }
-//
-//
-//    @Test
-//    public void shouldReturnLongbowProcessor() {
-//        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
-//        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
-//        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
-//
-//        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
-//
-//        Assert.assertEquals(1, postProcessors.size());
-//        Assert.assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
-//    }
+    @Test
+    public void shouldReturnAshikoProcessor() {
+        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(true);
+        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
+        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
+
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
+
+        Assert.assertEquals(1, postProcessors.size());
+        Assert.assertEquals(AshikoProcessorDeprecated.class, postProcessors.get(0).getClass());
+    }
+
+
+    @Test
+    public void shouldReturnLongbowProcessor() {
+        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
+        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
+        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
+
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
+
+        Assert.assertEquals(1, postProcessors.size());
+        Assert.assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
+    }
+
+    @Test
+    public void shouldReturnParentPostProcessor(){
+        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
+        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
+        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(true);
+
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
+
+        Assert.assertEquals(1, postProcessors.size());
+        Assert.assertEquals(ParentPostProcessor.class, postProcessors.get(0).getClass());
+    }
 //
 //
 //    @Test
