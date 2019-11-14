@@ -17,12 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.utils.Constants.*;
+import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
+import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT;
 
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
-    private Configuration configuration;
     private final StencilClient stencilClient;
+    private Configuration configuration;
 
     public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClient stencilClient) {
         this.postProcessorConfig = postProcessorConfig;
@@ -33,7 +34,7 @@ public class ParentPostProcessor implements PostProcessor {
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
-        if(!canProcess(postProcessorConfig)) return streamInfo;
+        if (!canProcess(postProcessorConfig)) return streamInfo;
         DataStream<Row> resultStream = streamInfo.getDataStream();
         ColumnNameManager columnNameManager = new ColumnNameManager(streamInfo.getColumnNames(), postProcessorConfig.getOutputColumnNames());
 
@@ -47,8 +48,12 @@ public class ParentPostProcessor implements PostProcessor {
 
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator();
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
+        StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
+        if (transformProcessor.canProcess(postProcessorConfig))
+            resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
 
-        return new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
+        return resultantStreamInfo;
     }
 
     public List<PostProcessor> getEnabledPostProcessors(StencilClient stencilClient, ColumnNameManager columnNameManager) {
@@ -56,7 +61,6 @@ public class ParentPostProcessor implements PostProcessor {
             return new ArrayList<>();
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new ExternalPostProcessor(stencilClient, postProcessorConfig.getExternalSource(), columnNameManager));
-        postProcessors.add(new TransformProcessor(postProcessorConfig.getTransformers()));
         postProcessors.add(new InternalPostProcessor(postProcessorConfig));
         return postProcessors
                 .stream()
