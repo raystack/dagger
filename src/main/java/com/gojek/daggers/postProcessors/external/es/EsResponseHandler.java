@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.gojek.daggers.metrics.AsyncAspects.*;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.FAILURES_ON_READING_PATH;
+import static com.gojek.daggers.postProcessors.common.RowMaker.fetchTypeAppropriateValue;
 import static com.gojek.daggers.postProcessors.common.RowMaker.makeRow;
 import static java.time.Duration.between;
 import static java.util.Collections.singleton;
@@ -68,9 +68,9 @@ public class EsResponseHandler implements ResponseListener {
             List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
             esOutputColumnNames.forEach(outputColumnName -> {
                 String outputColumnPath = esSourceConfig.getPath(outputColumnName);
-                Map<String, Object> outputValue;
+                Object outputValue;
                 try {
-                    outputValue = JsonPath.parse(responseBody).read(outputColumnPath, new HashMap<String, Object>().getClass());
+                    outputValue = JsonPath.parse(responseBody).read(outputColumnPath, new Object().getClass());
                 } catch (PathNotFoundException exception) {
                     statsManager.markEvent(FAILURES_ON_READING_PATH);
                     LOGGER.error(exception.getMessage());
@@ -125,7 +125,7 @@ public class EsResponseHandler implements ResponseListener {
         resultFuture.complete(singleton(rowManager.getAll()));
     }
 
-    private void setField(int index, Map<String, Object> value, String name) {
+    private void setField(int index, Object value, String name) {
         if (!esSourceConfig.hasType()) {
             rowManager.setInOutput(index, value);
             return;
@@ -136,7 +136,11 @@ public class EsResponseHandler implements ResponseListener {
             statsManager.markEvent(INVALID_CONFIGURATION);
             return;
         }
-        rowManager.setInOutput(index, makeRow(value, fieldDescriptor.getMessageType()));
+        if (value instanceof Map) {
+            rowManager.setInOutput(index, makeRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+        } else {
+            rowManager.setInOutput(index, fetchTypeAppropriateValue(value, fieldDescriptor));
+        }
     }
 
     private boolean isNotFound(ResponseException e) {

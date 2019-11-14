@@ -1,9 +1,11 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.es.EsResponseHandler;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.AsyncAspects.EMPTY_INPUT;
+import static com.gojek.daggers.metrics.AsyncAspects.INVALID_CONFIGURATION;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.CLOSE_CONNECTION_ON_HTTP_CLIENT;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.TOTAL_HTTP_CALLS;
 import static org.mockito.Mockito.*;
@@ -102,6 +105,25 @@ public class HttpAsyncConnectorTest {
         httpAsyncConnector.open(flinkConfiguration);
 
         verify(statsManager, times(1)).register("external.source.http", ExternalSourceAspects.values());
+    }
+
+    @Test
+    public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() throws Exception {
+        String invalid_request_variable = "invalid_variable";
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+
+        try {
+            httpAsyncConnector.asyncInvoke(streamData,resultFuture);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
 
     @Test
