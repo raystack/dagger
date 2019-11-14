@@ -121,6 +121,39 @@ public class HttpAsyncConnectorTest {
             e.printStackTrace();
         }
 
+        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+    }
+
+    @Test
+    public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() throws Exception {
+        String invalidRequestPattern = "{\"key\": \"%\"}";
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        try {
+            httpAsyncConnector.asyncInvoke(streamData,resultFuture);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+    }
+
+    @Test
+    public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() throws Exception {
+        String invalidRequestPattern = "{\"key\": \"%d\"}";
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        try {
+            httpAsyncConnector.asyncInvoke(streamData,resultFuture);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
