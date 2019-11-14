@@ -19,7 +19,9 @@ import org.elasticsearch.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IllegalFormatException;
 import java.util.List;
+import java.util.UnknownFormatConversionException;
 
 import static com.gojek.daggers.metrics.AsyncAspects.*;
 import static java.util.Collections.singleton;
@@ -66,15 +68,23 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-        RowManager rowManager = new RowManager(input);
-        Object[] endpointVariablesValues = getEndpointVariablesValues(rowManager, resultFuture);
-        if (isEndpointInvalid(resultFuture, rowManager, endpointVariablesValues)) return;
-        String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
-        Request esRequest = new Request("GET", esEndpoint);
-        statsManager.markEvent(TOTAL_ES_CALLS);
-        EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
-        esResponseHandler.startTimer();
-        esClient.performRequestAsync(esRequest, esResponseHandler);
+        try {
+            RowManager rowManager = new RowManager(input);
+            Object[] endpointVariablesValues = getEndpointVariablesValues(rowManager, resultFuture);
+            if (isEndpointInvalid(resultFuture, rowManager, endpointVariablesValues)) return;
+            String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
+            Request esRequest = new Request("GET", esEndpoint);
+            statsManager.markEvent(TOTAL_ES_CALLS);
+            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
+            esResponseHandler.startTimer();
+            esClient.performRequestAsync(esRequest, esResponseHandler);
+        } catch (UnknownFormatConversionException e) {
+            statsManager.markEvent(INVALID_CONFIGURATION);
+            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is invalid", esSourceConfig.getEndpointPattern())));
+        } catch (IllegalFormatException e) {
+            statsManager.markEvent(INVALID_CONFIGURATION);
+            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is incompatible with the endpoint variable", esSourceConfig.getEndpointPattern())));
+        }
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
