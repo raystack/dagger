@@ -2,6 +2,8 @@ package com.gojek.daggers.postProcessors;
 
 import com.gojek.daggers.postProcessors.external.ExternalSourceConfig;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
+import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -124,7 +126,22 @@ public class PostProcessorConfigTest {
 
 
     @Test
-    public void shouldBeFalseWhenExternalSourceConfigExist(){
+    public void shouldBeFalseWhenExternalSourceHasHttpConfigExist(){
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        http.add(new HttpSourceConfig("","","","","","",false,"","", new HashMap<>(), new HashMap<>()));
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+
+    @Test
+    public void shouldBeFalseWhenExternalSourceHasEsConfigExist(){
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
         assertFalse(postProcessorConfig.isEmpty());
     }
@@ -138,6 +155,7 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldBeFalseWhenTransformConfigsExist(){
+        transformConfigs.add(new TransformConfig("testClass",new HashMap<>()));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs, null);
         assertFalse(postProcessorConfig.isEmpty());
     }
@@ -166,6 +184,10 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldBeTrueWhenExternalSourceExists() {
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());
     }
