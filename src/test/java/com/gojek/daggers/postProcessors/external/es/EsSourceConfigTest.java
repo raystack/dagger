@@ -3,7 +3,9 @@ package com.gojek.daggers.postProcessors.external.es;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +14,9 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class EsSourceConfigTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private EsSourceConfig esSourceConfig;
     private String host;
@@ -160,4 +165,15 @@ public class EsSourceConfigTest {
         HashMap<String, Object> actualMandatoryFields = esSourceConfig.getMandatoryFields();
         assertArrayEquals(expectedMandatoryFields.values().toArray(), actualMandatoryFields.values().toArray());
     }
+
+    @Test
+    public void shouldValidateWhenOutputMappingIsEmpty() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Missing required fields: [outputMapping]");
+
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>());
+
+        esSourceConfig.validateFields();
+    }
+    
 }
