@@ -3,7 +3,6 @@ package com.gojek.daggers.postProcessors.external.http;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,8 +24,8 @@ public class HttpSourceConfigTest {
     private String streamTimeout;
     private String endpoint;
     private String verb;
-    private String bodyPattern;
-    private String bodyVariables;
+    private String requestPattern;
+    private String requestVariables;
     private String connectTimeout;
     private boolean failOnErrors;
     private String type;
@@ -42,13 +41,13 @@ public class HttpSourceConfigTest {
         streamTimeout = "123";
         endpoint = "http://localhost:1234";
         verb = "POST";
-        bodyPattern = "/customers/customer/%s";
-        bodyVariables = "customer_id";
+        requestPattern = "/customers/customer/%s";
+        requestVariables = "customer_id";
         connectTimeout = "234";
         failOnErrors = false;
         type = "com.gojek.esb.booking.BookingLogMessage";
         capacity = "345";
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, bodyPattern, bodyVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings);
+        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings);
     }
 
     @Test
@@ -68,12 +67,12 @@ public class HttpSourceConfigTest {
 
     @Test
     public void shouldReturnBodyPattern() {
-        Assert.assertEquals(bodyPattern, httpSourceConfig.getBodyPattern());
+        Assert.assertEquals(requestPattern, httpSourceConfig.getRequestPattern());
     }
 
     @Test
     public void shouldReturnBodyVariable() {
-        Assert.assertEquals(bodyVariables, httpSourceConfig.getBodyVariables());
+        Assert.assertEquals(requestVariables, httpSourceConfig.getRequestVariables());
     }
 
     @Test
@@ -118,9 +117,9 @@ public class HttpSourceConfigTest {
     @Test
     public void shouldThrowExceptionIfAllFieldsMissing() {
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [bodyPattern, endpoint, streamTimeout, verb, connectTimeout, outputMapping]");
+        expectedException.expectMessage("Missing required fields: [endpoint, streamTimeout, requestPattern, verb, connectTimeout, outputMapping]");
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, bodyVariables, null, null, false, null, capacity, null, null);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, requestVariables, null, null, false, null, capacity, null, null);
         httpSourceConfig.validateFields();
     }
 
@@ -129,7 +128,7 @@ public class HttpSourceConfigTest {
         expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
         expectedException.expect(IllegalArgumentException.class);
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "post", "body", bodyVariables, null, null, false, null, capacity, null, null);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "post", "body", requestVariables, null, null, false, null, capacity, null, null);
         httpSourceConfig.validateFields();
     }
 
@@ -143,7 +142,7 @@ public class HttpSourceConfigTest {
         outputMappings.put("field", outputMappingWithNullField);
 
         httpSourceConfig = new HttpSourceConfig("http://localhost",
-                "post", "request_body", bodyVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings);
+                "post", "request_body", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings);
         httpSourceConfig.validateFields();
     }
 
@@ -154,8 +153,8 @@ public class HttpSourceConfigTest {
         expectedMandatoryFields.put("verb", verb);
         expectedMandatoryFields.put("failOnErrors", failOnErrors);
         expectedMandatoryFields.put("capacity", capacity);
-        expectedMandatoryFields.put("bodyPattern", bodyPattern);
-        expectedMandatoryFields.put("bodyVariables", bodyVariables);
+        expectedMandatoryFields.put("requestPattern", requestPattern);
+        expectedMandatoryFields.put("requestVariables", requestVariables);
         expectedMandatoryFields.put("streamTimeout", streamTimeout);
         expectedMandatoryFields.put("connectTimeout", connectTimeout);
         expectedMandatoryFields.put("outputMapping", outputMapping);
@@ -164,8 +163,8 @@ public class HttpSourceConfigTest {
         assertEquals(expectedMandatoryFields.get("verb"), actualMandatoryFields.get("verb"));
         assertEquals(expectedMandatoryFields.get("failOnErrors"), actualMandatoryFields.get("failOnErrors"));
         assertEquals(expectedMandatoryFields.get("capacity"), actualMandatoryFields.get("capacity"));
-        assertEquals(expectedMandatoryFields.get("bodyPattern"), actualMandatoryFields.get("bodyPattern"));
-        assertEquals(expectedMandatoryFields.get("bodyVariables"), actualMandatoryFields.get("bodyVariables"));
+        assertEquals(expectedMandatoryFields.get("requestPattern"), actualMandatoryFields.get("requestPattern"));
+        assertEquals(expectedMandatoryFields.get("requestVariables"), actualMandatoryFields.get("requestVariables"));
         assertEquals(expectedMandatoryFields.get("streamTimeout"), actualMandatoryFields.get("streamTimeout"));
         assertEquals(expectedMandatoryFields.get("connectTimeout"), actualMandatoryFields.get("connectTimeout"));
         assertEquals(outputMapping.getPath(), ((Map<String, OutputMapping>) actualMandatoryFields.get("outputMapping")).get("surge_factor").getPath());
