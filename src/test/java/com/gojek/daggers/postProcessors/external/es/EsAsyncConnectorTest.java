@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.AsyncAspects;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
@@ -91,10 +92,26 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputWhenEndpointVariableIsEmpty() throws Exception {
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
+
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
+        verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
+    }
+
+    @Test
+    public void shouldNotEnrichOutputWhenEndpointVariableIsInvalid() throws Exception {
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
+                "invalid_variable", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, statsManager,esClient);
+
+        esAsyncConnector.open(configuration);
+        esAsyncConnector.asyncInvoke(streamRow, resultFuture);
+
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+        verify(statsManager, times(1)).markEvent(AsyncAspects.INVALID_CONFIGURATION);
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 

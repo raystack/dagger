@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.es;
 
+import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.AsyncAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -39,7 +40,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.columnNameManager = columnNameManager;
     }
 
-    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, StatsManager statsManager, RestClient esClient){
+    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, StatsManager statsManager, RestClient esClient) {
         this(esSourceConfig, stencilClient, columnNameManager);
         this.statsManager = statsManager;
         this.esClient = esClient;
@@ -66,7 +67,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         RowManager rowManager = new RowManager(input);
-        Object[] endpointVariablesValues = getEndpointVariablesValues(rowManager);
+        Object[] endpointVariablesValues = getEndpointVariablesValues(rowManager, resultFuture);
         if (isEndpointInvalid(resultFuture, rowManager, endpointVariablesValues)) return;
         String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
         Request esRequest = new Request("GET", esEndpoint);
@@ -102,22 +103,28 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         boolean invalidEndpointPattern = StringUtils.isEmpty(esSourceConfig.getEndpointPattern());
         boolean emptyEndpointVariable = Arrays.asList(endpointVariablesValues).isEmpty();
         if (invalidEndpointPattern || emptyEndpointVariable) {
-            resultFuture.complete(singleton(rowManager.getAll()));
             statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
+            resultFuture.complete(singleton(rowManager.getAll()));
             return true;
         }
         return false;
     }
 
-    private Object[] getEndpointVariablesValues(RowManager rowManager) {
+    private Object[] getEndpointVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
         List<String> requiredInputColumns = Arrays.asList(esSourceConfig.getEndpointVariables().split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
-        requiredInputColumns.forEach(inputColumnName -> {
+        for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
+            if (inputColumnIndex == -1) {
+                statsManager.markEvent(INVALID_CONFIGURATION);
+                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName)));
+                return new Object[0];
+            }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
             if (inputColumnValue != null && StringUtils.isNotEmpty(String.valueOf(inputColumnValue)))
                 inputColumnValues.add(inputColumnValue);
-        });
+        }
+
         return inputColumnValues.toArray();
     }
 }

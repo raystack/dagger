@@ -108,6 +108,34 @@ public class EsResponseHandlerTest {
     }
 
     @Test
+    public void shouldCompleteResultFutureWithInputForPrimitiveData() {
+        MockUp<EntityUtils> mockUp = new MockUp<EntityUtils>() {
+            @Mock
+            public String toString(HttpEntity entity) {
+                return "{\"_source\": {\"driver_id\":\"12345\"}}";
+            }
+        };
+
+        descriptor = DriverProfileFlattenLogMessage.getDescriptor();
+        outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping);
+        outputColumnNames.add("driver_id");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345,descriptor.findFieldByName("driver_id")));
+        outputStreamData.setField(1, outputData);
+
+        esResponseHandler.startTimer();
+        esResponseHandler.onSuccess(response);
+
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
+
+        mockUp.tearDown();
+    }
+
+    @Test
     public void shouldCompleteResultFutureExceptionallyWhenPathDoesNotExists() {
         MockUp<EntityUtils> mockUp = new MockUp<EntityUtils>() {
             @Mock
