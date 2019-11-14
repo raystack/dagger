@@ -40,7 +40,7 @@ public class SqlConfigTypePathParserTest {
     @Test
     public void shouldThrowExceptionWhenTheColumnNameIsNotFoundInInputColumns(){
         expectedException.expect(InvalidConfigurationException.class);
-        expectedException.expectMessage("Value in input field is wrongly configured");
+        expectedException.expectMessage("Value 'value' in input field for sql is wrongly configured");
 
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql");

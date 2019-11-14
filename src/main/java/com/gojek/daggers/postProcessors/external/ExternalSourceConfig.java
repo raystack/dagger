@@ -25,7 +25,7 @@ public class ExternalSourceConfig {
     }
 
     public boolean isEmpty() {
-        return http == null && es == null;
+        return (http == null || http.isEmpty()) && (es == null || es.isEmpty());
     }
 
     public List<String> getOutputColumnNames() {
