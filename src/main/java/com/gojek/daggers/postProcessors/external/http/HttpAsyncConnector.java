@@ -79,7 +79,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         RowManager rowManager = new RowManager(input);
         Object[] bodyVariables = getBodyVariablesValues(rowManager);
-        String requestBody = String.format(httpSourceConfig.getBodyPattern(), bodyVariables);
+        String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
         String endpoint = httpSourceConfig.getEndpoint();
 
         if (StringUtils.isEmpty(requestBody) || Arrays.asList(bodyVariables).isEmpty()) {
@@ -112,7 +112,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     }
 
     private Object[] getBodyVariablesValues(RowManager rowManager) {
-        List<String> requiredInputColumns = Arrays.asList(httpSourceConfig.getBodyVariables().split(","));
+        List<String> requiredInputColumns = Arrays.asList(httpSourceConfig.getRequestVariables().split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         requiredInputColumns.forEach(inputColumnName -> {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);

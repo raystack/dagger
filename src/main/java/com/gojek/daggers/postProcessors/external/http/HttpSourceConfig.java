@@ -12,8 +12,8 @@ import java.util.Map;
 public class HttpSourceConfig implements Serializable, SourceConfig {
     private String endpoint;
     private String verb;
-    private String bodyPattern;
-    private String bodyVariables;
+    private String requestPattern;
+    private String requestVariables;
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
@@ -22,11 +22,11 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
 
-    public HttpSourceConfig(String endpoint, String verb, String bodyPattern, String bodyVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
         this.endpoint = endpoint;
         this.verb = verb;
-        this.bodyPattern = bodyPattern;
-        this.bodyVariables = bodyVariables;
+        this.requestPattern = requestPattern;
+        this.requestVariables = requestVariables;
         this.streamTimeout = streamTimeout;
         this.connectTimeout = connectTimeout;
         this.failOnErrors = failOnErrors;
@@ -48,12 +48,12 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return verb;
     }
 
-    public String getBodyVariables() {
-        return bodyVariables;
+    public String getRequestVariables() {
+        return requestVariables;
     }
 
-    public String getBodyPattern() {
-        return bodyPattern;
+    public String getRequestPattern() {
+        return requestPattern;
     }
 
     public Integer getStreamTimeout() {
@@ -87,8 +87,8 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("verb", verb);
         mandatoryFields.put("failOnErrors", failOnErrors);
         mandatoryFields.put("capacity", capacity);
-        mandatoryFields.put("bodyPattern", bodyPattern);
-        mandatoryFields.put("bodyVariables", bodyVariables);
+        mandatoryFields.put("requestPattern", requestPattern);
+        mandatoryFields.put("requestVariables", requestVariables);
         mandatoryFields.put("streamTimeout", streamTimeout);
         mandatoryFields.put("connectTimeout", connectTimeout);
         mandatoryFields.put("outputMapping", outputMapping);
