@@ -32,6 +32,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldParseGivenConfiguration() {
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+
         assertNotNull(postProcessorConfig);
     }
 
@@ -43,6 +44,7 @@ public class PostProcessorConfigTest {
         expectedColumnNames.add("customer_profile");
         expectedColumnNames.add("event_timestamp");
         expectedColumnNames.add("s2_id_level");
+
         assertArrayEquals(expectedColumnNames.toArray(), postProcessorConfig.getOutputColumnNames().toArray());
     }
 
@@ -94,14 +96,11 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldReturnTransformConfig() {
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
-
         HashMap<String, String> transformationArguments;
         transformationArguments = new HashMap<>();
         transformationArguments.put("keyColumnName", "s2id");
         transformationArguments.put("valueColumnName", "features");
-
         String transformationClass = "com.gojek.daggers.postprocessor.FeatureTransformer";
-
         TransformConfig expectedTransformerConfig = new TransformConfig(transformationClass, transformationArguments);
 
         TransformConfig actualTransformerConfig = postProcessorConfig.getTransformers().get(0);
@@ -114,27 +113,51 @@ public class PostProcessorConfigTest {
     public void shouldThrowExceptionIfInvalidJsonConfigurationPassed() {
         expectedException.expect(InvalidJsonException.class);
         expectedException.expectMessage("Invalid JSON Given for POST_PROCESSOR_CONFIG");
+
         configuration = "test";
+
         PostProcessorConfig.parse(configuration);
     }
 
     @Test
-    public void shouldBeTrueWhenNoneOfTheConfigsExist(){
+    public void shouldBeEmptyWhenNoneOfTheConfigsExist(){
         postProcessorConfig = new PostProcessorConfig(null, null, null);
+
         assertTrue(postProcessorConfig.isEmpty());
     }
 
 
     @Test
-    public void shouldBeFalseWhenExternalSourceHasHttpConfigExist(){
+    public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist(){
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         http.add(new HttpSourceConfig("","","","","","",false,"","", new HashMap<>(), new HashMap<>()));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+
         assertFalse(postProcessorConfig.isEmpty());
     }
 
+    @Test
+    public void shouldNotBeEmptyWhenExternalSourceHasEsConfigExist(){
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldBeEmptyWhenExternalSourceHasEmptyConfig(){
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+
+        assertTrue(postProcessorConfig.isEmpty());
+    }
 
     @Test
     public void shouldBeFalseWhenExternalSourceHasEsConfigExist(){
@@ -143,27 +166,31 @@ public class PostProcessorConfigTest {
         es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
-        assertFalse(postProcessorConfig.isEmpty());
-    }
 
-
-    @Test
-    public void shouldBeFalseWhenInternalSourceExist(){
-        postProcessorConfig = new PostProcessorConfig(null, null, internalSource);
         assertFalse(postProcessorConfig.isEmpty());
     }
 
     @Test
-    public void shouldBeFalseWhenTransformConfigsExist(){
+    public void shouldNotBeEmptyWhenInternalSourceExist(){
+        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
+        internalSourceConfigs.add(new InternalSourceConfig("outputField","value","type"));
+        postProcessorConfig = new PostProcessorConfig(null, null, internalSourceConfigs);
+
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyWhenTransformConfigsExist(){
         transformConfigs.add(new TransformConfig("testClass",new HashMap<>()));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs, null);
+
         assertFalse(postProcessorConfig.isEmpty());
     }
 
     @Test
     public void shouldReturnExternalSourceConfig() {
-
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
+
         assertEquals(externalSourceConfig, postProcessorConfig.getExternalSource());
     }
 
@@ -199,9 +226,17 @@ public class PostProcessorConfigTest {
     }
 
     @Test
-    public void shouldBeTrueWhenInternalSourceExists() {
+    public void shouldNotHaveInternalSourceWhenInternalSourceIsEmpty() {
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
-        assertTrue(postProcessorConfig.hasInternalSource());
+        assertFalse(postProcessorConfig.hasInternalSource());
+    }
+
+    @Test
+    public void shouldHaveInternalSourceWhenInternalSourceIsNotEmpty() {
+        ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
+        internalSource.add(new InternalSourceConfig("outputField","value","type"));
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, this.internalSource);
+        assertFalse(postProcessorConfig.hasInternalSource());
     }
 
     @Test

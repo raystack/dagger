@@ -56,7 +56,7 @@ public class ParentPostProcessor implements PostProcessor {
         return resultantStreamInfo;
     }
 
-    public List<PostProcessor> getEnabledPostProcessors(StencilClient stencilClient, ColumnNameManager columnNameManager) {
+    private List<PostProcessor> getEnabledPostProcessors(StencilClient stencilClient, ColumnNameManager columnNameManager) {
         if (!configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
             return new ArrayList<>();
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
