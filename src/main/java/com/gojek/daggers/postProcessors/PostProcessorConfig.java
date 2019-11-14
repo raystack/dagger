@@ -56,7 +56,7 @@ public class PostProcessorConfig implements Serializable {
     }
 
     public boolean hasInternalSource() {
-        return internalSource != null;
+        return internalSource != null && !internalSource.isEmpty();
     }
 
     public boolean isEmpty() {
