@@ -19,9 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
@@ -81,9 +79,9 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             try {
                 value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
             } catch (PathNotFoundException e) {
-                completeExceptionally(resultFuture, e);
                 statsManager.markEvent(FAILURES_ON_READING_PATH);
                 LOGGER.error(e.getMessage());
+                resultFuture.completeExceptionally(e);
                 return;
             }
             int fieldIndex = columnNameManager.getOutputIndex(key);
@@ -100,7 +98,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         statsManager.markEvent(TOTAL_FAILED_REQUESTS);
         LOGGER.error(logMessage);
         if (httpSourceConfig.isFailOnErrors())
-            completeExceptionally(resultFuture, new HttpFailureException(logMessage));
+            resultFuture.completeExceptionally(new HttpFailureException(logMessage));
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
@@ -115,12 +113,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private void setFieldUsingType(String key, Object value, Integer fieldIndex) {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
         if (fieldDescriptor == null)
-            completeExceptionally(resultFuture, new IllegalArgumentException("Field Descriptor not found for field: " + key));
+            resultFuture.completeExceptionally(new IllegalArgumentException("Field Descriptor not found for field: " + key));
         rowManager.setInOutput(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
-    }
-
-    private void completeExceptionally(ResultFuture<Row> resultFuture, Exception exception) {
-        resultFuture.completeExceptionally(exception);
     }
 
 }

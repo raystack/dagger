@@ -64,7 +64,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         }
         statsManager.register("external.source.http", ExternalSourceAspects.values());
         if (httpClient == null) {
-            httpClient = createHttpClient();
+            httpClient = asyncHttpClient(config().setConnectTimeout(httpSourceConfig.getConnectTimeout()));
         }
     }
 
@@ -105,10 +105,6 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         if (httpSourceConfig.isFailOnErrors())
             resultFuture.completeExceptionally(new TimeoutException("Timeout in HTTP Call"));
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
-    }
-
-    private AsyncHttpClient createHttpClient() {
-        return asyncHttpClient(config().setConnectTimeout(httpSourceConfig.getConnectTimeout()));
     }
 
     private Object[] getBodyVariablesValues(RowManager rowManager) {
