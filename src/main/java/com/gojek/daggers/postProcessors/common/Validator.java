@@ -16,8 +16,11 @@ public interface Validator {
         getMandatoryFields().forEach((key, value) -> {
             if (value == null || StringUtils.isEmpty(String.valueOf(value)))
                 fieldsMissing.add(key);
-            if (value instanceof Map)
+            if (value instanceof Map){
+                if(((Map) value).isEmpty())
+                    fieldsMissing.add(key);
                 nestedFields.addAll(((Map) value).values());
+            }
         });
         if (fieldsMissing.size() != 0)
             throw new IllegalArgumentException("Missing required fields: " + fieldsMissing.toString());
