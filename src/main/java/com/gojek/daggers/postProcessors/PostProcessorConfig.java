@@ -68,7 +68,7 @@ public class PostProcessorConfig implements Serializable {
     }
 
     public boolean hasTransformConfigs() {
-        return transformers != null;
+        return transformers != null && !transformers.isEmpty();
     }
 
     public List<String> getOutputColumnNames() {
