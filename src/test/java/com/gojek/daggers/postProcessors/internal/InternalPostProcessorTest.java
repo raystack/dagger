@@ -97,13 +97,18 @@ public class InternalPostProcessorTest {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
+
         internalSourceConfigs.add(new InternalSourceConfig("output","order_id","sql"));
+
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
+
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
+
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         DataStream resultStream = mock(DataStream.class);
         when(streamInfoMock.getColumnNames()).thenReturn(new String[]{"order_id","customer_id"});
         when(streamInfoMock.getDataStream()).thenReturn(resultStream);
+
         internalPostProcessor.process(streamInfoMock);
     }
 }
