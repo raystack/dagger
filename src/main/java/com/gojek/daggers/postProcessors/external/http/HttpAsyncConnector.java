@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.AsyncAspects;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import static com.gojek.daggers.metrics.AsyncAspects.INVALID_CONFIGURATION;
 import static com.gojek.daggers.metrics.ExternalSourceAspects.CLOSE_CONNECTION_ON_HTTP_CLIENT;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
@@ -78,7 +80,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         RowManager rowManager = new RowManager(input);
-        Object[] bodyVariables = getBodyVariablesValues(rowManager);
+        Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
         String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
         String endpoint = httpSourceConfig.getEndpoint();
 
@@ -107,12 +109,20 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
-    private Object[] getBodyVariablesValues(RowManager rowManager) {
+    private Object[] getBodyVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
         List<String> requiredInputColumns = Arrays.asList(httpSourceConfig.getRequestVariables().split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
-        requiredInputColumns.forEach(inputColumnName -> {
+        for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
+            if(inputColumnIndex == -1){
+                statsManager.markEvent(INVALID_CONFIGURATION);
+                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName)));
+                return new Object[0];
+            }
             inputColumnValues.add(rowManager.getFromInput(inputColumnIndex));
+        }
+        requiredInputColumns.forEach(inputColumnName -> {
+
         });
         return inputColumnValues.toArray();
     }
