@@ -3,9 +3,12 @@ package com.gojek.daggers.postProcessors.external.es;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
+import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
-import com.gojek.esb.driverprofile.DriverProfileLogMessage;
+import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
+import com.gojek.esb.fraud.EnrichedBookingLogMessage;
 import com.google.protobuf.Descriptors;
+import com.jayway.jsonpath.PathNotFoundException;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -34,35 +37,38 @@ public class EsResponseHandlerTest {
     private ResultFuture resultFuture;
     private Descriptors.Descriptor descriptor;
     private StatsManager statsManager;
-    private Row streamData;
     private EsResponseHandler esResponseHandler;
     private Response response;
     private EsSourceConfig esSourceConfig;
-    private Row inputData;
-    private Row outputData;
     private RowManager rowManager;
     private ColumnNameManager columnNameManager;
     private String[] inputColumnNames;
     private ArrayList<String> outputColumnNames;
+    private HashMap<String, OutputMapping> outputMapping;
+    private Row outputStreamData;
+    private Row outputData;
 
     @Before
     public void setUp() {
-        streamData = new Row(2);
-        inputData = new Row(3);
+        Row inputStreamData = new Row(2);
+        inputStreamData.setField(0, new Row(3));
+        inputStreamData.setField(1, new Row(4));
+        outputStreamData = new Row(2);
+        outputStreamData.setField(0, new Row(3));
         outputData = new Row(4);
-        streamData.setField(0,inputData);
-        streamData.setField(1,outputData);
-        rowManager = new RowManager(streamData);
+        outputStreamData.setField(1, outputData);
+        rowManager = new RowManager(inputStreamData);
+        outputMapping = new HashMap<>();
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
-                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, new HashMap<>());
+                "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping);
         resultFuture = mock(ResultFuture.class);
-        descriptor = DriverProfileLogMessage.getDescriptor();
+        descriptor = EnrichedBookingLogMessage.getDescriptor();
         statsManager = mock(StatsManager.class);
         inputColumnNames = new String[3];
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig,statsManager,rowManager, columnNameManager,descriptor,resultFuture);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         response = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
@@ -80,10 +86,44 @@ public class EsResponseHandlerTest {
             }
         };
 
+        outputMapping.put("driver_profile", new OutputMapping("$._source"));
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping);
+        outputColumnNames.add("driver_profile");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HashMap<String, Object> outputDataMap = new HashMap<>();
+        outputDataMap.put("driver_id", 12345);
+        outputData.setField(0, RowMaker.makeRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
+        outputStreamData.setField(1, outputData);
+
+
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
+
+        mockUp.tearDown();
+    }
+
+    @Test
+    public void shouldCompleteResultFutureExceptionallyWhenPathDoesNotExists() {
+        MockUp<EntityUtils> mockUp = new MockUp<EntityUtils>() {
+            @Mock
+            public String toString(HttpEntity entity) {
+                return "{\"_source\": {\"driver_id\":\"12345\"}}";
+            }
+        };
+        outputMapping.put("driver_id", new OutputMapping("$.invalidPath"));
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping);
+
+        esResponseHandler.startTimer();
+        esResponseHandler.onSuccess(response);
+
+        verify(resultFuture, times(1)).completeExceptionally(any(PathNotFoundException.class));
 
         mockUp.tearDown();
     }
@@ -100,7 +140,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
         mockUp.tearDown();
     }
@@ -117,14 +157,13 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
         mockUp.tearDown();
     }
 
     @Test
     public void shouldHandleExceptionAndReturnInput() {
-
         MockUp<EntityUtils> mockUp = new MockUp<EntityUtils>() {
             @Mock
             public String toString(HttpEntity entity) throws IOException {
@@ -135,7 +174,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
         mockUp.tearDown();
     }
@@ -148,7 +187,6 @@ public class EsResponseHandlerTest {
                 return "{\"_source\": {\"driver_id\":\"12345\"}}";
             }
         };
-
         MockUp<RowMaker> mockUpRowMaker = new MockUp<RowMaker>() {
             @Mock
             public Row makeRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) throws IOException {
@@ -159,7 +197,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
         mockUpEntityUtils.tearDown();
         mockUpRowMaker.tearDown();
@@ -181,7 +219,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new ResponseException(response));
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
     }
 
     @Test
@@ -201,7 +239,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new ResponseException(response));
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
     }
 
     @Test
@@ -218,10 +256,11 @@ public class EsResponseHandlerTest {
         when(response.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(502);
 
+
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new ResponseException(response));
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
     }
 
     @Test
@@ -241,7 +280,7 @@ public class EsResponseHandlerTest {
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new IOException(""));
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
     }
 
 }
