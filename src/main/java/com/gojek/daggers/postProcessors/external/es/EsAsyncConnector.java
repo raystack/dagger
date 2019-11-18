@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.AsyncAspects;
+import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -23,7 +23,7 @@ import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.UnknownFormatConversionException;
 
-import static com.gojek.daggers.metrics.AsyncAspects.*;
+import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
 import static java.util.Collections.singleton;
 
 
@@ -113,7 +113,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         boolean invalidEndpointPattern = StringUtils.isEmpty(esSourceConfig.getEndpointPattern());
         boolean emptyEndpointVariable = Arrays.asList(endpointVariablesValues).isEmpty();
         if (invalidEndpointPattern || emptyEndpointVariable) {
-            statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
+            statsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
             return true;
         }

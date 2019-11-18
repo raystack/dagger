@@ -3,14 +3,12 @@ package com.gojek.daggers.postProcessors.transfromers;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.TransformClassNotDefinedException;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
