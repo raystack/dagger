@@ -59,7 +59,7 @@ public class HttpResponseHandlerTest {
     public void setup() {
         initMocks(this);
         descriptor = SurgeFactorLogMessage.getDescriptor();
-        outputColumnNames = Arrays.asList("value");
+        outputColumnNames = Collections.singletonList("value");
         inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
         headers = new HashMap<>();
@@ -76,7 +76,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XX() throws Exception {
+    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XX() {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(404);
 
@@ -90,7 +90,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs5XX() throws Exception {
+    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs5XX() {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(502);
 
@@ -104,7 +104,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIsOtherThan5XXAnd4XX() throws Exception {
+    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIsOtherThan5XXAnd4XX() {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(302);
 
@@ -118,7 +118,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XX() throws Exception {
+    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(404);
@@ -133,7 +133,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs5XX() throws Exception {
+    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs5XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(502);
@@ -148,7 +148,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIsOtherThan5XXAnd4XX() throws Exception {
+    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIsOtherThan5XXAnd4XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         when(response.getStatusCode()).thenReturn(302);
@@ -163,7 +163,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPassInputIfFailOnErrorFalseAndOnThrowable() throws Exception {
+    public void shouldPassInputIfFailOnErrorFalseAndOnThrowable() {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         Throwable throwable = new Throwable("throwable message");
 
@@ -177,7 +177,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorIfFailOnErrorTrueAndOnThrowable() throws Exception {
+    public void shouldThrowErrorIfFailOnErrorTrueAndOnThrowable() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
         Throwable throwable = new Throwable("throwable message");
@@ -192,9 +192,9 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPopulateSingleResultFromHttpCallInInputRow() throws Exception {
+    public void shouldPopulateSingleResultFromHttpCallInInputRow() {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
-        outputColumnNames = Arrays.asList("surge_factor");
+        outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
@@ -217,7 +217,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPopulateMultipleResultsFromHttpCallInInputRow() throws Exception {
+    public void shouldPopulateMultipleResultsFromHttpCallInInputRow() {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputMapping.put("s2_id_level", new OutputMapping("$.prediction"));
         outputColumnNames = Arrays.asList("surge_factor", "s2_id_level");
@@ -245,11 +245,11 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() throws Exception {
+    public void shouldThrowExceptionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() {
         httpConfigType = "com.gojek.esb.booking.BookingLogMessage";
         descriptor = BookingLogMessage.getDescriptor();
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
-        outputColumnNames = Arrays.asList("surge_factor");
+        outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         when(response.getStatusCode()).thenReturn(200);
@@ -268,9 +268,9 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPathIsWrongIfFailOnErrorsTrue() throws Exception {
+    public void shouldThrowExceptionIfPathIsWrongIfFailOnErrorsTrue() {
         outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
-        outputColumnNames = Arrays.asList("surge_factor");
+        outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
@@ -289,12 +289,12 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
         verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
-}
+    }
 
     @Test
-    public void shouldNotThrowExceptionIfPathIsWrongIfFailOnErrorsFalse() throws Exception {
+    public void shouldNotThrowExceptionIfPathIsWrongIfFailOnErrorsFalse() {
         outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
-        outputColumnNames = Arrays.asList("surge_factor");
+        outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
@@ -313,12 +313,12 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
         verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
-}
+    }
 
     @Test
-    public void shouldPopulateResultAsObjectIfTypeIsNotPassed() throws Exception {
+    public void shouldPopulateResultAsObjectIfTypeIsNotPassed() {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
-        outputColumnNames = Arrays.asList("surge_factor");
+        outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping);
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);

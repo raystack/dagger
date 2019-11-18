@@ -23,8 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.AsyncAspects.*;
-import static com.gojek.daggers.metrics.ExternalSourceAspects.FAILURES_ON_READING_PATH;
+import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
 import static com.gojek.daggers.postProcessors.common.RowMaker.fetchTypeAppropriateValue;
 import static com.gojek.daggers.postProcessors.common.RowMaker.makeRow;
 import static java.time.Duration.between;

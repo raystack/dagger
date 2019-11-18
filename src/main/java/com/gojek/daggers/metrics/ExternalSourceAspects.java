@@ -15,7 +15,21 @@ public enum ExternalSourceAspects implements Aspects {
     TIMEOUTS("timeouts", Metric),
     SUCCESS_RESPONSE_TIME("successResponseTime", Histogram),
     FAILURES_RESPONSE_TIME("failureResponseTime", Histogram),
-    SUCCESS_RESPONSE("successResponse", Metric);
+    SUCCESS_RESPONSE("successResponse", Metric),
+    DOCUMENT_FOUND("documentFound", Metric),
+    ERROR_PARSING_RESPONSE("parseErrors", Metric),
+    FAILURES_ON_ES_RESPONSE_TIME("failedOnESResponseTime", Histogram),
+    FAILURES_ON_ES("failuresOnES5XX", Metric),
+    DOCUMENT_NOT_FOUND_ON_ES("documentNotFoundOnES404", Metric),
+    REQUEST_ERROR("requestError", Metric),
+    REQUEST_ERRORS_RESPONSE_TIME("requestErrorsResponseTime", Histogram),
+    OTHER_ERRORS("otherErrors", Metric),
+    OTHER_ERRORS_RESPONSE_TIME("otherErrorsResponseTime", Histogram),
+    TOTAL_ES_CALLS("totalESCalls", Metric),
+    EMPTY_INPUT("emptyInput", Metric),
+    ERROR_READING_RESPONSE("errorReadingResponse", Metric),
+    OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse", Metric),
+    INVALID_CONFIGURATION("invalidConfiguration", Metric);
 
     private String value;
     private AspectType aspectType;

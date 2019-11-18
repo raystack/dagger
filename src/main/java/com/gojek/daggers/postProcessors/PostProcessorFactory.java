@@ -25,8 +25,8 @@ public class PostProcessorFactory {
             postProcessors.add(new AshikoProcessorDeprecated(configuration, stencilClient));
         if (configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT).contains(LONGBOW_KEY))
             postProcessors.add(getLongBowProcessor(columnNames, configuration));
-        if(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
-            postProcessors.add(new ParentPostProcessor(parsePostProcessorConfig(configuration),configuration, stencilClient));
+        if (configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
+            postProcessors.add(new ParentPostProcessor(parsePostProcessorConfig(configuration), configuration, stencilClient));
         return postProcessors;
     }
 
