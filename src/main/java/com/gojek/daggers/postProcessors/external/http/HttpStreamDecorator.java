@@ -10,9 +10,9 @@ import org.apache.flink.types.Row;
 import java.util.concurrent.TimeUnit;
 
 public class HttpStreamDecorator implements StreamDecorator {
+    private final ColumnNameManager columnNameManager;
     private HttpSourceConfig httpSourceConfig;
     private StencilClient stencilClient;
-    private final ColumnNameManager columnNameManager;
 
     public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
         this.httpSourceConfig = httpSourceConfig;

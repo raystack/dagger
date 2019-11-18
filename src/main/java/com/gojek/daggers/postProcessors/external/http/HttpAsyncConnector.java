@@ -1,7 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.AsyncAspects;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -27,8 +26,7 @@ import java.util.Map;
 import java.util.UnknownFormatConversionException;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.AsyncAspects.INVALID_CONFIGURATION;
-import static com.gojek.daggers.metrics.ExternalSourceAspects.CLOSE_CONNECTION_ON_HTTP_CLIENT;
+import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
 
@@ -86,7 +84,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
             if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(bodyVariables).isEmpty()) {
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
-                statsManager.markEvent(AsyncAspects.EMPTY_INPUT);
+                statsManager.markEvent(EMPTY_INPUT);
                 return;
             }
             String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
@@ -101,9 +99,9 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             httpResponseHandler.startTimer();
             postRequest.execute(httpResponseHandler);
         } catch (UnknownFormatConversionException e) {
-            statsManager.markEvent(INVALID_CONFIGURATION);
+            statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern())));
-        } catch (IllegalFormatException e){
+        } catch (IllegalFormatException e) {
             statsManager.markEvent(INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern())));
         }

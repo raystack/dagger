@@ -11,7 +11,6 @@ import com.gojek.daggers.postProcessors.external.es.EsStreamDecorator;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.de.stencil.StencilClient;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
