@@ -1,10 +1,7 @@
 package com.gojek.daggers.postProcessors;
 
 import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.external.ExternalPostProcessor;
-import com.gojek.daggers.postProcessors.external.deprecated.AshikoProcessorDeprecated;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
-import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
 import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.junit.Assert;
@@ -34,18 +31,6 @@ public class PostProcessorFactoryTest {
         initMocks(this);
     }
 
-    @Test
-    public void shouldReturnAshikoProcessor() {
-        when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(true);
-        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
-        when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
-
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames);
-
-        Assert.assertEquals(1, postProcessors.size());
-        Assert.assertEquals(AshikoProcessorDeprecated.class, postProcessors.get(0).getClass());
-    }
-
 
     @Test
     public void shouldReturnLongbowProcessor() {
@@ -60,7 +45,7 @@ public class PostProcessorFactoryTest {
     }
 
     @Test
-    public void shouldReturnParentPostProcessor(){
+    public void shouldReturnParentPostProcessor() {
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(true);

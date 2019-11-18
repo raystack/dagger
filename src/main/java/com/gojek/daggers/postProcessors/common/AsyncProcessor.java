@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.external.deprecated;
+package com.gojek.daggers.postProcessors.common;
 
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;

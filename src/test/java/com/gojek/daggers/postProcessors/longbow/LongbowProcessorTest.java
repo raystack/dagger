@@ -2,7 +2,7 @@ package com.gojek.daggers.postProcessors.longbow;
 
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.DaggerConfigurationException;
-import com.gojek.daggers.postProcessors.external.deprecated.AsyncProcessor;
+import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
