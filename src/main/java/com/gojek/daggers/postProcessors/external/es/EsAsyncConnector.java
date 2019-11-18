@@ -5,7 +5,6 @@ import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
-import com.gojek.daggers.postProcessors.external.deprecated.ResponseBuilder;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
@@ -87,9 +86,10 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         }
     }
 
+    @Override
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         statsManager.markEvent(TIMEOUTS);
-        resultFuture.complete(singleton(new ResponseBuilder(input).build()));
+        resultFuture.complete(singleton(input));
     }
 
     private RestClient createESClient() {

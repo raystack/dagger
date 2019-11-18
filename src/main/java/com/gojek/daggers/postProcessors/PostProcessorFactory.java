@@ -1,8 +1,7 @@
 package com.gojek.daggers.postProcessors;
 
+import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.external.deprecated.AshikoProcessorDeprecated;
-import com.gojek.daggers.postProcessors.external.deprecated.AsyncProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
@@ -21,8 +20,6 @@ public class PostProcessorFactory {
     public static List<PostProcessor> getPostProcessors(Configuration configuration, StencilClient stencilClient, String[] columnNames) {
         List<PostProcessor> postProcessors = new ArrayList<>();
 
-        if (configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT))
-            postProcessors.add(new AshikoProcessorDeprecated(configuration, stencilClient));
         if (configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT).contains(LONGBOW_KEY))
             postProcessors.add(getLongBowProcessor(columnNames, configuration));
         if (configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
