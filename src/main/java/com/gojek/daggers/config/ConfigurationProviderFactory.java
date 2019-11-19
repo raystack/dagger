@@ -1,6 +1,6 @@
 package com.gojek.daggers.config;
 
-import com.gojek.daggers.DaggerConfigurationException;
+import com.gojek.daggers.exception.DaggerConfigurationException;
 
 import java.util.Arrays;
 

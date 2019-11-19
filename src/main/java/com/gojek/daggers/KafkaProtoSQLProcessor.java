@@ -1,6 +1,7 @@
 package com.gojek.daggers;
 
 import com.gojek.daggers.config.ConfigurationProviderFactory;
+import com.gojek.daggers.core.StreamManager;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
