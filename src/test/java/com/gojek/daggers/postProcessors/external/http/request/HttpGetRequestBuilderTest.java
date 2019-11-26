@@ -1,0 +1,55 @@
+package com.gojek.daggers.postProcessors.external.http.request;
+
+import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class HttpGetRequestBuilderTest {
+    @Mock
+    private AsyncHttpClient httpClient;
+
+    @Mock
+    private BoundRequestBuilder request;
+
+    private HttpSourceConfig httpSourceConfig;
+    private ArrayList<Object> requestVariablesValues;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        requestVariablesValues = new ArrayList<>();
+        requestVariablesValues.add(1);
+    }
+
+    @Test
+    public void shouldReturnTrueForGetVerbOnCanBuild() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertTrue(httpGetRequestBuilder.canBuild());
+    }
+
+    @Test
+    public void shouldReturnFalseForVerbOtherThanGetOnCanBuild() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertFalse(httpGetRequestBuilder.canBuild());
+    }
+
+    @Test
+    public void shouldBuildGetRequest() {
+        when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertEquals(request, httpGetRequestBuilder.build());
+    }
+}
