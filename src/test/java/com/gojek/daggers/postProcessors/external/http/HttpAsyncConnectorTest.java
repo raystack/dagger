@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
+import com.gojek.daggers.exception.InvalidHttpVerbException;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -215,5 +216,14 @@ public class HttpAsyncConnectorTest {
 
         httpAsyncConnector.timeout(streamData, resultFuture);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfUnsupportedHttpVerbProvided() throws Exception {
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+
+        httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidHttpVerbException.class));
     }
 }
