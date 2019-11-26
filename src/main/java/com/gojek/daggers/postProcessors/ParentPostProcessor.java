@@ -52,7 +52,6 @@ public class ParentPostProcessor implements PostProcessor {
         TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
         if (transformProcessor.canProcess(postProcessorConfig))
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
-
         return resultantStreamInfo;
     }
 

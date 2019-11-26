@@ -1,6 +1,6 @@
 package com.gojek.daggers.postProcessors.external.es;
 
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -36,7 +36,7 @@ public class EsResponseHandlerTest {
 
     private ResultFuture resultFuture;
     private Descriptors.Descriptor descriptor;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
     private EsResponseHandler esResponseHandler;
     private Response response;
     private EsSourceConfig esSourceConfig;
@@ -64,11 +64,11 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         resultFuture = mock(ResultFuture.class);
         descriptor = EnrichedBookingLogMessage.getDescriptor();
-        statsManager = mock(StatsManager.class);
+        meterStatsManager = mock(MeterStatsManager.class);
         inputColumnNames = new String[3];
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
         response = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
@@ -92,7 +92,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowMaker.makeRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
@@ -123,7 +123,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
         outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345,descriptor.findFieldByName("driver_id")));
         outputStreamData.setField(1, outputData);
 

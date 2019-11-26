@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.ExternalSourceAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.StencilClient;
@@ -22,7 +22,7 @@ import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.UnknownFormatConversionException;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static java.util.Collections.singleton;
 
 
@@ -33,7 +33,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
     private EsSourceConfig esSourceConfig;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
 
     public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
         this.esSourceConfig = esSourceConfig;
@@ -41,9 +41,9 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.columnNameManager = columnNameManager;
     }
 
-    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, StatsManager statsManager, RestClient esClient) {
+    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, RestClient esClient) {
         this(esSourceConfig, stencilClient, columnNameManager);
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
         this.esClient = esClient;
     }
 
@@ -60,8 +60,8 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
         esOutputColumnNames.forEach(outputField -> {
             String groupName = "es." + esOutputColumnNames;
-            statsManager = new StatsManager(getRuntimeContext(), true);
-            statsManager.register(groupName, values());
+            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+            meterStatsManager.register(groupName, values());
         });
     }
 
@@ -73,22 +73,22 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
             if (isEndpointInvalid(resultFuture, rowManager, endpointVariablesValues)) return;
             String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
             Request esRequest = new Request("GET", esEndpoint);
-            statsManager.markEvent(TOTAL_ES_CALLS);
-            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
+            meterStatsManager.markEvent(TOTAL_ES_CALLS);
+            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
             esResponseHandler.startTimer();
             esClient.performRequestAsync(esRequest, esResponseHandler);
         } catch (UnknownFormatConversionException e) {
-            statsManager.markEvent(INVALID_CONFIGURATION);
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is invalid", esSourceConfig.getEndpointPattern())));
         } catch (IllegalFormatException e) {
-            statsManager.markEvent(INVALID_CONFIGURATION);
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is incompatible with the endpoint variable", esSourceConfig.getEndpointPattern())));
         }
     }
 
     @Override
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        statsManager.markEvent(TIMEOUTS);
+        meterStatsManager.markEvent(TIMEOUTS);
         resultFuture.complete(singleton(input));
     }
 
@@ -113,7 +113,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         boolean invalidEndpointPattern = StringUtils.isEmpty(esSourceConfig.getEndpointPattern());
         boolean emptyEndpointVariable = Arrays.asList(endpointVariablesValues).isEmpty();
         if (invalidEndpointPattern || emptyEndpointVariable) {
-            statsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
+            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
             return true;
         }
@@ -126,7 +126,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                statsManager.markEvent(INVALID_CONFIGURATION);
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName)));
                 return new Object[0];
             }

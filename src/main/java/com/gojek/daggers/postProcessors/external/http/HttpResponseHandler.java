@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.metrics.ExternalSourceAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static java.time.Duration.between;
 
 public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
@@ -32,14 +32,14 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private Descriptors.Descriptor descriptor;
     private ResultFuture<Row> resultFuture;
     private HttpSourceConfig httpSourceConfig;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
     private Instant startTime;
 
 
-    public HttpResponseHandler(HttpSourceConfig httpSourceConfig, StatsManager statsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor descriptor, ResultFuture<Row> resultFuture) {
+    public HttpResponseHandler(HttpSourceConfig httpSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor descriptor, ResultFuture<Row> resultFuture) {
 
         this.httpSourceConfig = httpSourceConfig;
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
         this.rowManager = rowManager;
         this.columnNameManager = columnNameManager;
         this.descriptor = descriptor;
@@ -79,7 +79,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             try {
                 value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
             } catch (PathNotFoundException e) {
-                statsManager.markEvent(FAILURES_ON_READING_PATH);
+                meterStatsManager.markEvent(FAILURES_ON_READING_PATH);
                 LOGGER.error(e.getMessage());
                 resultFuture.completeExceptionally(e);
                 return;
@@ -87,15 +87,15 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             int fieldIndex = columnNameManager.getOutputIndex(key);
             setField(key, value, fieldIndex);
         });
-        statsManager.markEvent(SUCCESS_RESPONSE);
-        statsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.markEvent(SUCCESS_RESPONSE);
+        meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
     private void failureHandler(ExternalSourceAspects aspect, String logMessage) {
-        statsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-        statsManager.markEvent(aspect);
-        statsManager.markEvent(TOTAL_FAILED_REQUESTS);
+        meterStatsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.markEvent(aspect);
+        meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
         LOGGER.error(logMessage);
         if (httpSourceConfig.isFailOnErrors())
             resultFuture.completeExceptionally(new HttpFailureException(logMessage));

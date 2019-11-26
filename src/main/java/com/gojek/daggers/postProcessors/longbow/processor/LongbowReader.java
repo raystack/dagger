@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.LongbowReaderAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.LongbowReaderAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.metrics.LongbowReaderAspects.*;
+import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
 import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 import static java.time.Duration.between;
@@ -38,12 +38,12 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     private LongbowSchema longBowSchema;
     private LongbowRow longbowRow;
     private LongbowStore longBowStore;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, StatsManager statsManager) {
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager) {
         this(configuration, longBowSchema, longbowRow);
         this.longBowStore = longBowStore;
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
     }
 
     public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow) {
@@ -57,16 +57,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         super.open(parameters);
         if (longBowStore == null)
             longBowStore = LongbowStore.create(configuration);
-        if (statsManager == null)
-            statsManager = new StatsManager(getRuntimeContext(), true);
-        statsManager.register("longbow.reader", LongbowReaderAspects.values());
+        if (meterStatsManager == null)
+            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+        meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
         longBowStore.initialize();
     }
 
     @Override
     public void close() throws Exception {
         super.close();
-        statsManager.markEvent(CLOSE_CONNECTION_ON_READER);
+        meterStatsManager.markEvent(CLOSE_CONNECTION_ON_READER);
         LOGGER.error("LongbowReader : Connection closed");
         if (longBowStore != null)
             longBowStore.close();
@@ -92,17 +92,17 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     }
 
     private void populateResult(List<Result> scanResult, Row input, ResultFuture<Row> resultFuture, Instant startTime) {
-        statsManager.markEvent(SUCCESS_ON_READ_DOCUMENT);
-        statsManager.updateHistogram(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-        statsManager.updateHistogram(DOCUMENTS_READ_PER_SCAN, scanResult.size());
+        meterStatsManager.markEvent(SUCCESS_ON_READ_DOCUMENT);
+        meterStatsManager.updateHistogram(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.updateHistogram(DOCUMENTS_READ_PER_SCAN, scanResult.size());
         resultFuture.complete(getRow(scanResult, input));
     }
 
     private List<Result> logException(Throwable ex, Instant startTime) {
         LOGGER.error("LongbowReader : failed to scan document from BigTable: {}", ex.getMessage());
         ex.printStackTrace();
-        statsManager.markEvent(FAILED_ON_READ_DOCUMENT);
-        statsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.markEvent(FAILED_ON_READ_DOCUMENT);
+        meterStatsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return Collections.emptyList();
     }
 
@@ -123,7 +123,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     private List<String> getLongbowData(List<Result> resultScan, String column, Row input) {
         if (resultScan.isEmpty() || !Arrays.equals(resultScan.get(0).getRow(), longBowSchema.getKey(input, 0))) {
             LOGGER.error("LongbowReader : Last record not received");
-            statsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
+            meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
         }
         return resultScan
                 .stream()
@@ -137,7 +137,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowReader : timeout when reading document");
-        statsManager.markEvent(TIMEOUTS_ON_READER);
+        meterStatsManager.markEvent(TIMEOUTS_ON_READER);
         resultFuture.completeExceptionally(
                 new TimeoutException("Async function call has timed out."));
     }
