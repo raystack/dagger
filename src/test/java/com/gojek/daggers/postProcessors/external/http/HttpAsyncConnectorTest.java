@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.ExternalSourceAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.StencilClient;
@@ -17,13 +17,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -44,7 +43,7 @@ public class HttpAsyncConnectorTest {
     @Mock
     private BoundRequestBuilder boundRequestBuilder;
     @Mock
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
     private ColumnNameManager columnNameManager;
     private HashMap<String, OutputMapping> outputMapping;
     private HashMap<String, String> headers;
@@ -72,17 +71,17 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldCloseHttpClient() throws Exception {
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.close();
 
         verify(httpClient, times(1)).close();
-        verify(statsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
+        verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
     }
 
     @Test
     public void shouldFetchDescriptorInOpen() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.open(flinkConfiguration);
 
@@ -91,11 +90,11 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldRegisterStatsManagerInOpen() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.open(flinkConfiguration);
 
-        verify(statsManager, times(1)).register("external.source.http", ExternalSourceAspects.values());
+        verify(meterStatsManager, times(1)).register("external.source.http", ExternalSourceAspects.values());
     }
 
     @Test
@@ -104,7 +103,7 @@ public class HttpAsyncConnectorTest {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         try {
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -112,7 +111,7 @@ public class HttpAsyncConnectorTest {
             e.printStackTrace();
         }
 
-        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
 
@@ -122,14 +121,14 @@ public class HttpAsyncConnectorTest {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
         try {
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
 
@@ -139,14 +138,14 @@ public class HttpAsyncConnectorTest {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
         try {
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        verify(statsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
 
@@ -154,30 +153,30 @@ public class HttpAsyncConnectorTest {
     public void shouldPerformPostRequestWithCorrectParameters() throws Exception {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(boundRequestBuilder, times(1)).execute(any(HttpResponseHandler.class));
-        verify(statsManager, times(1)).markEvent(TOTAL_HTTP_CALLS);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_HTTP_CALLS);
     }
 
     @Test
     public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(statsManager, times(1)).markEvent(EMPTY_INPUT);
+        verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
     }
 
     @Test
     public void shouldThrowExceptionIfBodyFieldNotSetInInputRow() {
 //        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
 //        columnNames = new String[]{"abc"};
-//        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpSourceConfig, stencilClient, httpClient, statsManager);
+//        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpSourceConfig, stencilClient, httpClient, meterStatsManager);
 //        try {
 //            httpAsyncConnector.asyncInvoke(new Row(1), resultFuture);
 //        } catch (Exception e) {
@@ -191,7 +190,7 @@ public class HttpAsyncConnectorTest {
     public void shouldAddCustomHeaders() throws Exception {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
 
@@ -202,7 +201,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
 
@@ -211,7 +210,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldPassTheInputWithRowSizeCorrespondingToColumnNamesInTimeoutIfFailOnErrorIsFalse() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
