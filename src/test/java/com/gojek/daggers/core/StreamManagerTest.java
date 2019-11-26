@@ -118,6 +118,7 @@ public class StreamManagerTest {
     @Test
     public void shouldRegisterFunctions() {
         streamManager.registerConfigs();
+        streamManager.registerSource();
         streamManager.registerFunctions();
 
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2Id"), any(S2Id.class));

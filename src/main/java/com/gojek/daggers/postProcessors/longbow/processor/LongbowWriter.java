@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.LongbowWriterAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import org.apache.flink.configuration.Configuration;
@@ -28,7 +28,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowWriter.class.getName());
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
 
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
     private Configuration configuration;
     private LongbowSchema longbowSchema;
     private String longbowDocumentDuration;
@@ -41,9 +41,9 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION, LONGBOW_DOCUMENT_DURATION_DEFAULT);
     }
 
-    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, StatsManager statsManager, LongbowStore longBowStore) {
+    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager, LongbowStore longBowStore) {
         this(configuration, longBowSchema);
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
     }
 
@@ -53,9 +53,9 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         if (longBowStore == null)
             longBowStore = LongbowStore.create(configuration);
 
-        if (statsManager == null)
-            statsManager = new StatsManager(getRuntimeContext(), true);
-        statsManager.register("longbow.writer", LongbowWriterAspects.values());
+        if (meterStatsManager == null)
+            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+        meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (!longBowStore.tableExists()) {
             Instant startTime = Instant.now();
@@ -64,12 +64,12 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
                 longBowStore.createTable(maxAgeDuration, columnFamilyName);
                 LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(), maxAgeDuration, columnFamilyName);
-                statsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-                statsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
+                meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             } catch (Exception ex) {
                 LOGGER.error("failed to create table '{}'", longBowStore.tableName());
-                statsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
-                statsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                meterStatsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
+                meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                 throw ex;
             }
         }
@@ -89,8 +89,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         writeFuture
                 .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(aVoid -> {
-                    statsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-                    statsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                    meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
+                    meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                     resultFuture.complete(Collections.singleton(input));
                 });
     }
@@ -98,14 +98,14 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private Void logException(Throwable ex, Instant startTime) {
         LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
-        statsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
-        statsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
+        meterStatsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return null;
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowWriter : timeout when writing document");
-        statsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
+        meterStatsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
         resultFuture.completeExceptionally(
                 new TimeoutException("Async function call has timed out."));
     }
@@ -115,7 +115,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
         super.close();
         if (longBowStore != null)
             longBowStore.close();
-        statsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
+        meterStatsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
         LOGGER.error("LongbowWriter : Connection closed");
     }
 }

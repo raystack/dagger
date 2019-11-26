@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.ExternalSourceAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.StencilClient;
@@ -17,16 +17,10 @@ import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.IllegalFormatException;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
 
@@ -38,7 +32,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
     private Descriptors.Descriptor outputDescriptor;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
 
 
     public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
@@ -47,10 +41,10 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         this.columnNameManager = columnNameManager;
     }
 
-    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient, StatsManager statsManager, ColumnNameManager columnNameManager) {
+    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient, MeterStatsManager meterStatsManager, ColumnNameManager columnNameManager) {
         this(httpSourceConfig, stencilClient, columnNameManager);
         this.httpClient = httpClient;
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
     }
 
     @Override
@@ -61,10 +55,10 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             String descriptorType = httpSourceConfig.getType();
             outputDescriptor = stencilClient.get(descriptorType);
         }
-        if (statsManager == null) {
-            statsManager = new StatsManager(getRuntimeContext(), true);
+        if (meterStatsManager == null) {
+            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
         }
-        statsManager.register("external.source.http", ExternalSourceAspects.values());
+        meterStatsManager.register("external.source.http", ExternalSourceAspects.values());
         if (httpClient == null) {
             httpClient = asyncHttpClient(config().setConnectTimeout(httpSourceConfig.getConnectTimeout()));
         }
@@ -73,7 +67,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     @Override
     public void close() throws Exception {
         httpClient.close();
-        statsManager.markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
+        meterStatsManager.markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
         LOGGER.error("HTTP Connector : Connection closed");
     }
 
@@ -84,7 +78,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
             if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(bodyVariables).isEmpty()) {
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
-                statsManager.markEvent(EMPTY_INPUT);
+                meterStatsManager.markEvent(EMPTY_INPUT);
                 return;
             }
             String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
@@ -94,15 +88,15 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
                     .setBody(requestBody);
             addCustomHeaders(postRequest);
 
-            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
-            statsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
+            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
+            meterStatsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
             httpResponseHandler.startTimer();
             postRequest.execute(httpResponseHandler);
         } catch (UnknownFormatConversionException e) {
-            statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+            meterStatsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern())));
         } catch (IllegalFormatException e) {
-            statsManager.markEvent(INVALID_CONFIGURATION);
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern())));
         }
 
@@ -110,7 +104,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         RowManager rowManager = new RowManager(input);
-        statsManager.markEvent(ExternalSourceAspects.TIMEOUTS);
+        meterStatsManager.markEvent(ExternalSourceAspects.TIMEOUTS);
         LOGGER.error("HTTP Connector : Timeout");
         if (httpSourceConfig.isFailOnErrors())
             resultFuture.completeExceptionally(new TimeoutException("Timeout in HTTP Call"));
@@ -123,7 +117,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                statsManager.markEvent(INVALID_CONFIGURATION);
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the request variable", inputColumnName)));
                 return new Object[0];
             }
@@ -142,6 +136,5 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             postRequest.addHeader(headerKey, headerMap.get(headerKey));
         });
     }
-
 
 }

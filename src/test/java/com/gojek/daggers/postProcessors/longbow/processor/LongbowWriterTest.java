@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
 
-import com.gojek.daggers.metrics.LongbowWriterAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
+import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -42,7 +42,7 @@ public class LongbowWriterTest {
     private LongbowStore longBowStore;
 
     @Mock
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
 
     private String daggerID = "FR-DR-2116";
     private String longbowData1 = "RB-9876";
@@ -68,7 +68,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
-        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, statsManager, longBowStore);
+        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, longBowStore);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
     }
 
@@ -81,8 +81,8 @@ public class LongbowWriterTest {
         long nintyDays = (long) 90 * 24 * 60 * 60 * 1000;
         verify(longBowStore, times(1)).tableExists();
         verify(longBowStore, times(1)).createTable(Duration.ofMillis(nintyDays), "ts");
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
+        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -94,8 +94,8 @@ public class LongbowWriterTest {
         long nintyDays = (long) 90 * 24 * 60 * 60 * 1000;
         verify(longBowStore, times(1)).tableExists();
         verify(longBowStore, times(0)).createTable(Duration.ofMillis(nintyDays), "ts");
-        verify(statsManager, times(0)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-        verify(statsManager, times(0)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(0)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
+        verify(meterStatsManager, times(0)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -132,15 +132,15 @@ public class LongbowWriterTest {
                 actualPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
 
         verify(resultFuture, times(1)).complete(Collections.singleton(input));
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
+        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
     public void shouldWriteToBigTableWithExpectedMultipleValues() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, statsManager, longBowStore);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, longBowStore);
 
         Row input = new Row(5);
         input.setField(0, longbowKey);
@@ -170,8 +170,8 @@ public class LongbowWriterTest {
                 actualPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
 
         verify(resultFuture, times(1)).complete(Collections.singleton(input));
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
+        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test(expected = RuntimeException.class)
@@ -183,8 +183,8 @@ public class LongbowWriterTest {
 
         defaultLongbowWriter.open(configuration);
 
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
+        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -208,8 +208,8 @@ public class LongbowWriterTest {
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
-        verify(statsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
+        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -232,6 +232,6 @@ public class LongbowWriterTest {
 
         defaultLongbowWriter.timeout(new Row(1), resultFuture);
 
-        verify(statsManager, times(1)).markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
     }
 }

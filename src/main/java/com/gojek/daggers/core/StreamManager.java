@@ -4,6 +4,7 @@ import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
+import com.gojek.daggers.postProcessors.telemetry.processor.TelemetryExporter;
 import com.gojek.daggers.sink.SinkFactory;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import com.gojek.de.stencil.StencilClient;
@@ -31,6 +32,8 @@ public class StreamManager {
     private StencilClient stencilClient;
     private StreamExecutionEnvironment executionEnvironment;
     private StreamTableEnvironment tableEnvironment;
+    private Streams kafkaStreams;
+    private TelemetryExporter telemetryExporter = new TelemetryExporter();
 
     public StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
         this.configuration = configuration;
@@ -44,7 +47,7 @@ public class StreamManager {
         executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         executionEnvironment.setParallelism(configuration.getInteger("PARALLELISM", 1));
         executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000));
-        executionEnvironment.getCheckpointConfig().setFailOnCheckpointingErrors(false);
+        executionEnvironment.getCheckpointConfig().setTolerableCheckpointFailureNumber(Integer.MAX_VALUE);
         executionEnvironment.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 30000));
         executionEnvironment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
         executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 900000));
@@ -61,7 +64,8 @@ public class StreamManager {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
-        getKafkaStreams().getStreams().forEach((tableName, kafkaConsumer) -> {
+        kafkaStreams = getKafkaStreams();
+        kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
             KafkaProtoStreamingTableSource tableSource = new KafkaProtoStreamingTableSource(
                     kafkaConsumer,
                     rowTimeAttributeName,
@@ -77,7 +81,7 @@ public class StreamManager {
         String redisServer = configuration.getString("REDIS_SERVER", "localhost");
         tableEnvironment.registerFunction("S2Id", new S2Id());
         tableEnvironment.registerFunction("GEOHASH", new GeoHash());
-        tableEnvironment.registerFunction("ElementAt", new ElementAt(getKafkaStreams().getProtos().entrySet().iterator().next().getValue(), stencilClient));
+        tableEnvironment.registerFunction("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(), stencilClient));
         tableEnvironment.registerFunction("ServiceArea", new ServiceArea());
         tableEnvironment.registerFunction("ServiceAreaId", new ServiceAreaId());
         tableEnvironment.registerFunction("DistinctCount", new DistinctCount());
@@ -122,8 +126,13 @@ public class StreamManager {
         return new StreamInfo(stream, table.getSchema().getFieldNames());
     }
 
+    public StreamManager registerTelemetrySubsribers() {
+        this.kafkaStreams.addSubscriber(telemetryExporter);
+        return this;
+    }
+
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, streamInfo.getColumnNames());
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

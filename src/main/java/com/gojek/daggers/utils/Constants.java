@@ -1,6 +1,8 @@
 package com.gojek.daggers.utils;
 
 public class Constants {
+    public final static String TELEMETRY_ENABLED_KEY = "TELEMETRY_ENABLED";
+    public final static boolean TELEMETRY_ENABLED_VALUE_DEFAULT = true;
     public final static String POST_PROCESSOR_ENABLED_KEY = "POST_PROCESSOR_ENABLED";
     public final static boolean POST_PROCESSOR_ENABLED_KEY_DEFAULT = false;
     public final static String POST_PROCESSOR_CONFIG_KEY = "POST_PROCESSOR_CONFIG";
@@ -61,6 +63,7 @@ public class Constants {
     public static final String STREAM_TABLE_NAME = "TABLE_NAME";
     public static final String STREAM_TOPIC_NAMES = "TOPIC_NAMES";
     public static final String INPUT_STREAMS = "STREAMS";
+    public static final String INPUT_STREAM_NAME = "STREAM_NAME";
 
 
 }
