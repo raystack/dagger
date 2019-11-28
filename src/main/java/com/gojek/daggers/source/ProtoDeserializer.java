@@ -45,9 +45,12 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
                 row.setField(field.getIndex(), getMapRow(mapEntries));
                 continue;
             }
-
             if (field.getType() == Descriptors.FieldDescriptor.Type.ENUM) {
-                row.setField(field.getIndex(), proto.getField(field).toString());
+                if (field.isRepeated()) {
+                    row.setField(field.getIndex(), getStringRow(((List) proto.getField(field))));
+                } else {
+                    row.setField(field.getIndex(), proto.getField(field).toString());
+                }
             } else if (field.getType() == Descriptors.FieldDescriptor.Type.MESSAGE) {
                 if (field.toProto().getTypeName().equals(".google.protobuf.Struct")) {
                     continue;
@@ -74,6 +77,13 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         ArrayList<Row> rows = new ArrayList<>();
         protos.forEach(generatedMessageV3 -> rows.add(getRow(generatedMessageV3)));
         return rows.toArray();
+    }
+
+    private Object[] getStringRow(List protos) {
+        return protos
+                .stream()
+                .map(String::valueOf)
+                .toArray();
     }
 
     private Object[] getMapRow(List<DynamicMessage> protos) {
