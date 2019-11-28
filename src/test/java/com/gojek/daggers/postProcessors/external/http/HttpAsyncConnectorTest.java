@@ -164,6 +164,18 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
+    public void shouldPerformGetRequestWithCorrectParameters() throws Exception {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        when(httpClient.prepareGet("http://localhost:8080/test/key/123456")).thenReturn(boundRequestBuilder);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
+
+        httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+
+        verify(boundRequestBuilder, times(1)).execute(any(HttpResponseHandler.class));
+        verify(statsManager, times(1)).markEvent(TOTAL_HTTP_CALLS);
+    }
+
+    @Test
     public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, statsManager, columnNameManager);
