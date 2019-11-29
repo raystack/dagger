@@ -14,7 +14,7 @@ import java.util.HashMap;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class HttpGetRequestBuilderTest {
+public class HttpGetRequestHandlerTest {
     @Mock
     private AsyncHttpClient httpClient;
 
@@ -32,24 +32,24 @@ public class HttpGetRequestBuilderTest {
     }
 
     @Test
-    public void shouldReturnTrueForGetVerbOnCanBuild() {
+    public void shouldReturnTrueForGetVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertTrue(httpGetRequestBuilder.canBuild());
+        HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertTrue(httpGetRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldReturnFalseForVerbOtherThanGetOnCanBuild() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertFalse(httpGetRequestBuilder.canBuild());
+        HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertFalse(httpGetRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldBuildGetRequest() {
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpGetRequestBuilder httpGetRequestBuilder = new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertEquals(request, httpGetRequestBuilder.build());
+        HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertEquals(request, httpGetRequestBuilder.create());
     }
 }

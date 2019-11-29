@@ -4,10 +4,10 @@ import org.asynchttpclient.BoundRequestBuilder;
 
 import java.util.Map;
 
-public interface HttpRequestBuilder {
-    BoundRequestBuilder build();
+public interface HttpRequestHandler {
+    BoundRequestBuilder create();
 
-    boolean canBuild();
+    boolean canCreate();
 
     default BoundRequestBuilder addHeaders(BoundRequestBuilder request, Map<String, String> headerMap) {
         headerMap.keySet().forEach(headerKey -> {
