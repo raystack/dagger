@@ -10,15 +10,15 @@ import java.util.ArrayList;
 public class HttpRequestFactory {
     public static BoundRequestBuilder createRequest(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues) {
 
-        ArrayList<HttpRequestBuilder> httpRequestBuilders = new ArrayList<>();
-        httpRequestBuilders.add(new HttpPostRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues));
-        httpRequestBuilders.add(new HttpGetRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues));
+        ArrayList<HttpRequestHandler> httpRequestHandlers = new ArrayList<>();
+        httpRequestHandlers.add(new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues));
+        httpRequestHandlers.add(new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues));
 
-        HttpRequestBuilder httpRequestBuilder = httpRequestBuilders
+        HttpRequestHandler httpRequestHandler = httpRequestHandlers
                 .stream()
-                .filter(HttpRequestBuilder::canBuild)
+                .filter(HttpRequestHandler::canCreate)
                 .findFirst()
                 .orElseThrow(() -> new InvalidHttpVerbException("Http verb not supported"));
-        return httpRequestBuilder.build();
+        return httpRequestHandler.create();
     }
 }

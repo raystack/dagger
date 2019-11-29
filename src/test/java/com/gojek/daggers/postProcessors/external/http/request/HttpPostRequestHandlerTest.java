@@ -14,7 +14,7 @@ import java.util.HashMap;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class HttpPostRequestBuilderTest {
+public class HttpPostRequestHandlerTest {
 
     @Mock
     private AsyncHttpClient httpClient;
@@ -33,17 +33,17 @@ public class HttpPostRequestBuilderTest {
     }
 
     @Test
-    public void shouldReturnTrueForPostVerbOnCanBuild() {
+    public void shouldReturnTrueForPostVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpPostRequestBuilder httpPostRequestBuilder = new HttpPostRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertTrue(httpPostRequestBuilder.canBuild());
+        HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertTrue(httpPostRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldReturnFalseForVerbOtherThanPostOnCanBuild() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpPostRequestBuilder httpPostRequestBuilder = new HttpPostRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertFalse(httpPostRequestBuilder.canBuild());
+        HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertFalse(httpPostRequestBuilder.canCreate());
     }
 
     @Test
@@ -51,8 +51,8 @@ public class HttpPostRequestBuilderTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
-        HttpPostRequestBuilder httpPostRequestBuilder = new HttpPostRequestBuilder(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertEquals(request, httpPostRequestBuilder.build());
+        HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        Assert.assertEquals(request, httpPostRequestBuilder.create());
     }
 
 }
