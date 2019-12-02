@@ -1,10 +1,12 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
+import com.gojek.daggers.exception.InvalidHttpVerbException;
 import com.gojek.daggers.metrics.ExternalSourceAspects;
 import com.gojek.daggers.metrics.StatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
+import com.gojek.daggers.postProcessors.external.http.request.HttpRequestFactory;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
@@ -17,13 +19,7 @@ import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.IllegalFormatException;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
@@ -81,23 +77,22 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         try {
             RowManager rowManager = new RowManager(input);
-            Object[] bodyVariables = getBodyVariablesValues(rowManager, resultFuture);
-            if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(bodyVariables).isEmpty()) {
+
+            Object[] requestVariablesValues = getRequestVariablesValues(rowManager, resultFuture);
+
+            if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(requestVariablesValues).isEmpty()) {
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
                 statsManager.markEvent(EMPTY_INPUT);
                 return;
             }
-            String requestBody = String.format(httpSourceConfig.getRequestPattern(), bodyVariables);
-            String endpoint = httpSourceConfig.getEndpoint();
-            BoundRequestBuilder postRequest = httpClient
-                    .preparePost(endpoint)
-                    .setBody(requestBody);
-            addCustomHeaders(postRequest);
-
+            BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
             HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
             statsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
             httpResponseHandler.startTimer();
-            postRequest.execute(httpResponseHandler);
+            request.execute(httpResponseHandler);
+        } catch (InvalidHttpVerbException e) {
+            statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+            resultFuture.completeExceptionally(e);
         } catch (UnknownFormatConversionException e) {
             statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern())));
@@ -117,7 +112,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
-    private Object[] getBodyVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
+    private Object[] getRequestVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
         List<String> requiredInputColumns = Arrays.asList(httpSourceConfig.getRequestVariables().split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         for (String inputColumnName : requiredInputColumns) {
@@ -134,14 +129,5 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         });
         return inputColumnValues.toArray();
     }
-
-    private void addCustomHeaders(BoundRequestBuilder postRequest) {
-        Map<String, String> headerMap;
-        headerMap = httpSourceConfig.getHeaders();
-        headerMap.keySet().forEach(headerKey -> {
-            postRequest.addHeader(headerKey, headerMap.get(headerKey));
-        });
-    }
-
 
 }
