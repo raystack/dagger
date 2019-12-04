@@ -1,12 +1,28 @@
 package com.gojek.daggers.metrics;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public interface TelemetryPublisher {
-    void addSubscriber(TelemetrySubscriber subscriber);
+    List<TelemetrySubscriber> subscribers = new ArrayList<>();
 
-    void notifySubscriber();
+    default void addSubscriber(TelemetrySubscriber subscriber) {
+        subscribers.add(subscriber);
+    }
+
+    default void notifySubscriber(TelemetrySubscriber subscriber) {
+        subscribers.add(subscriber);
+        notifySubscriber();
+    }
+
+    default void notifySubscriber() {
+        preProcessBeforeNotifyingSubscriber();
+        subscribers.forEach(telemetrySubscriber -> telemetrySubscriber.updated(this));
+    }
 
     Map<String, List<String>> getTelemetry();
+
+    default void preProcessBeforeNotifyingSubscriber() {
+    }
 }
