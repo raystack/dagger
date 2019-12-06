@@ -4,8 +4,8 @@ import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.telemetry.processor.TelemetryExporter;
-import com.gojek.daggers.sink.SinkFactory;
+import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.sink.SinkOrchestrator;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
@@ -33,7 +33,7 @@ public class StreamManager {
     private StreamExecutionEnvironment executionEnvironment;
     private StreamTableEnvironment tableEnvironment;
     private Streams kafkaStreams;
-    private TelemetryExporter telemetryExporter = new TelemetryExporter();
+    private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
 
     public StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
         this.configuration = configuration;
@@ -65,6 +65,7 @@ public class StreamManager {
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
         kafkaStreams = getKafkaStreams();
+        kafkaStreams.notifySubscriber(telemetryExporter);
         kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
             KafkaProtoStreamingTableSource tableSource = new KafkaProtoStreamingTableSource(
                     kafkaConsumer,
@@ -141,7 +142,9 @@ public class StreamManager {
     }
 
     private void addSink(StreamInfo streamInfo) {
-        streamInfo.getDataStream().addSink(SinkFactory.getSinkFunction(configuration, streamInfo.getColumnNames(), stencilClient));
+        SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
+        sinkOrchestrator.addSubscriber(telemetryExporter);
+        streamInfo.getDataStream().addSink(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClient));
     }
 
     private StreamManager createStencilClient() {

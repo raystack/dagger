@@ -2,7 +2,6 @@ package com.gojek.daggers.core;
 
 
 import com.gojek.daggers.metrics.TelemetryPublisher;
-import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.source.ProtoDeserializer;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
@@ -27,7 +26,6 @@ public class Streams implements TelemetryPublisher {
     private StencilClient stencilClient;
     private boolean enablePerPartitionWatermark;
     private long watermarkDelay;
-    private TelemetrySubscriber subscriber;
     private Map<String, List<String>> metrics = new HashMap<>();
     private String topics;
     private String protoClassName;
@@ -55,15 +53,8 @@ public class Streams implements TelemetryPublisher {
     }
 
     @Override
-    public void addSubscriber(TelemetrySubscriber subscriber) {
-        this.subscriber = subscriber;
-        notifySubscriber();
-    }
-
-    @Override
-    public void notifySubscriber() {
+    public void preProcessBeforeNotifyingSubscriber() {
         addTelemetry();
-        this.subscriber.updated(this);
     }
 
     @Override
@@ -106,7 +97,7 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void addTelemetry() {
-        String[] topicList = topics.split(",");
+        String[] topicList = topics.split("\\|");
         Arrays.asList(topicList).forEach(topic -> addMetric(INPUT_TOPIC.getValue(), topic));
         addMetric(INPUT_PROTO.getValue(), protoClassName);
         addMetric(INPUT_STREAM.getValue(), streamName);
