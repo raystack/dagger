@@ -143,7 +143,6 @@ public class StreamManagerTest {
     public void shouldCreateOutputStream() {
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerOutputStream();
-
         verify(tableEnvironment, Mockito.times(1)).sqlQuery("");
     }
 
@@ -167,6 +166,5 @@ public class StreamManagerTest {
         protected StreamInfo createStreamInfo(Table table) {
             return streamInfo;
         }
-
     }
 }
