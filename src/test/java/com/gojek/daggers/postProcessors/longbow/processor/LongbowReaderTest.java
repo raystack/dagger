@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.longbow.processor;
 
 
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowAbsoluteRow;
@@ -18,10 +19,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -47,6 +45,9 @@ public class LongbowReaderTest {
 
     @Mock
     private LongbowAbsoluteRow longbowAbsoluteRow;
+
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
 
     private LongbowSchema longBowSchema;
     private CompletableFuture<List<Result>> scanFuture;
@@ -146,6 +147,32 @@ public class LongbowReaderTest {
         longBowSchema = new LongbowSchema(columnNames);
         LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager);
         Assert.assertEquals(longBowReader.getLongbowRow(), longbowAbsoluteRow);
+    }
+
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("longbow_reader_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager);
+
+        longBowReader.preProcessBeforeNotifyingSubscriber();
+        Assert.assertEquals(metrics, longBowReader.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers()  {
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager);
+        longBowReader.notifySubscriber(telemetrySubscriber);
+
+        verify(telemetrySubscriber, times(1)).updated(longBowReader);
     }
 
     private ArrayList<Object> getData(String... orderDetails) {

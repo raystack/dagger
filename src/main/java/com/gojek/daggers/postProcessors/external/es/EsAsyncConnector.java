@@ -1,8 +1,9 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.StencilClient;
@@ -16,17 +17,15 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.IllegalFormatException;
-import java.util.List;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 
+import static com.gojek.daggers.metrics.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.utils.Constants.ASHIKO_ES_PROCESSOR;
 import static java.util.Collections.singleton;
 
 
-public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
+public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private Descriptors.Descriptor outputDescriptor;
     private RestClient esClient;
@@ -34,6 +33,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
     private MeterStatsManager meterStatsManager;
+    private Map<String, List<String>> metrics = new HashMap<>();
 
     public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
         this.esSourceConfig = esSourceConfig;
@@ -63,6 +63,16 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
             meterStatsManager.register(groupName, values());
         });
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), ASHIKO_ES_PROCESSOR);
     }
 
     @Override
@@ -136,5 +146,9 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> {
         }
 
         return inputColumnValues.toArray();
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 }

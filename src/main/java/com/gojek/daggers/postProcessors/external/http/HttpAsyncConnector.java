@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetryPublisher;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -20,11 +21,13 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+import static com.gojek.daggers.metrics.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.utils.Constants.ASHIKO_HTTP_PROCESSOR;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
 
-public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
+public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpAsyncConnector.class.getName());
     private AsyncHttpClient httpClient;
@@ -33,7 +36,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
     private ColumnNameManager columnNameManager;
     private Descriptors.Descriptor outputDescriptor;
     private MeterStatsManager meterStatsManager;
-
+    private Map<String, List<String>> metrics = new HashMap<>();
 
     public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
         this.httpSourceConfig = httpSourceConfig;
@@ -62,6 +65,16 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         if (httpClient == null) {
             httpClient = asyncHttpClient(config().setConnectTimeout(httpSourceConfig.getConnectTimeout()));
         }
+    }
+
+    @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), ASHIKO_HTTP_PROCESSOR);
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
     }
 
     @Override
@@ -135,6 +148,10 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         headerMap.keySet().forEach(headerKey -> {
             postRequest.addHeader(headerKey, headerMap.get(headerKey));
         });
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
 }

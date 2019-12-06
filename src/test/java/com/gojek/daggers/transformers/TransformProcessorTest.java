@@ -1,11 +1,13 @@
 package com.gojek.daggers.transformers;
 
 import com.gojek.daggers.core.StreamInfo;
+import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +38,9 @@ public class TransformProcessorTest {
 
     @Mock
     private MapFunction<Row, Row> mockMapFunction;
+
+    @Mock
+    private MetricsTelemetryExporter metricsTelemetryExporter;
 
     @Before
     public void setup() {
@@ -85,6 +90,42 @@ public class TransformProcessorTest {
         transformProcessor.process(streamInfo);
 
         verify(dataStream, times(1)).map(mockMapFunction);
+    }
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getColumnNames()).thenReturn(null);
+        HashMap<String, String> transformationArguments = new HashMap<>();
+        transformationArguments.put("keyField", "keystore");
+
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("transform_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+        transfromConfigs = new ArrayList<>();
+        transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
+
+        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(mockMapFunction, transfromConfigs);
+        transformProcessorMock.preProcessBeforeNotifyingSubscriber();
+
+        Assert.assertEquals(metrics, transformProcessorMock.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers() {
+        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getColumnNames()).thenReturn(null);
+        HashMap<String, String> transformationArguments = new HashMap<>();
+        transformationArguments.put("keyField", "keystore");
+
+        transfromConfigs = new ArrayList<>();
+        transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
+
+        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(mockMapFunction, transfromConfigs);
+        transformProcessorMock.notifySubscriber(metricsTelemetryExporter);
+
+        verify(metricsTelemetryExporter, times(1)).updated(transformProcessorMock);
     }
 
     class TransformProcessorMock extends TransformProcessor {

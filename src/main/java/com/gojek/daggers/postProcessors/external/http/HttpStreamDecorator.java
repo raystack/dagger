@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import com.gojek.de.stencil.StencilClient;
@@ -11,13 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 public class HttpStreamDecorator implements StreamDecorator {
     private final ColumnNameManager columnNameManager;
+    private TelemetrySubscriber telemetrySubscriber;
     private HttpSourceConfig httpSourceConfig;
     private StencilClient stencilClient;
 
-    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
+    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         this.httpSourceConfig = httpSourceConfig;
         this.stencilClient = stencilClient;
         this.columnNameManager = columnNameManager;
+        this.telemetrySubscriber = telemetrySubscriber;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class HttpStreamDecorator implements StreamDecorator {
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, columnNameManager);
+        httpAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
-
     }
 }

@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -11,12 +12,14 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +47,9 @@ public class HttpAsyncConnectorTest {
     private BoundRequestBuilder boundRequestBuilder;
     @Mock
     private MeterStatsManager meterStatsManager;
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
+
     private ColumnNameManager columnNameManager;
     private HashMap<String, OutputMapping> outputMapping;
     private HashMap<String, String> headers;
@@ -214,5 +220,27 @@ public class HttpAsyncConnectorTest {
 
         httpAsyncConnector.timeout(streamData, resultFuture);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+    }
+
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("ashiko_http_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
+        httpAsyncConnector.preProcessBeforeNotifyingSubscriber();
+
+        Assert.assertEquals(metrics, httpAsyncConnector.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers()  {
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, httpClient, meterStatsManager, columnNameManager);
+        httpAsyncConnector.notifySubscriber(telemetrySubscriber);
+
+        verify(telemetrySubscriber, times(1)).updated(httpAsyncConnector);
     }
 }

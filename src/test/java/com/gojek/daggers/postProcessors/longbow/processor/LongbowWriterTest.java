@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
 
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
@@ -21,7 +22,10 @@ import org.mockito.Mock;
 import org.threeten.bp.Duration;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.Mockito.*;
@@ -43,6 +47,9 @@ public class LongbowWriterTest {
 
     @Mock
     private MeterStatsManager meterStatsManager;
+
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
 
     private String daggerID = "FR-DR-2116";
     private String longbowData1 = "RB-9876";
@@ -234,4 +241,30 @@ public class LongbowWriterTest {
 
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
     }
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("longbow_writer_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, longBowStore);
+
+        longBowWriter.preProcessBeforeNotifyingSubscriber();
+        Assert.assertEquals(metrics, longBowWriter.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers()  {
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, longBowStore);
+        longBowWriter.notifySubscriber(telemetrySubscriber);
+
+        verify(telemetrySubscriber, times(1)).updated(longBowWriter);
+    }
+
 }
