@@ -127,11 +127,6 @@ public class StreamManager {
         return new StreamInfo(stream, table.getSchema().getFieldNames());
     }
 
-    public StreamManager registerTelemetrySubsribers() {
-        this.kafkaStreams.addSubscriber(telemetryExporter);
-        return this;
-    }
-
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;

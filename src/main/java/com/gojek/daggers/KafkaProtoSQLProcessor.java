@@ -25,7 +25,6 @@ public class KafkaProtoSQLProcessor {
                     .registerConfigs()
                     .registerSource()
                     .registerFunctions()
-                    .registerTelemetrySubsribers()
                     .registerOutputStream()
                     .execute();
         } catch (Exception | AssertionError e) {

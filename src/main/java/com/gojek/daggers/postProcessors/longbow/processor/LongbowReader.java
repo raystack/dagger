@@ -1,7 +1,8 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.aspects.LongbowReaderAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.aspects.LongbowReaderAspects;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
@@ -16,21 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.gojek.daggers.metrics.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
-import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
-import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
+import static com.gojek.daggers.utils.Constants.*;
 import static java.time.Duration.between;
 
-public class LongbowReader extends RichAsyncFunction<Row, Row> {
+public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
@@ -39,6 +35,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
     private LongbowRow longbowRow;
     private LongbowStore longBowStore;
     private MeterStatsManager meterStatsManager;
+    private Map<String, List<String>> metrics = new HashMap<>();
 
     LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager) {
         this(configuration, longBowSchema, longbowRow);
@@ -61,6 +58,11 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
         longBowStore.initialize();
+    }
+
+    @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), LONGBOW_READER_PROCESSOR);
     }
 
     @Override
@@ -140,5 +142,14 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> {
         meterStatsManager.markEvent(TIMEOUTS_ON_READER);
         resultFuture.completeExceptionally(
                 new TimeoutException("Async function call has timed out."));
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 }

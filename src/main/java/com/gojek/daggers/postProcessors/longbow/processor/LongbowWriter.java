@@ -1,7 +1,8 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import org.apache.flink.configuration.Configuration;
@@ -16,14 +17,15 @@ import org.threeten.bp.Duration;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
+import static com.gojek.daggers.metrics.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.utils.Constants.*;
 import static java.time.Duration.between;
 
-public class LongbowWriter extends RichAsyncFunction<Row, Row> {
+public class LongbowWriter extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowWriter.class.getName());
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
@@ -33,6 +35,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     private LongbowSchema longbowSchema;
     private String longbowDocumentDuration;
     private LongbowStore longBowStore;
+    private Map<String, List<String>> metrics = new HashMap<>();
 
 
     public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema) {
@@ -77,6 +80,11 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
     }
 
     @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), LONGBOW_WRITER_PROCESSOR);
+    }
+
+    @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
         Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
@@ -117,5 +125,14 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> {
             longBowStore.close();
         meterStatsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
         LOGGER.error("LongbowWriter : Connection closed");
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 }

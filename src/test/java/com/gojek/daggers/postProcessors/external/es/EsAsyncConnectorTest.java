@@ -2,8 +2,9 @@ package com.gojek.daggers.postProcessors.external.es;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.StencilClient;
@@ -16,6 +17,7 @@ import org.apache.flink.types.Row;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.Mockito.*;
@@ -39,6 +42,8 @@ public class EsAsyncConnectorTest {
     private Configuration configuration;
     @Mock
     private MeterStatsManager meterStatsManager;
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
 
     private WireMockServer wireMockServer;
     private RuntimeContext runtimeContext;
@@ -184,5 +189,26 @@ public class EsAsyncConnectorTest {
 
         verify(meterStatsManager, times(1)).markEvent(TIMEOUTS);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
+    }
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("ashiko_es_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        esAsyncConnector.preProcessBeforeNotifyingSubscriber();
+
+        Assert.assertEquals(metrics, esAsyncConnector.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers() {
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        esAsyncConnector.notifySubscriber(telemetrySubscriber);
+
+        verify(telemetrySubscriber, times(1)).updated(esAsyncConnector);
     }
 }
