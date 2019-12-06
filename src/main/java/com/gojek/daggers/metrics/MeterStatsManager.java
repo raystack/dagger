@@ -27,6 +27,13 @@ public class MeterStatsManager {
         meterMap = new HashMap<>();
     }
 
+    public MeterStatsManager(RuntimeContext runtimeContext, Boolean enabled, HashMap histogramMap, HashMap meterMap) {
+        this.runtimeContext = runtimeContext;
+        this.enabled = enabled;
+        this.histogramMap = histogramMap;
+        this.meterMap = meterMap;
+    }
+
     public void register(String groupName, Aspects[] aspects) {
         if (enabled) {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupName);

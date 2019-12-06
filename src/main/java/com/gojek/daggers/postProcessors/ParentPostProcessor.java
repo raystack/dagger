@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors;
 
 import com.gojek.daggers.core.StreamInfo;
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.external.ExternalPostProcessor;
@@ -23,12 +24,14 @@ import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY_DEFAU
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
     private final StencilClient stencilClient;
+    private TelemetrySubscriber telemetrySubscriber;
     private Configuration configuration;
 
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClient stencilClient) {
+    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClient stencilClient, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
         this.configuration = configuration;
         this.stencilClient = stencilClient;
+        this.telemetrySubscriber = telemetrySubscriber;
     }
 
 
@@ -42,7 +45,7 @@ public class ParentPostProcessor implements PostProcessor {
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
 
-        List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(stencilClient, columnNameManager);
+        List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(stencilClient, columnNameManager, telemetrySubscriber);
         for (PostProcessor postProcessor : enabledPostProcessors)
             streamInfo = postProcessor.process(streamInfo);
 
@@ -51,15 +54,16 @@ public class ParentPostProcessor implements PostProcessor {
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
         TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
         if (transformProcessor.canProcess(postProcessorConfig))
-            resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
+            transformProcessor.notifySubscriber(telemetrySubscriber);
+        resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
         return resultantStreamInfo;
     }
 
-    private List<PostProcessor> getEnabledPostProcessors(StencilClient stencilClient, ColumnNameManager columnNameManager) {
+    private List<PostProcessor> getEnabledPostProcessors(StencilClient stencilClient, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         if (!configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
             return new ArrayList<>();
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new ExternalPostProcessor(stencilClient, postProcessorConfig.getExternalSource(), columnNameManager));
+        postProcessors.add(new ExternalPostProcessor(stencilClient, postProcessorConfig.getExternalSource(), columnNameManager, telemetrySubscriber));
         postProcessors.add(new InternalPostProcessor(postProcessorConfig));
         return postProcessors
                 .stream()

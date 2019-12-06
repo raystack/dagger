@@ -19,7 +19,14 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
     private GaugeStatsManager gaugeStatsManager;
     private Integer gaugeValue = 1;
-    private Map<String, List<String>> metrics = new HashMap<>();
+    protected Map<String, List<String>> metrics = new HashMap<>();
+
+    public MetricsTelemetryExporter(GaugeStatsManager gaugeStatsManager) {
+        this.gaugeStatsManager = gaugeStatsManager;
+    }
+
+    public MetricsTelemetryExporter() {
+    }
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -34,13 +41,6 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     @Override
     public Row map(Row inputRow) throws Exception {
         return inputRow;
-    }
-
-    private void registerGroups(GaugeStatsManager gaugeStatsManager) {
-        metrics.forEach((groupKey, groupValues) -> groupValues
-                .forEach(groupValue -> gaugeStatsManager.register(groupKey, groupValue, values(), gaugeValue)));
-        LOGGER.info("Sending Metrics: " + metrics);
-        metrics.clear();
     }
 
     @Override
@@ -59,5 +59,12 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
                         metrics.putAll(metricsFromPublisher);
                 }
         );
+    }
+
+    protected void registerGroups(GaugeStatsManager gaugeStatsManager) {
+        metrics.forEach((groupKey, groupValues) -> groupValues
+                .forEach(groupValue -> gaugeStatsManager.register(groupKey, groupValue, values(), gaugeValue)));
+        LOGGER.info("Sending Metrics: " + metrics);
+        metrics.clear();
     }
 }

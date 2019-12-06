@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.de.stencil.StencilClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,9 @@ public class HttpStreamDecoratorTest {
     private HttpSourceConfig httpSourceConfig;
 
 
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -24,13 +28,13 @@ public class HttpStreamDecoratorTest {
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClient, null);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClient, null, telemetrySubscriber);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClient, null);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClient, null, telemetrySubscriber);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }

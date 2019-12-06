@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external;
 
 import com.gojek.daggers.core.StreamInfo;
+import com.gojek.daggers.metrics.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
@@ -21,11 +22,13 @@ public class ExternalPostProcessor implements PostProcessor {
     private StencilClient stencilClient;
     private ExternalSourceConfig externalSourceConfig;
     private ColumnNameManager columnNameManager;
+    private TelemetrySubscriber telemetrySubscriber;
 
-    public ExternalPostProcessor(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager) {
+    public ExternalPostProcessor(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         this.stencilClient = stencilClient;
         this.externalSourceConfig = externalSourceConfig;
         this.columnNameManager = columnNameManager;
+        this.telemetrySubscriber = telemetrySubscriber;
     }
 
     @Override
@@ -40,12 +43,12 @@ public class ExternalPostProcessor implements PostProcessor {
 
         List<HttpSourceConfig> httpSourceConfigs = externalSourceConfig.getHttpConfig();
         for (HttpSourceConfig httpSourceConfig : httpSourceConfigs) {
-            resultStream = enrichStream(resultStream, httpSourceConfig, getHttpDecorator(httpSourceConfig, columnNameManager));
+            resultStream = enrichStream(resultStream, httpSourceConfig, getHttpDecorator(httpSourceConfig, columnNameManager, telemetrySubscriber));
         }
 
         List<EsSourceConfig> esSourceConfigs = externalSourceConfig.getEsConfig();
         for (EsSourceConfig esSourceConfig : esSourceConfigs) {
-            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager));
+            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, telemetrySubscriber));
         }
 
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
@@ -57,11 +60,12 @@ public class ExternalPostProcessor implements PostProcessor {
     }
 
 
-    protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager) {
-        return new HttpStreamDecorator(httpSourceConfig, stencilClient, columnNameManager);
+    protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        return new HttpStreamDecorator(httpSourceConfig, stencilClient, columnNameManager, telemetrySubscriber);
+
     }
 
-    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager) {
-        return new EsStreamDecorator(esSourceConfig, stencilClient, columnNameManager);
+    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        return new EsStreamDecorator(esSourceConfig, stencilClient, columnNameManager, telemetrySubscriber);
     }
 }

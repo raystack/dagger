@@ -1,8 +1,5 @@
 package com.gojek.daggers.metrics.aspects;
 
-import com.gojek.daggers.metrics.aspects.AspectType;
-import com.gojek.daggers.metrics.aspects.Aspects;
-
 import static com.gojek.daggers.metrics.aspects.AspectType.Histogram;
 import static com.gojek.daggers.metrics.aspects.AspectType.Metric;
 
