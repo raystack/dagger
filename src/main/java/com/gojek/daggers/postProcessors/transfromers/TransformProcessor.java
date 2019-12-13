@@ -2,8 +2,8 @@ package com.gojek.daggers.postProcessors.transfromers;
 
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.TransformClassNotDefinedException;
-import com.gojek.daggers.metrics.TelemetryPublisher;
-import com.gojek.daggers.metrics.TelemetryTypes;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import org.apache.flink.api.common.functions.MapFunction;

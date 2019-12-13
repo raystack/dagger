@@ -1,7 +1,7 @@
 package com.gojek.daggers.core;
 
 
-import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.source.ProtoDeserializer;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.gojek.daggers.metrics.TelemetryTypes.*;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.*;
 import static com.gojek.daggers.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {

@@ -1,6 +1,6 @@
 package com.gojek.daggers.postProcessors;
 
-import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.external.ExternalSourceConfig;
 import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;

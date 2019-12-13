@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.telemetry.processor;
 
 import com.gojek.daggers.metrics.GaugeStatsManager;
-import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;

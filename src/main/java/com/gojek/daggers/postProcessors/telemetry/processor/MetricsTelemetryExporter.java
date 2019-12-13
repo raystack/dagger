@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.telemetry.processor;
 
 import com.gojek.daggers.metrics.GaugeStatsManager;
-import com.gojek.daggers.metrics.TelemetryPublisher;
-import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.TelemetryAspects.values;
+import static com.gojek.daggers.metrics.aspects.TelemetryAspects.values;
 
 public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implements TelemetrySubscriber {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());

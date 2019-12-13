@@ -1,6 +1,7 @@
 package com.gojek.daggers.metrics;
 
 import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
+import com.gojek.daggers.metrics.aspects.TelemetryAspects;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
