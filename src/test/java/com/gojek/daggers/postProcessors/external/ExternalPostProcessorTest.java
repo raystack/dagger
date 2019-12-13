@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.external;
 
 import com.gojek.daggers.core.StreamInfo;
-import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;

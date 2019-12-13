@@ -1,4 +1,4 @@
-package com.gojek.daggers.metrics;
+package com.gojek.daggers.metrics.telemetry;
 
 import java.util.ArrayList;
 import java.util.List;

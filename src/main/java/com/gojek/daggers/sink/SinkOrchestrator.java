@@ -1,7 +1,7 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.metrics.TelemetryPublisher;
-import com.gojek.daggers.metrics.TelemetryTypes;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
 import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.influx.InfluxErrorHandler;
 import com.gojek.daggers.sink.influx.InfluxRowSink;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.TelemetryTypes.*;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.*;
 import static com.gojek.daggers.utils.Constants.OUTPUT_STREAM;
 import static com.gojek.daggers.utils.Constants.*;
 
