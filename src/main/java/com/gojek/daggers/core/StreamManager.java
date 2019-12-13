@@ -2,6 +2,7 @@ package com.gojek.daggers.core;
 
 import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
+import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
@@ -17,14 +18,17 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.functions.AggregateFunction;
+import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.types.Row;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.utils.Constants.MAX_PARALLELISM_DEFAULT;
-import static com.gojek.daggers.utils.Constants.MAX_PARALLELISM_KEY;
+import static com.gojek.daggers.utils.Constants.*;
 
 public class StreamManager {
 
@@ -78,37 +82,54 @@ public class StreamManager {
         return this;
     }
 
+    private Map<String, ScalarFunction> addScalarFunctions() {
+        HashMap<String, ScalarFunction> scalarFunctions = new HashMap<>();
+        scalarFunctions.put("S2Id", new S2Id());
+        scalarFunctions.put("GEOHASH", new GeoHash());
+        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(), stencilClient));
+        scalarFunctions.put("ServiceArea", new ServiceArea());
+        scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
+        scalarFunctions.put("Distance", new Distance());
+        scalarFunctions.put("AppBetaUsers", new AppBetaUsers());
+        scalarFunctions.put("KeyValue", new KeyValue());
+        scalarFunctions.put("DartContains", DartContains.withRedisDataStore(new RedisConfig(getRedisServer())));
+        scalarFunctions.put("DartGet", DartGet.withRedisDataStore(new RedisConfig(getRedisServer())));
+        scalarFunctions.put("TimestampFromUnix", new TimestampFromUnix());
+        scalarFunctions.put("SecondsElapsed", new SecondsElapsed());
+        scalarFunctions.put("StartOfWeek", new StartOfWeek());
+        scalarFunctions.put("EndOfWeek", new EndOfWeek());
+        scalarFunctions.put("StartOfMonth", new StartOfMonth());
+        scalarFunctions.put("EndOfMonth", new EndOfMonth());
+        scalarFunctions.put("TimeInDate", new TimeInDate());
+        scalarFunctions.put("MapGet", new MapGet());
+
+        return scalarFunctions;
+    }
+
+    private Map<String, AggregateFunction> addAggregateFunctions() {
+        HashMap<String, AggregateFunction> aggregateFunctions = new HashMap<>();
+        aggregateFunctions.put("DistinctCount", new DistinctCount());
+        aggregateFunctions.put("DistinctByCurrentStatus", new DistinctByCurrentStatus());
+        aggregateFunctions.put("Features", new Features());
+        aggregateFunctions.put("ConcurrentTransactions", new ConcurrentTransactions(7200));
+        aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
+        aggregateFunctions.put("CollectArray", new CollectArray());
+
+        return aggregateFunctions;
+    }
+
     public StreamManager registerFunctions() {
-        String redisServer = configuration.getString("REDIS_SERVER", "localhost");
-        tableEnvironment.registerFunction("S2Id", new S2Id());
-        tableEnvironment.registerFunction("GEOHASH", new GeoHash());
-        tableEnvironment.registerFunction("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(), stencilClient));
-        tableEnvironment.registerFunction("ServiceArea", new ServiceArea());
-        tableEnvironment.registerFunction("ServiceAreaId", new ServiceAreaId());
-        tableEnvironment.registerFunction("DistinctCount", new DistinctCount());
-        tableEnvironment.registerFunction("DistinctByCurrentStatus", new DistinctByCurrentStatus());
-        tableEnvironment.registerFunction("Distance", new Distance());
-        tableEnvironment.registerFunction("AppBetaUsers", new AppBetaUsers());
-        tableEnvironment.registerFunction("KeyValue", new KeyValue());
-        tableEnvironment.registerFunction("DartContains", DartContains.withRedisDataStore(new RedisConfig(redisServer)));
-        tableEnvironment.registerFunction("DartGet", DartGet.withRedisDataStore(new RedisConfig(redisServer)));
-        tableEnvironment.registerFunction("Features", new Features());
-        tableEnvironment.registerFunction("TimestampFromUnix", new TimestampFromUnix());
-        tableEnvironment.registerFunction("ConcurrentTransactions", new ConcurrentTransactions(7200));
-        tableEnvironment.registerFunction("SecondsElapsed", new SecondsElapsed());
-        tableEnvironment.registerFunction("StartOfWeek", new StartOfWeek());
-        tableEnvironment.registerFunction("EndOfWeek", new EndOfWeek());
-        tableEnvironment.registerFunction("StartOfMonth", new StartOfMonth());
-        tableEnvironment.registerFunction("EndOfMonth", new EndOfMonth());
-        tableEnvironment.registerFunction("TimeInDate", new TimeInDate());
-        tableEnvironment.registerFunction("MapGet", new MapGet());
-        tableEnvironment.registerFunction("DistanceAggregator", new DistanceAggregator());
-        tableEnvironment.registerFunction("CollectArray", new CollectArray());
+        Map<String, ScalarFunction> scalarFunctions = addScalarFunctions();
+        Map<String, AggregateFunction> aggregateFunctions = addAggregateFunctions();
+        AggregatedUDFTelemetryPublisher udfTelemetryPublisher = new AggregatedUDFTelemetryPublisher(configuration, aggregateFunctions);
+        udfTelemetryPublisher.notifySubscriber(telemetryExporter);
+        scalarFunctions.forEach((scalarFunctionName, scalarUDF) -> tableEnvironment.registerFunction(scalarFunctionName, scalarUDF));
+        aggregateFunctions.forEach((aggregateFunctionName, aggregateUDF) -> tableEnvironment.registerFunction(aggregateFunctionName, aggregateUDF));
         return this;
     }
 
     public StreamManager registerOutputStream() {
-        Table table = tableEnvironment.sqlQuery(configuration.getString("SQL_QUERY", ""));
+        Table table = tableEnvironment.sqlQuery(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT));
         StreamInfo streamInfo = createStreamInfo(table);
         streamInfo = addPostProcessor(streamInfo);
         addSink(streamInfo);
@@ -158,5 +179,9 @@ public class StreamManager {
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
         return new Streams(configuration, rowTimeAttributeName, stencilClient, enablePerPartitionWatermark, watermarkDelay);
+    }
+
+    private String getRedisServer() {
+        return configuration.getString(REDIS_SERVER_KEY, REDIS_SERVER_DEFAULT);
     }
 }

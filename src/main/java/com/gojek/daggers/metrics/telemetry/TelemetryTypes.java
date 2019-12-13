@@ -1,4 +1,4 @@
-package com.gojek.daggers.metrics;
+package com.gojek.daggers.metrics.telemetry;
 
 public enum TelemetryTypes {
     INPUT_TOPIC("input_topic"),
@@ -8,7 +8,8 @@ public enum TelemetryTypes {
     OUTPUT_TOPIC("output_topic"),
     OUTPUT_PROTO("output_proto"),
     OUTPUT_STREAM("output_stream"),
-    POST_PROCESSOR_TYPE("post_processor_type");
+    POST_PROCESSOR_TYPE("post_processor_type"),
+    UDF("udf");
 
     public String getValue() {
         return value;

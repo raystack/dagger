@@ -2,7 +2,7 @@ package com.gojek.daggers.postProcessors.longbow.processor;
 
 
 import com.gojek.daggers.metrics.MeterStatsManager;
-import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowAbsoluteRow;

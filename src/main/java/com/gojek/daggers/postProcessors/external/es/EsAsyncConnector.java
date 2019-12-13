@@ -2,7 +2,7 @@ package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
-import com.gojek.daggers.metrics.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -19,7 +19,7 @@ import org.elasticsearch.client.RestClient;
 
 import java.util.*;
 
-import static com.gojek.daggers.metrics.TelemetryTypes.POST_PROCESSOR_TYPE;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.utils.Constants.ASHIKO_ES_PROCESSOR;
 import static java.util.Collections.singleton;

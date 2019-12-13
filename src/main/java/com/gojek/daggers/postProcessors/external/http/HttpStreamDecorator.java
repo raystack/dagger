@@ -1,6 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
-import com.gojek.daggers.metrics.TelemetrySubscriber;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import com.gojek.de.stencil.StencilClient;
