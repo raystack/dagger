@@ -1,6 +1,7 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DaggerSerializationException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidColumnMappingException;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -33,7 +34,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
 
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClient stencilClient) {
         if (Objects.isNull(messageProtoClassName)) {
-            throw new DaggerProtoException("messageProtoClassName is required");
+            throw new DaggerSerializationException("messageProtoClassName is required");
         }
 
         this.keyProtoClassName = keyProtoClassName;
@@ -45,7 +46,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
     private Descriptors.Descriptor getDescriptor(String className) {
         Descriptors.Descriptor dsc = stencilClient.get(className);
         if (dsc == null) {
-            throw new DaggerProtoException();
+            throw new DescriptorNotFoundException();
         }
         return dsc;
     }
