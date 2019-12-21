@@ -1,6 +1,7 @@
 package com.gojek.daggers.source;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DaggerDeserializationException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogKey;
@@ -12,6 +13,7 @@ import com.gojek.esb.logs.ApiLogMessage;
 import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.RouteProto;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
 import org.apache.flink.types.Row;
@@ -231,10 +233,21 @@ public class ProtoDeserializerTest {
         assertEquals(row.getField(2), 5);
     }
 
-    @Test(expected = DaggerProtoException.class)
+    @Test(expected = DaggerDeserializationException.class)
     public void shouldThrowExceptionIfNotAbleToDeserialise() throws IOException {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
         Row row = protoDeserializer.deserialize(null, null, null, 0, 0);
+    }
+
+    @Test(expected = DescriptorNotFoundException.class)
+    public void shouldThrowDescriptorNotFoundException() throws IOException {
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer("randomProtoClass", 6, "rowtime", STENCIL_CLIENT);
+    }
+
+    @Test(expected = InvalidProtocolBufferException.class)
+    public void shouldThrowInvalidProtocolBufferException() throws IOException {
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+        Row row = protoDeserializer.deserialize(null, "test".getBytes(), null, 0, 0);
     }
 
     private int participantLogFieldIndex(String propertyName) {

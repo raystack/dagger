@@ -52,10 +52,11 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 ProtoSerializer protoSerializer = getProtoSerializer(configuration, columnNames, stencilClient);
                 FlinkKafkaPartitioner partitioner = null;
 
-                FlinkKafkaProducer010<Row> flinkKafkaProducer = new FlinkKafkaProducer010<Row>(outputTopic,
+                FlinkKafkaProducer010Custom<Row> flinkKafkaProducer = new FlinkKafkaProducer010Custom<Row>(outputTopic,
                         protoSerializer,
                         FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList),
-                        partitioner);
+                        partitioner,
+                        configuration);
                 flinkKafkaProducer.setFlushOnCheckpoint(true);
                 sink = flinkKafkaProducer;
                 break;

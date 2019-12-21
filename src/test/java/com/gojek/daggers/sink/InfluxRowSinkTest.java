@@ -1,12 +1,15 @@
 package com.gojek.daggers.sink;
 
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.influx.InfluxErrorHandler;
 import com.gojek.daggers.sink.influx.InfluxRowSink;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,11 +27,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,6 +49,10 @@ public class InfluxRowSinkTest {
     private InfluxDB influxDb;
     @Mock
     private InfluxRowSink influxRowSink;
+    @Mock
+    private RuntimeContext runtimeContext;
+    @Mock
+    private ErrorStatsReporter errorStatsReporter;
     private InfluxErrorHandler influxErrorHandler = new InfluxErrorHandler();
 
     @Before
@@ -59,11 +67,15 @@ public class InfluxRowSinkTest {
         parameters.setString("INFLUX_RETENTION_POLICY", "two_day_policy");
         parameters.setString("INFLUX_MEASUREMENT_NAME", "test_table");
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
-
     }
 
     private void setupInfluxDB(String[] rowColumns) throws Exception {
         influxRowSink = new InfluxRowSink(influxDBFactory, rowColumns, parameters, influxErrorHandler);
+        influxRowSink.open(null);
+    }
+
+    private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
+        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, influxErrorHandler);
         influxRowSink.open(null);
     }
 
@@ -120,7 +132,7 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldWriteToConfiguredInfluxDatabase() throws Exception {
-        setupInfluxDB(new String[]{"some_field_name"});
+        setupStubedInfluxDB(new String[]{"some_field_name"});
 
         Row row = new Row(1);
         row.setField(0, "some field");
@@ -145,7 +157,7 @@ public class InfluxRowSinkTest {
                 .addField(rowColumns[1], expectedFieldOneValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxRowSink.invoke(simpleFieldsRow, null);
 
@@ -170,7 +182,7 @@ public class InfluxRowSinkTest {
                 .addField(rowColumns[0], integerValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxRowSink.invoke(simpleFieldsRow, null);
 
@@ -196,7 +208,7 @@ public class InfluxRowSinkTest {
                 .addField(rowColumns[1], expectedFieldOneValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxRowSink.invoke(simpleFieldsRow, null);
 
@@ -222,7 +234,7 @@ public class InfluxRowSinkTest {
                 .addField(rowColumns[1], expectedFieldOneValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxRowSink.invoke(simpleFieldsRow, null);
 
@@ -248,7 +260,7 @@ public class InfluxRowSinkTest {
                 .addField(rowColumns[1], expectedFieldOneValue)
                 .time(Timestamp.from(now).getTime(), TimeUnit.MILLISECONDS).build();
 
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxRowSink.invoke(simpleFieldsRow, null);
 
@@ -258,11 +270,61 @@ public class InfluxRowSinkTest {
         assertEquals(expectedPoint.lineProtocol(), pointArg.getValue().lineProtocol());
     }
 
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowIfExceptionInWrite() throws Exception {
+        setupStubedInfluxDB(new String[]{"some_field_name"});
+
+        Row row = new Row(1);
+        row.setField(0, "some field");
+
+        doThrow(new RuntimeException()).when(influxDb).write(any(), any(), any());
+
+        influxRowSink.invoke(row, null);
+    }
+
+    @Test
+    public void shouldReportIncaseOfFatalError() throws Exception {
+        parameters.setBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT);
+
+        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
+        Point point = getPoint();
+        setupStubedInfluxDB(rowColumns);
+        ArrayList points = new ArrayList<Point>();
+        points.add(point);
+        try {
+            influxErrorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
+            influxRowSink.invoke(getRow(), null);
+        } catch (Exception e) {
+            Assert.assertEquals("exception from handler", e.getMessage());
+        }
+
+        verify(errorStatsReporter, times(1)).reportFatalException(any(RuntimeException.class));
+    }
+
+    @Test
+    public void shouldNotReportIfDisabled() throws Exception {
+        parameters.setBoolean(TELEMETRY_ENABLED_KEY, false);
+
+        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
+        Point point = getPoint();
+        setupStubedInfluxDB(rowColumns);
+        ArrayList points = new ArrayList<Point>();
+        points.add(point);
+        try {
+            influxErrorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
+            influxRowSink.invoke(getRow(), null);
+        } catch (Exception e) {
+            Assert.assertEquals("exception from handler", e.getMessage());
+        }
+
+        verify(errorStatsReporter, times(0)).reportFatalException(any(RuntimeException.class));
+    }
+
     @Test
     public void invokeShouldThrowErrorSetByHandler() throws Exception {
         String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
         Point point = getPoint();
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
         ArrayList points = new ArrayList<Point>();
         points.add(point);
         influxErrorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
@@ -275,7 +337,7 @@ public class InfluxRowSinkTest {
     @Test
     public void failSnapshotStateOnInfluxError() throws Exception {
         String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         influxErrorHandler.getExceptionHandler().accept(new ArrayList<Point>(), new RuntimeException("exception from handler"));
 
@@ -287,13 +349,29 @@ public class InfluxRowSinkTest {
     @Test
     public void failSnapshotStateOnFlushFailure() throws Exception {
         String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
-        setupInfluxDB(rowColumns);
+        setupStubedInfluxDB(rowColumns);
 
         Mockito.doThrow(new RuntimeException("exception from flush")).when(influxDb).flush();
 
         expectedEx.expect(RuntimeException.class);
         expectedEx.expectMessage("exception from flush");
         influxRowSink.snapshotState(null);
+    }
+
+    public class InfluxRowSinkStub extends InfluxRowSink {
+        public InfluxRowSinkStub(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames,
+                                 Configuration parameters, InfluxErrorHandler errorHandler) {
+            super(influxDBFactory, columnNames, parameters, errorHandler);
+        }
+
+        @Override
+        public RuntimeContext getRuntimeContext() {
+            return runtimeContext;
+        }
+
+        protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
+            return errorStatsReporter;
+        }
     }
 }
 
