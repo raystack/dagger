@@ -74,5 +74,7 @@ public class Constants {
     public static final String INPUT_STREAMS = "STREAMS";
     public static final String INPUT_STREAM_NAME = "STREAM_NAME";
 
-
+    public static final long THREAD_SLEEP_DURATION_MILLIS = 10000;
+    public static final String FATAL_EXCEPTION_METRIC_GROUP_KEY = "fatal.exception";
+    public static final String NONFATAL_EXCEPTION_METRIC_GROUP_KEY = "nonfatal.exception";
 }

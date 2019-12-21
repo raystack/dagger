@@ -1,6 +1,8 @@
 package com.gojek.daggers.sink.influx;
 
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.google.common.base.Strings;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -18,6 +20,9 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
+
 public class InfluxRowSink extends RichSinkFunction<Row> implements CheckpointedFunction {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
 
@@ -29,6 +34,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private String retentionPolicy;
     private String measurementName;
     private InfluxErrorHandler errorHandler;
+    private ErrorStatsReporter errorStatsReporter;
 
     public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
@@ -80,25 +86,42 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
                 }
             }
         }
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
+        addErrorMetricsAndThrow(getRuntimeContext());
+        try {
+            influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
+        } catch (Exception exception) {
+            reportErrors(exception, getRuntimeContext());
+            throw exception;
         }
-        influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
-        }
+        addErrorMetricsAndThrow(getRuntimeContext());
         influxDB.flush();
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
-        }
+        addErrorMetricsAndThrow(getRuntimeContext());
     }
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         // do nothing
+    }
+
+    private void addErrorMetricsAndThrow(RuntimeContext runtimeContext) throws Exception {
+        if (errorHandler.hasError()) {
+            reportErrors(errorHandler.getError(), runtimeContext);
+            throw errorHandler.getError();
+        }
+    }
+
+    private void reportErrors(Exception exception, RuntimeContext runtimeContext) throws InterruptedException {
+        if (parameters.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+            errorStatsReporter = getErrorStatsReporter(runtimeContext);
+            errorStatsReporter.reportFatalException(exception);
+        }
+    }
+
+    protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
+        return new ErrorStatsReporter(runtimeContext);
     }
 }

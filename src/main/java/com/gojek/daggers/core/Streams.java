@@ -2,6 +2,7 @@ package com.gojek.daggers.core;
 
 
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.source.FlinkKafkaConsumer011Custom;
 import com.gojek.daggers.source.ProtoDeserializer;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import static com.gojek.daggers.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private final Configuration configuration;
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private StencilClient stencilClient;
@@ -35,6 +37,7 @@ public class Streams implements TelemetryPublisher {
         this.stencilClient = stencilClient;
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
+        this.configuration = configuration;
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Gson gson = new Gson();
         Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
@@ -80,7 +83,8 @@ public class Streams implements TelemetryPublisher {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
-        FlinkKafkaConsumer011 fc = new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps);
+        FlinkKafkaConsumer011Custom fc = new FlinkKafkaConsumer011Custom(Pattern.compile(topics),
+                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps, configuration);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {

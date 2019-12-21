@@ -1,6 +1,6 @@
 package com.gojek.daggers.source;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
@@ -9,11 +9,7 @@ import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
@@ -52,7 +48,7 @@ public class ProtoType implements Serializable {
     private Descriptor createFieldDescriptor() {
         Descriptors.Descriptor dsc = stencilClient.get(protoClassName);
         if (dsc == null) {
-            throw new DaggerProtoException();
+            throw new DescriptorNotFoundException();
         }
         return dsc;
     }
