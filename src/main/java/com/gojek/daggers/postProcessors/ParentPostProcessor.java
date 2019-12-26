@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
-import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT;
+import static com.gojek.daggers.utils.Constants.*;
 
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
@@ -53,9 +52,10 @@ public class ParentPostProcessor implements PostProcessor {
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
         TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
-        if (transformProcessor.canProcess(postProcessorConfig))
+        if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
-        resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
+            resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
+        }
         return resultantStreamInfo;
     }
 
@@ -63,7 +63,11 @@ public class ParentPostProcessor implements PostProcessor {
         if (!configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
             return new ArrayList<>();
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new ExternalPostProcessor(stencilClient, postProcessorConfig.getExternalSource(), columnNameManager, telemetrySubscriber));
+
+        boolean telemetryEnabled = configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT);
+        long shutDownPeriod = configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT);
+        postProcessors.add(new ExternalPostProcessor(stencilClient, postProcessorConfig.getExternalSource(),
+                columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod));
         postProcessors.add(new InternalPostProcessor(postProcessorConfig));
         return postProcessors
                 .stream()

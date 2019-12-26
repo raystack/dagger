@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.HttpFailureException;
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -38,14 +39,16 @@ public class EsResponseHandler implements ResponseListener {
     private Instant startTime;
     private MeterStatsManager meterStatsManager;
     private ColumnNameManager columnNameManager;
+    private ErrorStatsReporter errorStatsReporter;
 
-    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture) {
+    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorStatsReporter errorStatsReporter) {
         this.esSourceConfig = esSourceConfig;
         this.rowManager = rowManager;
         this.outputDescriptor = outputDescriptor;
         this.resultFuture = resultFuture;
         this.meterStatsManager = meterStatsManager;
         this.columnNameManager = columnNameManager;
+        this.errorStatsReporter = errorStatsReporter;
     }
 
     private static boolean isRetryStatus(ResponseException e) {
@@ -82,14 +85,17 @@ public class EsResponseHandler implements ResponseListener {
         } catch (ParseException e) {
             meterStatsManager.markEvent(ERROR_PARSING_RESPONSE);
             System.err.printf("ESResponseHandler : error parsing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
             e.printStackTrace();
         } catch (IOException e) {
             meterStatsManager.markEvent(ERROR_READING_RESPONSE);
             System.err.printf("ESResponseHandler : error reading response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
             e.printStackTrace();
         } catch (Exception e) {
             meterStatsManager.markEvent(OTHER_ERRORS_PROCESSING_RESPONSE);
             System.err.printf("ESResponseHandler : other errors processing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
+            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
             e.printStackTrace();
         } finally {
             meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
@@ -100,8 +106,12 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onFailure(Exception e) {
         meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
-        if (esSourceConfig.isFailOnErrors())
-            resultFuture.completeExceptionally(new HttpFailureException("EsResponseHandler : Failed with error. " + e.getMessage()));
+        Exception httpFailureException = new HttpFailureException("EsResponseHandler : Failed with error. " + e.getMessage());
+        if (esSourceConfig.isFailOnErrors()) {
+            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(httpFailureException);
+            resultFuture.completeExceptionally(httpFailureException);
+        }
+
         if (e instanceof ResponseException) {
             if (isRetryStatus((ResponseException) e)) {
                 meterStatsManager.markEvent(FAILURES_ON_ES);
@@ -121,6 +131,9 @@ public class EsResponseHandler implements ResponseListener {
             meterStatsManager.updateHistogram(OTHER_ERRORS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             System.err.printf("ESResponseHandler some other errors :  %s \n", e.getMessage());
         }
+
+        if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
+
         resultFuture.complete(singleton(rowManager.getAll()));
     }
 
@@ -131,7 +144,9 @@ public class EsResponseHandler implements ResponseListener {
         }
         Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
         if (fieldDescriptor == null) {
-            resultFuture.completeExceptionally(new IllegalArgumentException("Field Descriptor not found for field: " + name));
+            Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
+            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(illegalArgumentException);
+            resultFuture.completeExceptionally(illegalArgumentException);
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             return;
         }

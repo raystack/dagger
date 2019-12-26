@@ -114,14 +114,14 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         }
     }
 
-    private void reportErrors(Exception exception, RuntimeContext runtimeContext) throws InterruptedException {
+    private void reportErrors(Exception exception, RuntimeContext runtimeContext) {
         if (parameters.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
             errorStatsReporter = getErrorStatsReporter(runtimeContext);
             errorStatsReporter.reportFatalException(exception);
         }
     }
 
-    protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-        return new ErrorStatsReporter(runtimeContext);
+    public ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
+        return new ErrorStatsReporter(runtimeContext, parameters);
     }
 }
