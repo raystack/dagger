@@ -5,6 +5,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
+import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -24,9 +25,11 @@ public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer011<T> {
     }
 
     @Override
-    public void run(SourceContext sourceContext) throws Exception {
+    public void run(SourceContext<T> sourceContext) throws Exception {
         try {
             runBaseConsumer(sourceContext);
+        } catch (ExceptionInChainedOperatorException chainedOperatorException) {
+            throw chainedOperatorException;
         } catch (Exception exception) {
             if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
                 errorStatsReporter = getErrorStatsReporter(getRuntimeContext());
@@ -36,11 +39,11 @@ public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer011<T> {
         }
     }
 
-    protected void runBaseConsumer(SourceContext sourceContext) throws Exception {
+    protected void runBaseConsumer(SourceContext<T> sourceContext) throws Exception {
         super.run(sourceContext);
     }
 
     protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-        return new ErrorStatsReporter(runtimeContext);
+        return new ErrorStatsReporter(runtimeContext, configuration);
     }
 }

@@ -2,16 +2,14 @@ package com.gojek.daggers.postProcessors.external.es;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.exception.InvalidConfigurationException;
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
-import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.StencilClient;
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.elasticsearch.client.Request;
@@ -43,11 +41,11 @@ public class EsAsyncConnectorTest {
     @Mock
     private MeterStatsManager meterStatsManager;
     @Mock
+    private ErrorStatsReporter errorStatsReporter;
+    @Mock
     private TelemetrySubscriber telemetrySubscriber;
 
     private WireMockServer wireMockServer;
-    private RuntimeContext runtimeContext;
-    private Meter meter;
     private RestClient esClient;
     private EsSourceConfig esSourceConfig;
     private HashMap<String, OutputMapping> outputMapping;
@@ -57,9 +55,11 @@ public class EsAsyncConnectorTest {
     private Row outputData;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
+    private boolean telemetryEnabled;
+    private long shutDownPeriod;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn("test-job");
         streamRow = new Row(2);
@@ -75,14 +75,10 @@ public class EsAsyncConnectorTest {
         resultFuture = mock(ResultFuture.class);
         wireMockServer = new WireMockServer(8081);
         wireMockServer.start();
-        runtimeContext = mock(RuntimeContext.class);
-        MetricGroup metricGroup = mock(MetricGroup.class);
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
-        when(metricGroup.addGroup(any())).thenReturn(metricGroup);
-        meter = mock(Meter.class);
-        when(metricGroup.meter(any(), any())).thenReturn(meter);
         inputColumnNames = new String[]{"order_id", "event_timestamp", "driver_id", "customer_id", "status", "service_area_id"};
         columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
+        telemetryEnabled = true;
+        shutDownPeriod = 0L;
         stencilClient = mock(StencilClient.class);
     }
 
@@ -93,7 +89,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputWhenEndpointVariableIsEmpty() throws Exception {
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
 
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -108,13 +104,14 @@ public class EsAsyncConnectorTest {
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
                 "invalid_variable", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
 
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+        verify(errorStatsReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 
@@ -124,7 +121,7 @@ public class EsAsyncConnectorTest {
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
 
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -141,12 +138,13 @@ public class EsAsyncConnectorTest {
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
 
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(errorStatsReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 
@@ -158,12 +156,13 @@ public class EsAsyncConnectorTest {
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
 
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(errorStatsReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 
@@ -171,7 +170,7 @@ public class EsAsyncConnectorTest {
     public void shouldEnrichOutputForCorrespondingEnrichmentKey() throws Exception {
         inputData.setField(2, "11223344545");
 
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -183,7 +182,7 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
         esClient = null;
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.open(configuration);
         esAsyncConnector.timeout(streamRow, resultFuture);
 
@@ -198,7 +197,7 @@ public class EsAsyncConnectorTest {
         HashMap<String, List<String>> metrics = new HashMap<>();
         metrics.put("post_processor_type", postProcessorType);
 
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.preProcessBeforeNotifyingSubscriber();
 
         Assert.assertEquals(metrics, esAsyncConnector.getTelemetry());
@@ -206,7 +205,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotifySubscribers() {
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorStatsReporter, shutDownPeriod);
         esAsyncConnector.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(esAsyncConnector);

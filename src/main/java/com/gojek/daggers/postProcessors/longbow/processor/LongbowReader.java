@@ -1,10 +1,12 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
-import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.metrics.aspects.LongbowReaderAspects;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
+import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -21,8 +23,8 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.utils.Constants.*;
 import static java.time.Duration.between;
 
@@ -36,11 +38,13 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private LongbowStore longBowStore;
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
+    private ErrorStatsReporter errorStatsReporter;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager) {
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorStatsReporter errorStatsReporter) {
         this(configuration, longBowSchema, longbowRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
+        this.errorStatsReporter = errorStatsReporter;
     }
 
     public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow) {
@@ -56,6 +60,9 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
             longBowStore = LongbowStore.create(configuration);
         if (meterStatsManager == null)
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+        if (errorStatsReporter == null && configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+            errorStatsReporter = new ErrorStatsReporter(getRuntimeContext(), configuration);
+        }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
         longBowStore.initialize();
     }
@@ -104,6 +111,9 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         LOGGER.error("LongbowReader : failed to scan document from BigTable: {}", ex.getMessage());
         ex.printStackTrace();
         meterStatsManager.markEvent(FAILED_ON_READ_DOCUMENT);
+        if (errorStatsReporter != null) {
+            errorStatsReporter.reportNonFatalException(new LongbowReaderException(ex));
+        }
         meterStatsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return Collections.emptyList();
     }
@@ -140,8 +150,11 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         LOGGER.error("LongbowReader : timeout when reading document");
         meterStatsManager.markEvent(TIMEOUTS_ON_READER);
-        resultFuture.completeExceptionally(
-                new TimeoutException("Async function call has timed out."));
+        Exception timeoutException = new TimeoutException("Async function call has timed out.");
+        if (errorStatsReporter != null) {
+            errorStatsReporter.reportFatalException(timeoutException);
+        }
+        resultFuture.completeExceptionally(timeoutException);
     }
 
     @Override

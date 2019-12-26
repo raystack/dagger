@@ -1,9 +1,10 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
-import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.StencilClient;
@@ -19,8 +20,8 @@ import org.elasticsearch.client.RestClient;
 
 import java.util.*;
 
-import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.utils.Constants.ASHIKO_ES_PROCESSOR;
 import static java.util.Collections.singleton;
 
@@ -29,22 +30,30 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
 
     private Descriptors.Descriptor outputDescriptor;
     private RestClient esClient;
+    private boolean telemetryEnabled;
     private EsSourceConfig esSourceConfig;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
+    private long shutDownPeriod;
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
+    private ErrorStatsReporter errorStatsReporter;
 
-    public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
+    public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+                            boolean telemetryEnabled, long shutDownPeriod) {
         this.esSourceConfig = esSourceConfig;
         this.stencilClient = stencilClient;
         this.columnNameManager = columnNameManager;
+        this.shutDownPeriod = shutDownPeriod;
     }
 
-    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, RestClient esClient) {
-        this(esSourceConfig, stencilClient, columnNameManager);
+    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+                     MeterStatsManager meterStatsManager, RestClient esClient, boolean telemetryEnabled, ErrorStatsReporter errorStatsReporter, long shutDownPeriod) {
+        this(esSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.meterStatsManager = meterStatsManager;
         this.esClient = esClient;
+        this.telemetryEnabled = telemetryEnabled;
+        this.errorStatsReporter = errorStatsReporter;
     }
 
     @Override
@@ -56,6 +65,9 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         }
         if (esClient == null) {
             esClient = createESClient();
+        }
+        if (errorStatsReporter == null && telemetryEnabled) {
+            errorStatsReporter = new ErrorStatsReporter(getRuntimeContext(), shutDownPeriod);
         }
         List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
         esOutputColumnNames.forEach(outputField -> {
@@ -84,15 +96,19 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
             Request esRequest = new Request("GET", esEndpoint);
             meterStatsManager.markEvent(TOTAL_ES_CALLS);
-            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
+            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture, errorStatsReporter);
             esResponseHandler.startTimer();
             esClient.performRequestAsync(esRequest, esResponseHandler);
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is invalid", esSourceConfig.getEndpointPattern())));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint pattern '%s' is invalid", esSourceConfig.getEndpointPattern()));
+            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
+            resultFuture.completeExceptionally(invalidConfigurationException);
         } catch (IllegalFormatException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Endpoint pattern '%s' is incompatible with the endpoint variable", esSourceConfig.getEndpointPattern())));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint pattern '%s' is incompatible with the endpoint variable", esSourceConfig.getEndpointPattern()));
+            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
+            resultFuture.completeExceptionally(invalidConfigurationException);
         }
     }
 
@@ -137,7 +153,9 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
                 meterStatsManager.markEvent(INVALID_CONFIGURATION);
-                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName)));
+                Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName));
+                if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
+                resultFuture.completeExceptionally(invalidConfigurationException);
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);

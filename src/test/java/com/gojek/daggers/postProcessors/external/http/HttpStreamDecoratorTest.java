@@ -21,20 +21,24 @@ public class HttpStreamDecoratorTest {
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
 
+    private boolean telemetryEnabled;
+    private long shutDownPeriod;
     @Before
     public void setUp() {
         initMocks(this);
+        telemetryEnabled = true;
+        shutDownPeriod = 0L;
     }
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClient, null, telemetrySubscriber);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClient, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClient, null, telemetrySubscriber);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClient, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }

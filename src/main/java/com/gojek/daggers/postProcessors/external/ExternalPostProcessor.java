@@ -23,12 +23,17 @@ public class ExternalPostProcessor implements PostProcessor {
     private ExternalSourceConfig externalSourceConfig;
     private ColumnNameManager columnNameManager;
     private TelemetrySubscriber telemetrySubscriber;
+    private boolean telemetryEnabled;
+    private long shutDownPeriod;
 
-    public ExternalPostProcessor(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+    public ExternalPostProcessor(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig,
+                                 ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.stencilClient = stencilClient;
         this.externalSourceConfig = externalSourceConfig;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
+        this.telemetryEnabled = telemetryEnabled;
+        this.shutDownPeriod = shutDownPeriod;
     }
 
     @Override
@@ -61,11 +66,11 @@ public class ExternalPostProcessor implements PostProcessor {
 
 
     protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
-        return new HttpStreamDecorator(httpSourceConfig, stencilClient, columnNameManager, telemetrySubscriber);
+        return new HttpStreamDecorator(httpSourceConfig, stencilClient, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
     }
 
     protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
-        return new EsStreamDecorator(esSourceConfig, stencilClient, columnNameManager, telemetrySubscriber);
+        return new EsStreamDecorator(esSourceConfig, stencilClient, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
     }
 }
