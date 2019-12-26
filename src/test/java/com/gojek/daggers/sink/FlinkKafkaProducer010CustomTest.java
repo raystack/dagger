@@ -15,8 +15,7 @@ import org.mockito.Mock;
 import javax.annotation.Nullable;
 import java.util.Properties;
 
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
+import static com.gojek.daggers.utils.Constants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -58,8 +57,9 @@ public class FlinkKafkaProducer010CustomTest {
 
 
     @org.junit.Test
-    public void shouldReportIfTelemetryEnabled() throws Exception {
+    public void shouldReportIfTelemetryEnabled() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
 
         try {
             flinkKafkaProducerCustomStub.invoke(row, context);
@@ -70,7 +70,7 @@ public class FlinkKafkaProducer010CustomTest {
     }
 
     @org.junit.Test
-    public void shouldNotReportIfTelemetryDisabled() throws Exception {
+    public void shouldNotReportIfTelemetryDisabled() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
 
         try {
@@ -83,7 +83,7 @@ public class FlinkKafkaProducer010CustomTest {
 
     @Test
     public void shouldReturnErrorStatsReporter() {
-        ErrorStatsReporter expectedErrorStatsReporter = new ErrorStatsReporter(runtimeContext);
+        ErrorStatsReporter expectedErrorStatsReporter = new ErrorStatsReporter(runtimeContext, configuration);
         Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustomStub.getErrorStatsReporter().getClass());
     }
 

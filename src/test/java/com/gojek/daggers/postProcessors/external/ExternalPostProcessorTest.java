@@ -112,7 +112,8 @@ public class ExternalPostProcessorTest {
 
         postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
 //        externalPostProcessor = new ExternalPostProcessorMock(stencilClient, externalSourceConfig, columnNameManager,httpStreamDecorator,esStreamDecorator);
-        externalPostProcessor = new ExternalPostProcessor(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber);
+        externalPostProcessor = new ExternalPostProcessor(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber,
+                configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT), configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT));
     }
 
     @Test
@@ -257,7 +258,8 @@ public class ExternalPostProcessorTest {
         private EsStreamDecorator esStreamDecorator;
 
         public ExternalPostProcessorMock(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator) {
-            super(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber);
+            super(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber,
+                    configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT), configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT));
             this.httpStreamDecorator = httpStreamDecorator;
             this.esStreamDecorator = esStreamDecorator;
         }

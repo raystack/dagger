@@ -1,5 +1,7 @@
 package com.gojek.daggers.postProcessors.external.es;
 
+import com.gojek.daggers.exception.HttpFailureException;
+import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
@@ -13,11 +15,7 @@ import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.ParseException;
-import org.apache.http.RequestLine;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
@@ -31,8 +29,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class EsResponseHandlerTest {
+
+    @org.mockito.Mock
+    private ErrorStatsReporter errorStatsReporter;
 
     private ResultFuture resultFuture;
     private Descriptors.Descriptor descriptor;
@@ -50,6 +52,7 @@ public class EsResponseHandlerTest {
 
     @Before
     public void setUp() {
+        initMocks(this);
         Row inputStreamData = new Row(2);
         inputStreamData.setField(0, new Row(3));
         inputStreamData.setField(1, new Row(4));
@@ -68,7 +71,8 @@ public class EsResponseHandlerTest {
         inputColumnNames = new String[3];
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
+
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
         response = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
@@ -92,7 +96,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowMaker.makeRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
@@ -123,8 +127,8 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture);
-        outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345,descriptor.findFieldByName("driver_id")));
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+        outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345, descriptor.findFieldByName("driver_id")));
         outputStreamData.setField(1, outputData);
 
         esResponseHandler.startTimer();
@@ -311,4 +315,30 @@ public class EsResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
     }
 
+    @Test
+    public void shouldExceptionWhenFailOnErrorTrue() throws IOException {
+        Response response = mock(Response.class);
+        RequestLine requestLine = mock(RequestLine.class);
+        when(requestLine.getMethod()).thenReturn("GET");
+        when(response.getRequestLine()).thenReturn(requestLine);
+        HttpHost httpHost = new HttpHost("test", 9091, "test");
+        when(response.getHost()).thenReturn(httpHost);
+        when(requestLine.getUri()).thenReturn("/drivers/driver/11223344545");
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.toString()).thenReturn("Test");
+        when(response.getStatusLine()).thenReturn(statusLine);
+        when(statusLine.getStatusCode()).thenReturn(502);
+
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+                "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
+                "5000", "5000", "5000", "5000", true, outputMapping);
+
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+
+        esResponseHandler.startTimer();
+        esResponseHandler.onFailure(new IOException(""));
+
+        verify(resultFuture, times(1)).completeExceptionally(any(HttpFailureException.class));
+        verify(errorStatsReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+    }
 }

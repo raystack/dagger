@@ -6,6 +6,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Properties;
@@ -14,6 +16,7 @@ import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
 import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
 
 public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducer010Custom.class.getName());
     private Configuration configuration;
     private ErrorStatsReporter errorStatsReporter;
 
@@ -27,6 +30,7 @@ public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
     public void invoke(T value, Context context) throws Exception {
         try {
             invokeBaseProducer(value, context);
+            LOGGER.info("row to kafka :" + value.toString());
         } catch (Exception exception) {
             if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
                 errorStatsReporter = getErrorStatsReporter(getRuntimeContext());
@@ -41,6 +45,6 @@ public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
     }
 
     protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-        return new ErrorStatsReporter(runtimeContext);
+        return new ErrorStatsReporter(runtimeContext, configuration);
     }
 }

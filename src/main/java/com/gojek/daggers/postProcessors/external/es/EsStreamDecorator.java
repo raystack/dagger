@@ -15,13 +15,18 @@ public class EsStreamDecorator implements StreamDecorator {
     private EsSourceConfig esSourceConfig;
     private ColumnNameManager columnNameManager;
     private TelemetrySubscriber telemetrySubscriber;
+    private boolean telemetryEnabled;
+    private long shutDownPeriod;
 
 
-    public EsStreamDecorator(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+    public EsStreamDecorator(EsSourceConfig esSourceConfig, StencilClient stencilClient,
+                             ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.esSourceConfig = esSourceConfig;
         this.stencilClient = stencilClient;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
+        this.telemetryEnabled = telemetryEnabled;
+        this.shutDownPeriod = shutDownPeriod;
     }
 
     @Override
@@ -31,7 +36,7 @@ public class EsStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
         esAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, esAsyncConnector, esSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, esSourceConfig.getCapacity());
     }
