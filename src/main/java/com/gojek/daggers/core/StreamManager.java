@@ -6,6 +6,7 @@ import com.gojek.dagger.udf.accumulator.distance.DistanceAccumulator;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
+import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.sink.SinkFactory;
@@ -107,6 +108,8 @@ public class StreamManager {
         tableEnvironment.registerFunction("DistanceAggregator", new DistanceAggregator(), TypeInformation.of(Double.class), TypeInformation.of(DistanceAccumulator.class));
         tableEnvironment.registerFunction("CollectArray", new CollectArray(), TypeInformation.of(new TypeHint<ArrayList<Object>>() {
         }), TypeInformation.of(ArrayAccumulator.class));
+        RuleViolatedEventUnnest ruleViolatedEventUnnest = new RuleViolatedEventUnnest();
+        tableEnvironment.registerFunction("RuleViolatedEventUnnest", ruleViolatedEventUnnest, ruleViolatedEventUnnest.getResultType());
         return this;
     }
 
