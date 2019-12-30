@@ -3,6 +3,7 @@ package com.gojek.daggers.core;
 import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
+import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -139,6 +140,8 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ConcurrentTransactions"), any(ConcurrentTransactions.class), eq(TypeInformation.of(Integer.class)), eq(TypeInformation.of(ConcurrentState.class)));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SecondsElapsed"), any(SecondsElapsed.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("RuleViolatedEventUnnest"),
+                any(RuleViolatedEventUnnest.class), any(TypeInformation.class));
     }
 
     @Test
