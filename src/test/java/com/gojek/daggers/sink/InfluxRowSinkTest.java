@@ -1,6 +1,6 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.influx.InfluxErrorHandler;
 import com.gojek.daggers.sink.influx.InfluxRowSink;
@@ -52,7 +52,7 @@ public class InfluxRowSinkTest {
     @Mock
     private RuntimeContext runtimeContext;
     @Mock
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
     private InfluxErrorHandler influxErrorHandler = new InfluxErrorHandler();
 
     @Before
@@ -75,7 +75,7 @@ public class InfluxRowSinkTest {
     }
 
     private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
-        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, influxErrorHandler);
+        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, influxErrorHandler, errorReporter);
         influxRowSink.open(null);
     }
 
@@ -109,21 +109,21 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldCallInfluxDbFactoryOnOpen() throws Exception {
-        setupInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[]{});
 
         verify(influxDBFactory).connect("http://localhost:1111", "usr", "pwd");
     }
 
     @Test
     public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
-        setupInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[]{});
 
         verify(influxDb).enableBatch(eq(INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
     }
 
     @Test
     public void shouldCloseInfluxDBWhenCloseCalled() throws Exception {
-        setupInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[]{});
 
         influxRowSink.close();
 
@@ -284,7 +284,6 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldReportIncaseOfFatalError() throws Exception {
-        parameters.setBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT);
 
         String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
         Point point = getPoint();
@@ -298,26 +297,7 @@ public class InfluxRowSinkTest {
             Assert.assertEquals("exception from handler", e.getMessage());
         }
 
-        verify(errorStatsReporter, times(1)).reportFatalException(any(RuntimeException.class));
-    }
-
-    @Test
-    public void shouldNotReportIfDisabled() throws Exception {
-        parameters.setBoolean(TELEMETRY_ENABLED_KEY, false);
-
-        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
-        Point point = getPoint();
-        setupStubedInfluxDB(rowColumns);
-        ArrayList points = new ArrayList<Point>();
-        points.add(point);
-        try {
-            influxErrorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
-            influxRowSink.invoke(getRow(), null);
-        } catch (Exception e) {
-            Assert.assertEquals("exception from handler", e.getMessage());
-        }
-
-        verify(errorStatsReporter, times(0)).reportFatalException(any(RuntimeException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
     @Test
@@ -358,19 +338,19 @@ public class InfluxRowSinkTest {
         influxRowSink.snapshotState(null);
     }
 
-    @Test
-    public void shouldReturnErrorStatsReporter() {
-        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
-        influxRowSink = new InfluxRowSink(influxDBFactory, rowColumns, parameters, influxErrorHandler);
-        ErrorStatsReporter actualErrorStatsReporter = influxRowSink.getErrorStatsReporter(runtimeContext);
-        Assert.assertEquals(actualErrorStatsReporter.getClass(), ErrorStatsReporter.class);
-    }
+//    @Test
+//    public void shouldReturnErrorStatsReporter() {
+//        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
+//        influxRowSink = new InfluxRowSink(influxDBFactory, rowColumns, parameters, influxErrorHandler);
+//        ErrorStatsReporter actualErrorStatsReporter = influxRowSink.getErrorStatsReporter(runtimeContext);
+//        Assert.assertEquals(actualErrorStatsReporter.getClass(), ErrorStatsReporter.class);
+//    }
 
 
     public class InfluxRowSinkStub extends InfluxRowSink {
         public InfluxRowSinkStub(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames,
-                                 Configuration parameters, InfluxErrorHandler errorHandler) {
-            super(influxDBFactory, columnNames, parameters, errorHandler);
+                                 Configuration parameters, InfluxErrorHandler errorHandler, ErrorReporter errorReporter) {
+            super(influxDBFactory, columnNames, parameters, errorHandler, errorReporter);
         }
 
         @Override
@@ -378,9 +358,6 @@ public class InfluxRowSinkTest {
             return runtimeContext;
         }
 
-        public ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-            return errorStatsReporter;
-        }
     }
 }
 

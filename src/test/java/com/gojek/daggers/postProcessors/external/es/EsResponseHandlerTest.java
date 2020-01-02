@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -34,7 +34,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class EsResponseHandlerTest {
 
     @org.mockito.Mock
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
     private ResultFuture resultFuture;
     private Descriptors.Descriptor descriptor;
@@ -72,7 +72,7 @@ public class EsResponseHandlerTest {
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         response = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
@@ -96,7 +96,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowMaker.makeRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
@@ -127,7 +127,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping);
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345, descriptor.findFieldByName("driver_id")));
         outputStreamData.setField(1, outputData);
 
@@ -333,12 +333,12 @@ public class EsResponseHandlerTest {
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
                 "5000", "5000", "5000", "5000", true, outputMapping);
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorStatsReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
 
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new IOException(""));
 
         verify(resultFuture, times(1)).completeExceptionally(any(HttpFailureException.class));
-        verify(errorStatsReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
     }
 }
