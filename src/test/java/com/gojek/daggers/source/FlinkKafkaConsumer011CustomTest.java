@@ -1,11 +1,14 @@
 package com.gojek.daggers.source;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
+import com.gojek.daggers.metrics.reporters.NoOpErrorReporter;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
+import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,7 +45,10 @@ public class FlinkKafkaConsumer011CustomTest {
     private Properties properties;
 
     @Mock
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
+
+    @Mock
+    private NoOpErrorReporter noOpErrorReporter;
 
     private FlinkKafkaConsumerCustomStub flinkKafkaConsumer011Custom;
 
@@ -53,7 +59,7 @@ public class FlinkKafkaConsumer011CustomTest {
     }
 
     @org.junit.Test
-    public void shouldReportIfTelemetryEnabled() throws Exception {
+    public void shouldReportIfTelemetryEnabled() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
 
@@ -62,12 +68,12 @@ public class FlinkKafkaConsumer011CustomTest {
         } catch (Exception e) {
             Assert.assertEquals("test exception", e.getMessage());
         }
-        verify(errorStatsReporter, times(1)).reportFatalException(any(RuntimeException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
     @org.junit.Test
-    public void shouldNotReportIfTelemetryDisabled() throws Exception {
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
+    public void shouldNotReportIfChainedOperatorException() {
+        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         Throwable throwable = new Throwable();
         flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new ExceptionInChainedOperatorException("chaining exception", throwable));
         try {
@@ -75,30 +81,28 @@ public class FlinkKafkaConsumer011CustomTest {
         } catch (Exception e) {
             Assert.assertEquals("chaining exception", e.getMessage());
         }
-        verify(errorStatsReporter, times(0)).reportFatalException(any(RuntimeException.class));
+        verify(errorReporter, times(0)).reportFatalException(any(RuntimeException.class));
     }
 
-
     @org.junit.Test
-    public void shouldNotReportIfExceptionInChainedOperatorException() throws Exception {
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
-        when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
-
+    public void shouldNotReportIfTelemetryDisabled() {
+        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
         try {
             flinkKafkaConsumer011Custom.run(sourceContext);
         } catch (Exception e) {
             Assert.assertEquals("test exception", e.getMessage());
         }
-        verify(errorStatsReporter, times(1)).reportFatalException(any(RuntimeException.class));
+        verify(noOpErrorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
     @Test
     public void shouldReturnErrorStatsReporter() {
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
-        ErrorStatsReporter expectedErrorStatsReporter = new ErrorStatsReporter(runtimeContext, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumer011Custom.getErrorStatsReporter().getClass());
+        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
+        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        FlinkKafkaConsumer011Custom<Row> flinkKafkaConsumer011Custom = new FlinkKafkaConsumer011Custom<Row>(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
+        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumer011Custom.getErrorReporter(runtimeContext).getClass());
     }
-
 
     public class FlinkKafkaConsumerCustomStub extends FlinkKafkaConsumer011Custom {
         private Exception exception;
@@ -118,12 +122,10 @@ public class FlinkKafkaConsumer011CustomTest {
             throw exception;
         }
 
-        protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-            return errorStatsReporter;
-        }
-
-        private ErrorStatsReporter getErrorStatsReporter() {
-            return super.getErrorStatsReporter(runtimeContext);
+        protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
+            if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+                return errorReporter;
+            } else return noOpErrorReporter;
         }
     }
 }

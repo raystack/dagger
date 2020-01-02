@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.google.protobuf.Descriptors;
@@ -39,16 +39,16 @@ public class EsResponseHandler implements ResponseListener {
     private Instant startTime;
     private MeterStatsManager meterStatsManager;
     private ColumnNameManager columnNameManager;
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
-    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorStatsReporter errorStatsReporter) {
+    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter) {
         this.esSourceConfig = esSourceConfig;
         this.rowManager = rowManager;
         this.outputDescriptor = outputDescriptor;
         this.resultFuture = resultFuture;
         this.meterStatsManager = meterStatsManager;
         this.columnNameManager = columnNameManager;
-        this.errorStatsReporter = errorStatsReporter;
+        this.errorReporter = errorStatsReporter;
     }
 
     private static boolean isRetryStatus(ResponseException e) {
@@ -76,7 +76,7 @@ public class EsResponseHandler implements ResponseListener {
                 } catch (PathNotFoundException exception) {
                     meterStatsManager.markEvent(FAILURES_ON_READING_PATH);
                     LOGGER.error(exception.getMessage());
-                    resultFuture.completeExceptionally(exception);
+                    reportAndThrowError(exception);
                     return;
                 }
                 int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);
@@ -85,17 +85,17 @@ public class EsResponseHandler implements ResponseListener {
         } catch (ParseException e) {
             meterStatsManager.markEvent(ERROR_PARSING_RESPONSE);
             System.err.printf("ESResponseHandler : error parsing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
-            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
+            errorReporter.reportNonFatalException(e);
             e.printStackTrace();
         } catch (IOException e) {
             meterStatsManager.markEvent(ERROR_READING_RESPONSE);
             System.err.printf("ESResponseHandler : error reading response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
-            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
+            errorReporter.reportNonFatalException(e);
             e.printStackTrace();
         } catch (Exception e) {
             meterStatsManager.markEvent(OTHER_ERRORS_PROCESSING_RESPONSE);
             System.err.printf("ESResponseHandler : other errors processing response, error msg : %s, response : %s\n", e.getMessage(), response.toString());
-            if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
+            errorReporter.reportNonFatalException(e);
             e.printStackTrace();
         } finally {
             meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
@@ -108,8 +108,7 @@ public class EsResponseHandler implements ResponseListener {
         meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
         Exception httpFailureException = new HttpFailureException("EsResponseHandler : Failed with error. " + e.getMessage());
         if (esSourceConfig.isFailOnErrors()) {
-            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(httpFailureException);
-            resultFuture.completeExceptionally(httpFailureException);
+            reportAndThrowError(httpFailureException);
         }
 
         if (e instanceof ResponseException) {
@@ -132,7 +131,7 @@ public class EsResponseHandler implements ResponseListener {
             System.err.printf("ESResponseHandler some other errors :  %s \n", e.getMessage());
         }
 
-        if (errorStatsReporter != null) errorStatsReporter.reportNonFatalException(e);
+        errorReporter.reportNonFatalException(e);
 
         resultFuture.complete(singleton(rowManager.getAll()));
     }
@@ -145,8 +144,7 @@ public class EsResponseHandler implements ResponseListener {
         Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
         if (fieldDescriptor == null) {
             Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
-            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(illegalArgumentException);
-            resultFuture.completeExceptionally(illegalArgumentException);
+            reportAndThrowError(illegalArgumentException);
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             return;
         }
@@ -155,6 +153,11 @@ public class EsResponseHandler implements ResponseListener {
         } else {
             rowManager.setInOutput(index, fetchTypeAppropriateValue(value, fieldDescriptor));
         }
+    }
+
+    private void reportAndThrowError(Exception exception) {
+        errorReporter.reportFatalException(exception);
+        resultFuture.completeExceptionally(exception);
     }
 
     private boolean isNotFound(ResponseException e) {

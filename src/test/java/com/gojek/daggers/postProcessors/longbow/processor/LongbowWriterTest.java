@@ -1,9 +1,9 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
@@ -50,7 +50,7 @@ public class LongbowWriterTest {
     private MeterStatsManager meterStatsManager;
 
     @Mock
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
@@ -75,7 +75,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
-        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorStatsReporter, longBowStore);
+        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter, longBowStore);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
     }
 
@@ -147,7 +147,7 @@ public class LongbowWriterTest {
     public void shouldWriteToBigTableWithExpectedMultipleValues() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorStatsReporter, longBowStore);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
 
         Row input = new Row(5);
         input.setField(0, longbowKey);
@@ -215,7 +215,7 @@ public class LongbowWriterTest {
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
-        verify(errorStatsReporter, times(1)).reportNonFatalException(any(LongbowWriterException.class));
+        verify(errorReporter, times(1)).reportNonFatalException(any(LongbowWriterException.class));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
         verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
@@ -241,7 +241,7 @@ public class LongbowWriterTest {
         defaultLongbowWriter.timeout(new Row(1), resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
-        verify(errorStatsReporter, times(1)).reportFatalException(any(TimeoutException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(TimeoutException.class));
     }
 
     @Test
@@ -253,7 +253,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorStatsReporter, longBowStore);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
 
         longBowWriter.preProcessBeforeNotifyingSubscriber();
         Assert.assertEquals(metrics, longBowWriter.getTelemetry());
@@ -263,7 +263,7 @@ public class LongbowWriterTest {
     public void shouldNotifySubscribers() {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorStatsReporter, longBowStore);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
         longBowWriter.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(longBowWriter);

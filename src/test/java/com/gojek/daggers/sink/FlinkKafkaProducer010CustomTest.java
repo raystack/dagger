@@ -1,6 +1,8 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
+import com.gojek.daggers.metrics.reporters.NoOpErrorReporter;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
@@ -38,7 +40,10 @@ public class FlinkKafkaProducer010CustomTest {
     private RuntimeContext runtimeContext;
 
     @Mock
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorStatsReporter;
+
+    @Mock
+    private NoOpErrorReporter noOpErrorReporter;
 
     @Mock
     private SinkFunction.Context context;
@@ -78,13 +83,15 @@ public class FlinkKafkaProducer010CustomTest {
         } catch (Exception e) {
             Assert.assertEquals("test producer exception", e.getMessage());
         }
-        verify(errorStatsReporter, times(0)).reportFatalException(any(RuntimeException.class));
+        verify(noOpErrorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
     @Test
     public void shouldReturnErrorStatsReporter() {
-        ErrorStatsReporter expectedErrorStatsReporter = new ErrorStatsReporter(runtimeContext, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustomStub.getErrorStatsReporter().getClass());
+        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
+        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        FlinkKafkaProducer010Custom flinkKafkaProducer = new FlinkKafkaProducer010Custom<>("test", keyedSerializationSchema, properties, flinkKafkaPartitioner, configuration);
+        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducer.getErrorReporter(runtimeContext).getClass());
     }
 
     public class FlinkKafkaProducerCustomStub<T> extends FlinkKafkaProducer010Custom<T> {
@@ -98,12 +105,10 @@ public class FlinkKafkaProducer010CustomTest {
             return runtimeContext;
         }
 
-        protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-            return errorStatsReporter;
-        }
-
-        protected ErrorStatsReporter getErrorStatsReporter() {
-            return super.getErrorStatsReporter(runtimeContext);
+        protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
+            if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+                return errorStatsReporter;
+            } else return noOpErrorReporter;
         }
 
         protected void invokeBaseProducer(T value, Context context) {

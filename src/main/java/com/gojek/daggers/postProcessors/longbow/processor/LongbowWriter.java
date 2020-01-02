@@ -1,8 +1,9 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
@@ -38,7 +39,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private String longbowDocumentDuration;
     private LongbowStore longBowStore;
     private Map<String, List<String>> metrics = new HashMap<>();
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
     public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema) {
         this.configuration = configuration;
@@ -46,11 +47,11 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION, LONGBOW_DOCUMENT_DURATION_DEFAULT);
     }
 
-    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager, ErrorStatsReporter errorStatsReporter, LongbowStore longBowStore) {
+    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowStore longBowStore) {
         this(configuration, longBowSchema);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
-        this.errorStatsReporter = errorStatsReporter;
+        this.errorReporter = errorReporter;
     }
 
     @Override
@@ -63,8 +64,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
-        if (errorStatsReporter == null && configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
-            errorStatsReporter = new ErrorStatsReporter(getRuntimeContext(), configuration);
+        if (errorReporter == null) {
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
 
         if (!longBowStore.tableExists()) {
@@ -79,9 +80,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
             } catch (Exception ex) {
                 LOGGER.error("failed to create table '{}'", longBowStore.tableName());
                 meterStatsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
-                if (errorStatsReporter != null) {
-                    errorStatsReporter.reportFatalException(ex);
-                }
+                errorReporter.reportFatalException(ex);
                 meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
                 throw ex;
             }
@@ -117,9 +116,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
         meterStatsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
-        if (errorStatsReporter != null) {
-            errorStatsReporter.reportNonFatalException(new LongbowWriterException(ex));
-        }
+        errorReporter.reportNonFatalException(new LongbowWriterException(ex));
         meterStatsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return null;
     }
@@ -128,9 +125,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         LOGGER.error("LongbowWriter : timeout when writing document");
         meterStatsManager.markEvent(LongbowWriterAspects.TIMEOUTS_ON_WRITER);
         Exception timeoutException = new TimeoutException("Async function call has timed out.");
-        if (errorStatsReporter != null) {
-            errorStatsReporter.reportFatalException(timeoutException);
-        }
+        errorReporter.reportFatalException(timeoutException);
         resultFuture.completeExceptionally(timeoutException);
     }
 

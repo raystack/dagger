@@ -1,9 +1,10 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -37,7 +38,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     private long shutDownPeriod;
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
     public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
                             boolean telemetryEnabled, long shutDownPeriod) {
@@ -48,12 +49,12 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     }
 
     EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
-                     MeterStatsManager meterStatsManager, RestClient esClient, boolean telemetryEnabled, ErrorStatsReporter errorStatsReporter, long shutDownPeriod) {
+                     MeterStatsManager meterStatsManager, RestClient esClient, boolean telemetryEnabled, ErrorReporter errorReporter, long shutDownPeriod) {
         this(esSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.meterStatsManager = meterStatsManager;
         this.esClient = esClient;
         this.telemetryEnabled = telemetryEnabled;
-        this.errorStatsReporter = errorStatsReporter;
+        this.errorReporter = errorReporter;
     }
 
     @Override
@@ -66,8 +67,8 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         if (esClient == null) {
             esClient = createESClient();
         }
-        if (errorStatsReporter == null && telemetryEnabled) {
-            errorStatsReporter = new ErrorStatsReporter(getRuntimeContext(), shutDownPeriod);
+        if (errorReporter == null) {
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), telemetryEnabled, shutDownPeriod);
         }
         List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
         esOutputColumnNames.forEach(outputField -> {
@@ -96,19 +97,17 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
             Request esRequest = new Request("GET", esEndpoint);
             meterStatsManager.markEvent(TOTAL_ES_CALLS);
-            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture, errorStatsReporter);
+            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture, errorReporter);
             esResponseHandler.startTimer();
             esClient.performRequestAsync(esRequest, esResponseHandler);
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint pattern '%s' is invalid", esSourceConfig.getEndpointPattern()));
-            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
-            resultFuture.completeExceptionally(invalidConfigurationException);
+            reportAndThrowError(resultFuture, invalidConfigurationException);
         } catch (IllegalFormatException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint pattern '%s' is incompatible with the endpoint variable", esSourceConfig.getEndpointPattern()));
-            if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
-            resultFuture.completeExceptionally(invalidConfigurationException);
+            reportAndThrowError(resultFuture, invalidConfigurationException);
         }
     }
 
@@ -154,8 +153,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             if (inputColumnIndex == -1) {
                 meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint variable", inputColumnName));
-                if (errorStatsReporter != null) errorStatsReporter.reportFatalException(invalidConfigurationException);
-                resultFuture.completeExceptionally(invalidConfigurationException);
+                reportAndThrowError(resultFuture, invalidConfigurationException);
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
@@ -164,6 +162,11 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         }
 
         return inputColumnValues.toArray();
+    }
+
+    private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
+        errorReporter.reportFatalException(exception);
+        resultFuture.completeExceptionally(exception);
     }
 
     private void addMetric(String key, String value) {

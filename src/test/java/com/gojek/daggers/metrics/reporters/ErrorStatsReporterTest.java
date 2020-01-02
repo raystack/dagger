@@ -1,8 +1,6 @@
-package com.gojek.daggers.metrics;
+package com.gojek.daggers.metrics.reporters;
 
-import com.gojek.daggers.utils.Constants;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.junit.Before;
@@ -16,9 +14,6 @@ public class ErrorStatsReporterTest {
 
     @Mock
     private RuntimeContext runtimeContext;
-
-    @Mock
-    private Configuration configuration;
 
     @Mock
     private MetricGroup metricGroup;
@@ -50,17 +45,10 @@ public class ErrorStatsReporterTest {
     @Test
     public void shouldReportNonFatalError() {
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
-        when(metricGroup.addGroup("nonfatal.exception", "java.lang.RuntimeException")).thenReturn(metricGroup);
+        when(metricGroup.addGroup("non.fatal.exception", "java.lang.RuntimeException")).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
         errorStatsReporter.reportNonFatalException(new RuntimeException());
 
         verify(counter, times(1)).inc();
-    }
-
-    @Test
-    public void shouldFindShutDownPeriodFromConfig() {
-        new ErrorStatsReporter(runtimeContext, configuration);
-
-        verify(configuration, times(1)).getLong(Constants.SHUTDOWN_PERIOD_KEY, Constants.SHUTDOWN_PERIOD_DEFAULT);
     }
 }
