@@ -1,6 +1,7 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
@@ -12,13 +13,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.Properties;
 
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
-
 public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducer010Custom.class.getName());
     private Configuration configuration;
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
     public FlinkKafkaProducer010Custom(String topicId, KeyedSerializationSchema<T> serializationSchema,
                                        Properties producerConfig, @Nullable FlinkKafkaPartitioner<T> customPartitioner, Configuration configuration) {
@@ -32,10 +30,8 @@ public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
             invokeBaseProducer(value, context);
             LOGGER.info("row to kafka :" + value.toString());
         } catch (Exception exception) {
-            if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
-                errorStatsReporter = getErrorStatsReporter(getRuntimeContext());
-                errorStatsReporter.reportFatalException(exception);
-            }
+            errorReporter = getErrorReporter(getRuntimeContext());
+            errorReporter.reportFatalException(exception);
             throw exception;
         }
     }
@@ -44,7 +40,7 @@ public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
         super.invoke(value, context);
     }
 
-    protected ErrorStatsReporter getErrorStatsReporter(RuntimeContext runtimeContext) {
-        return new ErrorStatsReporter(runtimeContext, configuration);
+    protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
     }
 }

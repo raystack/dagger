@@ -1,9 +1,9 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.RowMaker;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -35,12 +35,12 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private HttpSourceConfig httpSourceConfig;
     private MeterStatsManager meterStatsManager;
     private Instant startTime;
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
 
     public HttpResponseHandler(HttpSourceConfig httpSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager,
                                ColumnNameManager columnNameManager, Descriptors.Descriptor descriptor, ResultFuture<Row> resultFuture,
-                               ErrorStatsReporter errorStatsReporter) {
+                               ErrorReporter errorReporter) {
 
         this.httpSourceConfig = httpSourceConfig;
         this.meterStatsManager = meterStatsManager;
@@ -48,7 +48,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         this.columnNameManager = columnNameManager;
         this.descriptor = descriptor;
         this.resultFuture = resultFuture;
-        this.errorStatsReporter = errorStatsReporter;
+        this.errorReporter = errorReporter;
     }
 
     public void startTimer() {
@@ -85,11 +85,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
                 value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
             } catch (PathNotFoundException e) {
                 meterStatsManager.markEvent(FAILURES_ON_READING_PATH);
-                if (errorStatsReporter != null) {
-                    errorStatsReporter.reportFatalException(e);
-                }
                 LOGGER.error(e.getMessage());
-                resultFuture.completeExceptionally(e);
+                reportAndThrowError(e);
                 return;
             }
             int fieldIndex = columnNameManager.getOutputIndex(key);
@@ -107,14 +104,9 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         LOGGER.error(logMessage);
         Exception httpFailureException = new HttpFailureException(logMessage);
         if (httpSourceConfig.isFailOnErrors()) {
-            if (errorStatsReporter != null) {
-                errorStatsReporter.reportFatalException(httpFailureException);
-            }
-            resultFuture.completeExceptionally(httpFailureException);
+            reportAndThrowError(httpFailureException);
         } else {
-            if (errorStatsReporter != null) {
-                errorStatsReporter.reportNonFatalException(httpFailureException);
-            }
+            errorReporter.reportNonFatalException(httpFailureException);
         }
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
@@ -131,11 +123,13 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
         if (fieldDescriptor == null) {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + key);
-            if (errorStatsReporter != null) {
-                errorStatsReporter.reportFatalException(illegalArgumentException);
-            }
-            resultFuture.completeExceptionally(illegalArgumentException);
+            reportAndThrowError(illegalArgumentException);
         }
         rowManager.setInOutput(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
+    }
+
+    private void reportAndThrowError(Exception e) {
+        errorReporter.reportFatalException(e);
+        resultFuture.completeExceptionally(e);
     }
 }

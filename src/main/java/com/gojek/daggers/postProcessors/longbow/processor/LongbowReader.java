@@ -1,8 +1,9 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-import com.gojek.daggers.metrics.ErrorStatsReporter;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.LongbowReaderAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
@@ -38,13 +39,13 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private LongbowStore longBowStore;
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
-    private ErrorStatsReporter errorStatsReporter;
+    private ErrorReporter errorReporter;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorStatsReporter errorStatsReporter) {
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter) {
         this(configuration, longBowSchema, longbowRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
-        this.errorStatsReporter = errorStatsReporter;
+        this.errorReporter = errorReporter;
     }
 
     public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow) {
@@ -60,8 +61,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
             longBowStore = LongbowStore.create(configuration);
         if (meterStatsManager == null)
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
-        if (errorStatsReporter == null && configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
-            errorStatsReporter = new ErrorStatsReporter(getRuntimeContext(), configuration);
+        if (errorReporter == null) {
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
         longBowStore.initialize();
@@ -111,9 +112,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         LOGGER.error("LongbowReader : failed to scan document from BigTable: {}", ex.getMessage());
         ex.printStackTrace();
         meterStatsManager.markEvent(FAILED_ON_READ_DOCUMENT);
-        if (errorStatsReporter != null) {
-            errorStatsReporter.reportNonFatalException(new LongbowReaderException(ex));
-        }
+        errorReporter.reportNonFatalException(new LongbowReaderException(ex));
         meterStatsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return Collections.emptyList();
     }
@@ -151,9 +150,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         LOGGER.error("LongbowReader : timeout when reading document");
         meterStatsManager.markEvent(TIMEOUTS_ON_READER);
         Exception timeoutException = new TimeoutException("Async function call has timed out.");
-        if (errorStatsReporter != null) {
-            errorStatsReporter.reportFatalException(timeoutException);
-        }
+        errorReporter.reportFatalException(timeoutException);
         resultFuture.completeExceptionally(timeoutException);
     }
 
