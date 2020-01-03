@@ -18,8 +18,11 @@ import org.apache.flink.types.Row;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
@@ -29,6 +32,7 @@ import static java.util.Collections.singleton;
 
 public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EsAsyncConnector.class.getName());
     private Descriptors.Descriptor outputDescriptor;
     private RestClient esClient;
     private boolean telemetryEnabled;
@@ -45,6 +49,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         this.esSourceConfig = esSourceConfig;
         this.stencilClient = stencilClient;
         this.columnNameManager = columnNameManager;
+        this.telemetryEnabled = telemetryEnabled;
         this.shutDownPeriod = shutDownPeriod;
     }
 
@@ -53,7 +58,6 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         this(esSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.meterStatsManager = meterStatsManager;
         this.esClient = esClient;
-        this.telemetryEnabled = telemetryEnabled;
         this.errorReporter = errorReporter;
     }
 
@@ -114,6 +118,9 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     @Override
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         meterStatsManager.markEvent(TIMEOUTS);
+        LOGGER.error("HTTP Connector : Timeout");
+        Exception timeoutException = new TimeoutException("Timeout in HTTP Call");
+        errorReporter.reportNonFatalException(timeoutException);
         resultFuture.complete(singleton(input));
     }
 

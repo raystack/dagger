@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.Mockito.*;
@@ -187,6 +188,7 @@ public class EsAsyncConnectorTest {
         esAsyncConnector.timeout(streamRow, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(TIMEOUTS);
+        verify(errorReporter, times(1)).reportNonFatalException(any(TimeoutException.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
     }
 
