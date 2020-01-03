@@ -18,8 +18,6 @@ import org.apache.flink.types.Row;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -32,7 +30,6 @@ import static java.util.Collections.singleton;
 
 public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EsAsyncConnector.class.getName());
     private Descriptors.Descriptor outputDescriptor;
     private RestClient esClient;
     private boolean telemetryEnabled;
@@ -118,7 +115,6 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     @Override
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         meterStatsManager.markEvent(TIMEOUTS);
-        LOGGER.error("HTTP Connector : Timeout");
         Exception timeoutException = new TimeoutException("Timeout in Elastic Search Call");
         errorReporter.reportNonFatalException(timeoutException);
         resultFuture.complete(singleton(input));
