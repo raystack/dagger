@@ -4,6 +4,7 @@ import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.accumulator.array.ArrayAccumulator;
 import com.gojek.dagger.udf.accumulator.distance.DistanceAccumulator;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
+import com.gojek.dagger.udf.accumulator.exponentialMovingAverage.EMAAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import com.gojek.dagger.udf.dart.store.RedisConfig;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
@@ -110,6 +111,7 @@ public class StreamManager {
         }), TypeInformation.of(ArrayAccumulator.class));
         RuleViolatedEventUnnest ruleViolatedEventUnnest = new RuleViolatedEventUnnest();
         tableEnvironment.registerFunction("RuleViolatedEventUnnest", ruleViolatedEventUnnest, ruleViolatedEventUnnest.getResultType());
+        tableEnvironment.registerFunction("ExponentialMovingAverage", new ExponentialMovingAverage(), TypeInformation.of(Double.class), TypeInformation.of(EMAAccumulator.class));
         return this;
     }
 
