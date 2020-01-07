@@ -2,6 +2,7 @@ package com.gojek.daggers.core;
 
 import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
+import com.gojek.dagger.udf.accumulator.exponentialMovingAverage.EMAAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
@@ -142,6 +143,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SecondsElapsed"), any(SecondsElapsed.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("RuleViolatedEventUnnest"),
                 any(RuleViolatedEventUnnest.class), any(TypeInformation.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ExponentialMovingAverage"), any(ExponentialMovingAverage.class), eq(TypeInformation.of(Double.class)), eq(TypeInformation.of(EMAAccumulator.class)));
     }
 
     @Test
