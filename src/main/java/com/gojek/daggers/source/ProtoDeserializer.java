@@ -81,11 +81,11 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         return rows.toArray();
     }
 
-    private Object[] getStringRow(List protos) {
+    private String[] getStringRow(List<Object> protos) {
         return protos
                 .stream()
                 .map(String::valueOf)
-                .toArray();
+                .toArray(String[]::new);
     }
 
     private Object[] getMapRow(List<DynamicMessage> protos) {
