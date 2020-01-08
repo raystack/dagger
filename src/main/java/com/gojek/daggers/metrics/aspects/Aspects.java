@@ -1,4 +1,4 @@
-package com.gojek.daggers.metrics;
+package com.gojek.daggers.metrics.aspects;
 
 public interface Aspects {
     String getValue();

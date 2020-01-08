@@ -1,8 +1,9 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.HttpFailureException;
-import com.gojek.daggers.metrics.Aspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.aspects.Aspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -23,7 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -39,10 +40,13 @@ public class HttpResponseHandlerTest {
     private Response response;
 
     @Mock
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
 
     @Mock
     private HttpSourceConfig httpSourceConfig;
+
+    @Mock
+    private ErrorReporter errorReporter;
 
     private Descriptors.Descriptor descriptor;
     private List<String> outputColumnNames;
@@ -77,118 +81,126 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XX() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(404);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs5XX() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(502);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIsOtherThan5XXAnd4XX() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(302);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(404);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs5XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(502);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIsOtherThan5XXAnd4XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(302);
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndOnThrowable() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Throwable throwable = new Throwable("throwable message");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onThrowable(throwable);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndOnThrowable() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Throwable throwable = new Throwable("throwable message");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onThrowable(throwable);
 
         verify(resultFuture).completeExceptionally(any(RuntimeException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
-        verify(statsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
@@ -197,7 +209,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -211,8 +223,8 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
@@ -223,7 +235,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Arrays.asList("surge_factor", "s2_id_level");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -239,9 +251,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
     @Test
@@ -256,7 +268,7 @@ public class HttpResponseHandlerTest {
         when(response.getResponseBody()).thenReturn("{\n" +
                 "  \"surge\": 0.732\n" +
                 "}");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
 
         httpResponseHandler.startTimer();
         try {
@@ -273,7 +285,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -288,31 +300,8 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
-    }
-
-    @Test
-    public void shouldNotThrowExceptionIfPathIsWrongIfFailOnErrorsFalse() {
-        outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
-        outputColumnNames = Collections.singletonList("surge_factor");
-        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
-        Row resultStreamData = new Row(2);
-        Row outputData = new Row(2);
-        outputData.setField(0, 0.732f);
-        resultStreamData.setField(0, inputData);
-        resultStreamData.setField(1, outputData);
-        when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
-
-        httpResponseHandler.startTimer();
-        httpResponseHandler.onCompleted(response);
-
-        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
-        verify(statsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+        verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
     }
 
     @Test
@@ -321,7 +310,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping);
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, descriptor, resultFuture);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732);
@@ -335,8 +324,8 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(statsManager, times(1)).markEvent(SUCCESS_RESPONSE);
-        verify(statsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 }

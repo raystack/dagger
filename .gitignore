@@ -8,3 +8,8 @@ config/checkstyle
 generated
 .pairs
 target/
+.classpath
+.project
+bin
+.settings
+.gradletasknamecache

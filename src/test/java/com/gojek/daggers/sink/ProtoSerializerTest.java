@@ -1,6 +1,7 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DaggerSerializationException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidColumnMappingException;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.aggregate.demand.AggregatedDemandKey;
@@ -402,7 +403,7 @@ public class ProtoSerializerTest {
 
     @Test
     public void shouldThrowExceptionWhenMessageProtoIsNotProvided() {
-        expectedException.expect(DaggerProtoException.class);
+        expectedException.expect(DaggerSerializationException.class);
         expectedException.expectMessage("messageProtoClassName is required");
 
         String[] columnNames = {};
@@ -456,4 +457,16 @@ public class ProtoSerializerTest {
         assertEquals(s2IdLevel, actualKey.getS2IdLevel());
     }
 
+    @Test(expected = DescriptorNotFoundException.class)
+    public void shouldThrowDescriptorNotFoundException() throws InvalidProtocolBufferException {
+        String[] columnNames = {"s2_id_level"};
+        String protoMessage = "RandomMessageClass";
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames, StencilClientFactory.getClient());
+
+        int s2IdLevel = 13;
+        Row element = new Row(1);
+        element.setField(0, s2IdLevel);
+
+        protoSerializer.serializeValue(element);
+    }
 }

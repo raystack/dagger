@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external;
 
 import com.gojek.daggers.core.StreamInfo;
+import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -13,7 +14,9 @@ import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
@@ -49,6 +52,9 @@ public class ExternalPostProcessorTest {
 
     @Mock
     private HttpSourceConfig httpSourceConfig;
+
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
 
 //    private ExternalPostProcessorMock externalSourceProcessorMock;
 
@@ -106,7 +112,8 @@ public class ExternalPostProcessorTest {
 
         postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
 //        externalPostProcessor = new ExternalPostProcessorMock(stencilClient, externalSourceConfig, columnNameManager,httpStreamDecorator,esStreamDecorator);
-        externalPostProcessor = new ExternalPostProcessor(stencilClient, externalSourceConfig, columnNameManager);
+        externalPostProcessor = new ExternalPostProcessor(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber,
+                configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT), configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT));
     }
 
     @Test
@@ -122,7 +129,7 @@ public class ExternalPostProcessorTest {
     }
 
     @Test
-    public void shouldProcessWithRightConfiguration(){
+    public void shouldProcessWithRightConfiguration() {
         Map<String, OutputMapping> outputMapping = new HashMap<>();
         outputMapping.put("order_id", new OutputMapping("path"));
 
@@ -251,18 +258,19 @@ public class ExternalPostProcessorTest {
         private EsStreamDecorator esStreamDecorator;
 
         public ExternalPostProcessorMock(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator) {
-            super(stencilClient, externalSourceConfig, columnNameManager);
+            super(stencilClient, externalSourceConfig, columnNameManager, telemetrySubscriber,
+                    configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT), configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT));
             this.httpStreamDecorator = httpStreamDecorator;
             this.esStreamDecorator = esStreamDecorator;
         }
 
         @Override
-        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager) {
+        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
             return httpStreamDecorator;
         }
 
         @Override
-        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager) {
+        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
             return esStreamDecorator;
         }
     }
