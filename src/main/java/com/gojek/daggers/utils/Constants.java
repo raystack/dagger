@@ -1,6 +1,8 @@
 package com.gojek.daggers.utils;
 
 public class Constants {
+    public final static String TELEMETRY_ENABLED_KEY = "TELEMETRY_ENABLED";
+    public final static boolean TELEMETRY_ENABLED_VALUE_DEFAULT = true;
     public final static String POST_PROCESSOR_ENABLED_KEY = "POST_PROCESSOR_ENABLED";
     public final static boolean POST_PROCESSOR_ENABLED_KEY_DEFAULT = false;
     public final static String POST_PROCESSOR_CONFIG_KEY = "POST_PROCESSOR_CONFIG";
@@ -51,16 +53,29 @@ public class Constants {
     public final static String PORTAL_VERSION = "PORTAL_VERSION";
     public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
     public final static String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
+    public final static String OUTPUT_STREAM = "OUTPUT_STREAM";
     public final static String ES_TYPE = "es";
     public final static String HTTP_TYPE = "http";
     public final static String SQL_TYPE = "sql";
     public final static String SQL_PATH_SELECT_ALL_CONFIG_VALUE = "*";
 
+    public final static String REDIS_SERVER_KEY = "REDIS_SERVER";
+    public final static String REDIS_SERVER_DEFAULT = "localhost";
+
+    public final static String ASHIKO_HTTP_PROCESSOR = "ashiko_http_processor";
+    public final static String ASHIKO_ES_PROCESSOR = "ashiko_es_processor";
+    public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
+    public final static String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
+    public final static String TRANSFORM_PROCESSOR = "transform_processor";
 
     public static final String STREAM_PROTO_CLASS_NAME = "PROTO_CLASS_NAME";
     public static final String STREAM_TABLE_NAME = "TABLE_NAME";
     public static final String STREAM_TOPIC_NAMES = "TOPIC_NAMES";
     public static final String INPUT_STREAMS = "STREAMS";
+    public static final String INPUT_STREAM_NAME = "STREAM_NAME";
 
-
+    public static final String SHUTDOWN_PERIOD_KEY = "SHUTDOWN_PERIOD";
+    public static final long SHUTDOWN_PERIOD_DEFAULT = 10000;
+    public static final String FATAL_EXCEPTION_METRIC_GROUP_KEY = "fatal.exception";
+    public static final String NONFATAL_EXCEPTION_METRIC_GROUP_KEY = "non.fatal.exception";
 }

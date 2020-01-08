@@ -1,7 +1,7 @@
-package com.gojek.daggers.metrics;
+package com.gojek.daggers.metrics.aspects;
 
-import static com.gojek.daggers.metrics.AspectType.Histogram;
-import static com.gojek.daggers.metrics.AspectType.Metric;
+import static com.gojek.daggers.metrics.aspects.AspectType.Histogram;
+import static com.gojek.daggers.metrics.aspects.AspectType.Metric;
 
 public enum ExternalSourceAspects implements Aspects {
     CLOSE_CONNECTION_ON_HTTP_CLIENT("closeConnectionOnHttpClient", Metric),

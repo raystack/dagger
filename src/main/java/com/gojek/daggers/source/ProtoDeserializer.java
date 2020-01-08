@@ -1,9 +1,11 @@
 package com.gojek.daggers.source;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DaggerDeserializationException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.KeyedDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -31,7 +33,7 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private Descriptors.Descriptor getProtoParser() {
         Descriptors.Descriptor dsc = stencilClient.get(protoClassName);
         if (dsc == null) {
-            throw new DaggerProtoException();
+            throw new DescriptorNotFoundException();
         }
         return dsc;
     }
@@ -114,8 +116,12 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         try {
             DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), message);
             return addTimestampFieldToRow(getRow(proto), proto);
+        } catch (DescriptorNotFoundException e) {
+            throw new DescriptorNotFoundException(e);
+        } catch (InvalidProtocolBufferException e) {
+            throw new InvalidProtocolBufferException(e);
         } catch (RuntimeException e) {
-            throw new DaggerProtoException(e);
+            throw new DaggerDeserializationException(e);
         }
     }
 

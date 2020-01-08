@@ -1,6 +1,8 @@
 package com.gojek.daggers.core;
 
 
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.source.FlinkKafkaConsumer011Custom;
 import com.gojek.daggers.source.ProtoDeserializer;
 import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
@@ -11,27 +13,31 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.*;
 import static com.gojek.daggers.utils.Constants.*;
 
-public class Streams {
+public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private final Configuration configuration;
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private StencilClient stencilClient;
     private boolean enablePerPartitionWatermark;
     private long watermarkDelay;
+    private Map<String, List<String>> metrics = new HashMap<>();
+    private String topics;
+    private String protoClassName;
+    private String streamName;
 
     public Streams(Configuration configuration, String rowTimeAttributeName, StencilClient stencilClient, boolean enablePerPartitionWatermark, long watermarkDelay) {
         this.stencilClient = stencilClient;
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
+        this.configuration = configuration;
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Gson gson = new Gson();
         Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
@@ -41,15 +47,34 @@ public class Streams {
         }
     }
 
+    public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
+        return streams;
+    }
+
+    public LinkedHashMap<String, String> getProtos() {
+        return protoClassForTable;
+    }
+
+    @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addTelemetry();
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
     private static String parseVarName(String varName, String kafkaPrefix) {
         String[] names = varName.toLowerCase().replaceAll(kafkaPrefix, "").split("_");
         return String.join(".", names);
     }
 
     private FlinkKafkaConsumer011<Row> getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topics = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
+        topics = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
+        protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
+        streamName = streamConfig.getOrDefault(INPUT_STREAM_NAME, "");
         String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
-        String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
         protoClassForTable.put(tableName, protoClassName);
         int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault("EVENT_TIMESTAMP_FIELD_INDEX", ""));
         Properties kafkaProps = new Properties();
@@ -58,7 +83,8 @@ public class Streams {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
-        FlinkKafkaConsumer011 fc = new FlinkKafkaConsumer011<>(Pattern.compile(topics), new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps);
+        FlinkKafkaConsumer011Custom fc = new FlinkKafkaConsumer011Custom(Pattern.compile(topics),
+                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps, configuration);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {
@@ -74,11 +100,14 @@ public class Streams {
         return fc;
     }
 
-    public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
-        return streams;
+    private void addTelemetry() {
+        String[] topicList = topics.split("\\|");
+        Arrays.asList(topicList).forEach(topic -> addMetric(INPUT_TOPIC.getValue(), topic));
+        addMetric(INPUT_PROTO.getValue(), protoClassName);
+        addMetric(INPUT_STREAM.getValue(), streamName);
     }
 
-    public LinkedHashMap<String, String> getProtos() {
-        return protoClassForTable;
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 }
