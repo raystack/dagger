@@ -1,5 +1,7 @@
 package com.gojek.daggers.sink.influx;
 
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.google.common.base.Strings;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -29,12 +31,24 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private String retentionPolicy;
     private String measurementName;
     private InfluxErrorHandler errorHandler;
+    private ErrorReporter errorReporter;
 
     public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
         this.parameters = parameters;
         this.errorHandler = errorHandler;
+        databaseName = parameters.getString("INFLUX_DATABASE", "");
+        retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
+        measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
+    }
+
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler, ErrorReporter errorReporter) {
+        this.influxDBFactory = influxDBFactory;
+        this.columnNames = columnNames;
+        this.parameters = parameters;
+        this.errorHandler = errorHandler;
+        this.errorReporter = errorReporter;
         databaseName = parameters.getString("INFLUX_DATABASE", "");
         retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
         measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
@@ -52,6 +66,9 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
                 parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
                 TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
         );
+        if (errorReporter == null) {
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), parameters);
+        }
     }
 
     @Override
@@ -80,25 +97,36 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
                 }
             }
         }
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
+        addErrorMetricsAndThrow();
+        try {
+            influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
+        } catch (Exception exception) {
+            errorReporter.reportFatalException(exception);
+            throw exception;
         }
-        influxDB.write(databaseName, retentionPolicy, pointBuilder.fields(fields).build());
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
+        addErrorMetricsAndThrow();
+        try {
+            influxDB.flush();
+        } catch (Exception exception) {
+            errorReporter.reportFatalException(exception);
+            throw exception;
         }
-        influxDB.flush();
-        if (errorHandler.hasError()) {
-            throw errorHandler.getError();
-        }
+        addErrorMetricsAndThrow();
     }
 
     @Override
-    public void initializeState(FunctionInitializationContext context) throws Exception {
+    public void initializeState(FunctionInitializationContext context) {
         // do nothing
+    }
+
+    private void addErrorMetricsAndThrow() throws Exception {
+        if (errorHandler.hasError()) {
+            errorReporter.reportFatalException(errorHandler.getError());
+            throw errorHandler.getError();
+        }
     }
 }

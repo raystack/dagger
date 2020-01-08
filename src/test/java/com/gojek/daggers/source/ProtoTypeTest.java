@@ -1,6 +1,6 @@
 package com.gojek.daggers.source;
 
-import com.gojek.daggers.exception.DaggerProtoException;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClient;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogMessage;
@@ -36,12 +36,12 @@ ProtoTypeTest {
                 bookingKeyProtoType.getFieldNames());
     }
 
-    @Test(expected = DaggerProtoException.class)
+    @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowConfigurationExceptionWhenClassNotFound() {
         new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", STENCIL_CLIENT);
     }
 
-    @Test(expected = DaggerProtoException.class)
+    @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowConfigurationExceptionWhenClassIsNotProto() {
         new ProtoType(String.class.getName(), "rowtime", STENCIL_CLIENT);
     }

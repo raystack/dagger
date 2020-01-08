@@ -2,8 +2,11 @@ package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.exception.InvalidHttpVerbException;
-import com.gojek.daggers.metrics.ExternalSourceAspects;
-import com.gojek.daggers.metrics.StatsManager;
+import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.external.http.request.HttpRequestFactory;
@@ -19,34 +22,52 @@ import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IllegalFormatException;
+import java.util.List;
+import java.util.Map;
+import java.util.UnknownFormatConversionException;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
+import static com.gojek.daggers.utils.Constants.ASHIKO_HTTP_PROCESSOR;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
 
-public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
+public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpAsyncConnector.class.getName());
     private AsyncHttpClient httpClient;
     private HttpSourceConfig httpSourceConfig;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
+    private boolean telemetryEnabled;
+    private long shutDownPeriod;
     private Descriptors.Descriptor outputDescriptor;
-    private StatsManager statsManager;
+    private MeterStatsManager meterStatsManager;
+    private ErrorReporter errorReporter;
+    private Map<String, List<String>> metrics = new HashMap<>();
 
-
-    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager) {
+    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+                              boolean telemetryEnabled, long shutDownPeriod) {
         this.httpSourceConfig = httpSourceConfig;
         this.stencilClient = stencilClient;
         this.columnNameManager = columnNameManager;
+        this.telemetryEnabled = telemetryEnabled;
+        this.shutDownPeriod = shutDownPeriod;
     }
 
-    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient, StatsManager statsManager, ColumnNameManager columnNameManager) {
-        this(httpSourceConfig, stencilClient, columnNameManager);
+    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient,
+                              MeterStatsManager meterStatsManager, ColumnNameManager columnNameManager, boolean telemetryEnabled,
+                              ErrorReporter errorReporter, long shutDownPeriod) {
+        this(httpSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.httpClient = httpClient;
-        this.statsManager = statsManager;
+        this.meterStatsManager = meterStatsManager;
+        this.errorReporter = errorReporter;
     }
 
     @Override
@@ -57,19 +78,32 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
             String descriptorType = httpSourceConfig.getType();
             outputDescriptor = stencilClient.get(descriptorType);
         }
-        if (statsManager == null) {
-            statsManager = new StatsManager(getRuntimeContext(), true);
+        if (meterStatsManager == null) {
+            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
         }
-        statsManager.register("external.source.http", ExternalSourceAspects.values());
+        if (errorReporter == null) {
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), telemetryEnabled, shutDownPeriod);
+        }
+        meterStatsManager.register("external.source.http", ExternalSourceAspects.values());
         if (httpClient == null) {
             httpClient = asyncHttpClient(config().setConnectTimeout(httpSourceConfig.getConnectTimeout()));
         }
     }
 
     @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), ASHIKO_HTTP_PROCESSOR);
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    @Override
     public void close() throws Exception {
         httpClient.close();
-        statsManager.markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
+        meterStatsManager.markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
         LOGGER.error("HTTP Connector : Connection closed");
     }
 
@@ -82,33 +116,40 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
 
             if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(requestVariablesValues).isEmpty()) {
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
-                statsManager.markEvent(EMPTY_INPUT);
+                meterStatsManager.markEvent(EMPTY_INPUT);
                 return;
             }
             BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
-            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, statsManager, rowManager, columnNameManager, outputDescriptor, resultFuture);
-            statsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
+            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager,
+                    columnNameManager, outputDescriptor, resultFuture, errorReporter);
+            meterStatsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
             httpResponseHandler.startTimer();
             request.execute(httpResponseHandler);
         } catch (InvalidHttpVerbException e) {
-            statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+            meterStatsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(e);
         } catch (UnknownFormatConversionException e) {
-            statsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
-            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern())));
+            meterStatsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
         } catch (IllegalFormatException e) {
-            statsManager.markEvent(INVALID_CONFIGURATION);
-            resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern())));
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
         }
 
     }
 
     public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
         RowManager rowManager = new RowManager(input);
-        statsManager.markEvent(ExternalSourceAspects.TIMEOUTS);
+        meterStatsManager.markEvent(ExternalSourceAspects.TIMEOUTS);
         LOGGER.error("HTTP Connector : Timeout");
-        if (httpSourceConfig.isFailOnErrors())
-            resultFuture.completeExceptionally(new TimeoutException("Timeout in HTTP Call"));
+        Exception timeoutException = new TimeoutException("Timeout in HTTP Call");
+        if (httpSourceConfig.isFailOnErrors()) {
+            reportAndThrowError(resultFuture, timeoutException);
+        } else {
+            errorReporter.reportNonFatalException(timeoutException);
+        }
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
@@ -118,8 +159,9 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                statsManager.markEvent(INVALID_CONFIGURATION);
-                resultFuture.completeExceptionally(new InvalidConfigurationException(String.format("Column '%s' not found as configured in the request variable", inputColumnName)));
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
+                Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the request variable", inputColumnName));
+                reportAndThrowError(resultFuture, invalidConfigurationException);
                 return new Object[0];
             }
             inputColumnValues.add(rowManager.getFromInput(inputColumnIndex));
@@ -130,4 +172,12 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> {
         return inputColumnValues.toArray();
     }
 
+    private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
+        errorReporter.reportFatalException(exception);
+        resultFuture.completeExceptionally(exception);
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+    }
 }
