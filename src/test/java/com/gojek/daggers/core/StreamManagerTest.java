@@ -2,7 +2,6 @@ package com.gojek.daggers.core;
 
 import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
-import com.gojek.dagger.udf.accumulator.exponentialMovingAverage.EMAAccumulator;
 import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
