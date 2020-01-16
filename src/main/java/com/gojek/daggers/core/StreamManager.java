@@ -103,6 +103,7 @@ public class StreamManager {
         scalarFunctions.put("EndOfMonth", new EndOfMonth());
         scalarFunctions.put("TimeInDate", new TimeInDate());
         scalarFunctions.put("MapGet", new MapGet());
+        scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
         return scalarFunctions;
     }
 
@@ -114,7 +115,6 @@ public class StreamManager {
         aggregateFunctions.put("ConcurrentTransactions", new ConcurrentTransactions(7200));
         aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
         aggregateFunctions.put("CollectArray", new CollectArray());
-        aggregateFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
         return aggregateFunctions;
     }
 
