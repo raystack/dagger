@@ -1,9 +1,8 @@
 package com.gojek.daggers.source;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerDeserializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.de.stencil.StencilClient;
-import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogKey;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.consumer.TestNestedRepeatedMessage;
@@ -16,6 +15,7 @@ import com.gojek.esb.types.RouteProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static com.gojek.daggers.utils.Constants.*;
 import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_AUTO;
 import static org.junit.Assert.*;
@@ -33,16 +34,24 @@ import static org.mockito.MockitoAnnotations.initMocks;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtoDeserializerTest {
 
-    private static final StencilClient STENCIL_CLIENT = StencilClientFactory.getClient();
+    private Configuration configuration;
+
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
     @Before
     public void setUp() {
         initMocks(this);
+        configuration = new Configuration();
+        configuration.setString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT);
+        configuration.setString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT);
+        configuration.setBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
+        configuration.setString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
     @Test
     public void shouldAlwaysReturnFalseForEndOfStream() {
-        assertFalse(new ProtoDeserializer(BookingLogKey.class.getTypeName(), 4, "rowtime", STENCIL_CLIENT).isEndOfStream(null));
+        assertFalse(new ProtoDeserializer(BookingLogKey.class.getTypeName(), 4, "rowtime", stencilClientOrchestrator).isEndOfStream(null));
     }
 
     @Test
@@ -52,7 +61,7 @@ public class ProtoDeserializerTest {
         final int expectedIterationNumber = 10;
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setOrderId(expectedOrderNumber)
                 .setIterationNumber(expectedIterationNumber).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -64,7 +73,7 @@ public class ProtoDeserializerTest {
     public void shouldDeserializeEnumAsString() throws IOException {
 
         byte[] protoBytes = ParticipantLogMessage.newBuilder().setServiceType(GO_AUTO).setStatus(ACCEPTED).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -85,7 +94,7 @@ public class ProtoDeserializerTest {
         byte[] protoBytes = ParticipantLogMessage.newBuilder()
                 .setEventTimestamp(expectedTimestamp)
                 .setLocation(expectedDriverLocation).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogMessage.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -107,7 +116,7 @@ public class ProtoDeserializerTest {
                 .addRoutes(RouteProto.Route.newBuilder().setDistanceInKms(3.0f).setRouteOrder(6).build())
                 .build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 5, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -135,7 +144,7 @@ public class ProtoDeserializerTest {
                 .addRegisteredDevice("EXAMPLE-REGISTERED-DEVICE-04")
                 .build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(LoginRequestMessage.class.getTypeName(), 9, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(LoginRequestMessage.class.getTypeName(), 9, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -157,7 +166,7 @@ public class ProtoDeserializerTest {
                 .addRequestHeadersExtra("EXAMPLE-REGISTERED-DEVICE-04")
                 .build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ApiLogMessage.class.getTypeName(), 1, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(ApiLogMessage.class.getTypeName(), 1, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -181,7 +190,7 @@ public class ProtoDeserializerTest {
                 .putAllCurrentState(currentState)
                 .setAuditId(auditId).build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), 4, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), 4, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -206,7 +215,7 @@ public class ProtoDeserializerTest {
                 .putAllCurrentState(currentState)
                 .setAuditId(auditId).build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), 4, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AuditEntityLogMessage.class.getTypeName(), 4, "rowtime", stencilClientOrchestrator);
 
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
 
@@ -227,7 +236,7 @@ public class ProtoDeserializerTest {
                 .addMetadata(Struct.getDefaultInstance())
                 .setNumberField(5)
                 .build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
         Row row = protoDeserializer.deserialize(null, protoBytes, null, 0, 0);
         assertNull(row.getField(4));
         assertEquals(row.getField(2), 5);
@@ -235,18 +244,18 @@ public class ProtoDeserializerTest {
 
     @Test(expected = DaggerDeserializationException.class)
     public void shouldThrowExceptionIfNotAbleToDeserialise() throws IOException {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
         Row row = protoDeserializer.deserialize(null, null, null, 0, 0);
     }
 
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowDescriptorNotFoundException() throws IOException {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer("randomProtoClass", 6, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer("randomProtoClass", 6, "rowtime", stencilClientOrchestrator);
     }
 
     @Test(expected = InvalidProtocolBufferException.class)
     public void shouldThrowInvalidProtocolBufferException() throws IOException {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 6, "rowtime", STENCIL_CLIENT);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
         Row row = protoDeserializer.deserialize(null, "test".getBytes(), null, 0, 0);
     }
 

@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
-import com.gojek.de.stencil.StencilClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -12,7 +12,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpStreamDecoratorTest {
     @Mock
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
     @Mock
     private HttpSourceConfig httpSourceConfig;
@@ -32,13 +32,13 @@ public class HttpStreamDecoratorTest {
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClient, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClient, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }

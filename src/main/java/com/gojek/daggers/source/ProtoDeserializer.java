@@ -1,8 +1,8 @@
 package com.gojek.daggers.source;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerDeserializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -21,17 +21,17 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
     private String protoClassName;
     private ProtoType protoType;
     private int timestampFieldIndex;
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
-    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClient stencilClient) {
+    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protoClassName = protoClassName;
-        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, stencilClient);
+        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, stencilClientOrchestrator);
         this.timestampFieldIndex = timestampFieldIndex;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
     private Descriptors.Descriptor getProtoParser() {
-        Descriptors.Descriptor dsc = stencilClient.get(protoClassName);
+        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(protoClassName);
         if (dsc == null) {
             throw new DescriptorNotFoundException();
         }
