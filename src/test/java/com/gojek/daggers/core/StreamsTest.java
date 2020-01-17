@@ -1,17 +1,43 @@
 package com.gojek.daggers.core;
 
 import com.gojek.de.stencil.StencilClientFactory;
+import com.gojek.de.stencil.client.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.*;
 
+import static com.gojek.daggers.utils.Constants.*;
+import static com.gojek.daggers.utils.Constants.STENCIL_URL_DEFAULT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class StreamsTest {
+
+    @Mock
+    private StencilClientOrchestrator stencilClientOrchestrator;
+
+    private StencilClient stencilClient;
+    private Configuration configuration;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        configuration = new Configuration();
+        configuration.setString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT);
+        configuration.setString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT);
+        configuration.setBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
+        configuration.setString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT);
+
+        stencilClient = StencilClientFactory.getClient();
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+    }
 
     @Test
     public void shouldTakeAJSONArrayWithSingleObject() {
@@ -28,9 +54,8 @@ public class StreamsTest {
                 + "        }\n"
                 + "]";
 
-        Configuration configuration = new Configuration();
         configuration.setString("STREAMS", configString);
-        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient(), false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
         Map<String, FlinkKafkaConsumer011<Row>> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
@@ -64,9 +89,9 @@ public class StreamsTest {
 
         System.out.println(metrics);
 
-        Configuration configuration = new Configuration();
+        configuration = new Configuration();
         configuration.setString("STREAMS", configString);
-        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient(), false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
         streams.preProcessBeforeNotifyingSubscriber();
         Map<String, List<String>> telemetry = streams.getTelemetry();
 
@@ -91,9 +116,9 @@ public class StreamsTest {
         LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
         protoClassForTable.put("data_stream", "com.gojek.esb.booking.BookingLogMessage");
 
-        Configuration configuration = new Configuration();
+        configuration = new Configuration();
         configuration.setString("STREAMS", configString);
-        Streams streams = new Streams(configuration, "rowtime", StencilClientFactory.getClient(), false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
 
         Assert.assertEquals(protoClassForTable, streams.getProtos());
     }

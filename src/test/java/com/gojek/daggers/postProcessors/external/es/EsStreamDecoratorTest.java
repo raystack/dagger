@@ -1,8 +1,8 @@
 package com.gojek.daggers.postProcessors.external.es;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.de.stencil.StencilClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 
 public class EsStreamDecoratorTest {
 
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private EsSourceConfig esSourceConfig;
     private boolean telemetryEnabled;
     private long shutDownPeriod;
@@ -25,7 +25,7 @@ public class EsStreamDecoratorTest {
 
     @Before
     public void setUp() {
-        stencilClient = mock(StencilClient.class);
+        stencilClientOrchestrator = mock(StencilClientOrchestrator.class);
         telemetryEnabled = true;
         shutDownPeriod = 0L;
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
@@ -35,14 +35,14 @@ public class EsStreamDecoratorTest {
 
     @Test
     public void canDecorateStreamWhenConfigIsPresent() {
-        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(esSourceConfig, stencilClient, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(esSourceConfig, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertTrue(esStreamDecorator.canDecorate());
     }
 
     @Test
     public void cannotDecorateStreamWhenConfigIsNull() {
-        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(null, stencilClient, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(null, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertFalse(esStreamDecorator.canDecorate());
     }

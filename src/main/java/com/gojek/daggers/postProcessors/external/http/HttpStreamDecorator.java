@@ -1,9 +1,9 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
-import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -16,12 +16,12 @@ public class HttpStreamDecorator implements StreamDecorator {
     private boolean telemetryEnabled;
     private long shutDownPeriod;
     private HttpSourceConfig httpSourceConfig;
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
-    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
                                TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.httpSourceConfig = httpSourceConfig;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
         this.telemetryEnabled = telemetryEnabled;
@@ -35,7 +35,7 @@ public class HttpStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         httpAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
     }

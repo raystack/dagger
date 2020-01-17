@@ -1,11 +1,11 @@
 package com.gojek.daggers.sink;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerSerializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidColumnMappingException;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
-import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -20,19 +20,19 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
     private String protoClassNamePrefix;
 
     private String[] columnNames;
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
     private String keyProtoClassName;
     private String messageProtoClassName;
 
     // TODO: [PORTAL_MIGRATION] Remove following constructor when migration to new portal is done
-    public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClient stencilClient) {
+    public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protoClassNamePrefix = protoClassNamePrefix;
         this.columnNames = columnNames;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
-    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClient stencilClient) {
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
         }
@@ -40,11 +40,11 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
         this.keyProtoClassName = keyProtoClassName;
         this.messageProtoClassName = messageProtoClassName;
         this.columnNames = columnNames;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
     private Descriptors.Descriptor getDescriptor(String className) {
-        Descriptors.Descriptor dsc = stencilClient.get(className);
+        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(className);
         if (dsc == null) {
             throw new DescriptorNotFoundException();
         }

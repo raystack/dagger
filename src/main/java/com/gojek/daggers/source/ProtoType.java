@@ -1,7 +1,7 @@
 package com.gojek.daggers.source;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.de.stencil.StencilClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -29,10 +29,10 @@ public class ProtoType implements Serializable {
     private transient Descriptor protoFieldDescriptor;
     private String protoClassName;
     private String rowtimeAttributeName;
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
-    public ProtoType(String protoClassName, String rowtimeAttributeName, StencilClient stencilClient) {
-        this.stencilClient = stencilClient;
+    public ProtoType(String protoClassName, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.protoClassName = protoClassName;
         this.protoFieldDescriptor = createFieldDescriptor();
         this.rowtimeAttributeName = rowtimeAttributeName;
@@ -46,7 +46,7 @@ public class ProtoType implements Serializable {
     }
 
     private Descriptor createFieldDescriptor() {
-        Descriptors.Descriptor dsc = stencilClient.get(protoClassName);
+        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(protoClassName);
         if (dsc == null) {
             throw new DescriptorNotFoundException();
         }
