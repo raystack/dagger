@@ -1,10 +1,10 @@
 package com.gojek.daggers.postProcessors;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
 import com.gojek.daggers.postProcessors.telemetry.TelemetryProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
-import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class PostProcessorFactoryTest {
     private Configuration configuration;
 
     @Mock
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
@@ -43,7 +43,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         Assert.assertEquals(1, postProcessors.size());
         Assert.assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
@@ -55,7 +55,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(true);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         Assert.assertEquals(1, postProcessors.size());
         Assert.assertEquals(ParentPostProcessor.class, postProcessors.get(0).getClass());
@@ -68,7 +68,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         Assert.assertEquals(1, postProcessors.size());
         Assert.assertEquals(TelemetryProcessor.class, postProcessors.get(0).getClass());
@@ -79,7 +79,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         Assert.assertEquals(0, postProcessors.size());
     }

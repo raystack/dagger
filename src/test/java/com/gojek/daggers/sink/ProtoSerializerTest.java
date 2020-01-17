@@ -1,9 +1,11 @@
 package com.gojek.daggers.sink;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerSerializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidColumnMappingException;
 import com.gojek.de.stencil.StencilClientFactory;
+import com.gojek.de.stencil.client.StencilClient;
 import com.gojek.esb.aggregate.demand.AggregatedDemandKey;
 import com.gojek.esb.aggregate.demand.AggregatedDemandMessage;
 import com.gojek.esb.aggregate.supply.AggregatedSupplyKey;
@@ -15,9 +17,11 @@ import com.gojek.esb.types.BookingStatusProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import org.apache.flink.types.Row;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -26,17 +30,31 @@ import java.util.stream.Collectors;
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_RIDE;
 import static com.gojek.esb.types.VehicleTypeProto.VehicleType.Enum.BIKE;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoSerializerTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Mock
+    private StencilClientOrchestrator stencilClientOrchestrator;
+
+    private StencilClient stencilClient;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        stencilClient = StencilClientFactory.getClient();
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+    }
+
     @Test
     public void shouldSerializeKeyForDemandProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type"};
         String protoClassName = "com.gojek.esb.aggregate.demand.AggregatedDemand";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         long seconds = System.currentTimeMillis() / 1000;
 
         Row element = new Row(5);
@@ -67,7 +85,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeValueForDemandProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type", "unique_customers"};
         String protoClassNamePrefix = "com.gojek.esb.aggregate.demand.AggregatedDemand";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, stencilClientOrchestrator);
         long seconds = System.currentTimeMillis() / 1000;
 
         Row element = new Row(6);
@@ -100,7 +118,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeKeyForSupplyProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type"};
         String protoClassName = "com.gojek.esb.aggregate.supply.AggregatedSupply";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         long startTimeInSeconds = System.currentTimeMillis() / 1000;
         long endTimeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
 
@@ -138,7 +156,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeValueForSupplyProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type", "unique_drivers"};
         String protoClassNamePrefix = "com.gojek.esb.aggregate.supply.AggregatedSupply";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, stencilClientOrchestrator);
         long startTimeInSeconds = System.currentTimeMillis() / 1000;
         long endTimeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
 
@@ -177,7 +195,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeValueForEnrichedBookingLogProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"service_type", "order_url", "status", "order_number", "event_timestamp", "customer_id", "customer_url", "driver_id", "driver_url", "helooo"};
         String protoClassNamePrefix = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassNamePrefix, columnNames, stencilClientOrchestrator);
         com.google.protobuf.Timestamp timestampProto = com.google.protobuf.Timestamp.newBuilder()
                 .setSeconds(((System.currentTimeMillis() + 10000) / 1000))
                 .setNanos(0)
@@ -251,7 +269,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeDataForOneFieldInNestedProtoWhenMappedFromQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"customer_profile.name"};
         String protoClassName = "com.gojek.esb.fraud.EnrichedBookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
 
         Row element = new Row(1);
 
@@ -268,7 +286,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeDataForMultipleFieldsInSameNestedProtoWhenMappedFromQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"customer_profile.name", "customer_profile.email", "customer_profile.phone_verified"};
         String protoClassName = "com.gojek.esb.fraud.EnrichedBookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
 
         Row element = new Row(3);
 
@@ -289,7 +307,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeDataForMultipleFieldsInDifferentNestedProtoWhenMappedFromQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"order_number", "service_type", "customer_price", "customer_total_fare_without_surge", "driver_pickup_location.name", "driver_pickup_location.latitude"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
 
         Row element = new Row(6);
 
@@ -319,7 +337,7 @@ public class ProtoSerializerTest {
 
         String[] columnNames = {"order_number", "driver_pickup_location.invalid"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(2);
         element.setField(0, "order_number");
         element.setField(1, 876D);
@@ -331,7 +349,7 @@ public class ProtoSerializerTest {
     public void shouldMapOtherFieldsWhenOneOfTheFirstFieldIsInvalidForANestedFieldInTheQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"blah.invalid", "customer_email"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(2);
         element.setField(0, "order_number");
         element.setField(1, "customer_email@go-jek.com");
@@ -345,7 +363,7 @@ public class ProtoSerializerTest {
     public void shouldMapEmptyDataWhenFieldIsInvalidInTheQuery() {
         String[] columnNames = {"invalid"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(1);
         element.setField(0, "order_number");
 
@@ -358,7 +376,7 @@ public class ProtoSerializerTest {
     public void shouldMapOtherFieldsWhenOneOfTheFieldIsInvalidInTheQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"invalid", "order_number"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(2);
         element.setField(0, "some_data");
         element.setField(1, "order_number");
@@ -375,7 +393,7 @@ public class ProtoSerializerTest {
 
         String[] columnNames = {"order_number"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(1);
         element.setField(0, 1234);
 
@@ -386,8 +404,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeMessageWhenOnlyMessageProtoProvided() throws InvalidProtocolBufferException {
         String[] columnNames = {"order_number", "driver_id"};
         String protoMessage = "com.gojek.esb.booking.BookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames,
-                StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames, stencilClientOrchestrator);
 
         String orderNumber = "RB-1234";
 
@@ -407,15 +424,15 @@ public class ProtoSerializerTest {
         expectedException.expectMessage("messageProtoClassName is required");
 
         String[] columnNames = {};
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, null, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, null, columnNames, stencilClientOrchestrator);
     }
 
     @Test
     public void shouldReturnNullKeyWhenOnlyMessageProtoProvided() throws InvalidProtocolBufferException {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames,
-                StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, columnNames,
+                stencilClientOrchestrator);
 
         Row element = new Row(1);
         element.setField(0, 13);
@@ -429,8 +446,7 @@ public class ProtoSerializerTest {
     public void shouldReturnNullKeyWhenKeyIsEmptyString() throws InvalidProtocolBufferException {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer("", protoMessage, columnNames,
-                StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer("", protoMessage, columnNames, stencilClientOrchestrator);
 
         Row element = new Row(1);
         element.setField(0, 13);
@@ -445,7 +461,7 @@ public class ProtoSerializerTest {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
         String protoKey = "com.gojek.esb.aggregate.demand.AggregatedDemandKey";
-        ProtoSerializer protoSerializer = new ProtoSerializer(protoKey, protoMessage, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoKey, protoMessage, columnNames, stencilClientOrchestrator);
 
         int s2IdLevel = 13;
         Row element = new Row(1);
@@ -458,10 +474,10 @@ public class ProtoSerializerTest {
     }
 
     @Test(expected = DescriptorNotFoundException.class)
-    public void shouldThrowDescriptorNotFoundException() throws InvalidProtocolBufferException {
+    public void shouldThrowDescriptorNotFoundException() {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "RandomMessageClass";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames, StencilClientFactory.getClient());
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames, stencilClientOrchestrator);
 
         int s2IdLevel = 13;
         Row element = new Row(1);

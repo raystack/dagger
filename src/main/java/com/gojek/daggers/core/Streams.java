@@ -1,10 +1,8 @@
 package com.gojek.daggers.core;
 
-
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.source.FlinkKafkaConsumer011Custom;
 import com.gojek.daggers.source.ProtoDeserializer;
-import com.gojek.de.stencil.StencilClient;
 import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
@@ -25,7 +23,7 @@ public class Streams implements TelemetryPublisher {
     private final Configuration configuration;
     private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private boolean enablePerPartitionWatermark;
     private long watermarkDelay;
     private Map<String, List<String>> metrics = new HashMap<>();
@@ -33,8 +31,8 @@ public class Streams implements TelemetryPublisher {
     private String protoClassName;
     private String streamName;
 
-    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClient stencilClient, boolean enablePerPartitionWatermark, long watermarkDelay) {
-        this.stencilClient = stencilClient;
+    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         this.configuration = configuration;
@@ -84,7 +82,7 @@ public class Streams implements TelemetryPublisher {
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
         FlinkKafkaConsumer011Custom fc = new FlinkKafkaConsumer011Custom(Pattern.compile(topics),
-                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClient), kafkaProps, configuration);
+                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {

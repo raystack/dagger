@@ -1,12 +1,12 @@
 package com.gojek.daggers.sink;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
 import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.influx.InfluxErrorHandler;
 import com.gojek.daggers.sink.influx.InfluxRowSink;
 import com.gojek.daggers.sink.log.LogSink;
-import com.gojek.de.stencil.StencilClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
@@ -34,7 +34,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
         return metrics;
     }
 
-    public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
+    public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         sinkType = configuration.getString("SINK_TYPE", "influx");
         addMetric(SINK_TYPE.getValue(), sinkType);
 
@@ -48,7 +48,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 addMetric(OUTPUT_PROTO.getValue(), outputProtoMessage);
                 addMetric(TelemetryTypes.OUTPUT_STREAM.getValue(), outputStream);
 
-                ProtoSerializer protoSerializer = getProtoSerializer(configuration, columnNames, stencilClient);
+                ProtoSerializer protoSerializer = getProtoSerializer(configuration, columnNames, stencilClientOrchestrator);
                 FlinkKafkaPartitioner partitioner = null;
 
                 FlinkKafkaProducer010Custom<Row> flinkKafkaProducer = new FlinkKafkaProducer010Custom<Row>(outputTopic,
@@ -70,16 +70,16 @@ public class SinkOrchestrator implements TelemetryPublisher {
     }
 
     // TODO: [PORTAL_MIGRATION] Remove this switch when migration to new portal is done
-    private ProtoSerializer getProtoSerializer(Configuration configuration, String[] columnNames, StencilClient stencilClient) {
+    private ProtoSerializer getProtoSerializer(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         // [PORTAL_MIGRATION] Move content inside this block to getSinkFunction method
         if (configuration.getString(PORTAL_VERSION, "1").equals("2")) {
             String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
             String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, null);
-            return new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClient);
+            return new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator);
         }
 
         String outputProtoPrefix = configuration.getString(OUTPUT_PROTO_CLASS_PREFIX_KEY, "");
-        return new ProtoSerializer(outputProtoPrefix, columnNames, stencilClient);
+        return new ProtoSerializer(outputProtoPrefix, columnNames, stencilClientOrchestrator);
     }
 
     private void addMetric(String key, String value) {

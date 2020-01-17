@@ -1,5 +1,7 @@
 package com.gojek.daggers.postProcessors.external.es;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
@@ -8,7 +10,7 @@ import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
-import com.gojek.de.stencil.StencilClient;
+import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.configuration.Configuration;
@@ -34,6 +36,7 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     private RestClient esClient;
     private boolean telemetryEnabled;
     private EsSourceConfig esSourceConfig;
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
     private long shutDownPeriod;
@@ -41,29 +44,29 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
 
-    public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+    public EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
                             boolean telemetryEnabled, long shutDownPeriod) {
         this.esSourceConfig = esSourceConfig;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.telemetryEnabled = telemetryEnabled;
         this.shutDownPeriod = shutDownPeriod;
     }
 
-    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
-                     MeterStatsManager meterStatsManager, RestClient esClient, boolean telemetryEnabled, ErrorReporter errorReporter, long shutDownPeriod) {
-        this(esSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
+    EsAsyncConnector(EsSourceConfig esSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
+                     MeterStatsManager meterStatsManager, RestClient esClient, boolean telemetryEnabled, ErrorReporter errorReporter, long shutDownPeriod, StencilClient stencilClient) {
+        this(esSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.meterStatsManager = meterStatsManager;
         this.esClient = esClient;
         this.errorReporter = errorReporter;
+        this.stencilClient = stencilClient;
     }
 
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
-        if (esSourceConfig.hasType()) {
-            String descriptorType = esSourceConfig.getType();
-            outputDescriptor = stencilClient.get(descriptorType);
+        if (stencilClient == null) {
+            stencilClient = stencilClientOrchestrator.getStencilClient();
         }
         if (esClient == null) {
             esClient = createESClient();
@@ -98,7 +101,8 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             String esEndpoint = String.format(esSourceConfig.getEndpointPattern(), endpointVariablesValues);
             Request esRequest = new Request("GET", esEndpoint);
             meterStatsManager.markEvent(TOTAL_ES_CALLS);
-            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, outputDescriptor, resultFuture, errorReporter);
+            EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager,
+                    columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
             esResponseHandler.startTimer();
             esClient.performRequestAsync(esRequest, esResponseHandler);
         } catch (UnknownFormatConversionException e) {
@@ -165,6 +169,17 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         }
 
         return inputColumnValues.toArray();
+    }
+
+    private Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
+        if (esSourceConfig.getType() != null) {
+            String descriptorType = esSourceConfig.getType();
+            outputDescriptor = stencilClient.get(descriptorType);
+            if (outputDescriptor == null) {
+                reportAndThrowError(resultFuture, new DescriptorNotFoundException("No Descriptor found for class " + descriptorType));
+            }
+        }
+        return outputDescriptor;
     }
 
     private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {

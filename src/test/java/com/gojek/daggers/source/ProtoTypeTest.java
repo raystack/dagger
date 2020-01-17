@@ -1,31 +1,50 @@
 package com.gojek.daggers.source;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.de.stencil.StencilClient;
-import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
+import static com.gojek.daggers.utils.Constants.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 //import gojek.esb.clevertap.ClevertapEventLog;
 
-public class
-ProtoTypeTest {
-    private static final StencilClient STENCIL_CLIENT = StencilClientFactory.getClient();
+public class ProtoTypeTest {
+
+    @Mock
+    public Configuration configuration;
+
+    private StencilClientOrchestrator stencilClientOrchestrator;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        when(configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT)).thenReturn(REFRESH_CACHE_DEFAULT);
+        when(configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)).thenReturn(TTL_IN_MINUTES_DEFAULT);
+        when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+    }
+
 
     @Test
     public void shouldGiveAllColumnNamesOfProto() throws ClassNotFoundException {
-        ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", STENCIL_CLIENT);
-        ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", STENCIL_CLIENT);
+        ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", stencilClientOrchestrator);
+        ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
                 new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit"},
@@ -38,17 +57,17 @@ ProtoTypeTest {
 
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowConfigurationExceptionWhenClassNotFound() {
-        new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", STENCIL_CLIENT);
+        new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", stencilClientOrchestrator);
     }
 
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowConfigurationExceptionWhenClassIsNotProto() {
-        new ProtoType(String.class.getName(), "rowtime", STENCIL_CLIENT);
+        new ProtoType(String.class.getName(), "rowtime", stencilClientOrchestrator);
     }
 
     @Test
     public void shouldGiveSimpleMappedFlinkTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -59,7 +78,7 @@ ProtoTypeTest {
 
     @Test
     public void shouldGiveSubRowMappedField() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
@@ -74,7 +93,7 @@ ProtoTypeTest {
 
     @Test
     public void shouldProcessArrayForObjectData() {
-        ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
 
@@ -91,7 +110,7 @@ ProtoTypeTest {
 
     @Test
     public void shouldProcessArrayForStringData() {
-        ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = loginRequestMessageProtoType.getFieldTypes();
 
@@ -104,7 +123,7 @@ ProtoTypeTest {
 
     @Test
     public void shouldGiveNamesAndTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
 
@@ -133,13 +152,13 @@ ProtoTypeTest {
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingPrimitiveArrayFields() {
-        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals(Types.PRIMITIVE_ARRAY(Types.INT()), testNestedRepeatedMessage.getFieldTypes()[3]);
     }
 
     @Test
     public void shouldGiveNameAndTypeForRepeatingStructType() {
-        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", STENCIL_CLIENT);
+        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals("metadata", testNestedRepeatedMessage.getFieldNames()[4]);
         assertEquals(Types.OBJECT_ARRAY(Types.ROW()), testNestedRepeatedMessage.getFieldTypes()[4]);
     }

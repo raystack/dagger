@@ -78,4 +78,14 @@ public class Constants {
     public static final long SHUTDOWN_PERIOD_DEFAULT = 10000;
     public static final String FATAL_EXCEPTION_METRIC_GROUP_KEY = "fatal.exception";
     public static final String NONFATAL_EXCEPTION_METRIC_GROUP_KEY = "non.fatal.exception";
+
+    public static final String STENCIL_ENABLE_KEY = "ENABLE_STENCIL_URL";
+    public static final boolean STENCIL_ENABLE_DEFAULT = false;
+    public static final String STENCIL_URL_KEY = "STENCIL_URL";
+    public static final String STENCIL_URL_DEFAULT = "";
+
+    public static final String TTL_IN_MINUTES_KEY = "TIL_IN_MINUTES";
+    public static final String TTL_IN_MINUTES_DEFAULT = "0";
+    public static final String REFRESH_CACHE_KEY = "REFRESH_CACHE";
+    public static final String REFRESH_CACHE_DEFAULT = "false";
 }

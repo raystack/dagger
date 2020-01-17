@@ -1,5 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.core.StencilClientOrchestrator;
+import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.exception.InvalidHttpVerbException;
 import com.gojek.daggers.metrics.MeterStatsManager;
@@ -10,7 +12,7 @@ import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.external.http.request.HttpRequestFactory;
-import com.gojek.de.stencil.StencilClient;
+import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.configuration.Configuration;
@@ -22,14 +24,7 @@ import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IllegalFormatException;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
@@ -43,6 +38,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpAsyncConnector.class.getName());
     private AsyncHttpClient httpClient;
     private HttpSourceConfig httpSourceConfig;
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
     private ColumnNameManager columnNameManager;
     private boolean telemetryEnabled;
@@ -52,19 +48,19 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
     private ErrorReporter errorReporter;
     private Map<String, List<String>> metrics = new HashMap<>();
 
-    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, ColumnNameManager columnNameManager,
+    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClient, ColumnNameManager columnNameManager,
                               boolean telemetryEnabled, long shutDownPeriod) {
         this.httpSourceConfig = httpSourceConfig;
-        this.stencilClient = stencilClient;
+        this.stencilClientOrchestrator = stencilClient;
         this.columnNameManager = columnNameManager;
         this.telemetryEnabled = telemetryEnabled;
         this.shutDownPeriod = shutDownPeriod;
     }
 
-    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClient stencilClient, AsyncHttpClient httpClient,
+    public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, AsyncHttpClient httpClient,
                               MeterStatsManager meterStatsManager, ColumnNameManager columnNameManager, boolean telemetryEnabled,
-                              ErrorReporter errorReporter, long shutDownPeriod) {
-        this(httpSourceConfig, stencilClient, columnNameManager, telemetryEnabled, shutDownPeriod);
+                              ErrorReporter errorReporter, long shutDownPeriod, StencilClient stencilClient) {
+        this(httpSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.httpClient = httpClient;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
@@ -74,9 +70,8 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
 
-        if (httpSourceConfig.getType() != null) {
-            String descriptorType = httpSourceConfig.getType();
-            outputDescriptor = stencilClient.get(descriptorType);
+        if (stencilClient == null) {
+            stencilClient = stencilClientOrchestrator.getStencilClient();
         }
         if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
@@ -120,8 +115,8 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
                 return;
             }
             BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
-            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager,
-                    columnNameManager, outputDescriptor, resultFuture, errorReporter);
+            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager,
+                    rowManager, columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
             meterStatsManager.markEvent(ExternalSourceAspects.TOTAL_HTTP_CALLS);
             httpResponseHandler.startTimer();
             request.execute(httpResponseHandler);
@@ -170,6 +165,17 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
 
         });
         return inputColumnValues.toArray();
+    }
+
+    private Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
+        if (httpSourceConfig.getType() != null) {
+            String descriptorType = httpSourceConfig.getType();
+            outputDescriptor = stencilClient.get(descriptorType);
+            if (outputDescriptor == null) {
+                reportAndThrowError(resultFuture, new DescriptorNotFoundException("No Descriptor found for class " + descriptorType));
+            }
+        }
+        return outputDescriptor;
     }
 
     private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {

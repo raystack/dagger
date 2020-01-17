@@ -9,8 +9,6 @@ import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.sink.SinkOrchestrator;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
-import com.gojek.de.stencil.StencilClient;
-import com.gojek.de.stencil.StencilClientFactory;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -34,7 +32,7 @@ import static com.gojek.daggers.utils.Constants.*;
 public class StreamManager {
 
     private Configuration configuration;
-    private StencilClient stencilClient;
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private StreamExecutionEnvironment executionEnvironment;
     private StreamTableEnvironment tableEnvironment;
     private Streams kafkaStreams;
@@ -47,7 +45,7 @@ public class StreamManager {
     }
 
     public StreamManager registerConfigs() {
-        createStencilClient();
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         executionEnvironment.setMaxParallelism(configuration.getInteger(MAX_PARALLELISM_KEY, MAX_PARALLELISM_DEFAULT));
         executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         executionEnvironment.setParallelism(configuration.getInteger("PARALLELISM", 1));
@@ -87,7 +85,9 @@ public class StreamManager {
         HashMap<String, ScalarFunction> scalarFunctions = new HashMap<>();
         scalarFunctions.put("S2Id", new S2Id());
         scalarFunctions.put("GEOHASH", new GeoHash());
-        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(), stencilClient));
+        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(),
+                configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
+                configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT), configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)));
         scalarFunctions.put("ServiceArea", new ServiceArea());
         scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
         scalarFunctions.put("Distance", new Distance());
@@ -105,6 +105,12 @@ public class StreamManager {
         scalarFunctions.put("MapGet", new MapGet());
         scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
         return scalarFunctions;
+    }
+
+    private List<String> getStencilUrls() {
+        return Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
     private Map<String, AggregateFunction> addAggregateFunctions() {
@@ -150,7 +156,7 @@ public class StreamManager {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClient, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);
@@ -161,25 +167,14 @@ public class StreamManager {
     private void addSink(StreamInfo streamInfo) {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
         sinkOrchestrator.addSubscriber(telemetryExporter);
-        streamInfo.getDataStream().addSink(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClient));
-    }
-
-    private StreamManager createStencilClient() {
-        Boolean enableRemoteStencil = configuration.getBoolean("ENABLE_STENCIL_URL", false);
-        List<String> stencilUrls = Arrays.stream(configuration.getString("STENCIL_URL", "").split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-        stencilClient = enableRemoteStencil
-                ? StencilClientFactory.getClient(stencilUrls, configuration.toMap())
-                : StencilClientFactory.getClient();
-        return this;
+        streamInfo.getDataStream().addSink(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
     private Streams getKafkaStreams() {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
-        return new Streams(configuration, rowTimeAttributeName, stencilClient, enablePerPartitionWatermark, watermarkDelay);
+        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
     }
 
     private String getRedisServer() {
