@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import java.util.*;
 
 import static com.gojek.daggers.utils.Constants.*;
-import static com.gojek.daggers.utils.Constants.STENCIL_URL_DEFAULT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -82,6 +81,58 @@ public class StreamsTest {
         protoName.add("com.gojek.esb.booking.BookingLogMessage");
         ArrayList<String> streamName = new ArrayList<>();
         streamName.add("");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("input_topic", topicNames);
+        metrics.put("input_proto", protoName);
+        metrics.put("input_stream", streamName);
+
+        System.out.println(metrics);
+
+        configuration = new Configuration();
+        configuration.setString("STREAMS", configString);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
+        streams.preProcessBeforeNotifyingSubscriber();
+        Map<String, List<String>> telemetry = streams.getTelemetry();
+
+        assertEquals(metrics, telemetry);
+    }
+
+    @Test
+    public void shouldAddTopicsStreamsAndProtosToMetricsInCaseOfJoins() {
+        String configString = "[\n"
+                + "        {\n"
+                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+                + "            \"TABLE_NAME\": \"data_stream\",\n"
+                + "            \"STREAM_NAME\": \"mainstream\",\n"
+                + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"1\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.aggregate.surge.SurgeFactorLogMessage\",\n"
+                + "            \"TABLE_NAME\": \"data_stream_1\",\n"
+                + "            \"STREAM_NAME\": \"locstream\",\n"
+                + "            \"TOPIC_NAMES\": \"surge-s2idcluster-log\"\n"
+                + "        }\n"
+                + "]";
+
+        ArrayList<String> topicNames = new ArrayList<>();
+        topicNames.add("GO_RIDE-booking-log");
+        topicNames.add("surge-s2idcluster-log");
+        ArrayList<String> protoName = new ArrayList<>();
+        protoName.add("com.gojek.esb.booking.BookingLogMessage");
+        protoName.add("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage");
+        ArrayList<String> streamName = new ArrayList<>();
+        streamName.add("mainstream");
+        streamName.add("locstream");
         HashMap<String, List<String>> metrics = new HashMap<>();
         metrics.put("input_topic", topicNames);
         metrics.put("input_proto", protoName);
