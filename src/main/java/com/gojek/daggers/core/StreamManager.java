@@ -104,6 +104,7 @@ public class StreamManager {
         scalarFunctions.put("TimeInDate", new TimeInDate());
         scalarFunctions.put("MapGet", new MapGet());
         scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
+        scalarFunctions.put("LinearTrend", new LinearTrend());
         return scalarFunctions;
     }
 
