@@ -34,7 +34,7 @@ public class TransformProcessor implements PostProcessor, TelemetryPublisher {
             String className = transformConfig.getTransformationClass();
             try {
                 MapFunction<Row, Row> mapFunction = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
-                resultStream = streamInfo.getDataStream().map(mapFunction);
+                resultStream = resultStream.map(mapFunction);
             } catch (ReflectiveOperationException e) {
                 throw new TransformClassNotDefinedException(e.getMessage());
             }
