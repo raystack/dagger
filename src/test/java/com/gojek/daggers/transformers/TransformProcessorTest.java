@@ -6,6 +6,7 @@ import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +36,9 @@ public class TransformProcessorTest {
 
     @Mock
     private DataStream<Row> dataStream;
+
+    @Mock
+    private SingleOutputStreamOperator mappedDataStream;
 
     @Mock
     private MapFunction<Row, Row> mockMapFunction;
@@ -126,6 +130,25 @@ public class TransformProcessorTest {
         transformProcessorMock.notifySubscriber(metricsTelemetryExporter);
 
         verify(metricsTelemetryExporter, times(1)).updated(transformProcessorMock);
+    }
+
+    @Test
+    public void shouldProcessMultiplePostTransformers() {
+        when(streamInfo.getDataStream()).thenReturn(mappedDataStream);
+        when(streamInfo.getColumnNames()).thenReturn(null);
+        when(mappedDataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
+        HashMap<String, String> transformationArguments = new HashMap<>();
+        transformationArguments.put("keyField", "keystore");
+        transformationArguments.put("keyField", "keystore");
+        transfromConfigs = new ArrayList<>();
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FeatureTransformer", transformationArguments));
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", transformationArguments));
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FieldToMapTransformer", transformationArguments));
+
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        transformProcessor.process(streamInfo);
+
+        verify(mappedDataStream, times(3)).map(any());
     }
 
     class TransformProcessorMock extends TransformProcessor {
