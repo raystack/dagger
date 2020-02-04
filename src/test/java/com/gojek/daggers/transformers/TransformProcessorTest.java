@@ -133,7 +133,7 @@ public class TransformProcessorTest {
     }
 
     @Test
-    public void shouldProcessMultiplePostTransformers() {
+    public void shouldProcessTwoPostTransformers() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
@@ -148,6 +148,26 @@ public class TransformProcessorTest {
         transformProcessor.process(streamInfo);
 
         verify(mappedDataStream, times(1)).map(any());
+    }
+
+    @Test
+    public void shouldProcessMultiplePostTransformers() {
+        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getColumnNames()).thenReturn(null);
+        when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
+        when(mappedDataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
+        HashMap<String, String> transformationArguments = new HashMap<>();
+        transformationArguments.put("keyField", "keystore");
+        transformationArguments.put("keyField", "keystore");
+        transfromConfigs = new ArrayList<>();
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FeatureTransformer", transformationArguments));
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", transformationArguments));
+        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FieldToMapTransformer", transformationArguments));
+
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        transformProcessor.process(streamInfo);
+
+        verify(mappedDataStream, times(2)).map(any());
     }
 
     class TransformProcessorMock extends TransformProcessor {
