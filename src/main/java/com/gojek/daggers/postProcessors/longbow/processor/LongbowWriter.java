@@ -8,6 +8,8 @@ import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
+import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -37,18 +39,22 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private Configuration configuration;
     private LongbowSchema longbowSchema;
     private String longbowDocumentDuration;
+    private PutRequestFactory putRequestFactory;
     private LongbowStore longBowStore;
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
 
-    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema) {
+    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory) {
         this.configuration = configuration;
         this.longbowSchema = longbowSchema;
-        this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION, LONGBOW_DOCUMENT_DURATION_DEFAULT);
+        this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION,
+                LONGBOW_DOCUMENT_DURATION_DEFAULT);
+        this.putRequestFactory = putRequestFactory;
     }
 
-    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowStore longBowStore) {
-        this(configuration, longBowSchema);
+    LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
+            ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory) {
+        this(configuration, longBowSchema, putRequestFactory);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
         this.errorReporter = errorReporter;
@@ -74,14 +80,17 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
                 Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
                 longBowStore.createTable(maxAgeDuration, columnFamilyName);
-                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(), maxAgeDuration, columnFamilyName);
+                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(),
+                        maxAgeDuration, columnFamilyName);
                 meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-                meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME,
+                        between(startTime, Instant.now()).toMillis());
             } catch (Exception ex) {
                 LOGGER.error("failed to create table '{}'", longBowStore.tableName());
                 meterStatsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
                 errorReporter.reportFatalException(ex);
-                meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+                meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME,
+                        between(startTime, Instant.now()).toMillis());
                 throw ex;
             }
         }
@@ -95,21 +104,15 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        Put putRequest = new Put(longbowSchema.getKey(input, 0));
-        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
-        longbowSchema
-                .getColumnNames(c -> c.getKey().contains(LONGBOW_DATA))
-                .forEach(column -> putRequest
-                        .addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(), Bytes.toBytes((String) longbowSchema.getValue(input, column))));
+        PutRequest putRequest = putRequestFactory.create(input);
         Instant startTime = Instant.now();
         CompletableFuture<Void> writeFuture = longBowStore.put(putRequest);
-        writeFuture
-                .exceptionally(throwable -> logException(throwable, startTime))
-                .thenAccept(aVoid -> {
-                    meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-                    meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-                    resultFuture.complete(Collections.singleton(input));
-                });
+        writeFuture.exceptionally(throwable -> logException(throwable, startTime)).thenAccept(aVoid -> {
+            meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
+            meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME,
+                    between(startTime, Instant.now()).toMillis());
+            resultFuture.complete(Collections.singleton(input));
+        });
     }
 
     private Void logException(Throwable ex, Instant startTime) {
@@ -117,7 +120,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         ex.printStackTrace();
         meterStatsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
         errorReporter.reportNonFatalException(new LongbowWriterException(ex));
-        meterStatsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.updateHistogram(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME,
+                between(startTime, Instant.now()).toMillis());
         return null;
     }
 
