@@ -88,4 +88,8 @@ public class Constants {
     public static final String TTL_IN_MINUTES_DEFAULT = "0";
     public static final String REFRESH_CACHE_KEY = "REFRESH_CACHE";
     public static final String REFRESH_CACHE_DEFAULT = "false";
+
+    public static final String LONGBOW_VERSION_KEY = "LONGBOW_VERSION";
+    public static final String LONGBOW_VERSION_DEFAULT = "1";
+
 }

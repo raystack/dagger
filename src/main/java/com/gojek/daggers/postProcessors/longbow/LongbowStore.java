@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
+import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
@@ -8,7 +9,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.threeten.bp.Duration;
@@ -62,10 +62,10 @@ public class LongbowStore {
         table = tableClient.getTable(tableName);
     }
 
-    public CompletableFuture<Void> put(Put putRequest) {
+    public CompletableFuture<Void> put(PutRequest putRequest) {
         if (table == null)
             initialize();
-        return table.put(putRequest);
+        return table.put(putRequest.get());
     }
 
     public CompletableFuture<List<Result>> scanAll(Scan scanRequest) {
