@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
@@ -8,6 +7,8 @@ import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
+
+import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -63,11 +64,13 @@ public class LongbowWriterTest {
 
     private LongbowWriter defaultLongbowWriter;
     private LongbowSchema defaultLongbowSchema;
+    private PutRequestFactory putRequestFactory;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007")).thenReturn("test-project");
+        when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
+                .thenReturn("test-project");
         when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
         when(configuration.getString("LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
@@ -75,7 +78,9 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
-        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter, longBowStore);
+        putRequestFactory = new PutRequestFactory(defaultLongbowSchema);
+        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
+                longBowStore, putRequestFactory);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
     }
 
@@ -89,7 +94,8 @@ public class LongbowWriterTest {
         verify(longBowStore, times(1)).tableExists();
         verify(longBowStore, times(1)).createTable(Duration.ofMillis(nintyDays), "ts");
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1))
+                .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -102,7 +108,8 @@ public class LongbowWriterTest {
         verify(longBowStore, times(1)).tableExists();
         verify(longBowStore, times(0)).createTable(Duration.ofMillis(nintyDays), "ts");
         verify(meterStatsManager, times(0)).markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
-        verify(meterStatsManager, times(0)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(0))
+                .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -123,31 +130,34 @@ public class LongbowWriterTest {
         input.setField(3, longbowRowtime);
 
         when(longBowStore.tableExists()).thenReturn(true);
-        when(longBowStore.put(any(Put.class))).thenReturn(CompletableFuture.completedFuture(null));
+        when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.completedFuture(null));
 
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
-        ArgumentCaptor<Put> captor = ArgumentCaptor.forClass(Put.class);
+        ArgumentCaptor<PutRequest> captor = ArgumentCaptor.forClass(PutRequest.class);
         verify(longBowStore, times(1)).put(captor.capture());
-        Put actualPut = captor.getValue();
-        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874"))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
+        PutRequest actualPut = captor.getValue();
+        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
+                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
 
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.getRow()));
+        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.get().getRow()));
         Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                actualPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
+                actualPut.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
 
         verify(resultFuture, times(1)).complete(Collections.singleton(input));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1))
+                .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
     public void shouldWriteToBigTableWithExpectedMultipleValues() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
+        putRequestFactory = new PutRequestFactory(longBowSchema);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+                longBowStore, putRequestFactory);
 
         Row input = new Row(5);
         input.setField(0, longbowKey);
@@ -158,27 +168,29 @@ public class LongbowWriterTest {
         input.setField(4, longbowData2);
 
         when(longBowStore.tableExists()).thenReturn(true);
-        when(longBowStore.put(any(Put.class))).thenReturn(CompletableFuture.completedFuture(null));
+        when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.completedFuture(null));
 
         longBowWriter.open(configuration);
         longBowWriter.asyncInvoke(input, resultFuture);
 
-        ArgumentCaptor<Put> captor = ArgumentCaptor.forClass(Put.class);
+        ArgumentCaptor<PutRequest> captor = ArgumentCaptor.forClass(PutRequest.class);
         verify(longBowStore, times(1)).put(captor.capture());
-        Put actualPut = captor.getValue();
-        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874"))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(), Bytes.toBytes(longbowData2));
+        PutRequest actualPutRequest = captor.getValue();
+        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
+                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
+                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(),
+                        Bytes.toBytes(longbowData2));
 
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.getRow()));
+        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPutRequest.get().getRow()));
         Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                actualPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
+                actualPutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
         Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")),
-                actualPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
+                actualPutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
 
         verify(resultFuture, times(1)).complete(Collections.singleton(input));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1))
+                .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test(expected = RuntimeException.class)
@@ -191,7 +203,8 @@ public class LongbowWriterTest {
         defaultLongbowWriter.open(configuration);
 
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
-        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1))
+                .updateHistogram(eq(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -208,7 +221,7 @@ public class LongbowWriterTest {
         input.setField(4, longbowData2);
 
         when(longBowStore.tableExists()).thenReturn(true);
-        when(longBowStore.put(any(Put.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
+        when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException();
         }));
 
@@ -217,7 +230,8 @@ public class LongbowWriterTest {
 
         verify(errorReporter, times(1)).reportNonFatalException(any(LongbowWriterException.class));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
-        verify(meterStatsManager, times(1)).updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
+        verify(meterStatsManager, times(1))
+                .updateHistogram(eq(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
     }
 
     @Test
@@ -234,7 +248,7 @@ public class LongbowWriterTest {
         input.setField(4, longbowData2);
 
         when(longBowStore.tableExists()).thenReturn(true);
-        when(longBowStore.put(any(Put.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
+        when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException();
         }));
 
@@ -253,7 +267,9 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
+        putRequestFactory = new PutRequestFactory(longBowSchema);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+                longBowStore, putRequestFactory);
 
         longBowWriter.preProcessBeforeNotifyingSubscriber();
         Assert.assertEquals(metrics, longBowWriter.getTelemetry());
@@ -263,7 +279,9 @@ public class LongbowWriterTest {
     public void shouldNotifySubscribers() {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter, longBowStore);
+        putRequestFactory = new PutRequestFactory(longBowSchema);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+                longBowStore, putRequestFactory);
         longBowWriter.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(longBowWriter);
