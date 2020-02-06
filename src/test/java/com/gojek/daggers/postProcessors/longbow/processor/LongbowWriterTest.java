@@ -9,6 +9,7 @@ import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
 
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
+import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -54,6 +55,9 @@ public class LongbowWriterTest {
     private ErrorReporter errorReporter;
 
     @Mock
+    private ProtoSerializer protoSerializer;
+
+    @Mock
     private TelemetrySubscriber telemetrySubscriber;
 
     private String daggerID = "FR-DR-2116";
@@ -78,7 +82,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(defaultLongbowSchema);
+        putRequestFactory = new PutRequestFactory(defaultLongbowSchema, configuration, protoSerializer);
         defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
@@ -155,7 +159,7 @@ public class LongbowWriterTest {
     public void shouldWriteToBigTableWithExpectedMultipleValues() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
 
@@ -267,7 +271,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
 
@@ -279,7 +283,7 @@ public class LongbowWriterTest {
     public void shouldNotifySubscribers() {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
         longBowWriter.notifySubscriber(telemetrySubscriber);
