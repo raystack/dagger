@@ -70,6 +70,10 @@ public class LongbowSchema implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getColumnNames() {
+        return this.columnNames;
+    }
+
     public long getDurationInMillis(Row input) {
         String longbow_duration = (String) input.getField(columnIndexMap.get(LONGBOW_DURATION));
         return getDurationInMillis(longbow_duration);
