@@ -7,6 +7,7 @@ import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.processor.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
+import com.gojek.daggers.sink.ProtoSerializer;
 import com.gojek.daggers.utils.Constants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -38,6 +39,9 @@ public class LongbowProcessorTest {
     @Mock
     private LongbowDurationRow longbowDurationRow;
 
+    @Mock
+    private ProtoSerializer protoSerializer;
+
     private PutRequestFactory putRequestFactory;
 
     @Before
@@ -67,7 +71,7 @@ public class LongbowProcessorTest {
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
@@ -81,7 +85,7 @@ public class LongbowProcessorTest {
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
@@ -95,7 +99,7 @@ public class LongbowProcessorTest {
 
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
@@ -106,7 +110,7 @@ public class LongbowProcessorTest {
     public void shouldChainFunctionsWhenAllFieldsPresentInQuery() {
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp", "longbow_data1"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema);
+        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory);
         LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow);
         DataStream<Row> writerStream = mock(DataStream.class);
