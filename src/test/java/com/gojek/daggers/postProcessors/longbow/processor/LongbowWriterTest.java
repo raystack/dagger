@@ -7,19 +7,15 @@ import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
-
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.threeten.bp.Duration;
 
@@ -31,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
+import static com.gojek.daggers.utils.Constants.LONGBOW_VERSION_DEFAULT;
+import static com.gojek.daggers.utils.Constants.LONGBOW_VERSION_KEY;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -78,6 +76,7 @@ public class LongbowWriterTest {
         when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
         when(configuration.getString("LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
+        when(configuration.getString(LONGBOW_VERSION_KEY, LONGBOW_VERSION_DEFAULT)).thenReturn("1");
         when(longBowStore.tableName()).thenReturn(daggerID);
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
@@ -126,7 +125,7 @@ public class LongbowWriterTest {
     }
 
     @Test
-    public void shouldWriteToBigTableWithExpectedValue() throws Exception {
+    public void shouldWriteToBigTable() throws Exception {
         Row input = new Row(4);
         input.setField(0, longbowKey);
         input.setField(1, longbowData1);
@@ -138,58 +137,6 @@ public class LongbowWriterTest {
 
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
-
-        ArgumentCaptor<PutRequest> captor = ArgumentCaptor.forClass(PutRequest.class);
-        verify(longBowStore, times(1)).put(captor.capture());
-        PutRequest actualPut = captor.getValue();
-        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
-                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
-
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPut.get().getRow()));
-        Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                actualPut.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
-
-        verify(resultFuture, times(1)).complete(Collections.singleton(input));
-        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
-        verify(meterStatsManager, times(1))
-                .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
-    }
-
-    @Test
-    public void shouldWriteToBigTableWithExpectedMultipleValues() throws Exception {
-        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
-        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
-                longBowStore, putRequestFactory);
-
-        Row input = new Row(5);
-        input.setField(0, longbowKey);
-        input.setField(1, longbowData1);
-        input.setField(2, longbowDuration);
-        input.setField(3, longbowRowtime);
-        String longbowData2 = "RB-4321";
-        input.setField(4, longbowData2);
-
-        when(longBowStore.tableExists()).thenReturn(true);
-        when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.completedFuture(null));
-
-        longBowWriter.open(configuration);
-        longBowWriter.asyncInvoke(input, resultFuture);
-
-        ArgumentCaptor<PutRequest> captor = ArgumentCaptor.forClass(PutRequest.class);
-        verify(longBowStore, times(1)).put(captor.capture());
-        PutRequest actualPutRequest = captor.getValue();
-        Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
-                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(),
-                        Bytes.toBytes(longbowData2));
-
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(actualPutRequest.get().getRow()));
-        Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                actualPutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
-        Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")),
-                actualPutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
 
         verify(resultFuture, times(1)).complete(Collections.singleton(input));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
