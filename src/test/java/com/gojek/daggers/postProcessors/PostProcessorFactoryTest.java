@@ -31,6 +31,19 @@ public class PostProcessorFactoryTest {
 
     private String[] columnNames = {"a", "b", "longbow_duration"};
 
+    private String jsonArray = "[\n"
+            + "        {\n"
+            + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+            + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+            + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+            + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+            + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+            + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+            + "            \"TABLE_NAME\": \"data_stream\",\n"
+            + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+            + "        }\n"
+            + "]";
+
     @Before
     public void setup() {
         initMocks(this);
@@ -43,6 +56,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
         when(configuration.getString(LONGBOW_VERSION_KEY, LONGBOW_VERSION_DEFAULT)).thenReturn("1");
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
