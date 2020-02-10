@@ -3,6 +3,7 @@ package com.gojek.daggers.postProcessors.longbow;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.processor.PutRequestFactory;
@@ -42,6 +43,9 @@ public class LongbowProcessorTest {
     @Mock
     private ProtoSerializer protoSerializer;
 
+    @Mock
+    private LongbowData longbowData;
+
     private PutRequestFactory putRequestFactory;
 
     @Before
@@ -58,7 +62,7 @@ public class LongbowProcessorTest {
 
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
         final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -72,7 +76,7 @@ public class LongbowProcessorTest {
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -86,7 +90,7 @@ public class LongbowProcessorTest {
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -100,7 +104,7 @@ public class LongbowProcessorTest {
         String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow), asyncProcessor, longBowSchema, configuration);
+        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData), asyncProcessor, longBowSchema, configuration);
 
         longBowProcessor.process(new StreamInfo(dataStream, columnNames));
         Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
@@ -112,7 +116,7 @@ public class LongbowProcessorTest {
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
         LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory);
-        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow);
+        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData);
         DataStream<Row> writerStream = mock(DataStream.class);
         DataStream<Row> readerStream = mock(DataStream.class);
         when(configuration.getLong(Constants.LONGBOW_ASYNC_TIMEOUT_KEY, Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT)).thenReturn(Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT);
