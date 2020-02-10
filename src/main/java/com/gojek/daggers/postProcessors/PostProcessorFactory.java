@@ -9,6 +9,7 @@ import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowDataFactory;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.processor.PutRequestFactory;
@@ -39,7 +40,8 @@ public class PostProcessorFactory {
     private static LongbowProcessor getLongBowProcessor(String[] columnNames, Configuration configuration, MetricsTelemetryExporter metricsTelemetryExporter, StencilClientOrchestrator stencilClientOrchestrator) {
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
 
-        LongbowReader longbowReader = new LongbowReader(configuration, longbowSchema, LongbowRowFactory.getLongbowRow(longbowSchema));
+        LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema, stencilClientOrchestrator, getMessageProtoClassName(configuration));
+        LongbowReader longbowReader = new LongbowReader(configuration, longbowSchema, LongbowRowFactory.getLongbowRow(longbowSchema), longbowDataFactory.getLongbowData());
         LongbowWriter longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
 
         longbowWriter.notifySubscriber(metricsTelemetryExporter);
