@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
@@ -40,18 +39,20 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
+    private LongbowData longbowData;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter) {
-        this(configuration, longBowSchema, longbowRow);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData) {
+        this(configuration, longBowSchema, longbowRow, longbowData);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
         this.longbowRow = longbowRow;
+        this.longbowData = longbowData;
     }
 
     @Override
@@ -120,9 +121,12 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private Collection<Row> getRow(List<Result> scanResult, Row input) {
         Row output = new Row(longBowSchema.getColumnSize());
         HashMap<String, Object> columnMap = new HashMap<>();
-        longBowSchema
-                .getColumnNames(this::isLongbowData)
-                .forEach(name -> columnMap.put(name, getLongbowData(scanResult, name, input)));
+        if (scanResult.isEmpty() || !Arrays.equals(scanResult.get(0).getRow(), longBowSchema.getKey(input, 0))) {
+            meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
+        }
+
+        longbowData.parse(scanResult).forEach((columnName, data) -> columnMap.put((String) columnName, data));
+
         longBowSchema
                 .getColumnNames(c -> !isLongbowData(c))
                 .forEach(name -> columnMap.put(name, longBowSchema.getValue(input, name)));
@@ -131,16 +135,6 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         return Collections.singletonList(output);
     }
 
-    private List<String> getLongbowData(List<Result> resultScan, String column, Row input) {
-        if (resultScan.isEmpty() || !Arrays.equals(resultScan.get(0).getRow(), longBowSchema.getKey(input, 0))) {
-            LOGGER.error("LongbowReader : Last record not received");
-            meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
-        }
-        return resultScan
-                .stream()
-                .map(result -> Bytes.toString(result.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(column))))
-                .collect(Collectors.toList());
-    }
 
     private boolean isLongbowData(Map.Entry<String, Integer> c) {
         return c.getKey().contains(LONGBOW_DATA);
