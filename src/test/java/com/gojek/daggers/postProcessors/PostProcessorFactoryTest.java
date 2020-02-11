@@ -55,7 +55,6 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
-        when(configuration.getString(LONGBOW_VERSION_KEY, LONGBOW_VERSION_DEFAULT)).thenReturn("1");
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);

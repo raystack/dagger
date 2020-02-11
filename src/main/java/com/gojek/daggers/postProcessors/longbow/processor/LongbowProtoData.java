@@ -2,13 +2,13 @@ package com.gojek.daggers.postProcessors.longbow.processor;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 import static com.gojek.daggers.utils.Constants.LONGBOW_QUALIFIER_DEFAULT;
 
-public class LongbowProtoData implements LongbowData {
+public class LongbowProtoData implements LongbowData, Serializable {
     private StencilClientOrchestrator stencilClientOrchestrator;
     private String protoClassName;
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);

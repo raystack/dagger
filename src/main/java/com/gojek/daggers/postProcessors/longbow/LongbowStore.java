@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
+import com.gojek.daggers.postProcessors.longbow.processor.ScanRequest;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
@@ -68,10 +69,10 @@ public class LongbowStore {
         return table.put(putRequest.get());
     }
 
-    public CompletableFuture<List<Result>> scanAll(Scan scanRequest) {
+    public CompletableFuture<List<Result>> scanAll(ScanRequest scanRequest) {
         if (table == null)
             initialize();
-        return table.scanAll(scanRequest);
+        return table.scanAll(scanRequest.get());
     }
 
     public void close() throws IOException {

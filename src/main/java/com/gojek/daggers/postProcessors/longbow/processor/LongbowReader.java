@@ -14,8 +14,6 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +23,12 @@ import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
-import static com.gojek.daggers.utils.Constants.*;
+import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
+import static com.gojek.daggers.utils.Constants.LONGBOW_READER_PROCESSOR;
 import static java.time.Duration.between;
 
 public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
-    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
     private Configuration configuration;
     private LongbowSchema longBowSchema;
@@ -40,19 +38,21 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
     private LongbowData longbowData;
+    private ScanRequestFactory scanRequestFactory;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData) {
-        this(configuration, longBowSchema, longbowRow, longbowData);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
+        this(configuration, longBowSchema, longbowRow, longbowData, scanRequestFactory);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
         this.longbowRow = longbowRow;
         this.longbowData = longbowData;
+        this.scanRequestFactory = scanRequestFactory;
     }
 
     @Override
@@ -85,12 +85,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-        Scan scanRequest = new Scan();
-        scanRequest.withStartRow(longbowRow.getLatest(input), true);
-        scanRequest.withStopRow(longbowRow.getEarliest(input), true);
-        longBowSchema
-                .getColumnNames(this::isLongbowData)
-                .forEach(column -> scanRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
+        ScanRequest scanRequest = scanRequestFactory.create(longbowRow.getLatest(input), longbowRow.getEarliest(input));
         Instant startTime = Instant.now();
         longBowStore
                 .scanAll(scanRequest)

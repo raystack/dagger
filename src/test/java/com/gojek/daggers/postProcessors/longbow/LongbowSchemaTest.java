@@ -114,17 +114,6 @@ public class LongbowSchemaTest {
     }
 
     @Test
-    public void shouldValidateWhenDataFieldIsMissingInQuery() {
-        expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Missing required field: 'longbow_data'");
-
-        String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
-        final LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-
-        longBowSchema.validateMandatoryFields(longbowDurationRow);
-    }
-
-    @Test
     public void shouldValidateWhenEventTimestampIsMissingInQuery() {
         expectedException.expect(DaggerConfigurationException.class);
         expectedException.expectMessage("Missing required field: 'event_timestamp'");
