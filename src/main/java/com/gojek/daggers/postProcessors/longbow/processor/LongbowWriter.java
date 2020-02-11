@@ -9,18 +9,15 @@ import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
-
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +50,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     }
 
     LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
-            ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory) {
+                  ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory) {
         this(configuration, longBowSchema, putRequestFactory);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;

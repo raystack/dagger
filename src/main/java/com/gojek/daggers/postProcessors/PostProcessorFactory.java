@@ -1,25 +1,22 @@
 package com.gojek.daggers.postProcessors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowDataFactory;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
-import com.gojek.daggers.postProcessors.longbow.processor.PutRequestFactory;
+import com.gojek.daggers.postProcessors.longbow.processor.*;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRowFactory;
 import com.gojek.daggers.postProcessors.telemetry.TelemetryProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
-
 import com.gojek.daggers.sink.ProtoSerializer;
 import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.gojek.daggers.utils.Constants.*;
 
@@ -40,8 +37,7 @@ public class PostProcessorFactory {
     private static LongbowProcessor getLongBowProcessor(String[] columnNames, Configuration configuration, MetricsTelemetryExporter metricsTelemetryExporter, StencilClientOrchestrator stencilClientOrchestrator) {
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
 
-        LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema, stencilClientOrchestrator, getMessageProtoClassName(configuration));
-        LongbowReader longbowReader = new LongbowReader(configuration, longbowSchema, LongbowRowFactory.getLongbowRow(longbowSchema), longbowDataFactory.getLongbowData());
+        LongbowReader longbowReader = getLongbowReader(configuration, longbowSchema, stencilClientOrchestrator);
         LongbowWriter longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
 
         longbowWriter.notifySubscriber(metricsTelemetryExporter);
@@ -50,9 +46,16 @@ public class PostProcessorFactory {
         return new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longbowSchema, configuration);
     }
 
+    private static LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema, StencilClientOrchestrator stencilClientOrchestrator) {
+        LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema, stencilClientOrchestrator, getMessageProtoClassName(configuration));
+        LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
+        return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
+    }
+
     private static LongbowWriter getLongbowWriter(Configuration configuration, LongbowSchema longbowSchema, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         ProtoSerializer protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(configuration), columnNames, stencilClientOrchestrator);
-        return new LongbowWriter(configuration, longbowSchema, new PutRequestFactory(longbowSchema, configuration, protoSerializer));
+        return new LongbowWriter(configuration, longbowSchema, new PutRequestFactory(longbowSchema, protoSerializer));
     }
 
     private static String getMessageProtoClassName(Configuration configuration) {

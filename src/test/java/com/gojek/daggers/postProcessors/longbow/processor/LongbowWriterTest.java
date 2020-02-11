@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.utils.Constants.LONGBOW_VERSION_DEFAULT;
-import static com.gojek.daggers.utils.Constants.LONGBOW_VERSION_KEY;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -69,19 +67,18 @@ public class LongbowWriterTest {
     private PutRequestFactory putRequestFactory;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
         when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
                 .thenReturn("test-project");
         when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
         when(configuration.getString("LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
-        when(configuration.getString(LONGBOW_VERSION_KEY, LONGBOW_VERSION_DEFAULT)).thenReturn("1");
         when(longBowStore.tableName()).thenReturn(daggerID);
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(defaultLongbowSchema, configuration, protoSerializer);
+        putRequestFactory = new PutRequestFactory(defaultLongbowSchema, protoSerializer);
         defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
@@ -218,7 +215,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
 
@@ -230,7 +227,7 @@ public class LongbowWriterTest {
     public void shouldNotifySubscribers() {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, configuration, protoSerializer);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory);
         longBowWriter.notifySubscriber(telemetrySubscriber);
