@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static com.gojek.daggers.utils.Constants.*;
 
 public class LongbowSchema implements Serializable {
-    private String[] MANDATORY_FIELDS = new String[]{LONGBOW_KEY, LONGBOW_DATA, EVENT_TIMESTAMP, ROWTIME};
+    private String[] MANDATORY_FIELDS = new String[]{LONGBOW_KEY, EVENT_TIMESTAMP, ROWTIME};
     private HashMap<String, Integer> columnIndexMap;
     private List<String> columnNames;
 
