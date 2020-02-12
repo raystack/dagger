@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -29,7 +28,7 @@ public class ScanRequestFactoryTest {
 
     @Test
     public void shouldCreateTableScanRequestIfLongBowDataIsPresentInLongbowSchema() {
-        when(longbowSchema.contains(LONGBOW_DATA)).thenReturn(true);
+        when(longbowSchema.hasLongbowData()).thenReturn(true);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
         ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
         Assert.assertEquals(TableScanRequest.class, scanRequest.getClass());
@@ -37,7 +36,7 @@ public class ScanRequestFactoryTest {
 
     @Test
     public void shouldCreateProtoByteScanRequestIfLongBowDataIsPresentInLongbowSchema() {
-        when(longbowSchema.contains(LONGBOW_DATA)).thenReturn(false);
+        when(longbowSchema.hasLongbowData()).thenReturn(false);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
         ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
         Assert.assertEquals(ProtoByteScanRequest.class, scanRequest.getClass());

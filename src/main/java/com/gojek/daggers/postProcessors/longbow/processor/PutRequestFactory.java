@@ -20,7 +20,7 @@ public class PutRequestFactory implements Serializable {
     }
 
     public PutRequest create(Row input) {
-        if (longbowSchema.contains(LONGBOW_DATA)) {
+        if (longbowSchema.hasLongbowData()) {
             return new TablePutRequest(longbowSchema, input);
         } else return new ProtoBytePutRequest(longbowSchema, input, protoSerializer);
     }

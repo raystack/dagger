@@ -30,6 +30,7 @@ public class Constants {
     public final static String LONGBOW_DOCUMENT_DURATION_DEFAULT = "90d";
     public final static String LONGBOW_DELIMITER = "#";
     public final static String LONGBOW_DATA = "longbow_data";
+    public final static String LONGBOW_PROTO_DATA = "proto_data";
     public final static String LONGBOW_GCP_PROJECT_ID_KEY = "LONGBOW_GCP_PROJECT_ID";
     public final static String LONGBOW_GCP_PROJECT_ID_DEFAULT = "godata-production";
     public final static String LONGBOW_GCP_INSTANCE_ID_KEY = "LONGBOW_GCP_INSTANCE_ID";

@@ -45,6 +45,14 @@ public class LongbowSchema implements Serializable {
         return Bytes.toBytes(key);
     }
 
+    public boolean hasLongbowData() {
+        return columnNames
+                .stream()
+                .filter((name) -> name.contains(LONGBOW_DATA))
+                .collect(Collectors.toList())
+                .size() > 0;
+    }
+
     public Integer getColumnSize() {
         return columnIndexMap.size();
     }
