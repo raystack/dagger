@@ -23,8 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
-import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
-import static com.gojek.daggers.utils.Constants.LONGBOW_READER_PROCESSOR;
+import static com.gojek.daggers.utils.Constants.*;
 import static java.time.Duration.between;
 
 public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
@@ -123,13 +122,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         longbowData.parse(scanResult).forEach((columnName, data) -> columnMap.put((String) columnName, data));
 
         longBowSchema
-                .getColumnNames(c -> !isLongbowData(c))
+                .getColumnNames(c -> !(isLongbowData(c) || isLongbowProtoData(c)))
                 .forEach(name -> columnMap.put(name, longBowSchema.getValue(input, name)));
 
         columnMap.forEach((name, data) -> output.setField(longBowSchema.getIndex(name), data));
         return Collections.singletonList(output);
     }
 
+    private boolean isLongbowProtoData(Map.Entry<String, Integer> c) {
+        return c.getKey().contains(LONGBOW_PROTO_DATA);
+    }
 
     private boolean isLongbowData(Map.Entry<String, Integer> c) {
         return c.getKey().contains(LONGBOW_DATA);

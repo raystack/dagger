@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -31,7 +30,7 @@ public class PutRequestFactoryTest {
 
     @Test
     public void shouldCreateTablePutRequestWhenLongbowSchemaHasLongbowData() {
-        when(longbowSchema.contains(LONGBOW_DATA)).thenReturn(true);
+        when(longbowSchema.hasLongbowData()).thenReturn(true);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer);
         PutRequest putRequest = putRequestFactory.create(row);
         Assert.assertEquals(putRequest.getClass(), TablePutRequest.class);
@@ -39,7 +38,7 @@ public class PutRequestFactoryTest {
 
     @Test
     public void shouldCreateProtoPutRequestWhenLongbowSchemaHasLongbowData() {
-        when(longbowSchema.contains(LONGBOW_DATA)).thenReturn(false);
+        when(longbowSchema.hasLongbowData()).thenReturn(false);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer);
         PutRequest putRequest = putRequestFactory.create(row);
         Assert.assertEquals(ProtoBytePutRequest.class, putRequest.getClass());
