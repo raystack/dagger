@@ -4,6 +4,7 @@ import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 
-public class LongbowTableData implements LongbowData {
+public class LongbowTableData implements LongbowData, Serializable {
 
     private LongbowSchema longbowSchema;
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);

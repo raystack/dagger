@@ -14,7 +14,7 @@ public class ScanRequestFactory implements Serializable {
     }
 
     public ScanRequest create(byte[] startRow, byte[] stopRow) {
-        if (longbowSchema.contains(LONGBOW_DATA)) {
+        if (longbowSchema.hasLongbowData()) {
             return new TableScanRequest(startRow, stopRow, longbowSchema);
         } else return new ProtoByteScanRequest(startRow, stopRow);
     }

@@ -37,7 +37,7 @@ public class PostProcessorFactory {
     private static LongbowProcessor getLongBowProcessor(String[] columnNames, Configuration configuration, MetricsTelemetryExporter metricsTelemetryExporter, StencilClientOrchestrator stencilClientOrchestrator) {
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
 
-        LongbowReader longbowReader = getLongbowReader(configuration, longbowSchema, stencilClientOrchestrator);
+        LongbowReader longbowReader = getLongbowReader(configuration, longbowSchema);
         LongbowWriter longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
 
         longbowWriter.notifySubscriber(metricsTelemetryExporter);
@@ -46,8 +46,8 @@ public class PostProcessorFactory {
         return new LongbowProcessor(longbowWriter, longbowReader, new AsyncProcessor(), longbowSchema, configuration);
     }
 
-    private static LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema, StencilClientOrchestrator stencilClientOrchestrator) {
-        LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema, stencilClientOrchestrator, getMessageProtoClassName(configuration));
+    private static LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema) {
+        LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
