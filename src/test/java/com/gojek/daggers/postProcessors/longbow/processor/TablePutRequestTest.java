@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
+import com.gojek.daggers.postProcessors.longbow.request.TablePutRequest;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;

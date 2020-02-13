@@ -5,8 +5,10 @@ import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.LongbowStore;
+import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
+import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowAbsoluteRow;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -63,7 +65,7 @@ public class LongbowReaderTest {
     private LongbowSchema longBowSchema;
     private CompletableFuture<List<Result>> scanFuture;
     private Timestamp currentTimestamp;
-    private ScanRequestFactory scanRequestFactory;
+    private ScanRequest.ScanRequestFactory scanRequestFactory;
 
 
     @Before
@@ -76,7 +78,7 @@ public class LongbowReaderTest {
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         longBowSchema = new LongbowSchema(columnNames);
-        scanRequestFactory = new ScanRequestFactory(longBowSchema);
+        scanRequestFactory = new ScanRequest.ScanRequestFactory(longBowSchema);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.data;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 

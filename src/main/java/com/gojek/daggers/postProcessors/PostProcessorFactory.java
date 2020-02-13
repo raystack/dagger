@@ -5,9 +5,13 @@ import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowProcessor;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.processor.*;
+import com.gojek.daggers.postProcessors.longbow.data.LongbowDataFactory;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
+import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRowFactory;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import com.gojek.daggers.postProcessors.telemetry.TelemetryProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.sink.ProtoSerializer;
@@ -49,7 +53,7 @@ public class PostProcessorFactory {
     private static LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema) {
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
+        ScanRequest.ScanRequestFactory scanRequestFactory = new ScanRequest.ScanRequestFactory(longbowSchema);
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
     }
 
