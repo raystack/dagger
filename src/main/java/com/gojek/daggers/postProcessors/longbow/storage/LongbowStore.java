@@ -1,7 +1,5 @@
-package com.gojek.daggers.postProcessors.longbow;
+package com.gojek.daggers.postProcessors.longbow.storage;
 
-import com.gojek.daggers.postProcessors.longbow.processor.ScanRequest;
-import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
@@ -11,7 +9,6 @@ import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
 import org.threeten.bp.Duration;
 
 import java.io.IOException;

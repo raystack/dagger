@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
+import com.gojek.daggers.postProcessors.longbow.request.ProtoByteScanRequest;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
