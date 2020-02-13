@@ -1,6 +1,9 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
+import com.gojek.daggers.postProcessors.longbow.request.ProtoByteScanRequest;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
+import com.gojek.daggers.postProcessors.longbow.request.TableScanRequest;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +32,7 @@ public class ScanRequestFactoryTest {
     @Test
     public void shouldCreateTableScanRequestIfLongBowDataIsPresentInLongbowSchema() {
         when(longbowSchema.hasLongbowData()).thenReturn(true);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
+        ScanRequest.ScanRequestFactory scanRequestFactory = new ScanRequest.ScanRequestFactory(longbowSchema);
         ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
         Assert.assertEquals(TableScanRequest.class, scanRequest.getClass());
     }
@@ -37,7 +40,7 @@ public class ScanRequestFactoryTest {
     @Test
     public void shouldCreateProtoByteScanRequestIfLongBowDataIsPresentInLongbowSchema() {
         when(longbowSchema.hasLongbowData()).thenReturn(false);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
+        ScanRequest.ScanRequestFactory scanRequestFactory = new ScanRequest.ScanRequestFactory(longbowSchema);
         ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
         Assert.assertEquals(ProtoByteScanRequest.class, scanRequest.getClass());
     }

@@ -3,7 +3,10 @@ package com.gojek.daggers.postProcessors.longbow;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
+import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.processor.*;
+import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
 import com.gojek.daggers.sink.ProtoSerializer;
 import com.gojek.daggers.utils.Constants;
@@ -44,7 +47,7 @@ public class LongbowProcessorTest {
     private LongbowData longbowData;
 
     @Mock
-    private ScanRequestFactory scanRequestFactory;
+    private ScanRequest.ScanRequestFactory scanRequestFactory;
 
     private PutRequestFactory putRequestFactory;
 

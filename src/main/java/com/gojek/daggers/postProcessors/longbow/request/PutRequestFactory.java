@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
@@ -6,8 +6,6 @@ import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.types.Row;
 
 import java.io.Serializable;
-
-import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 
 public class PutRequestFactory implements Serializable {
 

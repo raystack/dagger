@@ -1,6 +1,7 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -10,10 +11,10 @@ import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 
 public class TableScanRequest implements ScanRequest {
+    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private byte[] startRow;
     private byte[] stopRow;
     private LongbowSchema longbowSchema;
-    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
 
     public TableScanRequest(byte[] startRow, byte[] stopRow, LongbowSchema longbowSchema) {
         this.startRow = startRow;

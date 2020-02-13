@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
@@ -12,11 +12,11 @@ import java.sql.Timestamp;
 import static com.gojek.daggers.utils.Constants.*;
 
 public class ProtoBytePutRequest implements PutRequest {
+    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
+    private static final byte[] QUALIFIER_NAME = Bytes.toBytes(LONGBOW_QUALIFIER_DEFAULT);
     private LongbowSchema longbowSchema;
     private Row input;
     private ProtoSerializer protoSerializer;
-    private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
-    private static final byte[] QUALIFIER_NAME = Bytes.toBytes(LONGBOW_QUALIFIER_DEFAULT);
 
 
     public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer) {
