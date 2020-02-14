@@ -3,10 +3,10 @@ package com.gojek.daggers.protoHandler.typeHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
-public class DoubleTypeHandler implements TypeHandler {
+public class DoublePrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
-    public DoubleTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public DoublePrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

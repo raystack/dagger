@@ -1,6 +1,6 @@
 package com.gojek.daggers.protoHandler.typeHandler;
 
-public interface TypeHandler {
+public interface PrimitiveTypeHandler {
     boolean canHandle();
 
     Object getValue(Object field);

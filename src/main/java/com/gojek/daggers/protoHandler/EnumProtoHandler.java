@@ -1,5 +1,6 @@
 package com.gojek.daggers.protoHandler;
 
+import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
@@ -20,7 +21,11 @@ public class EnumProtoHandler implements ProtoHandler {
         if (!canHandle()) {
             return builder;
         }
-        return builder.setField(fieldDescriptor, fieldDescriptor.getEnumType().findValueByName(String.valueOf(field).trim()));
+        String stringValue = String.valueOf(field).trim();
+        Descriptors.EnumValueDescriptor valueByName = fieldDescriptor.getEnumType().findValueByName(stringValue);
+        if (valueByName == null)
+            throw new EnumFieldNotFoundException("field: " + stringValue + " not found in " + fieldDescriptor.getFullName());
+        return builder.setField(fieldDescriptor, valueByName);
     }
 
     @Override

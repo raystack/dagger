@@ -3,20 +3,20 @@ package com.gojek.daggers.protoHandler.typeHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
-public class ByteStringTypeHandler implements TypeHandler {
+public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
-    public ByteStringTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public BooleanPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.BYTE_STRING;
+        return fieldDescriptor.getJavaType() == JavaType.BOOLEAN;
     }
 
     @Override
     public Object getValue(Object field) {
-        throw new RuntimeException("BYTE_STRING is not supported yet");
+        return Boolean.parseBoolean(getValueOrDefault(field, "false"));
     }
 }
