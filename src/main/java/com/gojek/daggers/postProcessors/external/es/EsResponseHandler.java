@@ -5,6 +5,8 @@ import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
+import com.gojek.daggers.protoHandler.ProtoHandler;
+import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.jayway.jsonpath.JsonPath;
@@ -25,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
-import static com.gojek.daggers.postProcessors.common.RowMaker.fetchTypeAppropriateValue;
-import static com.gojek.daggers.postProcessors.common.RowMaker.makeRow;
+import static com.gojek.daggers.protoHandler.RowFactory.createRow;
 import static java.time.Duration.between;
 import static java.util.Collections.singleton;
 
@@ -149,9 +150,10 @@ public class EsResponseHandler implements ResponseListener {
             return;
         }
         if (value instanceof Map) {
-            rowManager.setInOutput(index, makeRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+            rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
         } else {
-            rowManager.setInOutput(index, fetchTypeAppropriateValue(value, fieldDescriptor));
+            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+            rowManager.setInOutput(index, protoHandler.getTypeAppropriateValue(value));
         }
     }
 
