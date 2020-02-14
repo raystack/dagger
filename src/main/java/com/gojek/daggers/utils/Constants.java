@@ -35,6 +35,7 @@ public class Constants {
     public final static String LONGBOW_GCP_PROJECT_ID_DEFAULT = "godata-production";
     public final static String LONGBOW_GCP_INSTANCE_ID_KEY = "LONGBOW_GCP_INSTANCE_ID";
     public final static String LONGBOW_GCP_INSTANCE_ID_DEFAULT = "godata-id-daggers";
+    public final static String LONGBOW_GCP_TABLE_ID_KEY = "LONGBOW_GCP_TABLE_ID_KEY";
     public final static String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
     public final static String LONGBOW_QUALIFIER_DEFAULT = "proto";
     public final static Long LONGBOW_ASYNC_TIMEOUT_DEFAULT = 15000L;
