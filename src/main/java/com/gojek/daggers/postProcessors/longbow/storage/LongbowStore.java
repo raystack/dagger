@@ -34,10 +34,11 @@ public class LongbowStore {
         String gcpProjectID = configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT);
         String gcpInstanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
         String daggerID = configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT);
+        String tableID = configuration.getString(LONGBOW_GCP_TABLE_ID_KEY, daggerID);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);
-        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection, daggerID);
+        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection, tableID);
     }
 
     public boolean tableExists() {
