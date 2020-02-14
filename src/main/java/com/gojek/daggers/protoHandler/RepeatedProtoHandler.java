@@ -1,7 +1,7 @@
 package com.gojek.daggers.protoHandler;
 
 import com.gojek.daggers.exception.InvalidDataTypeException;
-import com.gojek.daggers.protoHandler.typeHandler.TypeHandlerFactory;
+import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 
@@ -36,7 +36,7 @@ public class RepeatedProtoHandler implements ProtoHandler {
         ArrayList<Object> outputValues = new ArrayList<>();
         for (Object field : inputValues) {
             try {
-                outputValues.add(TypeHandlerFactory.getTypeHandler(fieldDescriptor).getValue(field));
+                outputValues.add(PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor).getValue(field));
             } catch (NumberFormatException e) {
                 String errMessage = String.format("type mismatch of field: %s, expecting %s type, actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), field.getClass());
                 throw new InvalidDataTypeException(errMessage);
