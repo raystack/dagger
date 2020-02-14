@@ -6,6 +6,7 @@ import com.google.protobuf.Timestamp;
 import org.apache.flink.types.Row;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 public class TimestampProtoHandler implements ProtoHandler {
     public static final int MILLI_TO_SECONDS = 1000;
@@ -16,13 +17,13 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public boolean canPopulate() {
+    public boolean canHandle() {
         return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE && fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp");
     }
 
     @Override
-    public DynamicMessage.Builder populate(DynamicMessage.Builder builder, Object field) {
-        if (!canPopulate()) {
+    public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
+        if (!canHandle()) {
             return builder;
         }
         Timestamp timestamp = null;
@@ -51,6 +52,20 @@ public class TimestampProtoHandler implements ProtoHandler {
             builder.setField(fieldDescriptor, timestamp);
         }
         return builder;
+    }
+
+    @Override
+    public Object getTypeAppropriateValue(Object field) {
+        Object inputTimeStamp = field;
+        if (inputTimeStamp == null) {
+            return null;
+        }
+        try {
+            Instant.parse(inputTimeStamp.toString());
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+        return inputTimeStamp.toString();
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {

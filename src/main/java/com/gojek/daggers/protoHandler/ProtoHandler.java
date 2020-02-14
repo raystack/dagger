@@ -3,7 +3,9 @@ package com.gojek.daggers.protoHandler;
 import com.google.protobuf.DynamicMessage;
 
 public interface ProtoHandler {
-    boolean canPopulate();
+    boolean canHandle();
 
-    DynamicMessage.Builder populate(DynamicMessage.Builder builder, Object field);
+    DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field);
+
+    Object getTypeAppropriateValue(Object field);
 }

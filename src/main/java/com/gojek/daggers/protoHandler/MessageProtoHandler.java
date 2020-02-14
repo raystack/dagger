@@ -6,6 +6,7 @@ import com.google.protobuf.DynamicMessage.Builder;
 import org.apache.flink.types.Row;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
@@ -17,13 +18,13 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public boolean canPopulate() {
+    public boolean canHandle() {
         return fieldDescriptor.getJavaType() == MESSAGE && !fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp");
     }
 
     @Override
-    public Builder populate(Builder builder, Object field) {
-        if (!canPopulate()) {
+    public Builder getProtoBuilder(Builder builder, Object field) {
+        if (!canHandle()) {
             return builder;
         }
 
@@ -36,11 +37,16 @@ public class MessageProtoHandler implements ProtoHandler {
             if (index < rowElement.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
-                    protoHandler.populate(elementBuilder, rowElement.getField(index));
+                    protoHandler.getProtoBuilder(elementBuilder, rowElement.getField(index));
                 }
             }
         }
 
         return builder.setField(fieldDescriptor, elementBuilder.build());
+    }
+
+    @Override
+    public Object getTypeAppropriateValue(Object field) {
+        return RowFactory.createRow((Map<String, Object>) field, fieldDescriptor.getMessageType());
     }
 }
