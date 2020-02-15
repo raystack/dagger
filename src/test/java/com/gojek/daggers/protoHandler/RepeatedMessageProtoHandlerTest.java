@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class RepeatedMessageProtoHandlerTest {
 
     @Test
-    public void shouldReturnTrueIfMessageFieldDescriptorIsPassed() {
+    public void shouldReturnTrueIfRepeatedMessageFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("routes");
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
 
@@ -27,7 +27,7 @@ public class RepeatedMessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnFalseIfFieldDescriptorOtherThanMessageTypeIsPassed() {
+    public void shouldReturnFalseIfFieldDescriptorOtherThanRepeatedMessageTypeIsPassed() {
         Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(otherFieldDescriptor);
 
