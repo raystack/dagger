@@ -24,22 +24,22 @@ public class RepeatedProtoHandler implements ProtoHandler {
 
     @Override
     public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
-        return builder.setField(fieldDescriptor, field);
+        return field != null ? builder.setField(fieldDescriptor, field) : builder;
     }
 
     @Override
     public Object getTypeAppropriateValue(Object field) {
-        return getList((List<Object>) field, fieldDescriptor);
-    }
-
-    private static Object getList(List<Object> inputValues, FieldDescriptor fieldDescriptor) {
         ArrayList<Object> outputValues = new ArrayList<>();
-        for (Object field : inputValues) {
-            try {
-                outputValues.add(PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor).getValue(field));
-            } catch (NumberFormatException e) {
-                String errMessage = String.format("type mismatch of field: %s, expecting %s type, actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), field.getClass());
-                throw new InvalidDataTypeException(errMessage);
+        if (field != null) {
+            List<Object> inputValues = (List<Object>) field;
+            for (Object inputField : inputValues) {
+                try {
+                    outputValues.add(PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor).getValue(inputField));
+                } catch (NumberFormatException e) {
+                    String errMessage = String.format("type mismatch of inputField: %s, expecting %s type, actual type %s",
+                            fieldDescriptor.getName(), fieldDescriptor.getType(), inputField.getClass());
+                    throw new InvalidDataTypeException(errMessage);
+                }
             }
         }
         return outputValues;
