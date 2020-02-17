@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class RepeatedProtoHandlerTest {
 
     @Test
-    public void shouldReturnTrueIfFieldDescriptorIsPassed() {
+    public void shouldReturnTrueIfRepeatedFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
 
