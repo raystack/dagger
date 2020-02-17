@@ -31,7 +31,7 @@ public class MessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnTheSameBuilderIfCanNotHandle() {
+    public void shouldReturnTheSameBuilderWithoutSettingFieldIfCanNotHandle() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());

@@ -25,13 +25,13 @@ public class DefaultProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameBuilderIfNullFieldIsPassed() {
+    public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
         DynamicMessage.Builder returnedBuilder = defaultProtoHandler.getProtoBuilder(builder, null);
-        assertEquals(builder, returnedBuilder);
+        assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
     @Test

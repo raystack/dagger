@@ -21,7 +21,7 @@ public class TimestampProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnFalseIfFieldDescriptorOtherThanTypeIsPassed() {
+    public void shouldReturnFalseIfFieldDescriptorOtherThanTimestampTypeIsPassed() {
         Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
 
@@ -29,23 +29,26 @@ public class TimestampProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameBuilderIfCannotHandle() {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
-        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
-        DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
+    public void shouldReturnSameBuilderWithoutSettingFieldIfCannotHandle() {
+        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
         DynamicMessage.Builder returnedBuilder = timestampProtoHandler.getProtoBuilder(builder, "123");
-        assertEquals(builder, returnedBuilder);
+        assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
     @Test
-    public void shouldReturnSameBuilderIfNullFieldIsPassed() {
+    public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = timestampProtoHandler.getProtoBuilder(builder, null);
-        assertEquals(builder, returnedBuilder);
+        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, null).build();
+
+        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        assertEquals(0L, bookingLogMessage.getEventTimestamp().getSeconds());
+        assertEquals(0, bookingLogMessage.getEventTimestamp().getNanos());
     }
 
     @Test
