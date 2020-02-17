@@ -37,6 +37,8 @@ public class TimestampProtoHandler implements ProtoHandler {
                         .setSeconds((Long) timeField.getField(0))
                         .setNanos((int) timeField.getField(1))
                         .build();
+            } else {
+                throw new IllegalArgumentException("Row: " + timeField.toString() + " of size: " + timeField.getArity() + " cannot be converted to timestamp");
             }
         }
 
@@ -56,16 +58,7 @@ public class TimestampProtoHandler implements ProtoHandler {
 
     @Override
     public Object getTypeAppropriateValue(Object field) {
-        Object inputTimeStamp = field;
-        if (inputTimeStamp == null) {
-            return null;
-        }
-        try {
-            Instant.parse(inputTimeStamp.toString());
-        } catch (DateTimeParseException e) {
-            return null;
-        }
-        return inputTimeStamp.toString();
+        return validateInput(field) ? field.toString() : null;
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {
@@ -75,6 +68,17 @@ public class TimestampProtoHandler implements ProtoHandler {
                 .setSeconds(timestampSeconds)
                 .setNanos(timestampNanos)
                 .build();
+    }
 
+    private boolean validateInput(Object field) {
+        if (field == null) {
+            return false;
+        }
+        try {
+            Instant.parse(field.toString());
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
     }
 }
