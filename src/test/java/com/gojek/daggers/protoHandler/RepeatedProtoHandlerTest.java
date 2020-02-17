@@ -33,13 +33,14 @@ public class RepeatedProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameBuilderIfNullFieldIsPassed() {
+    public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
 
         DynamicMessage.Builder returnedBuilder = repeatedProtoHandler.getProtoBuilder(builder, null);
-        assertEquals(builder, returnedBuilder);
+        List<Object> outputValues = (List<Object>) returnedBuilder.getField(repeatedFieldDescriptor);
+        assertEquals(0, outputValues.size());
     }
 
     @Test

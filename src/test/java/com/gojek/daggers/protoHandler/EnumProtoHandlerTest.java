@@ -33,12 +33,11 @@ public class EnumProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnTheSameBuilderIfCanNotHandle() {
+    public void shouldReturnTheSameBuilderWithoutSettingIfCanNotHandle() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, enumProtoHandler.getProtoBuilder(builder, 123));
         assertEquals("", enumProtoHandler.getProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
