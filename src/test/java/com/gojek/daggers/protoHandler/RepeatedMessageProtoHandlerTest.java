@@ -35,7 +35,7 @@ public class RepeatedMessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnTheSameBuilderIfCanNotHandle() {
+    public void shouldReturnTheSameBuilderWithoutSettingFieldIfCanNotHandle() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
