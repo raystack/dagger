@@ -5,6 +5,7 @@ import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
+import com.gojek.daggers.postProcessors.longbow.validator.LongbowType;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -20,12 +21,14 @@ public class LongbowWriteProcessor implements PostProcessor {
     private AsyncProcessor asyncProcessor;
     private Configuration configuration;
     private String inputProtoClassName;
+    private LongbowSchema longbowSchema;
 
-    public LongbowWriteProcessor(LongbowWriter longbowWriter, AsyncProcessor asyncProcessor, Configuration configuration, String inputProtoClassName) {
+    public LongbowWriteProcessor(LongbowWriter longbowWriter, AsyncProcessor asyncProcessor, Configuration configuration, String inputProtoClassName, LongbowSchema longbowSchema) {
         this.longbowWriter = longbowWriter;
         this.asyncProcessor = asyncProcessor;
         this.configuration = configuration;
         this.inputProtoClassName = inputProtoClassName;
+        this.longbowSchema = longbowSchema;
     }
 
     @Override
@@ -35,18 +38,18 @@ public class LongbowWriteProcessor implements PostProcessor {
         Integer longbowThreadCapacity = configuration.getInteger(LONGBOW_THREAD_CAPACITY_KEY, LONGBOW_THREAD_CAPACITY_DEFAULT);
         DataStream<Row> writeStream = asyncProcessor.orderedWait(inputStream, longbowWriter, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
 
-        AppendMetaData appendMetaData = new AppendMetaData(configuration, inputProtoClassName);
+        AppendMetaData appendMetaData = new AppendMetaData(configuration, inputProtoClassName, longbowSchema);
         DataStream<Row> outputStream = writeStream.map(appendMetaData);
         return new StreamInfo(outputStream, appendMetaDataColumnNames(streamInfo.getColumnNames()));
     }
 
     private String[] appendMetaDataColumnNames(String[] inputColumnNames) {
         ArrayList<String> outputList = new ArrayList<>(Arrays.asList(inputColumnNames));
-        // TODO: Adjust naming with proto
         outputList.add("bigtable_instance_id");
         outputList.add("bigtable_project_id");
         outputList.add("bigtable_table_name");
         outputList.add("input_class_name");
+        outputList.add("longbow_read_key");
         return outputList.toArray(new String[0]);
     }
 

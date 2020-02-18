@@ -22,7 +22,7 @@ public class Constants {
     public final static String OUTPUT_KAFKA_TOPIC = "OUTPUT_KAFKA_TOPIC";
     public final static String OUTPUT_KAFKA_BROKER = "OUTPUT_KAFKA_BROKER";
     public final static String FIELD_NAME_KEY = "field_name";
-    public final static String LONGBOW_KEY = "longbow_key";
+    public final static String LONGBOW_DAGGER_IDENTIFIER = "longbow";
     public final static String LONGBOW_DURATION = "longbow_duration";
     public final static String LONGBOW_LATEST = "longbow_latest";
     public final static String LONGBOW_EARLIEST = "longbow_earliest";

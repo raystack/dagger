@@ -31,7 +31,7 @@ public class LongbowProcessorFactoryTest {
 
     @Test
     public void shouldReturnLongbowWriteProcessorWhenLongbowSchemaContainsLongbowWrite() {
-        String[] columnNames = new String[]{"longbow_key", "longbow_write", "rowtime"};
+        String[] columnNames = new String[]{"longbow_write_key", "longbow_write", "rowtime"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[{\"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\"}]");
         LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
@@ -41,7 +41,7 @@ public class LongbowProcessorFactoryTest {
 
     @Test
     public void shouldReturnLongbowReadProcessorWhenLongbowSchemaContainsLongbowRead() {
-        String[] columnNames = new String[]{"longbow_key", "longbow_read", "rowtime", "longbow_duration", "proto_data", "event_timestamp"};
+        String[] columnNames = new String[]{"longbow_read_key", "rowtime", "longbow_duration", "proto_data", "event_timestamp"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
         PostProcessor longbowProcessor = longbowProcessorFactory.getLongbowProcessor();
