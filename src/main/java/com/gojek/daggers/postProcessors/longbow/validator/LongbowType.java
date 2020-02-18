@@ -38,6 +38,6 @@ public enum LongbowType {
     private static class InvalidFields {
         private static final String[] LONGBOW_PROCESS = new String[]{LONGBOW_PROTO_DATA};
         private static final String[] LONGBOW_WRITE = new String[]{LONGBOW_PROTO_DATA, LONGBOW_DATA, LONGBOW_LATEST, LONGBOW_EARLIEST, LONGBOW_DURATION};
-        private static final String[] LONGBOW_READ = new String[]{LONGBOW_PROTO_DATA, LONGBOW_DATA};
+        private static final String[] LONGBOW_READ = new String[]{LONGBOW_DATA};
     }
 }

@@ -30,7 +30,7 @@ public class PostProcessorFactory {
 
     private static PostProcessor getLongBowProcessor(String[] columnNames, Configuration configuration, MetricsTelemetryExporter metricsTelemetryExporter, StencilClientOrchestrator stencilClientOrchestrator) {
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, columnNames);
+        LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
 
         return longbowProcessorFactory.getLongbowProcessor();
     }
