@@ -23,8 +23,8 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder getProtoBuilder(Builder builder, Object field) {
-        if (!canHandle()) {
+    public Builder populateBuilder(Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
 
@@ -37,7 +37,7 @@ public class MessageProtoHandler implements ProtoHandler {
             if (index < rowElement.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
-                    protoHandler.getProtoBuilder(elementBuilder, rowElement.getField(index));
+                    protoHandler.populateBuilder(elementBuilder, rowElement.getField(index));
                 }
             }
         }
@@ -46,7 +46,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
+    public Object transform(Object field) {
         return RowFactory.createRow((Map<String, Object>) field, fieldDescriptor.getMessageType());
     }
 }

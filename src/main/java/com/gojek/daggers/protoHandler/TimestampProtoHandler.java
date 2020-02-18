@@ -22,8 +22,8 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
-        if (!canHandle()) {
+    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
         Timestamp timestamp = null;
@@ -57,8 +57,8 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
-        return validateInput(field) ? field.toString() : null;
+    public Object transform(Object field) {
+        return isValid(field) ? field.toString() : null;
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {
@@ -70,7 +70,7 @@ public class TimestampProtoHandler implements ProtoHandler {
                 .build();
     }
 
-    private boolean validateInput(Object field) {
+    private boolean isValid(Object field) {
         if (field == null) {
             return false;
         }

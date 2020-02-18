@@ -25,8 +25,8 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder getProtoBuilder(Builder builder, Object field) {
-        if (!canHandle()) {
+    public Builder populateBuilder(Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
 
@@ -45,7 +45,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
+    public Object transform(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Object[] inputFields = ((JSONArray) field).toArray();
@@ -62,7 +62,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
 
             if (index < row.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
-                protoHandler.getProtoBuilder(elementBuilder, row.getField(index));
+                protoHandler.populateBuilder(elementBuilder, row.getField(index));
             }
         }
     }

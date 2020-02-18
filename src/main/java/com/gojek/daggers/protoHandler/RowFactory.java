@@ -16,7 +16,7 @@ public class RowFactory {
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
             if (inputMap.get(fieldDescriptor.getName()) != null) {
-                row.setField(fieldDescriptor.getIndex(), protoHandler.getTypeAppropriateValue(inputMap.get(fieldDescriptor.getName())));
+                row.setField(fieldDescriptor.getIndex(), protoHandler.transform(inputMap.get(fieldDescriptor.getName())));
             }
         }
         return row;

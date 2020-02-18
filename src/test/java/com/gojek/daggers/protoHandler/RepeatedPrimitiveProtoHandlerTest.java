@@ -14,31 +14,31 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class RepeatedProtoHandlerTest {
+public class RepeatedPrimitiveProtoHandlerTest {
 
     @Test
     public void shouldReturnTrueIfRepeatedFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
-        assertTrue(repeatedProtoHandler.canHandle());
+        assertTrue(repeatedPrimitiveProtoHandler.canHandle());
     }
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanTypeIsPassed() {
         Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(otherFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(otherFieldDescriptor);
 
-        assertFalse(repeatedProtoHandler.canHandle());
+        assertFalse(repeatedPrimitiveProtoHandler.canHandle());
     }
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = repeatedProtoHandler.getProtoBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, null);
         List<Object> outputValues = (List<Object>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(0, outputValues.size());
     }
@@ -46,12 +46,12 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldSetEmptyListInBuilderIfEmptyListIfPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
 
         ArrayList<String> inputValues = new ArrayList<>();
 
-        DynamicMessage.Builder returnedBuilder = repeatedProtoHandler.getProtoBuilder(builder, inputValues);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, inputValues);
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(0, outputValues.size());
     }
@@ -59,14 +59,14 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldSetFieldPassedInTheBuilderAsAList() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
 
         ArrayList<String> inputValues = new ArrayList<>();
         inputValues.add("test1");
         inputValues.add("test2");
 
-        DynamicMessage.Builder returnedBuilder = repeatedProtoHandler.getProtoBuilder(builder, inputValues);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, inputValues);
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(inputValues.get(0), outputValues.get(0));
         assertEquals(inputValues.get(1), outputValues.get(1));
@@ -75,12 +75,12 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldReturnArrayOfObjectsWithTypeSameAsFieldDescriptor() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
         ArrayList<Integer> inputValues = new ArrayList<>();
         inputValues.add(1);
 
-        List<Object> outputValues = (List<Object>) repeatedProtoHandler.getTypeAppropriateValue(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
 
         assertEquals(String.class, outputValues.get(0).getClass());
     }
@@ -88,11 +88,11 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldReturnEmptyArrayOfObjectsIfEmptyListPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
         ArrayList<Integer> inputValues = new ArrayList<>();
 
-        List<Object> outputValues = (List<Object>) repeatedProtoHandler.getTypeAppropriateValue(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
 
         assertEquals(0, outputValues.size());
     }
@@ -100,9 +100,9 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldReturnEmptyArrayOfObjectsIfNullPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
-        List<Object> outputValues = (List<Object>) repeatedProtoHandler.getTypeAppropriateValue(null);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(null);
 
         assertEquals(0, outputValues.size());
     }
@@ -110,14 +110,14 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptor() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
         ArrayList<Integer> inputValues = new ArrayList<>();
         inputValues.add(1);
         inputValues.add(2);
         inputValues.add(3);
 
-        List<Object> outputValues = (List<Object>) repeatedProtoHandler.getTypeAppropriateValue(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
 
         assertEquals(3, outputValues.size());
         assertEquals("1", outputValues.get(0));
@@ -128,11 +128,11 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldThrowExceptionIfFieldDesciptorTypeNotSupported() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("routes");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         try {
             ArrayList<String> inputValues = new ArrayList<>();
             inputValues.add("test");
-            repeatedProtoHandler.getTypeAppropriateValue(inputValues);
+            repeatedPrimitiveProtoHandler.transform(inputValues);
         } catch (Exception e) {
             assertEquals(DataTypeNotSupportedException.class, e.getClass());
             assertEquals("Data type MESSAGE not supported in primitive type handlers", e.getMessage());
@@ -142,14 +142,14 @@ public class RepeatedProtoHandlerTest {
     @Test
     public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatch() {
         Descriptors.FieldDescriptor repeatedFloatFieldDescriptor = JaegerResponseLogMessage.getDescriptor().findFieldByName("scores");
-        RepeatedProtoHandler repeatedProtoHandler = new RepeatedProtoHandler(repeatedFloatFieldDescriptor);
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFloatFieldDescriptor);
         try {
             ArrayList<String> inputValues = new ArrayList<>();
             inputValues.add("test");
-            repeatedProtoHandler.getTypeAppropriateValue(inputValues);
+            repeatedPrimitiveProtoHandler.transform(inputValues);
         } catch (Exception e) {
             assertEquals(InvalidDataTypeException.class, e.getClass());
-            assertEquals("type mismatch of inputField: scores, expecting DOUBLE type, actual type class java.lang.String", e.getMessage());
+            assertEquals("type mismatch of field: scores, expecting DOUBLE type, actual type class java.lang.String", e.getMessage());
         }
     }
 }
