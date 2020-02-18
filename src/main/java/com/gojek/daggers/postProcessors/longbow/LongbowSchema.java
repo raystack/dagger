@@ -1,6 +1,8 @@
 package com.gojek.daggers.postProcessors.longbow;
 
+import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.exception.InvalidLongbowDurationException;
+import com.gojek.daggers.postProcessors.longbow.validator.LongbowType;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -35,7 +37,7 @@ public class LongbowSchema implements Serializable {
     }
 
     public byte[] getAbsoluteKey(Row input, long timestamp) {
-        String longbowKey = (String) input.getField(columnIndexMap.get(LONGBOW_KEY));
+        String longbowKey = (String) input.getField(columnIndexMap.get(getType().getKeyName()));
         long reversedTimestamp = Long.MAX_VALUE - timestamp;
         String key = longbowKey + LONGBOW_DELIMITER + reversedTimestamp;
         return Bytes.toBytes(key);
@@ -93,5 +95,17 @@ public class LongbowSchema implements Serializable {
                 return TimeUnit.DAYS.toMillis(duration);
         }
         throw new InvalidLongbowDurationException(String.format("'%s' is a invalid duration string", durationString));
+    }
+
+    public LongbowType getType() {
+        if (columnNames.contains(LongbowType.LongbowProcess.getKeyName())) {
+            return LongbowType.LongbowProcess;
+        } else if (columnNames.contains(LongbowType.LongbowWrite.getKeyName())) {
+            return LongbowType.LongbowWrite;
+        } else if (columnNames.contains(LongbowType.LongbowRead.getKeyName())) {
+            return LongbowType.LongbowRead;
+        }
+        throw new DaggerConfigurationException("Unable to identify LongbowProcessor. Provide either " +
+                LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
     }
 }

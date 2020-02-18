@@ -26,8 +26,8 @@ public class LongbowValidator {
                 .collect(Collectors.joining(","));
 
         if (StringUtils.isNotEmpty(missingFields))
-            throw new DaggerConfigurationException("Missing required field: " + missingFields + " in Longbow type : " + longbowType.getTypeValue());
+            throw new DaggerConfigurationException("Missing required field: " + missingFields + " in Longbow type : " + longbowType.getTypeName());
         if (StringUtils.isNotEmpty(wrongFields))
-            throw new DaggerConfigurationException("Invalid fields present : " + wrongFields + " in Longbow type : " + longbowType.getTypeValue());
+            throw new DaggerConfigurationException("Invalid fields present : " + wrongFields + " in Longbow type : " + longbowType.getTypeName());
     }
 }

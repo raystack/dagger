@@ -42,28 +42,25 @@ public class LongbowProcessorFactory {
         LongbowReader longbowReader;
         LongbowWriter longbowWriter;
         LongbowValidator longbowValidator = new LongbowValidator(columnNames);
+        LongbowType longbowType = longbowSchema.getType();
 
         AsyncProcessor asyncProcessor = new AsyncProcessor();
-        if (longbowSchema.contains(LongbowType.LongbowWrite.getTypeValue())) {
-            longbowValidator.validateLongbow(LongbowType.LongbowWrite);
-
-            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, true);
-            longbowWriter.notifySubscriber(metricsTelemetryExporter);
-            return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration));
-        } else if (longbowSchema.contains(LongbowType.LongbowRead.getTypeValue())) {
-            longbowValidator.validateLongbow(LongbowType.LongbowRead);
-
-            longbowReader = getLongbowReader(configuration, longbowSchema);
-            longbowReader.notifySubscriber(metricsTelemetryExporter);
-            return new LongbowReadProcessor(longbowReader, asyncProcessor, configuration);
-        } else {
-            longbowValidator.validateLongbow(LongbowType.LongbowProcess);
-
-            longbowReader = getLongbowReader(configuration, longbowSchema);
-            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, false);
-            longbowWriter.notifySubscriber(metricsTelemetryExporter);
-            longbowReader.notifySubscriber(metricsTelemetryExporter);
-            return new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
+        longbowValidator.validateLongbow(longbowType);
+        switch (longbowType) {
+            case LongbowWrite:
+                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, true);
+                longbowWriter.notifySubscriber(metricsTelemetryExporter);
+                return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration), longbowSchema);
+            case LongbowRead:
+                longbowReader = getLongbowReader(configuration, longbowSchema);
+                longbowReader.notifySubscriber(metricsTelemetryExporter);
+                return new LongbowReadProcessor(longbowReader, asyncProcessor, configuration);
+            default:
+                longbowReader = getLongbowReader(configuration, longbowSchema);
+                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, false);
+                longbowWriter.notifySubscriber(metricsTelemetryExporter);
+                longbowReader.notifySubscriber(metricsTelemetryExporter);
+                return new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
         }
     }
 
