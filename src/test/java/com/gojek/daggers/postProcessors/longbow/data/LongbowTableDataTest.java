@@ -1,7 +1,6 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.data;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.data.LongbowTableData;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;

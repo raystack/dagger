@@ -1,15 +1,15 @@
 package com.gojek.daggers.postProcessors.longbow.processor;
 
-
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
-import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
+import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowAbsoluteRow;
+import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -36,36 +36,27 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class LongbowReaderTest {
 
     @Mock
-    private Configuration configuration;
-
-    @Mock
-    private LongbowStore longBowStore;
-
-    @Mock
-    private ResultFuture<Row> outputFuture;
-
-    @Mock
-    private MeterStatsManager meterStatsManager;
-
-    @Mock
-    private ErrorReporter errorReporter;
-
-    @Mock
-    private LongbowAbsoluteRow longbowAbsoluteRow;
-
-    @Mock
-    private TelemetrySubscriber telemetrySubscriber;
-
-    @Mock
     ResultFuture<Row> resultFuture;
-
     @Mock
     LongbowData longbowData;
-
+    @Mock
+    private Configuration configuration;
+    @Mock
+    private LongbowStore longBowStore;
+    @Mock
+    private ResultFuture<Row> outputFuture;
+    @Mock
+    private MeterStatsManager meterStatsManager;
+    @Mock
+    private ErrorReporter errorReporter;
+    @Mock
+    private LongbowAbsoluteRow longbowAbsoluteRow;
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
     private LongbowSchema longBowSchema;
     private CompletableFuture<List<Result>> scanFuture;
     private Timestamp currentTimestamp;
-    private ScanRequest.ScanRequestFactory scanRequestFactory;
+    private ScanRequestFactory scanRequestFactory;
 
 
     @Before
@@ -78,7 +69,7 @@ public class LongbowReaderTest {
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         longBowSchema = new LongbowSchema(columnNames);
-        scanRequestFactory = new ScanRequest.ScanRequestFactory(longBowSchema);
+        scanRequestFactory = new ScanRequestFactory(longBowSchema);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.longbow;
 
-import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.exception.InvalidLongbowDurationException;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
 import org.apache.flink.types.Row;
@@ -22,7 +21,6 @@ public class LongbowSchemaTest {
     private Row defaultRow;
     private Long defaultTimestampInMillis;
     private Timestamp defaultTimestamp;
-    private LongbowDurationRow longbowDurationRow = new LongbowDurationRow(longBowSchema);
 
     @Before
     public void setup() {
@@ -113,39 +111,6 @@ public class LongbowSchemaTest {
         longBowSchema.getDurationInMillis(rowsForMonths);
     }
 
-//    @Test
-//    public void shouldValidateWhenEventTimestampIsMissingInQuery() {
-//        expectedException.expect(DaggerConfigurationException.class);
-//        expectedException.expectMessage("Missing required field: 'event_timestamp'");
-//
-//        String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
-//        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-//
-//        longBowSchema.validateMandatoryFields(longbowDurationRow);
-//    }
-//
-//    @Test
-//    public void shouldValidateWhenRowtimeIsMissingInQuery() {
-//        expectedException.expect(DaggerConfigurationException.class);
-//        expectedException.expectMessage("Missing required field: 'rowtime'");
-//
-//        String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
-//        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-//
-//        longBowSchema.validateMandatoryFields(longbowDurationRow);
-//    }
-//
-//    @Test
-//    public void shouldValidateWhenMultipleFieldsAreMissingInQuery() {
-//        expectedException.expect(DaggerConfigurationException.class);
-//        expectedException.expectMessage("Missing required field: 'event_timestamp,rowtime'");
-//
-//        String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
-//        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-//
-//        longBowSchema.validateMandatoryFields(longbowDurationRow);
-//    }
-
     @Test
     public void shouldReturnValueForAColumnAndInput() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
@@ -164,17 +129,6 @@ public class LongbowSchemaTest {
         Assert.assertEquals(longBowSchema.contains("longbow_key"), true);
         Assert.assertEquals(longBowSchema.contains("longbow_earliest"), false);
     }
-
-//    @Test
-//    public void shouldValidateWhenDurationAndEarliestBothAreProvided() {
-//        expectedException.expect(DaggerConfigurationException.class);
-//        expectedException.expectMessage("Invalid fields: 'longbow_earliest'");
-//
-//        String[] columnNames = {"longbow_data1", "longbow_key", "event_timestamp", "rowtime", "longbow_duration", "longbow_earliest"};
-//        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-//
-//        longBowSchema.validateMandatoryFields(longbowDurationRow);
-//    }
 
     private Row getRow(Object... dataList) {
         Row input = new Row(dataList.length);

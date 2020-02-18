@@ -1,9 +1,6 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.request.ProtoBytePutRequest;
-import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.request.TablePutRequest;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.types.Row;

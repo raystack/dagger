@@ -5,9 +5,9 @@ import com.gojek.daggers.metrics.aspects.LongbowWriterAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
+import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
 import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -236,4 +236,15 @@ public class LongbowWriterTest {
         verify(telemetrySubscriber, times(1)).updated(longBowWriter);
     }
 
+    @Test
+    public void shouldCloseLongbowStoreAndNotifyWhenClose() throws Exception {
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
+        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+                longBowStore, putRequestFactory);
+        longBowWriter.close();
+        verify(longBowStore, times(1)).close();
+        verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
+    }
 }

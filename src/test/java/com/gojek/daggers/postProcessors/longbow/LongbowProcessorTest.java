@@ -1,12 +1,12 @@
 package com.gojek.daggers.postProcessors.longbow;
 
 import com.gojek.daggers.core.StreamInfo;
-import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
-import com.gojek.daggers.postProcessors.longbow.processor.*;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
+import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
+import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
 import com.gojek.daggers.sink.ProtoSerializer;
 import com.gojek.daggers.utils.Constants;
@@ -47,7 +47,7 @@ public class LongbowProcessorTest {
     private LongbowData longbowData;
 
     @Mock
-    private ScanRequest.ScanRequestFactory scanRequestFactory;
+    private ScanRequestFactory scanRequestFactory;
 
     private PutRequestFactory putRequestFactory;
 
@@ -56,48 +56,6 @@ public class LongbowProcessorTest {
         initMocks(this);
         when(dataStream.getExecutionEnvironment()).thenReturn(mock(StreamExecutionEnvironment.class));
         when(longbowDurationRow.getInvalidFields()).thenReturn(new String[]{"longbow_earliest", "longbow_latest"});
-    }
-
-    @Test
-    public void shouldNotProcessDataStreamWhenEventTimestampIsMissingInQuery() {
-        expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Missing required field: 'event_timestamp'");
-
-        String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "longbow_data1"};
-        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory), asyncProcessor, configuration);
-
-        longBowProcessor.process(new StreamInfo(dataStream, columnNames));
-        Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
-    }
-
-    @Test
-    public void shouldNotProcessDataStreamWhenRowtimeIsMissingInQuery() {
-        expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Missing required field: 'rowtime'");
-
-        String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration", "event_timestamp"};
-        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory), asyncProcessor, configuration);
-
-        longBowProcessor.process(new StreamInfo(dataStream, columnNames));
-        Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
-    }
-
-    @Test
-    public void shouldNotProcessDataStreamWhenMultipleFieldsAreMissingInQuery() {
-        expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Missing required field: 'event_timestamp,rowtime'");
-
-        String[] columnNames = {"longbow_data1", "longbow_key", "longbow_duration"};
-        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(new LongbowWriter(configuration, longBowSchema, putRequestFactory), new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory), asyncProcessor, configuration);
-
-        longBowProcessor.process(new StreamInfo(dataStream, columnNames));
-        Mockito.verify(asyncProcessor, never()).orderedWait(any(), any(), any(), any(), anyInt());
     }
 
     @Test
