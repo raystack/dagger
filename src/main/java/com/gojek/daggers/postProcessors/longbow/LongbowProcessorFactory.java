@@ -7,9 +7,9 @@ import com.gojek.daggers.postProcessors.longbow.data.LongbowDataFactory;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
+import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRowFactory;
-import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import com.gojek.daggers.postProcessors.longbow.validator.LongbowType;
 import com.gojek.daggers.postProcessors.longbow.validator.LongbowValidator;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
@@ -46,19 +46,22 @@ public class LongbowProcessorFactory {
         AsyncProcessor asyncProcessor = new AsyncProcessor();
         //TODO : Think more on LongbowReader validation and how to incorporate LonbowRow in validation
         if (longbowSchema.contains(LongbowType.LongbowWrite.getTypeValue())) {
-            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
             longbowValidator.validateLongbow(LongbowType.LongbowWrite);
+
+            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
             longbowWriter.notifySubscriber(metricsTelemetryExporter);
             return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration));
         } else if (longbowSchema.contains(LongbowType.LongbowWrite.getTypeValue())) {
-            longbowReader = getLongbowReader(configuration, longbowSchema);
             longbowValidator.validateLongbow(LongbowType.LongbowRead);
+
+            longbowReader = getLongbowReader(configuration, longbowSchema);
             longbowReader.notifySubscriber(metricsTelemetryExporter);
             return new LongbowReadProcessor(longbowReader, asyncProcessor, configuration);
         } else {
+            longbowValidator.validateLongbow(LongbowType.LongbowProcess);
+
             longbowReader = getLongbowReader(configuration, longbowSchema);
             longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
-            longbowValidator.validateLongbow(LongbowType.LongbowProcess);
             longbowWriter.notifySubscriber(metricsTelemetryExporter);
             longbowReader.notifySubscriber(metricsTelemetryExporter);
             return new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
@@ -68,7 +71,7 @@ public class LongbowProcessorFactory {
     private LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema) {
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
-        ScanRequest.ScanRequestFactory scanRequestFactory = new ScanRequest.ScanRequestFactory(longbowSchema);
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
     }
 

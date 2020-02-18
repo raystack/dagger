@@ -29,7 +29,7 @@ public class PostProcessorFactoryTest {
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
-    private String[] columnNames = {"a", "b", "longbow_duration"};
+    private String[] columnNames;
 
     private String jsonArray = "[\n"
             + "        {\n"
@@ -47,11 +47,13 @@ public class PostProcessorFactoryTest {
     @Before
     public void setup() {
         initMocks(this);
+        columnNames = new String[]{"a", "b", "longbow_duration"};
     }
 
 
     @Test
     public void shouldReturnLongbowProcessor() {
+        columnNames = new String[]{"longbow_key", "longbow_data", "event_timestamp", "rowtime", "longbow_duration"};
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);

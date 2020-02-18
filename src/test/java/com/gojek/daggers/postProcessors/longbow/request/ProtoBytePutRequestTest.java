@@ -1,7 +1,6 @@
-package com.gojek.daggers.postProcessors.longbow.processor;
+package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.request.ProtoBytePutRequest;
 import com.gojek.daggers.sink.ProtoSerializer;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.hbase.client.Put;
@@ -47,11 +46,11 @@ public class ProtoBytePutRequestTest {
     public void shouldSetColumnFamilyTotsQualifierToProtoAndValueAsProtoByte() {
         ProtoBytePutRequest protoBytePutRequest = new ProtoBytePutRequest(longbowSchema, input, protoSerializer);
         Put expectedPut = new Put(longbowSchema.getKey(input, 0));
-        expectedPut.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("proto"), longbowRowtime.getTime(), protoSerializer.serializeValue(input));
+        expectedPut.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("proto"), longbowRowtime.getTime(),
+                protoSerializer.serializeValue(input));
         Put putRequest = protoBytePutRequest.get();
 
-        assertEquals(
-                expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("proto")),
+        assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("proto")),
                 putRequest.get(Bytes.toBytes("ts"), Bytes.toBytes("proto")));
     }
 }
