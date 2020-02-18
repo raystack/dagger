@@ -40,8 +40,19 @@ public class RepeatedMessageProtoHandlerTest {
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, repeatedMesssageProtoHandler.getProtoBuilder(builder, 123));
-        assertEquals("", repeatedMesssageProtoHandler.getProtoBuilder(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, repeatedMesssageProtoHandler.populateBuilder(builder, 123));
+        assertEquals("", repeatedMesssageProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor));
+    }
+
+    @Test
+    public void shouldReturnTheSameBuilderWithoutSettingFieldIfNullPassed() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
+
+        DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, null);
+        assertEquals(builder, outputBuilder);
+        assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
 
     @Test
@@ -62,7 +73,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.getProtoBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -93,7 +104,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.getProtoBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -124,7 +135,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.getProtoBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -139,7 +150,7 @@ public class RepeatedMessageProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowsIfNullPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).getTypeAppropriateValue(null);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(null);
 
         assertEquals(0, values.length);
     }
@@ -163,7 +174,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).getTypeAppropriateValue(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
@@ -188,7 +199,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).getTypeAppropriateValue(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));
@@ -213,7 +224,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).getTypeAppropriateValue(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));

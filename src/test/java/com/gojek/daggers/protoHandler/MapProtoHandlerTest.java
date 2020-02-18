@@ -39,7 +39,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.getProtoBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -49,7 +49,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.getProtoBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, null);
         List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
         assertEquals(entries.size(), 0);
     }
@@ -64,7 +64,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.getProtoBuilder(builder, inputMap);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, inputMap);
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -94,7 +94,7 @@ public class MapProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.getProtoBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, inputRows.toArray());
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -115,7 +115,7 @@ public class MapProtoHandlerTest {
         Row inputRow = new Row(3);
         inputRows.add(inputRow);
         try {
-            mapProtoHandler.getProtoBuilder(builder, inputRows.toArray());
+            mapProtoHandler.populateBuilder(builder, inputRows.toArray());
         } catch (Exception e) {
             assertEquals(IllegalArgumentException.class, e.getClass());
             assertEquals("Row: null,null,null of size: 3 cannot be converted to map", e.getMessage());
@@ -130,7 +130,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.getTypeAppropriateValue(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
 
         assertEquals(2, outputValues.size());
     }
@@ -143,7 +143,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.getTypeAppropriateValue(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
 
         assertEquals("a", ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) outputValues.get(0)).getField(1));
@@ -157,7 +157,7 @@ public class MapProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowIfNullPassed() {
         Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.getTypeAppropriateValue(null));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(null));
 
         assertEquals(0, outputValues.size());
     }

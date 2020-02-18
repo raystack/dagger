@@ -34,7 +34,7 @@ public class TimestampProtoHandlerTest {
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = timestampProtoHandler.getProtoBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = timestampProtoHandler.populateBuilder(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -44,7 +44,7 @@ public class TimestampProtoHandlerTest {
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, null).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.populateBuilder(builder, null).build();
 
         BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(0L, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -60,7 +60,7 @@ public class TimestampProtoHandlerTest {
         long milliSeconds = System.currentTimeMillis();
 
         Timestamp inputTimestamp = new Timestamp(milliSeconds);
-        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, inputTimestamp).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.populateBuilder(builder, inputTimestamp).build();
 
         BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -80,7 +80,7 @@ public class TimestampProtoHandlerTest {
         inputRow.setField(0, seconds);
         inputRow.setField(1, nanos);
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, inputRow).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.populateBuilder(builder, inputRow).build();
 
         BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -96,7 +96,7 @@ public class TimestampProtoHandlerTest {
         Row inputRow = new Row(3);
 
         try {
-            timestampProtoHandler.getProtoBuilder(builder, inputRow).build();
+            timestampProtoHandler.populateBuilder(builder, inputRow).build();
         } catch (Exception e) {
             assertEquals(IllegalArgumentException.class, e.getClass());
             assertEquals("Row: null,null,null of size: 3 cannot be converted to timestamp", e.getMessage());
@@ -111,7 +111,7 @@ public class TimestampProtoHandlerTest {
 
         long seconds = System.currentTimeMillis() / 1000;
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, seconds).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.populateBuilder(builder, seconds).build();
 
         BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -126,7 +126,7 @@ public class TimestampProtoHandlerTest {
 
         String inputTimestamp = "2019-03-28T05:50:13Z";
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.getProtoBuilder(builder, inputTimestamp).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.populateBuilder(builder, inputTimestamp).build();
 
         BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(1553752213, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -142,7 +142,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.getTypeAppropriateValue(actualValue);
+        Object value = protoHandler.transform(actualValue);
         assertEquals(actualValue, value);
     }
 
@@ -153,7 +153,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.getTypeAppropriateValue(null);
+        Object value = protoHandler.transform(null);
         assertNull(value);
     }
 
@@ -164,7 +164,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.getTypeAppropriateValue("2");
+        Object value = protoHandler.transform("2");
 
         assertNull(value);
     }

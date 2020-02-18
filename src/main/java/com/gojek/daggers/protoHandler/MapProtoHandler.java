@@ -25,8 +25,8 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
-        if (!canHandle()) {
+    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
 
@@ -38,7 +38,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
+    public Object transform(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Map<String, String> mapField = (Map<String, String>) field;
@@ -63,17 +63,22 @@ public class MapProtoHandler implements ProtoHandler {
                 throw new IllegalArgumentException("Row: " + inputRow.toString() + " of size: " + inputRow.getArity() + " cannot be converted to map");
             MapEntry<String, String> mapEntry = MapEntry
                     .newDefaultInstance(fieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
-            builder.addRepeatedField(fieldDescriptor, mapEntry.toBuilder()
-                    .setKey((String) inputRow.getField(0))
-                    .setValue((String) inputRow.getField(1))
-                    .buildPartial());
+            builder.addRepeatedField(fieldDescriptor,
+                    mapEntry.toBuilder()
+                            .setKey((String) inputRow.getField(0))
+                            .setValue((String) inputRow.getField(1))
+                            .buildPartial());
         }
     }
 
     private void convertFromMap(DynamicMessage.Builder builder, Map<String, String> field) {
         for (Entry<String, String> entry : field.entrySet()) {
             MapEntry<String, String> mapEntry = MapEntry.newDefaultInstance(fieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
-            builder.addRepeatedField(fieldDescriptor, mapEntry.toBuilder().setKey(entry.getKey()).setValue(entry.getValue()).buildPartial());
+            builder.addRepeatedField(fieldDescriptor,
+                    mapEntry.toBuilder()
+                            .setKey(entry.getKey())
+                            .setValue(entry.getValue())
+                            .buildPartial());
         }
     }
 }

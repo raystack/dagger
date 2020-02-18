@@ -17,8 +17,8 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
-        if (!canHandle()) {
+    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
         String stringValue = String.valueOf(field).trim();
@@ -29,7 +29,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
+    public Object transform(Object field) {
         String input = field != null ? field.toString() : "0";
         try {
             int enumPosition = Integer.parseInt(input);

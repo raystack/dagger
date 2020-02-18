@@ -6,10 +6,10 @@ import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
-public class DefaultProtoHandler implements ProtoHandler {
+public class PrimitiveProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
-    public DefaultProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public PrimitiveProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
@@ -19,12 +19,12 @@ public class DefaultProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder getProtoBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
         return field != null ? builder.setField(fieldDescriptor, field) : builder;
     }
 
     @Override
-    public Object getTypeAppropriateValue(Object field) {
+    public Object transform(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         try {
             return primitiveTypeHandler.getValue(field);
