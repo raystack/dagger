@@ -30,12 +30,12 @@ public class LongbowProcessorFactory {
     private String[] columnNames;
 
 
-    public LongbowProcessorFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter, String[] columnNames) {
+    public LongbowProcessorFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
         this.configuration = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
-        this.columnNames = columnNames;
+        this.columnNames = longbowSchema.getColumnNames().toArray(new String[0]);
     }
 
     public PostProcessor getLongbowProcessor() {
@@ -44,14 +44,13 @@ public class LongbowProcessorFactory {
         LongbowValidator longbowValidator = new LongbowValidator(columnNames);
 
         AsyncProcessor asyncProcessor = new AsyncProcessor();
-        //TODO : Think more on LongbowReader validation and how to incorporate LonbowRow in validation
         if (longbowSchema.contains(LongbowType.LongbowWrite.getTypeValue())) {
             longbowValidator.validateLongbow(LongbowType.LongbowWrite);
 
-            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
+            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, true);
             longbowWriter.notifySubscriber(metricsTelemetryExporter);
             return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration));
-        } else if (longbowSchema.contains(LongbowType.LongbowWrite.getTypeValue())) {
+        } else if (longbowSchema.contains(LongbowType.LongbowRead.getTypeValue())) {
             longbowValidator.validateLongbow(LongbowType.LongbowRead);
 
             longbowReader = getLongbowReader(configuration, longbowSchema);
@@ -61,7 +60,7 @@ public class LongbowProcessorFactory {
             longbowValidator.validateLongbow(LongbowType.LongbowProcess);
 
             longbowReader = getLongbowReader(configuration, longbowSchema);
-            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator);
+            longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, false);
             longbowWriter.notifySubscriber(metricsTelemetryExporter);
             longbowReader.notifySubscriber(metricsTelemetryExporter);
             return new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
@@ -75,8 +74,11 @@ public class LongbowProcessorFactory {
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
     }
 
-    private LongbowWriter getLongbowWriter(Configuration configuration, LongbowSchema longbowSchema, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(configuration), columnNames, stencilClientOrchestrator);
+    private LongbowWriter getLongbowWriter(Configuration configuration, LongbowSchema longbowSchema, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, boolean isLongbowPlus) {
+        ProtoSerializer protoSerializer = null;
+        if (isLongbowPlus) {
+            protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(configuration), columnNames, stencilClientOrchestrator);
+        }
         return new LongbowWriter(configuration, longbowSchema, new PutRequestFactory(longbowSchema, protoSerializer));
     }
 
