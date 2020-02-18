@@ -35,7 +35,7 @@ public class ProtoHandlerFactoryTest {
     public void shouldReturnRepeatedProtoHandlerIfRepeatedFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedFieldDescriptor);
-        assertEquals(RepeatedProtoHandler.class, protoHandler.getClass());
+        assertEquals(RepeatedPrimitiveProtoHandler.class, protoHandler.getClass());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ProtoHandlerFactoryTest {
     public void shouldReturnDefaultProtoHandlerIfPrimitiveFieldDescriptorPassed() {
         Descriptors.FieldDescriptor primitiveFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("order_number");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
-        assertEquals(DefaultProtoHandler.class, protoHandler.getClass());
+        assertEquals(PrimitiveProtoHandler.class, protoHandler.getClass());
     }
 
 }

@@ -36,8 +36,19 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, messsageProtoHandler.getProtoBuilder(builder, 123));
-        assertEquals("", messsageProtoHandler.getProtoBuilder(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, messsageProtoHandler.populateBuilder(builder, 123));
+        assertEquals("", messsageProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor));
+    }
+
+    @Test
+    public void shouldReturnTheSameBuilderWithoutSettingFieldIfNullPassed() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
+
+        DynamicMessage.Builder outputBuilder = messsageProtoHandler.populateBuilder(builder, null);
+        assertEquals(builder, outputBuilder);
+        assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
 
     @Test
@@ -49,7 +60,7 @@ public class MessageProtoHandlerTest {
         Row inputRow = new Row(2);
         inputRow.setField(0, "test1");
         inputRow.setField(1, "test2");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.getProtoBuilder(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.populateBuilder(builder, inputRow);
 
         PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -65,7 +76,7 @@ public class MessageProtoHandlerTest {
 
         Row inputRow = new Row(1);
         inputRow.setField(0, "test1");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.getProtoBuilder(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.populateBuilder(builder, inputRow);
 
         PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -82,7 +93,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -96,7 +107,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals(null, value.getField(1));
@@ -110,7 +121,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(null);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(null);
 
         assertEquals(2, value.getArity());
         assertEquals(null, value.getField(0));

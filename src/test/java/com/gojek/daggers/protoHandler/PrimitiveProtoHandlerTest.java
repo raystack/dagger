@@ -11,7 +11,7 @@ import org.junit.rules.ExpectedException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DefaultProtoHandlerTest {
+public class PrimitiveProtoHandlerTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -19,28 +19,28 @@ public class DefaultProtoHandlerTest {
     @Test
     public void shouldReturnTrueForAnyDataType() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertTrue(defaultProtoHandler.canHandle());
+        assertTrue(primitiveProtoHandler.canHandle());
     }
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = defaultProtoHandler.getProtoBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, null);
         assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
     @Test
     public void shouldSetFieldPassedInTheBuilder() {
         Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = defaultProtoHandler.getProtoBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, "123");
         assertEquals("123", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -48,36 +48,36 @@ public class DefaultProtoHandlerTest {
     public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassed() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, defaultProtoHandler.getTypeAppropriateValue(1));
+        assertEquals(1, primitiveProtoHandler.transform(1));
     }
 
     @Test
     public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedAsString() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(fieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, defaultProtoHandler.getTypeAppropriateValue("1"));
+        assertEquals(1, primitiveProtoHandler.transform("1"));
     }
 
     @Test
     public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsPassed() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(stringFieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", defaultProtoHandler.getTypeAppropriateValue("123"));
+        assertEquals("123", primitiveProtoHandler.transform("123"));
     }
 
     @Test
     public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsNotPassed() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(stringFieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", defaultProtoHandler.getTypeAppropriateValue(123));
+        assertEquals("123", primitiveProtoHandler.transform(123));
     }
 
     @Test
@@ -86,8 +86,8 @@ public class DefaultProtoHandlerTest {
         expectedException.expectMessage("type mismatch of field: customer_price, expecting FLOAT type, actual type class java.lang.String");
 
         Descriptors.FieldDescriptor floatFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("customer_price");
-        DefaultProtoHandler defaultProtoHandler = new DefaultProtoHandler(floatFieldDescriptor);
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
-        defaultProtoHandler.getTypeAppropriateValue("stringValue");
+        primitiveProtoHandler.transform("stringValue");
     }
 }

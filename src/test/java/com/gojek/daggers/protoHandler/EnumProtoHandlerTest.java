@@ -38,7 +38,16 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals("", enumProtoHandler.getProtoBuilder(builder, 123).getField(fieldDescriptor));
+        assertEquals("", enumProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor));
+    }
+
+    @Test
+    public void shouldReturnTheSameBuilderWithoutSettingIfNullPassed() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
+
+        assertEquals("", enumProtoHandler.populateBuilder(builder, null).getField(fieldDescriptor));
     }
 
     @Test
@@ -47,7 +56,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = enumProtoHandler.getProtoBuilder(builder, "GO_LIFE");
+        DynamicMessage.Builder returnedBuilder = enumProtoHandler.populateBuilder(builder, "GO_LIFE");
         assertEquals(GO_LIFE.getValueDescriptor(), returnedBuilder.getField(enumFieldDescriptor));
     }
 
@@ -59,7 +68,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        enumProtoHandler.getProtoBuilder(builder, "test");
+        enumProtoHandler.populateBuilder(builder, "test");
     }
 
     @Test
@@ -69,7 +78,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(inputField);
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputField);
 
         assertEquals("DRIVER_FOUND", value);
     }
@@ -79,7 +88,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(null);
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(null);
 
         assertEquals("UNKNOWN", value);
     }
@@ -89,7 +98,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(-1);
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(-1);
 
         assertEquals("UNKNOWN", value);
     }
@@ -99,7 +108,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue("dummy");
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform("dummy");
 
         assertEquals("UNKNOWN", value);
     }
@@ -109,7 +118,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(null);
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(null);
 
         assertEquals("UNKNOWN", value);
     }
@@ -119,7 +128,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
 
-        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeAppropriateValue(2);
+        Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(2);
 
         assertEquals("DRIVER_FOUND", value);
     }
