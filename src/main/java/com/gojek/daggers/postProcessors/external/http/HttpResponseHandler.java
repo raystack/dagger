@@ -5,9 +5,10 @@ import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.common.RowMaker;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
+import com.gojek.daggers.protoHandler.ProtoHandler;
+import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -125,7 +126,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + key);
             reportAndThrowError(illegalArgumentException);
         }
-        rowManager.setInOutput(fieldIndex, RowMaker.fetchTypeAppropriateValue(value, fieldDescriptor));
+        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+        rowManager.setInOutput(fieldIndex, protoHandler.transform(value));
     }
 
     private void reportAndThrowError(Exception e) {

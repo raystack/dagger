@@ -4,7 +4,8 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.common.RowMaker;
+import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
+import com.gojek.daggers.protoHandler.RowFactory;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
@@ -99,7 +100,7 @@ public class EsResponseHandlerTest {
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
-        outputData.setField(0, RowMaker.makeRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
+        outputData.setField(0, RowFactory.createRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
         outputStreamData.setField(1, outputData);
 
 
@@ -128,7 +129,7 @@ public class EsResponseHandlerTest {
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
-        outputData.setField(0, RowMaker.fetchTypeAppropriateValue(12345, descriptor.findFieldByName("driver_id")));
+        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(descriptor.findFieldByName("driver_id")).transform(12345));
         outputStreamData.setField(1, outputData);
 
         esResponseHandler.startTimer();
@@ -219,9 +220,9 @@ public class EsResponseHandlerTest {
                 return "{\"_source\": {\"driver_id\":\"12345\"}}";
             }
         };
-        MockUp<RowMaker> mockUpRowMaker = new MockUp<RowMaker>() {
+        MockUp<RowFactory> mockUpRowMaker = new MockUp<RowFactory>() {
             @Mock
-            public Row makeRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) throws IOException {
+            public Row createRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) throws IOException {
                 throw new IOException("RowMaker failed");
             }
         };
