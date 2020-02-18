@@ -6,11 +6,12 @@ import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
-import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
+import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
+import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
+import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -39,16 +40,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
     private LongbowData longbowData;
-    private ScanRequest.ScanRequestFactory scanRequestFactory;
+    private ScanRequestFactory scanRequestFactory;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequest.ScanRequestFactory scanRequestFactory) {
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
         this(configuration, longBowSchema, longbowRow, longbowData, scanRequestFactory);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData, ScanRequest.ScanRequestFactory scanRequestFactory) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
         this.longbowRow = longbowRow;
