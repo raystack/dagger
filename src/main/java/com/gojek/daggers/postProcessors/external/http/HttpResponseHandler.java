@@ -127,11 +127,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             reportAndThrowError(illegalArgumentException);
         }
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-        try {
-            rowManager.setInOutput(fieldIndex, protoHandler.getTypeAppropriateValue(value));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        rowManager.setInOutput(fieldIndex, protoHandler.getTypeAppropriateValue(value));
     }
 
     private void reportAndThrowError(Exception e) {
