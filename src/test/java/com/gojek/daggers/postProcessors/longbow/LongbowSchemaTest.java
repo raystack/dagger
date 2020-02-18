@@ -1,7 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
 import com.gojek.daggers.exception.InvalidLongbowDurationException;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;

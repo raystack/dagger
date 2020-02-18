@@ -3,7 +3,6 @@ package com.gojek.daggers.postProcessors.longbow;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
-import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -26,11 +25,11 @@ public class LongbowWriteProcessorTest {
     @Mock
     private AsyncProcessor asyncProcessor;
     @Mock
-    private PutRequestFactory putRequestFactory;
-    @Mock
     private DataStream<Row> dataStream;
     @Mock
     private LongbowWriter longbowWriter;
+    @Mock
+    private LongbowSchema longbowSchema;
 
     @Before
     public void setup() {
@@ -39,7 +38,7 @@ public class LongbowWriteProcessorTest {
 
     @Test
     public void shouldWriteToBigTableAndAppendWithStaticData() {
-        String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
+        String[] columnNames = {"rowtime", "longbow_write_key", "longbow_duration", "event_timestamp"};
         when(configuration.getLong(LONGBOW_ASYNC_TIMEOUT_KEY, LONGBOW_ASYNC_TIMEOUT_DEFAULT)).thenReturn(15000L);
         when(configuration.getInteger(LONGBOW_THREAD_CAPACITY_KEY, LONGBOW_THREAD_CAPACITY_DEFAULT)).thenReturn(30);
         String inputProtoClassName = "com.gojek.esb.booking.BookingLogMessage";
@@ -47,14 +46,14 @@ public class LongbowWriteProcessorTest {
         when(asyncProcessor.orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30))
                 .thenReturn(writerStream);
         LongbowWriteProcessor longbowWriteProcessor = new LongbowWriteProcessor(longbowWriter, asyncProcessor,
-                configuration, inputProtoClassName);
+                configuration, inputProtoClassName, longbowSchema);
 
         StreamInfo streamInfo = longbowWriteProcessor.process(new StreamInfo(dataStream, columnNames));
 
         Mockito.verify(asyncProcessor, times(1)).orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30);
 
-        String[] expectedColumnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp",
-                "bigtable_instance_id", "bigtable_project_id", "bigtable_table_name", "input_class_name"};
+        String[] expectedColumnNames = {"rowtime", "longbow_write_key", "longbow_duration", "event_timestamp",
+                "bigtable_instance_id", "bigtable_project_id", "bigtable_table_name", "input_class_name", "longbow_read_key"};
         assertArrayEquals(expectedColumnNames, streamInfo.getColumnNames());
     }
 }

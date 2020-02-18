@@ -22,7 +22,7 @@ public class LongbowValidatorTest {
             longbowValidator.validateLongbow(LongbowType.LongbowWrite);
         } catch (Exception e) {
 
-            assertEquals("Missing required field: longbow_key,rowtime in Longbow type : longbow_write", e.getMessage());
+            assertEquals("Missing required field: rowtime in Longbow type : longbow_write", e.getMessage());
         }
     }
 
