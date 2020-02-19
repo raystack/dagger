@@ -8,7 +8,7 @@ public class LongbowValidatorTest {
 
     @Test
     public void shouldNotThrowErrorWhenFieldsAreComplete() {
-        String[] columnNames = new String[]{"longbow_key", "rowtime"};
+        String[] columnNames = new String[]{"longbow_key", "rowtime", "event_timestamp"};
         LongbowValidator longbowValidator = new LongbowValidator(columnNames);
 
         longbowValidator.validateLongbow(LongbowType.LongbowWrite);
@@ -28,7 +28,7 @@ public class LongbowValidatorTest {
 
     @Test
     public void shouldThrowValidationWithInvalidField() {
-        String[] columnNames = new String[]{"longbow_key", "rowtime", "longbow_data"};
+        String[] columnNames = new String[]{"longbow_key", "rowtime", "longbow_data", "event_timestamp"};
         LongbowValidator longbowValidator = new LongbowValidator(columnNames);
         try {
             longbowValidator.validateLongbow(LongbowType.LongbowWrite);
