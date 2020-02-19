@@ -11,9 +11,9 @@ public class ProtoHandlerFactory {
         Optional<ProtoHandler> filteredProtoHandlers =
                 getSpecificHandlers(fieldDescriptor)
                         .stream()
-                        .filter(ProtoHandler::canPopulate)
+                        .filter(ProtoHandler::canHandle)
                         .findFirst();
-        return filteredProtoHandlers.orElseGet(() -> new DefaultProtoHandler(fieldDescriptor));
+        return filteredProtoHandlers.orElseGet(() -> new PrimitiveProtoHandler(fieldDescriptor));
     }
 
     private static List<ProtoHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
@@ -21,6 +21,7 @@ public class ProtoHandlerFactory {
                 new MapProtoHandler(fieldDescriptor),
                 new TimestampProtoHandler(fieldDescriptor),
                 new EnumProtoHandler(fieldDescriptor),
+                new RepeatedPrimitiveProtoHandler(fieldDescriptor),
                 new RepeatedMessageProtoHandler(fieldDescriptor),
                 new MessageProtoHandler(fieldDescriptor)
         );
