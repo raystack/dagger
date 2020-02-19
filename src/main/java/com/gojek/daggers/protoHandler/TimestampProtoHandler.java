@@ -6,6 +6,7 @@ import com.google.protobuf.Timestamp;
 import org.apache.flink.types.Row;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 public class TimestampProtoHandler implements ProtoHandler {
     public static final int MILLI_TO_SECONDS = 1000;
@@ -16,13 +17,13 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public boolean canPopulate() {
+    public boolean canHandle() {
         return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE && fieldDescriptor.getMessageType().getFullName().equals("google.protobuf.Timestamp");
     }
 
     @Override
-    public DynamicMessage.Builder populate(DynamicMessage.Builder builder, Object field) {
-        if (!canPopulate()) {
+    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+        if (!canHandle() || field == null) {
             return builder;
         }
         Timestamp timestamp = null;
@@ -36,6 +37,8 @@ public class TimestampProtoHandler implements ProtoHandler {
                         .setSeconds((Long) timeField.getField(0))
                         .setNanos((int) timeField.getField(1))
                         .build();
+            } else {
+                throw new IllegalArgumentException("Row: " + timeField.toString() + " of size: " + timeField.getArity() + " cannot be converted to timestamp");
             }
         }
 
@@ -53,6 +56,11 @@ public class TimestampProtoHandler implements ProtoHandler {
         return builder;
     }
 
+    @Override
+    public Object transform(Object field) {
+        return isValid(field) ? field.toString() : null;
+    }
+
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {
         long timestampSeconds = field.getTime() / MILLI_TO_SECONDS;
         int timestampNanos = field.getNanos();
@@ -60,6 +68,17 @@ public class TimestampProtoHandler implements ProtoHandler {
                 .setSeconds(timestampSeconds)
                 .setNanos(timestampNanos)
                 .build();
+    }
 
+    private boolean isValid(Object field) {
+        if (field == null) {
+            return false;
+        }
+        try {
+            Instant.parse(field.toString());
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
     }
 }
