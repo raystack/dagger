@@ -7,7 +7,7 @@ public enum LongbowType {
     LongbowWrite(LongbowKey.LONGBOW_WRITE, MandatoryFields.LONGBOW_WRITE, InvalidFields.LONGBOW_WRITE),
     LongbowProcess(LongbowKey.LONGBOW_PROCESS, MandatoryFields.LONGBOW_PROCESS, InvalidFields.LONGBOW_PROCESS);
 
-    private final String LONGBOW_TYPE_PREFIX = "_key";
+    private static final String LONGBOW_TYPE_PREFIX = "_key";
     private String keyName;
     private String[] mandatoryFields;
     private String[] invalidFields;
