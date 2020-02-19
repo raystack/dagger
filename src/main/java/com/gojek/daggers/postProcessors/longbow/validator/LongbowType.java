@@ -36,7 +36,7 @@ public enum LongbowType {
 
     private static class MandatoryFields {
         private static final String[] LONGBOW_PROCESS = new String[]{LONGBOW_DATA, EVENT_TIMESTAMP, ROWTIME};
-        private static final String[] LONGBOW_WRITE = new String[]{ROWTIME};
+        private static final String[] LONGBOW_WRITE = new String[]{ROWTIME, EVENT_TIMESTAMP};
         private static final String[] LONGBOW_READ = new String[]{EVENT_TIMESTAMP, LONGBOW_PROTO_DATA};
     }
 
