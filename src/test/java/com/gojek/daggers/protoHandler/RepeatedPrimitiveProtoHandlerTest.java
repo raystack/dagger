@@ -33,6 +33,16 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
+    public void shouldReturnSameBuilderWithoutSettingFieldIfCannotHandle() {
+        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(otherFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
+
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, "123");
+        assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
+    }
+
+    @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
@@ -67,6 +77,22 @@ public class RepeatedPrimitiveProtoHandlerTest {
         inputValues.add("test2");
 
         DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, inputValues);
+        List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
+        assertEquals(inputValues.get(0), outputValues.get(0));
+        assertEquals(inputValues.get(1), outputValues.get(1));
+    }
+
+    @Test
+    public void shouldSetFieldPassedInTheBuilderAsArray() {
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
+
+        ArrayList<String> inputValues = new ArrayList<>();
+        inputValues.add("test1");
+        inputValues.add("test2");
+
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.populateBuilder(builder, inputValues.toArray());
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(inputValues.get(0), outputValues.get(0));
         assertEquals(inputValues.get(1), outputValues.get(1));
