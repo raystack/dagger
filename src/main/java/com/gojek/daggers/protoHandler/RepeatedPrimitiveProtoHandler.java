@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
@@ -22,7 +23,11 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
-        return field != null ? builder.setField(fieldDescriptor, field) : builder;
+        if (!canHandle() || field == null)
+            return builder;
+        if (field.getClass().isArray())
+            field = Arrays.asList((Object[]) field);
+        return builder.setField(fieldDescriptor, field);
     }
 
     @Override
