@@ -38,21 +38,23 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private LongbowSchema longbowSchema;
     private String longbowDocumentDuration;
     private PutRequestFactory putRequestFactory;
+    private String tableId;
     private LongbowStore longBowStore;
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
 
-    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory) {
+    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId) {
         this.configuration = configuration;
         this.longbowSchema = longbowSchema;
         this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION,
                 LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
+        this.tableId = tableId;
     }
 
     LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
-                  ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory) {
-        this(configuration, longBowSchema, putRequestFactory);
+                  ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory, String tableId) {
+        this(configuration, longBowSchema, putRequestFactory, tableId);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
         this.errorReporter = errorReporter;
@@ -72,19 +74,19 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
             errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
 
-        if (!longBowStore.tableExists()) {
+        if (!longBowStore.tableExists(tableId)) {
             Instant startTime = Instant.now();
             try {
                 Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
-                longBowStore.createTable(maxAgeDuration, columnFamilyName);
-                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(),
+                longBowStore.createTable(maxAgeDuration, columnFamilyName, tableId);
+                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", tableId,
                         maxAgeDuration, columnFamilyName);
                 meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
                 meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME,
                         between(startTime, Instant.now()).toMillis());
             } catch (Exception ex) {
-                LOGGER.error("failed to create table '{}'", longBowStore.tableName());
+                LOGGER.error("failed to create table '{}'", tableId);
                 meterStatsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
                 errorReporter.reportFatalException(ex);
                 meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME,
@@ -92,7 +94,6 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
                 throw ex;
             }
         }
-        longBowStore.initialize();
     }
 
     @Override
@@ -114,7 +115,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     }
 
     private Void logException(Throwable ex, Instant startTime) {
-        LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
+        LOGGER.error("failed to write document to table '{}'", tableId);
         ex.printStackTrace();
         meterStatsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
         errorReporter.reportNonFatalException(new LongbowWriterException(ex));

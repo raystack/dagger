@@ -41,7 +41,7 @@ public class LongbowProcessorFactoryTest {
 
     @Test
     public void shouldReturnLongbowReadProcessorWhenLongbowSchemaContainsLongbowRead() {
-        String[] columnNames = new String[]{"longbow_read_key", "rowtime", "longbow_duration", "proto_data", "event_timestamp"};
+        String[] columnNames = new String[]{"longbow_read_key", "rowtime", "longbow_duration", "event_timestamp"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
         PostProcessor longbowProcessor = longbowProcessorFactory.getLongbowProcessor();

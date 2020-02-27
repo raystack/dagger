@@ -19,6 +19,7 @@ public class TableScanRequestTest {
     private String longbowDuration = "1d";
     private String longbowKey = "rule123#driver444";
     private Timestamp longbowRowtime = new Timestamp(1558498933);
+    private String tableId = "tableId";
 
     private byte[] startRow;
     private byte[] endRow;
@@ -41,7 +42,7 @@ public class TableScanRequestTest {
 
 
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        TableScanRequest actualTableScanRequest = new TableScanRequest(startRow, endRow, longbowSchema);
+        TableScanRequest actualTableScanRequest = new TableScanRequest(startRow, endRow, longbowSchema, tableId);
         Scan expectedScan = new Scan();
         expectedScan.withStartRow(startRow, true);
         expectedScan.withStopRow(endRow, true);
@@ -61,7 +62,7 @@ public class TableScanRequestTest {
 
 
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        TableScanRequest actualTableScanRequest = new TableScanRequest(startRow, endRow, longbowSchema);
+        TableScanRequest actualTableScanRequest = new TableScanRequest(startRow, endRow, longbowSchema, tableId);
         Scan expectedScan = new Scan();
         expectedScan.withStartRow(startRow, true);
         expectedScan.withStopRow(endRow, true);

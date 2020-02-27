@@ -25,6 +25,7 @@ public class ProtoBytePutRequestTest {
     private String longbowKey = "rule123#driver444";
     private String orderNumber = "RB-9876";
     private String[] columnNames = {"longbow_key", "order_number", "rowtime"};
+    private String tableId = "tableId";
 
     @Before
     public void setup() {
@@ -44,7 +45,7 @@ public class ProtoBytePutRequestTest {
 
     @Test
     public void shouldSetColumnFamilyTotsQualifierToProtoAndValueAsProtoByte() {
-        ProtoBytePutRequest protoBytePutRequest = new ProtoBytePutRequest(longbowSchema, input, protoSerializer);
+        ProtoBytePutRequest protoBytePutRequest = new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
         Put expectedPut = new Put(longbowSchema.getKey(input, 0));
         expectedPut.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("proto"), longbowRowtime.getTime(),
                 protoSerializer.serializeValue(input));

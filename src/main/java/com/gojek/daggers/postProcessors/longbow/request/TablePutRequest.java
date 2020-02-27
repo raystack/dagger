@@ -20,10 +20,12 @@ public class TablePutRequest implements PutRequest {
 
     private LongbowSchema longbowSchema;
     private Row input;
+    private String tableId;
 
-    public TablePutRequest(LongbowSchema longbowSchema, Row input) {
+    public TablePutRequest(LongbowSchema longbowSchema, Row input, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;
+        this.tableId = tableId;
     }
 
     @Override
@@ -34,5 +36,10 @@ public class TablePutRequest implements PutRequest {
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(),
                         Bytes.toBytes((String) longbowSchema.getValue(input, column))));
         return putRequest;
+    }
+
+    @Override
+    public String getTableId() {
+        return this.tableId;
     }
 }

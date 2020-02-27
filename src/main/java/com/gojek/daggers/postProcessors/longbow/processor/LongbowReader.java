@@ -60,15 +60,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        if (longBowStore == null)
+        if (longBowStore == null) {
             longBowStore = LongbowStore.create(configuration);
-        if (meterStatsManager == null)
+        }
+        if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+        }
         if (errorReporter == null) {
             errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
-        longBowStore.initialize();
     }
 
     @Override
@@ -87,23 +88,24 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-        ScanRequest scanRequest = scanRequestFactory.create(longbowRow.getLatest(input), longbowRow.getEarliest(input));
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
         Instant startTime = Instant.now();
-        longBowStore
-                .scanAll(scanRequest)
+        longBowStore.scanAll(scanRequest)
                 .exceptionally(throwable -> logException(throwable, startTime))
-                .thenAccept(scanResult -> populateResult(scanResult, input, resultFuture, startTime));
+                .thenAccept(scanResult -> {
+                    instrumentation(scanResult, startTime);
+                    resultFuture.complete(populateResult(scanResult, input));
+                });
     }
 
     public LongbowRow getLongbowRow() {
         return longbowRow;
     }
 
-    private void populateResult(List<Result> scanResult, Row input, ResultFuture<Row> resultFuture, Instant startTime) {
+    private void instrumentation(List<Result> scanResult, Instant startTime) {
         meterStatsManager.markEvent(SUCCESS_ON_READ_DOCUMENT);
         meterStatsManager.updateHistogram(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         meterStatsManager.updateHistogram(DOCUMENTS_READ_PER_SCAN, scanResult.size());
-        resultFuture.complete(getRow(scanResult, input));
     }
 
     private List<Result> logException(Throwable ex, Instant startTime) {
@@ -115,8 +117,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         return Collections.emptyList();
     }
 
-    private Collection<Row> getRow(List<Result> scanResult, Row input) {
-        Row output = new Row(longBowSchema.getColumnSize());
+    private Collection<Row> populateResult(List<Result> scanResult, Row input) {
         HashMap<String, Object> columnMap = new HashMap<>();
         if (scanResult.isEmpty() || !Arrays.equals(scanResult.get(0).getRow(), longBowSchema.getKey(input, 0))) {
             meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
@@ -128,8 +129,21 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
                 .getColumnNames(c -> !(isLongbowData(c) || isLongbowProtoData(c)))
                 .forEach(name -> columnMap.put(name, longBowSchema.getValue(input, name)));
 
-        columnMap.forEach((name, data) -> output.setField(longBowSchema.getIndex(name), data));
+        Row output = getRow(columnMap);
         return Collections.singletonList(output);
+    }
+
+    private Row getRow(HashMap<String, Object> columnMap) {
+        int arity = columnMap.size();
+        Row output = new Row(arity);
+        columnMap.forEach((name, data) -> {
+            if (!name.equals(LONGBOW_PROTO_DATA)) {
+                output.setField(longBowSchema.getIndex(name), data);
+            } else {
+                output.setField(arity - 1, data);
+            }
+        });
+        return output;
     }
 
     private boolean isLongbowProtoData(Map.Entry<String, Integer> c) {
@@ -140,7 +154,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         return c.getKey().contains(LONGBOW_DATA);
     }
 
-    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+    @Override
+    public void timeout(Row input, ResultFuture<Row> resultFuture) {
         LOGGER.error("LongbowReader : timeout when reading document");
         meterStatsManager.markEvent(TIMEOUTS_ON_READER);
         Exception timeoutException = new TimeoutException("Async function call has timed out.");

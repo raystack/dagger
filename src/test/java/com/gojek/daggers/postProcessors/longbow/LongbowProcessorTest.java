@@ -51,19 +51,22 @@ public class LongbowProcessorTest {
 
     private PutRequestFactory putRequestFactory;
 
+    private String tableId;
+
     @Before
     public void setup() {
         initMocks(this);
         when(dataStream.getExecutionEnvironment()).thenReturn(mock(StreamExecutionEnvironment.class));
         when(longbowDurationRow.getInvalidFields()).thenReturn(new String[]{"longbow_earliest", "longbow_latest"});
+        tableId = "test_table";
     }
 
     @Test
     public void shouldChainFunctionsWhenAllFieldsPresentInQuery() {
         String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
-        LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
+        LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory, tableId);
         LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory);
         DataStream<Row> writerStream = mock(DataStream.class);
         DataStream<Row> readerStream = mock(DataStream.class);

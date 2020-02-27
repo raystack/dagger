@@ -4,15 +4,14 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import org.apache.flink.configuration.Configuration;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
-import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Result;
 import org.threeten.bp.Duration;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gojek.daggers.utils.Constants.*;
@@ -21,56 +20,48 @@ import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
-    private String daggerID;
-    private AsyncTable<AdvancedScanResultConsumer> table;
+    private Map<String, LongbowTable> tables;
 
-    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient, String daggerID) {
+    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
-        this.daggerID = daggerID;
+        this.tables = new HashMap<>();
     }
 
     public static LongbowStore create(Configuration configuration) throws IOException {
         String gcpProjectID = configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT);
         String gcpInstanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
-        String daggerID = configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT);
-        String tableID = configuration.getString(LONGBOW_GCP_TABLE_ID_KEY, daggerID);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);
-        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection, tableID);
+        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection);
     }
 
-    public boolean tableExists() {
-        return adminClient.exists(daggerID);
+    public boolean tableExists(String tableId) {
+        return adminClient.exists(tableId);
     }
 
-    public String tableName() {
-        return daggerID;
-    }
-
-    public void createTable(Duration maxAgeDuration, String columnFamilyName) throws Exception {
-        adminClient.createTable(CreateTableRequest.of(daggerID).addFamily(columnFamilyName,
+    public void createTable(Duration maxAgeDuration, String columnFamilyName, String tableId) throws Exception {
+        adminClient.createTable(CreateTableRequest.of(tableId).addFamily(columnFamilyName,
                 GCRULES.union()
                         .rule(GCRULES.maxVersions(1))
                         .rule(GCRULES.maxAge(maxAgeDuration))));
     }
 
-    public void initialize() {
-        TableName tableName = TableName.valueOf(daggerID);
-        table = tableClient.getTable(tableName);
-    }
-
     public CompletableFuture<Void> put(PutRequest putRequest) {
-        if (table == null)
-            initialize();
-        return table.put(putRequest.get());
+        String tableId = putRequest.getTableId();
+        if (!tables.containsKey(tableId)) {
+            tables.put(tableId, new LongbowTable(tableId, tableClient));
+        }
+        return tables.get(tableId).put(putRequest.get());
     }
 
     public CompletableFuture<List<Result>> scanAll(ScanRequest scanRequest) {
-        if (table == null)
-            initialize();
-        return table.scanAll(scanRequest.get());
+        String tableId = scanRequest.getTableId();
+        if (!tables.containsKey(tableId)) {
+            tables.put(tableId, new LongbowTable(tableId, tableClient));
+        }
+        return tables.get(tableId).scanAll(scanRequest.get());
     }
 
     public void close() throws IOException {
