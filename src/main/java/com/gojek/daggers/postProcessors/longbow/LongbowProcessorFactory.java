@@ -19,8 +19,7 @@ import org.apache.flink.configuration.Configuration;
 
 import java.util.Map;
 
-import static com.gojek.daggers.utils.Constants.INPUT_STREAMS;
-import static com.gojek.daggers.utils.Constants.STREAM_PROTO_CLASS_NAME;
+import static com.gojek.daggers.utils.Constants.*;
 
 public class LongbowProcessorFactory {
     private LongbowSchema longbowSchema;
@@ -48,16 +47,16 @@ public class LongbowProcessorFactory {
         longbowValidator.validateLongbow(longbowType);
         switch (longbowType) {
             case LongbowWrite:
-                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, true);
+                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, longbowSchema.isLongbowPlus());
                 longbowWriter.notifySubscriber(metricsTelemetryExporter);
-                return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration), longbowSchema);
+                return new LongbowWriteProcessor(longbowWriter, asyncProcessor, configuration, getMessageProtoClassName(configuration), longbowSchema, getTableId(configuration));
             case LongbowRead:
                 longbowReader = getLongbowReader(configuration, longbowSchema);
                 longbowReader.notifySubscriber(metricsTelemetryExporter);
                 return new LongbowReadProcessor(longbowReader, asyncProcessor, configuration);
             default:
                 longbowReader = getLongbowReader(configuration, longbowSchema);
-                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, false);
+                longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, longbowSchema.isLongbowPlus());
                 longbowWriter.notifySubscriber(metricsTelemetryExporter);
                 longbowReader.notifySubscriber(metricsTelemetryExporter);
                 return new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
@@ -67,7 +66,7 @@ public class LongbowProcessorFactory {
     private LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema) {
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(configuration));
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
     }
 
@@ -76,7 +75,11 @@ public class LongbowProcessorFactory {
         if (isLongbowPlus) {
             protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(configuration), columnNames, stencilClientOrchestrator);
         }
-        return new LongbowWriter(configuration, longbowSchema, new PutRequestFactory(longbowSchema, protoSerializer));
+        return new LongbowWriter(configuration, longbowSchema, new PutRequestFactory(longbowSchema, protoSerializer, getTableId(configuration)), getTableId(configuration));
+    }
+
+    private String getTableId(Configuration configuration) {
+        return configuration.getString(LONGBOW_GCP_TABLE_ID_KEY, configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
     }
 
     private String getMessageProtoClassName(Configuration configuration) {

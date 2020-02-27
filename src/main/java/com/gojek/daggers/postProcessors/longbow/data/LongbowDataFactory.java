@@ -10,7 +10,7 @@ public class LongbowDataFactory {
     }
 
     public LongbowData getLongbowData() {
-        if (longbowSchema.hasLongbowData()) {
+        if (!longbowSchema.isLongbowPlus()) {
             return new LongbowTableData(longbowSchema);
         }
         return new LongbowProtoData();

@@ -46,14 +46,13 @@ public class LongbowWriteProcessorTest {
         when(asyncProcessor.orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30))
                 .thenReturn(writerStream);
         LongbowWriteProcessor longbowWriteProcessor = new LongbowWriteProcessor(longbowWriter, asyncProcessor,
-                configuration, inputProtoClassName, longbowSchema);
+                configuration, inputProtoClassName, longbowSchema, "test_table");
 
         StreamInfo streamInfo = longbowWriteProcessor.process(new StreamInfo(dataStream, columnNames));
 
         Mockito.verify(asyncProcessor, times(1)).orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30);
 
-        String[] expectedColumnNames = {"rowtime", "longbow_write_key", "longbow_duration", "event_timestamp",
-                "bigtable_instance_id", "bigtable_project_id", "bigtable_table_name", "input_class_name", "longbow_read_key"};
+        String[] expectedColumnNames = {"rowtime", "longbow_write_key", "longbow_duration", "event_timestamp", "bigtable_table_id", "input_class_name", "longbow_read_key"};
         assertArrayEquals(expectedColumnNames, streamInfo.getColumnNames());
     }
 }

@@ -1,8 +1,9 @@
 package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,30 +17,33 @@ public class ScanRequestFactoryTest {
     @Mock
     private LongbowSchema longbowSchema;
 
-    private byte[] startRow;
+    @Mock
+    private LongbowRow longbowRow;
 
-    private byte[] endRow;
+    @Mock
+    private Row input;
+
+    private String tableId;
 
     @Before
     public void setup() {
         initMocks(this);
-        startRow = Bytes.toBytes("startRow");
-        endRow = Bytes.toBytes("endRow");
+        tableId = "tableId";
     }
 
     @Test
-    public void shouldCreateTableScanRequestIfLongBowDataIsPresentInLongbowSchema() {
-        when(longbowSchema.hasLongbowData()).thenReturn(true);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
-        ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
+    public void shouldCreateTableScanRequestIfLongBowTypeIsNotLongbowPlus() {
+        when(longbowSchema.isLongbowPlus()).thenReturn(false);
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, tableId);
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
         Assert.assertEquals(TableScanRequest.class, scanRequest.getClass());
     }
 
     @Test
-    public void shouldCreateProtoByteScanRequestIfLongBowDataIsPresentInLongbowSchema() {
-        when(longbowSchema.hasLongbowData()).thenReturn(false);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema);
-        ScanRequest scanRequest = scanRequestFactory.create(startRow, endRow);
+    public void shouldCreateProtoByteScanRequestIfLongBowTypeIsLongbowPlus() {
+        when(longbowSchema.isLongbowPlus()).thenReturn(true);
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, tableId);
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
         Assert.assertEquals(ProtoByteScanRequest.class, scanRequest.getClass());
     }
 }
