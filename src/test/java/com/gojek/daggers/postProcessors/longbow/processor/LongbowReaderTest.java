@@ -28,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
+import static com.gojek.daggers.utils.Constants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -57,19 +58,20 @@ public class LongbowReaderTest {
     private CompletableFuture<List<Result>> scanFuture;
     private Timestamp currentTimestamp;
     private ScanRequestFactory scanRequestFactory;
+    private String tableId = "tableId";
 
 
     @Before
     public void setup() {
         initMocks(this);
-        when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007")).thenReturn("test-project");
-        when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
-        when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn("test-job");
+        when(configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
+        when(configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
+        when(configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT)).thenReturn("test-job");
         scanFuture = new CompletableFuture<>();
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         longBowSchema = new LongbowSchema(columnNames);
-        scanRequestFactory = new ScanRequestFactory(longBowSchema);
+        scanRequestFactory = new ScanRequestFactory(longBowSchema, tableId);
     }
 
     @Test
@@ -158,6 +160,30 @@ public class LongbowReaderTest {
             Assert.assertEquals(5, row.getArity());
             Assert.assertEquals(getData("order1"), row.getField(1));
             Assert.assertEquals(getData("order2"), row.getField(4));
+        })));
+        Assert.assertTrue(scanFuture.isDone());
+    }
+
+    @Test
+    public void shouldPopulateOutputWithProtoWhenLongbowTypeIsLongbowRead() throws Exception {
+        String[] columnNames = {"longbow_read_key", "event_timestamp", "longbow_duration", "rowtime"};
+        longBowSchema = new LongbowSchema(columnNames);
+        List<Result> results = getResults(getKeyValue("order_id_1", "proto_data", "order1"));
+        scanFuture = CompletableFuture.supplyAsync(() -> results);
+        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory);
+
+        Row input = getRow("order_id_1", currentTimestamp, "24h", currentTimestamp);
+        when(longBowStore.scanAll(any(ScanRequest.class))).thenReturn(scanFuture);
+
+        Map data = new HashMap();
+        data.put("proto_data", Collections.singletonList("order1"));
+        when(longbowData.parse(any())).thenReturn(data);
+
+        longbowReader.open(configuration);
+        longbowReader.asyncInvoke(input, outputFuture);
+        verify(outputFuture).complete(argThat(rows -> verifyRow(rows, row -> {
+            Assert.assertEquals(5, row.getArity());
+            Assert.assertEquals(getData("order1"), row.getField(4));
         })));
         Assert.assertTrue(scanFuture.isDone());
     }

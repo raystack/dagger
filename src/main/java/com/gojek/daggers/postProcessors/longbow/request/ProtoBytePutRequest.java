@@ -17,12 +17,14 @@ public class ProtoBytePutRequest implements PutRequest {
     private LongbowSchema longbowSchema;
     private Row input;
     private ProtoSerializer protoSerializer;
+    private String tableId;
 
 
-    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer) {
+    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;
         this.protoSerializer = protoSerializer;
+        this.tableId = tableId;
     }
 
     @Override
@@ -31,5 +33,10 @@ public class ProtoBytePutRequest implements PutRequest {
         Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
         putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), protoSerializer.serializeValue(input));
         return putRequest;
+    }
+
+    @Override
+    public String getTableId() {
+        return this.tableId;
     }
 }

@@ -43,14 +43,6 @@ public class LongbowSchema implements Serializable {
         return Bytes.toBytes(key);
     }
 
-    public boolean hasLongbowData() {
-        return columnNames
-                .stream()
-                .filter((name) -> name.contains(LONGBOW_DATA))
-                .collect(Collectors.toList())
-                .size() > 0;
-    }
-
     public Integer getColumnSize() {
         return columnIndexMap.size();
     }
@@ -87,7 +79,7 @@ public class LongbowSchema implements Serializable {
 
     public long getDurationInMillis(String durationString) {
         String durationUnit = durationString.substring(durationString.length() - 1);
-        Long duration = Long.valueOf(durationString.substring(0, durationString.length() - 1));
+        long duration = Long.parseLong(durationString.substring(0, durationString.length() - 1));
         switch (durationUnit) {
             case HOUR_UNIT:
                 return TimeUnit.HOURS.toMillis(duration);
@@ -107,5 +99,9 @@ public class LongbowSchema implements Serializable {
         }
         throw new DaggerConfigurationException("Unable to identify LongbowProcessor. Provide either " +
                 LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
+    }
+
+    public boolean isLongbowPlus() {
+        return getType() != LongbowType.LongbowProcess;
     }
 }
