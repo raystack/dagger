@@ -3,11 +3,12 @@ package com.gojek.daggers.postProcessors.longbow;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputLongbowData;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRange;
 import com.gojek.daggers.sink.ProtoSerializer;
 import com.gojek.daggers.utils.Constants;
 import org.apache.flink.configuration.Configuration;
@@ -38,7 +39,7 @@ public class LongbowProcessorTest {
     private AsyncProcessor asyncProcessor;
 
     @Mock
-    private LongbowDurationRow longbowDurationRow;
+    private LongbowDurationRange longbowDurationRow;
 
     @Mock
     private ProtoSerializer protoSerializer;
@@ -67,7 +68,8 @@ public class LongbowProcessorTest {
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory, tableId);
-        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory);
+        OutputLongbowData outputLongbowData = new OutputLongbowData(longBowSchema);
+        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory, outputLongbowData);
         DataStream<Row> writerStream = mock(DataStream.class);
         DataStream<Row> readerStream = mock(DataStream.class);
         when(configuration.getLong(Constants.LONGBOW_ASYNC_TIMEOUT_KEY, Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT)).thenReturn(Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT);

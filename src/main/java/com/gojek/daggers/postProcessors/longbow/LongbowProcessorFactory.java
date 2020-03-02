@@ -4,6 +4,9 @@ import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowDataFactory;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputLongbowData;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputProtoData;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputRow;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
@@ -38,6 +41,7 @@ public class LongbowProcessorFactory {
     }
 
     public PostProcessor getLongbowProcessor() {
+        // Remove further encapsulation, pull all the component here to make flow clear
         LongbowReader longbowReader;
         LongbowWriter longbowWriter;
         LongbowValidator longbowValidator = new LongbowValidator(columnNames);
@@ -46,6 +50,7 @@ public class LongbowProcessorFactory {
         AsyncProcessor asyncProcessor = new AsyncProcessor();
         longbowValidator.validateLongbow(longbowType);
         switch (longbowType) {
+            // Make single longbowprocessor, pass richmap and columnnames modifier
             case LongbowWrite:
                 longbowWriter = getLongbowWriter(configuration, longbowSchema, columnNames, stencilClientOrchestrator, longbowSchema.isLongbowPlus());
                 longbowWriter.notifySubscriber(metricsTelemetryExporter);
@@ -67,7 +72,11 @@ public class LongbowProcessorFactory {
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowRange longbowRange = LongbowRangeFactory.getLongbowRange(longbowSchema);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(configuration));
-        return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
+        OutputRow outputRow = new OutputLongbowData(longbowSchema);
+        if (longbowSchema.isLongbowPlus()) {
+            outputRow = new OutputProtoData(longbowSchema);
+        }
+        return new LongbowReader(configuration, longbowSchema, longbowRange, longbowDataFactory.getLongbowData(), scanRequestFactory, outputRow);
     }
 
     private LongbowWriter getLongbowWriter(Configuration configuration, LongbowSchema longbowSchema, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, boolean isLongbowPlus) {
