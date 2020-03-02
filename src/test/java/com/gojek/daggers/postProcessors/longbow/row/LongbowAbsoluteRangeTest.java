@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class LongbowAbsoluteRowTest {
+public class LongbowAbsoluteRangeTest {
     @Mock
     private LongbowSchema longbowSchema;
 
@@ -20,28 +20,28 @@ public class LongbowAbsoluteRowTest {
     }
 
     @Test
-    public void shouldReturnLatestRow() {
+    public void shouldReturnUpperBound() {
         Row input = new Row(1);
         when(longbowSchema.getValue(input, "longbow_latest")).thenReturn(1000L);
-        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
-        longbowAbsoluteRow.getLatest(input);
+        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
+        longbowAbsoluteRow.getUpperBound(input);
 
         verify(longbowSchema, times(1)).getAbsoluteKey(input, 1000L);
     }
 
     @Test
-    public void shouldReturnEarliestRow() {
+    public void shouldReturnLowerBound() {
         Row input = new Row(1);
         when(longbowSchema.getValue(input, "longbow_earliest")).thenReturn(1000L);
-        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
-        longbowAbsoluteRow.getEarliest(input);
+        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
+        longbowAbsoluteRow.getLowerBound(input);
 
         verify(longbowSchema, times(1)).getAbsoluteKey(input, 1000L);
     }
 
     @Test
     public void shouldReturnInvalidFields() {
-        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
+        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
         Assert.assertArrayEquals(longbowAbsoluteRow.getInvalidFields(), new String[]{"longbow_duration"});
     }
 }

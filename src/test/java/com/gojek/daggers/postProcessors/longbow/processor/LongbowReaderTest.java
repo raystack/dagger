@@ -51,7 +51,7 @@ public class LongbowReaderTest {
     @Mock
     private ErrorReporter errorReporter;
     @Mock
-    private LongbowAbsoluteRow longbowAbsoluteRow;
+    private LongbowAbsoluteRange longbowAbsoluteRow;
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
     private LongbowSchema longBowSchema;
