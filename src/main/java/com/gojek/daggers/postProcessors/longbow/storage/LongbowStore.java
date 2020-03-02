@@ -4,6 +4,9 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import org.apache.flink.configuration.Configuration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
+import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.BigtableAsyncConnection;
 import org.apache.hadoop.hbase.client.Result;
 import org.threeten.bp.Duration;
@@ -20,12 +23,19 @@ import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
-    private Map<String, LongbowTable> tables;
+    private Map<String, AsyncTable<AdvancedScanResultConsumer>> tables;
 
     private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
         this.tables = new HashMap<>();
+    }
+
+    private AsyncTable<AdvancedScanResultConsumer> getTable(String tableId) {
+        if (!tables.containsKey(tableId)) {
+            tables.put(tableId, tableClient.getTable(TableName.valueOf(tableId)));
+        }
+        return tables.get(tableId);
     }
 
     public static LongbowStore create(Configuration configuration) throws IOException {
@@ -49,19 +59,11 @@ public class LongbowStore {
     }
 
     public CompletableFuture<Void> put(PutRequest putRequest) {
-        String tableId = putRequest.getTableId();
-        if (!tables.containsKey(tableId)) {
-            tables.put(tableId, new LongbowTable(tableId, tableClient));
-        }
-        return tables.get(tableId).put(putRequest.get());
+        return getTable(putRequest.getTableId()).put(putRequest.get());
     }
 
     public CompletableFuture<List<Result>> scanAll(ScanRequest scanRequest) {
-        String tableId = scanRequest.getTableId();
-        if (!tables.containsKey(tableId)) {
-            tables.put(tableId, new LongbowTable(tableId, tableClient));
-        }
-        return tables.get(tableId).scanAll(scanRequest.get());
+        return getTable(scanRequest.getTableId()).scanAll(scanRequest.get());
     }
 
     public void close() throws IOException {
