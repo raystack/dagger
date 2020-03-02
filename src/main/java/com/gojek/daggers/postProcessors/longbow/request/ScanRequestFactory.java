@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.types.Row;
 
@@ -18,11 +18,11 @@ public class ScanRequestFactory implements Serializable {
         this.tableId = tableId;
     }
 
-    public ScanRequest create(Row input, LongbowRow longbowRow) {
+    public ScanRequest create(Row input, LongbowRange longbowRange) {
         if (!longbowSchema.isLongbowPlus()) {
-            return new TableScanRequest(longbowRow.getLatest(input), longbowRow.getEarliest(input), longbowSchema, tableId);
+            return new TableScanRequest(longbowRange.getUpperBound(input), longbowRange.getLowerBound(input), longbowSchema, tableId);
         } else
-            return new ProtoByteScanRequest(longbowRow.getLatest(input), longbowRow.getEarliest(input), parseTableName(input));
+            return new ProtoByteScanRequest(longbowRange.getUpperBound(input), longbowRange.getLowerBound(input), parseTableName(input));
     }
 
     private String parseTableName(Row input) {

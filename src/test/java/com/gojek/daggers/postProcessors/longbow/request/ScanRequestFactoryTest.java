@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
@@ -18,7 +18,7 @@ public class ScanRequestFactoryTest {
     private LongbowSchema longbowSchema;
 
     @Mock
-    private LongbowRow longbowRow;
+    private LongbowRange longbowRange;
 
     @Mock
     private Row input;
@@ -35,7 +35,7 @@ public class ScanRequestFactoryTest {
     public void shouldCreateTableScanRequestIfLongBowTypeIsNotLongbowPlus() {
         when(longbowSchema.isLongbowPlus()).thenReturn(false);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, tableId);
-        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRange);
         Assert.assertEquals(TableScanRequest.class, scanRequest.getClass());
     }
 
@@ -43,7 +43,7 @@ public class ScanRequestFactoryTest {
     public void shouldCreateProtoByteScanRequestIfLongBowTypeIsLongbowPlus() {
         when(longbowSchema.isLongbowPlus()).thenReturn(true);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, tableId);
-        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRange);
         Assert.assertEquals(ProtoByteScanRequest.class, scanRequest.getClass());
     }
 }

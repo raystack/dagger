@@ -8,8 +8,8 @@ import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRowFactory;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRangeFactory;
 import com.gojek.daggers.postProcessors.longbow.validator.LongbowType;
 import com.gojek.daggers.postProcessors.longbow.validator.LongbowValidator;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
@@ -65,7 +65,7 @@ public class LongbowProcessorFactory {
 
     private LongbowReader getLongbowReader(Configuration configuration, LongbowSchema longbowSchema) {
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
-        LongbowRow longbowRow = LongbowRowFactory.getLongbowRow(longbowSchema);
+        LongbowRange longbowRange = LongbowRangeFactory.getLongbowRange(longbowSchema);
         ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(configuration));
         return new LongbowReader(configuration, longbowSchema, longbowRow, longbowDataFactory.getLongbowData(), scanRequestFactory);
     }

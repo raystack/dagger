@@ -4,10 +4,10 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 
-public interface LongbowRow extends Serializable {
-    byte[] getLatest(Row input);
+public interface LongbowRange extends Serializable {
+    byte[] getUpperBound(Row input);
 
-    byte[] getEarliest(Row input);
+    byte[] getLowerBound(Row input);
 
     String[] getInvalidFields();
 }
