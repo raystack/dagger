@@ -8,8 +8,9 @@ import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputRow;
 import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRow;
+import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.LongbowReaderAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
-import static com.gojek.daggers.utils.Constants.*;
+import static com.gojek.daggers.utils.Constants.LONGBOW_READER_PROCESSOR;
 import static java.time.Duration.between;
 
 public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
@@ -34,28 +35,31 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
     private Configuration configuration;
     private LongbowSchema longBowSchema;
-    private LongbowRow longbowRow;
+    private LongbowRange longbowRange;
     private LongbowStore longBowStore;
     private MeterStatsManager meterStatsManager;
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
     private LongbowData longbowData;
     private ScanRequestFactory scanRequestFactory;
+    private OutputRow outputRow;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
-        this(configuration, longBowSchema, longbowRow, longbowData, scanRequestFactory);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, OutputRow outputRow) {
+        this(configuration, longBowSchema, longbowRange, longbowData, scanRequestFactory, outputRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRow longbowRow, LongbowData longbowData, ScanRequestFactory scanRequestFactory) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, OutputRow outputRow) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
-        this.longbowRow = longbowRow;
+        this.longbowRange = longbowRange;
         this.longbowData = longbowData;
         this.scanRequestFactory = scanRequestFactory;
+        this.outputRow = outputRow;
     }
+
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -88,24 +92,28 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRow);
+        ScanRequest scanRequest = scanRequestFactory.create(input, longbowRange);
         Instant startTime = Instant.now();
         longBowStore.scanAll(scanRequest)
                 .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(scanResult -> {
-                    instrumentation(scanResult, startTime);
-                    resultFuture.complete(populateResult(scanResult, input));
+                    instrumentation(scanResult, startTime, input);
+                    Row row = outputRow.get(longbowData.parse(scanResult), input);
+                    resultFuture.complete(Collections.singletonList(row));
                 });
     }
 
-    public LongbowRow getLongbowRow() {
-        return longbowRow;
+    public LongbowRange getLongbowRange() {
+        return longbowRange;
     }
 
-    private void instrumentation(List<Result> scanResult, Instant startTime) {
+    private void instrumentation(List<Result> scanResult, Instant startTime, Row input) {
         meterStatsManager.markEvent(SUCCESS_ON_READ_DOCUMENT);
         meterStatsManager.updateHistogram(SUCCESS_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         meterStatsManager.updateHistogram(DOCUMENTS_READ_PER_SCAN, scanResult.size());
+        if (scanResult.isEmpty() || !Arrays.equals(scanResult.get(0).getRow(), longBowSchema.getKey(input, 0))) {
+            meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
+        }
     }
 
     private List<Result> logException(Throwable ex, Instant startTime) {
@@ -115,43 +123,6 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         errorReporter.reportNonFatalException(new LongbowReaderException(ex));
         meterStatsManager.updateHistogram(FAILED_ON_READ_DOCUMENT_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         return Collections.emptyList();
-    }
-
-    private Collection<Row> populateResult(List<Result> scanResult, Row input) {
-        HashMap<String, Object> columnMap = new HashMap<>();
-        if (scanResult.isEmpty() || !Arrays.equals(scanResult.get(0).getRow(), longBowSchema.getKey(input, 0))) {
-            meterStatsManager.markEvent(FAILED_TO_READ_LAST_RECORD);
-        }
-
-        longbowData.parse(scanResult).forEach((columnName, data) -> columnMap.put((String) columnName, data));
-
-        longBowSchema
-                .getColumnNames(c -> !(isLongbowData(c) || isLongbowProtoData(c)))
-                .forEach(name -> columnMap.put(name, longBowSchema.getValue(input, name)));
-
-        Row output = getRow(columnMap);
-        return Collections.singletonList(output);
-    }
-
-    private Row getRow(HashMap<String, Object> columnMap) {
-        int arity = columnMap.size();
-        Row output = new Row(arity);
-        columnMap.forEach((name, data) -> {
-            if (!name.equals(LONGBOW_PROTO_DATA)) {
-                output.setField(longBowSchema.getIndex(name), data);
-            } else {
-                output.setField(arity - 1, data);
-            }
-        });
-        return output;
-    }
-
-    private boolean isLongbowProtoData(Map.Entry<String, Integer> c) {
-        return c.getKey().contains(LONGBOW_PROTO_DATA);
-    }
-
-    private boolean isLongbowData(Map.Entry<String, Integer> c) {
-        return c.getKey().contains(LONGBOW_DATA);
     }
 
     @Override

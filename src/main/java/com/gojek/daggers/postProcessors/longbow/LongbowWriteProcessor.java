@@ -41,6 +41,7 @@ public class LongbowWriteProcessor implements PostProcessor {
 
         AppendMetaData appendMetaData = new AppendMetaData(inputProtoClassName, longbowSchema, tableId);
         DataStream<Row> outputStream = writeStream.map(appendMetaData);
+        // TODO: Make it as part of longbow writer and use same method as longbow write
         return new StreamInfo(outputStream, appendMetaDataColumnNames(streamInfo.getColumnNames()));
     }
 
