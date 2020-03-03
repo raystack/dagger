@@ -10,7 +10,7 @@ import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
 import com.gojek.daggers.postProcessors.longbow.outputRow.ReaderOutputRow;
 import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
+import com.gojek.daggers.postProcessors.longbow.range.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;

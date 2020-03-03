@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 import static com.gojek.daggers.utils.Constants.*;
 
 /**
- * Create PutRequest in form of table. LONGBOW_KEY as row key,
+ * Create PutRequest in form of table. LONGBOW_KEY as range key,
  * LONGBOW_COLUMN_NAME as qualifier, and LONGBOW_DATA as value.
  */
 public class TablePutRequest implements PutRequest {

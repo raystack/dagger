@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
+import com.gojek.daggers.postProcessors.longbow.columnModifier.LongbowReadColumnModifier;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;

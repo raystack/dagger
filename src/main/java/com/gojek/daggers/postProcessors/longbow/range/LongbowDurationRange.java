@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.row;
+package com.gojek.daggers.postProcessors.longbow.range;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;

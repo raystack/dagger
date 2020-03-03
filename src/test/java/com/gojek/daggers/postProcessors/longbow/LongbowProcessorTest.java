@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.longbow;
 
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
+import com.gojek.daggers.postProcessors.longbow.columnModifier.ColumnModifier;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -30,7 +31,7 @@ public class LongbowProcessorTest {
     private AsyncProcessor asyncProcessor;
 
     @Mock
-    private ColumnNameModifier columnNameModifier;
+    private ColumnModifier columnModifier;
 
     @Before
     public void setup() {
@@ -45,7 +46,7 @@ public class LongbowProcessorTest {
         ArrayList<RichAsyncFunction<Row, Row>> richAsyncFunctions = new ArrayList<>();
         richAsyncFunctions.add(asyncFunction1);
         richAsyncFunctions.add(asyncFunction2);
-        LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnNameModifier);
+        LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnModifier);
         longbowProcessor.process(new StreamInfo(dataStream, columnNames));
         verify(asyncProcessor, times(2))
                 .orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
