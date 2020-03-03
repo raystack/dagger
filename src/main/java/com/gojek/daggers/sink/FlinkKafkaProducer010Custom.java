@@ -28,7 +28,7 @@ public class FlinkKafkaProducer010Custom<T> extends FlinkKafkaProducer010<T> {
     public void invoke(T value, Context context) throws Exception {
         try {
             invokeBaseProducer(value, context);
-            LOGGER.info("row to kafka :" + value.toString());
+            LOGGER.info("range to kafka :" + value.toString());
         } catch (Exception exception) {
             errorReporter = getErrorReporter(getRuntimeContext());
             errorReporter.reportFatalException(exception);

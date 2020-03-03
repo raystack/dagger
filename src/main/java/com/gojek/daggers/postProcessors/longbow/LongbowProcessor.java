@@ -4,6 +4,7 @@ import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
+import com.gojek.daggers.postProcessors.longbow.columnModifier.ColumnModifier;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -19,9 +20,9 @@ public class LongbowProcessor implements PostProcessor {
     private AsyncProcessor asyncProcessor;
     private Configuration configuration;
     private ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions;
-    private ColumnNameModifier modifier;
+    private ColumnModifier modifier;
 
-    public LongbowProcessor(AsyncProcessor asyncProcessor, Configuration configuration, ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions, ColumnNameModifier modifier) {
+    public LongbowProcessor(AsyncProcessor asyncProcessor, Configuration configuration, ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions, ColumnModifier modifier) {
         this.asyncProcessor = asyncProcessor;
         this.configuration = configuration;
         this.longbowRichFunctions = longbowRichFunctions;

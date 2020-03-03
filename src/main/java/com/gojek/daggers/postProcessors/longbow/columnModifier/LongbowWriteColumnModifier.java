@@ -1,11 +1,11 @@
-package com.gojek.daggers.postProcessors.longbow;
+package com.gojek.daggers.postProcessors.longbow.columnModifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.gojek.daggers.utils.Constants.*;
 
-public class LongbowWriteColumnModifier implements ColumnNameModifier {
+public class LongbowWriteColumnModifier implements ColumnModifier {
 
     @Override
     public String[] modifyColumnNames(String[] inputColumnNames) {
