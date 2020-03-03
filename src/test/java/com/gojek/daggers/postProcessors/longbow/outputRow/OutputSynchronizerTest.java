@@ -34,7 +34,7 @@ public class OutputSynchronizerTest {
         inputRow.setField(1, mockedValue);
 
         OutputSynchronizer outputSynchronizer = new OutputSynchronizer(longbowSchema, tableId, inputProtoClassName);
-        Row synchronizer = outputSynchronizer.get(scanResult, inputRow);
+        Row synchronizer = outputSynchronizer.get(inputRow);
 
         assertEquals(mockedKey, synchronizer.getField(0));
         assertEquals(mockedValue, synchronizer.getField(1));

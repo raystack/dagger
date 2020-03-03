@@ -2,7 +2,7 @@ package com.gojek.daggers.postProcessors;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.longbow.LongbowProcessorFactory;
+import com.gojek.daggers.postProcessors.longbow.LongbowFactory;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.telemetry.TelemetryProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
@@ -30,9 +30,9 @@ public class PostProcessorFactory {
 
     private static PostProcessor getLongBowProcessor(String[] columnNames, Configuration configuration, MetricsTelemetryExporter metricsTelemetryExporter, StencilClientOrchestrator stencilClientOrchestrator) {
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        LongbowProcessorFactory longbowProcessorFactory = new LongbowProcessorFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
+        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
 
-        return longbowProcessorFactory.getLongbowProcessor();
+        return longbowFactory.getLongbowProcessor();
     }
 
     private static PostProcessorConfig parsePostProcessorConfig(Configuration configuration) {

@@ -31,14 +31,14 @@ public class OutputProtoDataTest {
 
     @Test
     public void shouldAddOneForRowArity() {
-        OutputProtoData outputProtoData = new OutputProtoData(longbowSchema);
+        ReaderOutputProtoData outputProtoData = new ReaderOutputProtoData(longbowSchema);
         Row row = outputProtoData.get(scanResult, input);
         assertEquals(2, row.getArity());
     }
 
     @Test
     public void shouldAddProtoDataToRow() {
-        OutputProtoData outputProtoData = new OutputProtoData(longbowSchema);
+        ReaderOutputProtoData outputProtoData = new ReaderOutputProtoData(longbowSchema);
         Row row = outputProtoData.get(scanResult, input);
         assertEquals(returnedProto, row.getField(1));
     }

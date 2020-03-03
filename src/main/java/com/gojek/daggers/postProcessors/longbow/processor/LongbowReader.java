@@ -8,7 +8,7 @@ import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowReaderException;
-import com.gojek.daggers.postProcessors.longbow.outputRow.OutputRow;
+import com.gojek.daggers.postProcessors.longbow.outputRow.ReaderOutputRow;
 import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
@@ -42,22 +42,22 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private ErrorReporter errorReporter;
     private LongbowData longbowData;
     private ScanRequestFactory scanRequestFactory;
-    private OutputRow outputRow;
+    private ReaderOutputRow readerOutputRow;
 
-    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, OutputRow outputRow) {
-        this(configuration, longBowSchema, longbowRange, longbowData, scanRequestFactory, outputRow);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
+        this(configuration, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
     }
 
-    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, OutputRow outputRow) {
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
         this.longbowRange = longbowRange;
         this.longbowData = longbowData;
         this.scanRequestFactory = scanRequestFactory;
-        this.outputRow = outputRow;
+        this.readerOutputRow = readerOutputRow;
     }
 
 
@@ -98,7 +98,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
                 .exceptionally(throwable -> logException(throwable, startTime))
                 .thenAccept(scanResult -> {
                     instrumentation(scanResult, startTime, input);
-                    Row row = outputRow.get(longbowData.parse(scanResult), input);
+                    Row row = readerOutputRow.get(longbowData.parse(scanResult), input);
                     resultFuture.complete(Collections.singletonList(row));
                 });
     }
