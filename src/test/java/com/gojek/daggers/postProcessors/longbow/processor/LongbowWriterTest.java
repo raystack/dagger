@@ -6,6 +6,8 @@ import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
+import com.gojek.daggers.postProcessors.longbow.outputRow.OutputIdentity;
+import com.gojek.daggers.postProcessors.longbow.outputRow.WriterOutputRow;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
@@ -57,6 +59,7 @@ public class LongbowWriterTest {
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
 
+    private WriterOutputRow writerOutputRow;
     private String daggerID = "FR-DR-2116";
     private String longbowData1 = "RB-9876";
     private String longbowDuration = "1d";
@@ -79,9 +82,10 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
+        writerOutputRow = new OutputIdentity();
         putRequestFactory = new PutRequestFactory(defaultLongbowSchema, protoSerializer, tableId);
         defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
-                longBowStore, putRequestFactory, tableId);
+                longBowStore, putRequestFactory, tableId, writerOutputRow);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
     }
 
@@ -127,7 +131,7 @@ public class LongbowWriterTest {
         defaultLongbowWriter.open(configuration);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
-        verify(resultFuture, times(1)).complete(Collections.singleton(input));
+        verify(resultFuture, times(1)).complete(Collections.singletonList(input));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
         verify(meterStatsManager, times(1))
                 .updateHistogram(eq(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME), any(Long.class));
@@ -209,7 +213,7 @@ public class LongbowWriterTest {
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
-                longBowStore, putRequestFactory, tableId);
+                longBowStore, putRequestFactory, tableId, writerOutputRow);
 
         longBowWriter.preProcessBeforeNotifyingSubscriber();
         Assert.assertEquals(metrics, longBowWriter.getTelemetry());
@@ -221,7 +225,7 @@ public class LongbowWriterTest {
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
-                longBowStore, putRequestFactory, tableId);
+                longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(longBowWriter);
@@ -233,7 +237,7 @@ public class LongbowWriterTest {
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
-                longBowStore, putRequestFactory, tableId);
+                longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.close();
         verify(longBowStore, times(1)).close();
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);

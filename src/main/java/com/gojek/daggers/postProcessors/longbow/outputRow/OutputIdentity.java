@@ -2,11 +2,9 @@ package com.gojek.daggers.postProcessors.longbow.outputRow;
 
 import org.apache.flink.types.Row;
 
-import java.util.Map;
-
-public class OutputIdentity implements OutputRow {
+public class OutputIdentity implements WriterOutputRow {
     @Override
-    public Row get(Map<String, Object> scanResult, Row input) {
+    public Row get(Row input) {
         return input;
     }
 }
