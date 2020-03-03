@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.longbow.request;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowRange;
+import com.gojek.daggers.postProcessors.longbow.range.LongbowRange;
 import com.gojek.daggers.postProcessors.longbow.storage.ScanRequest;
 import org.apache.flink.types.Row;
 

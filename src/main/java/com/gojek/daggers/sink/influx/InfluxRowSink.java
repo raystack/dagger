@@ -79,7 +79,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
 
     @Override
     public void invoke(Row row, Context context) throws Exception {
-        LOGGER.info("row to influx: " + row);
+        LOGGER.info("range to influx: " + row);
         Point.Builder pointBuilder = Point.measurement(measurementName);
         Map<String, Object> fields = new HashMap<>();
         for (int i = 0; i < columnNames.length; i++) {
