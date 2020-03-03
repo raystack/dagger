@@ -32,14 +32,14 @@ public class OutputLongbowDataTest {
 
     @Test
     public void shouldCreateRowWithSameArity() {
-        OutputLongbowData outputLongbowData = new OutputLongbowData(longbowSchema);
+        ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(longbowSchema);
         Row output = outputLongbowData.get(scanResult, input);
         assertEquals(2, output.getArity());
     }
 
     @Test
     public void shouldReplaceLongbowDataWithScanResult() {
-        OutputLongbowData outputLongbowData = new OutputLongbowData(longbowSchema);
+        ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(longbowSchema);
         Row output = outputLongbowData.get(scanResult, input);
         assertEquals(orderNumbers, output.getField(0));
         assertEquals("driver#123", output.getField(1));
@@ -49,7 +49,7 @@ public class OutputLongbowDataTest {
     public void shouldHandleMultipleLongbowData() {
         String[] columnNames = {"longbow_data1", "longbow_data2", "longbow_key"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        OutputLongbowData outputLongbowData = new OutputLongbowData(longbowSchema);
+        ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(longbowSchema);
         String[] customerIds= new String[]{"123"};
         scanResult.put("longbow_data2", customerIds);
 
@@ -67,7 +67,7 @@ public class OutputLongbowDataTest {
     public void shouldPopulateOutputWithAllTheInputFieldsWhenResultIsEmpty() {
         String[] columnNames = {"longbow_data1", "longbow_data2", "longbow_key"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        OutputLongbowData outputLongbowData = new OutputLongbowData(longbowSchema);
+        ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(longbowSchema);
         scanResult.put("longbow_data2", new ArrayList<>());
 
         input = new Row(3);

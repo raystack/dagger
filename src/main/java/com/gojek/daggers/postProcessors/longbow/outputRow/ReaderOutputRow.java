@@ -4,6 +4,6 @@ import org.apache.flink.types.Row;
 
 import java.util.Map;
 
-public interface OutputRow {
+public interface ReaderOutputRow {
     Row get(Map<String, Object> scanResult, Row input);
 }
