@@ -12,8 +12,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
+import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 
-public class LongbowTableData implements LongbowData, Serializable {
+public class LongbowTableData implements LongbowData {
 
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private LongbowSchema longbowSchema;
