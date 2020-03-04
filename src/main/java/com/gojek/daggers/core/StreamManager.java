@@ -119,6 +119,7 @@ public class StreamManager {
         aggregateFunctions.put("DistinctCount", new DistinctCount());
         aggregateFunctions.put("DistinctByCurrentStatus", new DistinctByCurrentStatus());
         aggregateFunctions.put("Features", new Features());
+        aggregateFunctions.put("FeaturesWithType", new FeaturesWithType());
         aggregateFunctions.put("ConcurrentTransactions", new ConcurrentTransactions(7200));
         aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
         aggregateFunctions.put("CollectArray", new CollectArray());
