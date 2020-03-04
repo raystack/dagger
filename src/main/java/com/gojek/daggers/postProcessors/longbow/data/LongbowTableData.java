@@ -26,10 +26,11 @@ public class LongbowTableData implements LongbowData {
     @Override
     public Map<String, List<String>> parse(List<Result> scanResult) {
         Map<String, List<String>> longbowData = new HashMap<>();
+        List<String> longbowDataColumnNames = longbowSchema.getColumnNames(c -> c.getKey().contains(LONGBOW_DATA));
         if (scanResult.isEmpty()) {
-            longbowSchema.getColumnNames().forEach(name -> longbowData.put(name, new ArrayList<>()));
+            longbowDataColumnNames.forEach(name -> longbowData.put(name, new ArrayList<>()));
         } else {
-            longbowSchema.getColumnNames().forEach(name -> longbowData.put(name, getData(scanResult, name)));
+            longbowDataColumnNames.forEach(name -> longbowData.put(name, getData(scanResult, name)));
         }
         return longbowData;
     }
