@@ -10,6 +10,7 @@ import org.apache.flink.configuration.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.gojek.daggers.utils.Constants.*;
 
@@ -18,7 +19,7 @@ public class PostProcessorFactory {
     public static List<PostProcessor> getPostProcessors(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, String[] columnNames, MetricsTelemetryExporter metricsTelemetryExporter) {
         List<PostProcessor> postProcessors = new ArrayList<>();
 
-        if (configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT).contains(LONGBOW_DAGGER_IDENTIFIER))
+        if (Pattern.compile(".*\\blongbow.*key\\b.*").matcher(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).find())
             postProcessors.add(getLongBowProcessor(columnNames, configuration, metricsTelemetryExporter, stencilClientOrchestrator));
         if (configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT))
             postProcessors.add(new ParentPostProcessor(parsePostProcessorConfig(configuration), configuration, stencilClientOrchestrator, metricsTelemetryExporter));
