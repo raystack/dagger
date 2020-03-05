@@ -11,17 +11,15 @@ public class PutRequestFactory implements Serializable {
 
     private LongbowSchema longbowSchema;
     private ProtoSerializer protoSerializer;
-    private String tableId;
 
-    public PutRequestFactory(LongbowSchema longbowSchema, ProtoSerializer protoSerializer, String tableId) {
+    public PutRequestFactory(LongbowSchema longbowSchema, ProtoSerializer protoSerializer) {
         this.longbowSchema = longbowSchema;
         this.protoSerializer = protoSerializer;
-        this.tableId = tableId;
     }
 
     public PutRequest create(Row input) {
-        if (!longbowSchema.isLongbowPlus()) {
-            return new TablePutRequest(longbowSchema, input, tableId);
-        } else return new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
+        if (longbowSchema.hasLongbowData()) {
+            return new TablePutRequest(longbowSchema, input);
+        } else return new ProtoBytePutRequest(longbowSchema, input, protoSerializer);
     }
 }
