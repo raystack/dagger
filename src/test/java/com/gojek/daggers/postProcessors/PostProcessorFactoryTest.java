@@ -55,7 +55,7 @@ public class PostProcessorFactoryTest {
     public void shouldReturnLongbowProcessor() {
         columnNames = new String[]{"longbow_key", "longbow_data", "event_timestamp", "rowtime", "longbow_duration"};
         when(configuration.getBoolean(ASYNC_IO_ENABLED_KEY, ASYNC_IO_ENABLED_DEFAULT)).thenReturn(false);
-        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("longbow_key");
+        when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("select a as `longbow_key` from l");
         when(configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)).thenReturn(false);
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
 
