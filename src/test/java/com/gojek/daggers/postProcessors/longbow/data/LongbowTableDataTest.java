@@ -69,17 +69,4 @@ public class LongbowTableDataTest {
         Assert.assertEquals(Arrays.asList("RB-234", "RB-224"), actualData.get("longbow_data1"));
         Assert.assertEquals(Arrays.asList("RB-235", "RB-225"), actualData.get("longbow_data2"));
     }
-
-    @Test
-    public void shouldOnlyReturnLongbowDataColumn() {
-        List<Result> scanResult = new ArrayList<>();
-        scanResult.add(result1);
-        scanResult.add(result2);
-        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-
-        LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
-        Map<String, List<String>> actualData = longbowTableData.parse(scanResult);
-        Assert.assertEquals(2, actualData.size());
-    }
 }
