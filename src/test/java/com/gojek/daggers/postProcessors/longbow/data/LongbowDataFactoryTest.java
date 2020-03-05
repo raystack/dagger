@@ -20,16 +20,16 @@ public class LongbowDataFactoryTest {
     }
 
     @Test
-    public void shouldReturnLongbowTableDataWhenTypeIsNotLongbowPlus() {
-        when(longbowSchema.isLongbowPlus()).thenReturn(false);
+    public void shouldReturnLongbowTableDataWhenLongbowSchemaHasLongbowData() {
+        when(longbowSchema.hasLongbowData()).thenReturn(true);
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowData longbowData = longbowDataFactory.getLongbowData();
         Assert.assertEquals(LongbowTableData.class, longbowData.getClass());
     }
 
     @Test
-    public void shouldReturnLongbowProtoDataWhenTypeIsLongbowPlus() {
-        when(longbowSchema.isLongbowPlus()).thenReturn(true);
+    public void shouldReturnLongbowProtoDataWhenLongbowSchemaDontHaveLongbowData() {
+        when(longbowSchema.hasLongbowData()).thenReturn(false);
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowData longbowData = longbowDataFactory.getLongbowData();
         Assert.assertEquals(LongbowProtoData.class, longbowData.getClass());

@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.range;
+package com.gojek.daggers.postProcessors.longbow.row;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class LongbowDurationRangeTest {
+public class LongbowDurationRowTest {
 
     @Mock
     private LongbowSchema longbowSchema;
@@ -21,27 +21,27 @@ public class LongbowDurationRangeTest {
     }
 
     @Test
-    public void shouldReturnUpperBound() {
-        LongbowDurationRange longbowDurationRow = new LongbowDurationRange(longbowSchema);
+    public void shouldReturnLatestRow() {
+        LongbowDurationRow longbowDurationRow = new LongbowDurationRow(longbowSchema);
         Row input = new Row(1);
-        longbowDurationRow.getUpperBound(input);
+        longbowDurationRow.getLatest(input);
 
         verify(longbowSchema, times(1)).getKey(input, 0);
     }
 
     @Test
-    public void shouldReturnLowerBound() {
+    public void shouldReturnEarliestRow() {
         Row input = new Row(1);
         when(longbowSchema.getDurationInMillis(input)).thenReturn(100L);
-        LongbowDurationRange longbowDurationRow = new LongbowDurationRange(longbowSchema);
-        longbowDurationRow.getLowerBound(input);
+        LongbowDurationRow longbowDurationRow = new LongbowDurationRow(longbowSchema);
+        longbowDurationRow.getEarliest(input);
 
         verify(longbowSchema, times(1)).getKey(input, 100L);
     }
 
     @Test
     public void shouldReturnInvalidFields() {
-        LongbowDurationRange longbowDurationRow = new LongbowDurationRange(longbowSchema);
+        LongbowDurationRow longbowDurationRow = new LongbowDurationRow(longbowSchema);
         Assert.assertArrayEquals(longbowDurationRow.getInvalidFields(), new String[]{"longbow_earliest", "longbow_latest"});
     }
 

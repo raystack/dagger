@@ -5,7 +5,6 @@ import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -14,17 +13,14 @@ import java.util.concurrent.TimeUnit;
 
 import static com.gojek.daggers.utils.Constants.*;
 
-public class LongbowProcessor implements PostProcessor {
+public class LongbowReadProcessor implements PostProcessor {
+    private final LongbowReader longbowReader;
+    private final AsyncProcessor asyncProcessor;
+    private final Configuration configuration;
 
-    private AsyncProcessor asyncProcessor;
-    private LongbowWriter longbowWriter;
-    private LongbowReader longbowReader;
-    private Configuration configuration;
-
-    public LongbowProcessor(LongbowWriter longbowWriter, LongbowReader longbowReader, AsyncProcessor asyncProcessor, Configuration configuration) {
-        this.asyncProcessor = asyncProcessor;
-        this.longbowWriter = longbowWriter;
+    public LongbowReadProcessor(LongbowReader longbowReader, AsyncProcessor asyncProcessor, Configuration configuration) {
         this.longbowReader = longbowReader;
+        this.asyncProcessor = asyncProcessor;
         this.configuration = configuration;
     }
 
@@ -33,9 +29,8 @@ public class LongbowProcessor implements PostProcessor {
         DataStream<Row> inputStream = streamInfo.getDataStream();
         long longbowAsyncTimeout = configuration.getLong(LONGBOW_ASYNC_TIMEOUT_KEY, LONGBOW_ASYNC_TIMEOUT_DEFAULT);
         Integer longbowThreadCapacity = configuration.getInteger(LONGBOW_THREAD_CAPACITY_KEY, LONGBOW_THREAD_CAPACITY_DEFAULT);
-        DataStream<Row> writeStream = asyncProcessor.orderedWait(inputStream, longbowWriter, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
-        DataStream<Row> readStream = asyncProcessor.orderedWait(writeStream, longbowReader, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
-        return new StreamInfo(readStream, streamInfo.getColumnNames());
+        DataStream<Row> outputStream = asyncProcessor.orderedWait(inputStream, longbowReader, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);
+        return new StreamInfo(outputStream, streamInfo.getColumnNames());
     }
 
     @Override
