@@ -53,10 +53,6 @@ public class Constants {
     public static final int MAX_PARALLELISM_DEFAULT = 50;
     public static final String MAX_PARALLELISM_KEY = "MAX_PARALLELISM";
 
-    public final static String SYNCHRONIZER_BIGTABLE_TABLE_ID_KEY = "bigtable_table_id";
-    public final static String SYNCHRONIZER_INPUT_CLASSNAME_KEY = "input_class_name";
-    public final static String SYNCHRONIZER_LONGBOWREAD_KEY = "longbow_read_key";
-
     public final static String PORTAL_VERSION = "PORTAL_VERSION";
     public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
     public final static String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";

@@ -12,9 +12,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.threeten.bp.Duration;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gojek.daggers.utils.Constants.*;
@@ -23,47 +21,56 @@ import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
-    private Map<String, AsyncTable<AdvancedScanResultConsumer>> tables;
+    private String daggerID;
+    private AsyncTable<AdvancedScanResultConsumer> table;
 
-    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
+    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient, String daggerID) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
-        this.tables = new HashMap<>();
-    }
-
-    private AsyncTable<AdvancedScanResultConsumer> getTable(String tableId) {
-        if (!tables.containsKey(tableId)) {
-            tables.put(tableId, tableClient.getTable(TableName.valueOf(tableId)));
-        }
-        return tables.get(tableId);
+        this.daggerID = daggerID;
     }
 
     public static LongbowStore create(Configuration configuration) throws IOException {
         String gcpProjectID = configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT);
         String gcpInstanceID = configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT);
+        String daggerID = configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT);
+        String tableID = configuration.getString(LONGBOW_GCP_TABLE_ID_KEY, daggerID);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);
-        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection);
+        return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection, tableID);
     }
 
-    public boolean tableExists(String tableId) {
-        return adminClient.exists(tableId);
+    public boolean tableExists() {
+        return adminClient.exists(daggerID);
     }
 
-    public void createTable(Duration maxAgeDuration, String columnFamilyName, String tableId) throws Exception {
-        adminClient.createTable(CreateTableRequest.of(tableId).addFamily(columnFamilyName,
+    public String tableName() {
+        return daggerID;
+    }
+
+    public void createTable(Duration maxAgeDuration, String columnFamilyName) throws Exception {
+        adminClient.createTable(CreateTableRequest.of(daggerID).addFamily(columnFamilyName,
                 GCRULES.union()
                         .rule(GCRULES.maxVersions(1))
                         .rule(GCRULES.maxAge(maxAgeDuration))));
     }
 
+    public void initialize() {
+        TableName tableName = TableName.valueOf(daggerID);
+        table = tableClient.getTable(tableName);
+    }
+
     public CompletableFuture<Void> put(PutRequest putRequest) {
-        return getTable(putRequest.getTableId()).put(putRequest.get());
+        if (table == null)
+            initialize();
+        return table.put(putRequest.get());
     }
 
     public CompletableFuture<List<Result>> scanAll(ScanRequest scanRequest) {
-        return getTable(scanRequest.getTableId()).scanAll(scanRequest.get());
+        if (table == null)
+            initialize();
+        return table.scanAll(scanRequest.get());
     }
 
     public void close() throws IOException {

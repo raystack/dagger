@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 import static com.gojek.daggers.utils.Constants.*;
 
 /**
- * Create PutRequest in form of table. LONGBOW_KEY as range key,
+ * Create PutRequest in form of table. LONGBOW_KEY as row key,
  * LONGBOW_COLUMN_NAME as qualifier, and LONGBOW_DATA as value.
  */
 public class TablePutRequest implements PutRequest {
@@ -20,12 +20,10 @@ public class TablePutRequest implements PutRequest {
 
     private LongbowSchema longbowSchema;
     private Row input;
-    private String tableId;
 
-    public TablePutRequest(LongbowSchema longbowSchema, Row input, String tableId) {
+    public TablePutRequest(LongbowSchema longbowSchema, Row input) {
         this.longbowSchema = longbowSchema;
         this.input = input;
-        this.tableId = tableId;
     }
 
     @Override
@@ -36,10 +34,5 @@ public class TablePutRequest implements PutRequest {
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(),
                         Bytes.toBytes((String) longbowSchema.getValue(input, column))));
         return putRequest;
-    }
-
-    @Override
-    public String getTableId() {
-        return this.tableId;
     }
 }

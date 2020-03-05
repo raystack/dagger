@@ -11,6 +11,4 @@ public interface ScanRequest {
         scan.withStopRow(stopRow, true);
         return scan;
     }
-
-    String getTableId();
 }

@@ -12,7 +12,6 @@ public class ProtoByteScanRequestTest {
 
     private byte[] startRow;
     private byte[] endRow;
-    private String tableId = "tableId";
 
     @Before
     public void setup() {
@@ -23,7 +22,7 @@ public class ProtoByteScanRequestTest {
 
     @Test
     public void shouldCreateProtoScanRequest() {
-        ProtoByteScanRequest protoByteScanRequest = new ProtoByteScanRequest(startRow, endRow, tableId);
+        ProtoByteScanRequest protoByteScanRequest = new ProtoByteScanRequest(startRow, endRow);
         Scan expectedScan = new Scan();
         expectedScan.withStartRow(startRow, true);
         expectedScan.withStopRow(endRow, true);

@@ -1,8 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
-import com.gojek.daggers.exception.DaggerConfigurationException;
 import com.gojek.daggers.exception.InvalidLongbowDurationException;
-import com.gojek.daggers.postProcessors.longbow.validator.LongbowType;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
@@ -131,40 +129,6 @@ public class LongbowSchemaTest {
         Assert.assertEquals(longBowSchema.contains("longbow_earliest"), false);
     }
 
-    @Test
-    public void shouldReturnTypeBasedOnColumnNames() {
-        String[] firstColumnNames = {"longbow_read_key"};
-        LongbowSchema firstLongBowSchema = new LongbowSchema(firstColumnNames);
-
-        String[] secondColumnNames = {"longbow_write_key"};
-        LongbowSchema secondLongBowSchema = new LongbowSchema(secondColumnNames);
-
-        String[] thirdColumnNames = {"longbow_key"};
-        LongbowSchema thirdLongbowSchema = new LongbowSchema(thirdColumnNames);
-        Assert.assertEquals(firstLongBowSchema.getType(), LongbowType.LongbowRead);
-        Assert.assertEquals(secondLongBowSchema.getType(), LongbowType.LongbowWrite);
-        Assert.assertEquals(thirdLongbowSchema.getType(), LongbowType.LongbowProcess);
-    }
-
-    @Test
-    public void shouldThrowErrorIfNotIdentifyLongbowSchema() {
-        String[] columnNames = {"test_key"};
-        longBowSchema = new LongbowSchema(columnNames);
-
-        expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Unable to identify LongbowProcessor. Provide either " +
-                LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
-        longBowSchema.getType();
-    }
-
-    @Test
-    public void shouldDistinguishLongbowPlus() {
-        String[] columnNames = {"longbow_key"};
-
-        longBowSchema = new LongbowSchema(columnNames);
-        Assert.assertFalse(longBowSchema.isLongbowPlus());
-    }
-
     private Row getRow(Object... dataList) {
         Row input = new Row(dataList.length);
         for (int i = 0; i < dataList.length; i++) {
@@ -172,4 +136,6 @@ public class LongbowSchemaTest {
         }
         return input;
     }
+
+
 }

@@ -7,7 +7,6 @@ import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import com.gojek.daggers.postProcessors.longbow.exceptions.LongbowWriterException;
-import com.gojek.daggers.postProcessors.longbow.outputRow.WriterOutputRow;
 import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
 import com.gojek.daggers.postProcessors.longbow.storage.LongbowStore;
 import com.gojek.daggers.postProcessors.longbow.storage.PutRequest;
@@ -39,25 +38,21 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private LongbowSchema longbowSchema;
     private String longbowDocumentDuration;
     private PutRequestFactory putRequestFactory;
-    private String tableId;
-    private WriterOutputRow writerOutputRow;
     private LongbowStore longBowStore;
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
 
-    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
+    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory) {
         this.configuration = configuration;
         this.longbowSchema = longbowSchema;
         this.longbowDocumentDuration = configuration.getString(LONGBOW_DOCUMENT_DURATION,
                 LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
-        this.tableId = tableId;
-        this.writerOutputRow = writerOutputRow;
     }
 
     LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
-                  ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
-        this(configuration, longBowSchema, putRequestFactory, tableId, writerOutputRow);
+                  ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory) {
+        this(configuration, longBowSchema, putRequestFactory);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
         this.errorReporter = errorReporter;
@@ -77,19 +72,19 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
             errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
 
-        if (!longBowStore.tableExists(tableId)) {
+        if (!longBowStore.tableExists()) {
             Instant startTime = Instant.now();
             try {
                 Duration maxAgeDuration = Duration.ofMillis(longbowSchema.getDurationInMillis(longbowDocumentDuration));
                 String columnFamilyName = new String(COLUMN_FAMILY_NAME);
-                longBowStore.createTable(maxAgeDuration, columnFamilyName, tableId);
-                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", tableId,
+                longBowStore.createTable(maxAgeDuration, columnFamilyName);
+                LOGGER.info("table '{}' is created with maxAge '{}' on column family '{}'", longBowStore.tableName(),
                         maxAgeDuration, columnFamilyName);
                 meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE);
                 meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME,
                         between(startTime, Instant.now()).toMillis());
             } catch (Exception ex) {
-                LOGGER.error("failed to create table '{}'", tableId);
+                LOGGER.error("failed to create table '{}'", longBowStore.tableName());
                 meterStatsManager.markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
                 errorReporter.reportFatalException(ex);
                 meterStatsManager.updateHistogram(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE_RESPONSE_TIME,
@@ -97,6 +92,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
                 throw ex;
             }
         }
+        longBowStore.initialize();
     }
 
     @Override
@@ -113,12 +109,12 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
             meterStatsManager.markEvent(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT);
             meterStatsManager.updateHistogram(LongbowWriterAspects.SUCCESS_ON_WRITE_DOCUMENT_RESPONSE_TIME,
                     between(startTime, Instant.now()).toMillis());
-            resultFuture.complete(Collections.singletonList(writerOutputRow.get(input)));
+            resultFuture.complete(Collections.singleton(input));
         });
     }
 
     private Void logException(Throwable ex, Instant startTime) {
-        LOGGER.error("failed to write document to table '{}'", tableId);
+        LOGGER.error("failed to write document to table '{}'", longBowStore.tableName());
         ex.printStackTrace();
         meterStatsManager.markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
         errorReporter.reportNonFatalException(new LongbowWriterException(ex));

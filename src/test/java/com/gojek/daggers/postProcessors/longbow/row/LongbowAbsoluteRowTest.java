@@ -1,4 +1,4 @@
-package com.gojek.daggers.postProcessors.longbow.range;
+package com.gojek.daggers.postProcessors.longbow.row;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class LongbowAbsoluteRangeTest {
+public class LongbowAbsoluteRowTest {
     @Mock
     private LongbowSchema longbowSchema;
 
@@ -20,28 +20,28 @@ public class LongbowAbsoluteRangeTest {
     }
 
     @Test
-    public void shouldReturnUpperBound() {
+    public void shouldReturnLatestRow() {
         Row input = new Row(1);
         when(longbowSchema.getValue(input, "longbow_latest")).thenReturn(1000L);
-        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
-        longbowAbsoluteRow.getUpperBound(input);
+        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
+        longbowAbsoluteRow.getLatest(input);
 
         verify(longbowSchema, times(1)).getAbsoluteKey(input, 1000L);
     }
 
     @Test
-    public void shouldReturnLowerBound() {
+    public void shouldReturnEarliestRow() {
         Row input = new Row(1);
         when(longbowSchema.getValue(input, "longbow_earliest")).thenReturn(1000L);
-        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
-        longbowAbsoluteRow.getLowerBound(input);
+        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
+        longbowAbsoluteRow.getEarliest(input);
 
         verify(longbowSchema, times(1)).getAbsoluteKey(input, 1000L);
     }
 
     @Test
     public void shouldReturnInvalidFields() {
-        LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
+        LongbowAbsoluteRow longbowAbsoluteRow = new LongbowAbsoluteRow(longbowSchema);
         Assert.assertArrayEquals(longbowAbsoluteRow.getInvalidFields(), new String[]{"longbow_duration"});
     }
 }
