@@ -4,7 +4,6 @@ import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
