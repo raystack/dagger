@@ -98,6 +98,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
     @Override
     public void close() throws Exception {
         httpClient.close();
+        httpClient = null;
         meterStatsManager.markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
         LOGGER.error("HTTP Connector : Connection closed");
     }
