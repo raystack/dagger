@@ -12,11 +12,13 @@ public class ProtoByteScanRequest implements ScanRequest {
     private static final byte[] QUALIFIER_NAME = Bytes.toBytes(LONGBOW_QUALIFIER_DEFAULT);
     private byte[] startRow;
     private byte[] stopRow;
+    private String tableId;
 
 
-    public ProtoByteScanRequest(byte[] startRow, byte[] stopRow) {
+    public ProtoByteScanRequest(byte[] startRow, byte[] stopRow, String tableId) {
         this.startRow = startRow;
         this.stopRow = stopRow;
+        this.tableId = tableId;
     }
 
     @Override
@@ -24,5 +26,10 @@ public class ProtoByteScanRequest implements ScanRequest {
         Scan scan = setScanRange(startRow, stopRow);
         scan.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME);
         return scan;
+    }
+
+    @Override
+    public String getTableId() {
+        return tableId;
     }
 }

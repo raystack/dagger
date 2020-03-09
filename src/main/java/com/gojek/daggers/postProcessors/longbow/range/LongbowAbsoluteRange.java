@@ -1,24 +1,24 @@
-package com.gojek.daggers.postProcessors.longbow.row;
+package com.gojek.daggers.postProcessors.longbow.range;
 
 import com.gojek.daggers.postProcessors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
 
 import static com.gojek.daggers.utils.Constants.*;
 
-public class LongbowAbsoluteRow implements LongbowRow {
+public class LongbowAbsoluteRange implements LongbowRange {
     private LongbowSchema longbowSchema;
 
-    public LongbowAbsoluteRow(LongbowSchema longbowSchema) {
+    public LongbowAbsoluteRange(LongbowSchema longbowSchema) {
         this.longbowSchema = longbowSchema;
     }
 
     @Override
-    public byte[] getLatest(Row input) {
+    public byte[] getUpperBound(Row input) {
         return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, LONGBOW_LATEST));
     }
 
     @Override
-    public byte[] getEarliest(Row input) {
+    public byte[] getLowerBound(Row input) {
         return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, LONGBOW_EARLIEST));
     }
 

@@ -15,11 +15,13 @@ public class TableScanRequest implements ScanRequest {
     private byte[] startRow;
     private byte[] stopRow;
     private LongbowSchema longbowSchema;
+    private String tableId;
 
-    public TableScanRequest(byte[] startRow, byte[] stopRow, LongbowSchema longbowSchema) {
+    public TableScanRequest(byte[] startRow, byte[] stopRow, LongbowSchema longbowSchema, String tableId) {
         this.startRow = startRow;
         this.stopRow = stopRow;
         this.longbowSchema = longbowSchema;
+        this.tableId = tableId;
     }
 
     @Override
@@ -30,6 +32,11 @@ public class TableScanRequest implements ScanRequest {
                 .forEach(column -> scan.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column)));
 
         return scan;
+    }
+
+    @Override
+    public String getTableId() {
+        return tableId;
     }
 
     private boolean isLongbowData(Map.Entry<String, Integer> c) {
