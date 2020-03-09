@@ -12,8 +12,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.gojek.daggers.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
+import static com.gojek.daggers.utils.Constants.LONGBOW_DATA;
 
-public class LongbowTableData implements LongbowData, Serializable {
+public class LongbowTableData implements LongbowData {
 
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(LONGBOW_COLUMN_FAMILY_DEFAULT);
     private LongbowSchema longbowSchema;
@@ -25,10 +26,11 @@ public class LongbowTableData implements LongbowData, Serializable {
     @Override
     public Map<String, List<String>> parse(List<Result> scanResult) {
         Map<String, List<String>> longbowData = new HashMap<>();
+        List<String> longbowDataColumnNames = longbowSchema.getColumnNames(c -> c.getKey().contains(LONGBOW_DATA));
         if (scanResult.isEmpty()) {
-            longbowSchema.getColumnNames().forEach(name -> longbowData.put(name, new ArrayList<>()));
+            longbowDataColumnNames.forEach(name -> longbowData.put(name, new ArrayList<>()));
         } else {
-            longbowSchema.getColumnNames().forEach(name -> longbowData.put(name, getData(scanResult, name)));
+            longbowDataColumnNames.forEach(name -> longbowData.put(name, getData(scanResult, name)));
         }
         return longbowData;
     }
