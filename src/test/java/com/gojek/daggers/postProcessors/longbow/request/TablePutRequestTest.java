@@ -18,10 +18,12 @@ public class TablePutRequestTest {
     private final String longbowDuration = "1d";
     private final String longbowKey = "rule123#driver444";
     private final Timestamp longbowRowtime = new Timestamp(1558498933);
+    private String tableId;
 
     @Before
     public void setup() {
         initMocks(this.getClass());
+        tableId = "test_tableId";
     }
 
     @Test
@@ -34,7 +36,7 @@ public class TablePutRequestTest {
         input.setField(3, longbowRowtime);
 
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input);
+        final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input, tableId);
         final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
                 Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
 
@@ -55,7 +57,7 @@ public class TablePutRequestTest {
         input.setField(4, longbowData2);
 
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input);
+        final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input, tableId);
         final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
                 Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
                 .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(),

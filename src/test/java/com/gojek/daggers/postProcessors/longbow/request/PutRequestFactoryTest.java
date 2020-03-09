@@ -23,23 +23,26 @@ public class PutRequestFactoryTest {
     @Mock
     private Row row;
 
+    private String tableId;
+
     @Before
     public void setup() {
         initMocks(this);
+        tableId = "test_tableId";
     }
 
     @Test
-    public void shouldCreateTablePutRequestWhenLongbowSchemaHasLongbowData() {
-        when(longbowSchema.hasLongbowData()).thenReturn(true);
-        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer);
+    public void shouldCreateTablePutRequestWhenLongbowTypeIsNotLongbowPlus() {
+        when(longbowSchema.isLongbowPlus()).thenReturn(false);
+        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
         PutRequest putRequest = putRequestFactory.create(row);
         Assert.assertEquals(putRequest.getClass(), TablePutRequest.class);
     }
 
     @Test
-    public void shouldCreateProtoPutRequestWhenLongbowSchemaHasLongbowData() {
-        when(longbowSchema.hasLongbowData()).thenReturn(false);
-        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer);
+    public void shouldCreateProtoPutRequestWhenLongbowTypeIsLongbowPlus() {
+        when(longbowSchema.isLongbowPlus()).thenReturn(true);
+        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
         PutRequest putRequest = putRequestFactory.create(row);
         Assert.assertEquals(ProtoBytePutRequest.class, putRequest.getClass());
     }

@@ -2,25 +2,18 @@ package com.gojek.daggers.postProcessors.longbow;
 
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
-import com.gojek.daggers.postProcessors.longbow.data.LongbowData;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowReader;
-import com.gojek.daggers.postProcessors.longbow.processor.LongbowWriter;
-import com.gojek.daggers.postProcessors.longbow.request.PutRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.request.ScanRequestFactory;
-import com.gojek.daggers.postProcessors.longbow.row.LongbowDurationRow;
-import com.gojek.daggers.sink.ProtoSerializer;
-import com.gojek.daggers.utils.Constants;
+import com.gojek.daggers.postProcessors.longbow.columnModifier.ColumnModifier;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.*;
@@ -38,44 +31,24 @@ public class LongbowProcessorTest {
     private AsyncProcessor asyncProcessor;
 
     @Mock
-    private LongbowDurationRow longbowDurationRow;
-
-    @Mock
-    private ProtoSerializer protoSerializer;
-
-    @Mock
-    private LongbowData longbowData;
-
-    @Mock
-    private ScanRequestFactory scanRequestFactory;
-
-    private PutRequestFactory putRequestFactory;
+    private ColumnModifier columnModifier;
 
     @Before
     public void setup() {
         initMocks(this);
-        when(dataStream.getExecutionEnvironment()).thenReturn(mock(StreamExecutionEnvironment.class));
-        when(longbowDurationRow.getInvalidFields()).thenReturn(new String[]{"longbow_earliest", "longbow_latest"});
     }
 
     @Test
-    public void shouldChainFunctionsWhenAllFieldsPresentInQuery() {
-        String[] columnNames = {"rowtime", "longbow_key", "longbow_duration", "event_timestamp"};
-        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer);
-        LongbowWriter longbowWriter = new LongbowWriter(configuration, longBowSchema, putRequestFactory);
-        LongbowReader longbowReader = new LongbowReader(configuration, longBowSchema, longbowDurationRow, longbowData, scanRequestFactory);
-        DataStream<Row> writerStream = mock(DataStream.class);
-        DataStream<Row> readerStream = mock(DataStream.class);
-        when(configuration.getLong(Constants.LONGBOW_ASYNC_TIMEOUT_KEY, Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT)).thenReturn(Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT);
-        when(configuration.getInteger(Constants.LONGBOW_THREAD_CAPACITY_KEY, Constants.LONGBOW_THREAD_CAPACITY_DEFAULT)).thenReturn(Constants.LONGBOW_THREAD_CAPACITY_DEFAULT);
-        when(asyncProcessor.orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30)).thenReturn(writerStream);
-        when(asyncProcessor.orderedWait(writerStream, longbowReader, 15000, TimeUnit.MILLISECONDS, 30)).thenReturn(readerStream);
-        LongbowProcessor longBowProcessor = new LongbowProcessor(longbowWriter, longbowReader, asyncProcessor, configuration);
-
-        longBowProcessor.process(new StreamInfo(dataStream, columnNames));
-
-        Mockito.verify(asyncProcessor, times(1)).orderedWait(dataStream, longbowWriter, 15000, TimeUnit.MILLISECONDS, 30);
-        Mockito.verify(asyncProcessor, times(1)).orderedWait(writerStream, longbowReader, 15000, TimeUnit.MILLISECONDS, 30);
+    public void shouldChainRichAsyncFunctions() {
+        String[] columnNames = {"rowtime", "longbow_key", "event_timestamp"};
+        RichAsyncFunction asyncFunction1 = mock(RichAsyncFunction.class);
+        RichAsyncFunction asyncFunction2 = mock(RichAsyncFunction.class);
+        ArrayList<RichAsyncFunction<Row, Row>> richAsyncFunctions = new ArrayList<>();
+        richAsyncFunctions.add(asyncFunction1);
+        richAsyncFunctions.add(asyncFunction2);
+        LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnModifier);
+        longbowProcessor.process(new StreamInfo(dataStream, columnNames));
+        verify(asyncProcessor, times(2))
+                .orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
     }
 }
