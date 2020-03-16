@@ -66,6 +66,10 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
         this.errorReporter = errorReporter;
     }
 
+    AsyncHttpClient getHttpClient() {
+        return httpClient;
+    }
+
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
