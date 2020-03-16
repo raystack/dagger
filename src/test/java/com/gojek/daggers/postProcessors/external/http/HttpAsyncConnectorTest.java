@@ -99,6 +99,25 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
+    public void shouldMakeHttpClientNullAfterClose() throws Exception {
+
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+
+        httpAsyncConnector.close();
+
+        verify(httpClient, times(1)).close();
+        verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_HTTP_CLIENT);
+        Assert.assertNull(httpAsyncConnector.getHttpClient());
+    }
+
+    @Test
+    public void shouldReturnHttpClient() {
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        AsyncHttpClient returnedHttpClient = httpAsyncConnector.getHttpClient();
+        Assert.assertEquals(httpClient, returnedHttpClient);
+    }
+
+    @Test
     public void shouldRegisterStatsManagerInOpen() throws Exception {
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
