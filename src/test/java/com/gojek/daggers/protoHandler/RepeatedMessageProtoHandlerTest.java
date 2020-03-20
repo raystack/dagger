@@ -87,6 +87,37 @@ public class RepeatedMessageProtoHandlerTest {
     }
 
     @Test
+    public void shouldSetTheFieldsPassedInTheBuilderForRepeatedMessageFieldTypeDescriptorIfInputIsList() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
+        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedMessageFieldDescriptor.getContainingType());
+
+        Row inputRow1 = new Row(9);
+        inputRow1.setField(0, 123L);
+        inputRow1.setField(2, "pizza");
+
+        Row inputRow2 = new Row(9);
+        inputRow2.setField(0, 456L);
+        inputRow2.setField(5, "test_id");
+
+        ArrayList<Row> inputRows = new ArrayList<>();
+        inputRows.add(inputRow1);
+        inputRows.add(inputRow2);
+
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows);
+
+        List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
+
+        GoFoodShoppingItem returnedShoppingItem1 = GoFoodShoppingItem.parseFrom(returnedShoppingItems.get(0).toByteArray());
+        GoFoodShoppingItem returnedShoppingItem2 = GoFoodShoppingItem.parseFrom(returnedShoppingItems.get(1).toByteArray());
+
+        assertEquals(123L, returnedShoppingItem1.getId());
+        assertEquals("pizza", returnedShoppingItem1.getName());
+        assertEquals(456L, returnedShoppingItem2.getId());
+        assertEquals("test_id", returnedShoppingItem2.getPromoId());
+    }
+
+    @Test
     public void shouldSetTheFieldsNotPassedInTheBuilderForRepeatedMessageFieldTypeDescriptorToDefaults() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
