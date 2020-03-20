@@ -3,6 +3,7 @@ package com.gojek.daggers.source;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerDeserializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -66,6 +67,8 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
                 if (field.isRepeated()) {
                     if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.STRING) {
                         row.setField(field.getIndex(), getRowForStringList((List<String>) proto.getField(field)));
+                    } else if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.BYTE_STRING) {
+                        row.setField(field.getIndex(), getRowForByteString((List<ByteString>) proto.getField(field)));
                     }
                 } else {
                     row.setField(field.getIndex(), proto.getField(field));
@@ -110,6 +113,13 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         return list;
     }
 
+    private ByteString[] getRowForByteString(List<ByteString> listField) {
+        ByteString[] byteStrings = new ByteString[listField.size()];
+        for (int listIndex = 0; listIndex < listField.size(); listIndex++) {
+            byteStrings[listIndex] = listField.get(listIndex);
+        }
+        return byteStrings;
+    }
 
     @Override
     public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {

@@ -30,18 +30,27 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
             return builder;
         }
 
-        Object[] rowElements = (Object[]) field;
         ArrayList<DynamicMessage> messages = new ArrayList<>();
-
         List<FieldDescriptor> nestedFieldDescriptors = fieldDescriptor.getMessageType().getFields();
 
-        for (Object row : rowElements) {
-            Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-            handleNestedField(elementBuilder, nestedFieldDescriptors, (Row) row);
-            messages.add(elementBuilder.build());
+        if (field instanceof ArrayList) {
+            ArrayList<Object> rowElements = (ArrayList<Object>) field;
+            for (Object row : rowElements) {
+                messages.add(getNestedDynamicMessage(nestedFieldDescriptors, (Row) row));
+            }
+        } else {
+            Object[] rowElements = (Object[]) field;
+            for (Object row : rowElements) {
+                messages.add(getNestedDynamicMessage(nestedFieldDescriptors, (Row) row));
+            }
         }
-
         return builder.setField(fieldDescriptor, messages);
+    }
+
+    private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {
+        Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
+        handleNestedField(elementBuilder, nestedFieldDescriptors, row);
+        return elementBuilder.build();
     }
 
     @Override
