@@ -88,6 +88,7 @@ public class StreamManager {
         scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(),
                 configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
                 configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT), configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)));
+        scalarFunctions.put("SelectFields", new SelectFields(true, getStencilUrls()));
         scalarFunctions.put("ServiceArea", new ServiceArea());
         scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
         scalarFunctions.put("Distance", new Distance());
