@@ -2,6 +2,7 @@ package com.gojek.daggers.source;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -14,6 +15,8 @@ import java.util.*;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
 public class ProtoType implements Serializable {
+    private static final TypeInformation<ByteString> byteString = TypeInformation.of(ByteString.class);
+
     private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>() {{
         put(JavaType.STRING, Types.STRING());
         put(JavaType.BOOLEAN, Types.BOOLEAN());
@@ -23,7 +26,7 @@ public class ProtoType implements Serializable {
         put(JavaType.ENUM, Types.STRING());
         put(JavaType.INT, Types.INT());
         put(JavaType.FLOAT, Types.FLOAT());
-        put(JavaType.BYTE_STRING, Types.STRING());
+        put(JavaType.BYTE_STRING, byteString);
     }};
 
     private transient Descriptor protoFieldDescriptor;
@@ -82,7 +85,8 @@ public class ProtoType implements Serializable {
             return getRowType(fieldDescriptor.getMessageType());
         }
         if (fieldDescriptor.isRepeated()) {
-            if (fieldDescriptor.getJavaType() == JavaType.STRING || fieldDescriptor.getJavaType() == JavaType.ENUM) {
+            if (fieldDescriptor.getJavaType() == JavaType.STRING || fieldDescriptor.getJavaType() == JavaType.ENUM ||
+                    fieldDescriptor.getJavaType() == JavaType.BYTE_STRING) {
                 return Types.OBJECT_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
             }
             return Types.PRIMITIVE_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
