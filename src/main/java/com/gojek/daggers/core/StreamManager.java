@@ -89,6 +89,8 @@ public class StreamManager {
                 configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
                 configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT), configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)));
         scalarFunctions.put("SelectFields", new SelectFields(true, getStencilUrls()));
+        scalarFunctions.put("Filters", new Filters(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls()));
+        scalarFunctions.put("CondEq", new CondEq());
         scalarFunctions.put("ServiceArea", new ServiceArea());
         scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
         scalarFunctions.put("Distance", new Distance());
