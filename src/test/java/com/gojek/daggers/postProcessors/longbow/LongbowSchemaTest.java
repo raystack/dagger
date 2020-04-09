@@ -89,6 +89,13 @@ public class LongbowSchemaTest {
     }
 
     @Test
+    public void shouldGetDurationInMillisForMinutes() {
+        int minutes = 20;
+        Row rowsForMinutes = getRow("driver1", "order1", defaultTimestamp, minutes + "m");
+        assertEquals(minutes * 60 * 1000, longBowSchema.getDurationInMillis(rowsForMinutes));
+    }
+
+    @Test
     public void shouldGetDurationInMillisForHours() {
         int hours = 24;
         Row rowsForHours = getRow("driver1", "order1", defaultTimestamp, hours + "h");
@@ -105,10 +112,10 @@ public class LongbowSchemaTest {
     @Test
     public void shouldThrowExceptionForInvalidTimeUnit() {
         expectedException.expect(InvalidLongbowDurationException.class);
-        expectedException.expectMessage("'15m' is a invalid duration string");
+        expectedException.expectMessage("'15s' is a invalid duration string");
 
-        int months = 15;
-        Row rowsForMonths = getRow("driver1", "order1", defaultTimestamp, months + "m");
+        int seconds = 15;
+        Row rowsForMonths = getRow("driver1", "order1", defaultTimestamp, seconds + "s");
         longBowSchema.getDurationInMillis(rowsForMonths);
     }
 
