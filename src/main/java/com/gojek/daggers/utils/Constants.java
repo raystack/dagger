@@ -46,6 +46,7 @@ public class Constants {
     public final static String DAGGER_NAME_DEFAULT = "SQL Flink Job";
     public final static String EVENT_TIMESTAMP = "event_timestamp";
     public final static String ROWTIME = "rowtime";
+    public final static String MINUTE_UNIT = "m";
     public final static String HOUR_UNIT = "h";
     public final static String DAY_UNIT = "d";
     public final static String SQL_QUERY = "SQL_QUERY";
