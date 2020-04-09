@@ -92,6 +92,7 @@ public class StreamManager {
         scalarFunctions.put("Filters", new Filters(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls()));
         scalarFunctions.put("CondEq", new CondEq());
         scalarFunctions.put("ServiceArea", new ServiceArea());
+        scalarFunctions.put("ArrayAggregate", new ArrayAggregate());
         scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
         scalarFunctions.put("Distance", new Distance());
         scalarFunctions.put("AppBetaUsers", new AppBetaUsers());
