@@ -81,6 +81,8 @@ public class LongbowSchema implements Serializable {
         String durationUnit = durationString.substring(durationString.length() - 1);
         long duration = Long.parseLong(durationString.substring(0, durationString.length() - 1));
         switch (durationUnit) {
+            case MINUTE_UNIT:
+                return TimeUnit.MINUTES.toMillis(duration);
             case HOUR_UNIT:
                 return TimeUnit.HOURS.toMillis(duration);
             case DAY_UNIT:
