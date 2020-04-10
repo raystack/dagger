@@ -13,10 +13,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.types.Row;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.*;
 import static com.gojek.daggers.utils.Constants.OUTPUT_STREAM;
@@ -40,7 +37,6 @@ public class SinkOrchestrator implements TelemetryPublisher {
 
         switch (sinkType) {
             case "kafka":
-                String outputBrokerList = configuration.getString(OUTPUT_KAFKA_BROKER, "");
                 outputTopic = configuration.getString(OUTPUT_KAFKA_TOPIC, "");
                 String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, "");
                 String outputStream = configuration.getString(OUTPUT_STREAM, "");
@@ -53,7 +49,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
 
                 FlinkKafkaProducer010Custom<Row> flinkKafkaProducer = new FlinkKafkaProducer010Custom<Row>(outputTopic,
                         protoSerializer,
-                        FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList),
+                        getProducerProperties(configuration),
                         partitioner,
                         configuration);
                 flinkKafkaProducer.setFlushOnCheckpoint(true);
@@ -86,4 +82,13 @@ public class SinkOrchestrator implements TelemetryPublisher {
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
+    protected Properties getProducerProperties(Configuration configuration) {
+        String outputBrokerList = configuration.getString(OUTPUT_KAFKA_BROKER, "");
+        Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
+        if (configuration.getBoolean(PRODUCE_LARGE_MESSAGE_KEY, PRODUCE_LARGE_MESSAGE_DEFAULT)) {
+            kafkaProducerConfigs.setProperty("compression.type", "snappy");
+            kafkaProducerConfigs.setProperty("max.request.size", "5242880");
+        }
+        return kafkaProducerConfigs;
+    }
 }

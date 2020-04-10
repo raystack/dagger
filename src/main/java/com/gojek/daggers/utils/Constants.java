@@ -97,4 +97,8 @@ public class Constants {
     public static final String REFRESH_CACHE_KEY = "REFRESH_CACHE";
     public static final String REFRESH_CACHE_DEFAULT = "false";
 
+    public static final String PRODUCE_LARGE_MESSAGE_KEY = "PRODUCE_LARGE_MESSAGE";
+    public static final boolean PRODUCE_LARGE_MESSAGE_DEFAULT = false;
+    public static final String CONSUME_LARGE_MESSAGE_KEY = "CONSUME_LARGE_MESSAGE";
+    public static final boolean CONSUME_LARGE_MESSAGE_DEFAULT = false;
 }
