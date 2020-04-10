@@ -83,6 +83,8 @@ public class Streams implements TelemetryPublisher {
                 .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
                 .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
 
+        setAdditionalConfigs(kafkaProps);
+
         FlinkKafkaConsumer011Custom fc = new FlinkKafkaConsumer011Custom(Pattern.compile(topicsForStream),
                 new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
@@ -98,6 +100,12 @@ public class Streams implements TelemetryPublisher {
         }
 
         return fc;
+    }
+
+    private void setAdditionalConfigs(Properties kafkaProps) {
+        if (configuration.getBoolean(CONSUME_LARGE_MESSAGE_KEY, CONSUME_LARGE_MESSAGE_DEFAULT)) {
+            kafkaProps.setProperty("max.partition.fetch.bytes", "5242880");
+        }
     }
 
     private void addTelemetry() {

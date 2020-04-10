@@ -13,9 +13,11 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import static com.gojek.daggers.utils.Constants.*;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -67,6 +69,17 @@ public class SinkOrchestratorTest {
         assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
     }
 
+
+    @Test
+    public void shouldSetKafkaProducerConfigurations() throws Exception {
+        when(configuration.getString(eq(OUTPUT_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
+        when(configuration.getBoolean(eq(PRODUCE_LARGE_MESSAGE_KEY), anyBoolean())).thenReturn(true);
+        Properties producerProperties = sinkOrchestrator.getProducerProperties(configuration);
+
+        assertEquals(producerProperties.getProperty("compression.type"), "snappy");
+        assertEquals(producerProperties.getProperty("max.request.size"), "5242880");
+    }
+
     @Test
     public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
@@ -88,7 +101,6 @@ public class SinkOrchestratorTest {
         HashMap<String, List<String>> expectedMetrics = new HashMap<>();
         expectedMetrics.put("sink_type", sinkType);
 
-//        Configuration configuration = mock(Configuration.class);
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
 
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
