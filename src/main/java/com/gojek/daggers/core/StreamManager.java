@@ -110,7 +110,6 @@ public class StreamManager {
         scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
         scalarFunctions.put("LinearTrend", new LinearTrend());
         scalarFunctions.put("ListContains", new ListContains());
-        scalarFunctions.put("OutlierMad", new OutlierMad());
         return scalarFunctions;
     }
 
@@ -140,6 +139,7 @@ public class StreamManager {
         scalarFunctions.forEach((scalarFunctionName, scalarUDF) -> tableEnvironment.registerFunction(scalarFunctionName, scalarUDF));
         aggregateFunctions.forEach((aggregateFunctionName, aggregateUDF) -> tableEnvironment.registerFunction(aggregateFunctionName, aggregateUDF));
         tableEnvironment.registerFunction("RuleViolatedEventUnnest", new RuleViolatedEventUnnest());
+        tableEnvironment.registerFunction("OutlierMad", new OutlierMad());
         return this;
     }
 
