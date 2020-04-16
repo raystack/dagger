@@ -19,6 +19,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.ScalarFunction;
+import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
 
 import java.util.Arrays;
@@ -113,6 +114,13 @@ public class StreamManager {
         return scalarFunctions;
     }
 
+    private Map<String, TableFunction> addTableFunctions() {
+        HashMap<String, TableFunction> tableFunctions = new HashMap<>();
+        tableFunctions.put("RuleViolatedEventUnnest", new RuleViolatedEventUnnest());
+        tableFunctions.put("OutlierMad", new OutlierMad());
+        return tableFunctions;
+    }
+
     private List<String> getStencilUrls() {
         return Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
                 .map(String::trim)
@@ -133,13 +141,13 @@ public class StreamManager {
 
     public StreamManager registerFunctions() {
         Map<String, ScalarFunction> scalarFunctions = addScalarFunctions();
+        Map<String, TableFunction> tableFunctions = addTableFunctions();
         Map<String, AggregateFunction> aggregateFunctions = addAggregateFunctions();
         AggregatedUDFTelemetryPublisher udfTelemetryPublisher = new AggregatedUDFTelemetryPublisher(configuration, aggregateFunctions);
         udfTelemetryPublisher.notifySubscriber(telemetryExporter);
         scalarFunctions.forEach((scalarFunctionName, scalarUDF) -> tableEnvironment.registerFunction(scalarFunctionName, scalarUDF));
+        tableFunctions.forEach((tableFunctionName, tableUDF) -> tableEnvironment.registerFunction(tableFunctionName, tableUDF));
         aggregateFunctions.forEach((aggregateFunctionName, aggregateUDF) -> tableEnvironment.registerFunction(aggregateFunctionName, aggregateUDF));
-        tableEnvironment.registerFunction("RuleViolatedEventUnnest", new RuleViolatedEventUnnest());
-        tableEnvironment.registerFunction("OutlierMad", new OutlierMad());
         return this;
     }
 
