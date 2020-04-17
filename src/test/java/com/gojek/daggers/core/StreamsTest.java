@@ -29,8 +29,8 @@ public class StreamsTest {
     public void setup() {
         initMocks(this);
         configuration = new Configuration();
-        configuration.setString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT);
-        configuration.setString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT);
+        configuration.setString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
+        configuration.setString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
         configuration.setBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
         configuration.setString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT);
 
