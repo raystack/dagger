@@ -24,8 +24,9 @@ public class StencilClientOrchestrator implements Serializable {
 
     private HashMap<String, String> createStencilConfigMap(Configuration configuration) {
         stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(REFRESH_CACHE_KEY, configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(TTL_IN_MINUTES_KEY, configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_REFRESH_CACHE_KEY, configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_TIMEOUT_MS_KEY, configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT));
         return stencilConfigMap;
     }
 

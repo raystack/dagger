@@ -33,8 +33,8 @@ public class SinkOrchestratorTest {
     public void setup() {
         initMocks(this);
         configuration = mock(Configuration.class, withSettings().serializable());
-        when(configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT)).thenReturn(REFRESH_CACHE_DEFAULT);
-        when(configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)).thenReturn(TTL_IN_MINUTES_DEFAULT);
+        when(configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn(STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
+        when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn(STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
         when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
         when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
 

@@ -88,7 +88,9 @@ public class StreamManager {
         scalarFunctions.put("GEOHASH", new GeoHash());
         scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(),
                 configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
-                configuration.getString(REFRESH_CACHE_KEY, REFRESH_CACHE_DEFAULT), configuration.getString(TTL_IN_MINUTES_KEY, TTL_IN_MINUTES_DEFAULT)));
+                configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT),
+                configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT),
+                configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)));
         scalarFunctions.put("SelectFields", new SelectFields(true, getStencilUrls()));
         scalarFunctions.put("Filters", new Filters(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls()));
         scalarFunctions.put("CondEq", new CondEq());
