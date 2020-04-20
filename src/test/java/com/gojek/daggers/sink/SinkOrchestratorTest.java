@@ -77,7 +77,7 @@ public class SinkOrchestratorTest {
         Properties producerProperties = sinkOrchestrator.getProducerProperties(configuration);
 
         assertEquals(producerProperties.getProperty("compression.type"), "snappy");
-        assertEquals(producerProperties.getProperty("max.request.size"), "5242880");
+        assertEquals(producerProperties.getProperty("max.request.size"), "20971520");
     }
 
     @Test
