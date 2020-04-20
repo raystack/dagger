@@ -87,7 +87,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
         Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
         if (configuration.getBoolean(PRODUCE_LARGE_MESSAGE_KEY, PRODUCE_LARGE_MESSAGE_DEFAULT)) {
             kafkaProducerConfigs.setProperty("compression.type", "snappy");
-            kafkaProducerConfigs.setProperty("max.request.size", "5242880");
+            kafkaProducerConfigs.setProperty("max.request.size", "20971520");
         }
         return kafkaProducerConfigs;
     }
