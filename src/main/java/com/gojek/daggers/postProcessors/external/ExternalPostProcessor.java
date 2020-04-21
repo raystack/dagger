@@ -12,6 +12,8 @@ import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.es.EsStreamDecorator;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
+import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
+import com.gojek.daggers.postProcessors.external.pg.PgStreamDecorator;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -56,14 +58,19 @@ public class ExternalPostProcessor implements PostProcessor {
             resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, telemetrySubscriber));
         }
 
+        List<PgSourceConfig> pgSourceConfigs = externalSourceConfig.getPgConfig();
+        for (PgSourceConfig pgSourceConfig : pgSourceConfigs) {
+            resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig, columnNameManager, telemetrySubscriber));
+        }
+
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
     }
+
 
     private DataStream<Row> enrichStream(DataStream<Row> resultStream, Validator configs, StreamDecorator decorator) {
         configs.validateFields();
         return decorator.decorate(resultStream);
     }
-
 
     protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         return new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
@@ -72,5 +79,9 @@ public class ExternalPostProcessor implements PostProcessor {
 
     protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         return new EsStreamDecorator(esSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+    }
+
+    private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
     }
 }
