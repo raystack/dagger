@@ -3,21 +3,15 @@ package com.gojek.daggers.postProcessors.internal;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.external.ExternalSourceConfig;
-import com.gojek.daggers.postProcessors.external.common.MapDecorator;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
-import static com.gojek.daggers.postProcessors.external.common.MapDecorator.*;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +21,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void canProcessWhenInternalConfigIsPresent() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("output_field","value","sql"));
@@ -50,7 +44,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void canNotProcessWhenInternalConfigIsNull() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, null);
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
@@ -63,7 +57,7 @@ public class InternalPostProcessorTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [output_field]");
 
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("","value","sql"));
@@ -80,7 +74,7 @@ public class InternalPostProcessorTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [value]");
 
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("output","","sql"));
@@ -94,7 +88,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void processWithRightConfiguration() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
 
