@@ -72,6 +72,7 @@ public class Constants {
 
     public final static String ASHIKO_HTTP_PROCESSOR = "ashiko_http_processor";
     public final static String ASHIKO_ES_PROCESSOR = "ashiko_es_processor";
+    public final static String ASHIKO_PG_PROCESSOR = "ashiko_pg_processor";
     public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
     public final static String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
     public final static String TRANSFORM_PROCESSOR = "transform_processor";
