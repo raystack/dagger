@@ -34,9 +34,7 @@ public class ExternalSourceConfigTest {
         EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, esOutputMapping);
         es.add(esSourceConfig);
         pg = new ArrayList<>();
-        HashMap<String, OutputMapping> pgOutputMapping = new HashMap<>();
-        pgOutputMapping.put("pg_field_1", new OutputMapping(""));
-        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping);
+        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", "pg_field_1", "123", "234", "345", "", "");
         pg.add(pgSourceConfig);
     }
 
