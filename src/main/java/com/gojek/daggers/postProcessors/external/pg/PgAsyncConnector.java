@@ -20,6 +20,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -30,6 +32,7 @@ import static com.gojek.daggers.utils.Constants.ASHIKO_PG_PROCESSOR;
 import static java.util.Collections.singleton;
 
 public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PgAsyncConnector.class.getName());
     private final PgSourceConfig pgSourceConfig;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private final ColumnNameManager columnNameManager;
@@ -71,6 +74,60 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         });
     }
 
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    @Override
+    public void preProcessBeforeNotifyingSubscriber() {
+        addMetric(POST_PROCESSOR_TYPE.getValue(), ASHIKO_PG_PROCESSOR);
+    }
+
+    @Override
+    public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
+
+        try {
+            RowManager rowManager = new RowManager(input);
+            Object[] queryVariablesValues = getQueryVariablesValues(rowManager, resultFuture);
+            if (isQueryInvalid(resultFuture, rowManager, queryVariablesValues)) return;
+            String query = String.format(pgSourceConfig.getQueryPattern(), queryVariablesValues);
+            PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager,
+                    columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
+
+            pgResponseHandler.startTimer();
+            pgClient.query(query).execute(pgResponseHandler::handle);
+        } catch (UnknownFormatConversionException e) {
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is invalid", pgSourceConfig.getQueryPattern()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
+        } catch (IllegalFormatException e) {
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is incompatible with the query variables", pgSourceConfig.getQueryPattern()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
+        }
+    }
+
+    @Override
+    public void timeout(Row input, ResultFuture<Row> resultFuture) {
+        meterStatsManager.markEvent(TIMEOUTS);
+        Exception timeoutException = new TimeoutException("Timeout in DB Call");
+        if (pgSourceConfig.isFailOnErrors()) {
+            reportAndThrowError(resultFuture, timeoutException);
+        } else {
+            errorReporter.reportNonFatalException(timeoutException);
+        }
+        resultFuture.complete(singleton(input));
+    }
+
+    @Override
+    public void close() {
+        pgClient.close();
+        pgClient = null;
+        meterStatsManager.markEvent(CLOSE_CONNECTION_ON_DB_CLIENT);
+        LOGGER.info("DB Connector : Connection pool released");
+    }
+
     private PgPool createPgClient() {
         PgConnectOptions connectOptions = new PgConnectOptions()
                 .setPort(pgSourceConfig.getPort())
@@ -85,37 +142,6 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
                 .setMaxSize(pgSourceConfig.getMaximumConnectionPoolSize());
 
         return PgPool.pool(connectOptions, poolOptions);
-    }
-
-    @Override
-    public Map<String, List<String>> getTelemetry() {
-        return metrics;
-    }
-
-    @Override
-    public void preProcessBeforeNotifyingSubscriber() {
-        addMetric(POST_PROCESSOR_TYPE.getValue(), ASHIKO_PG_PROCESSOR);
-    }
-
-    @Override
-    public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
-
-        RowManager rowManager = new RowManager(input);
-        Object[] queryVariablesValues = getQueryVariablesValues(rowManager, resultFuture);
-        if (isQueryInvalid(resultFuture, rowManager, queryVariablesValues)) return;
-        String query = String.format(pgSourceConfig.getQueryPattern(), queryVariablesValues);
-        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager,
-                columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
-        pgResponseHandler.startTimer();
-        pgClient.query(query).execute(pgResponseHandler::handle);
-    }
-
-    @Override
-    public void timeout(Row input, ResultFuture<Row> resultFuture) {
-        meterStatsManager.markEvent(TIMEOUTS);
-        Exception timeoutException = new TimeoutException("Timeout in Postgres Call");
-        errorReporter.reportNonFatalException(timeoutException);
-        resultFuture.complete(singleton(input));
     }
 
     private void addMetric(String key, String value) {
@@ -141,7 +167,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         return inputColumnValues.toArray();
     }
 
-    private Descriptors.Descriptor   getOutputDescriptor(ResultFuture<Row> resultFuture) {
+    private Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
         if (pgSourceConfig.hasType()) {
             String descriptorType = pgSourceConfig.getType();
             outputDescriptor = stencilClient.get(descriptorType);
