@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
+import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -12,18 +13,20 @@ import io.vertx.core.Handler;
 import io.vertx.sqlclient.RowSet;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.SUCCESS_RESPONSE_TIME;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.protoHandler.RowFactory.createRow;
 import static java.time.Duration.between;
-import static java.util.Collections.singleton;
 
 public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PgResponseHandler.class.getName());
     private final PgSourceConfig pgSourceConfig;
     private final MeterStatsManager meterStatsManager;
     private final RowManager rowManager;
@@ -49,24 +52,38 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
     }
 
     @Override
-    public void handle(AsyncResult event) {
-        if (event.succeeded()) {
-            try {
-                List<String> pgOutputColumnNames = pgSourceConfig.getOutputColumns();
-                RowSet<io.vertx.sqlclient.Row> rows = (RowSet<io.vertx.sqlclient.Row>) event.result();
-                pgOutputColumnNames.forEach(outputColumnName -> {
-                    for (io.vertx.sqlclient.Row row : rows) {
-                        int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);
-                        Object outputColumnValue = row.getValue(pgSourceConfig.getMappedQueryParam(outputColumnName));
-                        setField(outputColumnIndex, outputColumnValue, outputColumnName);
-                    }
-                });
-            } finally {
-                meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-                resultFuture.complete(singleton(rowManager.getAll()));
-            }
+    public void handle(AsyncResult<RowSet<io.vertx.sqlclient.Row>> event) {
+        if (event.succeeded())
+            successHandler(event.result());
+        else
+            failureHandler(event.cause());
+    }
 
+    private void successHandler(RowSet<io.vertx.sqlclient.Row> resultRowSet) {
+        List<String> pgOutputColumnNames = pgSourceConfig.getOutputColumns();
+        pgOutputColumnNames.forEach(outputColumnName -> {
+            for (io.vertx.sqlclient.Row row : resultRowSet) {
+                int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);
+                Object outputColumnValue = row.getValue(pgSourceConfig.getMappedQueryParam(outputColumnName));
+                setField(outputColumnIndex, outputColumnValue, outputColumnName);
+            }
+        });
+        meterStatsManager.markEvent(SUCCESS_RESPONSE);
+        meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        resultFuture.complete(Collections.singleton(rowManager.getAll()));
+    }
+
+    private void failureHandler(Throwable e) {
+        meterStatsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
+        LOGGER.error(e.getMessage());
+        Exception httpFailureException = new HttpFailureException("PgResponseHandler : Failed with error. " + e.getMessage());
+        if (pgSourceConfig.isFailOnErrors()) {
+            reportAndThrowError(httpFailureException);
+        } else {
+            errorReporter.reportNonFatalException(httpFailureException);
         }
+        resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
     private void setField(int index, Object value, String name) {

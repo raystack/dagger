@@ -60,7 +60,7 @@ public class ParentPostProcessorTest {
     public void shouldBeAbleToProcessWhenPgConfigIsNotEmpty() {
         ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, null, telemetrySubscriber);
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
-        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", "", true));
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), pg);
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, new ArrayList<>(), new ArrayList<>());
 
