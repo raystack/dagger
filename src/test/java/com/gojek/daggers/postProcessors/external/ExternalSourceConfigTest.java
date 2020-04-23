@@ -22,10 +22,10 @@ public class ExternalSourceConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
-        httpColumnNames.put("http_field_1", new OutputMapping(""));
-        httpColumnNames.put("http_field_2", new OutputMapping(""));
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames);
+        HashMap<String, OutputMapping> httpOutputMapping = new HashMap<>();
+        httpOutputMapping.put("http_field_1", new OutputMapping(""));
+        httpOutputMapping.put("http_field_2", new OutputMapping(""));
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpOutputMapping);
         http = new ArrayList<>();
         http.add(httpSourceConfig);
         es = new ArrayList<>();
@@ -34,7 +34,9 @@ public class ExternalSourceConfigTest {
         EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, esOutputMapping);
         es.add(esSourceConfig);
         pg = new ArrayList<>();
-        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", "pg_field_1", "123", "234", "345", "", "");
+        HashMap<String, String> pgOutputMapping = new HashMap<>();
+        pgOutputMapping.put("pg_field_1", "constant");
+        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "123", "234", "345", "", "", true);
         pg.add(pgSourceConfig);
     }
 

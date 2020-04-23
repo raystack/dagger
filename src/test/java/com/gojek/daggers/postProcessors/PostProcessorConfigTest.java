@@ -156,7 +156,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
-        pg.add(new PgSourceConfig("","","","","","","","", "", "", "", "", "", ""));
+        pg.add(new PgSourceConfig("","","","","","","","", new HashMap<>(), "", "", "", "", "", true));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 

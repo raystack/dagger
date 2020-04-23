@@ -25,9 +25,10 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private final String idleTimeout;
     private final String queryVariables;
     private final String queryPattern;
+    private boolean failOnErrors;
 
     public PgSourceConfig(String host, String port, String user, String password, String database,
-                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String maximumConnectionPoolSize, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern) {
+                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String maximumConnectionPoolSize, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors) {
         this.host = host;
         this.port = port;
         this.user = user;
@@ -42,6 +43,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         this.streamTimeout = streamTimeout;
         this.queryVariables = queryVariables;
         this.queryPattern = queryPattern;
+        this.failOnErrors = failOnErrors;
     }
 
     @Override
@@ -66,6 +68,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("query_pattern", queryPattern);
         mandatoryFields.put("query_variables", queryVariables);
         mandatoryFields.put("output_mapping", outputMapping);
+        mandatoryFields.put("fail_on_errors", failOnErrors);
 
         return mandatoryFields;
     }
@@ -128,5 +131,9 @@ public class PgSourceConfig implements Serializable, SourceConfig {
 
     public String getMappedQueryParam(String outputColumn) {
         return outputMapping.get(outputColumn);
+    }
+
+    public boolean isFailOnErrors() {
+        return failOnErrors;
     }
 }
