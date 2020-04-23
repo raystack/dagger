@@ -5,6 +5,7 @@ import static com.gojek.daggers.metrics.aspects.AspectType.Metric;
 
 public enum ExternalSourceAspects implements Aspects {
     CLOSE_CONNECTION_ON_HTTP_CLIENT("closeConnectionOnHttpClient", Metric),
+    CLOSE_CONNECTION_ON_DB_CLIENT("closeConnectionOnDbClient", Metric),
     FAILURES_ON_HTTP_CALL_5XX("failuresOnHttp5XX", Metric),
     FAILURES_ON_HTTP_CALL_4XX("failuresOnHttp4XX", Metric),
     FAILURES_ON_HTTP_CALL_OTHER_STATUS("failuresOnHttpOtherStatus", Metric),
