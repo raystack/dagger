@@ -74,8 +74,8 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
     }
 
     private void failureHandler(Throwable e) {
-        meterStatsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
+        meterStatsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
         LOGGER.error(e.getMessage());
         Exception httpFailureException = new HttpFailureException("PgResponseHandler : Failed with error. " + e.getMessage());
         if (pgSourceConfig.isFailOnErrors()) {

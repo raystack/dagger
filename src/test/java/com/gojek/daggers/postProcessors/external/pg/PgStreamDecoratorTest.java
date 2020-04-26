@@ -30,7 +30,7 @@ public class PgStreamDecoratorTest {
         shutDownPeriod = 0L;
         pgSourceConfig = new PgSourceConfig("localhost", "9200", "",
                 "", "", "",
-                "20", "5000", new HashMap<>(), "5000", "5000", "5000", "", "", true);
+                "20", "5000", new HashMap<>(), "5000", "5000", "", "", true);
     }
 
     @Test
