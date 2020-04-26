@@ -15,6 +15,8 @@ import com.google.protobuf.Descriptors;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Query;
+import io.vertx.sqlclient.RowSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -54,6 +56,14 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         this.shutDownPeriod = shutDownPeriod;
     }
 
+    public PgAsyncConnector(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, PgPool pgClient, boolean telemetryEnabled, ErrorReporter errorReporter, long shutDownPeriod, StencilClient stencilClient) {
+        this(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+        this.meterStatsManager = meterStatsManager;
+        this.pgClient = pgClient;
+        this.errorReporter = errorReporter;
+        this.stencilClient = stencilClient;
+    }
+
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
@@ -90,13 +100,19 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         try {
             RowManager rowManager = new RowManager(input);
             Object[] queryVariablesValues = getQueryVariablesValues(rowManager, resultFuture);
-            if (isQueryInvalid(resultFuture, rowManager, queryVariablesValues)) return;
+            if (isQueryInvalid(resultFuture, queryVariablesValues)) return;
             String query = String.format(pgSourceConfig.getQueryPattern(), queryVariablesValues);
             PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager,
                     columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
 
             pgResponseHandler.startTimer();
-            pgClient.query(query).execute(pgResponseHandler::handle);
+            Query<RowSet<io.vertx.sqlclient.Row>> executableQuery = pgClient.query(query);
+            if (executableQuery == null) {
+                Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query '%s' is invalid", query));
+                reportAndThrowError(resultFuture, invalidConfigurationException);
+            } else {
+                executableQuery.execute(pgResponseHandler::handle);
+            }
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is invalid", pgSourceConfig.getQueryPattern()));
@@ -139,7 +155,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
                 .setIdleTimeout(pgSourceConfig.getIdleTimeout());
 
         PoolOptions poolOptions = new PoolOptions()
-                .setMaxSize(pgSourceConfig.getMaximumConnectionPoolSize());
+                .setMaxSize(pgSourceConfig.getCapacity());
 
         return PgPool.pool(connectOptions, poolOptions);
     }
@@ -156,7 +172,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             if (inputColumnIndex == -1) {
                 meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the query variable", inputColumnName));
-                reportAndThrowError(resultFuture, invalidConfigurationException);
+                errorReporter.reportFatalException(invalidConfigurationException);
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
@@ -178,13 +194,19 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         return outputDescriptor;
     }
 
-    private boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[]
+    private boolean isQueryInvalid(ResultFuture<Row> resultFuture, Object[]
             queryVariablesValues) {
-        boolean invalidQueryPattern = StringUtils.isEmpty(pgSourceConfig.getQueryPattern());
-        boolean emptyQueryVariable = Arrays.asList(queryVariablesValues).isEmpty();
-        if (invalidQueryPattern || emptyQueryVariable) {
+        boolean emptyQueryPattern = StringUtils.isEmpty(pgSourceConfig.getQueryPattern());
+        boolean emptyQueryVariableValue = Arrays.asList(queryVariablesValues).isEmpty();
+        if ((emptyQueryPattern)) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
-            resultFuture.complete(singleton(rowManager.getAll()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Pattern '%s' is Invalid.", pgSourceConfig.getQueryPattern()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
+            return true;
+        } else if (pgSourceConfig.getQueryPattern().contains("%") && emptyQueryVariableValue) {
+            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Variables '%s' have Invalid or No values", pgSourceConfig.getQueryVariables()));
+            reportAndThrowError(resultFuture, invalidConfigurationException);
             return true;
         }
         return false;
@@ -193,5 +215,9 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
         errorReporter.reportFatalException(exception);
         resultFuture.completeExceptionally(exception);
+    }
+
+    Object getPgCient() {
+        return pgClient;
     }
 }
