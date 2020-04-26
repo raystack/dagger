@@ -36,7 +36,7 @@ public class ExternalSourceConfigTest {
         pg = new ArrayList<>();
         HashMap<String, String> pgOutputMapping = new HashMap<>();
         pgOutputMapping.put("pg_field_1", "constant");
-        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "123", "234", "345", "", "", true);
+        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "234", "345", "", "", true);
         pg.add(pgSourceConfig);
     }
 

@@ -58,7 +58,7 @@ public class PgSourceConfigTest {
         maximumConnectionPoolSize = "20";
         idleTimeout = "3000";
         failOnErrors = false;
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, maximumConnectionPoolSize, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors);
 
     }
@@ -89,11 +89,6 @@ public class PgSourceConfigTest {
     }
 
     @Test
-    public void getMaxConnectionPoolShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(maximumConnectionPoolSize), pgSourceConfig.getMaximumConnectionPoolSize());
-    }
-
-    @Test
     public void getQueryPatternShouldGetRightConfig() {
         assertEquals(queryPattern, pgSourceConfig.getQueryPattern());
     }
@@ -115,14 +110,14 @@ public class PgSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, outputMapping, maximumConnectionPoolSize, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors);
         assertFalse(pgSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, maximumConnectionPoolSize, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors);
         assertFalse(pgSourceConfig.hasType());
     }
@@ -172,7 +167,6 @@ public class PgSourceConfigTest {
         expectedMandatoryFields.put("type", type);
         expectedMandatoryFields.put("capacity", capacity);
         expectedMandatoryFields.put("stream_timeout", streamTimeout);
-        expectedMandatoryFields.put("maximum_connection_pool_size", maximumConnectionPoolSize);
         expectedMandatoryFields.put("connect_timeout", connectTimeout);
         expectedMandatoryFields.put("idle_timeout", idleTimeout);
         expectedMandatoryFields.put("query_pattern", queryPattern);
@@ -188,7 +182,7 @@ public class PgSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [output_mapping]");
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout,
-                new HashMap<>(), maximumConnectionPoolSize, connectTimeout, idleTimeout, queryVariables, queryPattern, true);
+                new HashMap<>(), connectTimeout, idleTimeout, queryVariables, queryPattern, true);
 
         pgSourceConfig.validateFields();
     }

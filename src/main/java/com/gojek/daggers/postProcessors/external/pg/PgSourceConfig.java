@@ -20,7 +20,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private final String capacity;
     private final String streamTimeout;
     private final Map<String, String> outputMapping;
-    private final String maximumConnectionPoolSize;
     private final String connectTimeout;
     private final String idleTimeout;
     private final String queryVariables;
@@ -28,7 +27,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private boolean failOnErrors;
 
     public PgSourceConfig(String host, String port, String user, String password, String database,
-                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String maximumConnectionPoolSize, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors) {
+                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors) {
         this.host = host;
         this.port = port;
         this.user = user;
@@ -37,7 +36,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         this.type = type;
         this.capacity = capacity;
         this.outputMapping = outputMapping;
-        this.maximumConnectionPoolSize = maximumConnectionPoolSize;
         this.connectTimeout = connectTimeout;
         this.idleTimeout = idleTimeout;
         this.streamTimeout = streamTimeout;
@@ -62,7 +60,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("type", type);
         mandatoryFields.put("capacity", capacity);
         mandatoryFields.put("stream_timeout", streamTimeout);
-        mandatoryFields.put("maximum_connection_pool_size", maximumConnectionPoolSize);
         mandatoryFields.put("connect_timeout", connectTimeout);
         mandatoryFields.put("idle_timeout", idleTimeout);
         mandatoryFields.put("query_pattern", queryPattern);
@@ -99,10 +96,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
 
     public String getPassword() {
         return password;
-    }
-
-    public Integer getMaximumConnectionPoolSize() {
-        return Integer.valueOf(maximumConnectionPoolSize);
     }
 
     public Integer getConnectTimeout() {
