@@ -170,7 +170,6 @@ public class PgSourceConfigTest {
         expectedMandatoryFields.put("connect_timeout", connectTimeout);
         expectedMandatoryFields.put("idle_timeout", idleTimeout);
         expectedMandatoryFields.put("query_pattern", queryPattern);
-        expectedMandatoryFields.put("query_variables", queryVariables);
         expectedMandatoryFields.put("output_mapping", outputMapping);
         expectedMandatoryFields.put("fail_on_errors", failOnErrors);
         HashMap<String, Object> actualMandatoryFields = pgSourceConfig.getMandatoryFields();
