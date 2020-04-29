@@ -82,6 +82,6 @@ public class ExternalPostProcessor implements PostProcessor {
     }
 
     private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
-        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, 900);
     }
 }
