@@ -96,7 +96,6 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
-
         try {
             RowManager rowManager = new RowManager(input);
             Object[] queryVariablesValues = getQueryVariablesValues(rowManager, resultFuture);
@@ -111,7 +110,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query '%s' is invalid", query));
                 reportAndThrowError(resultFuture, invalidConfigurationException);
             } else {
-                executableQuery.execute(pgResponseHandler::handle);
+                executableQuery.execute(pgResponseHandler);
             }
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
@@ -172,7 +171,8 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             if (inputColumnIndex == -1) {
                 meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the query variable", inputColumnName));
-                errorReporter.reportFatalException(invalidConfigurationException);
+                if (pgSourceConfig.getQueryPattern().contains("%"))
+                    errorReporter.reportFatalException(invalidConfigurationException);
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);

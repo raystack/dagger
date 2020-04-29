@@ -64,8 +64,15 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
         pgOutputColumnNames.forEach(outputColumnName -> {
             for (io.vertx.sqlclient.Row row : resultRowSet) {
                 int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);
-                Object outputColumnValue = row.getValue(pgSourceConfig.getMappedQueryParam(outputColumnName));
-                setField(outputColumnIndex, outputColumnValue, outputColumnName);
+                String mappedQueryParam = pgSourceConfig.getMappedQueryParam(outputColumnName);
+                if (row.getColumnIndex(mappedQueryParam) == -1) {
+                    Exception illegalArgumentException = new IllegalArgumentException("Invalid field " + mappedQueryParam + " is not present in the SQL. ");
+                    reportAndThrowError(illegalArgumentException);
+                    meterStatsManager.markEvent(INVALID_CONFIGURATION);
+                    return;
+                } else {
+                    setField(outputColumnIndex, row.getValue(mappedQueryParam), outputColumnName);
+                }
             }
         });
         meterStatsManager.markEvent(SUCCESS_RESPONSE);
