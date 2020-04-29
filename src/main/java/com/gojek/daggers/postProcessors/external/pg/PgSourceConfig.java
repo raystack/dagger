@@ -63,7 +63,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("connect_timeout", connectTimeout);
         mandatoryFields.put("idle_timeout", idleTimeout);
         mandatoryFields.put("query_pattern", queryPattern);
-        mandatoryFields.put("query_variables", queryVariables);
         mandatoryFields.put("output_mapping", outputMapping);
         mandatoryFields.put("fail_on_errors", failOnErrors);
 
