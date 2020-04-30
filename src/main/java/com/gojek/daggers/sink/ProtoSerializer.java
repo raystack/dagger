@@ -123,8 +123,12 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
             try {
                 builder = protoHandler.populateBuilder(builder, data);
             } catch (IllegalArgumentException e) {
-                String errMessage = String.format("column invalid: type mismatch of column %s, expecting %s type. Actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), data.getClass());
-                throw new InvalidColumnMappingException(errMessage);
+                String protoType = fieldDescriptor.getType().toString();
+                if (fieldDescriptor.isRepeated()) {
+                    protoType = String.format("REPEATED %s", fieldDescriptor.getType());
+                }
+                String errMessage = String.format("column invalid: type mismatch of column %s, expecting %s type. Actual type %s", fieldDescriptor.getName(), protoType, data.getClass());
+                throw new InvalidColumnMappingException(errMessage, e);
             }
 
         return builder;
