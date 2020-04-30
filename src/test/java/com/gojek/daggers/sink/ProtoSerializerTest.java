@@ -389,10 +389,24 @@ public class ProtoSerializerTest {
     @Test
     public void shouldThrowExceptionWhenTypeDoesNotMatch() {
         expectedException.expect(InvalidColumnMappingException.class);
-        expectedException.expectMessage("column invalid: type mismatch of column order_number, expecting STRING type");
+        expectedException.expectMessage("column invalid: type mismatch of column order_number, expecting STRING type. Actual type class java.lang.Integer");
 
         String[] columnNames = {"order_number"};
         String protoClassName = "com.gojek.esb.booking.BookingLog";
+        ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
+        Row element = new Row(1);
+        element.setField(0, 1234);
+
+        protoSerializer.serializeValue(element);
+    }
+
+    @Test
+    public void shouldHandleRepeatedTypeWhenTypeDoesNotMatch() {
+        expectedException.expect(InvalidColumnMappingException.class);
+        expectedException.expectMessage("column invalid: type mismatch of column members, expecting REPEATED STRING type. Actual type class java.lang.Integer");
+
+        String[] columnNames = {"members"};
+        String protoClassName = "com.gojek.esb.segmentation.UpdateLog";
         ProtoSerializer protoSerializer = new ProtoSerializer(protoClassName, columnNames, stencilClientOrchestrator);
         Row element = new Row(1);
         element.setField(0, 1234);
