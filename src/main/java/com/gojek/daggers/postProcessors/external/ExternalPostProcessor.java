@@ -19,6 +19,8 @@ import org.apache.flink.types.Row;
 
 import java.util.List;
 
+import static com.gojek.daggers.utils.Constants.SHUTDOWN_PERIOD_SHORT;
+
 public class ExternalPostProcessor implements PostProcessor {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -82,6 +84,7 @@ public class ExternalPostProcessor implements PostProcessor {
     }
 
     private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
-        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, 900);
+        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, SHUTDOWN_PERIOD_SHORT);
+        //Needed a shorter shutdown period for the postgres library being used, as its exec time per thread is quite less
     }
 }

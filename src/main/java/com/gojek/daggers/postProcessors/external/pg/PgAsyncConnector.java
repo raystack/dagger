@@ -98,7 +98,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) {
         try {
             RowManager rowManager = new RowManager(input);
-            Object[] queryVariablesValues = getQueryVariablesValues(rowManager, resultFuture);
+            Object[] queryVariablesValues = getQueryVariablesValues(rowManager);
             if (isQueryInvalid(resultFuture, queryVariablesValues)) return;
             String query = String.format(pgSourceConfig.getQueryPattern(), queryVariablesValues);
             PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager,
@@ -163,16 +163,17 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
-    private Object[] getQueryVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
+    private Object[] getQueryVariablesValues(RowManager rowManager) {
         List<String> requiredInputColumns = Arrays.asList(pgSourceConfig.getQueryVariables().split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the query variable", inputColumnName));
-                if (pgSourceConfig.getQueryPattern().contains("%"))
+                if (pgSourceConfig.getQueryPattern().contains("%")) {
+                    meterStatsManager.markEvent(INVALID_CONFIGURATION);
                     errorReporter.reportFatalException(invalidConfigurationException);
+                }
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
