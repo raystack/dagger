@@ -85,6 +85,7 @@ public class Constants {
 
     public static final String SHUTDOWN_PERIOD_KEY = "SHUTDOWN_PERIOD";
     public static final long SHUTDOWN_PERIOD_DEFAULT = 10000;
+    public static final long SHUTDOWN_PERIOD_SHORT = 900;
     public static final String FATAL_EXCEPTION_METRIC_GROUP_KEY = "fatal.exception";
     public static final String NONFATAL_EXCEPTION_METRIC_GROUP_KEY = "non.fatal.exception";
 
