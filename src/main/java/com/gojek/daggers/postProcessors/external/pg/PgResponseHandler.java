@@ -60,6 +60,17 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
     }
 
     private void successHandler(RowSet<io.vertx.sqlclient.Row> resultRowSet) {
+        if (resultRowSet.size() > 1) {
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
+            Exception illegalArgumentException = new IllegalArgumentException("Invalid query resulting in more than one rows. ");
+            if (pgSourceConfig.isFailOnErrors())
+                reportAndThrowError(illegalArgumentException);
+            else {
+                errorReporter.reportNonFatalException(illegalArgumentException);
+                resultFuture.complete(Collections.singleton(rowManager.getAll()));
+            }
+            return;
+        }
         List<String> pgOutputColumnNames = pgSourceConfig.getOutputColumns();
         pgOutputColumnNames.forEach(outputColumnName -> {
             for (io.vertx.sqlclient.Row row : resultRowSet) {
