@@ -73,6 +73,8 @@ public class EsAsyncConnectorTest {
         streamRow.setField(0, inputData);
         streamRow.setField(1, outputData);
         outputMapping = new HashMap<>();
+        outputMapping.put("customer_profile", new OutputMapping("$.customer"));
+        outputMapping.put("driver_profile", new OutputMapping("$.driver"));
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping);
@@ -102,6 +104,14 @@ public class EsAsyncConnectorTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
         verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
+    }
+
+    @Test
+    public void shouldRegisterMetricGroup() throws Exception {
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, esClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+
+        esAsyncConnector.open(configuration);
+        verify(meterStatsManager, times(1)).register("es.customer_profile.driver_profile", ExternalSourceAspects.values());
     }
 
     @Test
