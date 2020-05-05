@@ -74,12 +74,11 @@ public class EsAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         if (errorReporter == null) {
             errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), telemetryEnabled, shutDownPeriod);
         }
-        List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
-        esOutputColumnNames.forEach(outputField -> {
-            String groupName = "es." + esOutputColumnNames;
+        if (meterStatsManager == null)
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
-            meterStatsManager.register(groupName, values());
-        });
+        List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
+        String groupName = "es." + String.join(".", esOutputColumnNames);
+        meterStatsManager.register(groupName, values());
     }
 
     @Override
