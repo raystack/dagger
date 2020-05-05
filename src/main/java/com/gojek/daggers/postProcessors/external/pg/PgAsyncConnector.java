@@ -12,8 +12,11 @@ import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.Descriptors;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
+import io.vertx.pgclient.impl.PgPoolImpl;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Query;
 import io.vertx.sqlclient.RowSet;
@@ -26,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
@@ -107,6 +111,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             pgResponseHandler.startTimer();
             Query<RowSet<io.vertx.sqlclient.Row>> executableQuery = pgClient.query(query);
             if (executableQuery == null) {
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query '%s' is invalid", query));
                 reportAndThrowError(resultFuture, invalidConfigurationException);
             } else {
@@ -156,7 +161,21 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         PoolOptions poolOptions = new PoolOptions()
                 .setMaxSize(pgSourceConfig.getCapacity());
 
-        return PgPool.pool(connectOptions, poolOptions);
+        return pool(connectOptions, poolOptions);
+    }
+
+    private PgPool pool(PgConnectOptions connectOptions, PoolOptions poolOptions) {
+        if (Vertx.currentContext() != null) {
+            throw new IllegalStateException("Running in a Vertx context => use PgPool#pool(Vertx, PgConnectOptions, PoolOptions) instead");
+        }
+        VertxOptions vertxOptions = new VertxOptions();
+        vertxOptions.setMaxEventLoopExecuteTime(10000);
+        vertxOptions.setMaxEventLoopExecuteTimeUnit(TimeUnit.MILLISECONDS);
+        if (connectOptions.isUsingDomainSocket()) {
+            vertxOptions.setPreferNativeTransport(true);
+        }
+        Vertx vertx = Vertx.vertx(vertxOptions);
+        return new PgPoolImpl(vertx.getOrCreateContext(), true, connectOptions, poolOptions);
     }
 
     private void addMetric(String key, String value) {
@@ -164,13 +183,15 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     }
 
     private Object[] getQueryVariablesValues(RowManager rowManager) {
-        List<String> requiredInputColumns = Arrays.asList(pgSourceConfig.getQueryVariables().split(","));
+        String queryVariables = pgSourceConfig.getQueryVariables();
+        if (queryVariables == null) queryVariables = "";
+        List<String> requiredInputColumns = Arrays.asList(queryVariables.split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the query variable", inputColumnName));
-                if (pgSourceConfig.getQueryPattern().contains("%")) {
+                if (pgSourceConfig.getQueryPattern().matches(".*=\\s*'%.*")) {
                     meterStatsManager.markEvent(INVALID_CONFIGURATION);
                     errorReporter.reportFatalException(invalidConfigurationException);
                 }
@@ -195,8 +216,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
         return outputDescriptor;
     }
 
-    private boolean isQueryInvalid(ResultFuture<Row> resultFuture, Object[]
-            queryVariablesValues) {
+    private boolean isQueryInvalid(ResultFuture<Row> resultFuture, Object[] queryVariablesValues) {
         boolean emptyQueryPattern = StringUtils.isEmpty(pgSourceConfig.getQueryPattern());
         boolean emptyQueryVariableValue = Arrays.asList(queryVariablesValues).isEmpty();
         if ((emptyQueryPattern)) {
@@ -204,7 +224,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Pattern '%s' is Invalid.", pgSourceConfig.getQueryPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
             return true;
-        } else if (pgSourceConfig.getQueryPattern().contains("%") && emptyQueryVariableValue) {
+        } else if (pgSourceConfig.getQueryPattern().matches(".*=\\s*'%.*") && emptyQueryVariableValue) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Variables '%s' have Invalid or No values", pgSourceConfig.getQueryVariables()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
