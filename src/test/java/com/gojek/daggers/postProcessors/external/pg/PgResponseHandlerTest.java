@@ -27,8 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.SUCCESS_RESPONSE;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_FAILED_REQUESTS;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -89,10 +88,11 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToSuccessHandlerIfEventSucceeds() {
+    public void shouldGoToSuccessHandlerAndMarkSuccessResponseIfEventSucceedsAndResultSetHasOnlyOneRow() {
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.size()).thenReturn(1);
 
         pgResponseHandler.startTimer();
         pgResponseHandler.handle(event);
@@ -100,6 +100,55 @@ public class PgResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+    }
+
+    @Test
+    public void shouldGoToSuccessHandlerButReturnWithMarkingInvalidConfigIfEventSucceedsAndResultSetHasMultipleRow() {
+        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        when(event.succeeded()).thenReturn(true);
+        when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.size()).thenReturn(2);
+
+        pgResponseHandler.startTimer();
+        pgResponseHandler.handle(event);
+
+        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, never()).updateHistogram(any(Aspects.class), any(Long.class));
+    }
+
+    @Test
+    public void shouldGoToSuccessHandlerButCompleteWithNonFatalErrorWhenFailOnErrorIsFalseAndIfEventSucceedsAndResultSetHasMultipleRow() {
+        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        when(event.succeeded()).thenReturn(true);
+        when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.size()).thenReturn(2);
+
+        pgResponseHandler.startTimer();
+        pgResponseHandler.handle(event);
+
+        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, never()).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportNonFatalException(any(Exception.class));
+    }
+
+    @Test
+    public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
+        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true);
+        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        when(event.succeeded()).thenReturn(true);
+        when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.size()).thenReturn(2);
+
+        pgResponseHandler.startTimer();
+        pgResponseHandler.handle(event);
+
+        verify(resultFuture, times(1)).completeExceptionally(any(Exception.class));
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(meterStatsManager, never()).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(errorReporter, times(1)).reportFatalException(any(Exception.class));
     }
 
     @Test
