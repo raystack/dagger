@@ -4,6 +4,7 @@ import com.gojek.daggers.postProcessors.external.ExternalSourceConfig;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
+import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -23,7 +24,7 @@ public class PostProcessorConfigTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>());
+    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     private PostProcessorConfig postProcessorConfig;
     private ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
     private List<TransformConfig> transformConfigs = new ArrayList<>();
@@ -132,7 +133,8 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         http.add(new HttpSourceConfig("","","","","","",false,"","", new HashMap<>(), new HashMap<>()));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
         assertFalse(postProcessorConfig.isEmpty());
@@ -141,33 +143,36 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldNotBeEmptyWhenExternalSourceHasEsConfigExist(){
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
         assertFalse(postProcessorConfig.isEmpty());
     }
+    @Test
+    public void shouldNotBeEmptyWhenExternalSourceHasPgConfigExist(){
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
+        pg.add(new PgSourceConfig("","","","","","","","", new HashMap<>(), "", "", "", "", true));
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
 
     @Test
     public void shouldBeEmptyWhenExternalSourceHasEmptyConfig(){
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
         assertTrue(postProcessorConfig.isEmpty());
-    }
-
-    @Test
-    public void shouldBeFalseWhenExternalSourceHasEsConfigExist(){
-        ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
-        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
-
-        assertFalse(postProcessorConfig.isEmpty());
     }
 
     @Test
@@ -212,9 +217,10 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldBeTrueWhenExternalSourceExists() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>()));
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());
     }
