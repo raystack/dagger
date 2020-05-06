@@ -3,6 +3,7 @@ package com.gojek.daggers.postProcessors.external;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
+import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +11,12 @@ import java.util.List;
 public class ExternalSourceConfig {
     List<HttpSourceConfig> http;
     List<EsSourceConfig> es;
+    List<PgSourceConfig> pg;
 
-    public ExternalSourceConfig(List<HttpSourceConfig> http, List<EsSourceConfig> es) {
+    public ExternalSourceConfig(List<HttpSourceConfig> http, List<EsSourceConfig> es, List<PgSourceConfig> pg) {
         this.http = http;
         this.es = es;
+        this.pg = pg;
     }
 
     public List<HttpSourceConfig> getHttpConfig() {
@@ -24,14 +27,19 @@ public class ExternalSourceConfig {
         return es == null ? new ArrayList<>() : es;
     }
 
+    public List<PgSourceConfig> getPgConfig() {
+        return pg == null ? new ArrayList<>() : pg;
+    }
+
     public boolean isEmpty() {
-        return (http == null || http.isEmpty()) && (es == null || es.isEmpty());
+        return (http == null || http.isEmpty()) && (es == null || es.isEmpty()) &&(pg == null || pg.isEmpty());
     }
 
     public List<String> getOutputColumnNames() {
         ArrayList<String> columnNames = new ArrayList<>();
         columnNames.addAll(getOutputColumnNames(http));
         columnNames.addAll(getOutputColumnNames(es));
+        columnNames.addAll(getOutputColumnNames(pg));
         return columnNames;
     }
 
@@ -42,4 +50,5 @@ public class ExternalSourceConfig {
         configs.forEach(config -> columnNames.addAll(config.getOutputColumns()));
         return columnNames;
     }
+
 }
