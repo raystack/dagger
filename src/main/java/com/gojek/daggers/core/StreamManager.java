@@ -120,6 +120,7 @@ public class StreamManager {
         HashMap<String, TableFunction> tableFunctions = new HashMap<>();
         tableFunctions.put("RuleViolatedEventUnnest", new RuleViolatedEventUnnest());
         tableFunctions.put("OutlierMad", new OutlierMad());
+        tableFunctions.put("HistogramBucket", new HistogramBucket());
         return tableFunctions;
     }
 
@@ -138,6 +139,7 @@ public class StreamManager {
         aggregateFunctions.put("ConcurrentTransactions", new ConcurrentTransactions(7200));
         aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
         aggregateFunctions.put("CollectArray", new CollectArray());
+        aggregateFunctions.put("PercentileAggregator", new PercentileAggregator());
         return aggregateFunctions;
     }
 
