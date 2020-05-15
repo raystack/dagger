@@ -21,8 +21,9 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     private String capacity;
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
+    private String metricId;
 
-    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping) {
+    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId) {
         this.endpoint = endpoint;
         this.verb = verb;
         this.requestPattern = requestPattern;
@@ -34,6 +35,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         this.capacity = capacity;
         this.headers = headers;
         this.outputMapping = outputMapping;
+        this.metricId = metricId;
     }
 
     public Integer getConnectTimeout() {
@@ -52,8 +54,14 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return requestVariables;
     }
 
-    public String getRequestPattern() {
+    @Override
+    public String getPattern() {
         return requestPattern;
+    }
+
+    @Override
+    public String getVariables() {
+        return requestVariables;
     }
 
     public Integer getStreamTimeout() {
@@ -62,6 +70,11 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
 
     public boolean isFailOnErrors() {
         return failOnErrors;
+    }
+
+    @Override
+    public String getMetricId() {
+        return metricId;
     }
 
     public String getType() {

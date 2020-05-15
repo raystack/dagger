@@ -3,6 +3,7 @@ package com.gojek.daggers.metrics;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.gojek.daggers.metrics.aspects.AspectType;
 import com.gojek.daggers.metrics.aspects.Aspects;
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
@@ -62,5 +63,12 @@ public class MeterStatsManager {
     public void markEvent(Aspects aspect) {
         if (enabled)
             meterMap.get(aspect).markEvent();
+    }
+
+    public void register(String groupKey, String groupValue, ExternalSourceAspects[] aspects) {
+        if (enabled) {
+            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupKey, groupValue);
+            register(metricGroup, aspects);
+        }
     }
 }

@@ -11,6 +11,7 @@ import org.apache.flink.types.Row;
 import java.util.concurrent.TimeUnit;
 
 public class EsStreamDecorator implements StreamDecorator {
+    private String metricId;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private EsSourceConfig esSourceConfig;
     private ColumnNameManager columnNameManager;
@@ -19,9 +20,10 @@ public class EsStreamDecorator implements StreamDecorator {
     private long shutDownPeriod;
 
 
-    public EsStreamDecorator(EsSourceConfig esSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
+    public EsStreamDecorator(EsSourceConfig esSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator,
                              ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.esSourceConfig = esSourceConfig;
+        this.metricId = metricId;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
@@ -36,7 +38,7 @@ public class EsStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         esAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, esAsyncConnector, esSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, esSourceConfig.getCapacity());
     }
