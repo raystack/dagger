@@ -34,14 +34,14 @@ public class HttpPostRequestHandlerTest {
 
     @Test
     public void shouldReturnTrueForPostVerbOnCanCreate() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
         Assert.assertTrue(httpPostRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldReturnFalseForVerbOtherThanPostOnCanBuild() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
         Assert.assertFalse(httpPostRequestBuilder.canCreate());
     }
@@ -50,7 +50,7 @@ public class HttpPostRequestHandlerTest {
     public void shouldBuildPostRequest() {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
         Assert.assertEquals(request, httpPostRequestBuilder.create());
     }

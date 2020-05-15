@@ -62,6 +62,7 @@ public class PgAsyncConnectorTest {
     private boolean telemetryEnabled;
     private long shutDownPeriod;
     private PgSourceConfig pgSourceConfig;
+    private String metricId;
 
     @Before
     public void setUp() {
@@ -74,7 +75,7 @@ public class PgAsyncConnectorTest {
         streamRow.setField(1, outputData);
         outputMapping = new HashMap<>();
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false);
+                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId);
         resultFuture = mock(ResultFuture.class);
         wireMockServer = new WireMockServer(8081);
         wireMockServer.start();
@@ -126,7 +127,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputWhenQueryVariableIsInvalid() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "invalid_variable", "select * from public.customers where customer_id = '%s'", false);
+                "5000", outputMapping, "5000", "5000", "invalid_variable", "select * from public.customers where customer_id = '%s'", false, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
@@ -141,7 +142,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldNotEnrichButNotThrowNullPointerEitherWhenQueryVariableFieldIsNullOrRemoved() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", null, "select * from public.customers where customer_id = '%s'", false);
+                "5000", outputMapping, "5000", "5000", null, "select * from public.customers where customer_id = '%s'", false, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
@@ -156,7 +157,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputWhenQueryPatternIsEmpty() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "", false);
+                "5000", outputMapping, "5000", "5000", "customer_id", "", false, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
@@ -172,7 +173,7 @@ public class PgAsyncConnectorTest {
         inputData.setField(3, "11223344545");
         String invalidQueryPattern = "select * from public.customers where customer_id = %";
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, true);
+                "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, true, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -188,7 +189,7 @@ public class PgAsyncConnectorTest {
         inputData.setField(3, "11223344545");
         String invalidQueryPattern = "select * from public.customers where customer_id = '%d'";
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, false);
+                "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, false, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -302,7 +303,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenFailOnErrorsIsTrue() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "", true);
+                "5000", outputMapping, "5000", "5000", "customer_id", "", true, metricId);
         pgClient = null;
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);

@@ -76,7 +76,7 @@ public class HttpResponseHandlerTest {
         streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
     }
 
     @Test
@@ -126,7 +126,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XX() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(404);
 
@@ -142,7 +142,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs5XX() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(502);
 
@@ -158,7 +158,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIsOtherThan5XXAnd4XX() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(302);
 
@@ -189,7 +189,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndOnThrowable() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Throwable throwable = new Throwable("throwable message");
 
@@ -208,7 +208,7 @@ public class HttpResponseHandlerTest {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -234,7 +234,7 @@ public class HttpResponseHandlerTest {
         outputMapping.put("s2_id_level", new OutputMapping("$.prediction"));
         outputColumnNames = Arrays.asList("surge_factor", "s2_id_level");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -263,7 +263,7 @@ public class HttpResponseHandlerTest {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn("{\n" +
                 "  \"surge\": 0.732\n" +
@@ -284,7 +284,7 @@ public class HttpResponseHandlerTest {
         outputMapping.put("surge_factor", new OutputMapping("invalidPath"));
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -309,7 +309,7 @@ public class HttpResponseHandlerTest {
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);

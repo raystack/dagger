@@ -114,7 +114,7 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
 
             Object[] requestVariablesValues = getRequestVariablesValues(rowManager, resultFuture);
 
-            if (StringUtils.isEmpty(httpSourceConfig.getRequestPattern()) || Arrays.asList(requestVariablesValues).isEmpty()) {
+            if (StringUtils.isEmpty(httpSourceConfig.getPattern()) || Arrays.asList(requestVariablesValues).isEmpty()) {
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
                 meterStatsManager.markEvent(EMPTY_INPUT);
                 return;
@@ -130,11 +130,11 @@ public class HttpAsyncConnector extends RichAsyncFunction<Row, Row> implements T
             resultFuture.completeExceptionally(e);
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getRequestPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is invalid", httpSourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
         } catch (IllegalFormatException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getRequestPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Request pattern '%s' is incompatible with variable", httpSourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
         }
 

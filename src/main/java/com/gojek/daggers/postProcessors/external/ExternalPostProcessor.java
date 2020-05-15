@@ -54,8 +54,10 @@ public class ExternalPostProcessor implements PostProcessor {
         }
 
         List<EsSourceConfig> esSourceConfigs = externalSourceConfig.getEsConfig();
-        for (EsSourceConfig esSourceConfig : esSourceConfigs) {
-            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, telemetrySubscriber));
+        for(int index = 0; index < esSourceConfigs.size(); index++){
+            EsSourceConfig esSourceConfig = esSourceConfigs.get(index);
+            String metricId = (esSourceConfig.getMetricId().isEmpty()) ? String.valueOf(index) : esSourceConfig.getMetricId();
+            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, telemetrySubscriber, metricId));
         }
 
         List<PgSourceConfig> pgSourceConfigs = externalSourceConfig.getPgConfig();
@@ -77,8 +79,8 @@ public class ExternalPostProcessor implements PostProcessor {
 
     }
 
-    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
-        return new EsStreamDecorator(esSourceConfig, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, String metricId) {
+        return new EsStreamDecorator(esSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
     }
 
     private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {

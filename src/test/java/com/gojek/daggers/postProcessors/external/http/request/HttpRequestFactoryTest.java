@@ -34,7 +34,7 @@ public class HttpRequestFactoryTest {
 
     @Test
     public void shouldReturnPostRequestOnTheBasisOfConfiguration() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"123456\"}")).thenReturn(request);
         HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray());
@@ -45,7 +45,7 @@ public class HttpRequestFactoryTest {
 
     @Test
     public void shouldReturnGetRequestOnTheBasisOfConfiguration() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray());
 
@@ -55,7 +55,7 @@ public class HttpRequestFactoryTest {
 
     @Test(expected = InvalidHttpVerbException.class)
     public void shouldThrowExceptionForUnsupportedHttpVerb() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01");
         HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray());
     }
 
