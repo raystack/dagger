@@ -104,7 +104,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             RowManager rowManager = new RowManager(input);
             Object[] queryVariablesValues = getQueryVariablesValues(rowManager);
             if (isQueryInvalid(resultFuture, queryVariablesValues)) return;
-            String query = String.format(pgSourceConfig.getQueryPattern(), queryVariablesValues);
+            String query = String.format(pgSourceConfig.getPattern(), queryVariablesValues);
             PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager,
                     columnNameManager, getOutputDescriptor(resultFuture), resultFuture, errorReporter);
 
@@ -119,11 +119,11 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             }
         } catch (UnknownFormatConversionException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is invalid", pgSourceConfig.getQueryPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is invalid", pgSourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
         } catch (IllegalFormatException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is incompatible with the query variables", pgSourceConfig.getQueryPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query pattern '%s' is incompatible with the query variables", pgSourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
         }
     }
@@ -191,7 +191,7 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the query variable", inputColumnName));
-                if (pgSourceConfig.getQueryPattern().matches(".*=\\s*'%.*")) {
+                if (pgSourceConfig.getPattern().matches(".*=\\s*'%.*")) {
                     meterStatsManager.markEvent(INVALID_CONFIGURATION);
                     errorReporter.reportFatalException(invalidConfigurationException);
                 }
@@ -217,14 +217,14 @@ public class PgAsyncConnector extends RichAsyncFunction<Row, Row> implements Tel
     }
 
     private boolean isQueryInvalid(ResultFuture<Row> resultFuture, Object[] queryVariablesValues) {
-        boolean emptyQueryPattern = StringUtils.isEmpty(pgSourceConfig.getQueryPattern());
+        boolean emptyQueryPattern = StringUtils.isEmpty(pgSourceConfig.getPattern());
         boolean emptyQueryVariableValue = Arrays.asList(queryVariablesValues).isEmpty();
         if ((emptyQueryPattern)) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Pattern '%s' is Invalid.", pgSourceConfig.getQueryPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Pattern '%s' is Invalid.", pgSourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
             return true;
-        } else if (pgSourceConfig.getQueryPattern().matches(".*=\\s*'%.*") && emptyQueryVariableValue) {
+        } else if (pgSourceConfig.getPattern().matches(".*=\\s*'%.*") && emptyQueryVariableValue) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Query Variables '%s' have Invalid or No values", pgSourceConfig.getQueryVariables()));
             reportAndThrowError(resultFuture, invalidConfigurationException);

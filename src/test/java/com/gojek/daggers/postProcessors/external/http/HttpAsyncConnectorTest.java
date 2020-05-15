@@ -83,7 +83,7 @@ public class HttpAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         telemetryEnabled = true;
         shutDownPeriod = 0L;
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
     }
 
@@ -163,7 +163,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() {
         String invalid_request_variable = "invalid_variable";
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
@@ -182,7 +182,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() {
         String invalidRequestPattern = "{\"key\": \"%\"}";
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
@@ -200,7 +200,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() {
         String invalidRequestPattern = "{\"key\": \"%d\"}";
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
@@ -231,7 +231,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -270,7 +270,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
@@ -280,7 +280,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldReportFatalInTimeoutIfFailOnErrorIsTrue() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
@@ -290,7 +290,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
@@ -308,7 +308,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionIfUnsupportedHttpVerbProvided() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, httpClient, meterStatsManager, columnNameManager, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
