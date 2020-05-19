@@ -4,6 +4,7 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.ResponseHandler;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -13,6 +14,7 @@ import io.vertx.core.Handler;
 import io.vertx.sqlclient.RowSet;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+import org.elasticsearch.client.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.OTHER_ERRORS;
 import static com.gojek.daggers.protoHandler.RowFactory.createRow;
-import static java.time.Duration.between;
 
-public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
+public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PgResponseHandler.class.getName());
     private final PgSourceConfig pgSourceConfig;
     private final MeterStatsManager meterStatsManager;
@@ -86,20 +88,24 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
                 }
             }
         });
-        meterStatsManager.markEvent(SUCCESS_RESPONSE);
-        meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        sendSuccessTelemetry(meterStatsManager, startTime);
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
     private void failureHandler(Throwable e) {
-        meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
-        meterStatsManager.updateHistogram(FAILURES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+        sendFailureTelemetry(meterStatsManager, startTime);
         LOGGER.error(e.getMessage());
         Exception httpFailureException = new HttpFailureException("PgResponseHandler : Failed with error. " + e.getMessage());
         if (pgSourceConfig.isFailOnErrors()) {
             reportAndThrowError(httpFailureException);
         } else {
             errorReporter.reportNonFatalException(httpFailureException);
+        }
+        if (e instanceof ResponseException) {
+            validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
+        } else {
+            meterStatsManager.markEvent(OTHER_ERRORS);
+            System.err.printf("PGResponseHandler some other errors :  %s \n", e.getMessage());
         }
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
@@ -128,5 +134,4 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
         errorReporter.reportFatalException(exception);
         resultFuture.completeExceptionally(exception);
     }
-
 }
