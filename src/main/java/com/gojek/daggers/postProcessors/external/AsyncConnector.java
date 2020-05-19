@@ -28,6 +28,7 @@ import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.SOURCE_METRIC_I
 import static java.util.Collections.singleton;
 
 public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
+    private StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
     private String metricId;
 
@@ -39,8 +40,16 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         return meterStatsManager;
     }
 
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    public void setErrorReporter(ErrorReporter errorReporter) {
+        this.errorReporter = errorReporter;
+    }
+
     private ErrorReporter errorReporter;
+
+    public void setMeterStatsManager(MeterStatsManager meterStatsManager) {
+        this.meterStatsManager = meterStatsManager;
+    }
+
     private MeterStatsManager meterStatsManager;
     protected ColumnNameManager columnNameManager;
     private Boolean telemetryEnabled;
@@ -97,12 +106,12 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
             reportAndThrowError(resultFuture, invalidConfigurationException);
         } catch (IllegalFormatException e) {
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("pattern config '%s' is incompatible with the variable config", sourceConfig.getPattern()));
+            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("pattern config '%s' is incompatible with the variable config '%s'", sourceConfig.getPattern(), sourceConfig.getVariables()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
         }
     }
 
-    private void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
+    protected void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
         errorReporter.reportFatalException(exception);
         resultFuture.completeExceptionally(exception);
     }
@@ -147,8 +156,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
                 Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
-                meterStatsManager.markEvent(INVALID_CONFIGURATION);
-                reportAndThrowError(resultFuture, invalidConfigurationException);
+                errorReporter.reportFatalException(invalidConfigurationException);
                 return new Object[0];
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
