@@ -36,14 +36,14 @@ public class PgStreamDecoratorTest {
 
     @Test
     public void canDecorateStreamWhenConfigIsPresent() {
-        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(pgSourceConfig, metricId, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertTrue(pgStreamDecorator.canDecorate());
     }
 
     @Test
     public void cannotDecorateStreamWhenConfigIsNull() {
-        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(null, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(null, metricId, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertFalse(pgStreamDecorator.canDecorate());
     }

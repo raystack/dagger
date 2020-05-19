@@ -56,6 +56,7 @@ public class PgSourceConfigTest {
         queryVariables = "driver_id";
         connectTimeout = "1000";
         idleTimeout = "3000";
+        metricId = "metricId-pg-01";
         failOnErrors = false;
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors, metricId);
