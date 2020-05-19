@@ -30,6 +30,7 @@ public class HttpSourceConfigTest {
     private boolean failOnErrors;
     private String type;
     private String capacity;
+    private String metricId;
 
     @Before
     public void setup() {
@@ -47,7 +48,8 @@ public class HttpSourceConfigTest {
         failOnErrors = false;
         type = "com.gojek.esb.booking.BookingLogMessage";
         capacity = "345";
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, "metricId_01");
+        metricId = "metricId-http-01";
+        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, metricId);
     }
 
     @Test
@@ -124,7 +126,7 @@ public class HttpSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [endpoint, streamTimeout, requestPattern, verb, connectTimeout, outputMapping]");
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, requestVariables, null, null, false, null, capacity, null, null, "metricId_01");
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, requestVariables, null, null, false, null, capacity, null, null, metricId);
         httpSourceConfig.validateFields();
     }
 
@@ -163,6 +165,7 @@ public class HttpSourceConfigTest {
         expectedMandatoryFields.put("streamTimeout", streamTimeout);
         expectedMandatoryFields.put("connectTimeout", connectTimeout);
         expectedMandatoryFields.put("outputMapping", outputMapping);
+        expectedMandatoryFields.put("metric_id", metricId);
         HashMap<String, Object> actualMandatoryFields = httpSourceConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("endpoint"), actualMandatoryFields.get("endpoint"));
         assertEquals(expectedMandatoryFields.get("verb"), actualMandatoryFields.get("verb"));

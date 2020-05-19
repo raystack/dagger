@@ -80,7 +80,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XX() {
+    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs404() {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(404);
 
@@ -88,7 +88,22 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+    }
+
+    @Test
+    public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XXOtherThan404() {
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        when(response.getStatusCode()).thenReturn(402);
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_4XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
@@ -103,7 +118,7 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_5XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
@@ -117,7 +132,7 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
+        verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
@@ -125,7 +140,7 @@ public class HttpResponseHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XX() {
+    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs404() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
         when(response.getStatusCode()).thenReturn(404);
@@ -135,7 +150,23 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_4XX);
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+    }
+
+    @Test
+    public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XXOtherThan404() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        when(response.getStatusCode()).thenReturn(400);
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_4XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -151,7 +182,7 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_5XX);
+        verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_5XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -167,7 +198,7 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_STATUS);
+        verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -182,7 +213,6 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -198,7 +228,7 @@ public class HttpResponseHandlerTest {
 
         verify(resultFuture).completeExceptionally(any(RuntimeException.class));
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
-        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_HTTP_CALL_OTHER_ERRORS);
+        verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
