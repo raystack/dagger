@@ -268,7 +268,7 @@ public class ExternalPostProcessorTest {
         }
 
         @Override
-        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, String metricId) {
             return httpStreamDecorator;
         }
 

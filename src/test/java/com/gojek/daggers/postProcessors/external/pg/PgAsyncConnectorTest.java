@@ -84,6 +84,7 @@ public class PgAsyncConnectorTest {
         telemetryEnabled = true;
         shutDownPeriod = 0L;
         stencilClient = mock(StencilClient.class);
+        metricId = "metricId-pg-01";
     }
 
     @After
@@ -95,7 +96,7 @@ public class PgAsyncConnectorTest {
     public void shouldFetchDescriptorInInvoke() throws Exception {
         inputData.setField(3, "11223344545");
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
 
         pgAsyncConnector.open(configuration);
@@ -108,7 +109,7 @@ public class PgAsyncConnectorTest {
     public void shouldCompleteExceptionallyIfDescriptorNotFound() throws Exception {
         inputData.setField(3, "11223344545");
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get(any(String.class))).thenReturn(null);
 
@@ -128,7 +129,7 @@ public class PgAsyncConnectorTest {
     public void shouldNotEnrichOutputWhenQueryVariableIsInvalid() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "invalid_variable", "select * from public.customers where customer_id = '%s'", false, metricId);
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -143,7 +144,7 @@ public class PgAsyncConnectorTest {
     public void shouldNotEnrichButNotThrowNullPointerEitherWhenQueryVariableFieldIsNullOrRemoved() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", null, "select * from public.customers where customer_id = '%s'", false, metricId);
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -158,7 +159,7 @@ public class PgAsyncConnectorTest {
     public void shouldNotEnrichOutputWhenQueryPatternIsEmpty() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "", false, metricId);
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -174,7 +175,7 @@ public class PgAsyncConnectorTest {
         String invalidQueryPattern = "select * from public.customers where customer_id = %";
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, true, metricId);
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -190,7 +191,7 @@ public class PgAsyncConnectorTest {
         String invalidQueryPattern = "select * from public.customers where customer_id = '%d'";
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, false, metricId);
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -203,8 +204,9 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputForCorrespondingEnrichmentKeyWhenQueryReturnedByClientIsNull() throws Exception {
         inputData.setField(3, "11223344545");
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
 
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -220,7 +222,7 @@ public class PgAsyncConnectorTest {
     public void shouldGetStencilClientAndEnrichOutputForCorrespondingEnrichmentKeyWhenStencilClientIsNull() throws Exception {
         inputData.setField(3, "11223344545");
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, null);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, null);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
 
         pgAsyncConnector.open(configuration);
@@ -237,8 +239,10 @@ public class PgAsyncConnectorTest {
         inputData.setField(3, "11223344545");
         String query = String.format("select * from public.customers where customer_id = '%s'", "11223344545");
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         when(pgClient.query(query)).thenReturn(executableQuery);
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -249,7 +253,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputKeyWhenQueryVariableHasNoValueAssigned() throws Exception {
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
@@ -260,7 +264,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
         pgClient = null;
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.timeout(streamRow, resultFuture);
 
@@ -272,11 +276,11 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldAddPostProcessorTypeMetrics() {
         ArrayList<String> postProcessorType = new ArrayList<>();
-        postProcessorType.add("ashiko_pg_processor");
+        postProcessorType.add("PG");
         HashMap<String, List<String>> metrics = new HashMap<>();
         metrics.put("post_processor_type", postProcessorType);
 
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.preProcessBeforeNotifyingSubscriber();
 
         Assert.assertEquals(metrics, pgAsyncConnector.getTelemetry());
@@ -284,7 +288,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldNotifySubscribers() {
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(pgAsyncConnector);
@@ -292,12 +296,12 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldClosePgClientAndSetItToNullMarkingCloseConnectionEvent() {
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.close();
 
         verify(pgClient, times(1)).close();
         Assert.assertNull(pgAsyncConnector.getPgCient());
-        verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_DB_CLIENT);
+        verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
     }
 
     @Test
@@ -305,7 +309,7 @@ public class PgAsyncConnectorTest {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "", true, metricId);
         pgClient = null;
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.timeout(streamRow, resultFuture);
 
