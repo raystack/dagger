@@ -6,6 +6,7 @@ import static com.gojek.daggers.metrics.aspects.AspectType.Metric;
 public enum ExternalSourceAspects implements Aspects {
     CLOSE_CONNECTION_ON_HTTP_CLIENT("closeConnectionOnHttpClient", Metric),
     CLOSE_CONNECTION_ON_DB_CLIENT("closeConnectionOnDbClient", Metric),
+    CLOSE_CONNECTION_ON_EXTERNAL_CLIENT("closeConnectionOnDbClient", Metric),
     FAILURES_ON_HTTP_CALL_5XX("failuresOnHttp5XX", Metric),
     FAILURES_ON_HTTP_CALL_4XX("failuresOnHttp4XX", Metric),
     FAILURES_ON_HTTP_CALL_OTHER_STATUS("failuresOnHttpOtherStatus", Metric),
@@ -31,7 +32,10 @@ public enum ExternalSourceAspects implements Aspects {
     EMPTY_INPUT("emptyInput", Metric),
     ERROR_READING_RESPONSE("errorReadingResponse", Metric),
     OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse", Metric),
-    INVALID_CONFIGURATION("invalidConfiguration", Metric);
+    INVALID_CONFIGURATION("invalidConfiguration", Metric),
+    FAILURE_CODE_5XX("failuresCode5XX", Metric),
+    FAILURE_CODE_4XX("failuresCode4XX", Metric),
+    FAILURE_CODE_404("failuresCode404", Metric);
 
     private String value;
     private AspectType aspectType;
