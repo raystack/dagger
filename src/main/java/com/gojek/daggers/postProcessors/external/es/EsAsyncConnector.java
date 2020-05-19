@@ -1,6 +1,8 @@
 package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
+import com.gojek.daggers.metrics.MeterStatsManager;
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
@@ -29,9 +31,11 @@ public class EsAsyncConnector extends AsyncConnector {
     }
 
     EsAsyncConnector(EsSourceConfig esSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
-                     RestClient esClient, boolean telemetryEnabled, long shutDownPeriod) {
+                     RestClient esClient, boolean telemetryEnabled, long shutDownPeriod, ErrorReporter errorReporter, MeterStatsManager meterStatsManager) {
         this(esSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         this.esClient = esClient;
+        setErrorReporter(errorReporter);
+        setMeterStatsManager(meterStatsManager);
     }
 
     @Override
