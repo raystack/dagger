@@ -60,7 +60,6 @@ public class PgAsyncConnector extends AsyncConnector {
                     .setMaxSize(pgSourceConfig.getCapacity());
 
             pgClient = pool(connectOptions, poolOptions);
-            ;
         }
     }
 
