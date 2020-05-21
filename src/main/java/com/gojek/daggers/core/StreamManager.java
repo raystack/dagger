@@ -140,6 +140,7 @@ public class StreamManager {
         aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
         aggregateFunctions.put("CollectArray", new CollectArray());
         aggregateFunctions.put("PercentileAggregator", new PercentileAggregator());
+        aggregateFunctions.put("Top", new Top());
         return aggregateFunctions;
     }
 
