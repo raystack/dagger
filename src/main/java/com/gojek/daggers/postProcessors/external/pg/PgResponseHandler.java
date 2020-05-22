@@ -4,7 +4,7 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.external.ResponseHandler;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -27,7 +27,7 @@ import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CO
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.OTHER_ERRORS;
 import static com.gojek.daggers.protoHandler.RowFactory.createRow;
 
-public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
+public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PgResponseHandler.class.getName());
     private final PgSourceConfig pgSourceConfig;
     private final MeterStatsManager meterStatsManager;
@@ -36,9 +36,10 @@ public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<R
     private final Descriptors.Descriptor outputDescriptor;
     private final ResultFuture<Row> resultFuture;
     private final ErrorReporter errorReporter;
+    private PostResponseTelemetry postResponseTelemetry;
     private Instant startTime;
 
-    public PgResponseHandler(PgSourceConfig pgSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter) {
+    public PgResponseHandler(PgSourceConfig pgSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
 
         this.pgSourceConfig = pgSourceConfig;
         this.meterStatsManager = meterStatsManager;
@@ -47,6 +48,7 @@ public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<R
         this.outputDescriptor = outputDescriptor;
         this.resultFuture = resultFuture;
         this.errorReporter = errorReporter;
+        this.postResponseTelemetry = postResponseTelemetry;
     }
 
     public void startTimer() {
@@ -88,12 +90,12 @@ public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<R
                 }
             }
         });
-        sendSuccessTelemetry(meterStatsManager, startTime);
+        postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
     private void failureHandler(Throwable e) {
-        sendFailureTelemetry(meterStatsManager, startTime);
+        postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         LOGGER.error(e.getMessage());
         Exception httpFailureException = new HttpFailureException("PgResponseHandler : Failed with error. " + e.getMessage());
         if (pgSourceConfig.isFailOnErrors()) {
@@ -102,7 +104,7 @@ public class PgResponseHandler implements ResponseHandler, Handler<AsyncResult<R
             errorReporter.reportNonFatalException(httpFailureException);
         }
         if (e instanceof ResponseException) {
-            validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
+            postResponseTelemetry.validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
         } else {
             meterStatsManager.markEvent(OTHER_ERRORS);
             System.err.printf("PGResponseHandler some other errors :  %s \n", e.getMessage());

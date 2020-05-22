@@ -6,6 +6,7 @@ import com.gojek.daggers.metrics.aspects.Aspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import com.gojek.esb.booking.BookingLogMessage;
@@ -81,7 +82,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs404() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(404);
 
         httpResponseHandler.startTimer();
@@ -96,7 +97,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs4XXOtherThan404() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(402);
 
         httpResponseHandler.startTimer();
@@ -111,7 +112,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIs5XX() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(502);
 
         httpResponseHandler.startTimer();
@@ -126,7 +127,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndStatusCodeIsOtherThan5XXAnd4XX() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(302);
 
         httpResponseHandler.startTimer();
@@ -142,7 +143,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs404() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(404);
 
         httpResponseHandler.startTimer();
@@ -158,7 +159,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs4XXOtherThan404() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(400);
 
         httpResponseHandler.startTimer();
@@ -174,7 +175,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIs5XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(502);
 
         httpResponseHandler.startTimer();
@@ -190,7 +191,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndStatusCodeIsOtherThan5XXAnd4XX() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(response.getStatusCode()).thenReturn(302);
 
         httpResponseHandler.startTimer();
@@ -205,7 +206,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldPassInputIfFailOnErrorFalseAndOnThrowable() {
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Throwable throwable = new Throwable("throwable message");
 
         httpResponseHandler.startTimer();
@@ -220,7 +221,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowErrorIfFailOnErrorTrueAndOnThrowable() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Throwable throwable = new Throwable("throwable message");
 
         httpResponseHandler.startTimer();
@@ -239,7 +240,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -265,7 +266,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Arrays.asList("surge_factor", "s2_id_level");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -298,7 +299,7 @@ public class HttpResponseHandlerTest {
         when(response.getResponseBody()).thenReturn("{\n" +
                 "  \"surge\": 0.732\n" +
                 "}");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         httpResponseHandler.startTimer();
         try {
@@ -315,7 +316,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732f);
@@ -340,7 +341,7 @@ public class HttpResponseHandlerTest {
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, null, "345", headers, outputMapping, "metricId_02");
-        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
         outputData.setField(0, 0.732);

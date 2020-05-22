@@ -4,8 +4,8 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.external.ResponseHandler;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.OTHER_ERRORS;
 
-public class HttpResponseHandler extends AsyncCompletionHandler<Object> implements ResponseHandler {
+public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseHandler.class.getName());
     private final RowManager rowManager;
     private ColumnNameManager columnNameManager;
@@ -36,11 +36,12 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> implemen
     private MeterStatsManager meterStatsManager;
     private Instant startTime;
     private ErrorReporter errorReporter;
+    private PostResponseTelemetry postResponseTelemetry;
 
 
     public HttpResponseHandler(HttpSourceConfig httpSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager,
                                ColumnNameManager columnNameManager, Descriptors.Descriptor descriptor, ResultFuture<Row> resultFuture,
-                               ErrorReporter errorReporter) {
+                               ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
 
         this.httpSourceConfig = httpSourceConfig;
         this.meterStatsManager = meterStatsManager;
@@ -49,6 +50,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> implemen
         this.descriptor = descriptor;
         this.resultFuture = resultFuture;
         this.errorReporter = errorReporter;
+        this.postResponseTelemetry = postResponseTelemetry;
     }
 
     public void startTimer() {
@@ -61,7 +63,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> implemen
         if (statusCode == 200)
             successHandler(response);
         else {
-            validateResponseCode(meterStatsManager, statusCode);
+            postResponseTelemetry.validateResponseCode(meterStatsManager, statusCode);
             failureHandler("Received status code : " + statusCode);
         }
         return response;
@@ -83,7 +85,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> implemen
             try {
                 value = JsonPath.parse(response.getResponseBody()).read(outputMappingKeyConfig.getPath(), Object.class);
             } catch (PathNotFoundException e) {
-                failureReadingPath(meterStatsManager, e);
+                postResponseTelemetry.failureReadingPath(meterStatsManager);
                 LOGGER.error(e.getMessage());
                 reportAndThrowError(e);
                 return;
@@ -91,12 +93,12 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> implemen
             int fieldIndex = columnNameManager.getOutputIndex(key);
             setField(key, value, fieldIndex);
         });
-        sendSuccessTelemetry(meterStatsManager, startTime);
+        postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
     public void failureHandler(String logMessage) {
-        sendFailureTelemetry(meterStatsManager, startTime);
+        postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         LOGGER.error(logMessage);
         Exception httpFailureException = new HttpFailureException(logMessage);
         if (httpSourceConfig.isFailOnErrors()) {

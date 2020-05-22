@@ -7,6 +7,7 @@ import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.external.http.request.HttpRequestFactory;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -71,7 +72,7 @@ public class HttpAsyncConnector extends AsyncConnector {
 
             BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
             HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, getMeterStatsManager(),
-                    rowManager, columnNameManager, getOutputDescriptor(resultFuture), resultFuture, getErrorReporter());
+                    rowManager, getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
             httpResponseHandler.startTimer();
             request.execute(httpResponseHandler);
         } catch (InvalidHttpVerbException e) {
