@@ -5,6 +5,7 @@ import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -59,7 +60,7 @@ public class EsAsyncConnector extends AsyncConnector {
         String esEndpoint = String.format(esSourceConfig.getPattern(), endpointVariablesValues);
         Request esRequest = new Request("GET", esEndpoint);
         EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, getMeterStatsManager(), rowManager,
-                columnNameManager, getOutputDescriptor(resultFuture), resultFuture, getErrorReporter());
+                getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
         esResponseHandler.startTimer();
         esClient.performRequestAsync(esRequest, esResponseHandler);
     }
