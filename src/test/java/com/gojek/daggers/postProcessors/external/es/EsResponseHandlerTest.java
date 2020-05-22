@@ -4,6 +4,7 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.gojek.daggers.protoHandler.RowFactory;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
@@ -65,7 +66,7 @@ public class EsResponseHandlerTest {
         outputMapping = new HashMap<>();
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping);
+                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
         resultFuture = mock(ResultFuture.class);
         descriptor = EnrichedBookingLogMessage.getDescriptor();
         meterStatsManager = mock(MeterStatsManager.class);
@@ -73,7 +74,7 @@ public class EsResponseHandlerTest {
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         response = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
@@ -94,10 +95,10 @@ public class EsResponseHandlerTest {
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping);
+                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowFactory.createRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
@@ -125,10 +126,10 @@ public class EsResponseHandlerTest {
         outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping);
+                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         outputData.setField(0, ProtoHandlerFactory.getProtoHandler(descriptor.findFieldByName("driver_id")).transform(12345));
         outputStreamData.setField(1, outputData);
 
@@ -151,7 +152,7 @@ public class EsResponseHandlerTest {
         outputMapping.put("driver_id", new OutputMapping("$.invalidPath"));
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping);
+                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
 
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(response);
@@ -332,9 +333,9 @@ public class EsResponseHandlerTest {
 
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
-                "5000", "5000", "5000", "5000", true, outputMapping);
+                "5000", "5000", "5000", "5000", true, outputMapping, "metricId_01");
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new IOException(""));
