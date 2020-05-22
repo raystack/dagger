@@ -12,7 +12,6 @@ public enum ExternalSourceAspects implements Aspects {
     FAILURES_RESPONSE_TIME("failureResponseTime", Histogram),
     SUCCESS_RESPONSE("successResponse", Metric),
     ERROR_PARSING_RESPONSE("parseErrors", Metric),
-    FAILURES_ON_ES("failuresOnES5XX", Metric),
     REQUEST_ERROR("requestError", Metric),
     OTHER_ERRORS("otherErrors", Metric),
     TOTAL_EXTERNAL_CALLS("totalExternalCalls", Metric),

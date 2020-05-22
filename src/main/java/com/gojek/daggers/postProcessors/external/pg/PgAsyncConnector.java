@@ -6,6 +6,7 @@ import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.de.stencil.client.StencilClient;
 import io.vertx.core.Vertx;
@@ -70,7 +71,7 @@ public class PgAsyncConnector extends AsyncConnector {
         if (isEndpointOrQueryInvalid(resultFuture, rowManager)) return;
         String query = String.format(pgSourceConfig.getPattern(), queryVariablesValues);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, getMeterStatsManager(), rowManager,
-                columnNameManager, getOutputDescriptor(resultFuture), resultFuture, getErrorReporter());
+                getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
 
         pgResponseHandler.startTimer();
         Query<RowSet<io.vertx.sqlclient.Row>> executableQuery = pgClient.query(query);

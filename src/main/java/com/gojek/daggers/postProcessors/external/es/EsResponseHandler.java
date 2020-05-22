@@ -4,7 +4,7 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.external.ResponseHandler;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -31,7 +31,7 @@ import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.protoHandler.RowFactory.createRow;
 import static java.util.Collections.singleton;
 
-public class EsResponseHandler implements ResponseListener, ResponseHandler {
+public class EsResponseHandler implements ResponseListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EsResponseHandler.class.getName());
     private EsSourceConfig esSourceConfig;
     private RowManager rowManager;
@@ -41,8 +41,9 @@ public class EsResponseHandler implements ResponseListener, ResponseHandler {
     private MeterStatsManager meterStatsManager;
     private ColumnNameManager columnNameManager;
     private ErrorReporter errorReporter;
+    private PostResponseTelemetry postResponseTelemetry;
 
-    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter) {
+    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter, PostResponseTelemetry postResponseTelemetry) {
         this.esSourceConfig = esSourceConfig;
         this.rowManager = rowManager;
         this.outputDescriptor = outputDescriptor;
@@ -50,11 +51,7 @@ public class EsResponseHandler implements ResponseListener, ResponseHandler {
         this.meterStatsManager = meterStatsManager;
         this.columnNameManager = columnNameManager;
         this.errorReporter = errorStatsReporter;
-    }
-
-    @Override
-    public boolean is5XX(int statusCode) {
-        return statusCode == 502 || statusCode == 503 || statusCode == 504;
+        this.postResponseTelemetry = postResponseTelemetry;
     }
 
     public void startTimer() {
@@ -74,7 +71,7 @@ public class EsResponseHandler implements ResponseListener, ResponseHandler {
                 try {
                     outputValue = JsonPath.parse(responseBody).read(outputColumnPath, new Object().getClass());
                 } catch (PathNotFoundException exception) {
-                    failureReadingPath(meterStatsManager, exception);
+                    postResponseTelemetry.failureReadingPath(meterStatsManager);
                     LOGGER.error(exception.getMessage());
                     reportAndThrowError(exception);
                     return;
@@ -98,14 +95,14 @@ public class EsResponseHandler implements ResponseListener, ResponseHandler {
             errorReporter.reportNonFatalException(e);
             e.printStackTrace();
         } finally {
-            sendSuccessTelemetry(meterStatsManager, startTime);
+            postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
             resultFuture.complete(singleton(rowManager.getAll()));
         }
     }
 
     @Override
     public void onFailure(Exception e) {
-        sendFailureTelemetry(meterStatsManager, startTime);
+        postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         Exception httpFailureException = new HttpFailureException("EsResponseHandler : Failed with error. " + e.getMessage());
         if (esSourceConfig.isFailOnErrors()) {
             reportAndThrowError(httpFailureException);
@@ -113,7 +110,7 @@ public class EsResponseHandler implements ResponseListener, ResponseHandler {
             errorReporter.reportNonFatalException(e);
         }
         if (e instanceof ResponseException) {
-            validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
+            postResponseTelemetry.validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
         } else {
             meterStatsManager.markEvent(OTHER_ERRORS);
             System.err.printf("ESResponseHandler some other errors :  %s \n", e.getMessage());

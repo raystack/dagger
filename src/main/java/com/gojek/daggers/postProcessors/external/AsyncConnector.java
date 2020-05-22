@@ -31,27 +31,9 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
     private StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
     private String metricId;
-
-    protected ErrorReporter getErrorReporter() {
-        return errorReporter;
-    }
-
-    protected MeterStatsManager getMeterStatsManager() {
-        return meterStatsManager;
-    }
-
-    public void setErrorReporter(ErrorReporter errorReporter) {
-        this.errorReporter = errorReporter;
-    }
-
     private ErrorReporter errorReporter;
-
-    public void setMeterStatsManager(MeterStatsManager meterStatsManager) {
-        this.meterStatsManager = meterStatsManager;
-    }
-
     private MeterStatsManager meterStatsManager;
-    protected ColumnNameManager columnNameManager;
+    private ColumnNameManager columnNameManager;
     private Boolean telemetryEnabled;
     private long shutDownPeriod;
     private SourceConfig sourceConfig;
@@ -68,6 +50,26 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         this.columnNameManager = columnNameManager;
         this.telemetryEnabled = telemetryEnabled;
         this.shutDownPeriod = shutDownPeriod;
+    }
+
+    protected ErrorReporter getErrorReporter() {
+        return errorReporter;
+    }
+
+    protected MeterStatsManager getMeterStatsManager() {
+        return meterStatsManager;
+    }
+
+    public ColumnNameManager getColumnNameManager() {
+        return columnNameManager;
+    }
+
+    public void setErrorReporter(ErrorReporter errorReporter) {
+        this.errorReporter = errorReporter;
+    }
+
+    public void setMeterStatsManager(MeterStatsManager meterStatsManager) {
+        this.meterStatsManager = meterStatsManager;
     }
 
     @Override
