@@ -17,7 +17,7 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
 
     @Override
     public BoundRequestBuilder create() {
-        String requestBody = String.format(httpSourceConfig.getRequestPattern(), requestVariablesValues);
+        String requestBody = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
         String endpoint = httpSourceConfig.getEndpoint();
         BoundRequestBuilder postRequest = httpClient
                 .preparePost(endpoint)

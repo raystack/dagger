@@ -22,6 +22,7 @@ public class PgStreamDecoratorTest {
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
     private PgSourceConfig pgSourceConfig;
+    private String metricId;
 
     @Before
     public void setUp() {
@@ -30,19 +31,19 @@ public class PgStreamDecoratorTest {
         shutDownPeriod = 0L;
         pgSourceConfig = new PgSourceConfig("localhost", "9200", "",
                 "", "", "",
-                "20", "5000", new HashMap<>(), "5000", "5000", "", "", true);
+                "20", "5000", new HashMap<>(), "5000", "5000", "", "", true, metricId);
     }
 
     @Test
     public void canDecorateStreamWhenConfigIsPresent() {
-        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(pgSourceConfig, metricId, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertTrue(pgStreamDecorator.canDecorate());
     }
 
     @Test
     public void cannotDecorateStreamWhenConfigIsNull() {
-        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(null, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        PgStreamDecorator pgStreamDecorator = new PgStreamDecorator(null, metricId, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertFalse(pgStreamDecorator.canDecorate());
     }
