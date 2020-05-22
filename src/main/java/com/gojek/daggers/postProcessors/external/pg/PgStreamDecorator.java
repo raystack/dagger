@@ -17,10 +17,12 @@ public class PgStreamDecorator implements StreamDecorator {
     private final TelemetrySubscriber telemetrySubscriber;
     private final boolean telemetryEnabled;
     private final long shutDownPeriod;
+    private String metricId;
 
-    public PgStreamDecorator(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
+    public PgStreamDecorator(PgSourceConfig pgSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator,
                              ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.pgSourceConfig = pgSourceConfig;
+        this.metricId = metricId;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
@@ -35,7 +37,7 @@ public class PgStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         pgAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, pgAsyncConnector, pgSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, pgSourceConfig.getCapacity());
     }

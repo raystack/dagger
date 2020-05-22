@@ -23,11 +23,12 @@ public class EsSourceConfig implements Serializable, SourceConfig {
     private String connectTimeout;
     private boolean failOnErrors;
     private Map<String, OutputMapping> outputMapping;
+    private String metricId;
 
 
     public EsSourceConfig(String host, String port, String endpointPattern, String endpointVariables,
                           String type, String capacity, String connectTimeout, String retryTimeout, String socketTimeout, String streamTimeout,
-                          boolean failOnErrors, Map<String, OutputMapping> outputMapping) {
+                          boolean failOnErrors, Map<String, OutputMapping> outputMapping, String metricId) {
         this.host = host;
         this.port = port;
         this.endpointPattern = endpointPattern;
@@ -40,6 +41,7 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         this.streamTimeout = streamTimeout;
         this.failOnErrors = failOnErrors;
         this.outputMapping = outputMapping;
+        this.metricId = metricId;
     }
 
 
@@ -51,18 +53,27 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         return Integer.valueOf(port);
     }
 
-    public String getEndpointPattern() {
+    @Override
+    public String getPattern() {
         return endpointPattern;
     }
 
+    @Override
+    public String getVariables() {
+        return endpointVariables;
+    }
+
+    @Override
     public boolean isFailOnErrors() {
         return failOnErrors;
     }
 
-    public String getEndpointVariables() {
-        return endpointVariables;
+    @Override
+    public String getMetricId() {
+        return metricId;
     }
 
+    @Override
     public String getType() {
         return type;
     }
@@ -101,7 +112,6 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("host", host);
         mandatoryFields.put("port", port);
         mandatoryFields.put("endpoint_pattern", endpointPattern);
-        mandatoryFields.put("endpoint_variables", endpointVariables);
         mandatoryFields.put("type", type);
         mandatoryFields.put("capacity", capacity);
         mandatoryFields.put("connect_timeout", connectTimeout);

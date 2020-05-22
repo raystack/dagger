@@ -4,6 +4,7 @@ import com.gojek.daggers.exception.HttpFailureException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
@@ -28,7 +29,6 @@ import java.util.Map;
 
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.protoHandler.RowFactory.createRow;
-import static java.time.Duration.between;
 import static java.util.Collections.singleton;
 
 public class EsResponseHandler implements ResponseListener {
@@ -41,8 +41,9 @@ public class EsResponseHandler implements ResponseListener {
     private MeterStatsManager meterStatsManager;
     private ColumnNameManager columnNameManager;
     private ErrorReporter errorReporter;
+    private PostResponseTelemetry postResponseTelemetry;
 
-    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter) {
+    public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter, PostResponseTelemetry postResponseTelemetry) {
         this.esSourceConfig = esSourceConfig;
         this.rowManager = rowManager;
         this.outputDescriptor = outputDescriptor;
@@ -50,11 +51,7 @@ public class EsResponseHandler implements ResponseListener {
         this.meterStatsManager = meterStatsManager;
         this.columnNameManager = columnNameManager;
         this.errorReporter = errorStatsReporter;
-    }
-
-    private static boolean isRetryStatus(ResponseException e) {
-        int statusCode = e.getResponse().getStatusLine().getStatusCode();
-        return statusCode == 502 || statusCode == 503 || statusCode == 504;
+        this.postResponseTelemetry = postResponseTelemetry;
     }
 
     public void startTimer() {
@@ -66,7 +63,6 @@ public class EsResponseHandler implements ResponseListener {
         try {
             if (response.getStatusLine().getStatusCode() != 200)
                 return;
-            meterStatsManager.markEvent(DOCUMENT_FOUND);
             String responseBody = EntityUtils.toString(response.getEntity());
             List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
             esOutputColumnNames.forEach(outputColumnName -> {
@@ -75,13 +71,13 @@ public class EsResponseHandler implements ResponseListener {
                 try {
                     outputValue = JsonPath.parse(responseBody).read(outputColumnPath, new Object().getClass());
                 } catch (PathNotFoundException exception) {
-                    meterStatsManager.markEvent(FAILURES_ON_READING_PATH);
+                    postResponseTelemetry.failureReadingPath(meterStatsManager);
                     LOGGER.error(exception.getMessage());
                     reportAndThrowError(exception);
                     return;
                 }
                 int outputColumnIndex = columnNameManager.getOutputIndex(outputColumnName);
-                setField(outputColumnIndex, outputValue, outputColumnName);
+                setField(esSourceConfig, outputColumnIndex, outputValue, outputColumnName);
             });
         } catch (ParseException e) {
             meterStatsManager.markEvent(ERROR_PARSING_RESPONSE);
@@ -99,45 +95,31 @@ public class EsResponseHandler implements ResponseListener {
             errorReporter.reportNonFatalException(e);
             e.printStackTrace();
         } finally {
-            meterStatsManager.updateHistogram(SUCCESS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
+            postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
             resultFuture.complete(singleton(rowManager.getAll()));
         }
     }
 
     @Override
     public void onFailure(Exception e) {
-        meterStatsManager.markEvent(TOTAL_FAILED_REQUESTS);
+        postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         Exception httpFailureException = new HttpFailureException("EsResponseHandler : Failed with error. " + e.getMessage());
         if (esSourceConfig.isFailOnErrors()) {
             reportAndThrowError(httpFailureException);
+        } else {
+            errorReporter.reportNonFatalException(e);
         }
-
         if (e instanceof ResponseException) {
-            if (isRetryStatus((ResponseException) e)) {
-                meterStatsManager.markEvent(FAILURES_ON_ES);
-                meterStatsManager.updateHistogram(FAILURES_ON_ES_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-                System.err.printf("ESResponseHandler : all nodes unresponsive %s\n", e.getMessage());
-            } else {
-                if (isNotFound((ResponseException) e)) {
-                    meterStatsManager.markEvent(DOCUMENT_NOT_FOUND_ON_ES);
-                } else {
-                    meterStatsManager.markEvent(REQUEST_ERROR);
-                }
-                meterStatsManager.updateHistogram(REQUEST_ERRORS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
-                System.err.printf("ESResponseHandler : request error %s\n", e.getMessage());
-            }
+            postResponseTelemetry.validateResponseCode(meterStatsManager, ((ResponseException) e).getResponse().getStatusLine().getStatusCode());
         } else {
             meterStatsManager.markEvent(OTHER_ERRORS);
-            meterStatsManager.updateHistogram(OTHER_ERRORS_RESPONSE_TIME, between(startTime, Instant.now()).toMillis());
             System.err.printf("ESResponseHandler some other errors :  %s \n", e.getMessage());
         }
-
-        errorReporter.reportNonFatalException(e);
-
         resultFuture.complete(singleton(rowManager.getAll()));
     }
 
-    private void setField(int index, Object value, String name) {
+
+    private void setField(EsSourceConfig esSourceConfig, int index, Object value, String name) {
         if (!esSourceConfig.hasType()) {
             rowManager.setInOutput(index, value);
             return;
@@ -160,9 +142,5 @@ public class EsResponseHandler implements ResponseListener {
     private void reportAndThrowError(Exception exception) {
         errorReporter.reportFatalException(exception);
         resultFuture.completeExceptionally(exception);
-    }
-
-    private boolean isNotFound(ResponseException e) {
-        return e.getResponse().getStatusLine().getStatusCode() == 404;
     }
 }
