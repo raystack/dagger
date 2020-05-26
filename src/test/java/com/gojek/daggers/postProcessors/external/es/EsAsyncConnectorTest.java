@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.external.es;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
@@ -16,7 +15,6 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +49,6 @@ public class EsAsyncConnectorTest {
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
 
-    private WireMockServer wireMockServer;
     private RestClient esClient;
     private EsSourceConfig esSourceConfig;
     private HashMap<String, OutputMapping> outputMapping;
@@ -81,18 +78,11 @@ public class EsAsyncConnectorTest {
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
         esClient = mock(RestClient.class);
         resultFuture = mock(ResultFuture.class);
-        wireMockServer = new WireMockServer(8081);
-        wireMockServer.start();
         inputColumnNames = new String[]{"order_id", "event_timestamp", "driver_id", "customer_id", "status", "service_area_id"};
         columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
         telemetryEnabled = true;
         shutDownPeriod = 0L;
         stencilClient = mock(StencilClient.class);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        wireMockServer.stop();
     }
 
     @Test
