@@ -17,7 +17,7 @@ public class HttpGetRequestHandler implements HttpRequestHandler {
 
     @Override
     public BoundRequestBuilder create() {
-        String endpointPath = String.format(httpSourceConfig.getRequestPattern(), requestVariablesValues);
+        String endpointPath = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
         String endpoint = httpSourceConfig.getEndpoint();
         String requestEndpoint = endpoint + endpointPath;
         BoundRequestBuilder getRequest = httpClient.prepareGet(requestEndpoint);

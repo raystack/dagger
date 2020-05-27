@@ -31,6 +31,7 @@ public class EsSourceConfigTest {
     private String streamTimeout;
     private boolean failOnErrors;
     private HashMap<String, OutputMapping> outputMapping;
+    private String metricId;
 
     public void setup(){
 
@@ -52,10 +53,11 @@ public class EsSourceConfigTest {
         streamTimeout = "4000";
         failOnErrors = false;
         outputMapping = new HashMap<>();
+        metricId = "metricId_01";
 
         esSourceConfig = new EsSourceConfig(host, port, endpointPattern,
                 endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping);
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId);
 
     }
 
@@ -71,12 +73,12 @@ public class EsSourceConfigTest {
 
     @Test
     public void getEndpointPatternShouldGetRightConfig() {
-        assertEquals(endpointPattern, esSourceConfig.getEndpointPattern());
+        assertEquals(endpointPattern, esSourceConfig.getPattern());
     }
 
     @Test
     public void getEndpointVariablesShouldGetRightConfig() {
-        assertEquals(endpointVariables, esSourceConfig.getEndpointVariables());
+        assertEquals(endpointVariables, esSourceConfig.getVariables());
     }
 
 
@@ -98,13 +100,13 @@ public class EsSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", null, "", "", "", "", "", false, new HashMap<>());
+        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", null, "", "", "", "", "", false, new HashMap<>(), metricId);
         assertEquals(false, esSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>());
+        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), metricId);
         assertEquals(false, esSourceConfig.hasType());
     }
 
@@ -153,7 +155,6 @@ public class EsSourceConfigTest {
         expectedMandatoryFields.put("host", host);
         expectedMandatoryFields.put("port", port);
         expectedMandatoryFields.put("endpoint_pattern", endpointPattern);
-        expectedMandatoryFields.put("endpoint_variables", endpointVariables);
         expectedMandatoryFields.put("type", type);
         expectedMandatoryFields.put("capacity", capacity);
         expectedMandatoryFields.put("connect_timeout", connectTimeout);
@@ -171,7 +172,7 @@ public class EsSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>());
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>(), metricId);
 
         esSourceConfig.validateFields();
     }

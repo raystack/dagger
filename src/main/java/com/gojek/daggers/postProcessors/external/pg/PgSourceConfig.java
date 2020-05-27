@@ -25,9 +25,10 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private final String queryVariables;
     private final String queryPattern;
     private boolean failOnErrors;
+    private String metricId;
 
     public PgSourceConfig(String host, String port, String user, String password, String database,
-                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors) {
+                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors, String metricId) {
         this.host = host;
         this.port = port;
         this.user = user;
@@ -42,6 +43,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         this.queryVariables = queryVariables;
         this.queryPattern = queryPattern;
         this.failOnErrors = failOnErrors;
+        this.metricId = metricId;
     }
 
     @Override
@@ -109,8 +111,14 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         return queryVariables;
     }
 
-    public String getQueryPattern() {
+    @Override
+    public String getPattern() {
         return queryPattern;
+    }
+
+    @Override
+    public String getVariables() {
+        return queryVariables;
     }
 
     public boolean hasType() {
@@ -127,5 +135,10 @@ public class PgSourceConfig implements Serializable, SourceConfig {
 
     public boolean isFailOnErrors() {
         return failOnErrors;
+    }
+
+    @Override
+    public String getMetricId() {
+        return metricId;
     }
 }
