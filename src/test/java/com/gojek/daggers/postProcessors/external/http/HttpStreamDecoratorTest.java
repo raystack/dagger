@@ -32,13 +32,13 @@ public class HttpStreamDecoratorTest {
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, "metricId-http-01", stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }

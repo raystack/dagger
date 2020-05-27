@@ -27,13 +27,13 @@ public class PgSourceConfigTest {
     private String capacity;
     private String streamTimeout;
     private Map<String, String> outputMapping;
-    private String maximumConnectionPoolSize;
     private String connectTimeout;
     private String idleTimeout;
     private String queryVariables;
     private String queryPattern;
     private PgSourceConfig pgSourceConfig;
     private boolean failOnErrors;
+    private String metricId;
 
     public void setup() {
 
@@ -55,11 +55,11 @@ public class PgSourceConfigTest {
         queryPattern = "/drivers/driver/%s";
         queryVariables = "driver_id";
         connectTimeout = "1000";
-        maximumConnectionPoolSize = "20";
         idleTimeout = "3000";
+        metricId = "metricId-pg-01";
         failOnErrors = false;
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors);
+                queryPattern, failOnErrors, metricId);
 
     }
 
@@ -90,7 +90,7 @@ public class PgSourceConfigTest {
 
     @Test
     public void getQueryPatternShouldGetRightConfig() {
-        assertEquals(queryPattern, pgSourceConfig.getQueryPattern());
+        assertEquals(queryPattern, pgSourceConfig.getPattern());
     }
 
     @Test
@@ -111,14 +111,14 @@ public class PgSourceConfigTest {
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors);
+                queryPattern, failOnErrors, metricId);
         assertFalse(pgSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors);
+                queryPattern, failOnErrors, metricId);
         assertFalse(pgSourceConfig.hasType());
     }
 
@@ -181,7 +181,7 @@ public class PgSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [output_mapping]");
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout,
-                new HashMap<>(), connectTimeout, idleTimeout, queryVariables, queryPattern, true);
+                new HashMap<>(), connectTimeout, idleTimeout, queryVariables, queryPattern, true, metricId);
 
         pgSourceConfig.validateFields();
     }

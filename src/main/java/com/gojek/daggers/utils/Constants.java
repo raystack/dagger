@@ -62,9 +62,9 @@ public class Constants {
     public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
     public final static String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
     public final static String OUTPUT_STREAM = "OUTPUT_STREAM";
-    public final static String ES_TYPE = "es";
-    public final static String HTTP_TYPE = "http";
-    public final static String SQL_TYPE = "sql";
+    public final static String ES_TYPE = "ES";
+    public final static String HTTP_TYPE = "HTTP";
+    public final static String PG_TYPE = "PG";
     public final static String SQL_PATH_SELECT_ALL_CONFIG_VALUE = "*";
 
     public final static String REDIS_SERVER_KEY = "REDIS_SERVER";

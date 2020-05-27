@@ -1,7 +1,6 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
-import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,6 +30,7 @@ public class HttpSourceConfigTest {
     private boolean failOnErrors;
     private String type;
     private String capacity;
+    private String metricId;
 
     @Before
     public void setup() {
@@ -48,7 +48,8 @@ public class HttpSourceConfigTest {
         failOnErrors = false;
         type = "com.gojek.esb.booking.BookingLogMessage";
         capacity = "345";
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings);
+        metricId = "metricId-http-01";
+        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, metricId);
     }
 
     @Test
@@ -68,7 +69,7 @@ public class HttpSourceConfigTest {
 
     @Test
     public void shouldReturnBodyPattern() {
-        Assert.assertEquals(requestPattern, httpSourceConfig.getRequestPattern());
+        Assert.assertEquals(requestPattern, httpSourceConfig.getPattern());
     }
 
     @Test
@@ -125,7 +126,7 @@ public class HttpSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [endpoint, streamTimeout, requestPattern, verb, connectTimeout, outputMapping]");
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, requestVariables, null, null, false, null, capacity, null, null);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, requestVariables, null, null, false, null, capacity, null, null, metricId);
         httpSourceConfig.validateFields();
     }
 
@@ -134,7 +135,7 @@ public class HttpSourceConfigTest {
         expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
         expectedException.expect(IllegalArgumentException.class);
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "post", "body", requestVariables, null, null, false, null, capacity, null, null);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "post", "body", requestVariables, null, null, false, null, capacity, null, null, "metricId_01");
         httpSourceConfig.validateFields();
     }
 
@@ -148,7 +149,7 @@ public class HttpSourceConfigTest {
         outputMappings.put("field", outputMappingWithNullField);
 
         httpSourceConfig = new HttpSourceConfig("http://localhost",
-                "post", "request_body", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings);
+                "post", "request_body", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01");
         httpSourceConfig.validateFields();
     }
 
@@ -164,6 +165,7 @@ public class HttpSourceConfigTest {
         expectedMandatoryFields.put("streamTimeout", streamTimeout);
         expectedMandatoryFields.put("connectTimeout", connectTimeout);
         expectedMandatoryFields.put("outputMapping", outputMapping);
+        expectedMandatoryFields.put("metric_id", metricId);
         HashMap<String, Object> actualMandatoryFields = httpSourceConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("endpoint"), actualMandatoryFields.get("endpoint"));
         assertEquals(expectedMandatoryFields.get("verb"), actualMandatoryFields.get("verb"));
@@ -181,7 +183,7 @@ public class HttpSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>());
+        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>(), "metricId_01");
 
         httpSourceConfig.validateFields();
     }
