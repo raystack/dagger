@@ -17,10 +17,12 @@ public class HttpStreamDecorator implements StreamDecorator {
     private long shutDownPeriod;
     private HttpSourceConfig httpSourceConfig;
     private StencilClientOrchestrator stencilClientOrchestrator;
+    private String metricId;
 
-    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
+    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
                                TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
         this.httpSourceConfig = httpSourceConfig;
+        this.metricId = metricId;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.telemetrySubscriber = telemetrySubscriber;
@@ -35,7 +37,7 @@ public class HttpStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
         httpAsyncConnector.notifySubscriber(telemetrySubscriber);
         return AsyncDataStream.orderedWait(inputStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
     }

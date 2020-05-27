@@ -73,13 +73,13 @@ public class ExternalPostProcessorTest {
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames, "metricId_01");
         HashMap<String, OutputMapping> esOutputMapping = new HashMap<>();
         esOutputMapping.put("es_field_1", new OutputMapping(""));
         String[] inputColumnNames = {"http_input_field_1", "http_input_field_2", "http_input_field_3"};
         List<String> outputColumnNames = Arrays.asList("http_field_1", "http_field_2");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, new HashMap<>());
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, new HashMap<>(), "metricId_01");
         externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(SurgeFactorLogMessage.getDescriptor());
@@ -137,11 +137,11 @@ public class ExternalPostProcessorTest {
         outputMapping.put("order_id", new OutputMapping("path"));
 
         List<HttpSourceConfig> httpSourceConfigs = new ArrayList<>();
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), outputMapping);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), outputMapping, "metricId_01");
         httpSourceConfigs.add(httpSourceConfig);
 
         List<EsSourceConfig> esSourceConfigs = new ArrayList<>();
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping);
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01");
         esSourceConfigs.add(esSourceConfig);
 
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(httpSourceConfigs, esSourceConfigs, new ArrayList<>());
@@ -268,12 +268,12 @@ public class ExternalPostProcessorTest {
         }
 
         @Override
-        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, String metricId) {
             return httpStreamDecorator;
         }
 
         @Override
-        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, String metricId) {
             return esStreamDecorator;
         }
     }

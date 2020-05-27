@@ -30,19 +30,19 @@ public class EsStreamDecoratorTest {
         shutDownPeriod = 0L;
         esSourceConfig = new EsSourceConfig("localhost", "9200", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, new HashMap<>());
+                "5000", "5000", "5000", "5000", false, new HashMap<>(), "metricId_01");
     }
 
     @Test
     public void canDecorateStreamWhenConfigIsPresent() {
-        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(esSourceConfig, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(esSourceConfig, "metricId_01", stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertTrue(esStreamDecorator.canDecorate());
     }
 
     @Test
     public void cannotDecorateStreamWhenConfigIsNull() {
-        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(null, stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        EsStreamDecorator esStreamDecorator = new EsStreamDecorator(null, "metricId_01", stencilClientOrchestrator, new ColumnNameManager(new String[4], new ArrayList<>()), telemetrySubscriber, telemetryEnabled, shutDownPeriod);
 
         Assert.assertFalse(esStreamDecorator.canDecorate());
     }
