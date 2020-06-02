@@ -115,7 +115,7 @@ public class HttpAsyncConnectorIntegrationTest {
                 "    {" +
                 "   \"transformation_arguments\": { \n" +
                 "   \"keyColumnName\": \"surge_factor\", \n" +
-                "    \"valueColumnName\": \"features\" \n"+
+                "    \"valueColumnName\": \"event_timestamp\" \n"+
                 "   }," +
                 "   \"transformation_class\": \"com.gojek.dagger.transformer.FeatureTransformer\" \n" +
                 "   } \n"   +
@@ -200,43 +200,42 @@ public class HttpAsyncConnectorIntegrationTest {
     }
 
 
-//    @Test
-//    public void shouldPopulateFieldFromHTTPGetApiOnSuccessResponseWithTransformer() throws Exception {
-//
-//        stubFor(get(urlEqualTo("/customer/123"))
-//                .withHeader("content-type", equalTo("application/json"))
-//                .willReturn(aResponse()
-//                        .withStatus(200)
-//                        .withHeader("Content-Type", "application/json")
-//                        .withBody("{data: 23.33}")));
-//
-//        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-//        CollectSink.values.clear();
-//
-//        Row inputData = new Row(3);
-//        inputData.setField(0, "RB-123");
-//        inputData.setField(1, "123");
-//        inputData.setField(2, "456");
-//
-//        DataStream<Row> dataStream = env.fromElements(Row.class, inputData).map(new InitializationDecorator(columnNameManager));
-//
-//        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "", new StencilClientOrchestrator(new Configuration()),
-//                columnNameManager, null, telemetryEnabled, shutDownPeriod, null, null);
-//
-//        DataStream<Row> outputStream = AsyncDataStream.orderedWait(dataStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
-//
-//        outputStream.map(new FetchOutputDecorator());
-//
-//        TransformProcessor transformProcessor = new TransformProcessor(postProcessorParsedConfig.getTransformers());
-//
-//        StreamInfo streamInfo = new StreamInfo(outputStream, columnNameManager.getOutputColumnNames());
-//
-//        transformProcessor.process(streamInfo).getDataStream().addSink(new CollectSink());
-//        env.execute();
-//
-//        System.out.println(CollectSink.values.get(0));
-//        assertEquals(23.33F, (Float) CollectSink.values.get(0).getField(0), 0.0F);
-//    }
+    @Test
+    public void shouldPopulateFieldFromHTTPGetApiOnSuccessResponseWithTransformer() throws Exception {
+
+        stubFor(get(urlEqualTo("/customer/123"))
+                .withHeader("content-type", equalTo("application/json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{data: 23.33}")));
+
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        CollectSink.values.clear();
+
+        Row inputData = new Row(3);
+        inputData.setField(0, "RB-123");
+        inputData.setField(1, "123");
+        inputData.setField(2, "456");
+
+        DataStream<Row> dataStream = env.fromElements(Row.class, inputData).map(new InitializationDecorator(columnNameManager));
+
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "", new StencilClientOrchestrator(new Configuration()),
+                columnNameManager, null, telemetryEnabled, shutDownPeriod, null, null);
+
+        DataStream<Row> outputStream = AsyncDataStream.orderedWait(dataStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
+
+        outputStream.map(new FetchOutputDecorator());
+
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorParsedConfig.getTransformers());
+
+        StreamInfo streamInfo = new StreamInfo(outputStream, columnNameManager.getOutputColumnNames());
+
+        transformProcessor.process(streamInfo).getDataStream().addSink(new CollectSink());
+        env.execute();
+
+        assertEquals("RB-123,123,456", CollectSink.values.get(0).getField(0).toString());
+    }
 
 
     private static class CollectSink implements SinkFunction<Row> {
