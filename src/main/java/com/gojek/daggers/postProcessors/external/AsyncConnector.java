@@ -94,7 +94,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
 
     protected abstract void createClient();
 
-    protected abstract void process(Row input, ResultFuture<Row> resultFuture);
+    protected abstract void process(Row input, ResultFuture<Row> resultFuture) throws Exception;
 
     @Override
     public void asyncInvoke(Row input, ResultFuture<Row> resultFuture) throws Exception {
@@ -110,6 +110,9 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
             meterStatsManager.markEvent(INVALID_CONFIGURATION);
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("pattern config '%s' is incompatible with the variable config '%s'", sourceConfig.getPattern(), sourceConfig.getVariables()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
+        } catch (InvalidConfigurationException e) {
+            meterStatsManager.markEvent(INVALID_CONFIGURATION);
+            reportAndThrowError(resultFuture, e);
         }
     }
 
@@ -119,7 +122,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
     }
 
     @Override
-    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+    public void timeout(Row input, ResultFuture<Row> resultFuture) {
         meterStatsManager.markEvent(TIMEOUTS);
         Exception timeoutException = new TimeoutException("Timeout in external source call!");
         if (sourceConfig.isFailOnErrors()) {
@@ -149,33 +152,36 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
-    protected Object[] getEndpointOrQueryVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
+    protected Object[] getEndpointOrQueryVariablesValues(RowManager rowManager) {
         String queryVariables = sourceConfig.getVariables();
-        if (queryVariables == null) queryVariables = "";
+        if (StringUtils.isEmpty(queryVariables)) return new Object[0];
+
         List<String> requiredInputColumns = Arrays.asList(queryVariables.split(","));
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
-                errorReporter.reportFatalException(invalidConfigurationException);
-                return new Object[0];
+                throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
             }
             Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
             if (inputColumnValue != null && StringUtils.isNotEmpty(String.valueOf(inputColumnValue)))
                 inputColumnValues.add(inputColumnValue);
         }
-
         return inputColumnValues.toArray();
     }
 
-    protected boolean isEndpointOrQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager) {
+    protected boolean isEndpointOrQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
         boolean emptyEndpointPattern = StringUtils.isEmpty(sourceConfig.getPattern());
         if (emptyEndpointPattern) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint/Query Pattern '%s' is invalid, Can't be empty. ", sourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
+            return true;
+        }
+        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && Arrays.asList(endpointVariablesValues).isEmpty()) {
+            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
+            resultFuture.complete(singleton(rowManager.getAll()));
             return true;
         }
         return false;
