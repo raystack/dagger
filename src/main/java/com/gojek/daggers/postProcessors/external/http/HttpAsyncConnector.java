@@ -66,9 +66,9 @@ public class HttpAsyncConnector extends AsyncConnector {
         try {
             RowManager rowManager = new RowManager(input);
 
-            Object[] requestVariablesValues = getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+            Object[] requestVariablesValues = getEndpointOrQueryVariablesValues(rowManager);
 
-            if (isEndpointOrQueryInvalid(resultFuture, rowManager)) return;
+            if (isEndpointOrQueryInvalid(resultFuture, rowManager, requestVariablesValues)) return;
 
             BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
             HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, getMeterStatsManager(),

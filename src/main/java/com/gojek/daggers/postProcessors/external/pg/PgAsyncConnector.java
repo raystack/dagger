@@ -67,8 +67,8 @@ public class PgAsyncConnector extends AsyncConnector {
     @Override
     public void process(Row input, ResultFuture<Row> resultFuture) {
         RowManager rowManager = new RowManager(input);
-        Object[] queryVariablesValues = getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-        if (isEndpointOrQueryInvalid(resultFuture, rowManager)) return;
+        Object[] queryVariablesValues = getEndpointOrQueryVariablesValues(rowManager);
+        if (isEndpointOrQueryInvalid(resultFuture, rowManager, queryVariablesValues)) return;
         String query = String.format(pgSourceConfig.getPattern(), queryVariablesValues);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, getMeterStatsManager(), rowManager,
                 getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());

@@ -175,8 +175,47 @@ public class HttpAsyncConnectorTest {
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
-        verify(errorReporter, times(2)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+    }
+
+    @Test
+    public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
+        String empty_request_variable = "";
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", empty_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+
+        try {
+            httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+    }
+
+    @Test
+    public void shouldEnrichWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
+        String empty_request_variable = "";
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"static\"}", empty_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+
+        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"key\": \"static\"}")).thenReturn(boundRequestBuilder);
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+
+
+        httpAsyncConnector.open(flinkConfiguration);
+        httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+
+        verify(boundRequestBuilder, times(1)).execute(any(HttpResponseHandler.class));
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_EXTERNAL_CALLS);
+        verify(meterStatsManager, times(0)).markEvent(INVALID_CONFIGURATION);
+        verify(errorReporter, times(0)).reportFatalException(any(InvalidConfigurationException.class));
     }
 
     @Test
@@ -239,20 +278,6 @@ public class HttpAsyncConnectorTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
     }
-
-    @Test
-    public void shouldThrowExceptionIfBodyFieldNotSetInInputRow() {
-//        when(httpSourceConfig.getBodyPattern()).thenReturn("request_body");
-//        columnNames = new String[]{"abc"};
-//        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(columnNames, httpSourceConfig, stencilClient, httpClient, meterStatsManager);
-//        try {
-//            httpAsyncConnector.asyncInvoke(new Row(1), resultFuture);
-//        } catch (Exception e) {
-//
-//        }
-//        verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
-    }
-
 
     @Test
     public void shouldAddCustomHeaders() throws Exception {
