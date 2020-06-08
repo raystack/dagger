@@ -136,12 +136,12 @@ public class PgAsyncConnectorTest {
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
-        verify(errorReporter, times(2)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(pgClient, never()).query(any(String.class));
     }
 
     @Test
-    public void shouldNotEnrichButNotThrowNullPointerEitherWhenQueryVariableFieldIsNullOrRemoved() throws Exception {
+    public void shoulCompleteExceptionallyWhenQueryVariableFieldIsNullOrRemovedButRequiredInPattern() throws Exception {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", null, "select * from public.customers where customer_id = '%s'", false, metricId);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
@@ -151,8 +151,28 @@ public class PgAsyncConnectorTest {
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
-        verify(errorReporter, times(2)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(pgClient, never()).query(any(String.class));
+    }
+
+    @Test
+    public void shouldEnrichWhenQueryVariableFieldIsNullOrRemovedButNotRequiredInPattern() throws Exception {
+        String query = "select * from public.customers where customer_id = '12345'";
+        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", outputMapping, "5000", "5000", null, query, false, metricId);
+        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
+
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(pgClient.query(query)).thenReturn(executableQuery);
+
+        pgAsyncConnector.open(configuration);
+        pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
+
+        verify(resultFuture, times(0)).completeExceptionally(any(InvalidConfigurationException.class));
+        verify(meterStatsManager, times(0)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
+        verify(errorReporter, times(0)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(pgClient, times(1)).query(any(String.class));
+        verify(executableQuery, times(1)).execute(any());
     }
 
     @Test
