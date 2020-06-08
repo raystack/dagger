@@ -14,6 +14,7 @@ import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 import com.gojek.daggers.postProcessors.external.pg.PgStreamDecorator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -51,21 +52,21 @@ public class ExternalPostProcessor implements PostProcessor {
         List<HttpSourceConfig> httpSourceConfigs = externalSourceConfig.getHttpConfig();
         for(int index = 0; index < httpSourceConfigs.size(); index++){
             HttpSourceConfig httpSourceConfig = httpSourceConfigs.get(index);
-            String metricId = (httpSourceConfig.getMetricId().isEmpty()) ? String.valueOf(index) : httpSourceConfig.getMetricId();
+            String metricId = (StringUtils.isEmpty(httpSourceConfig.getMetricId())) ? String.valueOf(index) : httpSourceConfig.getMetricId();
             resultStream = enrichStream(resultStream, httpSourceConfig, getHttpDecorator(httpSourceConfig, columnNameManager, telemetrySubscriber, metricId));
         }
 
         List<EsSourceConfig> esSourceConfigs = externalSourceConfig.getEsConfig();
         for(int index = 0; index < esSourceConfigs.size(); index++){
             EsSourceConfig esSourceConfig = esSourceConfigs.get(index);
-            String metricId = (esSourceConfig.getMetricId().isEmpty()) ? String.valueOf(index) : esSourceConfig.getMetricId();
+            String metricId = (StringUtils.isEmpty(esSourceConfig.getMetricId())) ? String.valueOf(index) : esSourceConfig.getMetricId();
             resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, telemetrySubscriber, metricId));
         }
 
         List<PgSourceConfig> pgSourceConfigs = externalSourceConfig.getPgConfig();
         for(int index = 0; index < pgSourceConfigs.size(); index++){
             PgSourceConfig pgSourceConfig = pgSourceConfigs.get(index);
-            String metricId = (pgSourceConfig.getMetricId().isEmpty()) ? String.valueOf(index) : pgSourceConfig.getMetricId();;
+            String metricId = (StringUtils.isEmpty(pgSourceConfig.getMetricId())) ? String.valueOf(index) : pgSourceConfig.getMetricId();
             resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig, columnNameManager, telemetrySubscriber, metricId));
         }
 

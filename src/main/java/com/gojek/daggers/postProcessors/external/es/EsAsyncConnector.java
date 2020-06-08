@@ -55,8 +55,8 @@ public class EsAsyncConnector extends AsyncConnector {
     @Override
     protected void process(Row input, ResultFuture<Row> resultFuture) {
         RowManager rowManager = new RowManager(input);
-        Object[] endpointVariablesValues = getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-        if (isEndpointOrQueryInvalid(resultFuture, rowManager)) return;
+        Object[] endpointVariablesValues = getEndpointOrQueryVariablesValues(rowManager);
+        if (isEndpointOrQueryInvalid(resultFuture, rowManager, endpointVariablesValues)) return;
         String esEndpoint = String.format(esSourceConfig.getPattern(), endpointVariablesValues);
         Request esRequest = new Request("GET", esEndpoint);
         EsResponseHandler esResponseHandler = new EsResponseHandler(esSourceConfig, getMeterStatsManager(), rowManager,
