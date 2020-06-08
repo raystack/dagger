@@ -8,21 +8,11 @@ public class Constants {
     public final static String POST_PROCESSOR_CONFIG_KEY = "POST_PROCESSOR_CONFIG";
     public final static String ASYNC_IO_ENABLED_KEY = "ASYNC_IO_ENABLED";
     public final static boolean ASYNC_IO_ENABLED_DEFAULT = false;
-    public final static String ASYNC_IO_ES_HOST_KEY = "host";
-    public final static String ASYNC_IO_ES_HOST_DEFAULT = "";
-    public final static String ASYNC_IO_ES_CONNECT_TIMEOUT_KEY = "connect_timeout";
-    public final static String ASYNC_IO_ES_MAX_RETRY_TIMEOUT_KEY = "retry_timeout";
-    public final static String ASYNC_IO_ES_SOCKET_TIMEOUT_KEY = "socket_timeout";
-    public final static String ASYNC_IO_ES_INPUT_INDEX_KEY = "input_index";
-    public final static String ASYNC_IO_ES_PATH_KEY = "path";
     public final static String ASYNC_IO_CAPACITY_KEY = "capacity";
     public final static String ASYNC_IO_CAPACITY_DEFAULT = "30";
-    public final static String ASYNC_IO_KEY = "ASYNC_IO";
     public final static String OUTPUT_PROTO_CLASS_PREFIX_KEY = "OUTPUT_PROTO_CLASS_PREFIX";
     public final static String OUTPUT_KAFKA_TOPIC = "OUTPUT_KAFKA_TOPIC";
     public final static String OUTPUT_KAFKA_BROKER = "OUTPUT_KAFKA_BROKER";
-    public final static String FIELD_NAME_KEY = "field_name";
-    public final static String LONGBOW_DAGGER_IDENTIFIER = "longbow";
     public final static String LONGBOW_DURATION = "longbow_duration";
     public final static String LONGBOW_LATEST = "longbow_latest";
     public final static String LONGBOW_EARLIEST = "longbow_earliest";
@@ -70,9 +60,6 @@ public class Constants {
     public final static String REDIS_SERVER_KEY = "REDIS_SERVER";
     public final static String REDIS_SERVER_DEFAULT = "localhost";
 
-    public final static String ASHIKO_HTTP_PROCESSOR = "ashiko_http_processor";
-    public final static String ASHIKO_ES_PROCESSOR = "ashiko_es_processor";
-    public final static String ASHIKO_PG_PROCESSOR = "ashiko_pg_processor";
     public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
     public final static String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
     public final static String TRANSFORM_PROCESSOR = "transform_processor";
