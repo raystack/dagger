@@ -86,7 +86,7 @@ public class EsAsyncConnectorTest {
     }
 
     @Test
-    public void shouldNotEnrichOutputWhenEndpointVariableIsEmpty() throws Exception {
+    public void shouldNotEnrichOutputWhenEndpointVariableIsEmptyAndRequiredInPattern() throws Exception {
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
                 "", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
@@ -98,6 +98,22 @@ public class EsAsyncConnectorTest {
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
+    }
+
+    @Test
+    public void shouldEnrichOutputWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/",
+                "", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01");
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, "metricId_01", stencilClientOrchestrator, columnNameManager, esClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+
+        esAsyncConnector.open(configuration);
+        esAsyncConnector.asyncInvoke(streamRow, resultFuture);
+
+        verify(esClient, times(1)).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
+        verify(resultFuture, times(0)).completeExceptionally(any(InvalidConfigurationException.class));
+        verify(meterStatsManager, times(0)).markEvent(INVALID_CONFIGURATION);
     }
 
     @Test
@@ -153,7 +169,7 @@ public class EsAsyncConnectorTest {
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
-        verify(errorReporter, times(2)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 
