@@ -19,7 +19,7 @@ public class TransformConfigTest {
 
     private TransformConfig transformConfig;
     private String transformationClass;
-    private Map<String, String> transformationArguments;
+    private Map<String, Object> transformationArguments;
 
     @Before
     public void setUp() {
