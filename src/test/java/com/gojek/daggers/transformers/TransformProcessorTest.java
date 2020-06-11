@@ -57,7 +57,7 @@ public class TransformProcessorTest {
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("wrongClassName");
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("wrongClassName", transformationArguments));
@@ -72,7 +72,7 @@ public class TransformProcessorTest {
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("com.gojek.daggers.postProcessors.transfromers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;)");
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("com.gojek.daggers.postProcessors.transfromers.TransformProcessor", transformationArguments));
@@ -85,7 +85,7 @@ public class TransformProcessorTest {
     public void shouldProcessClassExtendingMapFunction() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
@@ -100,7 +100,7 @@ public class TransformProcessorTest {
     public void shouldAddPostProcessorTypeMetrics() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
 
         ArrayList<String> postProcessorType = new ArrayList<>();
@@ -120,7 +120,7 @@ public class TransformProcessorTest {
     public void shouldNotifySubscribers() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
 
         transfromConfigs = new ArrayList<>();
@@ -137,7 +137,7 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
@@ -156,7 +156,7 @@ public class TransformProcessorTest {
         when(streamInfo.getColumnNames()).thenReturn(null);
         when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         when(mappedDataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
-        HashMap<String, String> transformationArguments = new HashMap<>();
+        HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
