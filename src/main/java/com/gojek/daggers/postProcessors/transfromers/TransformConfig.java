@@ -9,9 +9,9 @@ import java.util.Map;
 public class TransformConfig implements Validator, Serializable {
 
     private String transformationClass;
-    private Map<String, String> transformationArguments;
+    private Map<String, Object> transformationArguments;
 
-    public TransformConfig(String transformationClass, Map<String, String> transformationArguments) {
+    public TransformConfig(String transformationClass, Map<String, Object> transformationArguments) {
         this.transformationClass = transformationClass;
         this.transformationArguments = transformationArguments;
     }
@@ -20,7 +20,7 @@ public class TransformConfig implements Validator, Serializable {
         return transformationClass;
     }
 
-    public Map<String, String> getTransformationArguments() {
+    public Map<String, Object> getTransformationArguments() {
         return transformationArguments;
     }
 

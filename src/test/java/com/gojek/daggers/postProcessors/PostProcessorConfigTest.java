@@ -97,7 +97,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldReturnTransformConfig() {
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
-        HashMap<String, String> transformationArguments;
+        HashMap<String, Object> transformationArguments;
         transformationArguments = new HashMap<>();
         transformationArguments.put("keyColumnName", "s2id");
         transformationArguments.put("valueColumnName", "features");
@@ -121,7 +121,7 @@ public class PostProcessorConfigTest {
     }
 
     @Test
-    public void shouldBeEmptyWhenNoneOfTheConfigsExist(){
+    public void shouldBeEmptyWhenNoneOfTheConfigsExist() {
         postProcessorConfig = new PostProcessorConfig(null, null, null);
 
         assertTrue(postProcessorConfig.isEmpty());
@@ -129,9 +129,9 @@ public class PostProcessorConfigTest {
 
 
     @Test
-    public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist(){
+    public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        http.add(new HttpSourceConfig("","","","","","",false,"","", new HashMap<>(), new HashMap<>(), "metricId_01"));
+        http.add(new HttpSourceConfig("", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01"));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
@@ -141,31 +141,32 @@ public class PostProcessorConfigTest {
     }
 
     @Test
-    public void shouldNotBeEmptyWhenExternalSourceHasEsConfigExist(){
+    public void shouldNotBeEmptyWhenExternalSourceHasEsConfigExist() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>(), "metricId_01"));
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
-        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
-
-        assertFalse(postProcessorConfig.isEmpty());
-    }
-    @Test
-    public void shouldNotBeEmptyWhenExternalSourceHasPgConfigExist(){
-        ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        ArrayList<EsSourceConfig> es = new ArrayList<>();
-        ArrayList<PgSourceConfig> pg = new ArrayList<>();
-        pg.add(new PgSourceConfig("","","","","","","","", new HashMap<>(), "", "", "", "", true, "metricId_01"));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01"));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
         assertFalse(postProcessorConfig.isEmpty());
     }
 
+    @Test
+    public void shouldNotBeEmptyWhenExternalSourceHasPgConfigExist() {
+        ArrayList<HttpSourceConfig> http = new ArrayList<>();
+        ArrayList<EsSourceConfig> es = new ArrayList<>();
+        ArrayList<PgSourceConfig> pg = new ArrayList<>();
+        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", true, "metricId_01"));
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
+
+        assertFalse(postProcessorConfig.isEmpty());
+    }
+
 
     @Test
-    public void shouldBeEmptyWhenExternalSourceHasEmptyConfig(){
+    public void shouldBeEmptyWhenExternalSourceHasEmptyConfig() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
@@ -176,17 +177,17 @@ public class PostProcessorConfigTest {
     }
 
     @Test
-    public void shouldNotBeEmptyWhenInternalSourceExist(){
+    public void shouldNotBeEmptyWhenInternalSourceExist() {
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("outputField","value","type"));
+        internalSourceConfigs.add(new InternalSourceConfig("outputField", "value", "type"));
         postProcessorConfig = new PostProcessorConfig(null, null, internalSourceConfigs);
 
         assertFalse(postProcessorConfig.isEmpty());
     }
 
     @Test
-    public void shouldNotBeEmptyWhenTransformConfigsExist(){
-        transformConfigs.add(new TransformConfig("testClass",new HashMap<>()));
+    public void shouldNotBeEmptyWhenTransformConfigsExist() {
+        transformConfigs.add(new TransformConfig("testClass", new HashMap<>()));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs, null);
 
         assertFalse(postProcessorConfig.isEmpty());
@@ -207,7 +208,7 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldReturnTransformConfigs() {
-        Map<String, String> transformationArguments = new HashMap<>();
+        Map<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyValue", "key");
         transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs, internalSource);
@@ -219,7 +220,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("","","","","","","","","","",false, new HashMap<>(), "metricId_01"));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01"));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());
@@ -240,7 +241,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldHaveInternalSourceWhenInternalSourceIsNotEmpty() {
         ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
-        internalSource.add(new InternalSourceConfig("outputField","value","type"));
+        internalSource.add(new InternalSourceConfig("outputField", "value", "type"));
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, this.internalSource);
         assertFalse(postProcessorConfig.hasInternalSource());
     }
@@ -253,7 +254,7 @@ public class PostProcessorConfigTest {
 
     @Test
     public void shouldBeTrueWhenTransformerSourceExists() {
-        Map<String, String> transformationArguments = new HashMap<>();
+        Map<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyValue", "key");
         transformConfigs.add(new TransformConfig("com.gojek.daggers.postprocessor.XTransformer", transformationArguments));
         postProcessorConfig = new PostProcessorConfig(null, transformConfigs, internalSource);
