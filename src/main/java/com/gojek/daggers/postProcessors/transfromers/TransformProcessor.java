@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.transfromers;
 
+import com.gojek.dagger.transformer.Transformer;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.TransformClassNotDefinedException;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
@@ -33,8 +34,8 @@ public class TransformProcessor implements PostProcessor, TelemetryPublisher {
             transformConfig.validateFields();
             String className = transformConfig.getTransformationClass();
             try {
-                MapFunction<Row, Row> mapFunction = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
-                resultStream = resultStream.map(mapFunction);
+                Transformer function = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
+                resultStream = function.transform(resultStream);
             } catch (ReflectiveOperationException e) {
                 throw new TransformClassNotDefinedException(e.getMessage());
             }
@@ -52,10 +53,10 @@ public class TransformProcessor implements PostProcessor, TelemetryPublisher {
         addMetric(TelemetryTypes.POST_PROCESSOR_TYPE.getValue(), TRANSFORM_PROCESSOR);
     }
 
-    protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+    protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
         Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class);
-        return (MapFunction<Row, Row>) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames);
+        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames);
     }
 
     @Override
