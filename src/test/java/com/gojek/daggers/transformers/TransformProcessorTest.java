@@ -1,5 +1,6 @@
 package com.gojek.daggers.transformers;
 
+import com.gojek.dagger.transformer.Transformer;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
@@ -41,7 +42,7 @@ public class TransformProcessorTest {
     private SingleOutputStreamOperator mappedDataStream;
 
     @Mock
-    private MapFunction<Row, Row> mockMapFunction;
+    private Transformer transformer;
 
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
@@ -90,10 +91,10 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
 
-        TransformProcessorMock transformProcessor = new TransformProcessorMock(mockMapFunction, transfromConfigs);
+        TransformProcessorMock transformProcessor = new TransformProcessorMock(transformer, transfromConfigs);
         transformProcessor.process(streamInfo);
 
-        verify(dataStream, times(1)).map(mockMapFunction);
+        verify(transformer,times(1)).transform(dataStream);
     }
 
     @Test
@@ -110,7 +111,7 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
 
-        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(mockMapFunction, transfromConfigs);
+        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(transformer, transfromConfigs);
         transformProcessorMock.preProcessBeforeNotifyingSubscriber();
 
         Assert.assertEquals(metrics, transformProcessorMock.getTelemetry());
@@ -126,7 +127,7 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("MapClass", transformationArguments));
 
-        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(mockMapFunction, transfromConfigs);
+        TransformProcessorMock transformProcessorMock = new TransformProcessorMock(transformer, transfromConfigs);
         transformProcessorMock.notifySubscriber(metricsTelemetryExporter);
 
         verify(metricsTelemetryExporter, times(1)).updated(transformProcessorMock);
@@ -172,14 +173,14 @@ public class TransformProcessorTest {
 
     class TransformProcessorMock extends TransformProcessor {
 
-        private MapFunction<Row, Row> mockMapFunction;
+        private Transformer mockMapFunction;
 
-        public TransformProcessorMock(MapFunction<Row, Row> mockMapFunction, List<TransformConfig> transformConfigs) {
+        public TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
             super(transformConfigs);
             this.mockMapFunction = mockMapFunction;
         }
 
-        protected MapFunction<Row, Row> getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) {
+        protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) {
             return this.mockMapFunction;
         }
     }
