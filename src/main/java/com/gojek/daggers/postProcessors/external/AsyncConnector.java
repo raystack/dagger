@@ -163,9 +163,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
             if (inputColumnIndex == -1) {
                 throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
             }
-            Object inputColumnValue = rowManager.getFromInput(inputColumnIndex);
-            if (inputColumnValue != null && StringUtils.isNotEmpty(String.valueOf(inputColumnValue)))
-                inputColumnValues.add(inputColumnValue);
+            inputColumnValues.add(rowManager.getFromInput(inputColumnIndex));
         }
         return inputColumnValues.toArray();
     }
