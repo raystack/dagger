@@ -272,16 +272,6 @@ public class PgAsyncConnectorTest {
     }
 
     @Test
-    public void shouldNotEnrichOutputKeyWhenQueryVariableHasNoValueAssigned() throws Exception {
-        PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
-        pgAsyncConnector.open(configuration);
-        pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
-
-        verify(pgClient, never()).query(any(String.class));
-        verify(executableQuery, never()).execute(any());
-    }
-
-    @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
         pgClient = null;
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, meterStatsManager, pgClient, telemetryEnabled, errorReporter, shutDownPeriod, stencilClient);
