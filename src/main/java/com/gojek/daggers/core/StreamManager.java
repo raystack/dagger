@@ -101,8 +101,10 @@ public class StreamManager {
         scalarFunctions.put("Distance", new Distance());
         scalarFunctions.put("AppBetaUsers", new AppBetaUsers());
         scalarFunctions.put("KeyValue", new KeyValue());
-        scalarFunctions.put("DartContains", DartContains.withRedisDataStore(new RedisConfig(getRedisServer())));
-        scalarFunctions.put("DartGet", DartGet.withRedisDataStore(new RedisConfig(getRedisServer())));
+        scalarFunctions.put("DartContainsWithRedis", DartContains.withRedisDataStore(new RedisConfig(getRedisServer())));
+        scalarFunctions.put("DartGetWithRedis", DartGet.withRedisDataStore(new RedisConfig(getRedisServer())));
+        scalarFunctions.put("DartGet", DartGet.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
+        scalarFunctions.put("DartContains", DartContains.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
         scalarFunctions.put("TimestampFromUnix", new TimestampFromUnix());
         scalarFunctions.put("SecondsElapsed", new SecondsElapsed());
         scalarFunctions.put("StartOfWeek", new StartOfWeek());
@@ -201,5 +203,13 @@ public class StreamManager {
 
     private String getRedisServer() {
         return configuration.getString(REDIS_SERVER_KEY, REDIS_SERVER_DEFAULT);
+    }
+
+    private String getGcsProjectId() {
+        return configuration.getString(GCS_PROJECT_ID, GCS_PROJECT_DEFAULT);
+    }
+
+    private String getGcsBucketId() {
+        return configuration.getString(GCS_BUCKET_ID, GCS_BUCKET_DEFAULT);
     }
 }

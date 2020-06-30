@@ -91,4 +91,11 @@ public class Constants {
     public static final boolean PRODUCE_LARGE_MESSAGE_DEFAULT = false;
     public static final String CONSUME_LARGE_MESSAGE_KEY = "CONSUME_LARGE_MESSAGE";
     public static final boolean CONSUME_LARGE_MESSAGE_DEFAULT = false;
+
+
+    public final static String GCS_PROJECT_ID = "GCS_PROJECT_ID";
+    public final static String GCS_PROJECT_DEFAULT = "godata-production";
+
+    public final static String GCS_BUCKET_ID = "GCS_BUCKET_ID";
+    public final static String GCS_BUCKET_DEFAULT = "p-godata-daggers-darts-storage";
 }
