@@ -14,7 +14,12 @@ public class ConfigurationProviderFactory {
         System.out.println("Arguments are : ");
         Arrays.asList(args).stream().forEach(s -> {
             System.out.println(s);
+            if(s.contains("ConfigFile")) {
+                System.setProperty("ConfigSource", "FILE");
+                System.setProperty("DAGGER_CONFIG_PATH", s.split("=")[1]);
+            }
         });
+
     }
 
     public ConfigurationProvider provider() {
@@ -25,6 +30,8 @@ public class ConfigurationProviderFactory {
                     return new EnvironmentConfigurationProvider(System.getenv());
                 case "ARGS":
                     return new CommandlineConfigurationProvider(args);
+                case "FILE":
+                    return new FileConfigurationProvider();
                 default:
                     throw new DaggerConfigurationException("Config source not provided");
 
