@@ -86,7 +86,7 @@ public class StreamManager {
         HashMap<String, ScalarFunction> scalarFunctions = new HashMap<>();
         scalarFunctions.put("S2Id", new S2Id());
         scalarFunctions.put("GEOHASH", new GeoHash());
-        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos().entrySet().iterator().next().getValue(),
+        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos(),
                 configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
                 configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT),
                 configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT),
