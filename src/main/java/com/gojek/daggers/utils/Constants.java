@@ -83,7 +83,7 @@ public class Constants {
     public static final String STENCIL_CONFIG_TTL_IN_MINUTES_KEY = "TIL_IN_MINUTES";
     public static final String STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT = "0";
     public static final String STENCIL_CONFIG_TIMEOUT_MS_KEY = "STENCIL_TIMEOUT_MS";
-    public static final String STENCIL_CONFIG_TIMEOUT_MS_DEFAULT = "30000";
+    public static final String STENCIL_CONFIG_TIMEOUT_MS_DEFAULT = "60000";
     public static final String STENCIL_CONFIG_REFRESH_CACHE_KEY = "REFRESH_CACHE";
     public static final String STENCIL_CONFIG_REFRESH_CACHE_DEFAULT = "false";
 
