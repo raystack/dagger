@@ -116,6 +116,7 @@ public class StreamManager {
         scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
         scalarFunctions.put("LinearTrend", new LinearTrend());
         scalarFunctions.put("ListContains", new ListContains());
+        scalarFunctions.put("ToDouble", new ToDouble());
         return scalarFunctions;
     }
 
