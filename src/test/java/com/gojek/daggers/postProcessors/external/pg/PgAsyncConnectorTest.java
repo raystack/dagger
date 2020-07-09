@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
@@ -15,7 +14,6 @@ import io.vertx.sqlclient.RowSet;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +49,6 @@ public class PgAsyncConnectorTest {
     @Mock
     private io.vertx.sqlclient.Query<RowSet<io.vertx.sqlclient.Row>> executableQuery;
 
-    private WireMockServer wireMockServer;
     private HashMap<String, String> outputMapping;
     private String[] inputColumnNames;
     private Row inputData;
@@ -77,19 +74,12 @@ public class PgAsyncConnectorTest {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId);
         resultFuture = mock(ResultFuture.class);
-        wireMockServer = new WireMockServer(8081);
-        wireMockServer.start();
         inputColumnNames = new String[]{"order_id", "event_timestamp", "driver_id", "customer_id", "status", "service_area_id"};
         columnNameManager = new ColumnNameManager(inputColumnNames, new ArrayList<>());
         telemetryEnabled = true;
         shutDownPeriod = 0L;
         stencilClient = mock(StencilClient.class);
         metricId = "metricId-pg-01";
-    }
-
-    @After
-    public void tearDown() {
-        wireMockServer.stop();
     }
 
     @Test
