@@ -8,16 +8,16 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.streaming.util.serialization.KeyedDeserializationSchema;
+import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
+public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
     private String protoClassName;
     private ProtoType protoType;
@@ -29,6 +29,30 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, stencilClientOrchestrator);
         this.timestampFieldIndex = timestampFieldIndex;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
+    }
+
+    @Override
+    public boolean isEndOfStream(Row nextElement) {
+        return false;
+    }
+
+    @Override
+    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws Exception {
+        try {
+            DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), consumerRecord.value());
+            return addTimestampFieldToRow(getRow(proto), proto);
+        } catch (DescriptorNotFoundException e) {
+            throw new DescriptorNotFoundException(e);
+        } catch (InvalidProtocolBufferException e) {
+            throw new InvalidProtocolBufferException(e);
+        } catch (RuntimeException e) {
+            throw new DaggerDeserializationException(e);
+        }
+    }
+
+    @Override
+    public TypeInformation<Row> getProducedType() {
+        return protoType.getRowType();
     }
 
     private Descriptors.Descriptor getProtoParser() {
@@ -121,20 +145,6 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
         return byteStrings;
     }
 
-    @Override
-    public Row deserialize(byte[] messageKey, byte[] message, String topic, int partition, long offset) throws IOException {
-        try {
-            DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), message);
-            return addTimestampFieldToRow(getRow(proto), proto);
-        } catch (DescriptorNotFoundException e) {
-            throw new DescriptorNotFoundException(e);
-        } catch (InvalidProtocolBufferException e) {
-            throw new InvalidProtocolBufferException(e);
-        } catch (RuntimeException e) {
-            throw new DaggerDeserializationException(e);
-        }
-    }
-
     private Row addTimestampFieldToRow(Row row, DynamicMessage proto) {
         Descriptors.FieldDescriptor fieldDescriptor = proto.getDescriptorForType().findFieldByNumber(timestampFieldIndex);
 
@@ -148,15 +158,5 @@ public class ProtoDeserializer implements KeyedDeserializationSchema<Row> {
 
         finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(timestampSeconds, timestampNanos)));
         return finalRecord;
-    }
-
-    @Override
-    public boolean isEndOfStream(Row nextElement) {
-        return false;
-    }
-
-    @Override
-    public TypeInformation<Row> getProducedType() {
-        return protoType.getRowType();
     }
 }

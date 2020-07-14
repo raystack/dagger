@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.types.Row;
 
 import java.sql.Timestamp;
@@ -21,7 +21,7 @@ import static com.gojek.daggers.utils.Constants.*;
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private final Configuration configuration;
-    private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
+    private Map<String, FlinkKafkaConsumer<Row>> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private StencilClientOrchestrator stencilClientOrchestrator;
     private boolean enablePerPartitionWatermark;
@@ -45,7 +45,7 @@ public class Streams implements TelemetryPublisher {
         }
     }
 
-    public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
+    public Map<String, FlinkKafkaConsumer<Row>> getStreams() {
         return streams;
     }
 
@@ -68,7 +68,7 @@ public class Streams implements TelemetryPublisher {
         return String.join(".", names);
     }
 
-    private FlinkKafkaConsumer011<Row> getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
+    private FlinkKafkaConsumer<Row> getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
         String topicsForStream = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
         topics.add(topicsForStream);
         String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
