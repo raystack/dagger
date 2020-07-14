@@ -4,14 +4,14 @@ import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer011<T> {
+public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer<T> {
 
     private Configuration configuration;
     private ErrorReporter errorReporter;

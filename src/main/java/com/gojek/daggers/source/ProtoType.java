@@ -6,6 +6,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 
@@ -15,18 +16,16 @@ import java.util.*;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 
 public class ProtoType implements Serializable {
-    private static final TypeInformation<ByteString> byteString = TypeInformation.of(ByteString.class);
-
     private static final Map<JavaType, TypeInformation> TYPE_MAP = new HashMap<JavaType, TypeInformation>() {{
-        put(JavaType.STRING, Types.STRING());
-        put(JavaType.BOOLEAN, Types.BOOLEAN());
-        put(JavaType.DOUBLE, Types.DOUBLE());
-        put(JavaType.LONG, Types.LONG());
-        put(JavaType.MESSAGE, Types.ROW());
-        put(JavaType.ENUM, Types.STRING());
-        put(JavaType.INT, Types.INT());
-        put(JavaType.FLOAT, Types.FLOAT());
-        put(JavaType.BYTE_STRING, byteString);
+        put(JavaType.STRING, TypeInformation.of(String.class));
+        put(JavaType.BOOLEAN, TypeInformation.of(Boolean.class));
+        put(JavaType.DOUBLE, TypeInformation.of(Double.class));
+        put(JavaType.LONG, TypeInformation.of(Long.class));
+        put(JavaType.MESSAGE, TypeInformation.of(Row.class));
+        put(JavaType.ENUM, TypeInformation.of(String.class));
+        put(JavaType.INT, TypeInformation.of(Integer.class));
+        put(JavaType.FLOAT, TypeInformation.of(Float.class));
+        put(JavaType.BYTE_STRING, TypeInformation.of(ByteString.class));
     }};
 
     private transient Descriptor protoFieldDescriptor;
@@ -87,7 +86,7 @@ public class ProtoType implements Serializable {
         if (fieldDescriptor.isRepeated()) {
             if (fieldDescriptor.getJavaType() == JavaType.STRING || fieldDescriptor.getJavaType() == JavaType.ENUM ||
                     fieldDescriptor.getJavaType() == JavaType.BYTE_STRING) {
-                return Types.OBJECT_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
+                return ObjectArrayTypeInfo.getInfoFor(TYPE_MAP.get(fieldDescriptor.getJavaType()));
             }
             return Types.PRIMITIVE_ARRAY(TYPE_MAP.get(fieldDescriptor.getJavaType()));
         }
