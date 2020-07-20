@@ -114,6 +114,7 @@ public class StreamManager {
         scalarFunctions.put("LinearTrend", new LinearTrend());
         scalarFunctions.put("ListContains", new ListContains());
         scalarFunctions.put("ToDouble", new ToDouble());
+        scalarFunctions.put("SingleFeatureWithType", new SingleFeatureWithType());
         return scalarFunctions;
     }
 
