@@ -142,6 +142,13 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SecondsElapsed"), any(SecondsElapsed.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("RuleViolatedEventUnnest"),any(RuleViolatedEventUnnest.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ExponentialMovingAverage"), any(ExponentialMovingAverage.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("LinearTrend"), any(LinearTrend.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ListContains"), any(ListContains.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ToDouble"), any(ToDouble.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SingleFeatureWithType"), any(SingleFeatureWithType.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SelectFields"), any(SelectFields.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Filters"), any(Filters.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
     }
 
     @Test
