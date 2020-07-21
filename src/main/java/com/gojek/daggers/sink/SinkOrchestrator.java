@@ -44,7 +44,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
 
                 ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
                 FlinkKafkaProducer<Row> rowFlinkKafkaProducer = new FlinkKafkaProducer<>(outputTopic, protoSerializer, getProducerProperties(configuration), FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
-                sink = new FlinkKafkaProducer010Custom(rowFlinkKafkaProducer, configuration);
+                sink = new FlinkKafkaProducerCustom(rowFlinkKafkaProducer, configuration);
                 break;
             case "log":
                 sink = new LogSink(columnNames);

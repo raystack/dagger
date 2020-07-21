@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class FlinkKafkaProducer010CustomTest {
+public class FlinkKafkaProducerCustomTest {
 
     @Mock
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
@@ -59,56 +59,56 @@ public class FlinkKafkaProducer010CustomTest {
 
     @Test
     public void shouldCallFlinkProducerOpenMethodOnOpen() throws Exception {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.open(configuration);
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.open(configuration);
 
         verify(flinkKafkaProducer, times(1)).open(configuration);
     }
 
     @Test
     public void shouldCallFlinkProducerCloseMethodOnClose() throws Exception {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.close();
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.close();
 
         verify(flinkKafkaProducer, times(1)).close();
     }
 
     @Test
     public void shouldCallFlinkProducerSnapshotState() throws Exception {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.snapshotState(functionSnapshotContext);
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.snapshotState(functionSnapshotContext);
 
         verify(flinkKafkaProducer, times(1)).snapshotState(functionSnapshotContext);
     }
 
     @Test
     public void shouldCallFlinkProducerInitializeState() throws Exception {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.initializeState(functionInitializationContext);
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.initializeState(functionInitializationContext);
 
         verify(flinkKafkaProducer, times(1)).initializeState(functionInitializationContext);
     }
 
     @Test
     public void shouldCallFlinkProducerGetIterationRuntimeContext() {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.getIterationRuntimeContext();
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.getIterationRuntimeContext();
 
         verify(flinkKafkaProducer, times(1)).getIterationRuntimeContext();
     }
 
     @Test
     public void shouldCallFlinkProducerGetRuntimeContext() {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.getRuntimeContext();
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.getRuntimeContext();
 
         verify(flinkKafkaProducer, times(1)).getRuntimeContext();
     }
 
     @Test
     public void shouldCallFlinkProducerSetRuntimeContext() {
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        flinkKafkaProducer010Custom.setRuntimeContext(runtimeContext);
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        flinkKafkaProducerCustom.setRuntimeContext(runtimeContext);
 
         verify(flinkKafkaProducer, times(1)).setRuntimeContext(runtimeContext);
     }
@@ -143,11 +143,11 @@ public class FlinkKafkaProducer010CustomTest {
     public void shouldReturnErrorStatsReporter() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
-        FlinkKafkaProducer010Custom flinkKafkaProducer010Custom = new FlinkKafkaProducer010Custom(flinkKafkaProducer, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducer010Custom.getErrorReporter(runtimeContext).getClass());
+        FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
+        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(runtimeContext).getClass());
     }
 
-    public class FlinkKafkaProducerCustomStub extends FlinkKafkaProducer010Custom {
+    public class FlinkKafkaProducerCustomStub extends FlinkKafkaProducerCustom {
         FlinkKafkaProducerCustomStub(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
             super(flinkKafkaProducer, configuration);
         }

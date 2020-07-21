@@ -12,13 +12,13 @@ import org.apache.flink.types.Row;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class FlinkKafkaConsumer011Custom extends FlinkKafkaConsumer<Row> {
+public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
 
     private Configuration configuration;
     private ErrorReporter errorReporter;
 
-    public FlinkKafkaConsumer011Custom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
-                                       Properties props, Configuration configuration) {
+    public FlinkKafkaConsumerCustom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
+                                    Properties props, Configuration configuration) {
         super(subscriptionPattern, deserializer, props);
         this.configuration = configuration;
     }

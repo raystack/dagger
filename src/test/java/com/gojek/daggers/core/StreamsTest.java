@@ -1,6 +1,6 @@
 package com.gojek.daggers.core;
 
-import com.gojek.daggers.source.FlinkKafkaConsumer011Custom;
+import com.gojek.daggers.source.FlinkKafkaConsumerCustom;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import org.apache.flink.configuration.Configuration;
@@ -54,7 +54,7 @@ public class StreamsTest {
 
         configuration.setString("STREAMS", configString);
         Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
-        Map<String, FlinkKafkaConsumer011Custom> mapOfStreams = streams.getStreams();
+        Map<String, FlinkKafkaConsumerCustom> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
     }

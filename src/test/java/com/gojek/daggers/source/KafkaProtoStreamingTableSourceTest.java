@@ -26,7 +26,7 @@ public class KafkaProtoStreamingTableSourceTest {
     private DataStreamSource dataStreamSource;
 
     @Mock
-    private FlinkKafkaConsumer011Custom flinkConsumer;
+    private FlinkKafkaConsumerCustom flinkConsumer;
 
     @Before
     public void setUp() {

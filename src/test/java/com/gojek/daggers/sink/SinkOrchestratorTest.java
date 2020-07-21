@@ -88,7 +88,7 @@ public class SinkOrchestratorTest {
 
         Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
-        assertThat(sinkFunction, instanceOf(FlinkKafkaProducer010Custom.class));
+        assertThat(sinkFunction, instanceOf(FlinkKafkaProducerCustom.class));
     }
 
     @Test
