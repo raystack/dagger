@@ -9,19 +9,17 @@ import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.Types;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.gojek.daggers.utils.Constants.*;
+import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-
-//import gojek.esb.clevertap.ClevertapEventLog;
 
 public class ProtoTypeTest {
 
@@ -42,7 +40,7 @@ public class ProtoTypeTest {
 
 
     @Test
-    public void shouldGiveAllColumnNamesOfProto() throws ClassNotFoundException {
+    public void shouldGiveAllColumnNamesOfProto() {
         ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", stencilClientOrchestrator);
         ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", stencilClientOrchestrator);
 
@@ -71,9 +69,9 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
-        assertEquals(Types.STRING(), fieldTypes[participantLogFieldIndex("order_id")]);
-        assertEquals(Types.INT(), fieldTypes[participantLogFieldIndex("customer_straight_line_distance")]);
-        assertEquals(Types.DOUBLE(), fieldTypes[participantLogFieldIndex("receive_delay")]);
+        assertEquals(STRING, fieldTypes[participantLogFieldIndex("order_id")]);
+        assertEquals(INT, fieldTypes[participantLogFieldIndex("customer_straight_line_distance")]);
+        assertEquals(DOUBLE, fieldTypes[participantLogFieldIndex("receive_delay")]);
     }
 
     @Test
@@ -82,10 +80,9 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = participantMessageProtoType.getFieldTypes();
 
-        TypeInformation<Row> expectedTimestampRow = Types.ROW(new String[]{"seconds", "nanos"},
-                new TypeInformation<?>[]{Types.LONG(), Types.INT()});
-        TypeInformation<Row> driverLocationRow = Types.ROW(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed"},
-                new TypeInformation<?>[]{Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE(), Types.DOUBLE()});
+        TypeInformation<Row> expectedTimestampRow = ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT);
+        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed"},
+                DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE);
 
         assertEquals(expectedTimestampRow, fieldTypes[participantLogFieldIndex("event_timestamp")]);
         assertEquals(driverLocationRow, fieldTypes[participantLogFieldIndex("location")]);
@@ -96,14 +93,10 @@ public class ProtoTypeTest {
         ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = bookingLogMessageProtoType.getFieldTypes();
-
-        TypeInformation<Row> locationType = Types.ROW(new String[]{"name", "address", "latitude", "longitude", "type",
-                "note", "place_id"}, new TypeInformation<?>[]{Types.STRING(), Types.STRING(), Types.DOUBLE(), Types.DOUBLE(),
-                Types.STRING(), Types.STRING(), Types.STRING()});
-        TypeInformation<?> expectedRoutesRow = Types.OBJECT_ARRAY(Types.ROW(new String[]{"startTimer", "end",
-                "distance_in_kms", "estimated_duration", "route_order"}, new TypeInformation<?>[]{locationType, locationType,
-                Types.FLOAT(), Types.ROW(new String[]{"seconds", "nanos"}, new TypeInformation<?>[]{Types.LONG(),
-                Types.INT()}), Types.INT()}));
+        TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id"},
+                STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING);
+        TypeInformation<?> expectedRoutesRow = OBJECT_ARRAY(ROW_NAMED(new String[]{"startTimer", "end", "distance_in_kms", "estimated_duration", "route_order"},
+                locationType, locationType, FLOAT, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), INT));
 
         assertEquals(expectedRoutesRow, fieldTypes[bookingLogFieldIndex("routes")]);
     }
@@ -114,7 +107,7 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = loginRequestMessageProtoType.getFieldTypes();
 
-        TypeInformation<?> registeredDeviceType = Types.OBJECT_ARRAY(Types.STRING());
+        TypeInformation<?> registeredDeviceType = OBJECT_ARRAY(STRING);
 
         assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("registered_device")]);
     }
@@ -128,7 +121,7 @@ public class ProtoTypeTest {
         RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
 
         assertEquals("order_id", rowType.getFieldNames()[0]);
-        assertEquals(Types.DOUBLE(), rowType.getFieldTypes()[participantLogFieldIndex("receive_delay")]);
+        assertEquals(DOUBLE, rowType.getFieldTypes()[participantLogFieldIndex("receive_delay")]);
 
     }
 
@@ -153,14 +146,14 @@ public class ProtoTypeTest {
     @Test
     public void shouldGiveAllNamesAndTypesIncludingPrimitiveArrayFields() {
         ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(Types.PRIMITIVE_ARRAY(Types.INT()), testNestedRepeatedMessage.getFieldTypes()[3]);
+        assertEquals(PRIMITIVE_ARRAY(INT), testNestedRepeatedMessage.getFieldTypes()[3]);
     }
 
     @Test
     public void shouldGiveNameAndTypeForRepeatingStructType() {
         ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals("metadata", testNestedRepeatedMessage.getFieldNames()[4]);
-        assertEquals(Types.OBJECT_ARRAY(Types.ROW()), testNestedRepeatedMessage.getFieldTypes()[4]);
+        assertEquals(OBJECT_ARRAY(ROW()), testNestedRepeatedMessage.getFieldTypes()[4]);
     }
 
     private int participantLogFieldIndex(String propertyName) {
