@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class FlinkKafkaConsumer011CustomTest {
+public class FlinkKafkaConsumerCustomTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -99,11 +99,11 @@ public class FlinkKafkaConsumer011CustomTest {
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
-        FlinkKafkaConsumer011Custom flinkKafkaConsumer011Custom = new FlinkKafkaConsumer011Custom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumer011Custom.getErrorReporter(runtimeContext).getClass());
+        FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = new FlinkKafkaConsumerCustom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
+        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumerCustom.getErrorReporter(runtimeContext).getClass());
     }
 
-    public class FlinkKafkaConsumerCustomStub extends FlinkKafkaConsumer011Custom {
+    public class FlinkKafkaConsumerCustomStub extends FlinkKafkaConsumerCustom {
         private Exception exception;
 
         public FlinkKafkaConsumerCustomStub(Pattern subscriptionPattern, KafkaDeserializationSchema deserializer,

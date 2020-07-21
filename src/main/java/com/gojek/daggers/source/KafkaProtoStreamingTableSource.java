@@ -18,12 +18,12 @@ import java.util.List;
 
 public class KafkaProtoStreamingTableSource implements StreamTableSource<Row>, DefinedRowtimeAttributes {
 
-    private final FlinkKafkaConsumer011Custom kafkaConsumer;
+    private final FlinkKafkaConsumerCustom kafkaConsumer;
     private String rowTimeAttributeName;
     private Long watermarkDelay;
     private boolean enablePerPartitionWatermark;
 
-    public KafkaProtoStreamingTableSource(FlinkKafkaConsumer011Custom kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay, boolean enablePerPartitionWatermark) {
+    public KafkaProtoStreamingTableSource(FlinkKafkaConsumerCustom kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay, boolean enablePerPartitionWatermark) {
         this.kafkaConsumer = kafkaConsumer;
         this.rowTimeAttributeName = rowTimeAttributeName;
         this.watermarkDelay = watermarkDelay;
