@@ -19,37 +19,42 @@ import java.util.Objects;
 public class ProtoSerializer implements KafkaSerializationSchema<Row> {
     private String[] columnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
-
     private String keyProtoClassName;
     private String messageProtoClassName;
     private String outputTopic;
 
 
-    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
-        this.outputTopic = outputTopic;
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
         }
-
         this.keyProtoClassName = keyProtoClassName;
         this.messageProtoClassName = messageProtoClassName;
         this.columnNames = columnNames;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
-    private Descriptors.Descriptor getDescriptor(String className) {
-        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(className);
-        if (dsc == null) {
-            throw new DescriptorNotFoundException();
-        }
-        return dsc;
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
+        this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator);
+        this.outputTopic = outputTopic;
     }
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(Row row, @Nullable Long aLong) {
-        byte[] key = parse(row, getDescriptor(keyProtoClassName)).toByteArray();
-        byte[] message = parse(row, getDescriptor(messageProtoClassName)).toByteArray();
+        if (Objects.isNull(outputTopic) || outputTopic.equals(""))
+            throw new DaggerSerializationException("outputTopic is required");
+        byte[] key = serializeKey(row);
+        byte[] message = serializeValue(row);
         return new ProducerRecord<>(outputTopic, key, message);
+    }
+
+    public byte[] serializeKey(Row row) {
+        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null :
+                parse(row, getDescriptor(keyProtoClassName)).toByteArray();
+    }
+
+    public byte[] serializeValue(Row row) {
+        return parse(row, getDescriptor(messageProtoClassName)).toByteArray();
     }
 
     private DynamicMessage parse(Row element, Descriptors.Descriptor descriptor) {
@@ -106,6 +111,14 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
             }
 
         return builder;
+    }
+
+    private Descriptors.Descriptor getDescriptor(String className) {
+        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(className);
+        if (dsc == null) {
+            throw new DescriptorNotFoundException();
+        }
+        return dsc;
     }
 
 }

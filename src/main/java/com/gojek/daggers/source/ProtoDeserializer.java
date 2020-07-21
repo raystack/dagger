@@ -12,6 +12,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
     }
 
     @Override
-    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws Exception {
+    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws IOException {
         try {
             DynamicMessage proto = DynamicMessage.parseFrom(getProtoParser(), consumerRecord.value());
             return addTimestampFieldToRow(getRow(proto), proto);

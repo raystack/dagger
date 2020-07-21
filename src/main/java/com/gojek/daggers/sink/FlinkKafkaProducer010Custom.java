@@ -11,53 +11,35 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
-import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
-
-public class FlinkKafkaProducer010Custom<T> extends RichSinkFunction<T> implements CheckpointedFunction, CheckpointListener {
+public class FlinkKafkaProducer010Custom extends RichSinkFunction<Row> implements CheckpointedFunction, CheckpointListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducer010Custom.class.getName());
     private Configuration configuration;
     private ErrorReporter errorReporter;
-    private FlinkKafkaProducer<T> flinkKafkaProducer;
+    private FlinkKafkaProducer<Row> flinkKafkaProducer;
 
-    public FlinkKafkaProducer010Custom(String topicId, KafkaSerializationSchema<T> serializationSchema,
-                                       Properties producerConfig, Configuration configuration) {
-        this.flinkKafkaProducer = new FlinkKafkaProducer<>(topicId, serializationSchema, producerConfig, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
+    public FlinkKafkaProducer010Custom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
+        this.flinkKafkaProducer = flinkKafkaProducer;
         this.configuration = configuration;
     }
 
     @Override
-    public IterationRuntimeContext getIterationRuntimeContext() {
-        return this.flinkKafkaProducer.getIterationRuntimeContext();
-    }
-
-    @Override
-    public RuntimeContext getRuntimeContext() {
-        return this.flinkKafkaProducer.getRuntimeContext();
-    }
-
-    @Override
-    public void setRuntimeContext(RuntimeContext t) {
-        this.flinkKafkaProducer.setRuntimeContext(t);
-    }
-
-    @Override
     public void open(Configuration parameters) throws Exception {
-        this.flinkKafkaProducer.open(parameters);
+        flinkKafkaProducer.open(parameters);
     }
 
     @Override
     public void close() throws Exception {
-        this.flinkKafkaProducer.close();
+        flinkKafkaProducer.close();
     }
 
     @Override
-    public void invoke(T value, Context context) throws Exception {
+    public void invoke(Row value, Context context) throws Exception {
         try {
-            flinkKafkaProducer.invoke(value, context);
+            invokeBaseProducer(value, context);
             LOGGER.info("row to kafka :" + value.toString());
         } catch (Exception exception) {
             errorReporter = getErrorReporter(getRuntimeContext());
@@ -68,17 +50,36 @@ public class FlinkKafkaProducer010Custom<T> extends RichSinkFunction<T> implemen
 
     @Override
     public void notifyCheckpointComplete(long l) throws Exception {
-        this.flinkKafkaProducer.notifyCheckpointComplete(l);
+        flinkKafkaProducer.notifyCheckpointComplete(l);
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
-        this.flinkKafkaProducer.snapshotState(functionSnapshotContext);
+        flinkKafkaProducer.snapshotState(functionSnapshotContext);
     }
 
     @Override
     public void initializeState(FunctionInitializationContext functionInitializationContext) throws Exception {
-        this.flinkKafkaProducer.initializeState(functionInitializationContext);
+        flinkKafkaProducer.initializeState(functionInitializationContext);
+    }
+
+    @Override
+    public IterationRuntimeContext getIterationRuntimeContext() {
+        return flinkKafkaProducer.getIterationRuntimeContext();
+    }
+
+    @Override
+    public RuntimeContext getRuntimeContext() {
+        return flinkKafkaProducer.getRuntimeContext();
+    }
+
+    @Override
+    public void setRuntimeContext(RuntimeContext t) {
+        flinkKafkaProducer.setRuntimeContext(t);
+    }
+
+    protected void invokeBaseProducer(Row value, Context context) throws Exception {
+        flinkKafkaProducer.invoke(value, context);
     }
 
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
