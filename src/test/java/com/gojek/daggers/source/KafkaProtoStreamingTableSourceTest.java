@@ -3,7 +3,6 @@ package com.gojek.daggers.source;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.sources.wmstrategies.BoundedOutOfOrderTimestamps;
 import org.apache.flink.table.sources.wmstrategies.PreserveWatermarks;
@@ -27,7 +26,7 @@ public class KafkaProtoStreamingTableSourceTest {
     private DataStreamSource dataStreamSource;
 
     @Mock
-    private FlinkKafkaConsumerBase flinkConsumer;
+    private FlinkKafkaConsumer011Custom flinkConsumer;
 
     @Before
     public void setUp() {

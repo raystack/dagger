@@ -9,6 +9,7 @@ import com.gojek.daggers.sink.influx.InfluxRowSink;
 import com.gojek.daggers.sink.log.LogSink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.types.Row;
 
@@ -21,9 +22,6 @@ import static com.gojek.daggers.utils.Constants.*;
 public class SinkOrchestrator implements TelemetryPublisher {
 
     private Map<String, List<String>> metrics = new HashMap<>();
-    private String sinkType;
-    private String outputTopic;
-    private SinkFunction<Row> sink;
 
     @Override
     public Map<String, List<String>> getTelemetry() {
@@ -31,23 +29,22 @@ public class SinkOrchestrator implements TelemetryPublisher {
     }
 
     public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        sinkType = configuration.getString("SINK_TYPE", "influx");
+        String sinkType = configuration.getString("SINK_TYPE", "influx");
         addMetric(SINK_TYPE.getValue(), sinkType);
-
+        SinkFunction<Row> sink;
         switch (sinkType) {
             case "kafka":
-                outputTopic = configuration.getString(OUTPUT_KAFKA_TOPIC, "");
+                String outputTopic = configuration.getString(OUTPUT_KAFKA_TOPIC, "");
+                String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
                 String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, "");
                 String outputStream = configuration.getString(OUTPUT_STREAM, "");
                 addMetric(OUTPUT_TOPIC.getValue(), outputTopic);
                 addMetric(OUTPUT_PROTO.getValue(), outputProtoMessage);
                 addMetric(TelemetryTypes.OUTPUT_STREAM.getValue(), outputStream);
 
-                ProtoSerializer protoSerializer = getProtoSerializer(configuration, columnNames, stencilClientOrchestrator);
-                sink = new FlinkKafkaProducer010Custom<>(outputTopic,
-                        protoSerializer,
-                        getProducerProperties(configuration),
-                        configuration);
+                ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+                FlinkKafkaProducer<Row> rowFlinkKafkaProducer = new FlinkKafkaProducer<>(outputTopic, protoSerializer, getProducerProperties(configuration), FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
+                sink = new FlinkKafkaProducer010Custom(rowFlinkKafkaProducer, configuration);
                 break;
             case "log":
                 sink = new LogSink(columnNames);
@@ -57,13 +54,6 @@ public class SinkOrchestrator implements TelemetryPublisher {
         }
         notifySubscriber();
         return sink;
-    }
-
-    private ProtoSerializer getProtoSerializer(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        String outputProtoKey = configuration.getString(OUTPUT_PROTO_KEY, null);
-        String outputProtoMessage = configuration.getString(OUTPUT_PROTO_MESSAGE, null);
-        String outputTopic = configuration.getString(OUTPUT_KAFKA_TOPIC, null);
-        return new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
     }
 
     private void addMetric(String key, String value) {

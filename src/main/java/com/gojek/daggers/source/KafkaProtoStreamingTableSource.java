@@ -3,7 +3,6 @@ package com.gojek.daggers.source;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.sources.DefinedRowtimeAttributes;
 import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
@@ -19,12 +18,12 @@ import java.util.List;
 
 public class KafkaProtoStreamingTableSource implements StreamTableSource<Row>, DefinedRowtimeAttributes {
 
-    private final FlinkKafkaConsumerBase<Row> kafkaConsumer;
+    private final FlinkKafkaConsumer011Custom kafkaConsumer;
     private String rowTimeAttributeName;
     private Long watermarkDelay;
     private boolean enablePerPartitionWatermark;
 
-    public KafkaProtoStreamingTableSource(FlinkKafkaConsumerBase<Row> kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay, boolean enablePerPartitionWatermark) {
+    public KafkaProtoStreamingTableSource(FlinkKafkaConsumer011Custom kafkaConsumer, String rowTimeAttributeName, Long watermarkDelay, boolean enablePerPartitionWatermark) {
         this.kafkaConsumer = kafkaConsumer;
         this.rowTimeAttributeName = rowTimeAttributeName;
         this.watermarkDelay = watermarkDelay;

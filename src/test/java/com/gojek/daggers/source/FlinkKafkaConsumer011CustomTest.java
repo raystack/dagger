@@ -8,7 +8,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
-import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +57,7 @@ public class FlinkKafkaConsumer011CustomTest {
         flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new RuntimeException("test exception"));
     }
 
-    @org.junit.Test
+    @Test
     public void shouldReportIfTelemetryEnabled() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
@@ -71,7 +70,7 @@ public class FlinkKafkaConsumer011CustomTest {
         verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
-    @org.junit.Test
+    @Test
     public void shouldNotReportIfChainedOperatorException() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         Throwable throwable = new Throwable();
@@ -84,7 +83,7 @@ public class FlinkKafkaConsumer011CustomTest {
         verify(errorReporter, times(0)).reportFatalException(any(RuntimeException.class));
     }
 
-    @org.junit.Test
+    @Test
     public void shouldNotReportIfTelemetryDisabled() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
         try {
@@ -100,7 +99,7 @@ public class FlinkKafkaConsumer011CustomTest {
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
-        FlinkKafkaConsumer011Custom<Row> flinkKafkaConsumer011Custom = new FlinkKafkaConsumer011Custom<Row>(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
+        FlinkKafkaConsumer011Custom flinkKafkaConsumer011Custom = new FlinkKafkaConsumer011Custom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
         Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumer011Custom.getErrorReporter(runtimeContext).getClass());
     }
 
