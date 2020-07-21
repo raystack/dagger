@@ -15,13 +15,13 @@ import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FlinkKafkaProducer010Custom extends RichSinkFunction<Row> implements CheckpointedFunction, CheckpointListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducer010Custom.class.getName());
+public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements CheckpointedFunction, CheckpointListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducerCustom.class.getName());
     private Configuration configuration;
     private ErrorReporter errorReporter;
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
 
-    public FlinkKafkaProducer010Custom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
+    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
         this.flinkKafkaProducer = flinkKafkaProducer;
         this.configuration = configuration;
     }
