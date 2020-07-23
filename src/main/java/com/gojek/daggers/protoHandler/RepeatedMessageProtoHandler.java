@@ -47,14 +47,8 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
         return builder.setField(fieldDescriptor, messages);
     }
 
-    private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {
-        Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        handleNestedField(elementBuilder, nestedFieldDescriptors, row);
-        return elementBuilder.build();
-    }
-
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Object[] inputFields = ((JSONArray) field).toArray();
@@ -63,6 +57,22 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
             }
         }
         return rows.toArray();
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        ArrayList<Row> rows = new ArrayList<>();
+        if (field != null) {
+            List<DynamicMessage> protos = (List<DynamicMessage>) field;
+            protos.forEach(proto -> rows.add(RowFactory.createRow(proto)));
+        }
+        return rows.toArray();
+    }
+
+    private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {
+        Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
+        handleNestedField(elementBuilder, nestedFieldDescriptors, row);
+        return elementBuilder.build();
     }
 
     private void handleNestedField(Builder elementBuilder, List<FieldDescriptor> nestedFieldDescriptors, Row row) {

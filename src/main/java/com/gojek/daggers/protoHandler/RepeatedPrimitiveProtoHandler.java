@@ -1,5 +1,7 @@
 package com.gojek.daggers.protoHandler;
 
+import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandler;
+import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
@@ -18,7 +21,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.isRepeated() && fieldDescriptor.getJavaType() != MESSAGE;
+        return fieldDescriptor.isRepeated() && fieldDescriptor.getJavaType() != MESSAGE && fieldDescriptor.getJavaType() != ENUM;
     }
 
     @Override
@@ -31,15 +34,21 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         ArrayList<Object> outputValues = new ArrayList<>();
         if (field != null) {
             List<Object> inputValues = (List<Object>) field;
             PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
             for (Object inputField : inputValues) {
-                outputValues.add(primitiveProtoHandler.transform(inputField));
+                outputValues.add(primitiveProtoHandler.transformForPostProcessor(inputField));
             }
         }
         return outputValues;
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveTypeHandler.getArray(field);
     }
 }

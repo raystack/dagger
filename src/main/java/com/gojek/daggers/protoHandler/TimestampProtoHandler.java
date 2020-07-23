@@ -57,8 +57,13 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         return isValid(field) ? field.toString() : null;
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        return RowFactory.createRow((DynamicMessage) field);
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {

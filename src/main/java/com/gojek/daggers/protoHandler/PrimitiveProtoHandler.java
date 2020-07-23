@@ -24,7 +24,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         try {
             return primitiveTypeHandler.getValue(field);
@@ -32,6 +32,11 @@ public class PrimitiveProtoHandler implements ProtoHandler {
             String errMessage = String.format("type mismatch of field: %s, expecting %s type, actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), field.getClass());
             throw new InvalidDataTypeException(errMessage);
         }
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        return field;
     }
 
 }

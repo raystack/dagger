@@ -5,6 +5,8 @@ public interface PrimitiveTypeHandler {
 
     Object getValue(Object field);
 
+    Object getArray(Object field);
+
     default String getValueOrDefault(Object input, String defaultValue) {
         return input == null ? defaultValue : input.toString();
     }

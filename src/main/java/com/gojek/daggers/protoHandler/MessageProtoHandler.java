@@ -46,7 +46,12 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         return RowFactory.createRow((Map<String, Object>) field, fieldDescriptor.getMessageType());
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        return RowFactory.createRow((DynamicMessage) field);
     }
 }
