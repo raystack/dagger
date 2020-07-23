@@ -13,7 +13,7 @@ public class EnumProtoHandler implements ProtoHandler {
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM;
+        return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM && !fieldDescriptor.isRepeated();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         String input = field != null ? field.toString() : "0";
         try {
             int enumPosition = Integer.parseInt(input);
@@ -39,5 +39,10 @@ public class EnumProtoHandler implements ProtoHandler {
             Descriptors.EnumValueDescriptor valueByName = fieldDescriptor.getEnumType().findValueByName(input);
             return valueByName != null ? valueByName.getName() : fieldDescriptor.getEnumType().findValueByNumber(0).getName();
         }
+    }
+
+    @Override
+    public Object transformForKafka(Object field) {
+        return field.toString();
     }
 }

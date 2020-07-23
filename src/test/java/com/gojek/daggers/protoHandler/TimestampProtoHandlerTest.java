@@ -142,7 +142,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transform(actualValue);
+        Object value = protoHandler.transformForPostProcessor(actualValue);
         assertEquals(actualValue, value);
     }
 
@@ -153,7 +153,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transform(null);
+        Object value = protoHandler.transformForPostProcessor(null);
         assertNull(value);
     }
 
@@ -164,7 +164,7 @@ public class TimestampProtoHandlerTest {
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transform("2");
+        Object value = protoHandler.transformForPostProcessor("2");
 
         assertNull(value);
     }

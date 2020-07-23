@@ -93,7 +93,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformForPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -107,7 +107,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformForPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals(null, value.getField(1));
@@ -121,7 +121,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(null);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformForPostProcessor(null);
 
         assertEquals(2, value.getArity());
         assertEquals(null, value.getField(0));

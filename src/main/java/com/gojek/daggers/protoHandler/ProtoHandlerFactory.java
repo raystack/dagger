@@ -21,8 +21,10 @@ public class ProtoHandlerFactory {
                 new MapProtoHandler(fieldDescriptor),
                 new TimestampProtoHandler(fieldDescriptor),
                 new EnumProtoHandler(fieldDescriptor),
+                new StructMessageProtoHandler(fieldDescriptor),
                 new RepeatedPrimitiveProtoHandler(fieldDescriptor),
                 new RepeatedMessageProtoHandler(fieldDescriptor),
+                new RepeatedEnumProtoHandler(fieldDescriptor),
                 new MessageProtoHandler(fieldDescriptor)
         );
     }
