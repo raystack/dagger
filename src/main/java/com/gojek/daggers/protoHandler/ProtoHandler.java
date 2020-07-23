@@ -7,5 +7,7 @@ public interface ProtoHandler {
 
     DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field);
 
-    Object transform(Object field);
+    Object transformForPostProcessor(Object field);
+
+    Object transformForKafka(Object field);
 }

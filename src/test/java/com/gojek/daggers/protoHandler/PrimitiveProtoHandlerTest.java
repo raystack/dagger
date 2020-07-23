@@ -50,7 +50,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transform(1));
+        assertEquals(1, primitiveProtoHandler.transformForPostProcessor(1));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transform("1"));
+        assertEquals(1, primitiveProtoHandler.transformForPostProcessor("1"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transform("123"));
+        assertEquals("123", primitiveProtoHandler.transformForPostProcessor("123"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transform(123));
+        assertEquals("123", primitiveProtoHandler.transformForPostProcessor(123));
     }
 
     @Test
@@ -88,6 +88,6 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor floatFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("customer_price");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
-        primitiveProtoHandler.transform("stringValue");
+        primitiveProtoHandler.transformForPostProcessor("stringValue");
     }
 }

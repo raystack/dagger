@@ -130,7 +130,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformForPostProcessor(inputMap));
 
         assertEquals(2, outputValues.size());
     }
@@ -143,7 +143,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformForPostProcessor(inputMap));
 
         assertEquals("a", ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) outputValues.get(0)).getField(1));
@@ -157,7 +157,7 @@ public class MapProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowIfNullPassed() {
         Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(null));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformForPostProcessor(null));
 
         assertEquals(0, outputValues.size());
     }

@@ -7,6 +7,7 @@ import com.google.protobuf.WireFormat;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,7 +39,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformForPostProcessor(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Map<String, String> mapField = (Map<String, String>) field;
@@ -49,10 +50,28 @@ public class MapProtoHandler implements ProtoHandler {
         return rows.toArray();
     }
 
+    @Override
+    public Object transformForKafka(Object field) {
+        ArrayList<Row> rows = new ArrayList<>();
+        if (field != null) {
+            List<DynamicMessage> protos = (List<DynamicMessage>) field;
+            protos.forEach(proto -> rows.add(getRowFromMap(proto)));
+        }
+        return rows.toArray();
+    }
+
     private Row getRowFromMap(Entry<String, String> entry) {
         Row row = new Row(2);
         row.setField(0, entry.getKey());
         row.setField(1, entry.getValue());
+        return row;
+    }
+
+    private Row getRowFromMap(DynamicMessage proto) {
+        Row row = new Row(2);
+        Object[] keyValue = proto.getAllFields().values().toArray();
+        row.setField(0, keyValue.length > 0 ? keyValue[0] : "");
+        row.setField(1, keyValue.length > 1 ? keyValue[1] : "");
         return row;
     }
 

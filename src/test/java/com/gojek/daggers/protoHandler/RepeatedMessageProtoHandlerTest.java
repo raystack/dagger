@@ -181,7 +181,7 @@ public class RepeatedMessageProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowsIfNullPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(null);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformForPostProcessor(null);
 
         assertEquals(0, values.length);
     }
@@ -205,7 +205,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformForPostProcessor(jsonArray);
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
@@ -230,7 +230,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformForPostProcessor(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));
@@ -255,7 +255,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformForPostProcessor(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));

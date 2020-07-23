@@ -2,6 +2,7 @@ package com.gojek.daggers.protoHandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.DynamicMessage;
 import org.apache.flink.types.Row;
 
 import java.util.List;
@@ -16,8 +17,18 @@ public class RowFactory {
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
             if (inputMap.get(fieldDescriptor.getName()) != null) {
-                row.setField(fieldDescriptor.getIndex(), protoHandler.transform(inputMap.get(fieldDescriptor.getName())));
+                row.setField(fieldDescriptor.getIndex(), protoHandler.transformForPostProcessor(inputMap.get(fieldDescriptor.getName())));
             }
+        }
+        return row;
+    }
+
+    public static Row createRow(DynamicMessage proto) {
+        List<FieldDescriptor> descriptorFields = proto.getDescriptorForType().getFields();
+        Row row = new Row(descriptorFields.size());
+        for (FieldDescriptor fieldDescriptor : descriptorFields) {
+            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+            row.setField(fieldDescriptor.getIndex(), protoHandler.transformForKafka(proto.getField(fieldDescriptor)));
         }
         return row;
     }

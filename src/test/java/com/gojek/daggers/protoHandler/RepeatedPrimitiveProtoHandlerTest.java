@@ -106,7 +106,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         ArrayList<Integer> inputValues = new ArrayList<>();
         inputValues.add(1);
 
-        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transformForPostProcessor(inputValues);
 
         assertEquals(String.class, outputValues.get(0).getClass());
     }
@@ -118,7 +118,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         ArrayList<Integer> inputValues = new ArrayList<>();
 
-        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transformForPostProcessor(inputValues);
 
         assertEquals(0, outputValues.size());
     }
@@ -128,7 +128,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
-        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(null);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transformForPostProcessor(null);
 
         assertEquals(0, outputValues.size());
     }
@@ -143,7 +143,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         inputValues.add(2);
         inputValues.add(3);
 
-        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transform(inputValues);
+        List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transformForPostProcessor(inputValues);
 
         assertEquals(3, outputValues.size());
         assertEquals("1", outputValues.get(0));
@@ -158,7 +158,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         try {
             ArrayList<String> inputValues = new ArrayList<>();
             inputValues.add("test");
-            repeatedPrimitiveProtoHandler.transform(inputValues);
+            repeatedPrimitiveProtoHandler.transformForPostProcessor(inputValues);
         } catch (Exception e) {
             assertEquals(DataTypeNotSupportedException.class, e.getClass());
             assertEquals("Data type MESSAGE not supported in primitive type handlers", e.getMessage());
@@ -172,7 +172,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         try {
             ArrayList<String> inputValues = new ArrayList<>();
             inputValues.add("test");
-            repeatedPrimitiveProtoHandler.transform(inputValues);
+            repeatedPrimitiveProtoHandler.transformForPostProcessor(inputValues);
         } catch (Exception e) {
             assertEquals(InvalidDataTypeException.class, e.getClass());
             assertEquals("type mismatch of field: scores, expecting DOUBLE type, actual type class java.lang.String", e.getMessage());
