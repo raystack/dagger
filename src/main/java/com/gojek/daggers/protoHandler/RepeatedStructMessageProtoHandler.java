@@ -5,17 +5,17 @@ import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
-public class StructMessageProtoHandler implements ProtoHandler {
+public class RepeatedStructMessageProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
-    public StructMessageProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public RepeatedStructMessageProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
         return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE &&
-                fieldDescriptor.toProto().getTypeName().equals(".google.protobuf.Struct") && !fieldDescriptor.isRepeated();
+                fieldDescriptor.toProto().getTypeName().equals(".google.protobuf.Struct") && fieldDescriptor.isRepeated();
     }
 
     @Override
@@ -35,6 +35,6 @@ public class StructMessageProtoHandler implements ProtoHandler {
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.ROW_NAMED(new String[]{});
+        return Types.OBJECT_ARRAY(Types.ROW_NAMED(new String[]{}));
     }
 }
