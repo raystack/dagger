@@ -2,7 +2,11 @@ package com.gojek.daggers.protoHandler.typeHandler;
 
 import com.gojek.esb.types.GoFoodShoppingItemProto;
 import com.google.protobuf.Descriptors;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -51,6 +55,37 @@ public class StringPrimitiveTypeHandlerTest {
         Object value = stringPrimitiveTypeHandler.getValue(null);
 
         assertEquals("", value);
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
+        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.STRING, stringPrimitiveTypeHandler.getTypeInformation());
+    }
+
+    @Test
+    public void shouldReturnArrayTypeInformation() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
+        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.OBJECT_ARRAY(Types.STRING), stringPrimitiveTypeHandler.getArrayType());
+    }
+
+    @Test
+    public void shouldReturnArrayValues() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
+        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        ArrayList<String> inputValues = new ArrayList<>(Arrays.asList("1", "2", "3"));
+        Object actualValues = stringPrimitiveTypeHandler.getArray(inputValues);
+        assertArrayEquals(inputValues.toArray(), (String[]) actualValues);
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayOnNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
+        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        Object actualValues = stringPrimitiveTypeHandler.getArray(null);
+        assertEquals(0, ((String[]) actualValues).length);
     }
 
 }

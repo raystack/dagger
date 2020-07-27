@@ -3,6 +3,8 @@ package com.gojek.daggers.postProcessors.common;
 import com.gojek.daggers.protoHandler.RowFactory;
 import com.gojek.esb.customer.CustomerLogMessage;
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -16,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 public class RowFactoryTest {
 
     @Test
-    public void shouldCreateRow() {
+    public void shouldCreateRowForInputMap() {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("customer_id", 144614);
@@ -29,7 +31,7 @@ public class RowFactoryTest {
     }
 
     @Test
-    public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptor() {
+    public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptorForInputMap() {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
@@ -37,7 +39,7 @@ public class RowFactoryTest {
     }
 
     @Test
-    public void shouldReturnEmptyRowIfNoFieldsPassed() {
+    public void shouldReturnEmptyRowIfNoFieldsPassedForInputMap() {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
@@ -47,7 +49,7 @@ public class RowFactoryTest {
     }
 
     @Test
-    public void shouldCreateRowWithPassedFields() {
+    public void shouldCreateRowWithPassedFieldsForInputMap() {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("customer_id", "144614");
@@ -64,11 +66,45 @@ public class RowFactoryTest {
     }
 
     @Test
-    public void shouldReturnEmptyRowIfNullPassedAsMap() {
+    public void shouldReturnEmptyRowIfNullPassedAsMapForInputMap() {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Row row = RowFactory.createRow(null, descriptor);
         for (int index = 0; index < row.getArity(); index++) {
             assertEquals(null, row.getField(index));
         }
     }
+
+    @Test
+    public void shouldCreateRowForDynamicMessage() throws InvalidProtocolBufferException {
+        CustomerLogMessage customerLogMessage = CustomerLogMessage.newBuilder().build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(CustomerLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        Row row = RowFactory.createRow(dynamicMessage);
+        assertNotNull(row);
+    }
+
+    @Test
+    public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptorForDynamicMessage() throws InvalidProtocolBufferException {
+        CustomerLogMessage customerLogMessage = CustomerLogMessage.newBuilder().build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(CustomerLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        Row row = RowFactory.createRow(dynamicMessage);
+        assertEquals(19, row.getArity());
+    }
+
+    @Test
+    public void shouldCreateRowWithPSetFieldsForDynamicMessage() throws InvalidProtocolBufferException {
+        CustomerLogMessage customerLogMessage = CustomerLogMessage
+                .newBuilder()
+                .setCustomerId("144614")
+                .setCustomerUrl("https://www.abcd.com/1234")
+                .setActive(true)
+                .setSex(MALE)
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(CustomerLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        Row row = RowFactory.createRow(dynamicMessage);
+        assertEquals("144614", row.getField(0));
+        assertEquals("https://www.abcd.com/1234", row.getField(1));
+        assertEquals(true, row.getField(9));
+        assertEquals("MALE", row.getField(11));
+    }
+
 }

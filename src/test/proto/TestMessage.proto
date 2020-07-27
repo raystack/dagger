@@ -38,3 +38,13 @@ message TestMapMessage {
     string order_number = 1;
     map<string, string> current_state = 2;
 }
+
+message TestRepeatedEnumMessage {
+    repeated TestEnumMessage.Enum test_enums = 1;
+}
+
+message TestEnumMessage {
+    enum Enum {
+        UNKNOWN = 0;
+    }
+}

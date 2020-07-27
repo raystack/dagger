@@ -4,6 +4,7 @@ import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandler;
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,5 +51,10 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     public Object transformForKafka(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveTypeHandler.getArray(field);
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor).getArrayType();
     }
 }
