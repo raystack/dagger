@@ -101,7 +101,7 @@ public class ProtoDeserializerTest {
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         assertEquals(26, row.getArity());
-        assertEquals("2020-07-24 05:30:00.0", row.getField(25).toString());
+        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(25)).getTime());
     }
 
     @Test
