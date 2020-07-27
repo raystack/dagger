@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.common;
 
+import com.gojek.daggers.exception.InputOutputMappingException;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,5 +70,11 @@ public class RowManagerTest {
         RowManager rowManager = new RowManager(parentRow);
 
         Assert.assertEquals(outputRow, rowManager.getOutputData());
+    }
+
+    @Test(expected = InputOutputMappingException.class)
+    public void shouldThrowExpectionOnGetOutputDataIfParentRowIsOfArityOtherThanTwo() {
+        RowManager rowManager = new RowManager(new Row(3));
+        rowManager.getOutputData();
     }
 }

@@ -4,6 +4,8 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
 import net.minidev.json.JSONArray;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
@@ -67,6 +69,11 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
             protos.forEach(proto -> rows.add(RowFactory.createRow(proto)));
         }
         return rows.toArray();
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.OBJECT_ARRAY(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()));
     }
 
     private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {

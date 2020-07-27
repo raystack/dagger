@@ -24,7 +24,8 @@ public class PrimitiveTypeHandlerFactory {
                 new DoublePrimitiveTypeHandler(fieldDescriptor),
                 new FloatPrimitiveTypeHandler(fieldDescriptor),
                 new LongPrimitiveTypeHandler(fieldDescriptor),
-                new StringPrimitiveTypeHandler(fieldDescriptor)
+                new StringPrimitiveTypeHandler(fieldDescriptor),
+                new ByteStringPrimitiveTypeHandler(fieldDescriptor)
         );
     }
 }

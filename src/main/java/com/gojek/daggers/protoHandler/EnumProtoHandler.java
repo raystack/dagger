@@ -3,6 +3,8 @@ package com.gojek.daggers.protoHandler;
 import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 
 public class EnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -44,5 +46,10 @@ public class EnumProtoHandler implements ProtoHandler {
     @Override
     public Object transformForKafka(Object field) {
         return field.toString();
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.STRING;
     }
 }

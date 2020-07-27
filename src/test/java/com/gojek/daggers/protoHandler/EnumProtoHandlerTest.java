@@ -2,8 +2,10 @@ package com.gojek.daggers.protoHandler;
 
 import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.gojek.esb.booking.BookingLogMessage;
+import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -22,6 +24,14 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
 
         assertTrue(enumProtoHandler.canHandle());
+    }
+
+    @Test
+    public void shouldReturnFalseIfRepeatedEnumFieldDescriptorIsPassed() {
+        Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(repeatedEnumFieldDescriptor);
+
+        assertFalse(enumProtoHandler.canHandle());
     }
 
     @Test
@@ -131,5 +141,21 @@ public class EnumProtoHandlerTest {
         Object value = ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformForPostProcessor(2);
 
         assertEquals("DRIVER_FOUND", value);
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+        assertEquals(Types.STRING, enumProtoHandler.getTypeInformation());
+    }
+
+    @Test
+    public void shouldTransformValueForKafka() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+        assertEquals("DRIVER_FOUND", enumProtoHandler.transformForKafka("DRIVER_FOUND"));
     }
 }

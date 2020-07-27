@@ -5,6 +5,7 @@ import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandler;
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 public class PrimitiveProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -37,6 +38,12 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     @Override
     public Object transformForKafka(Object field) {
         return field;
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveTypeHandler.getTypeInformation();
     }
 
 }

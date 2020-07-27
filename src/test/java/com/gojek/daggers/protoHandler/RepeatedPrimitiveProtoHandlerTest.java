@@ -4,9 +4,13 @@ import com.gojek.daggers.exception.DataTypeNotSupportedException;
 import com.gojek.daggers.exception.InvalidDataTypeException;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.booking.GoLifeBookingLogMessage;
+import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.gojek.esb.jaeger.JaegerResponseLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,11 +21,27 @@ import static org.junit.Assert.*;
 public class RepeatedPrimitiveProtoHandlerTest {
 
     @Test
-    public void shouldReturnTrueIfRepeatedFieldDescriptorIsPassed() {
+    public void shouldReturnTrueIfRepeatedPrimitiveFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
         assertTrue(repeatedPrimitiveProtoHandler.canHandle());
+    }
+
+    @Test
+    public void shouldReturnFalseIfRepeatedMessageFieldDescriptorIsPassed() {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("routes");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedMessageFieldDescriptor);
+
+        assertFalse(repeatedPrimitiveProtoHandler.canHandle());
+    }
+
+    @Test
+    public void shouldReturnFalseIfRepeatedEnumFieldDescriptorIsPassed() {
+        Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedEnumFieldDescriptor);
+
+        assertFalse(repeatedPrimitiveProtoHandler.canHandle());
     }
 
     @Test
@@ -99,7 +119,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnArrayOfObjectsWithTypeSameAsFieldDescriptor() {
+    public void shouldReturnArrayOfObjectsWithTypeSameAsFieldDescriptorForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
@@ -112,7 +132,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayOfObjectsIfEmptyListPassed() {
+    public void shouldReturnEmptyArrayOfObjectsIfEmptyListPassedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
@@ -124,7 +144,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayOfObjectsIfNullPassed() {
+    public void shouldReturnEmptyArrayOfObjectsIfNullPassedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
@@ -134,7 +154,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptor() {
+    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
 
@@ -152,7 +172,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfFieldDesciptorTypeNotSupported() {
+    public void shouldThrowExceptionIfFieldDesciptorTypeNotSupportedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("routes");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         try {
@@ -166,7 +186,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatch() {
+    public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFloatFieldDescriptor = JaegerResponseLogMessage.getDescriptor().findFieldByName("scores");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFloatFieldDescriptor);
         try {
@@ -178,4 +198,48 @@ public class RepeatedPrimitiveProtoHandlerTest {
             assertEquals("type mismatch of field: scores, expecting DOUBLE type, actual type class java.lang.String", e.getMessage());
         }
     }
+
+    @Test
+    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForKafkaTransform() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
+
+        GoLifeBookingLogMessage goLifeBookingLogMessage = GoLifeBookingLogMessage
+                .newBuilder()
+                .addFavouriteServiceProviderGuids("1")
+                .addFavouriteServiceProviderGuids("2")
+                .addFavouriteServiceProviderGuids("3")
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(GoLifeBookingLogMessage.getDescriptor(), goLifeBookingLogMessage.toByteArray());
+
+        String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformForKafka(dynamicMessage.getField(repeatedFieldDescriptor));
+
+        assertEquals(3, outputValues.length);
+        assertEquals("1", outputValues[0]);
+        assertEquals("2", outputValues[1]);
+        assertEquals("3", outputValues[2]);
+    }
+
+    @Test
+    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForKafkaTransform() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("status");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
+        try {
+            repeatedPrimitiveProtoHandler.transformForKafka("CREATED");
+        } catch (Exception e) {
+            assertEquals(DataTypeNotSupportedException.class, e.getClass());
+            assertEquals("Data type ENUM not supported in primitive type handlers", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
+        RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
+        TypeInformation actualTypeInformation = repeatedPrimitiveProtoHandler.getTypeInformation();
+        TypeInformation<String[]> expectedTypeInformation = Types.OBJECT_ARRAY(Types.STRING);
+        assertEquals(expectedTypeInformation, actualTypeInformation);
+    }
+
+
 }

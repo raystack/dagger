@@ -2,7 +2,11 @@ package com.gojek.daggers.protoHandler.typeHandler;
 
 import com.gojek.esb.types.GoFoodShoppingItemProto;
 import com.google.protobuf.Descriptors;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -51,6 +55,37 @@ public class IntegerPrimitiveTypeHandlerTest {
         Object value = integerPrimitiveTypeHandler.getValue(null);
 
         assertEquals(0, value);
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.INT, integerPrimitiveTypeHandler.getTypeInformation());
+    }
+
+    @Test
+    public void shouldReturnArrayTypeInformation() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.PRIMITIVE_ARRAY(Types.INT), integerPrimitiveTypeHandler.getArrayType());
+    }
+
+    @Test
+    public void shouldReturnArrayValues() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
+        Object actualValues = integerPrimitiveTypeHandler.getArray(inputValues);
+        assertArrayEquals(inputValues.toArray(), (Integer[]) actualValues);
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayOnNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        Object actualValues = integerPrimitiveTypeHandler.getArray(null);
+        assertEquals(0, ((Integer[]) actualValues).length);
     }
 
 }

@@ -3,6 +3,7 @@ package com.gojek.daggers.protoHandler;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
 import java.util.List;
@@ -53,5 +54,10 @@ public class MessageProtoHandler implements ProtoHandler {
     @Override
     public Object transformForKafka(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return TypeInformationFactory.getRowType(fieldDescriptor.getMessageType());
     }
 }

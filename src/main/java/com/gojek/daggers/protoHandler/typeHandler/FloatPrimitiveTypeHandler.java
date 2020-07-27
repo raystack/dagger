@@ -2,7 +2,10 @@ package com.gojek.daggers.protoHandler.typeHandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
@@ -24,7 +27,18 @@ public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
     @Override
     public Object getArray(Object field) {
-        List<Float> inputValues = (List<Float>) field;
+        List<Float> inputValues = new ArrayList<>();
+        if (field != null) inputValues = (List<Float>) field;
         return inputValues.toArray(new Float[]{});
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.FLOAT;
+    }
+
+    @Override
+    public TypeInformation getArrayType() {
+        return Types.PRIMITIVE_ARRAY(Types.FLOAT);
     }
 }

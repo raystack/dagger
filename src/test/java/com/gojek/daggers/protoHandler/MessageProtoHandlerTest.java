@@ -5,6 +5,8 @@ import com.gojek.esb.booking.PaymentOptionMetadata;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -85,7 +87,7 @@ public class MessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassed() {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
         inputValues.put("network", "test2");
@@ -100,7 +102,7 @@ public class MessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassed() {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
 
@@ -114,7 +116,7 @@ public class MessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyRowIfNullPassed() {
+    public void shouldReturnEmptyRowIfNullPassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
 
@@ -126,5 +128,50 @@ public class MessageProtoHandlerTest {
         assertEquals(2, value.getArity());
         assertEquals(null, value.getField(0));
         assertEquals(null, value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForKafka() throws InvalidProtocolBufferException {
+        BookingLogMessage bookingLogMessage = BookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformForKafka(dynamicMessage.getField(fieldDescriptor));
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("test2", value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForKafka() throws InvalidProtocolBufferException {
+        BookingLogMessage bookingLogMessage = BookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformForKafka(dynamicMessage.getField(fieldDescriptor));
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("", value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+        TypeInformation actualTypeInformation = new MessageProtoHandler(fieldDescriptor).getTypeInformation();
+        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"masked_card", "network"}, Types.STRING, Types.STRING);
+        assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 }

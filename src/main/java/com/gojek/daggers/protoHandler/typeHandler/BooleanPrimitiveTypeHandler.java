@@ -2,7 +2,10 @@ package com.gojek.daggers.protoHandler.typeHandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
@@ -24,7 +27,19 @@ public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
     @Override
     public Object getArray(Object field) {
-        List<Boolean> inputValues = (List<Boolean>) field;
+        List<Boolean> inputValues = new ArrayList<>();
+        if (field != null)
+            inputValues = (List<Boolean>) field;
         return inputValues.toArray(new Boolean[]{});
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.BOOLEAN;
+    }
+
+    @Override
+    public TypeInformation getArrayType() {
+        return Types.PRIMITIVE_ARRAY(Types.BOOLEAN);
     }
 }
