@@ -26,7 +26,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null)
             return builder;
         if (field.getClass().isArray())
@@ -35,20 +35,20 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformForPostProcessor(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         ArrayList<Object> outputValues = new ArrayList<>();
         if (field != null) {
             List<Object> inputValues = (List<Object>) field;
             PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
             for (Object inputField : inputValues) {
-                outputValues.add(primitiveProtoHandler.transformForPostProcessor(inputField));
+                outputValues.add(primitiveProtoHandler.transformFromPostProcessor(inputField));
             }
         }
         return outputValues;
     }
 
     @Override
-    public Object transformForKafka(Object field) {
+    public Object transformFromKafka(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveTypeHandler.getArray(field);
     }

@@ -135,7 +135,7 @@ public class EsResponseHandler implements ResponseListener {
             rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
         } else {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            rowManager.setInOutput(index, protoHandler.transformForPostProcessor(value));
+            rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
         }
     }
 

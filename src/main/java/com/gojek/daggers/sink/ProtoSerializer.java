@@ -100,7 +100,7 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
         if (data != null)
             try {
-                builder = protoHandler.populateBuilder(builder, data);
+                builder = protoHandler.transformForKafka(builder, data);
             } catch (IllegalArgumentException e) {
                 String protoType = fieldDescriptor.getType().toString();
                 if (fieldDescriptor.isRepeated()) {

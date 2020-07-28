@@ -130,7 +130,7 @@ public class EsResponseHandlerTest {
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
-        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(descriptor.findFieldByName("driver_id")).transformForPostProcessor(12345));
+        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(descriptor.findFieldByName("driver_id")).transformFromPostProcessor(12345));
         outputStreamData.setField(1, outputData);
 
         esResponseHandler.startTimer();
