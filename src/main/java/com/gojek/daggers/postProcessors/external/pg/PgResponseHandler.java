@@ -128,7 +128,7 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
             rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
         } else {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            rowManager.setInOutput(index, protoHandler.transformForPostProcessor(value));
+            rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
         }
     }
 

@@ -17,7 +17,7 @@ public class RowFactory {
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
             if (inputMap.get(fieldDescriptor.getName()) != null) {
-                row.setField(fieldDescriptor.getIndex(), protoHandler.transformForPostProcessor(inputMap.get(fieldDescriptor.getName())));
+                row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromPostProcessor(inputMap.get(fieldDescriptor.getName())));
             }
         }
         return row;
@@ -28,7 +28,7 @@ public class RowFactory {
         Row row = new Row(descriptorFields.size());
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            row.setField(fieldDescriptor.getIndex(), protoHandler.transformForKafka(proto.getField(fieldDescriptor)));
+            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromKafka(proto.getField(fieldDescriptor)));
         }
         return row;
     }

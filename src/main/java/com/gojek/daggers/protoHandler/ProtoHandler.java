@@ -6,11 +6,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 public interface ProtoHandler {
     boolean canHandle();
 
-    DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field);
+    DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field);
 
-    Object transformForPostProcessor(Object field);
+    Object transformFromPostProcessor(Object field);
 
-    Object transformForKafka(Object field);
+    Object transformFromKafka(Object field);
 
     TypeInformation getTypeInformation();
 }

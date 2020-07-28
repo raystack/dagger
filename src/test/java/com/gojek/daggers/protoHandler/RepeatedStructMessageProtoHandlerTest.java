@@ -42,21 +42,21 @@ public class RepeatedStructMessageProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedStructFieldDescriptor.getContainingType());
-        assertEquals(Collections.EMPTY_LIST, repeatedStructMessageProtoHandler.populateBuilder(builder, 123).getField(repeatedStructFieldDescriptor));
+        assertEquals(Collections.EMPTY_LIST, repeatedStructMessageProtoHandler.transformForKafka(builder, 123).getField(repeatedStructFieldDescriptor));
     }
 
     @Test
     public void shouldReturnNullForTransformForPostProcessor() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
-        assertNull(repeatedStructMessageProtoHandler.transformForPostProcessor("test"));
+        assertNull(repeatedStructMessageProtoHandler.transformFromPostProcessor("test"));
     }
 
     @Test
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
-        assertNull(repeatedStructMessageProtoHandler.transformForKafka("test"));
+        assertNull(repeatedStructMessageProtoHandler.transformFromKafka("test"));
     }
 
     @Test

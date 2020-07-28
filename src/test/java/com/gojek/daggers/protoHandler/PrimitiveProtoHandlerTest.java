@@ -31,7 +31,7 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, null);
         assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -41,7 +41,7 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, "123");
         assertEquals("123", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -51,7 +51,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transformForPostProcessor(1));
+        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor(1));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transformForPostProcessor("1"));
+        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor("1"));
     }
 
     @Test
@@ -69,7 +69,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transformForPostProcessor("123"));
+        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor("123"));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transformForPostProcessor(123));
+        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor(123));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor floatFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("customer_price");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
-        primitiveProtoHandler.transformForPostProcessor("stringValue");
+        primitiveProtoHandler.transformFromPostProcessor("stringValue");
     }
 
     @Test
@@ -98,8 +98,8 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals(123, primitiveProtoHandler.transformForKafka(123));
-        assertEquals("123", primitiveProtoHandler.transformForKafka("123"));
+        assertEquals(123, primitiveProtoHandler.transformFromKafka(123));
+        assertEquals("123", primitiveProtoHandler.transformFromKafka("123"));
     }
 
     @Test

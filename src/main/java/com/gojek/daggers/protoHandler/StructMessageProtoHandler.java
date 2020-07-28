@@ -19,17 +19,17 @@ public class StructMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         return builder;
     }
 
     @Override
-    public Object transformForPostProcessor(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         return null;
     }
 
     @Override
-    public Object transformForKafka(Object field) {
+    public Object transformFromKafka(Object field) {
         return null;
     }
 

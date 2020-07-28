@@ -19,7 +19,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -31,7 +31,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformForPostProcessor(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         String input = field != null ? field.toString() : "0";
         try {
             int enumPosition = Integer.parseInt(input);
@@ -44,7 +44,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformForKafka(Object field) {
+    public Object transformFromKafka(Object field) {
         return field.toString();
     }
 

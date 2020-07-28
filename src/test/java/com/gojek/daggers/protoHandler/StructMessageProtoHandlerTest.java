@@ -41,21 +41,21 @@ public class StructMessageProtoHandlerTest {
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
         assertEquals(DynamicMessage.getDefaultInstance(fieldDescriptor.getContainingType()).getAllFields().size(),
-                ((DynamicMessage) structMessageProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor)).getAllFields().size());
+                ((DynamicMessage) structMessageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor)).getAllFields().size());
     }
 
     @Test
     public void shouldReturnNullForTransformForPostProcessor() {
         Descriptors.FieldDescriptor fieldDescriptor = ClevertapEventLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        assertNull(structMessageProtoHandler.transformForPostProcessor("test"));
+        assertNull(structMessageProtoHandler.transformFromPostProcessor("test"));
     }
 
     @Test
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor fieldDescriptor = ClevertapEventLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        assertNull(structMessageProtoHandler.transformForKafka("test"));
+        assertNull(structMessageProtoHandler.transformFromKafka("test"));
     }
 
     @Test
