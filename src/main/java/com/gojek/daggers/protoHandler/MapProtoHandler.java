@@ -27,7 +27,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -40,7 +40,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformForPostProcessor(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Map<String, String> mapField = (Map<String, String>) field;
@@ -52,7 +52,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformForKafka(Object field) {
+    public Object transformFromKafka(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             List<DynamicMessage> protos = (List<DynamicMessage>) field;
