@@ -8,6 +8,7 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class RepeatedEnumProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
         TypeInformation actualTypeInformation = repeatedEnumProtoHandler.getTypeInformation();
-        TypeInformation<String[]> expectedTypeInformation = Types.OBJECT_ARRAY(Types.STRING);
+        TypeInformation<String[]> expectedTypeInformation = ObjectArrayTypeInfo.getInfoFor(Types.STRING);
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 

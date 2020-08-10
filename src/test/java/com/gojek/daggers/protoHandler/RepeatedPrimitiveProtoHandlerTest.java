@@ -11,6 +11,7 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -237,7 +238,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         TypeInformation actualTypeInformation = repeatedPrimitiveProtoHandler.getTypeInformation();
-        TypeInformation<String[]> expectedTypeInformation = Types.OBJECT_ARRAY(Types.STRING);
+        TypeInformation<String[]> expectedTypeInformation = ObjectArrayTypeInfo.getInfoFor(Types.STRING);
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
