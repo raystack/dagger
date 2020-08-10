@@ -7,6 +7,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import net.minidev.json.JSONArray;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
 
 public class RepeatedMessageProtoHandlerTest {
@@ -40,8 +42,8 @@ public class RepeatedMessageProtoHandlerTest {
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, repeatedMesssageProtoHandler.populateBuilder(builder, 123));
-        assertEquals("", repeatedMesssageProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, repeatedMesssageProtoHandler.transformForKafka(builder, 123));
+        assertEquals("", repeatedMesssageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -50,7 +52,7 @@ public class RepeatedMessageProtoHandlerTest {
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, null);
+        DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, null);
         assertEquals(builder, outputBuilder);
         assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
@@ -73,7 +75,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -104,7 +106,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows);
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows);
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -135,7 +137,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -166,7 +168,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.populateBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows.toArray());
 
         List<DynamicMessage> returnedShoppingItems = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -178,16 +180,16 @@ public class RepeatedMessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayOfRowsIfNullPassed() {
+    public void shouldReturnEmptyArrayOfRowsIfNullPassedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(null);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(null);
 
         assertEquals(0, values.length);
     }
 
     @Test
-    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfSameSizeAsDescriptor() {
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfSameSizeAsDescriptorForPostProcessorTransform() {
         JSONArray jsonArray = new JSONArray();
 
         HashMap<String, Object> inputValues1 = new HashMap<>();
@@ -205,14 +207,14 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
     }
 
     @Test
-    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageIfFieldsAreLessThanInProto() {
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageIfFieldsAreLessThanInProtoForPostProcessorTransform() {
         JSONArray jsonArray = new JSONArray();
 
         HashMap<String, Object> inputValues1 = new HashMap<>();
@@ -230,7 +232,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));
@@ -241,7 +243,7 @@ public class RepeatedMessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageIfExtraFieldsGiven() {
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageIfExtraFieldsGivenForPostProcessorTransform() {
         JSONArray jsonArray = new JSONArray();
 
         HashMap<String, Object> inputValues = new HashMap<>();
@@ -255,11 +257,53 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
 
-        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transform(jsonArray);
+        Object[] values = (Object[]) ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals(123L, ((Row) values[0]).getField(0));
         assertEquals(1, ((Row) values[0]).getField(1));
         assertEquals("pizza", ((Row) values[0]).getField(2));
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayOfRowsIfNullPassedForKafkaTransform() {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
+
+        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromKafka(null);
+
+        assertEquals(0, values.length);
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfAsDescriptorForKafkaTransform() throws InvalidProtocolBufferException {
+        GoFoodBookingLogMessage goFoodBookingLogMessage = GoFoodBookingLogMessage
+                .newBuilder()
+                .addShoppingItems(GoFoodShoppingItem.newBuilder().setId(123L).setQuantity(1).setName("pizza").build())
+                .addShoppingItems(GoFoodShoppingItem.newBuilder().setId(456L).setQuantity(2).setName("pasta").build())
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(GoFoodBookingLogMessage.getDescriptor(), goFoodBookingLogMessage.toByteArray());
+
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
+
+        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromKafka(dynamicMessage.getField(repeatedMessageFieldDescriptor));
+
+        assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
+        assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
+        assertEquals(123L, ((Row) values[0]).getField(0));
+        assertEquals(1, ((Row) values[0]).getField(1));
+        assertEquals("pizza", ((Row) values[0]).getField(2));
+        assertEquals(456L, ((Row) values[1]).getField(0));
+        assertEquals(2, ((Row) values[1]).getField(1));
+        assertEquals("pasta", ((Row) values[1]).getField(2));
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
+        RepeatedMessageProtoHandler repeatedMessageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        TypeInformation actualTypeInformation = repeatedMessageProtoHandler.getTypeInformation();
+        TypeInformation<Row[]> expectedTypeInformation = OBJECT_ARRAY(ROW_NAMED(new String[]{"id", "quantity", "name", "price", "notes", "promo_id", "uuid"},
+                LONG, INT, STRING, DOUBLE, STRING, STRING, STRING));
+        assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
 }

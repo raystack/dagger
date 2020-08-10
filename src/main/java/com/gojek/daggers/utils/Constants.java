@@ -10,7 +10,6 @@ public class Constants {
     public final static boolean ASYNC_IO_ENABLED_DEFAULT = false;
     public final static String ASYNC_IO_CAPACITY_KEY = "capacity";
     public final static String ASYNC_IO_CAPACITY_DEFAULT = "30";
-    public final static String OUTPUT_PROTO_CLASS_PREFIX_KEY = "OUTPUT_PROTO_CLASS_PREFIX";
     public final static String OUTPUT_KAFKA_TOPIC = "OUTPUT_KAFKA_TOPIC";
     public final static String OUTPUT_KAFKA_BROKER = "OUTPUT_KAFKA_BROKER";
     public final static String LONGBOW_DURATION = "longbow_duration";
@@ -48,7 +47,6 @@ public class Constants {
     public final static String SYNCHRONIZER_INPUT_CLASSNAME_KEY = "input_class_name";
     public final static String SYNCHRONIZER_LONGBOWREAD_KEY = "longbow_read_key";
 
-    public final static String PORTAL_VERSION = "PORTAL_VERSION";
     public final static String OUTPUT_PROTO_KEY = "OUTPUT_PROTO_KEY";
     public final static String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
     public final static String OUTPUT_STREAM = "OUTPUT_STREAM";

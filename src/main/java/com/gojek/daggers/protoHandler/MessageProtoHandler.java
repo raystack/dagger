@@ -3,6 +3,7 @@ package com.gojek.daggers.protoHandler;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder populateBuilder(Builder builder, Object field) {
+    public Builder transformForKafka(Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -37,7 +38,7 @@ public class MessageProtoHandler implements ProtoHandler {
             if (index < rowElement.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
-                    protoHandler.populateBuilder(elementBuilder, rowElement.getField(index));
+                    protoHandler.transformForKafka(elementBuilder, rowElement.getField(index));
                 }
             }
         }
@@ -46,7 +47,17 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         return RowFactory.createRow((Map<String, Object>) field, fieldDescriptor.getMessageType());
+    }
+
+    @Override
+    public Object transformFromKafka(Object field) {
+        return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return TypeInformationFactory.getRowType(fieldDescriptor.getMessageType());
     }
 }

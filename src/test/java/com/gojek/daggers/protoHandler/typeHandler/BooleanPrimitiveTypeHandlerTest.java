@@ -3,7 +3,11 @@ package com.gojek.daggers.protoHandler.typeHandler;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.types.GoFoodShoppingItemProto;
 import com.google.protobuf.Descriptors;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -59,4 +63,42 @@ public class BooleanPrimitiveTypeHandlerTest {
         assertEquals(false, value);
     }
 
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
+
+        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.BOOLEAN, booleanPrimitiveTypeHandler.getTypeInformation());
+    }
+
+    @Test
+    public void shouldReturnArrayTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
+
+        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        assertEquals(Types.PRIMITIVE_ARRAY(Types.BOOLEAN), booleanPrimitiveTypeHandler.getArrayType());
+    }
+
+    @Test
+    public void shouldReturnArrayValues() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
+
+        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        ArrayList<Boolean> inputValues = new ArrayList<>(Arrays.asList(true, false, false));
+        Object actualValues = booleanPrimitiveTypeHandler.getArray(inputValues);
+        assertArrayEquals(inputValues.toArray(), (Boolean[]) actualValues);
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayOnNull() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("is_reblast");
+
+        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        Object actualValues = booleanPrimitiveTypeHandler.getArray(null);
+        assertEquals(0, ((Boolean[]) actualValues).length);
+    }
 }
