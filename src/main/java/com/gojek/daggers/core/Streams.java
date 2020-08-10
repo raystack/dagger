@@ -1,13 +1,12 @@
 package com.gojek.daggers.core;
 
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
-import com.gojek.daggers.source.FlinkKafkaConsumer011Custom;
+import com.gojek.daggers.source.FlinkKafkaConsumerCustom;
 import com.gojek.daggers.source.ProtoDeserializer;
 import com.google.gson.Gson;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.types.Row;
 
 import java.sql.Timestamp;
@@ -21,7 +20,7 @@ import static com.gojek.daggers.utils.Constants.*;
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private final Configuration configuration;
-    private Map<String, FlinkKafkaConsumer011<Row>> streams = new HashMap<>();
+    private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private StencilClientOrchestrator stencilClientOrchestrator;
     private boolean enablePerPartitionWatermark;
@@ -45,7 +44,7 @@ public class Streams implements TelemetryPublisher {
         }
     }
 
-    public Map<String, FlinkKafkaConsumer011<Row>> getStreams() {
+    public Map<String, FlinkKafkaConsumerCustom> getStreams() {
         return streams;
     }
 
@@ -68,7 +67,7 @@ public class Streams implements TelemetryPublisher {
         return String.join(".", names);
     }
 
-    private FlinkKafkaConsumer011<Row> getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
+    private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
         String topicsForStream = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
         topics.add(topicsForStream);
         String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
@@ -85,7 +84,7 @@ public class Streams implements TelemetryPublisher {
 
         setAdditionalConfigs(kafkaProps);
 
-        FlinkKafkaConsumer011Custom fc = new FlinkKafkaConsumer011Custom(Pattern.compile(topicsForStream),
+        FlinkKafkaConsumerCustom fc = new FlinkKafkaConsumerCustom(Pattern.compile(topicsForStream),
                 new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition

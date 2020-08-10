@@ -1,5 +1,6 @@
 package com.gojek.daggers.protoHandler.typeHandler;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -8,37 +9,37 @@ import org.apache.flink.api.common.typeinfo.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
+public class ByteStringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
-    public StringPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public ByteStringPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.STRING;
+        return fieldDescriptor.getJavaType() == JavaType.BYTE_STRING;
     }
 
     @Override
     public Object getValue(Object field) {
-        return getValueOrDefault(field, "");
+        return field;
     }
 
     @Override
     public Object getArray(Object field) {
-        List<String> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<String>) field;
-        return inputValues.toArray(new String[]{});
+        List<ByteString> inputValues = new ArrayList<>();
+        if (field != null) inputValues = (List<ByteString>) field;
+        return inputValues.toArray(new ByteString[]{});
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.STRING;
+        return TypeInformation.of(ByteString.class);
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.OBJECT_ARRAY(Types.STRING);
+        return Types.OBJECT_ARRAY(TypeInformation.of(ByteString.class));
     }
 }

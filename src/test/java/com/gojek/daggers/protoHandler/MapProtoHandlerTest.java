@@ -2,9 +2,8 @@ package com.gojek.daggers.protoHandler;
 
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.MapEntry;
+import com.google.protobuf.*;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -39,7 +38,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -49,7 +48,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, null);
         List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
         assertEquals(entries.size(), 0);
     }
@@ -64,7 +63,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, inputMap);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, inputMap);
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -94,7 +93,7 @@ public class MapProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.populateBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, inputRows.toArray());
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -115,7 +114,7 @@ public class MapProtoHandlerTest {
         Row inputRow = new Row(3);
         inputRows.add(inputRow);
         try {
-            mapProtoHandler.populateBuilder(builder, inputRows.toArray());
+            mapProtoHandler.transformForKafka(builder, inputRows.toArray());
         } catch (Exception e) {
             assertEquals(IllegalArgumentException.class, e.getClass());
             assertEquals("Row: null,null,null of size: 3 cannot be converted to map", e.getMessage());
@@ -123,27 +122,27 @@ public class MapProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnArrayOfRowHavingSameSizeAsInputMap() {
+    public void shouldReturnArrayOfRowHavingSameSizeAsInputMapForTransformForPostProcessor() {
         Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         HashMap<String, String> inputMap = new HashMap<>();
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(inputMap));
 
         assertEquals(2, outputValues.size());
     }
 
     @Test
-    public void shouldReturnArrayOfRowHavingFieldsSetAsInputMapAndOfSizeTwo() {
+    public void shouldReturnArrayOfRowHavingFieldsSetAsInputMapAndOfSizeTwoForTransformForPostProcessor() {
         Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         HashMap<String, String> inputMap = new HashMap<>();
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(inputMap));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(inputMap));
 
         assertEquals("a", ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) outputValues.get(0)).getField(1));
@@ -154,12 +153,71 @@ public class MapProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayOfRowIfNullPassed() {
+    public void shouldReturnEmptyArrayOfRowIfNullPassedForTransformForPostProcessor() {
         Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transform(null));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(null));
 
         assertEquals(0, outputValues.size());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowHavingSameSizeAsInputMapForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        MapEntry<String, String> mapEntry = MapEntry
+                .newDefaultInstance(mapFieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
+        DriverProfileFlattenLogMessage driverProfileFlattenLogMessage = DriverProfileFlattenLogMessage
+                .newBuilder()
+                .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("a").setValue("123").buildPartial())
+                .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("b").setValue("456").buildPartial())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(DriverProfileFlattenLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(2, outputValues.size());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowHavingFieldsSetAsInputMapAndOfSizeTwoForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        MapEntry<String, String> mapEntry = MapEntry
+                .newDefaultInstance(mapFieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
+        DriverProfileFlattenLogMessage driverProfileFlattenLogMessage = DriverProfileFlattenLogMessage
+                .newBuilder()
+                .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("a").setValue("123").buildPartial())
+                .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("b").setValue("456").buildPartial())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(DriverProfileFlattenLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals("a", ((Row) outputValues.get(0)).getField(0));
+        assertEquals("123", ((Row) outputValues.get(0)).getField(1));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        assertEquals("b", ((Row) outputValues.get(1)).getField(0));
+        assertEquals("456", ((Row) outputValues.get(1)).getField(1));
+        assertEquals(2, ((Row) outputValues.get(1)).getArity());
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayOfRowIfNullPassedForTransformForKafka() {
+        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(null));
+
+        assertEquals(0, outputValues.size());
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        assertEquals(Types.OBJECT_ARRAY(Types.ROW_NAMED(new String[]{"key", "value"}, Types.STRING, Types.STRING)), mapProtoHandler.getTypeInformation());
     }
 
 }

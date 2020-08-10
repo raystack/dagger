@@ -3,6 +3,7 @@ package com.gojek.daggers.protoHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Timestamp;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
 import java.time.Instant;
@@ -22,7 +23,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -57,8 +58,18 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         return isValid(field) ? field.toString() : null;
+    }
+
+    @Override
+    public Object transformFromKafka(Object field) {
+        return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return TypeInformationFactory.getRowType(fieldDescriptor.getMessageType());
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {

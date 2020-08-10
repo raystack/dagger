@@ -4,6 +4,7 @@ import com.gojek.daggers.exception.InvalidDataTypeException;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,7 +31,7 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, null);
         assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -40,54 +41,72 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.populateBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, "123");
         assertEquals("123", returnedBuilder.getField(fieldDescriptor));
     }
 
     @Test
-    public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassed() {
+    public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transform(1));
+        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor(1));
     }
 
     @Test
-    public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedAsString() {
+    public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedAsStringForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transform("1"));
+        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor("1"));
     }
 
     @Test
-    public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsPassed() {
+    public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transform("123"));
+        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor("123"));
     }
 
     @Test
-    public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsNotPassed() {
+    public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsNotPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transform(123));
+        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor(123));
     }
 
     @Test
-    public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatch() {
+    public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
         expectedException.expect(InvalidDataTypeException.class);
         expectedException.expectMessage("type mismatch of field: customer_price, expecting FLOAT type, actual type class java.lang.String");
 
         Descriptors.FieldDescriptor floatFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("customer_price");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
-        primitiveProtoHandler.transform("stringValue");
+        primitiveProtoHandler.transformFromPostProcessor("stringValue");
+    }
+
+    @Test
+    public void shouldReturnSameValueForTransformForKafka() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
+
+        assertEquals(123, primitiveProtoHandler.transformFromKafka(123));
+        assertEquals("123", primitiveProtoHandler.transformFromKafka("123"));
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
+        assertEquals(Types.STRING, primitiveProtoHandler.getTypeInformation());
     }
 }

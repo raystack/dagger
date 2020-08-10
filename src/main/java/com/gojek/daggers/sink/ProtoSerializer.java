@@ -8,74 +8,53 @@ import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.types.Row;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ProtoSerializer implements KeyedSerializationSchema<Row> {
-
-    // TODO: [PORTAL_MIGRATION] Remove following property when migration to new portal is done
-    private String protoClassNamePrefix;
-
+public class ProtoSerializer implements KafkaSerializationSchema<Row> {
     private String[] columnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
-
     private String keyProtoClassName;
     private String messageProtoClassName;
+    private String outputTopic;
 
-    // TODO: [PORTAL_MIGRATION] Remove following constructor when migration to new portal is done
-    public ProtoSerializer(String protoClassNamePrefix, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        this.protoClassNamePrefix = protoClassNamePrefix;
-        this.columnNames = columnNames;
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
-    }
 
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
         }
-
         this.keyProtoClassName = keyProtoClassName;
         this.messageProtoClassName = messageProtoClassName;
         this.columnNames = columnNames;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
-    private Descriptors.Descriptor getDescriptor(String className) {
-        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(className);
-        if (dsc == null) {
-            throw new DescriptorNotFoundException();
-        }
-        return dsc;
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
+        this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator);
+        this.outputTopic = outputTopic;
     }
 
     @Override
-    public byte[] serializeKey(Row element) {
-        // TODO: [PORTAL_MIGRATION] Remove following block when migration to new portal is done
-        if (!Objects.isNull(protoClassNamePrefix)) {
-            return serialize(element, "Key");
-        }
-
-        if (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) {
-            return null;
-        }
-        return parse(element, getDescriptor(keyProtoClassName)).toByteArray();
+    public ProducerRecord<byte[], byte[]> serialize(Row row, @Nullable Long aLong) {
+        if (Objects.isNull(outputTopic) || outputTopic.equals(""))
+            throw new DaggerSerializationException("outputTopic is required");
+        byte[] key = serializeKey(row);
+        byte[] message = serializeValue(row);
+        return new ProducerRecord<>(outputTopic, key, message);
     }
 
-    @Override
-    public byte[] serializeValue(Row element) {
-        // TODO: [PORTAL_MIGRATION] Remove following block when migration to new portal is done
-        if (!Objects.isNull(protoClassNamePrefix)) {
-            return serialize(element, "Message");
-        }
-        return parse(element, getDescriptor(messageProtoClassName)).toByteArray();
+    public byte[] serializeKey(Row row) {
+        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null :
+                parse(row, getDescriptor(keyProtoClassName)).toByteArray();
     }
 
-    // TODO: [PORTAL_MIGRATION] Remove this method when migration to new protal is done
-    private byte[] serialize(Row element, String suffix) {
-        return parse(element, getDescriptor(protoClassNamePrefix + suffix)).toByteArray();
+    public byte[] serializeValue(Row row) {
+        return parse(row, getDescriptor(messageProtoClassName)).toByteArray();
     }
 
     private DynamicMessage parse(Row element, Descriptors.Descriptor descriptor) {
@@ -121,7 +100,7 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
         if (data != null)
             try {
-                builder = protoHandler.populateBuilder(builder, data);
+                builder = protoHandler.transformForKafka(builder, data);
             } catch (IllegalArgumentException e) {
                 String protoType = fieldDescriptor.getType().toString();
                 if (fieldDescriptor.isRepeated()) {
@@ -134,8 +113,12 @@ public class ProtoSerializer implements KeyedSerializationSchema<Row> {
         return builder;
     }
 
-    @Override
-    public String getTargetTopic(Row element) {
-        return null;
+    private Descriptors.Descriptor getDescriptor(String className) {
+        Descriptors.Descriptor dsc = stencilClientOrchestrator.getStencilClient().get(className);
+        if (dsc == null) {
+            throw new DescriptorNotFoundException();
+        }
+        return dsc;
     }
+
 }
