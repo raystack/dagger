@@ -4,6 +4,8 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
 import net.minidev.json.JSONArray;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder populateBuilder(Builder builder, Object field) {
+    public Builder transformForKafka(Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -47,14 +49,8 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
         return builder.setField(fieldDescriptor, messages);
     }
 
-    private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {
-        Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        handleNestedField(elementBuilder, nestedFieldDescriptors, row);
-        return elementBuilder.build();
-    }
-
     @Override
-    public Object transform(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             Object[] inputFields = ((JSONArray) field).toArray();
@@ -65,13 +61,34 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
         return rows.toArray();
     }
 
+    @Override
+    public Object transformFromKafka(Object field) {
+        ArrayList<Row> rows = new ArrayList<>();
+        if (field != null) {
+            List<DynamicMessage> protos = (List<DynamicMessage>) field;
+            protos.forEach(proto -> rows.add(RowFactory.createRow(proto)));
+        }
+        return rows.toArray();
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.OBJECT_ARRAY(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()));
+    }
+
+    private DynamicMessage getNestedDynamicMessage(List<FieldDescriptor> nestedFieldDescriptors, Row row) {
+        Builder elementBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
+        handleNestedField(elementBuilder, nestedFieldDescriptors, row);
+        return elementBuilder.build();
+    }
+
     private void handleNestedField(Builder elementBuilder, List<FieldDescriptor> nestedFieldDescriptors, Row row) {
         for (FieldDescriptor nestedFieldDescriptor : nestedFieldDescriptors) {
             int index = nestedFieldDescriptor.getIndex();
 
             if (index < row.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
-                protoHandler.populateBuilder(elementBuilder, row.getField(index));
+                protoHandler.transformForKafka(elementBuilder, row.getField(index));
             }
         }
     }

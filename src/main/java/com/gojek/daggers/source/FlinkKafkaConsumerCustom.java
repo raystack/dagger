@@ -4,26 +4,27 @@ import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
+import org.apache.flink.types.Row;
 
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer011<T> {
+public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
 
     private Configuration configuration;
     private ErrorReporter errorReporter;
 
-    public FlinkKafkaConsumer011Custom(Pattern subscriptionPattern, KafkaDeserializationSchema<T> deserializer,
-                                       Properties props, Configuration configuration) {
+    public FlinkKafkaConsumerCustom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
+                                    Properties props, Configuration configuration) {
         super(subscriptionPattern, deserializer, props);
         this.configuration = configuration;
     }
 
     @Override
-    public void run(SourceContext<T> sourceContext) throws Exception {
+    public void run(SourceContext<Row> sourceContext) throws Exception {
         try {
             runBaseConsumer(sourceContext);
         } catch (ExceptionInChainedOperatorException chainedOperatorException) {
@@ -35,7 +36,7 @@ public class FlinkKafkaConsumer011Custom<T> extends FlinkKafkaConsumer011<T> {
         }
     }
 
-    protected void runBaseConsumer(SourceContext<T> sourceContext) throws Exception {
+    protected void runBaseConsumer(SourceContext<Row> sourceContext) throws Exception {
         super.run(sourceContext);
     }
 

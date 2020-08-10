@@ -3,6 +3,8 @@ package com.gojek.daggers.protoHandler;
 import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 
 public class EnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -13,11 +15,11 @@ public class EnumProtoHandler implements ProtoHandler {
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM;
+        return fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM && !fieldDescriptor.isRepeated();
     }
 
     @Override
-    public DynamicMessage.Builder populateBuilder(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -29,7 +31,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transform(Object field) {
+    public Object transformFromPostProcessor(Object field) {
         String input = field != null ? field.toString() : "0";
         try {
             int enumPosition = Integer.parseInt(input);
@@ -39,5 +41,15 @@ public class EnumProtoHandler implements ProtoHandler {
             Descriptors.EnumValueDescriptor valueByName = fieldDescriptor.getEnumType().findValueByName(input);
             return valueByName != null ? valueByName.getName() : fieldDescriptor.getEnumType().findValueByNumber(0).getName();
         }
+    }
+
+    @Override
+    public Object transformFromKafka(Object field) {
+        return field.toString();
+    }
+
+    @Override
+    public TypeInformation getTypeInformation() {
+        return Types.STRING;
     }
 }

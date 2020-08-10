@@ -5,7 +5,6 @@ import com.gojek.daggers.sink.influx.InfluxRowSink;
 import com.gojek.daggers.sink.log.LogSink;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,15 +82,13 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(configuration.getString(eq("OUTPUT_PROTO_CLASS_PREFIX"), anyString())).thenReturn("output_proto");
+        when(configuration.getString(eq("OUTPUT_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
         when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
-        // TODO: [PORTAL_MIGRATION] Remove this mock when migration to new portal is done
-        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("1");
 
         Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
-        assertThat(sinkFunction, instanceOf(FlinkKafkaProducer010.class));
+        assertThat(sinkFunction, instanceOf(FlinkKafkaProducerCustom.class));
     }
 
     @Test
@@ -126,7 +123,6 @@ public class SinkOrchestratorTest {
         expectedMetrics.put("output_stream", outputStream);
 
 
-        when(configuration.getString(eq("PORTAL_VERSION"), anyString())).thenReturn("2");
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
         when(configuration.getString(eq("OUTPUT_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
         when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");

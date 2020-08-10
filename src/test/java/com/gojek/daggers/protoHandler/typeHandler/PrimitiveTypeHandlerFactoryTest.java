@@ -53,12 +53,19 @@ public class PrimitiveTypeHandlerFactoryTest {
     }
 
     @Test
+    public void shouldReturnByteStringTypeHanlderForByteString() {
+        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory
+                .getTypeHandler(ESBLog.ESBLogMessageEnvelope.getDescriptor().findFieldByName("log_key"));
+        assertEquals(ByteStringPrimitiveTypeHandler.class, primitiveTypeHandler.getClass());
+    }
+
+    @Test
     public void shouldThrowExceptionIfTypeNotSupported() {
         try {
-            PrimitiveTypeHandlerFactory.getTypeHandler(ESBLog.ESBLogMessageEnvelope.getDescriptor().findFieldByName("log_key"));
+            PrimitiveTypeHandlerFactory.getTypeHandler(BookingLogMessage.getDescriptor().findFieldByName("status"));
         } catch (Exception e) {
             assertEquals(DataTypeNotSupportedException.class, e.getClass());
-            assertEquals("Data type BYTE_STRING not supported in primitive type handlers", e.getMessage());
+            assertEquals("Data type ENUM not supported in primitive type handlers", e.getMessage());
         }
     }
 }

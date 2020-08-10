@@ -2,6 +2,9 @@ package com.gojek.daggers.protoHandler;
 
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.booking.GoLifeBookingLogMessage;
+import com.gojek.esb.clevertap.ClevertapEventLogMessage;
+import com.gojek.esb.consumer.TestNestedRepeatedMessage;
+import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.gojek.esb.customersanction.CustomerSanctionLogMessage;
 import com.google.protobuf.Descriptors;
 import org.junit.Test;
@@ -43,6 +46,27 @@ public class ProtoHandlerFactoryTest {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("routes");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor);
         assertEquals(RepeatedMessageProtoHandler.class, protoHandler.getClass());
+    }
+
+    @Test
+    public void shouldReturnRepeatedEnumProtoHandlerIfRepeatedEnumFieldDescriptorPassed() {
+        Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedEnumFieldDescriptor);
+        assertEquals(RepeatedEnumProtoHandler.class, protoHandler.getClass());
+    }
+
+    @Test
+    public void shouldReturnRepeatedStructProtoHandlerIfRepeatedStructFieldDescriptorPassed() {
+        Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
+        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedStructFieldDescriptor);
+        assertEquals(RepeatedStructMessageProtoHandler.class, protoHandler.getClass());
+    }
+
+    @Test
+    public void shouldReturnStructProtoHandlerIfStructFieldDescriptorPassed() {
+        Descriptors.FieldDescriptor structFieldDescriptor = ClevertapEventLogMessage.getDescriptor().findFieldByName("profile_data");
+        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(structFieldDescriptor);
+        assertEquals(StructMessageProtoHandler.class, protoHandler.getClass());
     }
 
     @Test

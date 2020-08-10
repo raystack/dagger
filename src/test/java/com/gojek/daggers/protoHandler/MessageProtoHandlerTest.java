@@ -5,6 +5,8 @@ import com.gojek.esb.booking.PaymentOptionMetadata;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -36,8 +38,8 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, messsageProtoHandler.populateBuilder(builder, 123));
-        assertEquals("", messsageProtoHandler.populateBuilder(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, messsageProtoHandler.transformForKafka(builder, 123));
+        assertEquals("", messsageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -46,7 +48,7 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder outputBuilder = messsageProtoHandler.populateBuilder(builder, null);
+        DynamicMessage.Builder outputBuilder = messsageProtoHandler.transformForKafka(builder, null);
         assertEquals(builder, outputBuilder);
         assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
@@ -60,7 +62,7 @@ public class MessageProtoHandlerTest {
         Row inputRow = new Row(2);
         inputRow.setField(0, "test1");
         inputRow.setField(1, "test2");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.populateBuilder(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
 
         PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -76,7 +78,7 @@ public class MessageProtoHandlerTest {
 
         Row inputRow = new Row(1);
         inputRow.setField(0, "test1");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.populateBuilder(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
 
         PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -85,7 +87,7 @@ public class MessageProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassed() {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
         inputValues.put("network", "test2");
@@ -93,38 +95,83 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassed() {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(inputValues);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals(null, value.getField(1));
     }
 
     @Test
-    public void shouldReturnEmptyRowIfNullPassed() {
+    public void shouldReturnEmptyRowIfNullPassedForTransformForPostProcessor() {
         HashMap<String, String> inputValues = new HashMap<>();
         inputValues.put("masked_card", "test1");
 
         Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transform(null);
+        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(null);
 
         assertEquals(2, value.getArity());
         assertEquals(null, value.getField(0));
         assertEquals(null, value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForKafka() throws InvalidProtocolBufferException {
+        BookingLogMessage bookingLogMessage = BookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("test2", value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForKafka() throws InvalidProtocolBufferException {
+        BookingLogMessage bookingLogMessage = BookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
+                .build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("", value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnTypeInformation() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+        TypeInformation actualTypeInformation = new MessageProtoHandler(fieldDescriptor).getTypeInformation();
+        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"masked_card", "network"}, Types.STRING, Types.STRING);
+        assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 }
