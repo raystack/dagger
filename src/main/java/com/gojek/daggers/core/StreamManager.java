@@ -1,7 +1,6 @@
 package com.gojek.daggers.core;
 
 import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.dart.store.RedisConfig;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
@@ -101,8 +100,6 @@ public class StreamManager {
         scalarFunctions.put("Distance", new Distance());
         scalarFunctions.put("AppBetaUsers", new AppBetaUsers());
         scalarFunctions.put("KeyValue", new KeyValue());
-        scalarFunctions.put("DartContainsWithRedis", DartContains.withRedisDataStore(new RedisConfig(getRedisServer())));
-        scalarFunctions.put("DartGetWithRedis", DartGet.withRedisDataStore(new RedisConfig(getRedisServer())));
         scalarFunctions.put("DartGet", DartGet.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
         scalarFunctions.put("DartContains", DartContains.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
         scalarFunctions.put("TimestampFromUnix", new TimestampFromUnix());
@@ -117,6 +114,7 @@ public class StreamManager {
         scalarFunctions.put("LinearTrend", new LinearTrend());
         scalarFunctions.put("ListContains", new ListContains());
         scalarFunctions.put("ToDouble", new ToDouble());
+        scalarFunctions.put("SingleFeatureWithType", new SingleFeatureWithType());
         return scalarFunctions;
     }
 
