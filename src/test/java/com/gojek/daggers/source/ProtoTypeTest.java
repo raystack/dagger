@@ -8,6 +8,7 @@ import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
@@ -119,7 +120,7 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) loginRequestMessageProtoType.getRowType()).getFieldTypes();
 
-        TypeInformation<?> registeredDeviceType = OBJECT_ARRAY(STRING);
+        TypeInformation<?> registeredDeviceType = ObjectArrayTypeInfo.getInfoFor(STRING);
 
         assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("registered_device")]);
     }

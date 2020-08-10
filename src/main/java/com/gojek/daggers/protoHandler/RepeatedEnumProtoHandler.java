@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.OBJECT_ARRAY(Types.STRING);
+        return ObjectArrayTypeInfo.getInfoFor(Types.STRING);
     }
 
     private Object getValue(Object field) {

@@ -3,6 +3,7 @@ package com.gojek.daggers.protoHandler.typeHandler;
 import com.gojek.esb.types.GoFoodShoppingItemProto;
 import com.google.protobuf.Descriptors;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class StringPrimitiveTypeHandlerTest {
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
         StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.OBJECT_ARRAY(Types.STRING), stringPrimitiveTypeHandler.getArrayType());
+        assertEquals(ObjectArrayTypeInfo.getInfoFor(Types.STRING), stringPrimitiveTypeHandler.getArrayType());
     }
 
     @Test
