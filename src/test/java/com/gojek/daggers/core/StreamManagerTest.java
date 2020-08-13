@@ -1,8 +1,6 @@
 package com.gojek.daggers.core;
 
 import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.accumulator.distinctCount.DistinctCountAccumulator;
-import com.gojek.dagger.udf.accumulator.feast.FeatureAccumulator;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -140,7 +138,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ConcurrentTransactions"), any(ConcurrentTransactions.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SecondsElapsed"), any(SecondsElapsed.class));
-        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("RuleViolatedEventUnnest"),any(RuleViolatedEventUnnest.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("RuleViolatedEventUnnest"), any(RuleViolatedEventUnnest.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ExponentialMovingAverage"), any(ExponentialMovingAverage.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("LinearTrend"), any(LinearTrend.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("ListContains"), any(ListContains.class));
@@ -149,6 +147,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("SelectFields"), any(SelectFields.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Filters"), any(Filters.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Regexp"), any(Regexp.class));
     }
 
     @Test
