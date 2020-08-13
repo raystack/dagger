@@ -115,6 +115,7 @@ public class StreamManager {
         scalarFunctions.put("ListContains", new ListContains());
         scalarFunctions.put("ToDouble", new ToDouble());
         scalarFunctions.put("SingleFeatureWithType", new SingleFeatureWithType());
+        scalarFunctions.put("Regexp", new Regexp());
         return scalarFunctions;
     }
 
