@@ -35,7 +35,7 @@ public class RowFactoryTest {
         Descriptors.Descriptor descriptor = CustomerLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
-        assertEquals(19, row.getArity());
+        assertEquals(29, row.getArity());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class RowFactoryTest {
         CustomerLogMessage customerLogMessage = CustomerLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(CustomerLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
-        assertEquals(19, row.getArity());
+        assertEquals(29, row.getArity());
     }
 
     @Test
