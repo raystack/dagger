@@ -301,8 +301,9 @@ public class RepeatedMessageProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
         RepeatedMessageProtoHandler repeatedMessageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
         TypeInformation actualTypeInformation = repeatedMessageProtoHandler.getTypeInformation();
-        TypeInformation<Row[]> expectedTypeInformation = OBJECT_ARRAY(ROW_NAMED(new String[]{"id", "quantity", "name", "price", "notes", "promo_id", "uuid"},
-                LONG, INT, STRING, DOUBLE, STRING, STRING, STRING));
+        TypeInformation<Row[]> expectedTypeInformation = OBJECT_ARRAY(ROW_NAMED(new String[]{"id", "quantity", "name", "price", "notes", "promo_id", "uuid", "out_of_stock", "variants"},
+                LONG, INT, STRING, DOUBLE, STRING, STRING, STRING, BOOLEAN,
+                OBJECT_ARRAY(ROW_NAMED(new String[]{"id", "name", "catagory_id", "catagory_name", "out_of_stock"}, STRING, STRING, STRING, STRING, BOOLEAN))));
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
