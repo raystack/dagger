@@ -94,8 +94,9 @@ public class ProtoTypeTest {
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
         TypeInformation<Row> expectedTimestampRow = ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT);
-        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed"},
-                DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE);
+
+        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed", "event_timestamp"},
+                DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT));
 
         assertEquals(expectedTimestampRow, fieldTypes[participantLogFieldIndex("event_timestamp")]);
         assertEquals(driverLocationRow, fieldTypes[participantLogFieldIndex("location")]);
@@ -106,8 +107,8 @@ public class ProtoTypeTest {
         ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) bookingLogMessageProtoType.getRowType()).getFieldTypes();
-        TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id"},
-                STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING);
+        TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter"},
+                STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING, FLOAT);
         TypeInformation<?> expectedRoutesRow = OBJECT_ARRAY(ROW_NAMED(new String[]{"startTimer", "end", "distance_in_kms", "estimated_duration", "route_order"},
                 locationType, locationType, FLOAT, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), INT));
 
