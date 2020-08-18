@@ -9,9 +9,9 @@ import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.gofood.AuditEntityLogMessage;
 import com.gojek.esb.login.LoginRequestMessage;
 import com.gojek.esb.logs.ApiLogMessage;
-import com.gojek.esb.participant.DriverLocation;
 import com.gojek.esb.participant.ParticipantLogKey;
 import com.gojek.esb.participant.ParticipantLogMessage;
+import com.gojek.esb.types.DriverLocationProto.DriverLocation;
 import com.gojek.esb.types.RouteProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Struct;
@@ -100,8 +100,8 @@ public class ProtoDeserializerTest {
 
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
-        assertEquals(26, row.getArity());
-        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(25)).getTime());
+        assertEquals(37, row.getArity());
+        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(36)).getTime());
     }
 
     @Test
