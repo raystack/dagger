@@ -116,6 +116,7 @@ public class StreamManager {
         scalarFunctions.put("ToDouble", new ToDouble());
         scalarFunctions.put("SingleFeatureWithType", new SingleFeatureWithType());
         scalarFunctions.put("Regexp", new Regexp());
+        scalarFunctions.put("MixedGranularityS2Id", new MixedGranularityS2Id());
         return scalarFunctions;
     }
 
