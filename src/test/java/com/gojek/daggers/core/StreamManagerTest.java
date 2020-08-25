@@ -148,6 +148,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Filters"), any(Filters.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Regexp"), any(Regexp.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("MixedGranularityS2Id"), any(MixedGranularityS2Id.class));
     }
 
     @Test
