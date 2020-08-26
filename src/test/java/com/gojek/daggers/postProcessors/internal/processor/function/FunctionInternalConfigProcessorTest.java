@@ -8,6 +8,7 @@ import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -55,9 +56,10 @@ public class FunctionInternalConfigProcessorTest {
 
     @Test
     public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function");
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, currentTimestamp);
 
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -69,9 +71,25 @@ public class FunctionInternalConfigProcessorTest {
         functionInternalConfigProcessor.process(rowManager);
 
         Assert.assertNotNull(rowManager.getOutputData().getField(1));
+        Assert.assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
     }
 
     private InternalSourceConfig getCustomConfig(String type) {
         return new InternalSourceConfig("field", "value", type);
+    }
+
+    class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
+
+        private Timestamp currentTimestamp;
+
+        public FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
+            super(columnNameManager, internalSourceConfig);
+            this.currentTimestamp = currentTimestamp;
+        }
+
+        @Override
+        protected Timestamp getCurrentTime() {
+            return currentTimestamp;
+        }
     }
 }
