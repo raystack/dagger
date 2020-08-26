@@ -34,9 +34,11 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
             if (!CURRENT_TIMESTAMP_FUNCTION_KEY.equals(internalSourceConfig.getValue())) {
                 throw new InvalidConfigurationException(String.format("The function %s is not supported in custom configuration", internalSourceConfig.getValue()));
             }
-            long timeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
-            Timestamp timestamp = new Timestamp(timeInSeconds * 1000);
-            rowManager.setInOutput(outputFieldIndex, timestamp);
+            rowManager.setInOutput(outputFieldIndex, getCurrentTime());
         }
+    }
+
+    protected Timestamp getCurrentTime() {
+        return new Timestamp(System.currentTimeMillis());
     }
 }
