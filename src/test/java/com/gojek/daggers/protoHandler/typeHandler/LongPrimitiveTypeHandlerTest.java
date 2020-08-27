@@ -68,7 +68,7 @@ public class LongPrimitiveTypeHandlerTest {
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("id");
         LongPrimitiveTypeHandler longPrimitiveTypeHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.PRIMITIVE_ARRAY(Types.LONG), longPrimitiveTypeHandler.getArrayType());
+        assertEquals(Types.OBJECT_ARRAY(Types.LONG), longPrimitiveTypeHandler.getArrayType());
     }
 
     @Test
