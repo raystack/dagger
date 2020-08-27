@@ -39,6 +39,6 @@ public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.PRIMITIVE_ARRAY(Types.LONG);
+        return Types.OBJECT_ARRAY(Types.LONG);
     }
 }
