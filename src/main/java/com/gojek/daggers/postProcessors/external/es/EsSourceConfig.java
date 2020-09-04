@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.external.es;
 
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
@@ -15,6 +16,7 @@ public class EsSourceConfig implements Serializable, SourceConfig {
     private String port;
     private String endpointPattern;
     private String endpointVariables;
+    @SerializedName(value = "type",  alternate = { "Type", "TYPE" })
     private String type;
     private String capacity;
     private String retryTimeout;
@@ -23,6 +25,7 @@ public class EsSourceConfig implements Serializable, SourceConfig {
     private String connectTimeout;
     private boolean failOnErrors;
     private Map<String, OutputMapping> outputMapping;
+    @SerializedName(value = "metricId",  alternate = { "MetricId", "METRICID" })
     private String metricId;
 
 
