@@ -1,6 +1,7 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
@@ -25,6 +26,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private final String queryVariables;
     private final String queryPattern;
     private boolean failOnErrors;
+    @SerializedName(value = "metricId",  alternate = { "MetricId", "METRICID" })
     private String metricId;
 
     public PgSourceConfig(String host, String port, String user, String password, String database,
