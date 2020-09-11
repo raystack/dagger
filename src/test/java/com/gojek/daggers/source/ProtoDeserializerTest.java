@@ -100,8 +100,8 @@ public class ProtoDeserializerTest {
 
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
-        assertEquals(37, row.getArity());
-        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(36)).getTime());
+        assertEquals(39, row.getArity());
+        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(38)).getTime());
     }
 
     @Test
