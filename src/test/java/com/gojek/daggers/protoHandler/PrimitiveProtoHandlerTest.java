@@ -1,10 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.Types;
+
 import com.gojek.daggers.exception.InvalidDataTypeException;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.api.common.typeinfo.Types;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -108,5 +110,13 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
         assertEquals(Types.STRING, primitiveProtoHandler.getTypeInformation());
+    }
+
+    @Test
+    public void shouldConvertPrimitiveStringToJsonString() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Object value = new PrimitiveProtoHandler(fieldDescriptor).transformToJson("123");
+
+        Assert.assertEquals("123", value);
     }
 }

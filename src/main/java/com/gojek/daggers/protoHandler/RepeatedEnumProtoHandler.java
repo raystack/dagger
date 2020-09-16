@@ -1,10 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
+
+import com.google.gson.Gson;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +16,11 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 
 public class RepeatedEnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
+    private Gson gson;
 
     public RepeatedEnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
+        this.gson = new Gson();
     }
 
     @Override
@@ -37,6 +41,11 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
     @Override
     public Object transformFromKafka(Object field) {
         return getValue(field);
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
+        return gson.toJson(getValue(field));
     }
 
     @Override

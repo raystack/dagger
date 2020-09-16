@@ -1,9 +1,10 @@
 package com.gojek.daggers.protoHandler;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 
 public class StructMessageProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -30,6 +31,11 @@ public class StructMessageProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromKafka(Object field) {
+        return null;
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
         return null;
     }
 

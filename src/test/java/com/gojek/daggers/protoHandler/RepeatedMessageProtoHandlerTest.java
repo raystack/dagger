@@ -1,5 +1,8 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
+
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import com.gojek.esb.types.GoFoodShoppingItemProto.GoFoodShoppingItem;
@@ -7,16 +10,23 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import net.minidev.json.JSONArray;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.apache.flink.api.common.typeinfo.Types.*;
-import static org.junit.Assert.*;
+import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
+import static org.apache.flink.api.common.typeinfo.Types.DOUBLE;
+import static org.apache.flink.api.common.typeinfo.Types.INT;
+import static org.apache.flink.api.common.typeinfo.Types.LONG;
+import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
+import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
+import static org.apache.flink.api.common.typeinfo.Types.STRING;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RepeatedMessageProtoHandlerTest {
 
@@ -307,4 +317,23 @@ public class RepeatedMessageProtoHandlerTest {
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
+    @Test
+    public void shouldConvertRepeatedComplexRowDataToJsonString() {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = GoFoodBookingLogMessage.getDescriptor().findFieldByName("shopping_items");
+
+        Row inputRow1 = new Row(9);
+        inputRow1.setField(0, 123L);
+        inputRow1.setField(2, "pizza");
+
+        Row inputRow2 = new Row(9);
+        inputRow2.setField(0, 456L);
+        inputRow2.setField(5, "test_id");
+
+        Row[] inputRows = new Row[2];
+        inputRows[0] = inputRow1;
+        inputRows[1] = inputRow2;
+
+        Object value = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformToJson(inputRows);
+        Assert.assertEquals("[{\"id\":123,\"quantity\":null,\"name\":\"pizza\",\"price\":null,\"notes\":null,\"promo_id\":null,\"uuid\":null,\"out_of_stock\":null,\"variants\":null}, {\"id\":456,\"quantity\":null,\"name\":null,\"price\":null,\"notes\":null,\"promo_id\":\"test_id\",\"uuid\":null,\"out_of_stock\":null,\"variants\":null}]", String.valueOf(value));
+    }
 }
