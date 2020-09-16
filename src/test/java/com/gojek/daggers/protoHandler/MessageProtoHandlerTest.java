@@ -1,18 +1,22 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
+
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.booking.PaymentOptionMetadata;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MessageProtoHandlerTest {
 
@@ -173,5 +177,19 @@ public class MessageProtoHandlerTest {
         TypeInformation actualTypeInformation = new MessageProtoHandler(fieldDescriptor).getTypeInformation();
         TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"masked_card", "network"}, Types.STRING, Types.STRING);
         assertEquals(expectedTypeInformation, actualTypeInformation);
+    }
+
+    @Test
+    public void shouldConvertComplexRowDataToJsonString() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row inputRow = new Row(2);
+        inputRow.setField(0, "test1");
+        inputRow.setField(1, "test2");
+
+        Object value = new MessageProtoHandler(fieldDescriptor).transformToJson(inputRow);
+
+        Assert.assertEquals("{\"masked_card\":\"test1\",\"network\":\"test2\"}", String.valueOf(value));
     }
 }

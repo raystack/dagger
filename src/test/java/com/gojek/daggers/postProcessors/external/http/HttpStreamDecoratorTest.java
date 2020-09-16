@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
+import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,28 +17,26 @@ public class HttpStreamDecoratorTest {
     @Mock
     private HttpSourceConfig httpSourceConfig;
 
-
     @Mock
-    private TelemetrySubscriber telemetrySubscriber;
+    private ExternalMetricConfig externalMetricConfig;
 
-    private boolean telemetryEnabled;
-    private long shutDownPeriod;
+    private String[] inputProtoClasses;
+
     @Before
     public void setUp() {
+        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessage"};
         initMocks(this);
-        telemetryEnabled = true;
-        shutDownPeriod = 0L;
     }
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, null, inputProtoClasses, externalMetricConfig);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, "metricId-http-01", stencilClientOrchestrator, null, telemetrySubscriber, telemetryEnabled, shutDownPeriod);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClientOrchestrator, null, inputProtoClasses, externalMetricConfig);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }

@@ -1,8 +1,5 @@
 package com.gojek.daggers.core;
 
-import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
-import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -14,6 +11,35 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
+
+import com.gojek.dagger.udf.AppBetaUsers;
+import com.gojek.dagger.udf.ConcurrentTransactions;
+import com.gojek.dagger.udf.CondEq;
+import com.gojek.dagger.udf.DartContains;
+import com.gojek.dagger.udf.DartGet;
+import com.gojek.dagger.udf.Distance;
+import com.gojek.dagger.udf.DistinctByCurrentStatus;
+import com.gojek.dagger.udf.DistinctCount;
+import com.gojek.dagger.udf.ElementAt;
+import com.gojek.dagger.udf.ExponentialMovingAverage;
+import com.gojek.dagger.udf.Features;
+import com.gojek.dagger.udf.Filters;
+import com.gojek.dagger.udf.GeoHash;
+import com.gojek.dagger.udf.KeyValue;
+import com.gojek.dagger.udf.LinearTrend;
+import com.gojek.dagger.udf.ListContains;
+import com.gojek.dagger.udf.MixedGranularityS2Id;
+import com.gojek.dagger.udf.Regexp;
+import com.gojek.dagger.udf.S2Id;
+import com.gojek.dagger.udf.SecondsElapsed;
+import com.gojek.dagger.udf.SelectFields;
+import com.gojek.dagger.udf.ServiceArea;
+import com.gojek.dagger.udf.ServiceAreaId;
+import com.gojek.dagger.udf.SingleFeatureWithType;
+import com.gojek.dagger.udf.TimestampFromUnix;
+import com.gojek.dagger.udf.ToDouble;
+import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
+import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -117,7 +143,7 @@ public class StreamManagerTest {
     }
 
     @Test
-    public void shouldRegisterFunctions() {
+    public void shouldRegisterFunctions() throws ClassNotFoundException {
         streamManager.registerConfigs();
         streamManager.registerSource();
         streamManager.registerFunctions();

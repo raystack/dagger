@@ -1,13 +1,5 @@
 package com.gojek.daggers.core;
 
-import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
-import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
-import com.gojek.daggers.postProcessors.PostProcessorFactory;
-import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
-import com.gojek.daggers.sink.SinkOrchestrator;
-import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -20,6 +12,15 @@ import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
+
+import com.gojek.dagger.udf.*;
+import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
+import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
+import com.gojek.daggers.postProcessors.PostProcessorFactory;
+import com.gojek.daggers.postProcessors.common.PostProcessor;
+import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.sink.SinkOrchestrator;
+import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,6 +91,7 @@ public class StreamManager {
                 configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT),
                 configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT),
                 configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)));
+
         scalarFunctions.put("SelectFields", new SelectFields(true, getStencilUrls()));
         scalarFunctions.put("Filters", new Filters(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls()));
         scalarFunctions.put("CondEq", new CondEq());
@@ -202,9 +204,6 @@ public class StreamManager {
         return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
     }
 
-    private String getRedisServer() {
-        return configuration.getString(REDIS_SERVER_KEY, REDIS_SERVER_DEFAULT);
-    }
 
     private String getGcsProjectId() {
         return configuration.getString(GCS_PROJECT_ID, GCS_PROJECT_DEFAULT);

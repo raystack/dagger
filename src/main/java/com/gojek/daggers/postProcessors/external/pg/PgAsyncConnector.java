@@ -1,14 +1,17 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
+import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
 import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
-import com.gojek.de.stencil.client.StencilClient;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.pgclient.PgConnectOptions;
@@ -17,8 +20,6 @@ import io.vertx.pgclient.impl.PgPoolImpl;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Query;
 import io.vertx.sqlclient.RowSet;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,16 @@ public class PgAsyncConnector extends AsyncConnector {
     private final PgSourceConfig pgSourceConfig;
     private PgPool pgClient;
 
-    public PgAsyncConnector(PgSourceConfig pgSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, boolean telemetryEnabled, long shutDownPeriod) {
-        super(PG_TYPE, pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+    public PgAsyncConnector(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
+                            ColumnNameManager columnNameManager, String[] inputProtoClasses, ExternalMetricConfig externalMetricConfig) {
+        super(PG_TYPE, pgSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
         this.pgSourceConfig = pgSourceConfig;
     }
 
-    public PgAsyncConnector(PgSourceConfig pgSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, PgPool pgClient, boolean telemetryEnabled, ErrorReporter errorReporter, long shutDownPeriod, StencilClient stencilClient) {
-        this(pgSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
+    public PgAsyncConnector(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
+                            ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, PgPool pgClient,
+                            ErrorReporter errorReporter, ExternalMetricConfig externalMetricConfig, String[] inputProtoClasses) {
+        this(pgSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
         this.pgClient = pgClient;
         setErrorReporter(errorReporter);
         setMeterStatsManager(meterStatsManager);
@@ -67,8 +71,13 @@ public class PgAsyncConnector extends AsyncConnector {
     @Override
     public void process(Row input, ResultFuture<Row> resultFuture) {
         RowManager rowManager = new RowManager(input);
-        Object[] queryVariablesValues = getEndpointOrQueryVariablesValues(rowManager);
-        if (isEndpointOrQueryInvalid(resultFuture, rowManager, queryVariablesValues)) return;
+
+        Object[] queryVariablesValues = getEndpointHandler()
+                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+        if (getEndpointHandler().isEndpointOrQueryInvalid(resultFuture, rowManager, queryVariablesValues)) {
+            return;
+        }
+
         String query = String.format(pgSourceConfig.getPattern(), queryVariablesValues);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, getMeterStatsManager(), rowManager,
                 getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
