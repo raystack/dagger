@@ -55,9 +55,6 @@ public class Constants {
     public final static String PG_TYPE = "PG";
     public final static String SQL_PATH_SELECT_ALL_CONFIG_VALUE = "*";
 
-    public final static String REDIS_SERVER_KEY = "REDIS_SERVER";
-    public final static String REDIS_SERVER_DEFAULT = "localhost";
-
     public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
     public final static String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
     public final static String TRANSFORM_PROCESSOR = "transform_processor";

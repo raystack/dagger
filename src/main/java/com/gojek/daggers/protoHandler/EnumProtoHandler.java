@@ -1,10 +1,11 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+
 import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
 
 public class EnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -25,8 +26,9 @@ public class EnumProtoHandler implements ProtoHandler {
         }
         String stringValue = String.valueOf(field).trim();
         Descriptors.EnumValueDescriptor valueByName = fieldDescriptor.getEnumType().findValueByName(stringValue);
-        if (valueByName == null)
+        if (valueByName == null) {
             throw new EnumFieldNotFoundException("field: " + stringValue + " not found in " + fieldDescriptor.getFullName());
+        }
         return builder.setField(fieldDescriptor, valueByName);
     }
 
@@ -45,7 +47,12 @@ public class EnumProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromKafka(Object field) {
-        return field.toString();
+        return String.valueOf(field).trim();
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
+        return field;
     }
 
     @Override

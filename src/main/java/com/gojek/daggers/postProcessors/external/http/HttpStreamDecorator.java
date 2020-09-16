@@ -1,33 +1,31 @@
 package com.gojek.daggers.postProcessors.external.http;
 
-import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
+
+import com.gojek.daggers.core.StencilClientOrchestrator;
+import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
+import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 
 import java.util.concurrent.TimeUnit;
 
 public class HttpStreamDecorator implements StreamDecorator {
     private final ColumnNameManager columnNameManager;
-    private TelemetrySubscriber telemetrySubscriber;
-    private boolean telemetryEnabled;
-    private long shutDownPeriod;
+    private ExternalMetricConfig externalMetricConfig;
+    private String[] inputProtoClasses;
     private HttpSourceConfig httpSourceConfig;
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private String metricId;
 
-    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, String metricId, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager,
-                               TelemetrySubscriber telemetrySubscriber, boolean telemetryEnabled, long shutDownPeriod) {
+
+    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
+                               ColumnNameManager columnNameManager, String[] inputProtoClasses, ExternalMetricConfig externalMetricConfig) {
         this.httpSourceConfig = httpSourceConfig;
-        this.metricId = metricId;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
-        this.telemetrySubscriber = telemetrySubscriber;
-        this.telemetryEnabled = telemetryEnabled;
-        this.shutDownPeriod = shutDownPeriod;
+        this.externalMetricConfig = externalMetricConfig;
+        this.inputProtoClasses = inputProtoClasses;
     }
 
     @Override
@@ -37,8 +35,8 @@ public class HttpStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, metricId, stencilClientOrchestrator, columnNameManager, telemetryEnabled, shutDownPeriod);
-        httpAsyncConnector.notifySubscriber(telemetrySubscriber);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+        httpAsyncConnector.notifySubscriber(externalMetricConfig.getTelemetrySubscriber());
         return AsyncDataStream.orderedWait(inputStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
     }
 }

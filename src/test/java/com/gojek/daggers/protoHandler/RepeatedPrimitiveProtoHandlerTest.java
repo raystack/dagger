@@ -1,5 +1,9 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
+
 import com.gojek.daggers.exception.DataTypeNotSupportedException;
 import com.gojek.daggers.exception.InvalidDataTypeException;
 import com.gojek.esb.booking.BookingLogMessage;
@@ -9,15 +13,15 @@ import com.gojek.esb.jaeger.JaegerResponseLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RepeatedPrimitiveProtoHandlerTest {
 
@@ -242,5 +246,14 @@ public class RepeatedPrimitiveProtoHandlerTest {
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
+    @Test
+    public void shouldConvertRepeatedRowDataToJsonString() {
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
+        ArrayList<String> inputValues = new ArrayList<>();
+        inputValues.add("test1");
+        inputValues.add("test2");
 
+        Object value = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor).transformToJson(inputValues);
+        Assert.assertEquals("[\"test1\",\"test2\"]", String.valueOf(value));
+    }
 }

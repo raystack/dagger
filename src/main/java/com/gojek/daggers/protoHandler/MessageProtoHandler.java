@@ -1,10 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.formats.json.JsonRowSerializationSchema;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class MessageProtoHandler implements ProtoHandler {
     private FieldDescriptor fieldDescriptor;
+    private JsonRowSerializationSchema jsonRowSerializationSchema;
 
     public MessageProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
@@ -57,7 +60,19 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
+    public Object transformToJson(Object field) {
+        if (jsonRowSerializationSchema == null) {
+            jsonRowSerializationSchema = createJsonRowSchema();
+        }
+        return new String(jsonRowSerializationSchema.serialize((Row) field));
+    }
+
+    @Override
     public TypeInformation getTypeInformation() {
         return TypeInformationFactory.getRowType(fieldDescriptor.getMessageType());
+    }
+
+    private JsonRowSerializationSchema createJsonRowSchema() {
+        return new JsonRowSerializationSchema.Builder(getTypeInformation()).build();
     }
 }
