@@ -153,7 +153,7 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        Assert.assertArrayEquals(endpointOrQueryVariablesValues, new Object[]{"{\"name\":\"test_driver\",\"address\":null,\"latitude\":172.5,\"longitude\":175.5,\"type\":null,\"note\":null,\"place_id\":null,\"accuracy_meter\":null}"});
+        Assert.assertArrayEquals(endpointOrQueryVariablesValues, new Object[]{"{\"name\":\"test_driver\",\"address\":null,\"latitude\":172.5,\"longitude\":175.5,\"type\":null,\"note\":null,\"place_id\":null,\"accuracy_meter\":null,\"gate_id\":null}"});
     }
 
     @Test
