@@ -1,5 +1,9 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
@@ -9,11 +13,11 @@ import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
+import com.gojek.daggers.postProcessors.external.common.DescriptorManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.client.StencilClient;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
+import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.junit.Assert;
@@ -29,12 +33,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
-import static org.mockito.Mockito.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.CLOSE_CONNECTION_ON_EXTERNAL_CLIENT;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.EMPTY_INPUT;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpAsyncConnectorTest {
-
+    
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -57,6 +67,8 @@ public class HttpAsyncConnectorTest {
     private ErrorReporter errorReporter;
     @Mock
     private StencilClient stencilClient;
+    @Mock
+    private DescriptorManager descriptorManager;
 
 
     private ColumnNameManager columnNameManager;
@@ -66,6 +78,8 @@ public class HttpAsyncConnectorTest {
     private Row streamData;
     private boolean telemetryEnabled;
     private long shutDownPeriod;
+    private ExternalMetricConfig externalMetricConfig;
+    private String[] inputProtoClasses;
 
     @Before
     public void setUp() {
@@ -83,6 +97,9 @@ public class HttpAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         telemetryEnabled = true;
         shutDownPeriod = 0L;
+        inputProtoClasses = new String[] {"com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        externalMetricConfig = new ExternalMetricConfig("metricId-http-01", shutDownPeriod, telemetryEnabled);
+
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
     }
@@ -90,7 +107,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldCloseHttpClient() throws Exception {
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.close();
 
@@ -101,7 +118,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldMakeHttpClientNullAfterClose() throws Exception {
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.close();
 
@@ -112,14 +129,14 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldReturnHttpClient() {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
         AsyncHttpClient returnedHttpClient = httpAsyncConnector.getHttpClient();
         Assert.assertEquals(httpClient, returnedHttpClient);
     }
 
     @Test
     public void shouldRegisterStatsManagerInOpen() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.open(flinkConfiguration);
 
@@ -131,8 +148,10 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        DescriptorManager descriptorManager = new DescriptorManager(stencilClientOrchestrator);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -140,17 +159,18 @@ public class HttpAsyncConnectorTest {
         verify(stencilClient, times(1)).get(httpConfigType);
     }
 
+
     @Test
-    public void shouldCompleteExceptionallyIfDescriptorNotFound() throws Exception {
+    public void shouldCompleteExceptionallyIfOutputDescriptorNotFound() throws Exception {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(httpConfigType)).thenThrow(new DescriptorNotFoundException());
 
-
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.open(flinkConfiguration);
-        when(stencilClient.get(any(String.class))).thenReturn(null);
         try {
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
@@ -162,13 +182,15 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() {
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         String invalid_request_variable = "invalid_variable";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         try {
+            httpAsyncConnector.open(flinkConfiguration);
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -183,11 +205,13 @@ public class HttpAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
         String empty_request_variable = "";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", empty_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         try {
+            httpAsyncConnector.open(flinkConfiguration);
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -202,7 +226,7 @@ public class HttpAsyncConnectorTest {
     public void shouldEnrichWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
         String empty_request_variable = "";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"static\"}", empty_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"static\"}")).thenReturn(boundRequestBuilder);
@@ -222,10 +246,12 @@ public class HttpAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() {
         String invalidRequestPattern = "{\"key\": \"%\"}";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
         try {
+            httpAsyncConnector.open(flinkConfiguration);
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -237,13 +263,16 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
-    public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() {
+    public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() throws Exception {
         String invalidRequestPattern = "{\"key\": \"%d\"}";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
+        httpAsyncConnector.open(flinkConfiguration);
         try {
+            httpAsyncConnector.open(flinkConfiguration);
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -258,8 +287,10 @@ public class HttpAsyncConnectorTest {
     public void shouldPerformPostRequestWithCorrectParameters() throws Exception {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -270,9 +301,12 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
 
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
+
+        httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
@@ -284,7 +318,9 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -292,11 +328,10 @@ public class HttpAsyncConnectorTest {
         verify(boundRequestBuilder, times(1)).addHeader("content-type", "application/json");
     }
 
-
     @Test
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
 
@@ -306,7 +341,7 @@ public class HttpAsyncConnectorTest {
     @Test
     public void shouldReportFatalInTimeoutIfFailOnErrorIsTrue() throws Exception {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
 
@@ -314,9 +349,9 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
-    public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() throws Exception {
+    public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() {
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
 
@@ -324,8 +359,8 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
-    public void shouldPassTheInputWithRowSizeCorrespondingToColumnNamesInTimeoutIfFailOnErrorIsFalse() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+    public void shouldPassTheInputWithRowSizeCorrespondingToColumnNamesInTimeoutIfFailOnErrorIsFalse() {
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
 
         httpAsyncConnector.timeout(streamData, resultFuture);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
@@ -333,9 +368,12 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionIfUnsupportedHttpVerbProvided() throws Exception {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
 
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02");
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
+
+        httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidHttpVerbException.class));
     }
@@ -347,7 +385,7 @@ public class HttpAsyncConnectorTest {
         HashMap<String, List<String>> metrics = new HashMap<>();
         metrics.put("post_processor_type", postProcessorType);
 
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
         httpAsyncConnector.preProcessBeforeNotifyingSubscriber();
 
         Assert.assertEquals(metrics, httpAsyncConnector.getTelemetry());
@@ -355,7 +393,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldNotifySubscribers() {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, errorReporter, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, errorReporter, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
         httpAsyncConnector.notifySubscriber(telemetrySubscriber);
 
         verify(telemetrySubscriber, times(1)).updated(httpAsyncConnector);
@@ -363,7 +401,7 @@ public class HttpAsyncConnectorTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowIfRuntimeContextNotInitialized() throws Exception {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, "metricId-http-01", stencilClientOrchestrator, columnNameManager, httpClient, telemetryEnabled, shutDownPeriod, null, meterStatsManager);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, httpClient, null, meterStatsManager, externalMetricConfig, descriptorManager, inputProtoClasses);
         httpAsyncConnector.open(flinkConfiguration);
     }
 }

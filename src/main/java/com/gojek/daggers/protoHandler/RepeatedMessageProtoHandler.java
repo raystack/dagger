@@ -1,20 +1,24 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.formats.json.JsonRowSerializationSchema;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
 import net.minidev.json.JSONArray;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class RepeatedMessageProtoHandler implements ProtoHandler {
+    private JsonRowSerializationSchema jsonRowSerializationSchema;
     private FieldDescriptor fieldDescriptor;
 
     public RepeatedMessageProtoHandler(FieldDescriptor fieldDescriptor) {
@@ -72,6 +76,16 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
+    public Object transformToJson(Object field) {
+        if (jsonRowSerializationSchema == null) {
+            jsonRowSerializationSchema = createJsonRowSchema();
+        }
+        return Arrays.toString(Arrays.stream((Row[]) field)
+                .map(row -> new String(jsonRowSerializationSchema.serialize(row)))
+                .toArray(String[]::new));
+    }
+
+    @Override
     public TypeInformation getTypeInformation() {
         return Types.OBJECT_ARRAY(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()));
     }
@@ -91,5 +105,11 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
                 protoHandler.transformForKafka(elementBuilder, row.getField(index));
             }
         }
+    }
+
+    private JsonRowSerializationSchema createJsonRowSchema() {
+        return new JsonRowSerializationSchema
+                .Builder(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()))
+                .build();
     }
 }
