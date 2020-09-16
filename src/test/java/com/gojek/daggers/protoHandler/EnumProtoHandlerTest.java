@@ -1,17 +1,21 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.Types;
+
 import com.gojek.daggers.exception.EnumFieldNotFoundException;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.api.common.typeinfo.Types;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_LIFE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class EnumProtoHandlerTest {
 
@@ -157,5 +161,13 @@ public class EnumProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromKafka("DRIVER_FOUND"));
+    }
+
+    @Test
+    public void shouldConvertEnumToJsonString() {
+        Descriptors.FieldDescriptor fieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("status");
+        Object value = new EnumProtoHandler(fieldDescriptor).transformToJson("DRIVER_FOUND");
+
+        Assert.assertEquals("DRIVER_FOUND", value);
     }
 }

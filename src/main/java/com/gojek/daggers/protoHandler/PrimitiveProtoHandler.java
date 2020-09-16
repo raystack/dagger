@@ -1,11 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+
 import com.gojek.daggers.exception.InvalidDataTypeException;
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandler;
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 public class PrimitiveProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
@@ -37,6 +38,11 @@ public class PrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromKafka(Object field) {
+        return field;
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
         return field;
     }
 

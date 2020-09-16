@@ -1,12 +1,13 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.WireFormat;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,11 @@ public class MapProtoHandler implements ProtoHandler {
             protos.forEach(proto -> rows.add(getRowFromMap(proto)));
         }
         return rows.toArray();
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
+        return null;
     }
 
     @Override

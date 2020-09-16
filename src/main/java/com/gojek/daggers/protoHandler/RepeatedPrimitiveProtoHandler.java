@@ -1,10 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandler;
 import com.gojek.daggers.protoHandler.typeHandler.PrimitiveTypeHandlerFactory;
+import com.google.gson.Gson;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,9 +17,11 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     private final FieldDescriptor fieldDescriptor;
+    private Gson gson;
 
     public RepeatedPrimitiveProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
+        this.gson = new Gson();
     }
 
     @Override
@@ -27,10 +31,12 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
-        if (!canHandle() || field == null)
+        if (!canHandle() || field == null) {
             return builder;
-        if (field.getClass().isArray())
+        }
+        if (field.getClass().isArray()) {
             field = Arrays.asList((Object[]) field);
+        }
         return builder.setField(fieldDescriptor, field);
     }
 
@@ -51,6 +57,11 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     public Object transformFromKafka(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveTypeHandler.getArray(field);
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
+        return gson.toJson(field);
     }
 
     @Override

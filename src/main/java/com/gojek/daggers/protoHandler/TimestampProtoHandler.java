@@ -1,20 +1,25 @@
 package com.gojek.daggers.protoHandler;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Timestamp;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.Timestamp;
+
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.TimeZone;
 
 public class TimestampProtoHandler implements ProtoHandler {
     public static final int MILLI_TO_SECONDS = 1000;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     public TimestampProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
@@ -65,6 +70,17 @@ public class TimestampProtoHandler implements ProtoHandler {
     @Override
     public Object transformFromKafka(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public Object transformToJson(Object field) {
+        Row timeField = (Row) field;
+        if (timeField.getArity() == 2) {
+            java.sql.Timestamp timestamp = new java.sql.Timestamp((Long) timeField.getField(0) * 1000);
+            return dateFormat.format(timestamp);
+        } else {
+            return field;
+        }
     }
 
     @Override
