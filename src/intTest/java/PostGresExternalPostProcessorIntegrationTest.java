@@ -1,3 +1,11 @@
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
@@ -8,14 +16,9 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import org.apache.commons.lang.StringUtils;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
-import org.junit.*;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.gojek.daggers.utils.Constants.INPUT_STREAMS;
 import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static io.vertx.pgclient.PgPool.pool;
 import static org.junit.Assert.assertEquals;
@@ -55,7 +59,11 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
         try {
 
+            String streams = "[{\"TOPIC_NAMES\":\"SG_GO_CAR-booking-log\",\"TABLE_NAME\":\"booking\",\"PROTO_CLASS_NAME\":\"com.gojek.esb.booking.BookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"10.200.216.49:6668,10.200.219.198:6668,10.200.216.58:6668,10.200.216.54:6668,10.200.216.56:6668,10.200.216.63:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-config\",\"STREAM_NAME\":\"p-godata-id-mainstream\"}]";
+
             configuration.setString(POST_PROCESSOR_ENABLED_KEY, "true");
+
+            configuration.setString(INPUT_STREAMS, streams);
 
             pgClient = getPGClient();
 

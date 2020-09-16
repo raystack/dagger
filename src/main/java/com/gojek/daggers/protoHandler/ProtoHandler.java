@@ -1,7 +1,8 @@
 package com.gojek.daggers.protoHandler;
 
-import com.google.protobuf.DynamicMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+
+import com.google.protobuf.DynamicMessage;
 
 public interface ProtoHandler {
     boolean canHandle();
@@ -11,6 +12,8 @@ public interface ProtoHandler {
     Object transformFromPostProcessor(Object field);
 
     Object transformFromKafka(Object field);
+
+    Object transformToJson(Object field);
 
     TypeInformation getTypeInformation();
 }

@@ -1,17 +1,22 @@
 package com.gojek.daggers.protoHandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
+
 import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TimestampProtoHandlerTest {
     @Test
@@ -212,4 +217,16 @@ public class TimestampProtoHandlerTest {
         assertEquals(0, row.getField(1));
     }
 
+    @Test
+    public void shouldConvertTimestampToJsonString() {
+        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+
+        Row inputRow = new Row(2);
+        inputRow.setField(0, 1600083828L);
+
+        Object value = new TimestampProtoHandler(fieldDescriptor).transformToJson(inputRow);
+
+        Assert.assertEquals("2020-09-14 11:43:48", String.valueOf(value));
+    }
 }
