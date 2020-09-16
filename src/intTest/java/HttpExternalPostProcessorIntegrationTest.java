@@ -25,7 +25,9 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.gojek.daggers.utils.Constants.INPUT_STREAMS;
@@ -319,6 +321,64 @@ public class HttpExternalPostProcessorIntegrationTest {
         env.execute();
         assertEquals(23.33, ((Row) ((Row[]) CollectSink.values.get(0).getField(0))[0].getField(1)).getField(4));
         assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
+    }
+
+    @Test
+    public void shouldPopulateFieldsFromHttpPostApiWithProperJsonBodyForComplexDataTypes() throws Exception {
+        String streams = "[{\"TOPIC_NAMES\":\"GO_FOOD-booking-log\",\"TABLE_NAME\":\"booking\",\"PROTO_CLASS_NAME\":\"com.gojek.esb.booking.GoFoodBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"10.200.216.49:6668,10.200.219.198:6668,10.200.216.58:6668,10.200.216.54:6668,10.200.216.56:6668,10.200.216.63:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"earliest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer-group\",\"STREAM_NAME\":\"p-godata-id-mainstream\"}]";
+        configuration.setString(INPUT_STREAMS, streams);
+        String postProcessorConfigString = "{\n" +
+                "  \"external_source\": {\n" +
+                "    \"http\": [\n" +
+                "      {\n" +
+                "        \"endpoint\": \"http://localhost:8089\",\n" +
+                "        \"verb\": \"POST\",\n" +
+                "        \"request_pattern\": \"{\\\"test\\\": %s}\",\n" +
+                "        \"request_variables\": \"experiments\",\n" +
+                "        \"stream_timeout\": \"5000\",\n" +
+                "        \"connect_timeout\": \"5000\",\n" +
+                "        \"fail_on_errors\": \"false\", \n" +
+                "        \"capacity\": \"30\",\n" +
+                "        \"headers\": {\n" +
+                "          \"content-type\": \"application/json\"\n" +
+                "        },\n" +
+                "        \"type\": \"com.gojek.esb.aggregate.surge.SurgeFactorLogMessage\", \n" +
+                "        \"output_mapping\": {\n" +
+                "          \"surge_factor\": {\n" +
+                "            \"path\": \"$.data\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+
+        stubFor(post(urlEqualTo("/"))
+                .withRequestBody(equalToJson("{\"test\": [\"experiments_0\",\"experiments_1\"]}"))
+                .withHeader("content-type", equalTo("application/json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{data: 23.33}")));
+
+
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        CollectSink.values.clear();
+
+        String[] inputColumnNames = new String[]{"experiments"};
+        Row inputData = new Row(2);
+        inputData.setField(0, new String[]{"experiments_0", "experiments_1"});
+
+        DataStream<Row> dataStream = env.fromElements(Row.class, inputData);
+        StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
+
+        StreamInfo postProcessedStreamInfo = addPostProcessor(streamInfo);
+        postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
+
+        env.execute();
+        assertEquals(23.33F, (Float) CollectSink.values.get(0).getField(0), 0.0F);
     }
 
     private static class CollectSink implements SinkFunction<Row> {
