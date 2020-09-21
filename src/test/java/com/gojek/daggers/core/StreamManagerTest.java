@@ -30,6 +30,7 @@ import com.gojek.dagger.udf.LinearTrend;
 import com.gojek.dagger.udf.ListContains;
 import com.gojek.dagger.udf.MixedGranularityS2Id;
 import com.gojek.dagger.udf.Regexp;
+import com.gojek.dagger.udf.S2AreaInKm2;
 import com.gojek.dagger.udf.S2Id;
 import com.gojek.dagger.udf.SecondsElapsed;
 import com.gojek.dagger.udf.SelectFields;
@@ -175,6 +176,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Regexp"), any(Regexp.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("MixedGranularityS2Id"), any(MixedGranularityS2Id.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
     }
 
     @Test
