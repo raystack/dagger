@@ -8,11 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ExternalSourceConfigTest {
 
@@ -21,22 +17,24 @@ public class ExternalSourceConfigTest {
     private List<PgSourceConfig> pg;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         HashMap<String, OutputMapping> httpOutputMapping = new HashMap<>();
         httpOutputMapping.put("http_field_1", new OutputMapping(""));
         httpOutputMapping.put("http_field_2", new OutputMapping(""));
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpOutputMapping, "metricId_01");
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpOutputMapping, "metricId_01", false);
         http = new ArrayList<>();
         http.add(httpSourceConfig);
         es = new ArrayList<>();
         HashMap<String, OutputMapping> esOutputMapping = new HashMap<>();
         esOutputMapping.put("es_field_1", new OutputMapping(""));
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, esOutputMapping, "metricId_01");
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern",
+                "endpointVariable", "type", "30", "123", "234",
+                "345", "456", false, esOutputMapping, "metricId_01", false);
         es.add(esSourceConfig);
         pg = new ArrayList<>();
         HashMap<String, String> pgOutputMapping = new HashMap<>();
         pgOutputMapping.put("pg_field_1", "constant");
-        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "234", "345", "", "", true, "metricId_01");
+        PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "234", "345", "", "", true, "metricId_01", false);
         pg.add(pgSourceConfig);
     }
 
@@ -158,7 +156,7 @@ public class ExternalSourceConfigTest {
 
     }
 
-        @Test
+    @Test
     public void shouldGetOutputColumnNamesFromEsWhenOthersAreNotPresent() {
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null);
 

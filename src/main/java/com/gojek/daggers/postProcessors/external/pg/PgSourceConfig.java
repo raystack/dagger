@@ -26,11 +26,12 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private final String queryVariables;
     private final String queryPattern;
     private boolean failOnErrors;
-    @SerializedName(value = "metricId",  alternate = { "MetricId", "METRICID" })
+    @SerializedName(value = "metricId", alternate = {"MetricId", "METRICID"})
     private String metricId;
+    private boolean retainResponseType;
 
     public PgSourceConfig(String host, String port, String user, String password, String database,
-                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors, String metricId) {
+                          String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors, String metricId, boolean retainResponseType) {
         this.host = host;
         this.port = port;
         this.user = user;
@@ -46,6 +47,7 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         this.queryPattern = queryPattern;
         this.failOnErrors = failOnErrors;
         this.metricId = metricId;
+        this.retainResponseType = retainResponseType;
     }
 
     @Override
@@ -142,5 +144,9 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     @Override
     public String getMetricId() {
         return metricId;
+    }
+
+    public boolean isRetainResponseType() {
+        return retainResponseType;
     }
 }
