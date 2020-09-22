@@ -110,10 +110,10 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     }
 
     private void setField(String key, Object value, int fieldIndex) {
-        if (httpSourceConfig.getType() == null) {
-            rowManager.setInOutput(fieldIndex, value);
-        } else {
+        if (!httpSourceConfig.isRetainResponseType() || httpSourceConfig.hasType()) {
             setFieldUsingType(key, value, fieldIndex);
+        } else {
+            rowManager.setInOutput(fieldIndex, value);
         }
     }
 

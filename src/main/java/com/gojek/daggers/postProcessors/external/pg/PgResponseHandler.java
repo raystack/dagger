@@ -113,22 +113,22 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
     }
 
     private void setField(int index, Object value, String name) {
-        if (!pgSourceConfig.hasType()) {
-            rowManager.setInOutput(index, value);
-            return;
-        }
-        Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
-        if (fieldDescriptor == null) {
-            Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
-            reportAndThrowError(illegalArgumentException);
-            meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            return;
-        }
-        if (value instanceof Map) {
-            rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+        if (!pgSourceConfig.isRetainResponseType() || pgSourceConfig.hasType()) {
+            Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
+            if (fieldDescriptor == null) {
+                Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
+                reportAndThrowError(illegalArgumentException);
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
+                return;
+            }
+            if (value instanceof Map) {
+                rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+            } else {
+                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+                rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+            }
         } else {
-            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+            rowManager.setInOutput(index, value);
         }
     }
 

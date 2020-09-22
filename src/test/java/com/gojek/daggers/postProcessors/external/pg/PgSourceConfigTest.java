@@ -34,14 +34,10 @@ public class PgSourceConfigTest {
     private PgSourceConfig pgSourceConfig;
     private boolean failOnErrors;
     private String metricId;
-
-    public void setup() {
-
-    }
-
+    private boolean retainResponseType;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         host = "localhost";
         port = "9200";
@@ -58,8 +54,9 @@ public class PgSourceConfigTest {
         idleTimeout = "3000";
         metricId = "metricId-pg-01";
         failOnErrors = false;
+        retainResponseType = false;
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors, metricId);
+                queryPattern, failOnErrors, metricId, retainResponseType);
 
     }
 
@@ -111,14 +108,14 @@ public class PgSourceConfigTest {
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors, metricId);
+                queryPattern, failOnErrors, metricId, retainResponseType);
         assertFalse(pgSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
-                queryPattern, failOnErrors, metricId);
+                queryPattern, failOnErrors, metricId, retainResponseType);
         assertFalse(pgSourceConfig.hasType());
     }
 
@@ -140,6 +137,11 @@ public class PgSourceConfigTest {
     @Test
     public void getConnectTimeoutShouldGetRightConfig() {
         assertEquals(Integer.valueOf(connectTimeout), pgSourceConfig.getConnectTimeout());
+    }
+
+    @Test
+    public void isRetainResponseTypeShouldGetTheRightConfig() {
+        assertEquals(retainResponseType, pgSourceConfig.isRetainResponseType());
     }
 
     @Test
@@ -181,7 +183,7 @@ public class PgSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [output_mapping]");
         pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout,
-                new HashMap<>(), connectTimeout, idleTimeout, queryVariables, queryPattern, true, metricId);
+                new HashMap<>(), connectTimeout, idleTimeout, queryVariables, queryPattern, true, metricId, retainResponseType);
 
         pgSourceConfig.validateFields();
     }

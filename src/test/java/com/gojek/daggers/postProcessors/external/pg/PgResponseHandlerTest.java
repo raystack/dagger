@@ -10,6 +10,7 @@ import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import com.google.protobuf.Descriptors;
 import io.vertx.core.AsyncResult;
+import io.vertx.sqlclient.RowIterator;
 import io.vertx.sqlclient.RowSet;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -54,6 +55,12 @@ public class PgResponseHandlerTest {
     @Mock
     private io.vertx.sqlclient.Row resultRow;
 
+    @Mock
+    private RowIterator<io.vertx.sqlclient.Row> rowSetIterator;
+
+    @Mock
+    private io.vertx.sqlclient.Row row;
+
     private Descriptors.Descriptor descriptor;
     private List<String> outputColumnNames;
     private String[] inputColumnNames;
@@ -81,7 +88,7 @@ public class PgResponseHandlerTest {
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId);
+                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
     }
 
     @Test
@@ -133,7 +140,7 @@ public class PgResponseHandlerTest {
     @Test
     public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId);
+                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
@@ -165,7 +172,7 @@ public class PgResponseHandlerTest {
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenEventComesToFailureHandleAndFailOnErrorsIsTrue() {
         pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId);
+                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(false);
         when(event.cause()).thenReturn(new Exception("failure message!"));
@@ -191,6 +198,81 @@ public class PgResponseHandlerTest {
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+    }
+
+    @Test
+    public void shouldPopulateResultAsObjectIfTypeIsNotPassedAndRetainResponseTypeIsTrue() {
+        when(event.succeeded()).thenReturn(true);
+        when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.iterator()).thenReturn(rowSetIterator);
+        when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
+        when(rowSetIterator.next()).thenReturn(row);
+        when(row.getValue("surge_factor")).thenReturn("123");
+        descriptor = SurgeFactorLogMessage.getDescriptor();
+        inputColumnNames = new String[]{"s2_id"};
+        outputColumnNames = new ArrayList<>();
+        outputColumnNames.add("s2_id");
+        outputColumnNames.add("surge_factor");
+        outputMapping = new HashMap<>();
+        outputMapping.put("surge_factor", "surge_factor");
+        streamData = new Row(2);
+        inputData = new Row(1);
+        inputData.setField(0, "123456");
+        streamData.setField(0, inputData);
+        streamData.setField(1, new Row(outputColumnNames.size()));
+        rowManager = new RowManager(streamData);
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+                "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", true);
+        Row outputStreamRow = new Row(2);
+        outputStreamRow.setField(0, inputData);
+        Row outputRow = new Row(2);
+        outputRow.setField(1, "123");
+        outputStreamRow.setField(1, outputRow);
+        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        pgResponseHandler.startTimer();
+        pgResponseHandler.handle(event);
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamRow));
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+
+    }
+
+    @Test
+    public void shouldNotPopulateResultAsObjectIfTypeIsNotPassedAndRetainResponseTypeIsFalse() {
+        when(event.succeeded()).thenReturn(true);
+        when(event.result()).thenReturn(resultRowSet);
+        when(resultRowSet.iterator()).thenReturn(rowSetIterator);
+        when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
+        when(rowSetIterator.next()).thenReturn(row);
+        when(row.getValue("surge_factor")).thenReturn("123");
+        descriptor = SurgeFactorLogMessage.getDescriptor();
+        inputColumnNames = new String[]{"s2_id"};
+        outputColumnNames = new ArrayList<>();
+        outputColumnNames.add("s2_id");
+        outputColumnNames.add("surge_factor");
+        outputMapping = new HashMap<>();
+        outputMapping.put("surge_factor", "surge_factor");
+        streamData = new Row(2);
+        inputData = new Row(1);
+        inputData.setField(0, "123456");
+        streamData.setField(0, inputData);
+        streamData.setField(1, new Row(outputColumnNames.size()));
+        rowManager = new RowManager(streamData);
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+                "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", false);
+        Row outputStreamRow = new Row(2);
+        outputStreamRow.setField(0, inputData);
+        Row outputRow = new Row(2);
+        outputRow.setField(1, 123.0f);
+        outputStreamRow.setField(1, outputRow);
+        PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        pgResponseHandler.startTimer();
+        pgResponseHandler.handle(event);
+        verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamRow));
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 

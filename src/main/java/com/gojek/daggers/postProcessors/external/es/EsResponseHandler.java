@@ -120,22 +120,22 @@ public class EsResponseHandler implements ResponseListener {
 
 
     private void setField(EsSourceConfig esSourceConfig, int index, Object value, String name) {
-        if (!esSourceConfig.hasType()) {
-            rowManager.setInOutput(index, value);
-            return;
-        }
-        Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
-        if (fieldDescriptor == null) {
-            Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
-            reportAndThrowError(illegalArgumentException);
-            meterStatsManager.markEvent(INVALID_CONFIGURATION);
-            return;
-        }
-        if (value instanceof Map) {
-            rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+        if (!esSourceConfig.isRetainResponseType() || esSourceConfig.hasType()) {
+            Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
+            if (fieldDescriptor == null) {
+                Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
+                reportAndThrowError(illegalArgumentException);
+                meterStatsManager.markEvent(INVALID_CONFIGURATION);
+                return;
+            }
+            if (value instanceof Map) {
+                rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
+            } else {
+                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+                rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+            }
         } else {
-            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+            rowManager.setInOutput(index, value);
         }
     }
 
