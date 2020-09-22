@@ -1,11 +1,5 @@
 package com.gojek.daggers.postProcessors.external;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.types.Row;
-
-import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
@@ -17,45 +11,36 @@ import com.gojek.daggers.postProcessors.external.common.DescriptorManager;
 import com.gojek.daggers.postProcessors.external.common.EndpointHandler;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.google.protobuf.Descriptors;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.types.Row;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.IllegalFormatException;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TIMEOUTS;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.values;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.POST_PROCESSOR_TYPE;
 import static com.gojek.daggers.metrics.telemetry.TelemetryTypes.SOURCE_METRIC_ID;
 import static java.util.Collections.singleton;
 
 public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    private final String sourceType;
+    private final SourceConfig sourceConfig;
+    private final ExternalMetricConfig externalMetricConfig;
+    private final SchemaConfig schemaConfig;
     private ErrorReporter errorReporter;
     private MeterStatsManager meterStatsManager;
-    private ColumnNameManager columnNameManager;
-    private String[] inputProtoClasses;
-    private ExternalMetricConfig externalMetricConfig;
     private DescriptorManager descriptorManager;
-    private SourceConfig sourceConfig;
     private Map<String, List<String>> metrics = new HashMap<>();
-    private String sourceType;
     private Descriptors.Descriptor outputDescriptor;
     private EndpointHandler endpointHandler;
 
-    public AsyncConnector(String sourceType, SourceConfig sourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
-                          ColumnNameManager columnNameManager, String[] inputProtoClasses, ExternalMetricConfig externalMetricConfig) {
+    public AsyncConnector(String sourceType, SourceConfig sourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         this.sourceType = sourceType;
         this.sourceConfig = sourceConfig;
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
-        this.columnNameManager = columnNameManager;
-        this.inputProtoClasses = inputProtoClasses;
         this.externalMetricConfig = externalMetricConfig;
+        this.schemaConfig = schemaConfig;
     }
 
     protected ErrorReporter getErrorReporter() {
@@ -71,7 +56,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
     }
 
     public ColumnNameManager getColumnNameManager() {
-        return columnNameManager;
+        return schemaConfig.getColumnNameManager();
     }
 
     public void setErrorReporter(ErrorReporter errorReporter) {
@@ -91,7 +76,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         super.open(configuration);
 
         if (descriptorManager == null) {
-            descriptorManager = new DescriptorManager(stencilClientOrchestrator);
+            descriptorManager = new DescriptorManager(schemaConfig.getStencilClientOrchestrator());
         }
 
         createClient();
@@ -105,7 +90,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         }
         if (endpointHandler == null) {
             endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
-                    inputProtoClasses, columnNameManager, descriptorManager);
+                    schemaConfig.getInputProtoClasses(), schemaConfig.getColumnNameManager(), descriptorManager);
         }
 
         String groupKey = SOURCE_METRIC_ID.getValue();
@@ -174,12 +159,11 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
     }
 
     protected Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
-        if (sourceConfig.getType() != null) {
-            try {
-                outputDescriptor = descriptorManager.getDescriptor(sourceConfig.getType());
-            } catch (DescriptorNotFoundException descriptorNotFound) {
-                reportAndThrowError(resultFuture, descriptorNotFound);
-            }
+        String descriptorClassName = sourceConfig.getType() != null ? sourceConfig.getType() : schemaConfig.getOutputProtoClassName();
+        try {
+            outputDescriptor = descriptorManager.getDescriptor(descriptorClassName);
+        } catch (DescriptorNotFoundException descriptorNotFound) {
+            reportAndThrowError(resultFuture, descriptorNotFound);
         }
         return outputDescriptor;
     }

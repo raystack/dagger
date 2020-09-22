@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors.external.http;
 
-import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
+import com.gojek.daggers.postProcessors.external.SchemaConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -12,7 +12,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpStreamDecoratorTest {
     @Mock
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    SchemaConfig schemaConfig;
 
     @Mock
     private HttpSourceConfig httpSourceConfig;
@@ -20,23 +20,21 @@ public class HttpStreamDecoratorTest {
     @Mock
     private ExternalMetricConfig externalMetricConfig;
 
-    private String[] inputProtoClasses;
 
     @Before
     public void setUp() {
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessage"};
         initMocks(this);
     }
 
     @Test
     public void canDecorateHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, null, inputProtoClasses, externalMetricConfig);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(httpSourceConfig, externalMetricConfig, schemaConfig);
         assertTrue(httpStreamDecorator.canDecorate());
     }
 
     @Test
     public void shouldNotDecorateOtherThanHttpAsync() {
-        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, stencilClientOrchestrator, null, inputProtoClasses, externalMetricConfig);
+        HttpStreamDecorator httpStreamDecorator = new HttpStreamDecorator(null, externalMetricConfig, schemaConfig);
         assertFalse(httpStreamDecorator.canDecorate());
     }
 }
