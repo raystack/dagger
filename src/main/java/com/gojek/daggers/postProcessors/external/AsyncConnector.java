@@ -11,6 +11,7 @@ import com.gojek.daggers.postProcessors.external.common.DescriptorManager;
 import com.gojek.daggers.postProcessors.external.common.EndpointHandler;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.google.protobuf.Descriptors;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -160,10 +161,12 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
 
     protected Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
         String descriptorClassName = sourceConfig.getType() != null ? sourceConfig.getType() : schemaConfig.getOutputProtoClassName();
-        try {
-            outputDescriptor = descriptorManager.getDescriptor(descriptorClassName);
-        } catch (DescriptorNotFoundException descriptorNotFound) {
-            reportAndThrowError(resultFuture, descriptorNotFound);
+        if (StringUtils.isNotEmpty(descriptorClassName)) {
+            try {
+                outputDescriptor = descriptorManager.getDescriptor(descriptorClassName);
+            } catch (DescriptorNotFoundException descriptorNotFound) {
+                reportAndThrowError(resultFuture, descriptorNotFound);
+            }
         }
         return outputDescriptor;
     }
