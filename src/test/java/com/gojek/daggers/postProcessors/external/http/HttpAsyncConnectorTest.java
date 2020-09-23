@@ -299,8 +299,16 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
-        httpAsyncConnector.open(flinkConfiguration);
-        httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+        try {
+            httpAsyncConnector.open(flinkConfiguration);
+            httpAsyncConnector.asyncInvoke(streamData, resultFuture);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
 
     @Test
