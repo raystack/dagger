@@ -1,12 +1,7 @@
 package com.gojek.daggers.postProcessors.external;
 
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.types.Row;
-
-import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.common.Validator;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
@@ -18,24 +13,21 @@ import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 import com.gojek.daggers.postProcessors.external.pg.PgStreamDecorator;
 import org.apache.commons.lang.StringUtils;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.types.Row;
 
 import java.util.List;
 
 public class ExternalPostProcessor implements PostProcessor {
 
-    private StencilClientOrchestrator stencilClientOrchestrator;
-    private ExternalSourceConfig externalSourceConfig;
-    private ColumnNameManager columnNameManager;
-    private ExternalMetricConfig externalMetricConfig;
-    private String[] inputProtoClasses;
+    private final SchemaConfig schemaConfig;
+    private final ExternalSourceConfig externalSourceConfig;
+    private final ExternalMetricConfig externalMetricConfig;
 
-    public ExternalPostProcessor(StencilClientOrchestrator stencilClientOrchestrator, ExternalSourceConfig externalSourceConfig,
-                                 ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig, String[] inputProtoClasses) {
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
+    public ExternalPostProcessor(SchemaConfig schemaConfig, ExternalSourceConfig externalSourceConfig, ExternalMetricConfig externalMetricConfig) {
+        this.schemaConfig = schemaConfig;
         this.externalSourceConfig = externalSourceConfig;
-        this.columnNameManager = columnNameManager;
         this.externalMetricConfig = externalMetricConfig;
-        this.inputProtoClasses = inputProtoClasses;
     }
 
     @Override
@@ -52,21 +44,21 @@ public class ExternalPostProcessor implements PostProcessor {
         for (int index = 0; index < httpSourceConfigs.size(); index++) {
             HttpSourceConfig httpSourceConfig = httpSourceConfigs.get(index);
             externalMetricConfig.setMetricId(getMetricId(index, httpSourceConfig));
-            resultStream = enrichStream(resultStream, httpSourceConfig, getHttpDecorator(httpSourceConfig, columnNameManager, externalMetricConfig));
+            resultStream = enrichStream(resultStream, httpSourceConfig, getHttpDecorator(httpSourceConfig));
         }
 
         List<EsSourceConfig> esSourceConfigs = externalSourceConfig.getEsConfig();
         for (int index = 0; index < esSourceConfigs.size(); index++) {
             EsSourceConfig esSourceConfig = esSourceConfigs.get(index);
             externalMetricConfig.setMetricId(getMetricId(index, esSourceConfig));
-            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig, columnNameManager, externalMetricConfig));
+            resultStream = enrichStream(resultStream, esSourceConfig, getEsDecorator(esSourceConfig));
         }
 
         List<PgSourceConfig> pgSourceConfigs = externalSourceConfig.getPgConfig();
         for (int index = 0; index < pgSourceConfigs.size(); index++) {
             PgSourceConfig pgSourceConfig = pgSourceConfigs.get(index);
             externalMetricConfig.setMetricId(getMetricId(index, pgSourceConfig));
-            resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig, columnNameManager, externalMetricConfig));
+            resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig));
         }
 
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
@@ -82,15 +74,15 @@ public class ExternalPostProcessor implements PostProcessor {
         return decorator.decorate(resultStream);
     }
 
-    protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig) {
-        return new HttpStreamDecorator(httpSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+    protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig) {
+        return new HttpStreamDecorator(httpSourceConfig, externalMetricConfig, schemaConfig);
     }
 
-    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig) {
-        return new EsStreamDecorator(esSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+    protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig) {
+        return new EsStreamDecorator(esSourceConfig, externalMetricConfig, schemaConfig);
     }
 
-    private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig, ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig) {
-        return new PgStreamDecorator(pgSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+    private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig) {
+        return new PgStreamDecorator(pgSourceConfig, externalMetricConfig, schemaConfig);
     }
 }

@@ -1,8 +1,5 @@
 package com.gojek.daggers.postProcessors.external;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
@@ -15,24 +12,17 @@ import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.de.stencil.client.StencilClient;
 import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.gojek.daggers.utils.Constants.ASYNC_IO_CAPACITY_DEFAULT;
-import static com.gojek.daggers.utils.Constants.ASYNC_IO_CAPACITY_KEY;
-import static com.gojek.daggers.utils.Constants.SHUTDOWN_PERIOD_DEFAULT;
-import static com.gojek.daggers.utils.Constants.SHUTDOWN_PERIOD_KEY;
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
-import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
+import static com.gojek.daggers.utils.Constants.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -63,12 +53,14 @@ public class ExternalPostProcessorTest {
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
 
+    @Mock
+    private SchemaConfig schemaConfig;
+
 
     private PostProcessorConfig postProcessorConfig;
     private ColumnNameManager columnNameManager;
     private ExternalPostProcessor externalPostProcessor;
     private ExternalMetricConfig externalMetricConfig;
-    private String[] inputProtoClasses;
 
     @Before
     public void setup() {
@@ -77,13 +69,15 @@ public class ExternalPostProcessorTest {
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames, "metricId_01");
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames, "metricId_01", false);
         HashMap<String, OutputMapping> esOutputMapping = new HashMap<>();
         esOutputMapping.put("es_field_1", new OutputMapping(""));
         String[] inputColumnNames = {"http_input_field_1", "http_input_field_2", "http_input_field_3"};
         List<String> outputColumnNames = Arrays.asList("http_field_1", "http_field_2");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern", "endpointVariable", "type", "30", "123", "234", "345", "456", false, new HashMap<>(), "metricId_01");
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern",
+                "endpointVariable", "type", "30", "123", "234",
+                "345", "456", false, new HashMap<>(), "metricId_01", false);
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(SurgeFactorLogMessage.getDescriptor());
@@ -120,9 +114,8 @@ public class ExternalPostProcessorTest {
 
         externalMetricConfig = new ExternalMetricConfig(configuration, telemetrySubscriber);
         postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessage"};
 
-        externalPostProcessor = new ExternalPostProcessor(stencilClientOrchestrator, externalSourceConfig, columnNameManager, externalMetricConfig, inputProtoClasses);
+        externalPostProcessor = new ExternalPostProcessor(schemaConfig, externalSourceConfig, externalMetricConfig);
     }
 
     @Test
@@ -143,11 +136,11 @@ public class ExternalPostProcessorTest {
         outputMapping.put("order_id", new OutputMapping("path"));
 
         List<HttpSourceConfig> httpSourceConfigs = new ArrayList<>();
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), outputMapping, "metricId_01");
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "POST", "/some/patttern/%s", "variable", "123", "234", false, "type", "20", new HashMap<>(), outputMapping, "metricId_01", false);
         httpSourceConfigs.add(httpSourceConfig);
 
         List<EsSourceConfig> esSourceConfigs = new ArrayList<>();
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01");
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01", false);
         esSourceConfigs.add(esSourceConfig);
 
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(httpSourceConfigs, esSourceConfigs, new ArrayList<>());
@@ -155,7 +148,7 @@ public class ExternalPostProcessorTest {
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         HttpStreamDecorator httpDecoratorMock = mock(HttpStreamDecorator.class);
         EsStreamDecorator esDecoratorMock = mock(EsStreamDecorator.class);
-        ExternalPostProcessorMock externalPostProcessorMock = new ExternalPostProcessorMock(stencilClient, externalSourceConfig, columnNameManager, httpDecoratorMock, esDecoratorMock, externalMetricConfig);
+        ExternalPostProcessorMock externalPostProcessorMock = new ExternalPostProcessorMock(schemaConfig, externalSourceConfig, externalMetricConfig, httpDecoratorMock, esDecoratorMock);
 
         externalPostProcessorMock.process(streamInfoMock);
     }
@@ -232,19 +225,19 @@ public class ExternalPostProcessorTest {
         private HttpStreamDecorator httpStreamDecorator;
         private EsStreamDecorator esStreamDecorator;
 
-        public ExternalPostProcessorMock(StencilClient stencilClient, ExternalSourceConfig externalSourceConfig, ColumnNameManager columnNameManager, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator, ExternalMetricConfig externalMetricConfig) {
-            super(stencilClientOrchestrator, externalSourceConfig, columnNameManager, externalMetricConfig, inputProtoClasses);
+        public ExternalPostProcessorMock(SchemaConfig schemaConfig, ExternalSourceConfig externalSourceConfig, ExternalMetricConfig externalMetricConfig, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator) {
+            super(schemaConfig, externalSourceConfig, externalMetricConfig);
             this.httpStreamDecorator = httpStreamDecorator;
             this.esStreamDecorator = esStreamDecorator;
         }
 
         @Override
-        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig, ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig) {
+        protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig) {
             return httpStreamDecorator;
         }
 
         @Override
-        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig, ColumnNameManager columnNameManager, ExternalMetricConfig externalMetricConfig) {
+        protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig) {
             return esStreamDecorator;
         }
     }
