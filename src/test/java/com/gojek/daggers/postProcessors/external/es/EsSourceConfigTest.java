@@ -161,7 +161,6 @@ public class EsSourceConfigTest {
         expectedMandatoryFields.put("host", host);
         expectedMandatoryFields.put("port", port);
         expectedMandatoryFields.put("endpoint_pattern", endpointPattern);
-        expectedMandatoryFields.put("type", type);
         expectedMandatoryFields.put("capacity", capacity);
         expectedMandatoryFields.put("connect_timeout", connectTimeout);
         expectedMandatoryFields.put("retry_timeout", retryTimeout);

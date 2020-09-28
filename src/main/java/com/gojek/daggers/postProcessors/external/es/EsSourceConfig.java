@@ -117,7 +117,6 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("host", host);
         mandatoryFields.put("port", port);
         mandatoryFields.put("endpoint_pattern", endpointPattern);
-        mandatoryFields.put("type", type);
         mandatoryFields.put("capacity", capacity);
         mandatoryFields.put("connect_timeout", connectTimeout);
         mandatoryFields.put("retry_timeout", retryTimeout);
