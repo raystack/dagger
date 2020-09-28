@@ -166,7 +166,6 @@ public class PgSourceConfigTest {
         expectedMandatoryFields.put("user", user);
         expectedMandatoryFields.put("password", password);
         expectedMandatoryFields.put("database", database);
-        expectedMandatoryFields.put("type", type);
         expectedMandatoryFields.put("capacity", capacity);
         expectedMandatoryFields.put("stream_timeout", streamTimeout);
         expectedMandatoryFields.put("connect_timeout", connectTimeout);

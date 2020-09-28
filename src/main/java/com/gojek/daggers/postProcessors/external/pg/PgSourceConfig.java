@@ -63,7 +63,6 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         mandatoryFields.put("user", user);
         mandatoryFields.put("password", password);
         mandatoryFields.put("database", database);
-        mandatoryFields.put("type", type);
         mandatoryFields.put("capacity", capacity);
         mandatoryFields.put("stream_timeout", streamTimeout);
         mandatoryFields.put("connect_timeout", connectTimeout);
