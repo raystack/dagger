@@ -1,11 +1,3 @@
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
-
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.core.StreamInfo;
@@ -13,23 +5,20 @@ import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.utils.Constants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
+import org.junit.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.gojek.daggers.utils.Constants.INPUT_STREAMS;
 import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static org.junit.Assert.assertEquals;
@@ -136,6 +125,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 "        \"stream_timeout\": \"5000\",\n" +
                 "        \"connect_timeout\": \"5000\",\n" +
                 "        \"fail_on_errors\": \"false\", \n" +
+                "        \"retain_response_type\": \"true\", \n" +
                 "        \"capacity\": \"30\",\n" +
                 "        \"headers\": {\n" +
                 "          \"content-type\": \"application/json\"\n" +
@@ -257,6 +247,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 "        \"stream_timeout\": \"5000\",\n" +
                 "        \"connect_timeout\": \"5000\",\n" +
                 "        \"fail_on_errors\": \"false\", \n" +
+                "        \"retain_response_type\": \"true\", \n" +
                 "        \"capacity\": \"30\",\n" +
                 "        \"headers\": {\n" +
                 "          \"content-type\": \"application/json\"\n" +

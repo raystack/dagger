@@ -1,15 +1,11 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
-import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.AsyncConnector;
 import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
+import com.gojek.daggers.postProcessors.external.SchemaConfig;
 import com.gojek.daggers.postProcessors.external.common.PostResponseTelemetry;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import io.vertx.core.Vertx;
@@ -20,6 +16,8 @@ import io.vertx.pgclient.impl.PgPoolImpl;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Query;
 import io.vertx.sqlclient.RowSet;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,19 +32,17 @@ public class PgAsyncConnector extends AsyncConnector {
     private final PgSourceConfig pgSourceConfig;
     private PgPool pgClient;
 
-    public PgAsyncConnector(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
-                            ColumnNameManager columnNameManager, String[] inputProtoClasses, ExternalMetricConfig externalMetricConfig) {
-        super(PG_TYPE, pgSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
-        this.pgSourceConfig = pgSourceConfig;
-    }
-
-    public PgAsyncConnector(PgSourceConfig pgSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
-                            ColumnNameManager columnNameManager, MeterStatsManager meterStatsManager, PgPool pgClient,
-                            ErrorReporter errorReporter, ExternalMetricConfig externalMetricConfig, String[] inputProtoClasses) {
-        this(pgSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+    public PgAsyncConnector(PgSourceConfig pgSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
+                            MeterStatsManager meterStatsManager, PgPool pgClient, ErrorReporter errorReporter) {
+        this(pgSourceConfig, externalMetricConfig, schemaConfig);
         this.pgClient = pgClient;
         setErrorReporter(errorReporter);
         setMeterStatsManager(meterStatsManager);
+    }
+
+    public PgAsyncConnector(PgSourceConfig pgSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
+        super(PG_TYPE, pgSourceConfig, externalMetricConfig, schemaConfig);
+        this.pgSourceConfig = pgSourceConfig;
     }
 
     @Override

@@ -1,31 +1,24 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
+import com.gojek.daggers.postProcessors.external.SchemaConfig;
+import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
-import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
-import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
-
 import java.util.concurrent.TimeUnit;
 
 public class HttpStreamDecorator implements StreamDecorator {
-    private final ColumnNameManager columnNameManager;
-    private ExternalMetricConfig externalMetricConfig;
-    private String[] inputProtoClasses;
-    private HttpSourceConfig httpSourceConfig;
-    private StencilClientOrchestrator stencilClientOrchestrator;
 
+    private final HttpSourceConfig httpSourceConfig;
+    private final ExternalMetricConfig externalMetricConfig;
+    private final SchemaConfig schemaConfig;
 
-    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, StencilClientOrchestrator stencilClientOrchestrator,
-                               ColumnNameManager columnNameManager, String[] inputProtoClasses, ExternalMetricConfig externalMetricConfig) {
+    public HttpStreamDecorator(HttpSourceConfig httpSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         this.httpSourceConfig = httpSourceConfig;
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
-        this.columnNameManager = columnNameManager;
         this.externalMetricConfig = externalMetricConfig;
-        this.inputProtoClasses = inputProtoClasses;
+        this.schemaConfig = schemaConfig;
     }
 
     @Override
@@ -35,7 +28,7 @@ public class HttpStreamDecorator implements StreamDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, stencilClientOrchestrator, columnNameManager, inputProtoClasses, externalMetricConfig);
+        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig);
         httpAsyncConnector.notifySubscriber(externalMetricConfig.getTelemetrySubscriber());
         return AsyncDataStream.orderedWait(inputStream, httpAsyncConnector, httpSourceConfig.getStreamTimeout(), TimeUnit.MILLISECONDS, httpSourceConfig.getCapacity());
     }

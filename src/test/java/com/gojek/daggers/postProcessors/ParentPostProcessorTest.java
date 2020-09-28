@@ -38,7 +38,7 @@ public class ParentPostProcessorTest {
     public void shouldBeAbleToProcessWhenEsConfigIsNotEmpty() {
         ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, null, telemetrySubscriber);
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01"));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), es, new ArrayList<>());
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, new ArrayList<>(), new ArrayList<>());
 
@@ -49,7 +49,7 @@ public class ParentPostProcessorTest {
     public void shouldBeAbleToProcessWhenHttpConfigIsNotEmpty() {
         ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, null, telemetrySubscriber);
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        http.add(new HttpSourceConfig("", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01"));
+        http.add(new HttpSourceConfig("", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSource = new ExternalSourceConfig(http, new ArrayList<>(), new ArrayList<>());
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, new ArrayList<>(), new ArrayList<>());
 
@@ -60,7 +60,7 @@ public class ParentPostProcessorTest {
     public void shouldBeAbleToProcessWhenPgConfigIsNotEmpty() {
         ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, null, telemetrySubscriber);
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
-        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", true, "metricId_01"));
+        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", true, "metricId_01", false));
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), pg);
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, new ArrayList<>(), new ArrayList<>());
 
