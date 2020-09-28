@@ -131,7 +131,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        http.add(new HttpSourceConfig("", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01"));
+        http.add(new HttpSourceConfig("", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
@@ -145,7 +145,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01"));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
@@ -157,7 +157,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
-        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", true, "metricId_01"));
+        pg.add(new PgSourceConfig("", "", "", "", "", "", "", "", new HashMap<>(), "", "", "", "", true, "metricId_01", false));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
@@ -220,7 +220,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01"));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());

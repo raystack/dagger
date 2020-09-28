@@ -1,9 +1,5 @@
 package com.gojek.daggers.postProcessors;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.types.Row;
-
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
@@ -11,21 +7,21 @@ import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
 import com.gojek.daggers.postProcessors.external.ExternalPostProcessor;
+import com.gojek.daggers.postProcessors.external.SchemaConfig;
 import com.gojek.daggers.postProcessors.external.common.FetchOutputDecorator;
 import com.gojek.daggers.postProcessors.external.common.InitializationDecorator;
 import com.gojek.daggers.postProcessors.internal.InternalPostProcessor;
 import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
-import com.google.gson.Gson;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.gojek.daggers.utils.Constants.INPUT_STREAMS;
 import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT;
-import static com.gojek.daggers.utils.Constants.STREAM_PROTO_CLASS_NAME;
 
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
@@ -68,14 +64,20 @@ public class ParentPostProcessor implements PostProcessor {
         return resultantStreamInfo;
     }
 
+    @Override
+    public boolean canProcess(PostProcessorConfig postProcessorConfig) {
+        return postProcessorConfig != null && !postProcessorConfig.isEmpty();
+    }
+
     private List<PostProcessor> getEnabledPostProcessors(StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
         if (!configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
             return new ArrayList<>();
         }
 
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, telemetrySubscriber);
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new ExternalPostProcessor(stencilClientOrchestrator, postProcessorConfig.getExternalSource(),
-                columnNameManager, getExternalMetricConfig(configuration, telemetrySubscriber), getMessageProtoClasses(configuration)));
+        postProcessors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         postProcessors.add(new InternalPostProcessor(postProcessorConfig));
         return postProcessors
                 .stream()
@@ -83,22 +85,8 @@ public class ParentPostProcessor implements PostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private String[] getMessageProtoClasses(Configuration configuration) {
-        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
-        Map[] streamsConfig = new Gson().fromJson(jsonArrayString, Map[].class);
-        ArrayList<String> protoClasses = new ArrayList<>();
-        for (Map individualStreamConfig : streamsConfig) {
-            protoClasses.add((String) individualStreamConfig.get(STREAM_PROTO_CLASS_NAME));
-        }
-        return protoClasses.toArray(new String[0]);
-    }
-
     private ExternalMetricConfig getExternalMetricConfig(Configuration configuration, TelemetrySubscriber telemetrySubscriber) {
         return new ExternalMetricConfig(configuration, telemetrySubscriber);
     }
 
-    @Override
-    public boolean canProcess(PostProcessorConfig postProcessorConfig) {
-        return postProcessorConfig != null && !postProcessorConfig.isEmpty();
-    }
 }

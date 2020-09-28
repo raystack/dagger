@@ -3,6 +3,7 @@ package com.gojek.daggers.postProcessors.external.http;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,16 +19,17 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
-    @SerializedName(value = "type",  alternate = { "Type", "TYPE" })
+    @SerializedName(value = "type", alternate = {"Type", "TYPE"})
     private String type;
     private String capacity;
-    @SerializedName(value = "headers",  alternate = { "Headers", "HEADERS" })
+    @SerializedName(value = "headers", alternate = {"Headers", "HEADERS"})
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
-    @SerializedName(value = "metricId",  alternate = { "MetricId", "METRICID" })
+    @SerializedName(value = "metricId", alternate = {"MetricId", "METRICID"})
     private String metricId;
+    private boolean retainResponseType;
 
-    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId) {
+    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
         this.endpoint = endpoint;
         this.verb = verb;
         this.requestPattern = requestPattern;
@@ -40,6 +42,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         this.headers = headers;
         this.outputMapping = outputMapping;
         this.metricId = metricId;
+        this.retainResponseType = retainResponseType;
     }
 
     public Integer getConnectTimeout() {
@@ -85,6 +88,10 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return type;
     }
 
+    public boolean hasType() {
+        return StringUtils.isNotEmpty(type);
+    }
+
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -115,5 +122,9 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
 
     public Integer getCapacity() {
         return Integer.parseInt(capacity);
+    }
+
+    public boolean isRetainResponseType() {
+        return retainResponseType;
     }
 }

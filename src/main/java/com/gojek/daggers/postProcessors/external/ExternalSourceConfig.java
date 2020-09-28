@@ -32,7 +32,7 @@ public class ExternalSourceConfig {
     }
 
     public boolean isEmpty() {
-        return (http == null || http.isEmpty()) && (es == null || es.isEmpty()) &&(pg == null || pg.isEmpty());
+        return (http == null || http.isEmpty()) && (es == null || es.isEmpty()) && (pg == null || pg.isEmpty());
     }
 
     public List<String> getOutputColumnNames() {
