@@ -1,13 +1,12 @@
 package com.gojek.daggers.protoHandler;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
-
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.WireFormat;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,11 +80,18 @@ public class MapProtoHandler implements ProtoHandler {
 
     private Row getRowFromMap(DynamicMessage proto) {
         Row row = new Row(2);
-        Object[] keyValue = proto.getAllFields().values().toArray();
-        row.setField(0, keyValue.length > 0 ? keyValue[0] : "");
-        row.setField(1, keyValue.length > 1 ? keyValue[1] : "");
+        row.setField(0, parse(proto, "key"));
+        row.setField(1, parse(proto, "value"));
         return row;
     }
+
+    private Object parse(DynamicMessage proto, String fieldName) {
+        Object field = proto.getField(proto.getDescriptorForType().findFieldByName(fieldName));
+        if (DynamicMessage.class.equals(field.getClass()))
+            field = RowFactory.createRow((DynamicMessage) field);
+        return field;
+    }
+
 
     private void convertFromRow(DynamicMessage.Builder builder, Object[] field) {
         for (Object inputValue : field) {
