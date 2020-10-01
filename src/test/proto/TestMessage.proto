@@ -48,3 +48,7 @@ message TestEnumMessage {
         UNKNOWN = 0;
     }
 }
+
+message TestComplexMap {
+    map<int32, TestMessage> complex_map = 1;
+}
