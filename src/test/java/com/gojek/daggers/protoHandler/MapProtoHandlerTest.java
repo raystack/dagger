@@ -1,16 +1,15 @@
 package com.gojek.daggers.protoHandler;
 
 import com.gojek.esb.booking.BookingLogMessage;
+import com.gojek.esb.consumer.TestComplexMap;
+import com.gojek.esb.consumer.TestMessage;
 import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
 import com.google.protobuf.*;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -202,6 +201,123 @@ public class MapProtoHandlerTest {
         assertEquals("b", ((Row) outputValues.get(1)).getField(0));
         assertEquals("456", ((Row) outputValues.get(1)).getField(1));
         assertEquals(2, ((Row) outputValues.get(1)).getArity());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowHavingSameSizeAsInputMapHavingComplexDataFieldsForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(1, TestMessage.newBuilder().setOrderNumber("123").setOrderDetails("abc").build());
+        complexMap.put(2, TestMessage.newBuilder().setOrderNumber("456").setOrderDetails("efg").build());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(2, outputValues.size());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsHavingFieldsSetAsInputMapHavingComplexDataFieldsAndOfSizeTwoForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(1, TestMessage.newBuilder().setOrderNumber("123").setOrderDetails("abc").build());
+        complexMap.put(2, TestMessage.newBuilder().setOrderNumber("456").setOrderDetails("efg").build());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(1, ((Row) outputValues.get(0)).getField(0));
+        assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
+        assertEquals("abc", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        assertEquals(2, ((Row) outputValues.get(1)).getField(0));
+        assertEquals("456", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(1));
+        assertEquals("efg", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(1)).getArity());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsHavingFieldsSetAsInputMapHavingComplexDataFieldsIfKeyIsSetAsDefaultProtoValueForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(0, TestMessage.newBuilder().setOrderNumber("123").setOrderDetails("abc").build());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
+        assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
+        assertEquals("abc", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsHavingFieldsSetAsInputMapHavingComplexDataFieldsIfValueIsDefaultForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(1, TestMessage.getDefaultInstance());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(1, ((Row) outputValues.get(0)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsHavingFieldsSetAsInputMapHavingComplexDataFieldsIfKeyAndValueAreDefaultForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(0, TestMessage.getDefaultInstance());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsHavingFieldsSetAsInputMapHavingComplexDataFieldsForDefaultInstanceForTransformForKafka() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
+        Map<Integer, TestMessage> complexMap = new HashMap<>();
+        complexMap.put(0, TestMessage.newBuilder().setOrderNumber("").setOrderDetails("").build());
+        TestComplexMap testComplexMap = TestComplexMap.newBuilder().putAllComplexMap(complexMap).build();
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
+
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+
+        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
+        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
+        assertEquals(2, ((Row) outputValues.get(0)).getArity());
     }
 
     @Test
