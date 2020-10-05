@@ -21,7 +21,7 @@ public class EsStreamDecoratorTest {
 
     @Before
     public void setUp() {
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, new HashMap<>(), "metricId_01", false);
     }

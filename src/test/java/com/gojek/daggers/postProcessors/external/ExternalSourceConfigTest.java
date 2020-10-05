@@ -8,7 +8,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class ExternalSourceConfigTest {
 
@@ -27,7 +31,7 @@ public class ExternalSourceConfigTest {
         es = new ArrayList<>();
         HashMap<String, OutputMapping> esOutputMapping = new HashMap<>();
         esOutputMapping.put("es_field_1", new OutputMapping(""));
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern",
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "", "", "endpointPattern",
                 "endpointVariable", "type", "30", "123", "234",
                 "345", "456", false, esOutputMapping, "metricId_01", false);
         es.add(esSourceConfig);
@@ -179,7 +183,7 @@ public class ExternalSourceConfigTest {
     public void shouldGetOutputColumnNamesFromPgWhenOthersAreNotPresent() {
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg);
 
-        List<String> columnNames = Arrays.asList("pg_field_1");
+        List<String> columnNames = Collections.singletonList("pg_field_1");
 
         Assert.assertEquals(columnNames, externalSourceConfig.getOutputColumnNames());
     }
