@@ -10,6 +10,11 @@ import com.gojek.daggers.postProcessors.external.common.RowManager;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 
@@ -22,8 +27,8 @@ import static com.gojek.daggers.utils.Constants.ES_TYPE;
 
 public class EsAsyncConnector extends AsyncConnector {
 
+    private final EsSourceConfig esSourceConfig;
     private RestClient esClient;
-    private EsSourceConfig esSourceConfig;
 
     EsAsyncConnector(EsSourceConfig esSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
                      RestClient esClient, ErrorReporter errorReporter, MeterStatsManager meterStatsManager) {
@@ -43,11 +48,10 @@ public class EsAsyncConnector extends AsyncConnector {
         if (esClient == null) {
             esClient = RestClient.builder(
                     getHttpHosts()
-            ).setRequestConfigCallback(requestConfigBuilder ->
-                    requestConfigBuilder
-                            .setConnectTimeout(esSourceConfig.getConnectTimeout())
-                            .setSocketTimeout(esSourceConfig.getSocketTimeout()))
-                    .setMaxRetryTimeoutMillis(esSourceConfig.getRetryTimeout()).build();
+            ).setHttpClientConfigCallback(httpClientBuilder ->
+                    httpClientBuilder
+                            .setDefaultCredentialsProvider(getCredentialsProvider())
+                            .setDefaultRequestConfig(getRequestConfig())).setMaxRetryTimeoutMillis(esSourceConfig.getRetryTimeout()).build();
         }
     }
 
@@ -72,5 +76,18 @@ public class EsAsyncConnector extends AsyncConnector {
         ArrayList<HttpHost> httpHosts = new ArrayList<>();
         hosts.forEach(s -> httpHosts.add(new HttpHost(s, esSourceConfig.getPort())));
         return httpHosts.toArray(new HttpHost[0]);
+    }
+
+    private RequestConfig getRequestConfig() {
+        return RequestConfig.custom()
+                .setConnectTimeout(esSourceConfig.getConnectTimeout())
+                .setSocketTimeout(esSourceConfig.getSocketTimeout()).build();
+    }
+
+    private CredentialsProvider getCredentialsProvider() {
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(esSourceConfig.getUser(), esSourceConfig.getPassword()));
+        return credentialsProvider;
     }
 }

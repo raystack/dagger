@@ -38,7 +38,7 @@ public class ParentPostProcessorTest {
     public void shouldBeAbleToProcessWhenEsConfigIsNotEmpty() {
         ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, null, telemetrySubscriber);
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), es, new ArrayList<>());
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, new ArrayList<>(), new ArrayList<>());
 

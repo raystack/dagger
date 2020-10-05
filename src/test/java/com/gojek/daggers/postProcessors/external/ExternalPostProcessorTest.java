@@ -20,9 +20,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.gojek.daggers.utils.Constants.*;
+import static com.gojek.daggers.utils.Constants.ASYNC_IO_CAPACITY_DEFAULT;
+import static com.gojek.daggers.utils.Constants.ASYNC_IO_CAPACITY_KEY;
+import static com.gojek.daggers.utils.Constants.SHUTDOWN_PERIOD_DEFAULT;
+import static com.gojek.daggers.utils.Constants.SHUTDOWN_PERIOD_KEY;
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_KEY;
+import static com.gojek.daggers.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -75,7 +84,7 @@ public class ExternalPostProcessorTest {
         String[] inputColumnNames = {"http_input_field_1", "http_input_field_2", "http_input_field_3"};
         List<String> outputColumnNames = Arrays.asList("http_field_1", "http_field_2");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "endpointPattern",
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "", "", "endpointPattern",
                 "endpointVariable", "type", "30", "123", "234",
                 "345", "456", false, new HashMap<>(), "metricId_01", false);
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>());
@@ -140,7 +149,8 @@ public class ExternalPostProcessorTest {
         httpSourceConfigs.add(httpSourceConfig);
 
         List<EsSourceConfig> esSourceConfigs = new ArrayList<>();
-        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01", false);
+
+        EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "", "", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01", false);
         esSourceConfigs.add(esSourceConfig);
 
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(httpSourceConfigs, esSourceConfigs, new ArrayList<>());

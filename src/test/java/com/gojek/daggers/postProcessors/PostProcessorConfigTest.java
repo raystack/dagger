@@ -17,14 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PostProcessorConfigTest {
 
+    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    private final ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     private PostProcessorConfig postProcessorConfig;
     private ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
     private List<TransformConfig> transformConfigs = new ArrayList<>();
@@ -145,7 +148,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, null);
 
@@ -220,7 +223,7 @@ public class PostProcessorConfigTest {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ArrayList<EsSourceConfig> es = new ArrayList<>();
-        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
+        es.add(new EsSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), "metricId_01", false));
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
         postProcessorConfig = new PostProcessorConfig(externalSourceConfig, null, internalSource);
         assertTrue(postProcessorConfig.hasExternalSource());
