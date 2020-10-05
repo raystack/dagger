@@ -31,10 +31,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.EMPTY_INPUT;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TIMEOUTS;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
 import static com.gojek.daggers.utils.Constants.ES_TYPE;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -76,7 +84,7 @@ public class EsAsyncConnectorTest {
         outputMapping = new HashMap<>();
         outputMapping.put("customer_profile", new OutputMapping("$.customer"));
         outputMapping.put("driver_profile", new OutputMapping("$.driver"));
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "/drivers/driver/%s",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         esClient = mock(RestClient.class);
@@ -96,7 +104,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputWhenEndpointVariableIsEmptyAndRequiredInPattern() throws Exception {
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "/drivers/driver/%s",
                 "", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
@@ -112,7 +120,7 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldEnrichOutputWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "/drivers/",
                 "", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
@@ -172,7 +180,7 @@ public class EsAsyncConnectorTest {
     public void shouldNotEnrichOutputWhenEndpointVariableIsInvalid() throws Exception {
         when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "/drivers/driver/%s",
                 "invalid_variable", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
@@ -190,7 +198,7 @@ public class EsAsyncConnectorTest {
     public void shouldNotEnrichOutputWhenEndpointPatternIsEmpty() throws Exception {
         when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
 
@@ -209,7 +217,7 @@ public class EsAsyncConnectorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
         String invalidEndpointPattern = "/drivers/driver/%";
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", invalidEndpointPattern,
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", invalidEndpointPattern,
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
 
@@ -229,7 +237,7 @@ public class EsAsyncConnectorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
         String invalidEndpointPattern = "/drivers/driver/%d";
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", invalidEndpointPattern,
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", invalidEndpointPattern,
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
 
@@ -247,6 +255,28 @@ public class EsAsyncConnectorTest {
     public void shouldEnrichOutputForCorrespondingEnrichmentKey() throws Exception {
         when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        inputData.setField(2, "11223344545");
+
+        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+
+        esAsyncConnector.open(configuration);
+        esAsyncConnector.asyncInvoke(streamRow, resultFuture);
+
+        Request request = new Request("GET", "/drivers/driver/11223344545");
+        verify(meterStatsManager, times(1)).markEvent(TOTAL_EXTERNAL_CALLS);
+        verify(esClient, times(1)).performRequestAsync(eq(request), any(EsResponseHandler.class));
+    }
+
+    @Test
+    public void shouldEnrichOutputWhenUserAndPasswordAreNull() throws Exception {
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        inputData.setField(2, "11223344545");
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", null, null,
+                "/drivers/driver/%s", "driver_id", null, "30",
+                "5000", "5000", "5000", "5000", false,
+                outputMapping, "metricId_01", false);
         inputData.setField(2, "11223344545");
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
@@ -299,7 +329,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromOutputProtoIfTypeNotGiven() throws Exception {
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "/drivers/driver/%s",
+        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "", "", "/drivers/driver/%s",
                 "driver_id", null, "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         inputData.setField(2, "11223344545");

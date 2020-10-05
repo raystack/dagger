@@ -17,7 +17,11 @@ import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.apache.http.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.ParseException;
+import org.apache.http.RequestLine;
+import org.apache.http.StatusLine;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
@@ -30,7 +34,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class EsResponseHandlerTest {
@@ -64,7 +72,7 @@ public class EsResponseHandlerTest {
         outputStreamData.setField(1, outputData);
         rowManager = new RowManager(inputStreamData);
         outputMapping = new HashMap<>();
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         resultFuture = mock(ResultFuture.class);
@@ -93,7 +101,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_profile");
@@ -123,7 +131,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", null, "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", true);
         outputColumnNames.add("driver_profile");
@@ -153,7 +161,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", null, "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_profile");
@@ -185,7 +193,7 @@ public class EsResponseHandlerTest {
 
         descriptor = DriverProfileFlattenLogMessage.getDescriptor();
         outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_id");
@@ -211,7 +219,7 @@ public class EsResponseHandlerTest {
             }
         };
         outputMapping.put("driver_id", new OutputMapping("$.invalidPath"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
 
@@ -392,7 +400,7 @@ public class EsResponseHandlerTest {
         when(response.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(502);
 
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "",
+        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
                 "5000", "5000", "5000", "5000", true, outputMapping, "metricId_01", false);
 

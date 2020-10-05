@@ -12,29 +12,33 @@ import java.util.List;
 import java.util.Map;
 
 public class EsSourceConfig implements Serializable, SourceConfig {
-    private String host;
-    private String port;
-    private String endpointPattern;
-    private String endpointVariables;
+    private final String host;
+    private final String port;
+    private final String user;
+    private final String password;
+    private final String endpointPattern;
+    private final String endpointVariables;
     @SerializedName(value = "type", alternate = {"Type", "TYPE"})
-    private String type;
-    private String capacity;
-    private String retryTimeout;
-    private String socketTimeout;
-    private String streamTimeout;
-    private String connectTimeout;
-    private boolean failOnErrors;
-    private Map<String, OutputMapping> outputMapping;
+    private final String type;
+    private final String capacity;
+    private final String retryTimeout;
+    private final String socketTimeout;
+    private final String streamTimeout;
+    private final String connectTimeout;
+    private final boolean failOnErrors;
+    private final Map<String, OutputMapping> outputMapping;
     @SerializedName(value = "metricId", alternate = {"MetricId", "METRICID"})
-    private String metricId;
-    private boolean retainResponseType;
+    private final String metricId;
+    private final boolean retainResponseType;
 
 
-    public EsSourceConfig(String host, String port, String endpointPattern, String endpointVariables,
+    public EsSourceConfig(String host, String port, String user, String password, String endpointPattern, String endpointVariables,
                           String type, String capacity, String connectTimeout, String retryTimeout, String socketTimeout, String streamTimeout,
                           boolean failOnErrors, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
         this.host = host;
         this.port = port;
+        this.user = user;
+        this.password = password;
         this.endpointPattern = endpointPattern;
         this.endpointVariables = endpointVariables;
         this.type = type;
@@ -56,6 +60,14 @@ public class EsSourceConfig implements Serializable, SourceConfig {
 
     public Integer getPort() {
         return Integer.valueOf(port);
+    }
+
+    public String getUser() {
+        return user == null ? "" : user;
+    }
+
+    public String getPassword() {
+        return password == null ? "" : password;
     }
 
     @Override

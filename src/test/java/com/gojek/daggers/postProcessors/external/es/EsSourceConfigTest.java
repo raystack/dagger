@@ -13,6 +13,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class EsSourceConfigTest {
 
@@ -22,6 +24,8 @@ public class EsSourceConfigTest {
     private EsSourceConfig esSourceConfig;
     private String host;
     private String port;
+    private String user;
+    private String password;
     private String endpointPattern;
     private String endpointVariables;
     private String type;
@@ -39,6 +43,8 @@ public class EsSourceConfigTest {
     public void setUp() {
         host = "localhost";
         port = "9200";
+        user = "test_user";
+        password = "mysecretpassword";
         endpointPattern = "/drivers/driver/%s";
         endpointVariables = "driver_id";
         type = "com.gojek.esb.fraud.DriverProfileFlattenLogMessage";
@@ -52,10 +58,9 @@ public class EsSourceConfigTest {
         metricId = "metricId_01";
         retainResponseType = false;
 
-        esSourceConfig = new EsSourceConfig(host, port, endpointPattern,
+        esSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern,
                 endpointVariables, type, capacity,
                 connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
-
     }
 
     @Test
@@ -66,6 +71,32 @@ public class EsSourceConfigTest {
     @Test
     public void getPortShouldGetRightConfig() {
         assertEquals(Integer.valueOf(port), esSourceConfig.getPort());
+    }
+
+    @Test
+    public void getUserShouldGetRightConfig() {
+        assertEquals(user, esSourceConfig.getUser());
+    }
+
+    @Test
+    public void getPasswordShouldGetRightConfig() {
+        assertEquals(password, esSourceConfig.getPassword());
+    }
+
+    @Test
+    public void getUserWhenUserIsNullShouldReturnEmptyString() {
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, null, password, endpointPattern,
+                endpointVariables, type, capacity,
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
+        assertEquals("", esSourceConfig.getUser());
+    }
+
+    @Test
+    public void getPasswordWhenPasswordIsNullShouldReturnEmptyString() {
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, null, endpointPattern,
+                endpointVariables, type, capacity,
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
+        assertEquals("", esSourceConfig.getPassword());
     }
 
     @Test
@@ -101,19 +132,19 @@ public class EsSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeTrueWhenTypeIsPresent() {
-        assertEquals(true, esSourceConfig.hasType());
+        assertTrue(esSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", null, "", "", "", "", "", false, new HashMap<>(), metricId, false);
-        assertEquals(false, esSourceConfig.hasType());
+        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", null, "", "", "", "", "", false, new HashMap<>(), metricId, false);
+        assertFalse(esSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), metricId, false);
-        assertEquals(false, esSourceConfig.hasType());
+        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), metricId, false);
+        assertFalse(esSourceConfig.hasType());
     }
 
     @Test
@@ -177,9 +208,8 @@ public class EsSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>(), metricId, retainResponseType);
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>(), metricId, retainResponseType);
 
         esSourceConfig.validateFields();
     }
-
 }
