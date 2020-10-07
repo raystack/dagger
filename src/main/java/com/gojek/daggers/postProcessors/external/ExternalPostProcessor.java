@@ -12,7 +12,7 @@ import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 import com.gojek.daggers.postProcessors.external.pg.PgStreamDecorator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
