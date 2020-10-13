@@ -4,7 +4,7 @@ import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcessor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 

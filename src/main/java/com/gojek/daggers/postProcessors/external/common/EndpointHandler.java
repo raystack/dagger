@@ -12,7 +12,7 @@ import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
