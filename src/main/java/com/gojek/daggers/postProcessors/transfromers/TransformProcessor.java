@@ -1,15 +1,12 @@
 package com.gojek.daggers.postProcessors.transfromers;
 
+import com.gojek.dagger.common.StreamInfo;
 import com.gojek.dagger.transformer.Transformer;
-import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.exception.TransformClassNotDefinedException;
 import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
 import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.types.Row;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -29,18 +26,17 @@ public class TransformProcessor implements PostProcessor, TelemetryPublisher {
 
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
-        DataStream<Row> resultStream = streamInfo.getDataStream();
         for (TransformConfig transformConfig : transformConfigs) {
             transformConfig.validateFields();
             String className = transformConfig.getTransformationClass();
             try {
                 Transformer function = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
-                resultStream = function.transform(resultStream);
+                streamInfo = function.transform(streamInfo);
             } catch (ReflectiveOperationException e) {
                 throw new TransformClassNotDefinedException(e.getMessage());
             }
         }
-        return new StreamInfo(resultStream, streamInfo.getColumnNames());
+        return streamInfo;
     }
 
     @Override
