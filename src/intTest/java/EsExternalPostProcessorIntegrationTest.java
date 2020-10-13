@@ -12,7 +12,7 @@ import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.utils.Constants;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
