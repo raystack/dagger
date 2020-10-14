@@ -58,6 +58,7 @@ public class Constants {
     public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
     public final static String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
     public final static String TRANSFORM_PROCESSOR = "transform_processor";
+    public final static String SQL_TRANSFORMER_CLASS = "com.gojek.dagger.transformer.SQLTransformer";
 
     public static final String STREAM_PROTO_CLASS_NAME = "PROTO_CLASS_NAME";
     public static final String STREAM_TABLE_NAME = "TABLE_NAME";
