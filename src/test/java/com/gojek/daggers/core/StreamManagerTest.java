@@ -1,5 +1,6 @@
 package com.gojek.daggers.core;
 
+import com.gojek.dagger.common.StreamInfo;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;

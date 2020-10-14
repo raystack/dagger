@@ -1,7 +1,7 @@
 package com.gojek.daggers.postProcessors;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.core.StreamInfo;
+import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
@@ -47,13 +47,14 @@ public class ParentPostProcessor implements PostProcessor {
         InitializationDecorator initializationDecorator = new InitializationDecorator(columnNameManager);
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
 
-        List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(stencilClientOrchestrator, columnNameManager, telemetrySubscriber);
+        List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(stencilClientOrchestrator, columnNameManager, telemetrySubscriber, schemaConfig);
         for (PostProcessor postProcessor : enabledPostProcessors) {
             streamInfo = postProcessor.process(streamInfo);
         }
 
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator();
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
         TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
@@ -69,12 +70,11 @@ public class ParentPostProcessor implements PostProcessor {
         return postProcessorConfig != null && !postProcessorConfig.isEmpty();
     }
 
-    private List<PostProcessor> getEnabledPostProcessors(StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber) {
+    private List<PostProcessor> getEnabledPostProcessors(StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager, TelemetrySubscriber telemetrySubscriber, SchemaConfig schemaConfig) {
         if (!configuration.getBoolean(POST_PROCESSOR_ENABLED_KEY, POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
         ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, telemetrySubscriber);
         ArrayList<PostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));

@@ -1,6 +1,6 @@
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.core.StreamInfo;
+import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
