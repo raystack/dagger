@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.gojek.daggers.utils.Constants.POST_PROCESSOR_CONFIG_KEY;
+import static com.gojek.daggers.utils.Constants.SQL_TRANSFORMER_CLASS;
 
 public class PostProcessorConfig implements Serializable {
 
@@ -69,6 +70,14 @@ public class PostProcessorConfig implements Serializable {
 
     public boolean hasTransformConfigs() {
         return transformers != null && !transformers.isEmpty();
+    }
+
+    public boolean hasSQLTransformer() {
+        return hasTransformConfigs() && transformers
+                .stream()
+                .anyMatch(transformConfig -> transformConfig
+                        .getTransformationClass()
+                        .equals(SQL_TRANSFORMER_CLASS));
     }
 
     public List<String> getOutputColumnNames() {

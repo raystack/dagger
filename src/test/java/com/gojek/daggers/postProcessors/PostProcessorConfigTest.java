@@ -17,11 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PostProcessorConfigTest {
 
@@ -268,6 +264,34 @@ public class PostProcessorConfigTest {
     public void shouldBeFalseWhenTransformerSourceDoesNotExists() {
         postProcessorConfig = new PostProcessorConfig(null, null, internalSource);
         assertFalse(postProcessorConfig.hasTransformConfigs());
+    }
+
+    @Test
+    public void shouldReturnTrueForHasSQLTransformerIfTransformConfigContainsSqlTransformer() {
+        String configuration = "{ \"external_source\": { \"es\": [ { \"host\": \"10.240.60.227:9200\", \"output_mapping\": { \"customer_profile\": { \"path\": \"$._source\" } }, \"query_param_pattern\": \"/customers/customer/%s\", \"query_param_variables\": \"customer_id\", \"retry_timeout\": \"5000\", \"socket_timeout\": \"6000\", \"stream_timeout\": \"5000\", \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\" } ], \"http\": [ { \"body_column_from_sql\": \"request_body\", \"connect_timeout\": \"5000\", \"endpoint\": \"http://localhost:8000\", \"fail_on_errors\": \"true\", \"headers\": { \"content-type\": \"application/json\" }, \"output_mapping\": { \"surge_factor\": { \"path\": \"$.data.tensor.values[0]\" } }, \"stream_timeout\": \"5000\", \"verb\": \"post\" } ] }, \"internal_source\":[ { \"output_field\": \"event_timestamp\", \"value\": \"CURRENT_TIMESTAMP\", \"type\": \"function\" }, { \"output_field\": \"s2_id_level\", \"value\": \"7\", \"type\": \"constant\" } ], \"transformers\": [ { \"transformation_arguments\": { \"sqlQuery\": \"SELECT * from data_stream\" }, \"transformation_class\": \"com.gojek.dagger.transformer.SQLTransformer\" } ] }";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertTrue(postProcessorConfig.hasSQLTransformer());
+    }
+
+    @Test
+    public void shouldNotReturnTrueForHasSQLTransformerIfTransformConfigDoesNotContainSqlTransformer() {
+        String configuration = "{ \"external_source\": { \"es\": [ { \"host\": \"10.240.60.227:9200\", \"output_mapping\": { \"customer_profile\": { \"path\": \"$._source\" } }, \"query_param_pattern\": \"/customers/customer/%s\", \"query_param_variables\": \"customer_id\", \"retry_timeout\": \"5000\", \"socket_timeout\": \"6000\", \"stream_timeout\": \"5000\", \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\" } ], \"http\": [ { \"body_column_from_sql\": \"request_body\", \"connect_timeout\": \"5000\", \"endpoint\": \"http://localhost:8000\", \"fail_on_errors\": \"true\", \"headers\": { \"content-type\": \"application/json\" }, \"output_mapping\": { \"surge_factor\": { \"path\": \"$.data.tensor.values[0]\" } }, \"stream_timeout\": \"5000\", \"verb\": \"post\" } ] }, \"internal_source\":[ { \"output_field\": \"event_timestamp\", \"value\": \"CURRENT_TIMESTAMP\", \"type\": \"function\" }, { \"output_field\": \"s2_id_level\", \"value\": \"7\", \"type\": \"constant\" } ], \"transformers\": [ { \"transformation_arguments\": { \"sqlQuery\": \"SELECT * from data_stream\" }, \"transformation_class\": \"com.gojek.dagger.transformer.DeDuplicationTransformer\" } ] }";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertFalse(postProcessorConfig.hasSQLTransformer());
+    }
+
+    @Test
+    public void shouldNotReturnTrueForHasSQLTransformerIfTransformConfigDoesNotExist() {
+        String configuration = "{ \"external_source\": { \"es\": [ { \"host\": \"10.240.60.227:9200\", \"output_mapping\": { \"customer_profile\": { \"path\": \"$._source\" } }, \"query_param_pattern\": \"/customers/customer/%s\", \"query_param_variables\": \"customer_id\", \"retry_timeout\": \"5000\", \"socket_timeout\": \"6000\", \"stream_timeout\": \"5000\", \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\" } ], \"http\": [ { \"body_column_from_sql\": \"request_body\", \"connect_timeout\": \"5000\", \"endpoint\": \"http://localhost:8000\", \"fail_on_errors\": \"true\", \"headers\": { \"content-type\": \"application/json\" }, \"output_mapping\": { \"surge_factor\": { \"path\": \"$.data.tensor.values[0]\" } }, \"stream_timeout\": \"5000\", \"verb\": \"post\" } ] }, \"internal_source\":[ { \"output_field\": \"event_timestamp\", \"value\": \"CURRENT_TIMESTAMP\", \"type\": \"function\" }, { \"output_field\": \"s2_id_level\", \"value\": \"7\", \"type\": \"constant\" } ] }";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertFalse(postProcessorConfig.hasSQLTransformer());
+    }
+
+    @Test
+    public void shouldReturnTrueForHasSQLTransformerIfAnyOneTransformConfigContainsSQLTransformer() {
+        String configuration = "{ \"external_source\": { \"es\": [ { \"host\": \"10.240.60.227:9200\", \"output_mapping\": { \"customer_profile\": { \"path\": \"$._source\" } }, \"query_param_pattern\": \"/customers/customer/%s\", \"query_param_variables\": \"customer_id\", \"retry_timeout\": \"5000\", \"socket_timeout\": \"6000\", \"stream_timeout\": \"5000\", \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\" } ], \"http\": [ { \"body_column_from_sql\": \"request_body\", \"connect_timeout\": \"5000\", \"endpoint\": \"http://localhost:8000\", \"fail_on_errors\": \"true\", \"headers\": { \"content-type\": \"application/json\" }, \"output_mapping\": { \"surge_factor\": { \"path\": \"$.data.tensor.values[0]\" } }, \"stream_timeout\": \"5000\", \"verb\": \"post\" } ] }, \"internal_source\":[ { \"output_field\": \"event_timestamp\", \"value\": \"CURRENT_TIMESTAMP\", \"type\": \"function\" }, { \"output_field\": \"s2_id_level\", \"value\": \"7\", \"type\": \"constant\" } ], \"transformers\": [ { \"transformation_arguments\": { \"sqlQuery\": \"SELECT * from data_stream\" }, \"transformation_class\": \"com.gojek.dagger.transformer.SQLTransformer\" }, { \"transformation_arguments\": { \"arg1\": \"test\" }, \"transformation_class\": \"com.gojek.dagger.transformer.Test\" } ] }";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertTrue(postProcessorConfig.hasSQLTransformer());
     }
 
 }
