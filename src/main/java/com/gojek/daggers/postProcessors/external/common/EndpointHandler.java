@@ -85,7 +85,7 @@ public class EndpointHandler {
             reportAndThrowError(resultFuture, invalidConfigurationException);
             return true;
         }
-        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && Arrays.asList(endpointVariablesValues).isEmpty()) {
+        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.asList(endpointVariablesValues).contains(""))) {
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
             return true;
