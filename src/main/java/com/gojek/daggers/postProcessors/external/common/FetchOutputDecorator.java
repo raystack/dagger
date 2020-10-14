@@ -19,11 +19,13 @@ public class FetchOutputDecorator implements MapDecorator {
     private String[] outputColumnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private String outputProtoClassName;
+    private boolean hasSQLTransformer;
 
-    public FetchOutputDecorator(SchemaConfig schemaConfig) {
+    public FetchOutputDecorator(SchemaConfig schemaConfig, boolean hasSQLTransformer) {
         this.outputColumnNames = schemaConfig.getColumnNameManager().getOutputColumnNames();
         this.stencilClientOrchestrator = schemaConfig.getStencilClientOrchestrator();
         this.outputProtoClassName = schemaConfig.getOutputProtoClassName();
+        this.hasSQLTransformer = hasSQLTransformer;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class FetchOutputDecorator implements MapDecorator {
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
-        return inputStream.map(this).returns(getTypeInformation());
+        return hasSQLTransformer ? inputStream.map(this).returns(getTypeInformation()) : inputStream.map(this);
     }
 
     private TypeInformation<Row> getTypeInformation() {
