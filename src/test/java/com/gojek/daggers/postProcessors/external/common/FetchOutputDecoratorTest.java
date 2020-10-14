@@ -58,12 +58,12 @@ public class FetchOutputDecoratorTest {
 
     @Test
     public void canDecorateShouldBeFalse() {
-        Assert.assertFalse(new FetchOutputDecorator(schemaConfig).canDecorate());
+        Assert.assertFalse(new FetchOutputDecorator(schemaConfig, false).canDecorate());
     }
 
     @Test
     public void shouldMapOutputDataFromRowManager() {
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, false);
         Row parentRow = new Row(2);
         Row inputRow = new Row(3);
         Row outputRow = new Row(4);
@@ -76,15 +76,25 @@ public class FetchOutputDecoratorTest {
     @Test
     public void shouldDecorateStreamWithItsMapFunction() {
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, false);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
     }
 
     @Test
-    public void shouldDecorateStreamAndReturnTypesIfAllFieldsInOutputProto() {
+    public void shouldNotReturnTypeInformationIfSqlProcessorNotEnabled() {
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, false);
+        fetchOutputDecorator.decorate(inputDataStream);
+        verify(inputDataStream, times(1)).map(fetchOutputDecorator);
+        RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{Types.STRING, Types.STRING}, outputColumnNames);
+        verify(outputDataStream, times(0)).returns(rowTypeInfo);
+    }
+
+    @Test
+    public void shouldDecorateStreamAndReturnTypesIfAllFieldsInOutputProtoIfSqlProcessorEnabled() {
+        when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{Types.STRING, Types.STRING}, outputColumnNames);
@@ -92,10 +102,10 @@ public class FetchOutputDecoratorTest {
     }
 
     @Test
-    public void shouldDecorateStreamAndReturnTypesAsObjectIfDescriptorNull() {
+    public void shouldDecorateStreamAndReturnTypesAsObjectIfDescriptorNullIfSqlProcessorEnabled() {
         when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(null);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{TypeInformation.of(Object.class), TypeInformation.of(Object.class)}, outputColumnNames);
@@ -103,11 +113,11 @@ public class FetchOutputDecoratorTest {
     }
 
     @Test
-    public void shouldDecorateStreamAndReturnTypesAsObjectIfSomeFieldsNotPresentInDescriptor() {
+    public void shouldDecorateStreamAndReturnTypesAsObjectIfSomeFieldsNotPresentInDescriptorIfSqlProcessorEnabled() {
         outputColumnNames = new String[]{"order_number", "service_type", "test_field"};
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{Types.STRING, Types.STRING, TypeInformation.of(Object.class)}, outputColumnNames);
@@ -115,11 +125,11 @@ public class FetchOutputDecoratorTest {
     }
 
     @Test
-    public void shouldDecorateStreamAndReturnTypesAsObjectsIfAllFieldsNotPresentInDescriptor() {
+    public void shouldDecorateStreamAndReturnTypesAsObjectsIfAllFieldsNotPresentInDescriptorIfSqlProcessorEnabled() {
         outputColumnNames = new String[]{"test1", "test2", "test3"};
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{TypeInformation.of(Object.class), TypeInformation.of(Object.class), TypeInformation.of(Object.class)}, outputColumnNames);
@@ -127,11 +137,11 @@ public class FetchOutputDecoratorTest {
     }
 
     @Test
-    public void shouldDecorateStreamAndReturnTypesHavingRowtimeAsSqlTimestamp() {
+    public void shouldDecorateStreamAndReturnTypesHavingRowtimeAsSqlTimestampIfSqlProcessorEnabled() {
         outputColumnNames = new String[]{"order_number", "service_type", "rowtime"};
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
-        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{Types.STRING, Types.STRING, Types.SQL_TIMESTAMP}, outputColumnNames);
