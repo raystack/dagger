@@ -1,6 +1,6 @@
 package com.gojek.daggers.postProcessors.longbow;
 
-import com.gojek.daggers.core.StreamInfo;
+import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.AsyncProcessor;
 import com.gojek.daggers.postProcessors.common.PostProcessor;

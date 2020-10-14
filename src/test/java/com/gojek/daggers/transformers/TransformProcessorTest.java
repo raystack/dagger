@@ -1,7 +1,7 @@
 package com.gojek.daggers.transformers;
 
 import com.gojek.dagger.transformer.Transformer;
-import com.gojek.daggers.core.StreamInfo;
+import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
 import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
@@ -94,7 +94,7 @@ public class TransformProcessorTest {
         TransformProcessorMock transformProcessor = new TransformProcessorMock(transformer, transfromConfigs);
         transformProcessor.process(streamInfo);
 
-        verify(transformer,times(1)).transform(dataStream);
+        verify(transformer,times(1)).transform(streamInfo);
     }
 
     @Test
