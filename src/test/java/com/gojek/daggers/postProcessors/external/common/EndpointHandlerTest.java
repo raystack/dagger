@@ -1,5 +1,6 @@
 package com.gojek.daggers.postProcessors.external.common;
 
+import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -313,6 +314,29 @@ public class EndpointHandlerTest {
         Assert.assertTrue(isEndpointOrQueryInvalid);
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+    }
+
+    @Test
+    public void shouldCheckIfEndPointOrQueryIsInValidIncaseOfEmptyVariableValue() {
+        Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
+        Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\"}\"");
+
+        Row row = new Row(2);
+        Row inputData = new Row(2);
+        inputData.setField(1, "");
+        row.setField(0, inputData);
+        row.setField(1, new Row(1));
+        RowManager rowManager = new RowManager(row);
+
+        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+                inputProtoClasses, getColumnNameManager(new String[]{"order_number", "customer_id"}), descriptorManager);
+        Object[] endpointOrQueryVariablesValues = endpointHandler
+                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+
+        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        Assert.assertTrue(isEndpointOrQueryInvalid);
+        verify(resultFuture, times(1)).complete(any());
+        verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_INPUT);
     }
 
     private ColumnNameManager getColumnNameManager(String[] columnNames) {
