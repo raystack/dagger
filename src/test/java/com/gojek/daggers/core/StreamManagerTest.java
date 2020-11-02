@@ -40,6 +40,7 @@ import com.gojek.dagger.udf.ServiceAreaId;
 import com.gojek.dagger.udf.SingleFeatureWithType;
 import com.gojek.dagger.udf.TimestampFromUnix;
 import com.gojek.dagger.udf.ToDouble;
+import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.junit.Before;
@@ -178,6 +179,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Regexp"), any(Regexp.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("MixedGranularityS2Id"), any(MixedGranularityS2Id.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("BoundingBoxCheck"), any(BoundingBoxCheck.class));
     }
 
     @Test
