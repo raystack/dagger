@@ -16,6 +16,7 @@ import org.apache.flink.types.Row;
 
 import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
+import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
 import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
 import com.gojek.daggers.postProcessors.PostProcessorFactory;
 import com.gojek.daggers.postProcessors.common.PostProcessor;
@@ -121,6 +122,7 @@ public class StreamManager {
         scalarFunctions.put("Regexp", new Regexp());
         scalarFunctions.put("MixedGranularityS2Id", new MixedGranularityS2Id());
         scalarFunctions.put("S2AreaInKm2", new S2AreaInKm2());
+        scalarFunctions.put("BoundingBoxCheck", new BoundingBoxCheck());
         return scalarFunctions;
     }
 
