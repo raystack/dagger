@@ -21,7 +21,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void canProcessWhenInternalConfigIsPresent() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("output_field","value","sql"));
@@ -44,7 +44,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void canNotProcessWhenInternalConfigIsNull() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, null);
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
@@ -57,7 +57,7 @@ public class InternalPostProcessorTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [output_field]");
 
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("","value","sql"));
@@ -74,7 +74,7 @@ public class InternalPostProcessorTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [value]");
 
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("output","","sql"));
@@ -88,7 +88,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void processWithRightConfiguration() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
 

@@ -21,7 +21,8 @@ public enum ExternalSourceAspects implements Aspects {
     INVALID_CONFIGURATION("invalidConfiguration", Metric),
     FAILURE_CODE_5XX("failuresCode5XX", Metric),
     FAILURE_CODE_4XX("failuresCode4XX", Metric),
-    FAILURE_CODE_404("failuresCode404", Metric);
+    FAILURE_CODE_404("failuresCode404", Metric),
+    GRPC_CHANNEL_NOT_AVAILABLE("grpcChannelNotAvailable", Metric);
 
     private String value;
     private AspectType aspectType;

@@ -2,6 +2,7 @@ package com.gojek.daggers.postProcessors.external;
 
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
+import com.gojek.daggers.postProcessors.external.grpc.GrpcSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
 import org.junit.Assert;
@@ -19,6 +20,7 @@ public class ExternalSourceConfigTest {
     private ArrayList<HttpSourceConfig> http;
     private ArrayList<EsSourceConfig> es;
     private List<PgSourceConfig> pg;
+    private List<GrpcSourceConfig> grpc;
 
     @Before
     public void setUp() {
@@ -40,90 +42,133 @@ public class ExternalSourceConfigTest {
         pgOutputMapping.put("pg_field_1", "constant");
         PgSourceConfig pgSourceConfig = new PgSourceConfig("host", "port", "user", "password", "db", "type", "30", "123", pgOutputMapping, "234", "345", "", "", true, "metricId_01", false);
         pg.add(pgSourceConfig);
+
+        grpc = new ArrayList<>();
+        HashMap<String, OutputMapping> grpcOutputMapping = new HashMap<>();
+        grpcOutputMapping.put("grpc_field_1", new OutputMapping("data.key"));
+        GrpcSourceConfig grpcSourceConfig = new GrpcSourceConfig("localhost",8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod",  "{'field1': '%s' , 'field2' : 'val2'}",
+                "customer_id", "123", "234", true, null, true,
+                new HashMap<>(), grpcOutputMapping, "metricId_02", 30);
+        grpc.add(grpcSourceConfig);
     }
 
     @Test
     public void shouldGetHttpConfig() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
 
         Assert.assertEquals(http, externalSourceConfig.getHttpConfig());
     }
 
     @Test
     public void shouldGetEsConfig() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
 
         Assert.assertEquals(es, externalSourceConfig.getEsConfig());
     }
 
     @Test
     public void shouldGetPgConfig() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
 
         Assert.assertEquals(pg, externalSourceConfig.getPgConfig());
     }
 
     @Test
+    public void shouldGetGrpcConfig() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
+
+        Assert.assertEquals(grpc, externalSourceConfig.getGrpcConfig());
+    }
+
+    @Test
     public void shouldBeEmptyWhenAllConfigsAreEmpty() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null, null);
 
         Assert.assertTrue(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenEsConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null, null);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenHttpConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, null, null);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenPgConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg, null);
+
+        Assert.assertFalse(externalSourceConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyWhenGrpcConfigIsPresent() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null, grpc);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenHttpAndEsConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, null, null);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenHttpAndPgConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, pg, null);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenEsAndPgConfigIsPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, pg, null);
+
+        Assert.assertFalse(externalSourceConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyWhenEsAndGrpcConfigIsPresent() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null, grpc);
+
+        Assert.assertFalse(externalSourceConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyWhenGrpcAndPgConfigIsPresent() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg, grpc);
+
+        Assert.assertFalse(externalSourceConfig.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyWhenGrpcAndHttpConfigIsPresent() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, null, grpc);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldNotBeEmptyWhenAllConfigsArePresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
 
         Assert.assertFalse(externalSourceConfig.isEmpty());
     }
 
     @Test
     public void shouldGetOutputColumnNamesFromAllExternalSources() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, grpc);
 
-        List<String> columnNames = Arrays.asList("http_field_1", "http_field_2", "es_field_1", "pg_field_1");
+        List<String> columnNames = Arrays.asList("http_field_1", "http_field_2", "es_field_1", "pg_field_1", "grpc_field_1");
 
         Assert.assertEquals(columnNames, externalSourceConfig.getOutputColumnNames());
 
@@ -132,7 +177,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromEsAndHttp() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, null, null);
 
         List<String> columnNames = Arrays.asList("http_field_1", "http_field_2", "es_field_1");
 
@@ -142,7 +187,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromPgAndHttp() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, pg, null);
 
         List<String> columnNames = Arrays.asList("http_field_1", "http_field_2", "pg_field_1");
 
@@ -152,7 +197,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromPgAndEs() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, pg, null);
 
         List<String> columnNames = Arrays.asList("es_field_1", "pg_field_1");
 
@@ -162,7 +207,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromEsWhenOthersAreNotPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, es, null, null);
 
         List<String> columnNames = Collections.singletonList("es_field_1");
 
@@ -172,7 +217,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromHttpWhenOthersAreNotPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, null, null, null);
 
         List<String> columnNames = Arrays.asList("http_field_1", "http_field_2");
 
@@ -181,7 +226,7 @@ public class ExternalSourceConfigTest {
 
     @Test
     public void shouldGetOutputColumnNamesFromPgWhenOthersAreNotPresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, pg, null);
 
         List<String> columnNames = Collections.singletonList("pg_field_1");
 
@@ -189,8 +234,16 @@ public class ExternalSourceConfigTest {
     }
 
     @Test
+    public void shouldGetOutputColumnNamesFromGrpcWhenOthersAreNotPresent() {
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null, grpc);
+
+        List<String> columnNames = Collections.singletonList("grpc_field_1");
+
+        Assert.assertEquals(columnNames, externalSourceConfig.getOutputColumnNames());
+    }
+    @Test
     public void shouldGetEmptyOutputColumnNamesWhenNonePresent() {
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null);
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null, null);
 
         Assert.assertEquals(new ArrayList<>(), externalSourceConfig.getOutputColumnNames());
     }
