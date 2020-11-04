@@ -8,6 +8,8 @@ import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import com.gojek.daggers.postProcessors.external.es.EsSourceConfig;
 import com.gojek.daggers.postProcessors.external.es.EsStreamDecorator;
+import com.gojek.daggers.postProcessors.external.grpc.GrpcSourceConfig;
+import com.gojek.daggers.postProcessors.external.grpc.GrpcStreamDecorator;
 import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import com.gojek.daggers.postProcessors.external.http.HttpStreamDecorator;
 import com.gojek.daggers.postProcessors.external.pg.PgSourceConfig;
@@ -61,6 +63,13 @@ public class ExternalPostProcessor implements PostProcessor {
             resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig));
         }
 
+        List<GrpcSourceConfig> grpcSourceConfigs = externalSourceConfig.getGrpcConfig();
+        for (int index = 0; index < grpcSourceConfigs.size(); index++) {
+            GrpcSourceConfig grpcSourceConfig = grpcSourceConfigs.get(index);
+            externalMetricConfig.setMetricId(getMetricId(index, grpcSourceConfig));
+            resultStream = enrichStream(resultStream, grpcSourceConfig, getGrpcDecorator(grpcSourceConfig));
+        }
+
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
     }
 
@@ -85,4 +94,10 @@ public class ExternalPostProcessor implements PostProcessor {
     private PgStreamDecorator getPgDecorator(PgSourceConfig pgSourceConfig) {
         return new PgStreamDecorator(pgSourceConfig, externalMetricConfig, schemaConfig);
     }
+
+    private GrpcStreamDecorator getGrpcDecorator(GrpcSourceConfig grpcSourceConfig) {
+        return new GrpcStreamDecorator(grpcSourceConfig, externalMetricConfig, schemaConfig);
+    }
+
+
 }
