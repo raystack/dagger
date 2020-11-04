@@ -53,6 +53,7 @@ public class Constants {
     public final static String ES_TYPE = "ES";
     public final static String HTTP_TYPE = "HTTP";
     public final static String PG_TYPE = "PG";
+    public final static String GRPC_TYPE = "GRPC";
     public final static String SQL_PATH_SELECT_ALL_CONFIG_VALUE = "*";
 
     public final static String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
