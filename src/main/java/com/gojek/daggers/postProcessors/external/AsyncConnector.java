@@ -72,6 +72,10 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         this.descriptorManager = descriptorManager;
     }
 
+    public DescriptorManager getDescriptorManager() {
+        return descriptorManager;
+    }
+
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
@@ -142,6 +146,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
 
     @Override
     public void close() throws Exception {
+
         super.close();
     }
 
@@ -170,4 +175,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         }
         return outputDescriptor;
     }
+
+
+
 }
