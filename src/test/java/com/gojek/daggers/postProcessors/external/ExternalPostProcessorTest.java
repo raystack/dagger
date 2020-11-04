@@ -87,7 +87,7 @@ public class ExternalPostProcessorTest {
         EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "", "", "endpointPattern",
                 "endpointVariable", "type", "30", "123", "234",
                 "345", "456", false, new HashMap<>(), "metricId_01", false);
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>());
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>(), new ArrayList<>());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(SurgeFactorLogMessage.getDescriptor());
         when(httpStreamDecorator.decorate(dataStream)).thenReturn(dataStream);
@@ -153,7 +153,7 @@ public class ExternalPostProcessorTest {
         EsSourceConfig esSourceConfig = new EsSourceConfig("host", "1000", "", "", "/some/pattern/%s", "variable", "type", "20", "111", "222", "100", "200", false, outputMapping, "metricId_01", false);
         esSourceConfigs.add(esSourceConfig);
 
-        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(httpSourceConfigs, esSourceConfigs, new ArrayList<>());
+        ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(httpSourceConfigs, esSourceConfigs, new ArrayList<>(), new ArrayList<>());
 
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         HttpStreamDecorator httpDecoratorMock = mock(HttpStreamDecorator.class);
