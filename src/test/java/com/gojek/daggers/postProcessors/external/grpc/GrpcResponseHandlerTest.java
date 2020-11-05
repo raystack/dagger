@@ -11,6 +11,7 @@ import com.gojek.esb.bicicilan.BiDriverCicilanLogMessage;
 import com.gojek.esb.booking.BookingLogMessage;
 import com.gojek.esb.consumer.TestGrpcResponse;
 import com.gojek.esb.de.meta.GrpcResponse;
+import com.gojek.esb.types.Location;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -27,8 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.OTHER_ERRORS;
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.SUCCESS_RESPONSE;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,12 +82,12 @@ public class GrpcResponseHandlerTest {
 
     @Test
     public void shouldDetectProperBodyAndHandleResponseIfRetainResponseTypeIsFalse() throws InvalidProtocolBufferException {
-        outputMapping.put("success", new OutputMapping("success"));
+        outputMapping.put("success", new OutputMapping("$.success"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setType("com.gojek.esb.de.meta.GrpcResponse");
         DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -109,7 +109,7 @@ public class GrpcResponseHandlerTest {
 
         descriptor = BiDriverCicilanLogMessage.getDescriptor();
 
-        outputMapping.put("driver_id", new OutputMapping("driver_id"));
+        outputMapping.put("driver_id", new OutputMapping("$.driver_id"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
         grpcSourceConfig.setRetainResponseType(false);
         grpcSourceConfig.setType("com.gojek.esb.bicicilan.BiDriverCicilanLogMessage");
@@ -123,7 +123,7 @@ public class GrpcResponseHandlerTest {
 
         BookingLogMessage build = BookingLogMessage.newBuilder().setDriverId("250").build();
         DynamicMessage message = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), build.toByteArray());
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BiDriverCicilanLogMessage.getDescriptor(), BookingLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BiDriverCicilanLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
 
         
         streamData.setField(1, new Row(1));
@@ -146,10 +146,10 @@ public class GrpcResponseHandlerTest {
 
     @Test
     public void shouldRecordErrorInCaseOfUnknownException() throws InvalidProtocolBufferException {
-        outputMapping.put("success", new OutputMapping("success"));
+        outputMapping.put("success", new OutputMapping("$.success"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -168,11 +168,11 @@ public class GrpcResponseHandlerTest {
 
     @Test
     public void shouldRecordFatalErrorInCaseOfUnknownExceptionWithFailOnErrorTrue() throws InvalidProtocolBufferException {
-        outputMapping.put("success", new OutputMapping("success"));
+        outputMapping.put("success", new OutputMapping("$.success"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setFailOnErrors(true);
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -188,10 +188,10 @@ public class GrpcResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
-
+    //todo: check this test
     @Test
     public void shouldDetectExceptionIfMessageIsWrong() throws InvalidProtocolBufferException {
-        outputMapping.put("success", new OutputMapping("success"));
+        outputMapping.put("success", new OutputMapping("$.order_number"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.WrongGrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setRetainResponseType(true);
@@ -200,7 +200,7 @@ public class GrpcResponseHandlerTest {
         DynamicMessage message = DynamicMessage.parseFrom(GrpcResponse.getDescriptor(), GrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
 
         descriptor = BookingLogMessage.getDescriptor();
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -212,20 +212,21 @@ public class GrpcResponseHandlerTest {
         grpcResponseHandler.onNext(message);
 
 
-        verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
+        verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
         verify(errorReporter, times(1)).reportFatalException(any());
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
     @Test
     public void shouldThrowErrorWhenFieldIsNotPresentInOutputDescriptor() throws InvalidProtocolBufferException {
-        outputMapping.put("value", new OutputMapping("field3"));
+        outputMapping.put("value", new OutputMapping("$.field3"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setType("com.gojek.esb.de.meta.GrpcResponse");
 
+
         DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BookingLogMessage.getDescriptor(), descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BookingLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -243,6 +244,41 @@ public class GrpcResponseHandlerTest {
         }
 
 
+    }
+
+
+    @Test
+    public void shouldDetectProperComplexBodyAndHandleResponseIfRetainResponseTypeIsFalse() throws InvalidProtocolBufferException {
+        outputMapping.put("address", new OutputMapping("$.driver_arrived_location.address"));
+        outputMapping.put("name", new OutputMapping("$.driver_arrived_location.name"));
+
+        Location location = Location.newBuilder().setAddress("Indonesia").setName("GojekTech").build();
+        BookingLogMessage bookingLogMessage = BookingLogMessage.newBuilder().setDriverArrivedLocation(location).setCustomerId("123456").build();
+
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig.setRetainResponseType(true);
+
+        outputColumnNames = Arrays.asList(new String[]{"address", "name"});
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+
+
+        DynamicMessage message = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, "Indonesia");
+        outputData.setField(1, "GojekTech");
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+
+        grpcResponseHandler.startTimer();
+        grpcResponseHandler.onNext(message);
+
+
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
 }
