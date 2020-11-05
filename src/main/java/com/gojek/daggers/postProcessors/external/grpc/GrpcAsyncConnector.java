@@ -76,7 +76,7 @@ public class GrpcAsyncConnector extends AsyncConnector {
             DynamicMessage message = grpcRequestHandler.create(requestVariablesValues);
 
             GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, getMeterStatsManager(),
-                    rowManager, getColumnNameManager(), getOutputDescriptor(resultFuture), getOutputDescriptorForGrpcResponse(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
+                    rowManager, getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
 
             grpcResponseHandler.startTimer();
 
