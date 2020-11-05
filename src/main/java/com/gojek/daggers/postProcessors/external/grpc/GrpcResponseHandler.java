@@ -11,6 +11,10 @@ import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import io.grpc.stub.StreamObserver;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -33,45 +37,52 @@ public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
     private ResultFuture<Row> resultFuture;
     private GrpcSourceConfig grpcSourceConfig;
     private MeterStatsManager meterStatsManager;
-    private Descriptors.Descriptor grpcResponseDescriptor;
     private Instant startTime;
     private ErrorReporter errorReporter;
     private PostResponseTelemetry postResponseTelemetry;
 
-    public GrpcResponseHandler(GrpcSourceConfig grpcSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, Descriptors.Descriptor grpcResponseDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
+    public GrpcResponseHandler(GrpcSourceConfig grpcSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
 
         this.grpcSourceConfig = grpcSourceConfig;
         this.meterStatsManager = meterStatsManager;
         this.rowManager = rowManager;
         this.columnNameManager = columnNameManager;
         this.descriptor = outputDescriptor;
-        this.grpcResponseDescriptor = grpcResponseDescriptor;
         this.resultFuture = resultFuture;
         this.errorReporter = errorReporter;
         this.postResponseTelemetry = postResponseTelemetry;
     }
 
-    private void successHandler(DynamicMessage message)   {
+    private void successHandler(DynamicMessage message) {
         Map<String, OutputMapping> outputMappings = grpcSourceConfig.getOutputMapping();
         ArrayList<String> outputMappingKeys = new ArrayList<>(outputMappings.keySet());
 
-        outputMappingKeys.forEach(key -> {
-            OutputMapping outputMappingKeyConfig = outputMappings.get(key);
-            Object value;
-            try {
+        try {
+            String json = JsonFormat.printer().includingDefaultValueFields().preservingProtoFieldNames().print(message);
 
-                Descriptors.FieldDescriptor fieldDescriptor;
-                    fieldDescriptor = grpcResponseDescriptor.findFieldByName(outputMappingKeyConfig.getPath());
-                    value = message.getField(fieldDescriptor);
+            outputMappingKeys.forEach(key -> {
+                OutputMapping outputMappingKeyConfig = outputMappings.get(key);
+                Object value;
+                try {
 
-            } catch (Exception e) {
+                    value = JsonPath.parse(json).read(outputMappingKeyConfig.getPath(), Object.class);
+
+                } catch (PathNotFoundException e) {
+                    postResponseTelemetry.failureReadingPath(meterStatsManager);
+                    LOGGER.error(e.getMessage());
+                    reportAndThrowError(e);
+                    return;
+                }
+                int fieldIndex = columnNameManager.getOutputIndex(key);
+                setField(key, value, fieldIndex);
+            });
+        }
+        catch (InvalidProtocolBufferException e) {
                 meterStatsManager.markEvent(OTHER_ERRORS);
+                LOGGER.error(e.getMessage());
                 reportAndThrowError(e);
                 return;
             }
-            int fieldIndex = columnNameManager.getOutputIndex(key);
-            setField(key, value, fieldIndex);
-        });
         postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
 
