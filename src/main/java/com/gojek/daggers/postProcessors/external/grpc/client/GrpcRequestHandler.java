@@ -22,7 +22,7 @@ public class GrpcRequestHandler {
         try {
 
             DynamicMessage.Builder builder = DynamicMessage.newBuilder(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema()));
-            JsonFormat.parser().ignoringUnknownFields().merge(requestBody, builder);
+            JsonFormat.parser().merge(requestBody, builder);
 
             return builder.build();
 
