@@ -63,12 +63,12 @@ public class ExternalPostProcessor implements PostProcessor {
             resultStream = enrichStream(resultStream, pgSourceConfig, getPgDecorator(pgSourceConfig));
         }
 
-        List<GrpcSourceConfig> grpcSourceConfigs = externalSourceConfig.getGrpcConfig();
-        for (int index = 0; index < grpcSourceConfigs.size(); index++) {
-            GrpcSourceConfig grpcSourceConfig = grpcSourceConfigs.get(index);
-            externalMetricConfig.setMetricId(getMetricId(index, grpcSourceConfig));
-            resultStream = enrichStream(resultStream, grpcSourceConfig, getGrpcDecorator(grpcSourceConfig));
-        }
+//        List<GrpcSourceConfig> grpcSourceConfigs = externalSourceConfig.getGrpcConfig();
+//        for (int index = 0; index < grpcSourceConfigs.size(); index++) {
+//            GrpcSourceConfig grpcSourceConfig = grpcSourceConfigs.get(index);
+//            externalMetricConfig.setMetricId(getMetricId(index, grpcSourceConfig));
+//            resultStream = enrichStream(resultStream, grpcSourceConfig, getGrpcDecorator(grpcSourceConfig));
+//        }
 
         return new StreamInfo(resultStream, streamInfo.getColumnNames());
     }
