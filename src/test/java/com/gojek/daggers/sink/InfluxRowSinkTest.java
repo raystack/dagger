@@ -12,6 +12,7 @@ import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
 import com.gojek.daggers.sink.influx.InfluxRowSink;
 import com.gojek.daggers.utils.Constants;
 import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
 import org.junit.Assert;
 import org.junit.Before;
@@ -307,6 +308,25 @@ public class InfluxRowSinkTest {
         }
 
         verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
+    }
+
+    @Test
+    public void shouldNotReportInCaseOfFailedRecordFatalError() throws Exception {
+
+        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
+        Point point = getPoint();
+        setupStubedInfluxDB(rowColumns);
+        ArrayList points = new ArrayList<Point>();
+        points.add(point);
+        try {
+            errorHandler.getExceptionHandler().accept(points,
+                    new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=11\"}"));
+            influxRowSink.invoke(getRow(), null);
+        } catch (Exception e) {
+            Assert.assertEquals("exception from handler", e.getMessage());
+        }
+
+        verify(errorReporter, times(0)).reportFatalException(any());
     }
 
     @Test
