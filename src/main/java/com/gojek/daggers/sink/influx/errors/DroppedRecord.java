@@ -36,8 +36,8 @@ public class DroppedRecord implements InfluxError {
 
     @Override
     public void handle(Iterable<Point> points, Throwable throwable) {
-        points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
         reportDroppedPoints(parseDroppedPointsCount(throwable));
+        logFailedPoints(points, LOGGER);
     }
 
     private void reportDroppedPoints(int numPoints) {
