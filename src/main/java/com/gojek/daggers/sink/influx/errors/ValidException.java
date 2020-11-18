@@ -26,6 +26,6 @@ public class ValidException implements InfluxError {
     @Override
     public void handle(Iterable<Point> points, Throwable throwable) {
         exception = (Exception) throwable;
-        points.forEach(point -> LOGGER.error("Error writing to influx {}", point.toString()));
+        logFailedPoints(points, LOGGER);
     }
 }
