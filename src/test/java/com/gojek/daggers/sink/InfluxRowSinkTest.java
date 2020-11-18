@@ -347,15 +347,6 @@ public class InfluxRowSinkTest {
         influxRowSink.snapshotState(null);
     }
 
-//    @Test
-//    public void shouldReturnErrorStatsReporter() {
-//        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
-//        influxRowSink = new InfluxRowSink(influxDBFactory, rowColumns, parameters, influxErrorHandler);
-//        ErrorStatsReporter actualErrorStatsReporter = influxRowSink.getErrorStatsReporter(runtimeContext);
-//        Assert.assertEquals(actualErrorStatsReporter.getClass(), ErrorStatsReporter.class);
-//    }
-
-
     public class InfluxRowSinkStub extends InfluxRowSink {
         public InfluxRowSinkStub(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames,
                                  Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
@@ -369,4 +360,3 @@ public class InfluxRowSinkTest {
 
     }
 }
-
