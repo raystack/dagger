@@ -47,7 +47,7 @@ public class DroppedRecord implements InfluxError {
 
     private int parseDroppedPointsCount(Throwable throwable) {
         String[] split = throwable.getMessage().split("=");
-        return Integer.parseInt(split[1].replace("\"}\n", ""));
+        return Integer.parseInt(split[1].trim().replace("\"}", ""));
     }
 
     private boolean isLateDropping(Throwable throwable) {
