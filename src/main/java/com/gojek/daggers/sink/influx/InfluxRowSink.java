@@ -1,14 +1,15 @@
 package com.gojek.daggers.sink.influx;
 
-import com.gojek.daggers.metrics.reporters.ErrorReporter;
-import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
-import com.google.common.base.Strings;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
+
+import com.gojek.daggers.metrics.reporters.ErrorReporter;
+import com.gojek.daggers.metrics.reporters.ErrorReporterFactory;
+import com.google.common.base.Strings;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
 import org.slf4j.Logger;
@@ -30,10 +31,10 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private String databaseName;
     private String retentionPolicy;
     private String measurementName;
-    private InfluxErrorHandler errorHandler;
+    private ErrorHandler errorHandler;
     private ErrorReporter errorReporter;
 
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
         this.parameters = parameters;
@@ -43,7 +44,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
     }
 
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, InfluxErrorHandler errorHandler, ErrorReporter errorReporter) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
         this.parameters = parameters;
@@ -56,7 +57,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
 
     @Override
     public void open(Configuration unusedDepricatedParameters) throws Exception {
-        errorHandler.init();
+        errorHandler.init(getRuntimeContext());
         influxDB = influxDBFactory.connect(parameters.getString("INFLUX_URL", ""),
                 parameters.getString("INFLUX_USERNAME", ""),
                 parameters.getString("INFLUX_PASSWORD", "")
@@ -124,9 +125,10 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     }
 
     private void addErrorMetricsAndThrow() throws Exception {
-        if (errorHandler.hasError()) {
-            errorReporter.reportFatalException(errorHandler.getError());
-            throw errorHandler.getError();
+        if (errorHandler.getError().isPresent() && errorHandler.getError().get().hasException()) {
+            Exception currentException = errorHandler.getError().get().getCurrentException();
+            errorReporter.reportFatalException(currentException);
+            throw currentException;
         }
     }
 }
