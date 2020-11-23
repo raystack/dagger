@@ -79,6 +79,8 @@ public class InfluxRowSinkTest {
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
+        when(metricGroup.addGroup(Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY,
+                InfluxDBException.class.getName())).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
     }
 
@@ -339,13 +341,9 @@ public class InfluxRowSinkTest {
         setupStubedInfluxDB(rowColumns);
         ArrayList points = new ArrayList<Point>();
         points.add(point);
-        try {
-            errorHandler.getExceptionHandler().accept(points,
-                    new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=11\"}"));
-            influxRowSink.invoke(getRow(), null);
-        } catch (Exception e) {
-            Assert.assertEquals("exception from handler", e.getMessage());
-        }
+        errorHandler.getExceptionHandler().accept(points,
+                new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=11\"}"));
+        influxRowSink.invoke(getRow(), null);
 
         verify(errorReporter, times(0)).reportFatalException(any());
     }
