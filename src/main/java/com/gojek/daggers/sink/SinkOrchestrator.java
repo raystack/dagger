@@ -1,17 +1,18 @@
 package com.gojek.daggers.sink;
 
-import com.gojek.daggers.core.StencilClientOrchestrator;
-import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
-import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
-import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
-import com.gojek.daggers.sink.influx.InfluxErrorHandler;
-import com.gojek.daggers.sink.influx.InfluxRowSink;
-import com.gojek.daggers.sink.log.LogSink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.types.Row;
+
+import com.gojek.daggers.core.StencilClientOrchestrator;
+import com.gojek.daggers.metrics.telemetry.TelemetryPublisher;
+import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
+import com.gojek.daggers.sink.influx.ErrorHandler;
+import com.gojek.daggers.sink.influx.InfluxDBFactoryWrapper;
+import com.gojek.daggers.sink.influx.InfluxRowSink;
+import com.gojek.daggers.sink.log.LogSink;
 
 import java.util.*;
 
@@ -50,7 +51,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 sink = new LogSink(columnNames);
                 break;
             default:
-                sink = new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new InfluxErrorHandler());
+                sink = new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new ErrorHandler());
         }
         notifySubscriber();
         return sink;
