@@ -25,11 +25,17 @@ public class ValidExceptionTest {
     }
 
     @Test
-    public void shouldFilterOnlyExceptionNotErrors() {
+    public void shouldFilterException() {
+        ValidException validException = new ValidException();
+
+        Assert.assertTrue(validException.filterError(new Exception()));
+    }
+
+    @Test
+    public void shouldNotFilterError() {
         ValidException validException = new ValidException();
 
         Assert.assertFalse(validException.filterError(new Error()));
-        Assert.assertTrue(validException.filterError(new Exception()));
     }
 
     @Test

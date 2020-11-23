@@ -35,7 +35,10 @@ import java.util.function.BiConsumer;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -308,6 +311,24 @@ public class InfluxRowSinkTest {
         }
 
         verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
+    }
+
+    @Test
+    public void shouldReportInCaseOfMaxSeriesExceeded() throws Exception {
+        String[] rowColumns = {"tag_field1", "field2", "window_timestamp"};
+        Point point = getPoint();
+        setupStubedInfluxDB(rowColumns);
+        ArrayList points = new ArrayList<Point>();
+        points.add(point);
+        try {
+            errorHandler.getExceptionHandler().accept(points, new InfluxDBException("{\"error\":\"partial write:" +
+                    " max-values-per-tag limit exceeded (100453/100000)"));
+            influxRowSink.invoke(getRow(), null);
+        } catch (Exception e) {
+            Assert.assertEquals("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)", e.getMessage());
+        }
+
+        verify(errorReporter, times(1)).reportFatalException(any(InfluxDBException.class));
     }
 
     @Test
