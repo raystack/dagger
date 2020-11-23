@@ -42,12 +42,17 @@ public class DroppedRecordTest {
     }
 
     @Test
-    public void shouldFilterOnlyLateRecordDrops() {
+    public void shouldFilterLateRecordDrops() {
         DroppedRecord droppedRecord = new DroppedRecord(runtimeContext);
         Assert.assertTrue(droppedRecord
                 .filterError(new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=11\"}")));
+    }
+
+    @Test
+    public void shouldNotFilterAnythingElseExceptRecordDrops() {
+        DroppedRecord droppedRecord = new DroppedRecord(runtimeContext);
         Assert.assertFalse(droppedRecord
-                .filterError(new ArrayIndexOutOfBoundsException(1)));
+                .filterError(new InfluxDBException("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)")));
     }
 
     @Test
