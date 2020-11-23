@@ -2,7 +2,7 @@ package com.gojek.daggers.sink.influx;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 
-import com.gojek.daggers.sink.influx.errors.DroppedRecord;
+import com.gojek.daggers.sink.influx.errors.LateRecordDropError;
 import com.gojek.daggers.sink.influx.errors.InfluxError;
 import com.gojek.daggers.sink.influx.errors.NoError;
 import com.gojek.daggers.sink.influx.errors.ValidError;
@@ -22,7 +22,7 @@ public class ErrorHandler implements Serializable {
 
     public void init(RuntimeContext runtimeContext) {
         List<InfluxError> influxErrors = Arrays.asList(
-                new DroppedRecord(runtimeContext),
+                new LateRecordDropError(runtimeContext),
                 new ValidError(),
                 new ValidException());
 

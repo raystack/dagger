@@ -3,20 +3,24 @@ package com.gojek.daggers.sink.influx.errors;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 
+import com.gojek.daggers.metrics.reporters.ErrorStatsReporter;
 import com.gojek.daggers.utils.Constants;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DroppedRecord implements InfluxError {
+public class LateRecordDropError implements InfluxError {
     private final Counter counter;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DroppedRecord.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(LateRecordDropError.class.getName());
+    private ErrorStatsReporter errorStatsReporter;
     static String PREFIX = "{\"error\":\"partial write: points beyond retention policy dropped=";
 
-    public DroppedRecord(RuntimeContext runtimeContext) {
+    public LateRecordDropError(RuntimeContext runtimeContext) {
         this.counter = runtimeContext.getMetricGroup()
                 .addGroup(Constants.INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
+        this.errorStatsReporter = new ErrorStatsReporter(runtimeContext,
+                Constants.SHUTDOWN_PERIOD_DEFAULT);
     }
 
     @Override
@@ -37,6 +41,7 @@ public class DroppedRecord implements InfluxError {
     @Override
     public void handle(Iterable<Point> points, Throwable throwable) {
         reportDroppedPoints(parseDroppedPointsCount(throwable));
+        errorStatsReporter.reportNonFatalException((Exception) throwable);
         logFailedPoints(points, LOGGER);
     }
 
