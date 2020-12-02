@@ -7,9 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GrpcSourceConfig implements Serializable, SourceConfig {
     private String endpoint;
@@ -24,6 +26,7 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
     private boolean failOnErrors;
     private String type;
     private boolean retainResponseType;
+    private String grpcStencilUrl;
     @SerializedName(value = "headers", alternate = {"Headers", "HEADERS"})
     private Map<String, String> headers;
     private Map<String, OutputMapping> outputMapping;
@@ -42,7 +45,7 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         this.outputMapping = outputMapping;
     }
 
-    public GrpcSourceConfig(String endpoint, int servicePort, String grpcRequestProtoSchema, String grpcResponseProtoSchema, String grpcMethodUrl, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, boolean retainResponseType, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, int capacity) {
+    public GrpcSourceConfig(String endpoint, int servicePort, String grpcRequestProtoSchema, String grpcResponseProtoSchema, String grpcMethodUrl, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String grpcStencilUrl, String type, boolean retainResponseType, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, int capacity) {
         this.endpoint = endpoint;
         this.servicePort = servicePort;
         this.grpcRequestProtoSchema = grpcRequestProtoSchema;
@@ -53,6 +56,7 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         this.streamTimeout = streamTimeout;
         this.connectTimeout = connectTimeout;
         this.failOnErrors = failOnErrors;
+        this.grpcStencilUrl = grpcStencilUrl;
         this.type = type;
         this.retainResponseType = retainResponseType;
         this.headers = headers;
@@ -170,4 +174,9 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         return capacity;
     }
 
+    public List<String> getGrpcStencilUrl() {
+        return Arrays.stream(grpcStencilUrl.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+    }
 }

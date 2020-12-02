@@ -1,5 +1,9 @@
 package com.gojek.daggers.postProcessors.external.http;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
@@ -9,15 +13,13 @@ import com.gojek.daggers.metrics.aspects.ExternalSourceAspects;
 import com.gojek.daggers.metrics.reporters.ErrorReporter;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
+import com.gojek.daggers.postProcessors.external.AsyncConnector;
 import com.gojek.daggers.postProcessors.external.ExternalMetricConfig;
 import com.gojek.daggers.postProcessors.external.SchemaConfig;
 import com.gojek.daggers.postProcessors.external.common.DescriptorManager;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.client.StencilClient;
 import com.gojek.esb.booking.GoFoodBookingLogMessage;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.junit.Assert;
@@ -140,6 +142,16 @@ public class HttpAsyncConnectorTest {
         httpAsyncConnector.open(flinkConfiguration);
 
         verify(meterStatsManager, times(1)).register("source_metricId", "HTTP.metricId-http-01", ExternalSourceAspects.values());
+    }
+
+    @Test
+    public void shouldInitializeDescriptorManagerInOpen() throws Exception {
+        when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
+        AsyncConnector asyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, null);
+
+        asyncConnector.open(flinkConfiguration);
+
+        verify(stencilClientOrchestrator, times(1)).getStencilClient();
     }
 
     @Test

@@ -46,8 +46,8 @@ public class ExternalSourceConfigTest {
         grpc = new ArrayList<>();
         HashMap<String, OutputMapping> grpcOutputMapping = new HashMap<>();
         grpcOutputMapping.put("grpc_field_1", new OutputMapping("data.key"));
-        GrpcSourceConfig grpcSourceConfig = new GrpcSourceConfig("localhost",8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod",  "{'field1': '%s' , 'field2' : 'val2'}",
-                "customer_id", "123", "234", true, null, true,
+        GrpcSourceConfig grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
+                "customer_id", "123", "234", true, "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest", null, true,
                 new HashMap<>(), grpcOutputMapping, "metricId_02", 30);
         grpc.add(grpcSourceConfig);
     }
@@ -241,6 +241,7 @@ public class ExternalSourceConfigTest {
 
         Assert.assertEquals(columnNames, externalSourceConfig.getOutputColumnNames());
     }
+
     @Test
     public void shouldGetEmptyOutputColumnNamesWhenNonePresent() {
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(null, null, null, null);
