@@ -5,11 +5,18 @@ import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.Descriptors;
 
-public class DescriptorManager {
+import java.io.Serializable;
+import java.util.List;
+
+public class DescriptorManager implements Serializable {
     private StencilClient stencilClient;
 
     public DescriptorManager(StencilClientOrchestrator stencilClientOrchestrator) {
         stencilClient = stencilClientOrchestrator.getStencilClient();
+    }
+
+    public DescriptorManager(StencilClientOrchestrator stencilClientOrchestrator, List<String> additionalStencilUrls) {
+        stencilClient = stencilClientOrchestrator.enrichStencilClient(additionalStencilUrls);
     }
 
     public Descriptors.Descriptor getDescriptor(String protoClassName) {
