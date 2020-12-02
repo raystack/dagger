@@ -1,5 +1,8 @@
 package com.gojek.daggers.postProcessors.external.grpc;
 
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.exception.ChannelNotAvailableException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidGrpcBodyException;
@@ -17,8 +20,6 @@ import com.gojek.daggers.postProcessors.external.grpc.client.GrpcRequestHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +49,15 @@ public class GrpcAsyncConnector extends AsyncConnector {
 
     }
 
+    @Override
+    public DescriptorManager initDescriptorManager(SchemaConfig schemaConfig) {
+        return new DescriptorManager(schemaConfig.getStencilClientOrchestrator(), grpcSourceConfig.getGrpcStencilUrl());
+    }
 
     @Override
     protected void createClient() {
 
-        if(this.grpcClient == null) {
+        if (this.grpcClient == null) {
             this.grpcClient = new GrpcClient(grpcSourceConfig);
             this.grpcClient.addChannel();
         }
@@ -71,7 +76,6 @@ public class GrpcAsyncConnector extends AsyncConnector {
                 return;
             }
 
-
             GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, getDescriptorManager());
             DynamicMessage message = grpcRequestHandler.create(requestVariablesValues);
 
@@ -81,13 +85,10 @@ public class GrpcAsyncConnector extends AsyncConnector {
             grpcResponseHandler.startTimer();
 
             this.grpcClient.asyncUnaryCall(message, grpcResponseHandler, getInputDescriptorForGrpcRequest(resultFuture), getOutputDescriptorForGrpcResponse(resultFuture));
-        }
-        catch (InvalidGrpcBodyException e)  {
+        } catch (InvalidGrpcBodyException e) {
             getMeterStatsManager().markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             resultFuture.completeExceptionally(e);
-        }
-
-        catch (ChannelNotAvailableException e)  {
+        } catch (ChannelNotAvailableException e) {
             getMeterStatsManager().markEvent(ExternalSourceAspects.GRPC_CHANNEL_NOT_AVAILABLE);
             resultFuture.completeExceptionally(e);
         }
@@ -121,7 +122,7 @@ public class GrpcAsyncConnector extends AsyncConnector {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         grpcClient.close();
         grpcClient = null;
         getMeterStatsManager().markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
