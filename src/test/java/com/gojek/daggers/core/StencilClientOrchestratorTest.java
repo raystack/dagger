@@ -1,15 +1,19 @@
 package com.gojek.daggers.core;
 
+import org.apache.flink.configuration.Configuration;
+
 import com.gojek.de.stencil.client.ClassLoadStencilClient;
 import com.gojek.de.stencil.client.MultiURLStencilClient;
 import com.gojek.de.stencil.client.StencilClient;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.gojek.daggers.utils.Constants.*;
 import static org.mockito.Mockito.when;
@@ -56,6 +60,61 @@ public class StencilClientOrchestratorTest {
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
         Assert.assertEquals(MultiURLStencilClient.class, stencilClient.getClass());
+        Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
+        stencilClientField.setAccessible(true);
+        stencilClientField.set(null, null);
+    }
+
+    @Test
+    public void shouldEnrichStencilClient() throws NoSuchFieldException, IllegalAccessException {
+        when(configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn("true");
+        when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
+        when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
+        when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,");
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
+
+
+        List<String> enrichmentStencilURLs = Collections
+                .singletonList("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest");
+
+        Assert.assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
+
+        StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
+
+        Assert.assertNotSame(oldStencilClient, enrichedStencilClient);
+        Assert.assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
+
+
+        Assert.assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
+        Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
+        stencilClientField.setAccessible(true);
+        stencilClientField.set(null, null);
+    }
+
+    @Test
+    public void shouldNotEnrichIfNoNewAdditionalURLsAdded() throws NoSuchFieldException, IllegalAccessException {
+        when(configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn("true");
+        when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
+        when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
+        when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,");
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
+
+
+        List<String> enrichmentStencilURLs = new ArrayList<>();
+
+        Assert.assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
+
+        StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
+
+        Assert.assertSame(oldStencilClient, enrichedStencilClient);
+        Assert.assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
+
+
+        Assert.assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
