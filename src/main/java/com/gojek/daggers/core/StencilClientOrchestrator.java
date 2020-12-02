@@ -1,12 +1,15 @@
 package com.gojek.daggers.core;
 
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
 import org.apache.flink.configuration.Configuration;
 
+import com.gojek.de.stencil.StencilClientFactory;
+import com.gojek.de.stencil.client.StencilClient;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,7 @@ public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
     private Configuration configuration;
     private HashMap<String, String> stencilConfigMap;
+    private HashSet<String> stencilUrls;
 
     public StencilClientOrchestrator(Configuration configuration) {
         this.configuration = configuration;
@@ -31,14 +35,30 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     public StencilClient getStencilClient() {
-        if (stencilClient != null) return stencilClient;
-        boolean enableRemoteStencil = configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
-        List<String> stencilUrls = Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
+        if (stencilClient != null) {
+            return stencilClient;
+        }
+        stencilUrls = Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
                 .map(String::trim)
-                .collect(Collectors.toList());
-        stencilClient = enableRemoteStencil
+                .collect(Collectors.toCollection(HashSet::new));
+
+        stencilClient = initStencilClient(new ArrayList<>(stencilUrls));
+        return stencilClient;
+    }
+
+    public StencilClient enrichStencilClient(List<String> additionalStencilUrls) {
+        if (additionalStencilUrls.isEmpty()) {
+            return stencilClient;
+        }
+        stencilUrls.addAll(additionalStencilUrls);
+        stencilClient = initStencilClient(new ArrayList<>(stencilUrls));
+        return stencilClient;
+    }
+
+    private StencilClient initStencilClient(List<String> stencilUrls) {
+        boolean enableRemoteStencil = configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
+        return enableRemoteStencil
                 ? StencilClientFactory.getClient(stencilUrls, stencilConfigMap)
                 : StencilClientFactory.getClient();
-        return stencilClient;
     }
 }

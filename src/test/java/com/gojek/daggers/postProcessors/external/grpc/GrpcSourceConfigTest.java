@@ -29,21 +29,18 @@ public class GrpcSourceConfigTest {
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
+    private String grpcStencilUrl;
     private String type;
-    @SerializedName(value = "headers",  alternate = { "Headers", "HEADERS" })
-    private Map<String, String> headers;
+    @SerializedName(value = "headers", alternate = {"Headers", "HEADERS"})
     private Map<String, OutputMapping> outputMappings;
     private OutputMapping outputMapping;
-    @SerializedName(value = "metricId",  alternate = { "MetricId", "METRICID" })
+    @SerializedName(value = "metricId", alternate = {"MetricId", "METRICID"})
     private String metricId;
     private String grpcRequestProtoSchema;
     private String grpcResponseProtoSchema;
     private String grpcMethodUrl;
     private boolean retainResponseType;
     private int capacity;
-    private int connectionPoolSize;
-    private int connectionPoolMaxIdle;
-    private int connectionPoolMinIdle;
 
     @Before
     public void setup() {
@@ -59,6 +56,7 @@ public class GrpcSourceConfigTest {
         requestVariables = "customer_id";
         connectTimeout = "234";
         failOnErrors = false;
+        grpcStencilUrl = "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest";
         type = "com.gojek.esb.booking.BookingLogMessage";
         capacity = 345;
         metricId = "metricId-http-01";
@@ -66,7 +64,7 @@ public class GrpcSourceConfigTest {
         grpcMethodUrl = "com.esb.test/TestMethod";
         grpcResponseProtoSchema = "com.gojek.esb.response";
         grpcRequestProtoSchema = "com.gojek.esb.request";
-        grpcSourceConfig = new GrpcSourceConfig(endpoint,servicePort,grpcRequestProtoSchema,grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
+        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
     }
 
     @Test
@@ -165,13 +163,35 @@ public class GrpcSourceConfigTest {
         grpcSourceConfig.validateFields();
     }
 
+    @Test
+    public void shouldCollectStencilURLSFromGRPCSourceConfiguration() {
+        List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
+
+        Assert.assertEquals(1, grpcStencilUrl.size());
+        Assert.assertEquals("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest", grpcStencilUrl.get(0));
+    }
+
+    @Test
+    public void shouldCollectMultipleStencilURLSFromGRPCSourceConfiguration() {
+        grpcStencilUrl = "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/goid-events/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/growth-log-entities/release";
+        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
+
+        List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
+
+        Assert.assertEquals(4, grpcStencilUrl.size());
+        Assert.assertEquals("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest", grpcStencilUrl.get(0));
+        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest", grpcStencilUrl.get(1));
+        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/goid-events/latest", grpcStencilUrl.get(2));
+        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/growth-log-entities/release", grpcStencilUrl.get(3));
+    }
+
 
     @Test
     public void shouldThrowExceptionIfSomeFieldsMissing() {
         expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
         expectedException.expect(IllegalArgumentException.class);
 
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, null, null, failOnErrors, type, retainResponseType, headerMap, null, "metricId_01", capacity);
+        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, null, null, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, null, "metricId_01", capacity);
         grpcSourceConfig.validateFields();
     }
 
@@ -211,7 +231,7 @@ public class GrpcSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, retainResponseType, headerMap, new HashMap<>(), "metricId_01", capacity);
+        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, new HashMap<>(), "metricId_01", capacity);
 
         grpcSourceConfig.validateFields();
     }

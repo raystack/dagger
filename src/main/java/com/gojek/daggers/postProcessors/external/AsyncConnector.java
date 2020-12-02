@@ -1,5 +1,10 @@
 package com.gojek.daggers.postProcessors.external;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.metrics.MeterStatsManager;
@@ -12,10 +17,6 @@ import com.gojek.daggers.postProcessors.external.common.EndpointHandler;
 import com.gojek.daggers.postProcessors.external.common.SourceConfig;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.types.Row;
 
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -76,12 +77,16 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         return descriptorManager;
     }
 
+    protected DescriptorManager initDescriptorManager(SchemaConfig schemaConfig) {
+        return new DescriptorManager(schemaConfig.getStencilClientOrchestrator());
+    }
+
     @Override
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
 
         if (descriptorManager == null) {
-            descriptorManager = new DescriptorManager(schemaConfig.getStencilClientOrchestrator());
+            descriptorManager = initDescriptorManager(schemaConfig);
         }
 
         createClient();
@@ -175,7 +180,6 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         }
         return outputDescriptor;
     }
-
 
 
 }
