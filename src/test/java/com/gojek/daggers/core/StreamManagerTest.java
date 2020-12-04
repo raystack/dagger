@@ -25,6 +25,7 @@ import com.gojek.dagger.udf.ElementAt;
 import com.gojek.dagger.udf.ExponentialMovingAverage;
 import com.gojek.dagger.udf.Features;
 import com.gojek.dagger.udf.Filters;
+import com.gojek.dagger.udf.FormatTimeInZone;
 import com.gojek.dagger.udf.GeoHash;
 import com.gojek.dagger.udf.KeyValue;
 import com.gojek.dagger.udf.LinearTrend;
@@ -180,6 +181,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("MixedGranularityS2Id"), any(MixedGranularityS2Id.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("BoundingBoxCheck"), any(BoundingBoxCheck.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("FormatTimeInZone"), any(FormatTimeInZone.class));
     }
 
     @Test
