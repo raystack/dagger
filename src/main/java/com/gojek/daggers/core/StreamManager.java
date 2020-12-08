@@ -123,6 +123,7 @@ public class StreamManager {
         scalarFunctions.put("MixedGranularityS2Id", new MixedGranularityS2Id());
         scalarFunctions.put("S2AreaInKm2", new S2AreaInKm2());
         scalarFunctions.put("BoundingBoxCheck", new BoundingBoxCheck());
+        scalarFunctions.put("FormatTimeInZone", new FormatTimeInZone());
         return scalarFunctions;
     }
 
