@@ -4,13 +4,15 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.gojek.daggers.utils.Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE;
+
 public class ColumnNameManager implements Serializable {
-    private final List<String> inputColumnNames;
-    private final List<String> outputColumnNames;
+    private List<String> inputColumnNames;
+    private List<String> outputColumnNames;
 
     public ColumnNameManager(String[] inputColumnNames, List<String> outputColumnNames) {
         this.inputColumnNames = Arrays.asList(inputColumnNames);
-        this.outputColumnNames = outputColumnNames;
+        this.outputColumnNames = validateSelectAllQuery(outputColumnNames);
     }
 
     public Integer getInputIndex(String inputColumnName) {
@@ -27,5 +29,13 @@ public class ColumnNameManager implements Serializable {
 
     public String[] getOutputColumnNames() {
         return outputColumnNames.toArray(new String[0]);
+    }
+
+    private List<String> validateSelectAllQuery(List<String> outputColumnNames) {
+        if (outputColumnNames.contains(SQL_PATH_SELECT_ALL_CONFIG_VALUE)) {
+            outputColumnNames.remove(SQL_PATH_SELECT_ALL_CONFIG_VALUE);
+            outputColumnNames.addAll(inputColumnNames);
+        }
+        return outputColumnNames;
     }
 }
