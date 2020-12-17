@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.gojek.daggers.utils.Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE;
-
 public class ColumnNameManager implements Serializable {
     private List<String> inputColumnNames;
     private List<String> outputColumnNames;
