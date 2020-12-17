@@ -29,5 +29,4 @@ public class SqlConfigTypePathParser implements Serializable {
             throw new InvalidConfigurationException(String.format("Value '%s' in input field for sql is wrongly configured", inputField));
         return rowManager.getFromInput(inputFieldIndex);
     }
-
 }
