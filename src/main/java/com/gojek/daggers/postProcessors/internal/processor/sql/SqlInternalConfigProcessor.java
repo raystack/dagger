@@ -7,8 +7,6 @@ import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcess
 
 import java.io.Serializable;
 
-import static com.gojek.daggers.utils.Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE;
-
 public class SqlInternalConfigProcessor implements InternalConfigProcessor, Serializable {
 
     public static final String SQL_CONFIG_HANDLER_TYPE = "sql";
