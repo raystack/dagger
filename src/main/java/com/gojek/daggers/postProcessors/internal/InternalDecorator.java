@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.internal;
 
-import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.MapDecorator;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcessor;
