@@ -39,6 +39,7 @@ import com.gojek.dagger.udf.SelectFields;
 import com.gojek.dagger.udf.ServiceArea;
 import com.gojek.dagger.udf.ServiceAreaId;
 import com.gojek.dagger.udf.SingleFeatureWithType;
+import com.gojek.dagger.udf.Split;
 import com.gojek.dagger.udf.TimestampFromUnix;
 import com.gojek.dagger.udf.ToDouble;
 import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
@@ -182,6 +183,7 @@ public class StreamManagerTest {
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("BoundingBoxCheck"), any(BoundingBoxCheck.class));
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("FormatTimeInZone"), any(FormatTimeInZone.class));
+        verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("Split"), any(Split.class));
     }
 
     @Test

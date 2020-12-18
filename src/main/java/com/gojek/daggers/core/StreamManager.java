@@ -124,6 +124,7 @@ public class StreamManager {
         scalarFunctions.put("S2AreaInKm2", new S2AreaInKm2());
         scalarFunctions.put("BoundingBoxCheck", new BoundingBoxCheck());
         scalarFunctions.put("FormatTimeInZone", new FormatTimeInZone());
+        scalarFunctions.put("Split", new Split());
         return scalarFunctions;
     }
 
