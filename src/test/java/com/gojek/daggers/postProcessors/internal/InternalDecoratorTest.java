@@ -5,22 +5,14 @@ import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcessor;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class InternalDecoratorTest {
 
     private ColumnNameManager columnNameManager;
-
-//    @Before
-//    public void setup() {
-//
-//    }
 
     @Test
     public void canDecorateWhenInternalConfigIsPresent() {
