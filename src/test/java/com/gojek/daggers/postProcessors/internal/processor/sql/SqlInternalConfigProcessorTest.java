@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.internal.processor.sql;
 
-import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
@@ -12,7 +11,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -81,7 +81,7 @@ public class SqlInternalConfigProcessorTest {
 
     @Test
     public void shouldReturnAllOfTheInputFieldToOutputField(){
-        List<String> outputColumnNames = new ArrayList<>();
+        ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add("*");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql");
@@ -97,8 +97,6 @@ public class SqlInternalConfigProcessorTest {
         RowManager rowManager = new RowManager(parentRow);
 
         sqlInternalConfigProcessor.process(rowManager);
-        System.out.println(rowManager.getInputData());
-        System.out.println(rowManager.getOutputData());
 
         Assert.assertEquals(rowManager.getInputData(), rowManager.getOutputData());
     }
