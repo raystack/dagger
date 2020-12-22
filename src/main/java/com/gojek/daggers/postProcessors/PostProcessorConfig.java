@@ -81,7 +81,7 @@ public class PostProcessorConfig implements Serializable {
     }
 
     public List<String> getOutputColumnNames() {
-        List<String> outputColumnNames = new ArrayList<>();
+        ArrayList<String> outputColumnNames = new ArrayList<>();
         if (externalSource != null && !externalSource.isEmpty())
             outputColumnNames.addAll(externalSource.getOutputColumnNames());
         if (internalSource != null && !internalSource.isEmpty())
