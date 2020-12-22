@@ -29,11 +29,15 @@ public class InternalDecorator implements MapDecorator {
     @Override
     public Row map(Row input) {
         Row outputRow = (Row) input.getField(OUTPUT_ROW_INDEX);
-        if (outputRow != null && outputRow.getArity() != columnNameManager.getOutputSize()) {
+        if (outputColumnSizeIsDifferent(outputRow)) {
             input.setField(OUTPUT_ROW_INDEX, new Row(columnNameManager.getOutputSize()));
         }
         RowManager rowManager = new RowManager(input);
         internalConfigProcessor.process(rowManager);
         return rowManager.getAll();
+    }
+
+    private boolean outputColumnSizeIsDifferent(Row outputRow) {
+        return outputRow != null && outputRow.getArity() != columnNameManager.getOutputSize();
     }
 }
