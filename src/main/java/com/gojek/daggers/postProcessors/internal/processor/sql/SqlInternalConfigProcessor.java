@@ -1,6 +1,5 @@
 package com.gojek.daggers.postProcessors.internal.processor.sql;
 
-import com.gojek.daggers.exception.InvalidConfigurationException;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
@@ -31,7 +30,7 @@ public class SqlInternalConfigProcessor implements InternalConfigProcessor, Seri
 
     @Override
     public void process(RowManager rowManager) {
-        if (SQL_PATH_SELECT_ALL_CONFIG_VALUE.equals(internalSourceConfig.getOutputField())) {
+        if (selectAllFromInputColumns()) {
             for (String columnName : columnNameManager.getOutputColumnNames()){
                 int inputFieldIndex = columnNameManager.getInputIndex(columnName);
                 rowManager.setInOutput(columnNameManager.getOutputIndex(columnName), rowManager.getFromInput(inputFieldIndex));
@@ -43,5 +42,9 @@ public class SqlInternalConfigProcessor implements InternalConfigProcessor, Seri
                 rowManager.setInOutput(outputFieldIndex, inputData);
             }
         }
+    }
+
+    private boolean selectAllFromInputColumns() {
+        return SQL_PATH_SELECT_ALL_CONFIG_VALUE.equals(internalSourceConfig.getOutputField());
     }
 }
