@@ -1,5 +1,7 @@
 package com.gojek.daggers.postProcessors.transfromers;
 
+import org.apache.flink.configuration.Configuration;
+
 import com.gojek.dagger.common.StreamInfo;
 import com.gojek.dagger.transformer.Transformer;
 import com.gojek.daggers.exception.TransformClassNotDefinedException;
@@ -18,10 +20,12 @@ import static com.gojek.daggers.utils.Constants.TRANSFORM_PROCESSOR;
 
 public class TransformProcessor implements PostProcessor, TelemetryPublisher {
     private List<TransformConfig> transformConfigs;
+    private Configuration configuration;
     private Map<String, List<String>> metrics = new HashMap<>();
 
-    public TransformProcessor(List<TransformConfig> transformConfigs) {
+    public TransformProcessor(List<TransformConfig> transformConfigs, Configuration configuration) {
         this.transformConfigs = transformConfigs;
+        this.configuration = configuration;
     }
 
     @Override
@@ -51,8 +55,8 @@ public class TransformProcessor implements PostProcessor, TelemetryPublisher {
 
     protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
-        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class);
-        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames);
+        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, Configuration.class);
+        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, configuration);
     }
 
     @Override

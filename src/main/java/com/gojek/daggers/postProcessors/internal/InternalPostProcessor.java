@@ -1,5 +1,8 @@
 package com.gojek.daggers.postProcessors.internal;
 
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.types.Row;
+
 import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.postProcessors.PostProcessorConfig;
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
@@ -9,8 +12,6 @@ import com.gojek.daggers.postProcessors.external.common.StreamDecorator;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigHandlerFactory;
 import com.gojek.daggers.postProcessors.internal.processor.InternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.sql.SqlConfigTypePathParser;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.types.Row;
 
 public class InternalPostProcessor implements PostProcessor {
 
