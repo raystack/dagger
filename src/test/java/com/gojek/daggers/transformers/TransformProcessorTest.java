@@ -1,14 +1,16 @@
 package com.gojek.daggers.transformers;
 
-import com.gojek.dagger.transformer.Transformer;
-import com.gojek.dagger.common.StreamInfo;
-import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
-import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
-import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
+
+import com.gojek.dagger.common.StreamInfo;
+import com.gojek.dagger.transformer.Transformer;
+import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
+import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,7 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TransformProcessorTest {
@@ -45,6 +50,9 @@ public class TransformProcessorTest {
     private Transformer transformer;
 
     @Mock
+    private Configuration configuration;
+
+    @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
     @Before
@@ -63,7 +71,7 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("wrongClassName", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
     }
 
@@ -72,13 +80,14 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("com.gojek.daggers.postProcessors.transfromers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;)");
+        expectedException.expectMessage("com.gojek.daggers.postProcessors.transfromers.TransformProcessor.<init>(java.util.Map," +
+                " [Ljava.lang.String;, org.apache.flink.configuration.Configuration)");
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("com.gojek.daggers.postProcessors.transfromers.TransformProcessor", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
     }
 
@@ -94,7 +103,7 @@ public class TransformProcessorTest {
         TransformProcessorMock transformProcessor = new TransformProcessorMock(transformer, transfromConfigs);
         transformProcessor.process(streamInfo);
 
-        verify(transformer,times(1)).transform(streamInfo);
+        verify(transformer, times(1)).transform(streamInfo);
     }
 
     @Test
@@ -145,7 +154,7 @@ public class TransformProcessorTest {
         transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FeatureTransformer", transformationArguments));
         transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
 
         verify(mappedDataStream, times(1)).map(any());
@@ -165,7 +174,7 @@ public class TransformProcessorTest {
         transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", transformationArguments));
         transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FieldToMapTransformer", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
 
         verify(mappedDataStream, times(2)).map(any());
@@ -176,7 +185,7 @@ public class TransformProcessorTest {
         private Transformer mockMapFunction;
 
         public TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
-            super(transformConfigs);
+            super(transformConfigs, configuration);
             this.mockMapFunction = mockMapFunction;
         }
 
