@@ -1,5 +1,9 @@
 package com.gojek.daggers.postProcessors;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.types.Row;
+
 import com.gojek.dagger.common.StreamInfo;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
@@ -12,9 +16,6 @@ import com.gojek.daggers.postProcessors.external.common.FetchOutputDecorator;
 import com.gojek.daggers.postProcessors.external.common.InitializationDecorator;
 import com.gojek.daggers.postProcessors.internal.InternalPostProcessor;
 import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ParentPostProcessor implements PostProcessor {
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, postProcessorConfig.hasSQLTransformer());
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
-        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers());
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), configuration);
         if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
