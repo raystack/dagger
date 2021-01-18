@@ -100,4 +100,26 @@ public class SqlInternalConfigProcessorTest {
 
         Assert.assertEquals(rowManager.getInputData(), rowManager.getOutputData());
     }
+
+    @Test
+    public void shouldNotReturnAllOfTheInputFieldToOutputField(){
+        ArrayList<String> outputColumnNames = new ArrayList<>();
+        outputColumnNames.add(".");
+        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig(".", "*", "sql");
+        SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlConfigTypePathParser, internalSourceConfig);
+
+        Row inputRow = new Row(2);
+        inputRow.setField(0,"inputValue1");
+        inputRow.setField(1, "inputValue2");
+        Row outputRow = new Row(2);
+        Row parentRow = new Row(2);
+        parentRow.setField(0, inputRow);
+        parentRow.setField(1, outputRow);
+        RowManager rowManager = new RowManager(parentRow);
+
+        sqlInternalConfigProcessor.process(rowManager);
+
+        Assert.assertNotEquals(rowManager.getInputData(), rowManager.getOutputData());
+    }
 }
