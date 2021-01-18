@@ -4,6 +4,8 @@ import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
+
+import com.gojek.daggers.postProcessors.internal.processor.sql.fields.SqlInternalConfigProcessor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

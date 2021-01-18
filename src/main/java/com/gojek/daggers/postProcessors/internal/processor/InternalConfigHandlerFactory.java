@@ -6,7 +6,7 @@ import com.gojek.daggers.postProcessors.internal.processor.constant.ConstantInte
 import com.gojek.daggers.postProcessors.internal.processor.function.FunctionInternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.invalid.InvalidInternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.sql.SqlConfigTypePathParser;
-import com.gojek.daggers.postProcessors.internal.processor.sql.SqlInternalConfigProcessor;
+import com.gojek.daggers.postProcessors.internal.processor.sql.fields.SqlInternalConfigProcessor;
 
 import java.util.Arrays;
 import java.util.List;
