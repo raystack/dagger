@@ -25,8 +25,9 @@ public class SqlConfigTypePathParser implements Serializable {
             return rowManager.getInputData();
         }
         int inputFieldIndex = columnNameManager.getInputIndex(inputField);
-        if (inputFieldIndex == -1)
+        if (inputFieldIndex == -1) {
             throw new InvalidConfigurationException(String.format("Value '%s' in input field for sql is wrongly configured", inputField));
+        }
         return rowManager.getFromInput(inputFieldIndex);
     }
 }

@@ -1,8 +1,10 @@
-package com.gojek.daggers.postProcessors.internal.processor.sql;
+package com.gojek.daggers.postProcessors.internal.processor.sql.fields;
 
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
+import com.gojek.daggers.postProcessors.internal.processor.sql.SqlConfigTypePathParser;
+import com.gojek.daggers.postProcessors.internal.processor.sql.SqlInternalFieldConfig;
 
 public class SqlInternalFieldImport implements SqlInternalFieldConfig {
 
