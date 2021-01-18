@@ -31,6 +31,10 @@ public class ColumnNameManager implements Serializable {
         return outputColumnNames.toArray(new String[0]);
     }
 
+    public String[] getInputColumnNames() {
+        return inputColumnNames.toArray(new String[0]);
+    }
+
     private List<String> setOutputColumnNames(List<String> outputColumnNames) {
         if (selectAllFromInputColumns(outputColumnNames)) {
             outputColumnNames.remove(SQL_PATH_SELECT_ALL_CONFIG_VALUE);
