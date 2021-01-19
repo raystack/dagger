@@ -1,28 +1,16 @@
-package com.gojek.daggers.postProcessors.internal.processor.sql;
+package com.gojek.daggers.postProcessors.internal.processor.sql.fields;
 
 import com.gojek.daggers.postProcessors.common.ColumnNameManager;
 import com.gojek.daggers.postProcessors.external.common.RowManager;
 import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
+import com.gojek.daggers.postProcessors.internal.processor.sql.SqlConfigTypePathParser;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 public class SqlInternalConfigProcessorTest {
-
-    @Mock
-    private SqlConfigTypePathParser sqlConfigTypePathParser;
-
-    @Before
-    public void setup() {
-        initMocks(this);
-    }
 
     @Test
     public void shouldBeAbleToProcessSqlCustomType(){
@@ -55,10 +43,11 @@ public class SqlInternalConfigProcessorTest {
     }
 
     @Test
-    public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration(){
-        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"output_field"}, Arrays.asList("output1", "output_field", "output2"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "value", "sql");
-        SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlConfigTypePathParser, internalSourceConfig);
+    public void processWithRightConfiguration(){
+        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"field"}, Arrays.asList("field1", "newField", "field2"));
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("newField", "field", "sql");
+        SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
+        SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -67,10 +56,6 @@ public class SqlInternalConfigProcessorTest {
         parentRow.setField(1, outputRow);
         RowManager rowManager = new RowManager(parentRow);
 
-        when(sqlConfigTypePathParser.getData(rowManager)).thenReturn("inputData");
         sqlInternalConfigProcessor.process(rowManager);
-
-        Assert.assertEquals("inputData", rowManager.getOutputData().getField(1));
     }
-
 }
