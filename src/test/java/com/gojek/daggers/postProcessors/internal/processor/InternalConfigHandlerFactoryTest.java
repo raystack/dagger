@@ -4,7 +4,7 @@ import com.gojek.daggers.postProcessors.internal.InternalSourceConfig;
 import com.gojek.daggers.postProcessors.internal.processor.constant.ConstantInternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.function.FunctionInternalConfigProcessor;
 import com.gojek.daggers.postProcessors.internal.processor.invalid.InvalidInternalConfigProcessor;
-import com.gojek.daggers.postProcessors.internal.processor.sql.SqlInternalConfigProcessor;
+import com.gojek.daggers.postProcessors.internal.processor.sql.fields.SqlInternalConfigProcessor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,6 +40,5 @@ public class InternalConfigHandlerFactoryTest {
         Assert.assertEquals(InvalidInternalConfigProcessor.class, processor.getClass());
 
     }
-
 
 }
