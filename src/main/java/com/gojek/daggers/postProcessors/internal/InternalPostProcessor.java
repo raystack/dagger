@@ -34,7 +34,6 @@ public class InternalPostProcessor implements PostProcessor {
         for (InternalSourceConfig internalSourceConfig : postProcessorConfig.getInternalSource()) {
             resultStream = enrichStream(resultStream, internalSourceConfig, getInternalDecorator(internalSourceConfig, columnNameManager));
         }
-
         return new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
     }
 
@@ -47,6 +46,6 @@ public class InternalPostProcessor implements PostProcessor {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         InternalConfigProcessor processor = InternalConfigHandlerFactory
                 .getProcessor(internalSourceConfig, columnNameManager, sqlPathParser);
-        return new InternalDecorator(internalSourceConfig, processor);
+        return new InternalDecorator(internalSourceConfig, processor, columnNameManager);
     }
 }
