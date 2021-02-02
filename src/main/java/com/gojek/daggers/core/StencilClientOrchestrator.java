@@ -24,6 +24,7 @@ public class StencilClientOrchestrator implements Serializable {
     public StencilClientOrchestrator(Configuration configuration) {
         this.configuration = configuration;
         this.stencilConfigMap = createStencilConfigMap(configuration);
+        this.stencilUrls = getStencilUrls();
     }
 
     private HashMap<String, String> createStencilConfigMap(Configuration configuration) {
@@ -38,9 +39,6 @@ public class StencilClientOrchestrator implements Serializable {
         if (stencilClient != null) {
             return stencilClient;
         }
-        stencilUrls = Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
-                .map(String::trim)
-                .collect(Collectors.toCollection(HashSet::new));
 
         stencilClient = initStencilClient(new ArrayList<>(stencilUrls));
         return stencilClient;
@@ -50,6 +48,7 @@ public class StencilClientOrchestrator implements Serializable {
         if (additionalStencilUrls.isEmpty()) {
             return stencilClient;
         }
+
         stencilUrls.addAll(additionalStencilUrls);
         stencilClient = initStencilClient(new ArrayList<>(stencilUrls));
         return stencilClient;
@@ -60,5 +59,12 @@ public class StencilClientOrchestrator implements Serializable {
         return enableRemoteStencil
                 ? StencilClientFactory.getClient(stencilUrls, stencilConfigMap)
                 : StencilClientFactory.getClient();
+    }
+
+    private HashSet<String> getStencilUrls() {
+        stencilUrls = Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
+                .map(String::trim)
+                .collect(Collectors.toCollection(HashSet::new));
+        return stencilUrls;
     }
 }
