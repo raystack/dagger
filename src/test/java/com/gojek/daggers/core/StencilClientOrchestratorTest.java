@@ -119,4 +119,24 @@ public class StencilClientOrchestratorTest {
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
     }
+
+    @Test
+    public void shouldReturnClassLoadStencilClientWhenStencilDisabledAndEnrichmentStencilUrlsIsNotNull() throws NoSuchFieldException, IllegalAccessException {
+        when(configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn(STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
+        when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn(STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
+        when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
+        when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+
+        List<String> enrichmentStencilURLs = Collections
+                .singletonList("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest");
+
+        StencilClient stencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
+
+        Assert.assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
+        Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
+        stencilClientField.setAccessible(true);
+        stencilClientField.set(null, null);
+    }
 }
