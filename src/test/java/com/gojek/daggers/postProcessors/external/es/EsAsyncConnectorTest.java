@@ -31,18 +31,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.EMPTY_INPUT;
+import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.EMPTY_ENDPOINT;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TIMEOUTS;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
 import static com.gojek.daggers.utils.Constants.ES_TYPE;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -207,7 +202,7 @@ public class EsAsyncConnectorTest {
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
-        verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
+        verify(meterStatsManager, times(1)).markEvent(EMPTY_ENDPOINT);
         verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
     }
 
