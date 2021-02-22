@@ -13,6 +13,8 @@ import com.gojek.daggers.protoHandler.ProtoHandler;
 import com.gojek.daggers.protoHandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ import java.util.Map;
 import static java.util.Collections.singleton;
 
 public class EndpointHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointHandler.class.getName());
     private SourceConfig sourceConfig;
     private MeterStatsManager meterStatsManager;
     private ErrorReporter errorReporter;
@@ -79,20 +82,21 @@ public class EndpointHandler {
     public boolean isEndpointOrQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
         boolean emptyEndpointPattern = StringUtils.isEmpty(sourceConfig.getPattern());
         if (emptyEndpointPattern) {
-            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
+            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_ENDPOINT);
             resultFuture.complete(singleton(rowManager.getAll()));
             Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint/Query Pattern '%s' is invalid, Can't be empty. ", sourceConfig.getPattern()));
             reportAndThrowError(resultFuture, invalidConfigurationException);
             return true;
         }
-        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.asList(endpointVariablesValues).contains(""))) {
+        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.stream(endpointVariablesValues).allMatch(""::equals))) {
+            LOGGER.warn("Could not populate any request variable. Skipping external calls");
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
             return true;
         }
         return false;
     }
-
+    
     private Map<String, Descriptors.FieldDescriptor> createDescriptorMap(String[] requiredInputColumns,
                                                                          String[] inputProtoClasses,
                                                                          ResultFuture<Row> resultFuture) {
