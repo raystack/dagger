@@ -350,7 +350,7 @@ public class HttpAsyncConnectorTest {
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
+        verify(meterStatsManager, times(1)).markEvent(EMPTY_ENDPOINT);
     }
 
     @Test
