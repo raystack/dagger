@@ -187,7 +187,7 @@ public class PgAsyncConnectorTest {
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
-        verify(meterStatsManager, times(1)).markEvent(EMPTY_INPUT);
+        verify(meterStatsManager, times(1)).markEvent(EMPTY_ENDPOINT);
         verify(pgClient, never()).query(any(String.class));
     }
 
