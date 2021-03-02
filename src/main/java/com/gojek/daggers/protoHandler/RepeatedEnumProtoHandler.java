@@ -16,11 +16,10 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 
 public class RepeatedEnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
-    private Gson gson;
+    private static final Gson gson = new Gson();
 
     public RepeatedEnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
-        this.gson = new Gson();
     }
 
     @Override

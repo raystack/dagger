@@ -29,6 +29,7 @@ public class Streams implements TelemetryPublisher {
     private List<String> topics = new ArrayList<>();
     private List<String> protoClassNames = new ArrayList<>();
     private List<String> streamNames = new ArrayList<>();
+    private static final Gson gson = new Gson();
 
     public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
@@ -36,7 +37,6 @@ public class Streams implements TelemetryPublisher {
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         this.configuration = configuration;
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
-        Gson gson = new Gson();
         Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
