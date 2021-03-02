@@ -340,20 +340,6 @@ public class HttpAsyncConnectorTest {
     }
 
     @Test
-    public void shouldMarkEmptyInputEventAndReturnFromThereWhenRequestBodyIsEmpty() throws Exception {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
-
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
-        HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
-
-        httpAsyncConnector.open(flinkConfiguration);
-        httpAsyncConnector.asyncInvoke(streamData, resultFuture);
-
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(meterStatsManager, times(1)).markEvent(EMPTY_ENDPOINT);
-    }
-
-    @Test
     public void shouldAddCustomHeaders() throws Exception {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);

@@ -48,7 +48,7 @@ public class GrpcRequestHandlerTest {
     }
 
     @Test(expected = InvalidGrpcBodyException.class)
-    public void ExceptionInCaseOfWrongBody() throws InvalidProtocolBufferException {
+    public void shouldThrowExceptionInCaseOfWrongBody() throws InvalidProtocolBufferException {
 
         grpcSourceConfig = mock(GrpcSourceConfig.class);
         descriptorManager = mock(DescriptorManager.class);
@@ -66,5 +66,19 @@ public class GrpcRequestHandlerTest {
 
     }
 
+    @Test(expected = InvalidGrpcBodyException.class)
+    public void shouldThrowExceptionInCaseOfEmptyPattern() {
+        grpcSourceConfig = mock(GrpcSourceConfig.class);
+        descriptorManager = mock(DescriptorManager.class);
+        TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
 
+        requestVariablesValues = new Object[]{"val1", "val2"};
+
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getPattern()).thenReturn("");
+        when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
+
+        GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);
+        grpcRequestHandler.create(requestVariablesValues);
+    }
 }
