@@ -7,11 +7,21 @@ import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.gojek.esb.customersanction.CustomerSanctionLogMessage;
 import com.google.protobuf.Descriptors;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 public class ProtoHandlerFactoryTest {
+    @Before
+    public void setup() {
+        ProtoHandlerFactory.clearProtoHandlerMap();
+    }
 
     @Test
     public void shouldReturnMapProtoHandlerIfMapFieldDescriptorPassed() {
@@ -83,4 +93,37 @@ public class ProtoHandlerFactoryTest {
         assertEquals(PrimitiveProtoHandler.class, protoHandler.getClass());
     }
 
+    @Test
+    public void shouldReturnTheSameObjectWithMultipleThreads() throws InterruptedException {
+        ExecutorService e = Executors.newFixedThreadPool(100);
+        final ProtoHandler[] cache = {null};
+        for (int i = 0; i < 1000; i++) {
+            e.submit(() -> {
+                Descriptors.FieldDescriptor primitiveFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("order_number");
+                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+                assertEquals(PrimitiveProtoHandler.class, protoHandler.getClass());
+                synchronized (cache) {
+                    ProtoHandler oldHandler = cache[0];
+                    if (oldHandler != null) {
+                        assertEquals(protoHandler, cache[0]);
+                    } else {
+                        // Only one thread will set this
+                        cache[0] = protoHandler;
+                    }
+                }
+            });
+        }
+        e.shutdown();
+        e.awaitTermination(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void shouldReturnTheSameObjectWhenFactoryMethodIsCalledMultipleTimes() {
+        Descriptors.FieldDescriptor primitiveFieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("order_number");
+        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+        assertEquals(PrimitiveProtoHandler.class, protoHandler.getClass());
+        ProtoHandler newProtoHandler = ProtoHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+        assertEquals(PrimitiveProtoHandler.class, newProtoHandler.getClass());
+        assertEquals(protoHandler, newProtoHandler);
+    }
 }

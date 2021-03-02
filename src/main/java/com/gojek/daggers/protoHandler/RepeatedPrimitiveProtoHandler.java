@@ -17,11 +17,10 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     private final FieldDescriptor fieldDescriptor;
-    private Gson gson;
+    private static final Gson gson = new Gson();
 
     public RepeatedPrimitiveProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
-        this.gson = new Gson();
     }
 
     @Override
