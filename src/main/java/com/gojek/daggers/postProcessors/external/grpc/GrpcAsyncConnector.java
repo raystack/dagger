@@ -72,7 +72,7 @@ public class GrpcAsyncConnector extends AsyncConnector {
 
             Object[] requestVariablesValues = getEndpointHandler()
                     .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-            if (getEndpointHandler().isEndpointOrQueryInvalid(resultFuture, rowManager, requestVariablesValues)) {
+            if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, requestVariablesValues)) {
                 return;
             }
 

@@ -70,7 +70,7 @@ public class PgAsyncConnector extends AsyncConnector {
 
         Object[] queryVariablesValues = getEndpointHandler()
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-        if (getEndpointHandler().isEndpointOrQueryInvalid(resultFuture, rowManager, queryVariablesValues)) {
+        if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, queryVariablesValues)) {
             return;
         }
 

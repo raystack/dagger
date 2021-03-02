@@ -273,7 +273,7 @@ public class EndpointHandlerTest {
     }
 
     @Test
-    public void shouldCheckIfEndPointOrQueryIsValid() {
+    public void shouldCheckIfQueryIsValid() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
         Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\"}\"");
 
@@ -289,36 +289,12 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertFalse(isEndpointOrQueryInvalid);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        Assert.assertFalse(queryInvalid);
     }
 
     @Test
-    public void shouldCheckIfEndPointOrQueryIsInValidInCaseOfEmptyPattern() {
-        Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
-        Mockito.when(sourceConfig.getPattern()).thenReturn("");
-
-        Row row = new Row(2);
-        Row inputData = new Row(2);
-        inputData.setField(1, "123456");
-        row.setField(0, inputData);
-        row.setField(1, new Row(1));
-        RowManager rowManager = new RowManager(row);
-
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
-                inputProtoClasses, getColumnNameManager(new String[]{"order_number", "customer_id"}), descriptorManager);
-        Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-
-        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertTrue(isEndpointOrQueryInvalid);
-        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
-        verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_ENDPOINT);
-    }
-
-    @Test
-    public void shouldCheckIfEndPointOrQueryIsInValidInCaseOfSingeEmptyVariableValueForSingleField() {
+    public void shouldCheckIfQueryIsInValidInCaseOfSingeEmptyVariableValueForSingleField() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
         Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\"}\"");
 
@@ -334,14 +310,14 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertTrue(isEndpointOrQueryInvalid);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        Assert.assertTrue(queryInvalid);
         verify(resultFuture, times(1)).complete(any());
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_INPUT);
     }
 
     @Test
-    public void shouldCheckIfEndPointOrQueryIsValidInCaseOfSomeVariableValue() {
+    public void shouldCheckIfQueryIsValidInCaseOfSomeVariableValue() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("order_number,customer_id");
         Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\", \\\"other_key\\\": \\\"%s\\\"}\"");
 
@@ -358,12 +334,12 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertFalse(isEndpointOrQueryInvalid);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        Assert.assertFalse(queryInvalid);
     }
 
     @Test
-    public void shouldCheckIfEndPointOrQueryIsInvalidInCaseOfAllVariableValues() {
+    public void shouldCheckIfQueryIsInvalidInCaseOfAllVariableValues() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("order_number,customer_id");
         Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\", \\\"other_key\\\": \\\"%s\\\"}\"");
 
@@ -380,8 +356,8 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        boolean isEndpointOrQueryInvalid = endpointHandler.isEndpointOrQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertTrue(isEndpointOrQueryInvalid);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        Assert.assertTrue(queryInvalid);
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_INPUT);
     }
 
