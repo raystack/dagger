@@ -190,23 +190,6 @@ public class EsAsyncConnectorTest {
     }
 
     @Test
-    public void shouldNotEnrichOutputWhenEndpointPatternIsEmpty() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
-        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "",
-                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
-
-        EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
-        esAsyncConnector.open(configuration);
-        esAsyncConnector.asyncInvoke(streamRow, resultFuture);
-
-        verify(resultFuture, times(1)).complete(Collections.singleton(streamRow));
-        verify(meterStatsManager, times(1)).markEvent(EMPTY_ENDPOINT);
-        verify(esClient, never()).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
-    }
-
-    @Test
     public void shouldGiveErrorWhenEndpointPatternIsInvalid() throws Exception {
         when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
