@@ -16,7 +16,6 @@ public enum ExternalSourceAspects implements Aspects {
     OTHER_ERRORS("otherErrors", Metric),
     TOTAL_EXTERNAL_CALLS("totalExternalCalls", Metric),
     EMPTY_INPUT("emptyInput", Metric),
-    EMPTY_ENDPOINT("emptyEndpoint", Metric),
     ERROR_READING_RESPONSE("errorReadingResponse", Metric),
     OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse", Metric),
     INVALID_CONFIGURATION("invalidConfiguration", Metric),

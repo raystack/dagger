@@ -79,15 +79,7 @@ public class EndpointHandler {
         return inputColumnValues.toArray();
     }
 
-    public boolean isEndpointOrQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
-        boolean emptyEndpointPattern = StringUtils.isEmpty(sourceConfig.getPattern());
-        if (emptyEndpointPattern) {
-            meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_ENDPOINT);
-            resultFuture.complete(singleton(rowManager.getAll()));
-            Exception invalidConfigurationException = new InvalidConfigurationException(String.format("Endpoint/Query Pattern '%s' is invalid, Can't be empty. ", sourceConfig.getPattern()));
-            reportAndThrowError(resultFuture, invalidConfigurationException);
-            return true;
-        }
+    public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
         if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.stream(endpointVariablesValues).allMatch(""::equals))) {
             LOGGER.warn("Could not populate any request variable. Skipping external calls");
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);

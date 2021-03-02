@@ -10,6 +10,7 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -209,6 +210,17 @@ public class EsSourceConfigTest {
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
         EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>(), metricId, retainResponseType);
+
+        esSourceConfig.validateFields();
+    }
+
+    @Test
+    public void shouldValidateWhenEndpointPatternIsEmpty() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Missing required fields: [endpoint_pattern]");
+        Map<String, OutputMapping> outputMapping = new HashMap<>();
+        outputMapping.put("test", new OutputMapping("test"));
+        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, password, "", endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, outputMapping, metricId, retainResponseType);
 
         esSourceConfig.validateFields();
     }
