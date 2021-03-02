@@ -9,6 +9,7 @@ import java.util.Base64;
 public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private String[] args;
+    private static final Gson gson = new Gson();
 
     public CommandlineConfigurationProvider(String[] args) {
 
@@ -41,6 +42,6 @@ public class CommandlineConfigurationProvider implements ConfigurationProvider {
     private String[] parseEncodedProgramArgs() {
         String encodedArgs = ParameterTool.fromArgs(args).get("encodedArgs");
         byte[] decoded = Base64.getMimeDecoder().decode(encodedArgs);
-        return new Gson().fromJson(new String(decoded), String[].class);
+        return gson.fromJson(new String(decoded), String[].class);
     }
 }

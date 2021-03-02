@@ -23,6 +23,7 @@ public class PostProcessorConfig implements Serializable {
     private ExternalSourceConfig externalSource;
     private List<TransformConfig> transformers;
     private List<InternalSourceConfig> internalSource;
+    private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     public PostProcessorConfig(ExternalSourceConfig externalSource, List<TransformConfig> transformers, List<InternalSourceConfig> internalSource) {
         this.externalSource = externalSource;
@@ -32,7 +33,6 @@ public class PostProcessorConfig implements Serializable {
 
     public static PostProcessorConfig parse(String configuration) {
         PostProcessorConfig postProcessorConfig;
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         try {
             Type typeToken = new TypeToken<PostProcessorConfig>() {
             }.getType();
