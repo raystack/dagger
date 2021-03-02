@@ -1,5 +1,7 @@
 package com.gojek.daggers.postProcessors.external.pg;
 
+import com.gojek.daggers.postProcessors.external.common.OutputMapping;
+import com.gojek.daggers.postProcessors.external.http.HttpSourceConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -156,6 +158,17 @@ public class PgSourceConfigTest {
     public void shouldReturnPathForOutputField() {
         outputMapping.put("outputField", "param");
         Assert.assertEquals("param", pgSourceConfig.getMappedQueryParam("outputField"));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfRequestPatternIsEmpty() {
+        expectedException.expectMessage("Missing required fields: [query_pattern]");
+        expectedException.expect(IllegalArgumentException.class);
+        Map<String, String> outputMapping = new HashMap<>();
+        outputMapping.put("test", "test");
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
+                "", failOnErrors, metricId, retainResponseType);
+        pgSourceConfig.validateFields();
     }
 
     @Test
