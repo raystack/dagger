@@ -294,27 +294,6 @@ public class EndpointHandlerTest {
     }
 
     @Test
-    public void test() {
-        Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
-        Mockito.when(sourceConfig.getPattern()).thenReturn("");
-
-        Row row = new Row(2);
-        Row inputData = new Row(2);
-        inputData.setField(1, "123456");
-        row.setField(0, inputData);
-        row.setField(1, new Row(1));
-        RowManager rowManager = new RowManager(row);
-
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
-                inputProtoClasses, getColumnNameManager(new String[]{"order_number", "customer_id"}), descriptorManager);
-        Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-
-        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
-        Assert.assertFalse(queryInvalid);
-    }
-
-    @Test
     public void shouldCheckIfQueryIsInValidInCaseOfSingeEmptyVariableValueForSingleField() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
         Mockito.when(sourceConfig.getPattern()).thenReturn("\"{\\\"key\\\": \\\"%s\\\"}\"");
