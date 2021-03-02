@@ -2,18 +2,20 @@ package com.gojek.daggers.protoHandler;
 
 import com.google.protobuf.Descriptors;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ProtoHandlerFactory {
-    public static ProtoHandler getProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
-        Optional<ProtoHandler> filteredProtoHandlers =
-                getSpecificHandlers(fieldDescriptor)
-                        .stream()
-                        .filter(ProtoHandler::canHandle)
-                        .findFirst();
-        return filteredProtoHandlers.orElseGet(() -> new PrimitiveProtoHandler(fieldDescriptor));
+    private static final Map<String, ProtoHandler> protoHandlerMap = new ConcurrentHashMap<>();
+
+    public static ProtoHandler getProtoHandler(final Descriptors.FieldDescriptor fieldDescriptor) {
+        return protoHandlerMap.computeIfAbsent(fieldDescriptor.getFullName(),
+                k -> getSpecificHandlers(fieldDescriptor).stream().filter(ProtoHandler::canHandle)
+                        .findFirst().orElseGet(() -> new PrimitiveProtoHandler(fieldDescriptor)));
+    }
+
+    protected static void clearProtoHandlerMap() {
+        protoHandlerMap.clear();
     }
 
     private static List<ProtoHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
