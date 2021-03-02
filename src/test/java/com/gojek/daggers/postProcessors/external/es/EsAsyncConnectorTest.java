@@ -1,5 +1,9 @@
 package com.gojek.daggers.postProcessors.external.es;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.exception.InvalidConfigurationException;
@@ -13,9 +17,6 @@ import com.gojek.daggers.postProcessors.external.SchemaConfig;
 import com.gojek.daggers.postProcessors.external.common.OutputMapping;
 import com.gojek.de.stencil.client.StencilClient;
 import com.gojek.esb.booking.GoFoodBookingLogMessage;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.Assert;
@@ -31,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.EMPTY_ENDPOINT;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TIMEOUTS;
 import static com.gojek.daggers.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
