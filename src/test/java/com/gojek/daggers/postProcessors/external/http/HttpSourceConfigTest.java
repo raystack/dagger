@@ -183,6 +183,20 @@ public class HttpSourceConfigTest {
     }
 
     @Test
+    public void shouldThrowExceptionIfRequestPatternIsEmpty() {
+        expectedException.expectMessage("Missing required fields: [requestPattern]");
+        expectedException.expect(IllegalArgumentException.class);
+
+        OutputMapping outputMappingWithNullField = new OutputMapping(null);
+
+        outputMappings.put("field", outputMappingWithNullField);
+
+        httpSourceConfig = new HttpSourceConfig("http://localhost",
+                "post", "", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
+        httpSourceConfig.validateFields();
+    }
+
+    @Test
     public void shouldReturnMandatoryFields() {
         HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
         expectedMandatoryFields.put("endpoint", endpoint);
