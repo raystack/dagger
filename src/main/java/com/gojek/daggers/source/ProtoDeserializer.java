@@ -3,7 +3,7 @@ package com.gojek.daggers.source;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerDeserializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.daggers.protoHandler.RowFactory;
+import com.gojek.daggers.protohandler.RowFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
