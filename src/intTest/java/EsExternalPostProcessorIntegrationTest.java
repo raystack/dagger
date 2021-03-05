@@ -8,9 +8,9 @@ import org.apache.flink.types.Row;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.dagger.common.StreamInfo;
-import com.gojek.daggers.postProcessors.PostProcessorFactory;
-import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.postprocessors.PostProcessorFactory;
+import com.gojek.daggers.postprocessors.common.PostProcessor;
+import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.utils.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;

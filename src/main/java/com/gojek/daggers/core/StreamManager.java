@@ -18,9 +18,9 @@ import com.gojek.dagger.udf.*;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
 import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
 import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
-import com.gojek.daggers.postProcessors.PostProcessorFactory;
-import com.gojek.daggers.postProcessors.common.PostProcessor;
-import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.postprocessors.PostProcessorFactory;
+import com.gojek.daggers.postprocessors.common.PostProcessor;
+import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.sink.SinkOrchestrator;
 import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 

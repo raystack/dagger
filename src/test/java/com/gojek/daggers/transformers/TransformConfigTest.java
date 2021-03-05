@@ -1,6 +1,6 @@
 package com.gojek.daggers.transformers;
 
-import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
+import com.gojek.daggers.postprocessors.transfromers.TransformConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
