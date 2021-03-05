@@ -2,7 +2,7 @@ package com.gojek.daggers.source;
 
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
-import com.gojek.daggers.protoHandler.TypeInformationFactory;
+import com.gojek.daggers.protohandler.TypeInformationFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
