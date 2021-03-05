@@ -8,9 +8,9 @@ import org.apache.flink.types.Row;
 
 import com.gojek.dagger.common.StreamInfo;
 import com.gojek.dagger.transformer.Transformer;
-import com.gojek.daggers.postProcessors.telemetry.processor.MetricsTelemetryExporter;
-import com.gojek.daggers.postProcessors.transfromers.TransformConfig;
-import com.gojek.daggers.postProcessors.transfromers.TransformProcessor;
+import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.postprocessors.transfromers.TransformConfig;
+import com.gojek.daggers.postprocessors.transfromers.TransformProcessor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -80,12 +80,12 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("com.gojek.daggers.postProcessors.transfromers.TransformProcessor.<init>(java.util.Map," +
+        expectedException.expectMessage("com.gojek.daggers.postprocessors.transfromers.TransformProcessor.<init>(java.util.Map," +
                 " [Ljava.lang.String;, org.apache.flink.configuration.Configuration)");
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
-        transfromConfigs.add(new TransformConfig("com.gojek.daggers.postProcessors.transfromers.TransformProcessor", transformationArguments));
+        transfromConfigs.add(new TransformConfig("com.gojek.daggers.postprocessors.transfromers.TransformProcessor", transformationArguments));
 
         TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
