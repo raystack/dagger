@@ -9,9 +9,7 @@ import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.gojek.daggers.metrics.aspects.TelemetryAspects.values;
 
@@ -19,7 +17,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
     private GaugeStatsManager gaugeStatsManager;
     private Integer gaugeValue = 1;
-    protected Map<String, List<String>> metrics = new HashMap<>();
+    protected Map<String, Set<String>> metrics = new HashMap<>();
 
     public MetricsTelemetryExporter(GaugeStatsManager gaugeStatsManager) {
         this.gaugeStatsManager = gaugeStatsManager;
@@ -53,10 +51,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
 
     private void mergeMetrics(Map<String, List<String>> metricsFromPublisher) {
         metricsFromPublisher.forEach((key, value) -> {
-                    if ((metrics.containsKey(key)))
-                        metrics.get(key).addAll(value);
-                    else
-                        metrics.putAll(metricsFromPublisher);
+                    metrics.computeIfAbsent(key, x -> new HashSet<>()).addAll(value);
                 }
         );
     }
