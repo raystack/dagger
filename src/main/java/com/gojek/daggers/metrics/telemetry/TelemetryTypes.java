@@ -9,6 +9,7 @@ public enum TelemetryTypes {
     OUTPUT_PROTO("output_proto"),
     OUTPUT_STREAM("output_stream"),
     POST_PROCESSOR_TYPE("post_processor_type"),
+    PRE_PROCESSOR_TYPE("pre_processor_type"),
     SOURCE_METRIC_ID("source_metricId"),
     UDF("udf");
 

@@ -23,7 +23,7 @@ public class KafkaProtoSQLProcessor {
             StreamManager streamManager = new StreamManager(configuration, executionEnvironment, tableEnvironment);
             streamManager
                     .registerConfigs()
-                    .registerSource()
+                    .registerSourceWithPreProcessors()
                     .registerFunctions()
                     .registerOutputStream()
                     .execute();
