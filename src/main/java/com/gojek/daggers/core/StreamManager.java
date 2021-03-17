@@ -1,6 +1,18 @@
 package com.gojek.daggers.core;
 
 import com.gojek.dagger.common.StreamInfo;
+import com.gojek.dagger.udf.*;
+import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
+import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
+import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
+import com.gojek.daggers.processors.PreProcessorConfig;
+import com.gojek.daggers.processors.types.PostProcessor;
+import com.gojek.daggers.processors.types.Preprocessor;
+import com.gojek.daggers.processors.PostProcessorFactory;
+import com.gojek.daggers.processors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.processors.PreProcessorFactory;
+import com.gojek.daggers.sink.SinkOrchestrator;
+import com.gojek.daggers.source.CustomStreamingTableSource;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -8,26 +20,14 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
 
-import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
-import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
-import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
-import com.gojek.daggers.postprocessors.PostProcessorFactory;
-import com.gojek.daggers.postprocessors.common.PostProcessor;
-import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
-import com.gojek.daggers.sink.SinkOrchestrator;
-import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gojek.daggers.utils.Constants.*;
@@ -66,18 +66,23 @@ public class StreamManager {
         return this;
     }
 
-    public StreamManager registerSource() {
+
+    public StreamManager registerSourceWithPreProcessors() {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
         Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
         kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
+        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
-            KafkaProtoStreamingTableSource tableSource = new KafkaProtoStreamingTableSource(
-                    kafkaConsumer,
+            DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
+            StreamInfo streamInfo = new StreamInfo(kafkaStream, TableSchema.fromTypeInfo(kafkaStream.getType()).getFieldNames());
+            streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
+            CustomStreamingTableSource tableSource = new CustomStreamingTableSource(
                     rowTimeAttributeName,
                     watermarkDelay,
-                    enablePerPartitionWatermark
+                    enablePerPartitionWatermark,
+                    streamInfo.getDataStream()
             );
             tableEnvironment.registerTableSource(tableName, tableSource);
         });
@@ -190,12 +195,20 @@ public class StreamManager {
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
-        StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
-            postProcessedStream = postProcessor.process(postProcessedStream);
+            streamInfo = postProcessor.process(streamInfo);
         }
-        return postProcessedStream;
+        return streamInfo;
     }
+
+    private StreamInfo addPreProcessor(StreamInfo streamInfo, String tableName, PreProcessorConfig preProcessorConfig) {
+        List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(configuration, preProcessorConfig, tableName, telemetryExporter);
+        for (Preprocessor preprocessor : preProcessors) {
+            streamInfo = preprocessor.process(streamInfo);
+        }
+        return streamInfo;
+    }
+
 
     private void addSink(StreamInfo streamInfo) {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
