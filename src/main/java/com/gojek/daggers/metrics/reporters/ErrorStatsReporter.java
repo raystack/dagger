@@ -1,6 +1,6 @@
 package com.gojek.daggers.metrics.reporters;
 
-import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.processors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.utils.Constants;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
