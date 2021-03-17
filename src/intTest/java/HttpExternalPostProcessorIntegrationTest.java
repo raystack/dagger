@@ -1,9 +1,9 @@
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.dagger.common.StreamInfo;
-import com.gojek.daggers.postprocessors.PostProcessorFactory;
-import com.gojek.daggers.postprocessors.common.PostProcessor;
-import com.gojek.daggers.postprocessors.telemetry.processor.MetricsTelemetryExporter;
+import com.gojek.daggers.processors.PostProcessorFactory;
+import com.gojek.daggers.processors.types.PostProcessor;
+import com.gojek.daggers.processors.telemetry.processor.MetricsTelemetryExporter;
 import com.gojek.daggers.utils.Constants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;

@@ -47,11 +47,11 @@ public class ProtoTypeTest {
         ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", "rowtime"},
+                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", INTERNAL_VALIDATION_FILED, "rowtime"},
                 ((RowTypeInfo) participantKeyProtoType.getRowType()).getFieldNames());
 
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", "audit", "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", "audit", INTERNAL_VALIDATION_FILED,"rowtime"},
                 ((RowTypeInfo) bookingKeyProtoType.getRowType()).getFieldNames());
     }
 
@@ -60,7 +60,7 @@ public class ProtoTypeTest {
         ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) participantKeyProtoType.getRowType()).getFieldTypes());
     }
 
@@ -140,8 +140,8 @@ public class ProtoTypeTest {
     @Test
     public void shouldGiveAllNamesAndTypesIncludingStructFields() {
         ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(11, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
-        assertEquals(11, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
+        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
+        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
     }
 
     @Test

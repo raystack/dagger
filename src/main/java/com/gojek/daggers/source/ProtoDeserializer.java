@@ -11,24 +11,26 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
 public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
-    private String protoClassName;
-    private ProtoType protoType;
-    private int timestampFieldIndex;
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    private final String protoClassName;
+    private final int timestampFieldIndex;
+    private final StencilClientOrchestrator stencilClientOrchestrator;
+    private final TypeInformation<Row> typeInformation;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProtoDeserializer.class);
 
     public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protoClassName = protoClassName;
-        this.protoType = new ProtoType(protoClassName, rowtimeAttributeName, stencilClientOrchestrator);
         this.timestampFieldIndex = timestampFieldIndex;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
+        this.typeInformation = new ProtoType(protoClassName, rowtimeAttributeName, stencilClientOrchestrator).getRowType();
     }
 
     @Override
@@ -37,15 +39,16 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
     }
 
     @Override
-    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws IOException {
+    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) {
+        Descriptors.Descriptor descriptor = getProtoParser();
         try {
-            Descriptors.Descriptor descriptor = getProtoParser();
             DynamicMessage proto = DynamicMessage.parseFrom(descriptor, consumerRecord.value());
-            return addTimestampFieldToRow(RowFactory.createRow(proto), proto);
+            return addTimestampFieldToRow(proto);
         } catch (DescriptorNotFoundException e) {
             throw new DescriptorNotFoundException(e);
         } catch (InvalidProtocolBufferException e) {
-            throw new InvalidProtocolBufferException(e);
+            LOGGER.warn("Invalid Row encountered for proto " + protoClassName, e);
+            return createDefaultInvalidRow(DynamicMessage.getDefaultInstance(descriptor));
         } catch (RuntimeException e) {
             throw new DaggerDeserializationException(e);
         }
@@ -53,7 +56,7 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
     @Override
     public TypeInformation<Row> getProducedType() {
-        return protoType.getRowType();
+        return this.typeInformation;
     }
 
     private Descriptors.Descriptor getProtoParser() {
@@ -64,18 +67,23 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
         return dsc;
     }
 
-    private Row addTimestampFieldToRow(Row row, DynamicMessage proto) {
+    private Row createDefaultInvalidRow(DynamicMessage defaultInstance) {
+        Row row = RowFactory.createRow(defaultInstance, 2);
+        row.setField(row.getArity() - 2, false);
+        row.setField(row.getArity() - 1, new Timestamp(0));
+        return row;
+    }
+
+    private Row addTimestampFieldToRow(DynamicMessage proto) {
+        Row finalRecord = RowFactory.createRow(proto, 2);
         Descriptors.FieldDescriptor fieldDescriptor = proto.getDescriptorForType().findFieldByNumber(timestampFieldIndex);
-        Row finalRecord = new Row(row.getArity() + 1);
-        for (int fieldIndex = 0; fieldIndex < row.getArity(); fieldIndex++) {
-            finalRecord.setField(fieldIndex, row.getField(fieldIndex));
-        }
         DynamicMessage timestampProto = (DynamicMessage) proto.getField(fieldDescriptor);
         List<Descriptors.FieldDescriptor> timestampFields = timestampProto.getDescriptorForType().getFields();
 
         long timestampSeconds = (long) timestampProto.getField(timestampFields.get(0));
         long timestampNanos = (int) timestampProto.getField(timestampFields.get(1));
 
+        finalRecord.setField(finalRecord.getArity() - 2, true);
         finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(timestampSeconds, timestampNanos)));
         return finalRecord;
     }
