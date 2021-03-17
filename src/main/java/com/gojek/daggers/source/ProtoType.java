@@ -3,6 +3,7 @@ package com.gojek.daggers.source;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
 import com.gojek.daggers.protohandler.TypeInformationFactory;
+import com.gojek.daggers.utils.Constants;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -32,6 +33,8 @@ public class ProtoType implements Serializable {
         RowTypeInfo rowTypeInfo = (RowTypeInfo) rowNamed;
         ArrayList<String> fieldNames = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldNames()));
         ArrayList<TypeInformation> fieldTypes = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldTypes()));
+        fieldNames.add(Constants.INTERNAL_VALIDATION_FILED);
+        fieldTypes.add(Types.BOOLEAN);
         fieldNames.add(rowtimeAttributeName);
         fieldTypes.add(Types.SQL_TIMESTAMP);
         return Types.ROW_NAMED(fieldNames.toArray(new String[0]), fieldTypes.toArray(new TypeInformation[0]));

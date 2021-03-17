@@ -1,6 +1,10 @@
 package com.gojek.daggers.utils;
 
 public class Constants {
+    public final static String INTERNAL_VALIDATION_FILED = "__internal_validation_field__";
+    public final static String PRE_PROCESSOR_ENABLED_KEY = "PRE_PROCESSOR_ENABLED";
+    public final static boolean PRE_PROCESSOR_ENABLED_DEFAULT = false;
+    public final static String PRE_PROCESSOR_CONFIG_KEY = "PRE_PROCESSOR_CONFIG";
     public final static String TELEMETRY_ENABLED_KEY = "TELEMETRY_ENABLED";
     public final static boolean TELEMETRY_ENABLED_VALUE_DEFAULT = true;
     public final static String POST_PROCESSOR_ENABLED_KEY = "POST_PROCESSOR_ENABLED";
