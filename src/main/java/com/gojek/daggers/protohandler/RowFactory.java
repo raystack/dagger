@@ -23,13 +23,17 @@ public class RowFactory {
         return row;
     }
 
-    public static Row createRow(DynamicMessage proto) {
+    public static Row createRow(DynamicMessage proto, int extraColumns) {
         List<FieldDescriptor> descriptorFields = proto.getDescriptorForType().getFields();
-        Row row = new Row(descriptorFields.size());
+        Row row = new Row(descriptorFields.size() + extraColumns);
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
             row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromKafka(proto.getField(fieldDescriptor)));
         }
         return row;
+    }
+
+    public static Row createRow(DynamicMessage proto) {
+        return createRow(proto, 0);
     }
 }

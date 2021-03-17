@@ -1,15 +1,20 @@
 package com.gojek.daggers.core;
 
 import com.gojek.dagger.common.StreamInfo;
+import com.gojek.daggers.source.CustomStreamingTableSource;
+import com.gojek.daggers.source.FlinkKafkaConsumerCustom;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableConfig;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
@@ -44,11 +49,14 @@ import com.gojek.dagger.udf.TimestampFromUnix;
 import com.gojek.dagger.udf.ToDouble;
 import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
 import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
-import com.gojek.daggers.source.KafkaProtoStreamingTableSource;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -57,6 +65,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
+@PrepareForTest(TableSchema.class)
+@RunWith(PowerMockRunner.class)
 public class StreamManagerTest {
 
     private StreamManager streamManager;
@@ -95,6 +105,15 @@ public class StreamManagerTest {
     @Mock
     private DataStream<Row> dataStream;
 
+    @Mock
+    private DataStreamSource<Row> source;
+
+    @Mock
+    private TypeInformation<Row> typeInformation;
+
+    @Mock
+    private TableSchema schema;
+
     @Before
     public void setup() {
 
@@ -119,7 +138,12 @@ public class StreamManagerTest {
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
-
+        when(env.addSource(any(FlinkKafkaConsumerCustom.class))).thenReturn(source);
+        when(source.getType()).thenReturn(typeInformation);
+        when(typeInformation.getTypeClass()).thenReturn(Row.class);
+        when(schema.getFieldNames()).thenReturn(new String[0]);
+        PowerMockito.mockStatic(TableSchema.class);
+        when(TableSchema.fromTypeInfo(typeInformation)).thenReturn(schema);
         streamManager = new StreamManager(configuration, env, tableEnvironment);
     }
 
@@ -140,17 +164,18 @@ public class StreamManagerTest {
     }
 
     @Test
-    public void shouldRegisterSource() {
+    public void shouldRegisterSourceWithPreprocessors() {
         streamManager.registerConfigs();
-        streamManager.registerSource();
+        streamManager.registerSourceWithPreProcessors();
 
-        verify(tableEnvironment, Mockito.times(1)).registerTableSource(eq("data_stream"), any(KafkaProtoStreamingTableSource.class));
+        verify(env,Mockito.times(1)).addSource(any(FlinkKafkaConsumerCustom.class));
+        verify(tableEnvironment, Mockito.times(1)).registerTableSource(eq("data_stream"), any(CustomStreamingTableSource.class));
     }
 
     @Test
     public void shouldRegisterFunctions() throws ClassNotFoundException {
         streamManager.registerConfigs();
-        streamManager.registerSource();
+        streamManager.registerSourceWithPreProcessors();
         streamManager.registerFunctions();
 
         verify(tableEnvironment, Mockito.times(1)).registerFunction(eq("S2Id"), any(S2Id.class));

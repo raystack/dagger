@@ -1,5 +1,6 @@
 package com.gojek.daggers.source;
 
+import com.gojek.clickstream.products.events.AdCardEvent;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.exception.DaggerDeserializationException;
 import com.gojek.daggers.exception.DescriptorNotFoundException;
@@ -13,7 +14,6 @@ import com.gojek.esb.participant.ParticipantLogKey;
 import com.gojek.esb.participant.ParticipantLogMessage;
 import com.gojek.esb.types.DriverLocationProto.DriverLocation;
 import com.gojek.esb.types.RouteProto;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -21,13 +21,17 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Objects;
 
 import static com.gojek.daggers.utils.Constants.*;
 import static com.gojek.esb.types.ParticipantStatusProto.ParticipantStatus.Enum.ACCEPTED;
@@ -64,10 +68,10 @@ public class ProtoDeserializerTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(ParticipantLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
         TypeInformation<Row> producedType = protoDeserializer.getProducedType();
         assertArrayEquals(
-                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", "rowtime"},
+                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", INTERNAL_VALIDATION_FILED, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) producedType).getFieldTypes());
     }
 
@@ -100,8 +104,9 @@ public class ProtoDeserializerTest {
 
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
-        assertEquals(39, row.getArity());
-        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(38)).getTime());
+        assertEquals(40, row.getArity());
+        assertTrue((Boolean) row.getField(38));
+        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(39)).getTime());
     }
 
     @Test
@@ -283,16 +288,27 @@ public class ProtoDeserializerTest {
         protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, null));
     }
 
-    @Test(expected = InvalidProtocolBufferException.class)
-    public void shouldThrowInvalidProtocolBufferException() throws IOException {
+    @Test
+    public void shouldReturnInvalidRow() {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
-        protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
+        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
+        assertFalse((boolean) row.getField(row.getArity() - 2));
+        assertEquals(new java.sql.Timestamp(0), row.getField(row.getArity() - 1));
     }
 
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowDescriptorNotFoundException() throws IOException {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
         protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
+    }
+
+    @Test
+    public void shouldNotDeserializeInvalidUTF8Char() throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(AdCardEvent.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        byte[] protoBytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(classLoader.getResource("binary/broken-message")).getPath()));
+        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Assert.assertFalse((Boolean) row.getField(row.getArity() - 2));
     }
 
     private int participantLogFieldIndex(String propertyName) {
