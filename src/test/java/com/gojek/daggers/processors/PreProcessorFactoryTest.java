@@ -59,6 +59,7 @@ public class PreProcessorFactoryTest {
         when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(true);
         when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
+        Assert.assertNotNull(preProcessorConfig);
         List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(configuration, preProcessorConfig, "booking", metricsTelemetryExporter);
         Assert.assertEquals(1, preProcessors.size());
     }
@@ -80,5 +81,13 @@ public class PreProcessorFactoryTest {
         expectedException.expectMessage("Invalid JSON Given for PRE_PROCESSOR_CONFIG");
         expectedException.expect(InvalidJsonException.class);
         PreProcessorFactory.parseConfig(configuration);
+    }
+
+    @Test
+    public void shouldNotParseConfigWhenDisabled() {
+        when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(false);
+        when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
+        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
+        Assert.assertNull(preProcessorConfig);
     }
 }
