@@ -12,12 +12,15 @@ import org.apache.flink.configuration.Configuration;
 import java.util.Collections;
 import java.util.List;
 
-import static com.gojek.daggers.utils.Constants.PRE_PROCESSOR_CONFIG_KEY;
+import static com.gojek.daggers.utils.Constants.*;
 
 public class PreProcessorFactory {
     private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     public static PreProcessorConfig parseConfig(Configuration configuration) {
+        if (!configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)) {
+            return null;
+        }
         String configJson = configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "");
         PreProcessorConfig config;
         try {
@@ -26,7 +29,6 @@ public class PreProcessorFactory {
             throw new InvalidJsonException("Invalid JSON Given for " + PRE_PROCESSOR_CONFIG_KEY);
         }
         return config;
-
     }
 
     public static List<Preprocessor> getPreProcessors(Configuration configuration, PreProcessorConfig processorConfig, String tableName, MetricsTelemetryExporter metricsTelemetryExporter) {
