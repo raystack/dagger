@@ -303,10 +303,10 @@ public class ProtoDeserializerTest {
     }
 
     @Test
-    public void shouldNotDeserializeInvalidUTF8Char() throws IOException {
+    public void shouldNotDeserializeInvalidUTF8Char() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(AdCardEvent.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
-        byte[] protoBytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(classLoader.getResource("binary/broken-message")).getPath()));
+        byte[] protoBytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(Objects.requireNonNull(classLoader.getResource("binary/broken-message")).toURI()).getPath()));
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
         Assert.assertFalse((Boolean) row.getField(row.getArity() - 2));
     }
