@@ -1,6 +1,6 @@
 package com.gojek.daggers.processors;
 
-import com.gojek.dagger.common.StreamInfo;
+import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.metrics.telemetry.TelemetryTypes;
 import com.gojek.daggers.processors.common.ValidRecordsDecorator;
 import com.gojek.daggers.processors.telemetry.processor.MetricsTelemetryExporter;

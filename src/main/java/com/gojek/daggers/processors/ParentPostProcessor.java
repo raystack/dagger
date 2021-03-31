@@ -5,7 +5,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import com.gojek.dagger.common.StreamInfo;
+import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.core.StencilClientOrchestrator;
 import com.gojek.daggers.metrics.telemetry.TelemetrySubscriber;
 import com.gojek.daggers.processors.external.ExternalMetricConfig;
