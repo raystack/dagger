@@ -4,7 +4,7 @@ import com.gojek.daggers.processors.types.PostProcessor;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import com.gojek.dagger.common.StreamInfo;
+import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.processors.PostProcessorConfig;
 import com.gojek.daggers.processors.ColumnNameManager;
 import com.gojek.daggers.processors.types.Validator;

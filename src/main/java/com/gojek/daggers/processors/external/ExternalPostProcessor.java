@@ -1,6 +1,6 @@
 package com.gojek.daggers.processors.external;
 
-import com.gojek.dagger.common.StreamInfo;
+import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.processors.types.PostProcessor;
 import com.gojek.daggers.processors.PostProcessorConfig;
 import com.gojek.daggers.processors.types.Validator;
