@@ -1,9 +1,6 @@
 package com.gojek.daggers.core;
 
-import com.gojek.dagger.common.StreamInfo;
-import com.gojek.dagger.udf.*;
-import com.gojek.dagger.udf.boundingbox.BoundingBoxCheck;
-import com.gojek.dagger.udf.gopay.fraud.RuleViolatedEventUnnest;
+import com.gojek.daggers.core.StreamInfo;
 import com.gojek.daggers.metrics.telemetry.AggregatedUDFTelemetryPublisher;
 import com.gojek.daggers.processors.PreProcessorConfig;
 import com.gojek.daggers.processors.types.PostProcessor;
@@ -91,53 +88,11 @@ public class StreamManager {
 
     private Map<String, ScalarFunction> addScalarFunctions() {
         HashMap<String, ScalarFunction> scalarFunctions = new HashMap<>();
-        scalarFunctions.put("S2Id", new S2Id());
-        scalarFunctions.put("GEOHASH", new GeoHash());
-        scalarFunctions.put("ElementAt", new ElementAt(kafkaStreams.getProtos(),
-                configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls(),
-                configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT),
-                configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT),
-                configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)));
-
-        scalarFunctions.put("SelectFields", new SelectFields(true, getStencilUrls()));
-        scalarFunctions.put("Filters", new Filters(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT), getStencilUrls()));
-        scalarFunctions.put("CondEq", new CondEq());
-        scalarFunctions.put("ServiceArea", new ServiceArea());
-        scalarFunctions.put("ArrayAggregate", new ArrayAggregate());
-        scalarFunctions.put("ArrayOperate", new ArrayOperate());
-        scalarFunctions.put("ServiceAreaId", new ServiceAreaId());
-        scalarFunctions.put("Distance", new Distance());
-        scalarFunctions.put("AppBetaUsers", new AppBetaUsers());
-        scalarFunctions.put("KeyValue", new KeyValue());
-        scalarFunctions.put("DartGet", DartGet.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
-        scalarFunctions.put("DartContains", DartContains.withGcsDataStore(getGcsProjectId(), getGcsBucketId()));
-        scalarFunctions.put("TimestampFromUnix", new TimestampFromUnix());
-        scalarFunctions.put("SecondsElapsed", new SecondsElapsed());
-        scalarFunctions.put("StartOfWeek", new StartOfWeek());
-        scalarFunctions.put("EndOfWeek", new EndOfWeek());
-        scalarFunctions.put("StartOfMonth", new StartOfMonth());
-        scalarFunctions.put("EndOfMonth", new EndOfMonth());
-        scalarFunctions.put("TimeInDate", new TimeInDate());
-        scalarFunctions.put("MapGet", new MapGet());
-        scalarFunctions.put("ExponentialMovingAverage", new ExponentialMovingAverage());
-        scalarFunctions.put("LinearTrend", new LinearTrend());
-        scalarFunctions.put("ListContains", new ListContains());
-        scalarFunctions.put("ToDouble", new ToDouble());
-        scalarFunctions.put("SingleFeatureWithType", new SingleFeatureWithType());
-        scalarFunctions.put("Regexp", new Regexp());
-        scalarFunctions.put("MixedGranularityS2Id", new MixedGranularityS2Id());
-        scalarFunctions.put("S2AreaInKm2", new S2AreaInKm2());
-        scalarFunctions.put("BoundingBoxCheck", new BoundingBoxCheck());
-        scalarFunctions.put("FormatTimeInZone", new FormatTimeInZone());
-        scalarFunctions.put("Split", new Split());
         return scalarFunctions;
     }
 
     private Map<String, TableFunction> addTableFunctions() {
         HashMap<String, TableFunction> tableFunctions = new HashMap<>();
-        tableFunctions.put("RuleViolatedEventUnnest", new RuleViolatedEventUnnest());
-        tableFunctions.put("OutlierMad", new OutlierMad());
-        tableFunctions.put("HistogramBucket", new HistogramBucket());
         return tableFunctions;
     }
 
@@ -149,15 +104,6 @@ public class StreamManager {
 
     private Map<String, AggregateFunction> addAggregateFunctions() {
         HashMap<String, AggregateFunction> aggregateFunctions = new HashMap<>();
-        aggregateFunctions.put("DistinctCount", new DistinctCount());
-        aggregateFunctions.put("DistinctByCurrentStatus", new DistinctByCurrentStatus());
-        aggregateFunctions.put("Features", new Features());
-        aggregateFunctions.put("FeaturesWithType", new FeaturesWithType());
-        aggregateFunctions.put("ConcurrentTransactions", new ConcurrentTransactions(7200));
-        aggregateFunctions.put("DistanceAggregator", new DistanceAggregator());
-        aggregateFunctions.put("CollectArray", new CollectArray());
-        aggregateFunctions.put("PercentileAggregator", new PercentileAggregator());
-        aggregateFunctions.put("Top", new Top());
         return aggregateFunctions;
     }
 
