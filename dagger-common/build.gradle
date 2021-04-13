@@ -1,0 +1,92 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+}
+plugins {
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+
+description = """common dependencies for dagger"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations {
+    minimalCommonJar
+    dependenciesCommonJar
+
+    minimalCommonJar.extendsFrom runtime
+    compileOnly.extendsFrom minimalCommonJar
+    testCompile.extendsFrom compileOnly
+}
+
+sourceSets {
+    main.compileClasspath += configurations.minimalCommonJar
+    main.compileClasspath += configurations.dependenciesCommonJar
+    main.runtimeClasspath += configurations.minimalCommonJar
+    main.runtimeClasspath += configurations.dependenciesCommonJar
+
+    test.compileClasspath += configurations.minimalCommonJar
+    test.compileClasspath += configurations.dependenciesCommonJar
+    test.runtimeClasspath += configurations.minimalCommonJar
+    test.runtimeClasspath += configurations.dependenciesCommonJar
+}
+
+dependencies {
+    compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    dependenciesCommonJar 'com.gojek:stencil:2.0.15'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+test {
+    finalizedBy jacocoTestReport
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        csv.enabled false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    zip64 true
+    from {
+        (configurations.compileClasspath).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+task fatJar(type: ShadowJar) {
+    description = "Builds a executable jar"
+    classifier = 'fat'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtimeClasspath, project.configurations.minimalCommonJar, project.configurations.dependenciesCommonJar]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    zip64 true
+    mergeServiceFiles()
+    append('reference.conf')
+}
