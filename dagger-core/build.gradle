@@ -1,0 +1,313 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.17.0"
+    }
+}
+plugins {
+    id 'maven-publish'
+    id 'com.google.protobuf' version '0.8.13'
+    id 'com.jfrog.artifactory' version '4.17.0'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+
+def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def daggersVersion = '12.4.0'
+def dependenciesVersion = '0.1.0'
+
+
+version "${flinkVersion}_${daggersVersion}"
+
+def dependenciesArtifactVersion = "${flinkVersion}_${dependenciesVersion}"
+def minimalVersion = version + '_' + dependenciesVersion
+
+description = """daggers to the heart!"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+def mainClassName = "com.gojek.daggers.KafkaProtoSQLProcessor"
+
+configurations {
+    minimalJar
+    dependenciesJar
+
+    dependenciesJar.exclude group: 'org.apache.flink', module: 'force-shading'
+    dependenciesJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    dependenciesJar.exclude group: 'org.slf4j'
+    dependenciesJar.exclude group: 'log4j'
+
+    compile.extendsFrom minimalJar
+    testCompile.extendsFrom compileOnly
+    testRuntimeOnly.extendsFrom runtimeOnly
+    intTestImplementation.extendsFrom minimalJar
+    intTestImplementation.extendsFrom dependenciesJar
+    intTestImplementation.extendsFrom implementation
+    intTestImplementation.extendsFrom testImplementation
+    intTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+// minimalJar: add all dependencies to be included in dagger cluster user jar
+// dependenciesJar: add all dependencies to be included in flink docker image
+// implementation: add all dependencies required just for local build
+// testImplementation: add all dependencies required just for tests
+dependencies {
+    minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
+    minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
+
+    implementation 'org.slf4j:slf4j-log4j12:1.7.7'
+    implementation 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    implementation 'org.apache.flink:flink-clients_2.11:' + flinkVersion
+    implementation 'org.apache.flink:flink-table:' + flinkVersion
+    implementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
+    implementation 'org.apache.flink:flink-table-planner_2.11:' + flinkVersion
+
+    dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
+
+    dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
+    dependenciesJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
+    dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
+    dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
+    dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
+    dependenciesJar 'org.influxdb:influxdb-java:2.8'
+    dependenciesJar 'com.google.code.gson:gson:2.8.2'
+    dependenciesJar 'com.gojek:stencil:2.0.15'
+    dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
+    dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
+    dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
+    dependenciesJar 'com.jayway.jsonpath:json-path:2.4.0'
+    dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
+    dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
+    testImplementation 'org.apache.kafka:kafka-clients:2.5.0'
+    testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.0'
+    testImplementation 'org.jmockit:jmockit:1.25'
+    testImplementation 'org.mockito:mockito-core:2.25.1'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
+    testImplementation 'com.google.guava:guava:27.0.1-jre'
+    testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
+}
+
+test {
+    finalizedBy jacocoTestReport
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        csv.enabled false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.2
+            }
+        }
+    }
+}
+
+sourceSets {
+    main.compileClasspath += configurations.minimalJar
+    main.compileClasspath += project(":dagger-common").configurations.minimalCommonJar
+    main.compileClasspath += configurations.dependenciesJar
+    main.runtimeClasspath += configurations.minimalJar
+    main.compileClasspath += project(":dagger-common").configurations.minimalCommonJar
+    main.runtimeClasspath += configurations.dependenciesJar
+
+    test.compileClasspath += configurations.minimalJar
+    test.compileClasspath += configurations.dependenciesJar
+    test.runtimeClasspath += configurations.minimalJar
+    test.runtimeClasspath += configurations.dependenciesJar
+
+    intTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.test.output
+        runtimeClasspath += sourceSets.test.output
+    }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.intTest.output.classesDirs
+    classpath = sourceSets.intTest.runtimeClasspath
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src/generated"
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.1.0"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.19.0"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    zip64 true
+    from {
+        (configurations.compileClasspath).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes("Main-Class": "$mainClassName")
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
+    minimize {
+        exclude(dependency('io.vertx:vertx-pg-client:.*'))
+        exclude(dependency('com.google.cloud.bigtable:bigtable-hbase-2.x:.*'))
+    }
+    zip64 true
+    configurations = [project.configurations.minimalJar, project.configurations.dependenciesJar]
+    relocate('com.google.protobuf', 'shaded.com.google.protobuf') {
+        exclude 'combine.self="override"'
+    }
+}
+
+task minimalJar(type: ShadowJar) {
+    manifest.attributes 'Main-Class': mainClassName
+    classifier = 'minimal'
+    zip64 true
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    from sourceSets.main.output
+    configurations = [project.configurations.minimalJar]
+    version = minimalVersion
+}
+
+task dependenciesJar(type: ShadowJar) {
+    mergeServiceFiles()
+    manifest.attributes 'Main-Class': mainClassName
+    classifier = 'dependencies'
+    zip64 true
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    configurations = [project.configurations.dependenciesJar]
+    version = dependenciesArtifactVersion
+}
+
+task fatJar(type: ShadowJar) {
+    description = "Builds a executable jar"
+    manifest.attributes 'Main-Class': mainClassName
+    classifier = 'fat'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtimeClasspath, project.configurations.minimalJar, project.configurations.dependenciesJar]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    zip64 true
+    mergeServiceFiles()
+    append('reference.conf')
+}
+
+private Properties loadEnv() {
+    Properties properties = new Properties()
+    properties.load(new FileInputStream(file("${projectDir}/env/local.properties")));
+    properties
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            publication ->
+                project.shadow.component(publication)
+        }
+        minimalArtifact(MavenPublication) {
+            artifact file("$buildDir/libs/daggers-${minimalVersion}-minimal.jar")
+            groupId project.group
+            artifactId project.name
+            version = minimalVersion + '-minimal'
+        }
+        dependenciesArtifact(MavenPublication) {
+            artifact file("$buildDir/libs/daggers-${dependenciesArtifactVersion}-dependencies.jar")
+            groupId project.group
+            artifactId project.name
+            version = dependenciesArtifactVersion + '-dependencies'
+        }
+    }
+}
+artifactory {
+    publish {
+        defaults {
+            publications('mavenJava')
+            properties = ['qa.level': 'basic', 'dev.team': 'core']
+
+            publishBuildInfo = true
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+
+    clientConfig.setIncludeEnvVars(true)
+    clientConfig.info.setBuildName('daggers')
+    clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
+}
+
+project.afterEvaluate {
+    tasks.withType(PublishToMavenRepository) {
+        dependsOn minimalJar, dependenciesJar
+    }
+}
+
+
+task runFlink(type: JavaExec, dependsOn: classes) {
+    Properties properties = loadEnv()
+    systemProperties['ConfigSource'] = "ENVIRONMENT"
+    def env = System.getenv()
+    env.each { k, v ->
+        properties.setProperty(k, v)
+    }
+
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    environment properties
+}
+
+
+idea {
+    module {
+        testSourceDirs += file("$projectDir/src/generated/test/java")
+        testSourceDirs += project.sourceSets.intTest.java.srcDirs
+    }
+}

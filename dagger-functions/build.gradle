@@ -1,0 +1,73 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+}
+
+def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+
+description = """you know where to add your functions in dagger!"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+
+configurations {
+    minimalFunctionsJar
+    dependenciesFunctionsJar
+
+    minimalFunctionsJar.extendsFrom runtime
+    compileOnly.extendsFrom minimalFunctionsJar
+    testCompile.extendsFrom compileOnly
+}
+
+sourceSets {
+    main.compileClasspath += configurations.minimalFunctionsJar
+    main.compileClasspath += configurations.dependenciesFunctionsJar
+    main.runtimeClasspath += configurations.minimalFunctionsJar
+    main.runtimeClasspath += configurations.dependenciesFunctionsJar
+
+    test.compileClasspath += configurations.minimalFunctionsJar
+    test.compileClasspath += configurations.dependenciesFunctionsJar
+    test.runtimeClasspath += configurations.minimalFunctionsJar
+    test.runtimeClasspath += configurations.dependenciesFunctionsJar
+}
+
+dependencies {
+    compileOnly project(':dagger-common')
+
+    compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
+    compileOnly group: 'org.apache.flink', name: 'flink-clients_2.11', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
+
+    testImplementation 'junit:junit:4.12'
+}
+
+test {
+    finalizedBy jacocoTestReport
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        csv.enabled false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
