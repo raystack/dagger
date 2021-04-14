@@ -1,4 +1,4 @@
-package io.odpf.dagger.functions.udfs;
+package io.odpf.dagger.functions.udfs.scalar;
 
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.ScalarFunction;
