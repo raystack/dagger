@@ -1,34 +1,34 @@
 package io.odpf.dagger.functions.udfs.factories;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.UserDefinedFunction;
 
 import io.odpf.dagger.common.contracts.UDFFactory;
-import io.odpf.dagger.functions.udfs.EndOfMonth;
+import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ScalarFuctionFactory implements UDFFactory {
     private Configuration daggerConfig;
-    private TableEnvironment tableEnvironment;
+    private StreamTableEnvironment streamTableEnvironment;
 
-    public ScalarFuctionFactory(Configuration daggerConfig, TableEnvironment tableEnvironment) {
+    public ScalarFuctionFactory(Configuration daggerConfig, StreamTableEnvironment streamTableEnvironment) {
         this.daggerConfig = daggerConfig;
-        this.tableEnvironment = tableEnvironment;
+        this.streamTableEnvironment = streamTableEnvironment;
     }
 
     public void registerFunctions() {
         addfunctions().forEach((scalarFunctionName, scalarUDF) -> {
-            tableEnvironment.registerFunction(scalarFunctionName, (ScalarFunction) scalarUDF);
+            streamTableEnvironment.registerFunction(scalarFunctionName, (ScalarFunction) scalarUDF);
         });
     }
 
     public Map<String, UserDefinedFunction> addfunctions() {
-        HashMap<String, UserDefinedFunction> scalarFunctions = new HashMap();
-        scalarFunctions.put("EndOfMonth", new EndOfMonth());
-        return scalarFunctions;
+        HashMap<String, UserDefinedFunction> scalarFunctionMap = new HashMap();
+        scalarFunctionMap.put("EndOfMonth", new EndOfMonth());
+        return scalarFunctionMap;
     }
 }
