@@ -2,7 +2,9 @@ package io.odpf.dagger.processors.transformers;
 
 import org.apache.flink.configuration.Configuration;
 
+import io.odpf.dagger.common.contracts.Transformer;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.exception.TransformClassNotDefinedException;
 import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.processors.PostProcessorConfig;
@@ -11,6 +13,7 @@ import io.odpf.dagger.processors.types.PostProcessor;
 import io.odpf.dagger.processors.types.Preprocessor;
 import io.odpf.dagger.utils.Constants;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,14 +43,21 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
         TransformerUtils.populateDefaultArguments(this);
     }
 
-    //TODO : Removed Transformers references as part of internal dependencies removal. Will re-add them later
+    //TODO : validate transformation logic if works properly or not
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         for (TransformConfig transformConfig : transformConfigs) {
             String className = transformConfig.getTransformationClass();
+            try {
+                Transformer function = getTransformMethod(transformConfig, className, streamInfo.getColumnNames());
+                streamInfo = function.transform(streamInfo);
+            } catch (ReflectiveOperationException e) {
+                throw new TransformClassNotDefinedException(e.getMessage());
+            }
         }
         return streamInfo;
     }
+
 
     @Override
     public boolean canProcess(PreProcessorConfig processorConfig) {
@@ -71,7 +81,6 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
         }
     }
 
-
     @Override
     public Map<String, List<String>> getTelemetry() {
         return metrics;
@@ -79,5 +88,11 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
 
     private void addMetric(String key, String value) {
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+    }
+
+    protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+        Class<?> transformerClass = Class.forName(className);
+        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, Configuration.class);
+        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, configuration);
     }
 }

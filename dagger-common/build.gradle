@@ -49,6 +49,7 @@ sourceSets {
 
 dependencies {
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     dependenciesCommonJar 'com.gojek:stencil:2.0.15'
 
     testImplementation 'junit:junit:4.12'

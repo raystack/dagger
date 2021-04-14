@@ -76,6 +76,9 @@ public class Constants {
     public static final String FATAL_EXCEPTION_METRIC_GROUP_KEY = "fatal.exception";
     public static final String NONFATAL_EXCEPTION_METRIC_GROUP_KEY = "non.fatal.exception";
 
+    public static final String FUNCTION_FACTORY_CLASSES_KEY = "FUNCTION_FACTORY_CLASSES";
+    public static final String FUNCTION_FACTORY_CLASSES_DEFAULT = "";
+
     public static final String INFLUX_LATE_RECORDS_DROPPED_KEY = "influx.late.records.dropped";
 
     public static final String STENCIL_ENABLE_KEY = "ENABLE_STENCIL_URL";
