@@ -41,7 +41,7 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-def mainClassName = "com.gojek.daggers.KafkaProtoSQLProcessor"
+def mainClassName = "io.odpf.dagger.KafkaProtoSQLProcessor"
 
 configurations {
     minimalJar
