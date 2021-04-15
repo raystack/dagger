@@ -81,10 +81,6 @@ jar {
     }
 }
 
-
-// TODO: Add jar stage and publish stratergy for common
-// Does publishing minimal jar make sense ?
-
 publishing {
     publications {
         shadow(MavenPublication) {
@@ -103,21 +99,4 @@ publishing {
             }
         }
     }
-}
-
-artifactory {
-    publish {
-        defaults {
-            publications('mavenJava')
-            properties = ['qa.level': 'basic', 'dev.team': 'core']
-
-            publishBuildInfo = true
-            publishArtifacts = true
-            publishPom = true
-        }
-    }
-
-    clientConfig.setIncludeEnvVars(true)
-    clientConfig.info.setBuildName('dagger')
-    clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
 }
