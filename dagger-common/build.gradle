@@ -71,23 +71,4 @@ jacocoTestReport {
     finalizedBy jacocoTestCoverageVerification
 }
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    zip64 true
-    from {
-        (configurations.compileClasspath).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
 
-task fatJar(type: ShadowJar) {
-    description = "Builds a executable jar"
-    classifier = 'fat'
-    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
-    configurations = [project.configurations.runtimeClasspath, project.configurations.minimalCommonJar, project.configurations.dependenciesCommonJar]
-    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-    zip64 true
-    mergeServiceFiles()
-    append('reference.conf')
-}
