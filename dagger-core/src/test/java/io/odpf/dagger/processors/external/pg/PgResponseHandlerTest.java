@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.pg;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
@@ -7,7 +8,6 @@ import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.processors.common.RowManager;
-import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import com.google.protobuf.Descriptors;
 import io.vertx.core.AsyncResult;
 import io.vertx.sqlclient.RowIterator;
@@ -74,7 +74,7 @@ public class PgResponseHandlerTest {
     @Before
     public void setup() {
         initMocks(this);
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         inputColumnNames = new String[0];
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("customer_url");
@@ -209,7 +209,7 @@ public class PgResponseHandlerTest {
         when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(rowSetIterator.next()).thenReturn(row);
         when(row.getValue("surge_factor")).thenReturn("123");
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         inputColumnNames = new String[]{"s2_id"};
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("s2_id");
@@ -247,7 +247,7 @@ public class PgResponseHandlerTest {
         when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(rowSetIterator.next()).thenReturn(row);
         when(row.getValue("surge_factor")).thenReturn("123");
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         inputColumnNames = new String[]{"s2_id"};
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("s2_id");

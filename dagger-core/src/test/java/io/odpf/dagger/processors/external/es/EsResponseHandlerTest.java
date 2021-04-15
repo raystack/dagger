@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.es;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
@@ -9,8 +10,6 @@ import io.odpf.dagger.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.processors.common.RowManager;
 import io.odpf.dagger.protohandler.ProtoHandlerFactory;
 import io.odpf.dagger.protohandler.RowFactory;
-import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
-import com.gojek.esb.fraud.EnrichedBookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.jayway.jsonpath.PathNotFoundException;
 import mockit.Mock;
@@ -76,7 +75,7 @@ public class EsResponseHandlerTest {
                 "driver_id", "com.gojek.esb.fraud.EnrichedBookingLogMessage", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         resultFuture = mock(ResultFuture.class);
-        descriptor = EnrichedBookingLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         meterStatsManager = mock(MeterStatsManager.class);
         inputColumnNames = new String[3];
         outputColumnNames = new ArrayList<>();
@@ -109,7 +108,7 @@ public class EsResponseHandlerTest {
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
-        outputData.setField(0, RowFactory.createRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
+        outputData.setField(0, RowFactory.createRow(outputDataMap, TestBookingLogMessage.getDescriptor()));
         outputStreamData.setField(1, outputData);
 
 
@@ -169,7 +168,7 @@ public class EsResponseHandlerTest {
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
-        outputData.setField(0, RowFactory.createRow(outputDataMap, DriverProfileFlattenLogMessage.getDescriptor()));
+        outputData.setField(0, RowFactory.createRow(outputDataMap, TestBookingLogMessage.getDescriptor()));
         outputStreamData.setField(1, outputData);
 
 
@@ -191,7 +190,7 @@ public class EsResponseHandlerTest {
             }
         };
 
-        descriptor = DriverProfileFlattenLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
         esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",

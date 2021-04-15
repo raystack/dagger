@@ -1,12 +1,8 @@
 package io.odpf.dagger.source;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.clevertap.ClevertapEventLogMessage;
-import com.gojek.esb.consumer.TestNestedRepeatedMessage;
-import com.gojek.esb.login.LoginRequestMessage;
-import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -78,7 +74,7 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveSimpleMappedFlinkTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType participantMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
@@ -89,7 +85,7 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveSubRowMappedField() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType participantMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
@@ -104,7 +100,7 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldProcessArrayForObjectData() {
-        ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType bookingLogMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) bookingLogMessageProtoType.getRowType()).getFieldTypes();
         TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
@@ -117,7 +113,7 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldProcessArrayForStringData() {
-        ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType loginRequestMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) loginRequestMessageProtoType.getRowType()).getFieldTypes();
 
@@ -129,7 +125,7 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveNamesAndTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType participantMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
 
@@ -139,14 +135,14 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingStructFields() {
-        ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
         assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
     }
 
     @Test
     public void shouldReturnRowTypeForStructFields() {
-        ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[7]);
         assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[8]);
         assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[9]);
@@ -157,27 +153,27 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingPrimitiveArrayFields() {
-        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType testNestedRepeatedMessage = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals(PRIMITIVE_ARRAY(INT), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[3]);
     }
 
     @Test
     public void shouldGiveNameAndTypeForRepeatingStructType() {
-        ProtoType testNestedRepeatedMessage = new ProtoType(TestNestedRepeatedMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType testNestedRepeatedMessage = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals("metadata", ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldNames()[4]);
         assertEquals(OBJECT_ARRAY(ROW()), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[4]);
     }
 
     private int participantLogFieldIndex(String propertyName) {
-        return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+        return TestBookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 
     private int bookingLogFieldIndex(String propertyName) {
-        return BookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+        return TestBookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 
     private int loginRequestFieldIndex(String propertyName) {
-        return LoginRequestMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+        return TestBookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 
 }

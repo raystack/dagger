@@ -1,10 +1,10 @@
 package io.odpf.dagger.processors.common;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.processors.types.FilterDecorator;
 import io.odpf.dagger.source.ProtoDeserializer;
-import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.configuration.Configuration;
@@ -46,7 +46,7 @@ public class ValidRecordsDecoratorTest {
     }
 
     private String[] getColumns() {
-        List<String> fields = BookingLogMessage.getDescriptor()
+        List<String> fields = TestBookingLogMessage.getDescriptor()
                 .getFields()
                 .stream()
                 .map(Descriptors.FieldDescriptor::getName).collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class ValidRecordsDecoratorTest {
     public void shouldThrowExceptionWithBadRecord() throws Exception {
         expectedException.expectMessage("Bad Record Encountered for table `test`");
         expectedException.expect(InvalidProtocolBufferException.class);
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes());
         Row invalidRow = protoDeserializer.deserialize(consumerRecord);
         ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns());
@@ -69,8 +69,8 @@ public class ValidRecordsDecoratorTest {
 
     @Test
     public void shouldReturnTrueForCorrectRecord() throws Exception {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(BookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
-        ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, BookingLogMessage.newBuilder().build().toByteArray());
+        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
+        ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
         Row validRow = protoDeserializer.deserialize(consumerRecord);
         FilterDecorator filter = new ValidRecordsDecorator("test", getColumns());
         Assert.assertTrue(filter.filter(validRow));

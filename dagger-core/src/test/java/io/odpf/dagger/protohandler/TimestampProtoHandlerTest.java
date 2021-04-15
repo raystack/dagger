@@ -1,10 +1,10 @@
 package io.odpf.dagger.protohandler;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 
-import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class TimestampProtoHandlerTest {
     @Test
     public void shouldReturnTrueIfTimestampFieldDescriptorIsPassed() {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
 
         assertTrue(timestampProtoHandler.canHandle());
@@ -29,7 +29,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanTimestampTypeIsPassed() {
-        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
 
         assertFalse(timestampProtoHandler.canHandle());
@@ -37,7 +37,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfCannotHandle() {
-        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
@@ -47,20 +47,20 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, null).build();
 
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(0L, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(0, bookingLogMessage.getEventTimestamp().getNanos());
     }
 
     @Test
     public void shouldSetTimestampIfInstanceOfJavaSqlTimestampPassed() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
@@ -69,14 +69,14 @@ public class TimestampProtoHandlerTest {
         Timestamp inputTimestamp = new Timestamp(milliSeconds);
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputTimestamp).build();
 
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(inputTimestamp.getNanos(), bookingLogMessage.getEventTimestamp().getNanos());
     }
 
     @Test
     public void shouldSetTimestampIfRowHavingTimestampIsPassed() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
@@ -89,14 +89,14 @@ public class TimestampProtoHandlerTest {
 
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputRow).build();
 
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(nanos, bookingLogMessage.getEventTimestamp().getNanos());
     }
 
     @Test
     public void shouldThrowExceptionIfRowOfArityOtherThanTwoIsPassed() {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
@@ -112,7 +112,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldSetTimestampIfInstanceOfNumberPassed() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
@@ -120,14 +120,14 @@ public class TimestampProtoHandlerTest {
 
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, seconds).build();
 
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(0, bookingLogMessage.getEventTimestamp().getNanos());
     }
 
     @Test
     public void shouldSetTimestampIfInstanceOfStringPassed() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor timestampFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
@@ -135,7 +135,7 @@ public class TimestampProtoHandlerTest {
 
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputTimestamp).build();
 
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(1553752213, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(0, bookingLogMessage.getEventTimestamp().getNanos());
     }
@@ -144,7 +144,7 @@ public class TimestampProtoHandlerTest {
     public void shouldFetchTimeStampAsStringFromFieldForFieldDescriptorOfTypeTimeStampForTransformForPostProcessor() {
         String actualValue = "2018-08-30T02:21:39.975107Z";
 
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
@@ -155,7 +155,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldReturnNullWhenTimeStampNotAvailableAndFieldDescriptorOfTypeTimeStampForTransformForPostProcessor() {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
@@ -166,7 +166,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldHandleTimestampMessagesByReturningNullForNonParseableTimeStampsForTransformForPostProcessor() {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
@@ -178,7 +178,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldReturnTypeInformation() {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         TypeInformation actualTypeInformation = timestampProtoHandler.getTypeInformation();
@@ -188,13 +188,13 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldTransformTimestampForDynamicMessageForKafka() throws InvalidProtocolBufferException {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
-        BookingLogMessage bookingLogMessage = BookingLogMessage
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .setEventTimestamp(com.google.protobuf.Timestamp.newBuilder().setSeconds(10L).setNanos(10).build())
                 .build();
-        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
         assertEquals(2, row.getArity());
@@ -204,12 +204,12 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldSetDefaultValueForDynamicMessageForKafkaIfValuesNotSet() throws InvalidProtocolBufferException {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
-        BookingLogMessage bookingLogMessage = BookingLogMessage
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .build();
-        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
         assertEquals(2, row.getArity());
@@ -219,7 +219,7 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldConvertTimestampToJsonString() {
-        Descriptors.Descriptor descriptor = BookingLogMessage.getDescriptor();
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
         Row inputRow = new Row(2);

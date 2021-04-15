@@ -1,5 +1,7 @@
 package io.odpf.dagger.processors.external.grpc;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestGrpcResponse;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
@@ -7,11 +9,6 @@ import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.common.OutputMapping;
 import io.odpf.dagger.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.processors.common.RowManager;
-import com.gojek.esb.bicicilan.BiDriverCicilanLogMessage;
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.consumer.TestGrpcResponse;
-import com.gojek.esb.de.meta.GrpcResponse;
-import com.gojek.esb.types.Location;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -107,7 +104,7 @@ public class GrpcResponseHandlerTest {
     @Test
     public void shouldDetectProperBodyAndHandleResponseIfRetainResponseTypeIsFalseANdTypeHasDifferentDatType() throws InvalidProtocolBufferException {
 
-        descriptor = BiDriverCicilanLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
 
         outputMapping.put("driver_id", new OutputMapping("$.driver_id"));
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
@@ -121,9 +118,9 @@ public class GrpcResponseHandlerTest {
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
 
-        BookingLogMessage build = BookingLogMessage.newBuilder().setDriverId("250").build();
-        DynamicMessage message = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), build.toByteArray());
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BiDriverCicilanLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
+        TestBookingLogMessage build = TestBookingLogMessage.newBuilder().setDriverId("250").build();
+        DynamicMessage message = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), build.toByteArray());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, TestBookingLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
 
 
         streamData.setField(1, new Row(1));
@@ -197,9 +194,9 @@ public class GrpcResponseHandlerTest {
         grpcSourceConfig.setRetainResponseType(true);
         grpcSourceConfig.setFailOnErrors(true);
 
-        DynamicMessage message = DynamicMessage.parseFrom(GrpcResponse.getDescriptor(), GrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
+        DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
 
-        descriptor = BookingLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
@@ -226,7 +223,7 @@ public class GrpcResponseHandlerTest {
 
 
         DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
-        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, BookingLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
+        GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, TestBookingLogMessage.getDescriptor(), resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);
         Row outputData = new Row(2);
@@ -252,8 +249,10 @@ public class GrpcResponseHandlerTest {
         outputMapping.put("address", new OutputMapping("$.driver_arrived_location.address"));
         outputMapping.put("name", new OutputMapping("$.driver_arrived_location.name"));
 
-        Location location = Location.newBuilder().setAddress("Indonesia").setName("GojekTech").build();
-        BookingLogMessage bookingLogMessage = BookingLogMessage.newBuilder().setDriverArrivedLocation(location).setCustomerId("123456").build();
+
+//        Location location = Location.newBuilder().setAddress("Indonesia").setName("GojekTech").build();
+        //TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.newBuilder().setDriverArrivedLocation(location).setCustomerId("123456").build();
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.newBuilder().build();
 
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
         grpcSourceConfig.setRetainResponseType(true);
@@ -262,7 +261,7 @@ public class GrpcResponseHandlerTest {
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
 
-        DynamicMessage message = DynamicMessage.parseFrom(BookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        DynamicMessage message = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         Row resultStreamData = new Row(2);

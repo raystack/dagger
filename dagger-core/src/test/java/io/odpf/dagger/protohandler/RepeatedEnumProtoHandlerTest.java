@@ -1,11 +1,11 @@
 package io.odpf.dagger.protohandler;
 
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.consumer.TestEnumMessage;
-import com.gojek.esb.consumer.TestRepeatedEnumMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestEnumMessage;
+import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -27,7 +27,7 @@ public class RepeatedEnumProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseIfEnumFieldDescriptorIsPassed() {
-        Descriptors.FieldDescriptor enumFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("service_type");
+        Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(enumFieldDescriptor);
 
         assertFalse(repeatedEnumProtoHandler.canHandle());
@@ -35,7 +35,7 @@ public class RepeatedEnumProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanRepeatedEnumTypeIsPassed() {
-        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(otherFieldDescriptor);
 
         assertFalse(repeatedEnumProtoHandler.canHandle());

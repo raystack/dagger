@@ -1,5 +1,7 @@
 package io.odpf.dagger.processors.external.grpc;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestGrpcRequest;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -18,9 +20,6 @@ import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.common.OutputMapping;
 import io.odpf.dagger.processors.external.grpc.client.GrpcClient;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
-import com.gojek.esb.consumer.TestGrpcRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -155,7 +154,7 @@ public class GrpcAsyncConnectorTest {
     public void shouldCompleteExceptionallyIfOutputDescriptorNotFound() throws Exception {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
 
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
 
@@ -173,7 +172,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
 
@@ -198,7 +197,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
         String empty_request_variable = "";
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
                 empty_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
@@ -220,7 +219,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldEnrichWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
         String empty_request_variable = "";
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
@@ -244,7 +243,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
@@ -273,7 +272,7 @@ public class GrpcAsyncConnectorTest {
                 headers, outputMapping, "metricId_02", 30);
 
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
@@ -290,8 +289,8 @@ public class GrpcAsyncConnectorTest {
                 headers, outputMapping, "metricId_02", 30);
 
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
-        when(descriptorManager.getDescriptor("com.gojek.esb.booking.BookingLogMessage")).thenReturn(BookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor("com.gojek.esb.booking.BookingLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
@@ -303,7 +302,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() throws Exception {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 

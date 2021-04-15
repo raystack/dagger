@@ -13,7 +13,6 @@ import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.processors.ColumnNameManager;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.types.GoFoodPaymentActionProto.GoFoodPaymentAction.Enum;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.gojek.esb.types.GoFoodPaymentActionProto.GoFoodPaymentAction.Enum.UNKNOWN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -113,9 +111,9 @@ public class EndpointHandlerTest {
         Row inputData = new Row(2);
         List<Row> experimentsRow = new ArrayList<>();
         Row row1 = new Row(1);
-        row1.setField(0, UNKNOWN);
+        row1.setField(0, "UNKNOWN");
         Row row2 = new Row(1);
-        row2.setField(0, Enum.REFUND_CUSTOMER);
+        row2.setField(0, "REFUND_CUSTOMER");
         experimentsRow.add(row1);
         experimentsRow.add(row2);
 

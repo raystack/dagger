@@ -1,7 +1,7 @@
 package io.odpf.dagger.protohandler.typehandler;
 
-import com.gojek.esb.types.GoFoodShoppingItemProto;
 import com.google.protobuf.Descriptors;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
 
@@ -14,14 +14,14 @@ public class IntegerPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldHandleIntegerTypes() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         assertTrue(integerPrimitiveTypeHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanInteger() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("name");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("name");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         assertFalse(integerPrimitiveTypeHandler.canHandle());
     }
@@ -30,7 +30,7 @@ public class IntegerPrimitiveTypeHandlerTest {
     public void shouldFetchValueForFieldForFieldDescriptorOfTypeInteger() {
         int actualValue = 2;
 
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object value = integerPrimitiveTypeHandler.getValue(actualValue);
 
@@ -41,7 +41,7 @@ public class IntegerPrimitiveTypeHandlerTest {
     public void shouldFetchParsedValueForFieldForFieldDescriptorOfTypeInteger() {
         int actualValue = 2;
 
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object value = integerPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
 
@@ -50,7 +50,7 @@ public class IntegerPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeInteger() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object value = integerPrimitiveTypeHandler.getValue(null);
 
@@ -59,21 +59,21 @@ public class IntegerPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.INT, integerPrimitiveTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.PRIMITIVE_ARRAY(Types.INT), integerPrimitiveTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
         Object actualValues = integerPrimitiveTypeHandler.getArray(inputValues);
@@ -82,7 +82,7 @@ public class IntegerPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoFoodShoppingItemProto.GoFoodShoppingItem.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = integerPrimitiveTypeHandler.getArray(null);
         assertEquals(0, ((Integer[]) actualValues).length);

@@ -1,10 +1,9 @@
 package io.odpf.dagger.protohandler;
 
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.consumer.TestComplexMap;
-import com.gojek.esb.consumer.TestMessage;
-import com.gojek.esb.fraud.DriverProfileFlattenLogMessage;
 import com.google.protobuf.*;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestComplexMap;
+import io.odpf.dagger.consumer.TestMessage;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.junit.Test;
@@ -17,7 +16,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnTrueIfMapFieldDescriptorIsPassed() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
 
         assertTrue(mapProtoHandler.canHandle());
@@ -25,7 +24,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanMapTypeIsPassed() {
-        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(otherFieldDescriptor);
 
         assertFalse(mapProtoHandler.canHandle());
@@ -33,7 +32,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfCannotHandle() {
-        Descriptors.FieldDescriptor otherFieldDescriptor = BookingLogMessage.getDescriptor().findFieldByName("order_number");
+        Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
@@ -43,7 +42,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullPassed() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
@@ -54,7 +53,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldSetMapFieldIfStringMapPassed() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
@@ -74,7 +73,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldSetMapFieldIfArrayofObjectsHavingRowsWithStringFieldsPassed() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
@@ -104,7 +103,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldThrowExceptionIfRowsPassedAreNotOfArityTwo() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
@@ -122,7 +121,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnArrayOfRowHavingSameSizeAsInputMapForTransformForPostProcessor() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         HashMap<String, String> inputMap = new HashMap<>();
         inputMap.put("a", "123");
@@ -135,7 +134,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnArrayOfRowHavingFieldsSetAsInputMapAndOfSizeTwoForTransformForPostProcessor() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         HashMap<String, String> inputMap = new HashMap<>();
         inputMap.put("a", "123");
@@ -153,7 +152,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnEmptyArrayOfRowIfNullPassedForTransformForPostProcessor() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(null));
 
@@ -162,17 +161,17 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnArrayOfRowHavingSameSizeAsInputMapForTransformForKafka() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         MapEntry<String, String> mapEntry = MapEntry
                 .newDefaultInstance(mapFieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
-        DriverProfileFlattenLogMessage driverProfileFlattenLogMessage = DriverProfileFlattenLogMessage
+        TestBookingLogMessage driverProfileFlattenLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("a").setValue("123").buildPartial())
                 .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("b").setValue("456").buildPartial())
                 .build();
 
-        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(DriverProfileFlattenLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
 
         List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
 
@@ -181,17 +180,17 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnArrayOfRowHavingFieldsSetAsInputMapAndOfSizeTwoForTransformForKafka() throws InvalidProtocolBufferException {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         MapEntry<String, String> mapEntry = MapEntry
                 .newDefaultInstance(mapFieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
-        DriverProfileFlattenLogMessage driverProfileFlattenLogMessage = DriverProfileFlattenLogMessage
+        TestBookingLogMessage driverProfileFlattenLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("a").setValue("123").buildPartial())
                 .addRepeatedField(mapFieldDescriptor, mapEntry.toBuilder().setKey("b").setValue("456").buildPartial())
                 .build();
 
-        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(DriverProfileFlattenLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
 
         List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
 
@@ -322,7 +321,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnEmptyArrayOfRowIfNullPassedForTransformForKafka() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromPostProcessor(null));
 
@@ -331,7 +330,7 @@ public class MapProtoHandlerTest {
 
     @Test
     public void shouldReturnTypeInformation() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = DriverProfileFlattenLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         assertEquals(Types.OBJECT_ARRAY(Types.ROW_NAMED(new String[]{"key", "value"}, Types.STRING, Types.STRING)), mapProtoHandler.getTypeInformation());
     }

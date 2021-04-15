@@ -1,7 +1,7 @@
 package io.odpf.dagger.processors.external.es;
 
-import com.gojek.daggers.processors.external.ExternalMetricConfig;
-import com.gojek.daggers.processors.external.SchemaConfig;
+import io.odpf.dagger.processors.external.ExternalMetricConfig;
+import io.odpf.dagger.processors.external.SchemaConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

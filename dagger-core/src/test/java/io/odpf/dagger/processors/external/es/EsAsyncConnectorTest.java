@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.es;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -16,7 +17,6 @@ import io.odpf.dagger.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.processors.external.SchemaConfig;
 import io.odpf.dagger.processors.common.OutputMapping;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.Assert;
@@ -142,7 +142,7 @@ public class EsAsyncConnectorTest {
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
@@ -153,7 +153,7 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldCompleteExceptionallyIfOutputDescriptorNotFound() throws Exception {
         inputData.setField(2, "11223344545");
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -173,7 +173,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputWhenEndpointVariableIsInvalid() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "test_user", "mysecretpassword", "/drivers/driver/%s",
                 "invalid_variable", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
@@ -191,7 +191,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldGiveErrorWhenEndpointPatternIsInvalid() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
         String invalidEndpointPattern = "/drivers/driver/%";
@@ -211,7 +211,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldGiveErrorWhenEndpointPatternIsIncompatible() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
         String invalidEndpointPattern = "/drivers/driver/%d";
@@ -231,7 +231,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldEnrichOutputForCorrespondingEnrichmentKey() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
 
@@ -248,7 +248,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldEnrichOutputWhenUserAndPasswordAreNull() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         inputData.setField(2, "11223344545");
         esSourceConfig = new EsSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", null, null,
@@ -270,7 +270,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputOnTimeout() throws Exception {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         esClient = null;
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
@@ -284,7 +284,7 @@ public class EsAsyncConnectorTest {
 
     @Test
     public void shouldAddPostProcessorTypeMetrics() {
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         ArrayList<String> postProcessorType = new ArrayList<>();
         postProcessorType.add(ES_TYPE);
@@ -311,7 +311,7 @@ public class EsAsyncConnectorTest {
                 "driver_id", null, "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         inputData.setField(2, "11223344545");
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -329,7 +329,7 @@ public class EsAsyncConnectorTest {
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
         inputData.setField(2, "11223344545");
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);

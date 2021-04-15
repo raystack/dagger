@@ -1,6 +1,6 @@
-import com.gojek.esb.consumer.TestGrpcRequest;
-import com.gojek.esb.consumer.TestGrpcResponse;
-import com.gojek.esb.consumer.TestServerGrpc;
+import io.odpf.dagger.consumer.TestGrpcRequest;
+import io.odpf.dagger.consumer.TestGrpcResponse;
+import io.odpf.dagger.consumer.TestServerGrpc;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;

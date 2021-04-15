@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.http;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
@@ -8,8 +9,6 @@ import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.common.OutputMapping;
 import io.odpf.dagger.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.processors.common.RowManager;
-import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
-import com.gojek.esb.booking.BookingLogMessage;
 import com.google.protobuf.Descriptors;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -63,7 +62,7 @@ public class HttpResponseHandlerTest {
     @Before
     public void setup() {
         initMocks(this);
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         outputColumnNames = Collections.singletonList("value");
         inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
@@ -290,7 +289,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void shouldThrowExceptionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() {
         httpConfigType = "com.gojek.esb.booking.BookingLogMessage";
-        descriptor = BookingLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputColumnNames = Collections.singletonList("surge_factor");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
