@@ -23,16 +23,16 @@ plugins {
 
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
-def daggersVersion = '12.4.0'
+def daggerVersion = '12.4.0'
 def dependenciesVersion = '0.1.0'
 
 
-version "${flinkVersion}_${daggersVersion}"
+version "${flinkVersion}_${daggerVersion}"
 
 def dependenciesArtifactVersion = "${flinkVersion}_${dependenciesVersion}"
 def minimalVersion = version + '_' + dependenciesVersion
 
-description = """daggers to the heart!"""
+description = """dagger to the heart!"""
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -254,19 +254,32 @@ publishing {
                 project.shadow.component(publication)
         }
         minimalArtifact(MavenPublication) {
-            artifact file("$buildDir/libs/daggers-${minimalVersion}-minimal.jar")
+            artifact file("$buildDir/libs/dagger-core-${minimalVersion}-minimal.jar")
             groupId project.group
             artifactId project.name
             version = minimalVersion + '-minimal'
         }
         dependenciesArtifact(MavenPublication) {
-            artifact file("$buildDir/libs/daggers-${dependenciesArtifactVersion}-dependencies.jar")
+            artifact file("$buildDir/libs/dagger-core-${dependenciesArtifactVersion}-dependencies.jar")
             groupId project.group
             artifactId project.name
             version = dependenciesArtifactVersion + '-dependencies'
         }
     }
+
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/odpf/dagger"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
+
 artifactory {
     publish {
         defaults {
@@ -280,12 +293,15 @@ artifactory {
     }
 
     clientConfig.setIncludeEnvVars(true)
-    clientConfig.info.setBuildName('daggers')
+    clientConfig.info.setBuildName('dagger')
     clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
 }
 
 project.afterEvaluate {
     tasks.withType(PublishToMavenRepository) {
+        dependsOn minimalJar, dependenciesJar
+    }
+    tasks.withType(PublishToMavenLocal) {
         dependsOn minimalJar, dependenciesJar
     }
 }
