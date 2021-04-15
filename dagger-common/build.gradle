@@ -16,6 +16,7 @@ plugins {
 }
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+version "0.0.1"
 
 description = """common dependencies for dagger"""
 
@@ -71,5 +72,52 @@ jacocoTestReport {
     finalizedBy jacocoTestCoverageVerification
 }
 
+jar {
+    zip64 true
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+
 // TODO: Add jar stage and publish stratergy for common
 // Does publishing minimal jar make sense ?
+
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            publication ->
+                project.shadow.component(publication)
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/odpf/dagger"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+artifactory {
+    publish {
+        defaults {
+            publications('mavenJava')
+            properties = ['qa.level': 'basic', 'dev.team': 'core']
+
+            publishBuildInfo = true
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+
+    clientConfig.setIncludeEnvVars(true)
+    clientConfig.info.setBuildName('dagger')
+    clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
+}
