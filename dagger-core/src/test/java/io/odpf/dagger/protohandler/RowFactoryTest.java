@@ -33,7 +33,7 @@ public class RowFactoryTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
-        assertEquals(29, row.getArity());
+        assertEquals(41, row.getArity());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class RowFactoryTest {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
-        assertEquals(29, row.getArity());
+        assertEquals(41, row.getArity());
     }
 
     @Test

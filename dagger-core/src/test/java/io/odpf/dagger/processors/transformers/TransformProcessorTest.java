@@ -76,12 +76,11 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("com.gojek.daggers.processors.transformers.TransformProcessor.<init>(java.util.Map," +
-                " [Ljava.lang.String;, org.apache.flink.configuration.Configuration)");
+        expectedException.expectMessage("io.odpf.dagger.processors.transformers.TransformProcessor.<init>(java.util.Map,[Ljava.lang.String;,org.apache.flink.configuration.Configuration)");
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
-        transfromConfigs.add(new TransformConfig("com.gojek.daggers.processors.transformers.TransformProcessor", transformationArguments));
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.TransformProcessor", transformationArguments));
 
         TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
@@ -164,10 +163,10 @@ public class TransformProcessorTest {
         when(streamInfo.getColumnNames()).thenReturn(null);
         when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         transfromConfigs = new ArrayList<>();
-        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FeatureTransformer", new HashMap<String, Object>() {{
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
         }}));
-        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", new HashMap<String, Object>() {{
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
         }}));
 
@@ -184,13 +183,13 @@ public class TransformProcessorTest {
         when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         when(mappedDataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         transfromConfigs = new ArrayList<>();
-        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FeatureTransformer", new HashMap<String, Object>() {{
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
         }}));
-        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.ClearColumnTransformer", new HashMap<String, Object>() {{
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
         }}));
-        transfromConfigs.add(new TransformConfig("com.gojek.dagger.transformer.FieldToMapTransformer", new HashMap<String, Object>() {{
+        transfromConfigs.add(new TransformConfig("io.odpf.dagger.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
         }}));
 
@@ -212,6 +211,13 @@ public class TransformProcessorTest {
         Assert.assertEquals("com.gojek.TestProcessor", processor.transformConfigs.get(0).getTransformationClass());
         Assert.assertEquals("test_table", processor.transformConfigs.get(0).getTransformationArguments().get("table_name"));
         Assert.assertEquals("test-value", processor.transformConfigs.get(0).getTransformationArguments().get("test-key"));
+    }
+
+    static class TransformerMock implements Transformer {
+        @Override
+        public StreamInfo transform(StreamInfo streamInfo) {
+            return null;
+        }
     }
 
     class TransformProcessorMock extends TransformProcessor {

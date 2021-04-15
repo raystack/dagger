@@ -44,9 +44,9 @@ public class StreamsTest {
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
                 + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
                 + "        }\n"
@@ -66,9 +66,9 @@ public class StreamsTest {
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
                 + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
                 + "        }\n"
@@ -77,7 +77,7 @@ public class StreamsTest {
         ArrayList<String> topicNames = new ArrayList<>();
         topicNames.add("GO_RIDE-booking-log");
         ArrayList<String> protoName = new ArrayList<>();
-        protoName.add("com.gojek.esb.booking.BookingLogMessage");
+        protoName.add("io.odpf.dagger.consumer.TestBookingLogMessage");
         ArrayList<String> streamName = new ArrayList<>();
         streamName.add("");
         HashMap<String, List<String>> metrics = new HashMap<>();
@@ -103,9 +103,9 @@ public class StreamsTest {
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
                 + "            \"STREAM_NAME\": \"mainstream\",\n"
                 + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
@@ -114,9 +114,9 @@ public class StreamsTest {
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"1\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.aggregate.surge.SurgeFactorLogMessage\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogKey\",\n"
                 + "            \"TABLE_NAME\": \"data_stream_1\",\n"
                 + "            \"STREAM_NAME\": \"locstream\",\n"
                 + "            \"TOPIC_NAMES\": \"surge-s2idcluster-log\"\n"
@@ -127,8 +127,8 @@ public class StreamsTest {
         topicNames.add("GO_RIDE-booking-log");
         topicNames.add("surge-s2idcluster-log");
         ArrayList<String> protoName = new ArrayList<>();
-        protoName.add("com.gojek.esb.booking.BookingLogMessage");
-        protoName.add("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage");
+        protoName.add("io.odpf.dagger.consumer.TestBookingLogMessage");
+        protoName.add("io.odpf.dagger.consumer.TestBookingLogKey");
         ArrayList<String> streamName = new ArrayList<>();
         streamName.add("mainstream");
         streamName.add("locstream");
@@ -155,16 +155,16 @@ public class StreamsTest {
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"p-esb-kafka-mirror-b-01:6667\",\n"
+                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\",\n"
+                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
                 + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
                 + "        }\n"
                 + "]";
 
         LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
-        protoClassForTable.put("data_stream", "com.gojek.esb.booking.BookingLogMessage");
+        protoClassForTable.put("data_stream", "io.odpf.dagger.consumer.TestBookingLogMessage");
 
         configuration = new Configuration();
         configuration.setString("STREAMS", configString);

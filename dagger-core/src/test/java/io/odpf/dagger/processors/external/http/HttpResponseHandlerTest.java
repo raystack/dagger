@@ -288,7 +288,7 @@ public class HttpResponseHandlerTest {
 
     @Test
     public void shouldThrowExceptionIfFieldNotFoundInFieldDescriptorWhenTypeIsPassed() {
-        httpConfigType = "com.gojek.esb.booking.BookingLogMessage";
+        httpConfigType = "io.odpf.dagger.consumer.TestBookingLogMessage";
         descriptor = TestBookingLogMessage.getDescriptor();
         outputMapping.put("surge_factor", new OutputMapping("$.surge"));
         outputColumnNames = Collections.singletonList("surge_factor");

@@ -6,6 +6,7 @@ option java_multiple_files = true;
 option java_package = "io.odpf.dagger.consumer";
 option java_outer_classname = "TestLogMessageProto";
 
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
 message TestAggregatedSupplyKey {
@@ -51,6 +52,7 @@ message TestBookingLogMessage {
     string customer_url = 7;
     string driver_id = 8;
 
+
     string driver_url = 9;
 
     string activity_source = 11;
@@ -89,6 +91,18 @@ message TestBookingLogMessage {
 
     int64 driver_total_fare_without_surge = 56;
     bool driver_dynamic_surge_enabled = 59;
+    repeated string meta_array = 60;
+
+    google.protobuf.Struct profile_data = 61;
+    google.protobuf.Struct event_properties = 62;
+    google.protobuf.Struct key_values = 63;
+
+    double cash_amount = 64;
+
+    repeated int32 int_array_field = 65;
+
+    map<string, string> metadata = 66;
+
 }
 
 message TestFeedbackLogKey {
