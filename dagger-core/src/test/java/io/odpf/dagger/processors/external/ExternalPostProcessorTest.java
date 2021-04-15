@@ -1,6 +1,7 @@
 package io.odpf.dagger.processors.external;
 
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.processors.PostProcessorConfig;
@@ -11,7 +12,6 @@ import io.odpf.dagger.processors.external.es.EsStreamDecorator;
 import io.odpf.dagger.processors.external.http.HttpSourceConfig;
 import io.odpf.dagger.processors.external.http.HttpStreamDecorator;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
@@ -89,7 +89,7 @@ public class ExternalPostProcessorTest {
                 "345", "456", false, new HashMap<>(), "metricId_01", false);
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(Arrays.asList(httpSourceConfig), Arrays.asList(esSourceConfig), new ArrayList<>(), new ArrayList<>());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(SurgeFactorLogMessage.getDescriptor());
+        when(stencilClient.get("com.gojek.esb.aggregate.surge.SurgeFactorLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpStreamDecorator.decorate(dataStream)).thenReturn(dataStream);
         when(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT)).thenReturn(ASYNC_IO_CAPACITY_DEFAULT);
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(SHUTDOWN_PERIOD_DEFAULT);

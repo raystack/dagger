@@ -1,14 +1,12 @@
 package io.odpf.dagger.processors.external.grpc.client;
 
+import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.exception.InvalidGrpcBodyException;
 import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.external.grpc.GrpcSourceConfig;
-import com.gojek.esb.consumer.TestGrpcRequest;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.odpf.dagger.processors.common.DescriptorManager;
-import io.odpf.dagger.processors.external.grpc.GrpcSourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 

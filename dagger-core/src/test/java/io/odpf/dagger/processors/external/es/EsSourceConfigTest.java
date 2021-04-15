@@ -1,6 +1,6 @@
 package io.odpf.dagger.processors.external.es;
 
-import com.gojek.daggers.processors.common.OutputMapping;
+import io.odpf.dagger.processors.common.OutputMapping;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

@@ -2,7 +2,6 @@ package io.odpf.dagger.processors.longbow.request;
 
 import org.apache.flink.types.Row;
 
-import com.gojek.daggers.processors.longbow.LongbowSchema;
 import io.odpf.dagger.processors.longbow.LongbowSchema;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;

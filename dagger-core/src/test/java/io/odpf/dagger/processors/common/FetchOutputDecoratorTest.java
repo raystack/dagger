@@ -1,10 +1,10 @@
 package io.odpf.dagger.processors.common;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.external.SchemaConfig;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.BookingLogMessage;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -52,7 +52,7 @@ public class FetchOutputDecoratorTest {
         when(schemaConfig.getColumnNameManager()).thenReturn(columnNameManager);
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(BookingLogMessage.getDescriptor());
+        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
     }
 

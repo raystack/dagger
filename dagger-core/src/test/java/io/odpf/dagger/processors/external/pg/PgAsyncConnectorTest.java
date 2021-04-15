@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.pg;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import io.odpf.dagger.exception.InvalidConfigurationException;
@@ -11,7 +12,6 @@ import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.processors.external.SchemaConfig;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.RowSet;
 import org.apache.flink.configuration.Configuration;
@@ -88,7 +88,7 @@ public class PgAsyncConnectorTest {
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, new ArrayList<>()));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
         when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
     }
 
