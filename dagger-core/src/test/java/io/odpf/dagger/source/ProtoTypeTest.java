@@ -1,5 +1,6 @@
 package io.odpf.dagger.source;
 
+import io.odpf.dagger.consumer.TestAuditEntityLogMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
@@ -78,9 +79,9 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
-        assertEquals(STRING, fieldTypes[participantLogFieldIndex("order_id")]);
-        assertEquals(INT, fieldTypes[participantLogFieldIndex("customer_straight_line_distance")]);
-        assertEquals(DOUBLE, fieldTypes[participantLogFieldIndex("receive_delay")]);
+        assertEquals(STRING, fieldTypes[participantLogFieldIndex("order_number")]);
+        assertEquals(INT, fieldTypes[participantLogFieldIndex("cancel_reason_id")]);
+        assertEquals(DOUBLE, fieldTypes[participantLogFieldIndex("cash_amount")]);
     }
 
     @Test
@@ -119,47 +120,37 @@ public class ProtoTypeTest {
 
         TypeInformation<?> registeredDeviceType = ObjectArrayTypeInfo.getInfoFor(STRING);
 
-        assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("registered_device")]);
+        assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("meta_array")]);
     }
 
-
-    @Test
-    public void shouldGiveNamesAndTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-
-        RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
-
-        assertEquals("order_id", rowType.getFieldNames()[0]);
-        assertEquals(DOUBLE, rowType.getFieldTypes()[participantLogFieldIndex("receive_delay")]);
-    }
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingStructFields() {
         ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
-        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
+        assertEquals(42, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
+        assertEquals(42, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
     }
 
     @Test
     public void shouldReturnRowTypeForStructFields() {
-        ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[7]);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[8]);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[9]);
-        assertEquals("profile_data", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[7]);
-        assertEquals("event_properties", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[8]);
-        assertEquals("key_values", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[9]);
+        ProtoType protoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[35]);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[36]);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[37]);
+        assertEquals("profile_data", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[35]);
+        assertEquals("event_properties", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[36]);
+        assertEquals("key_values", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[37]);
     }
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingPrimitiveArrayFields() {
         ProtoType testNestedRepeatedMessage = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(PRIMITIVE_ARRAY(INT), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[3]);
+        assertEquals(PRIMITIVE_ARRAY(INT), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[39]);
     }
 
     @Test
     public void shouldGiveNameAndTypeForRepeatingStructType() {
-        ProtoType testNestedRepeatedMessage = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType testNestedRepeatedMessage = new ProtoType(TestAuditEntityLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
         assertEquals("metadata", ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldNames()[4]);
         assertEquals(OBJECT_ARRAY(ROW()), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[4]);
     }

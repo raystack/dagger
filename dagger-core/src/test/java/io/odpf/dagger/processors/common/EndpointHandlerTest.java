@@ -61,7 +61,7 @@ public class EndpointHandlerTest {
         initMocks(this);
         StencilClient stencilClient = StencilClientFactory.getClient();
         Mockito.when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage"};
         descriptorManager = new DescriptorManager(stencilClientOrchestrator);
     }
 
@@ -159,7 +159,7 @@ public class EndpointHandlerTest {
     @Test
     public void shouldReturnEndpointQueryVariableValuesForPrimitiveDataFromDescriptorInCaseOfMultipleStreams() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("customer_id");
-        inputProtoClasses = new String[]{"com.gojek.esb.fraud.EnrichedBookingLogMessage", "com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage", "io.odpf.dagger.consumer.TestBookingLogMessage"};
 
         Row row = new Row(2);
         Row inputData = new Row(2);
@@ -179,7 +179,7 @@ public class EndpointHandlerTest {
     @Test
     public void shouldInferEndpointVariablesFromTheCorrectStreams() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("order_number,customer_url");
-        inputProtoClasses = new String[]{"com.gojek.esb.customer.CustomerLogMessage", "com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage", "io.odpf.dagger.consumer.TestBookingLogMessage"};
 
         Row row = new Row(2);
         Row inputData = new Row(2);
@@ -200,7 +200,7 @@ public class EndpointHandlerTest {
     @Test
     public void shouldReturnEmptyObjectIfNoQueryVariables() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("");
-        inputProtoClasses = new String[]{"com.gojek.esb.customer.CustomerLogMessage", "com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage", "io.odpf.dagger.consumer.TestBookingLogMessage"};
 
         Row row = new Row(2);
         Row inputData = new Row(2);
@@ -224,7 +224,7 @@ public class EndpointHandlerTest {
         expectedException.expectMessage("Column 'czx' not found as configured in the endpoint/query variable");
 
         Mockito.when(sourceConfig.getVariables()).thenReturn("czx");
-        inputProtoClasses = new String[]{"com.gojek.esb.customer.CustomerLogMessage", "com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage", "io.odpf.dagger.consumer.TestBookingLogMessage"};
 
         Row row = new Row(2);
         Row inputData = new Row(2);
@@ -245,7 +245,7 @@ public class EndpointHandlerTest {
     @Test
     public void shouldThrowErrorIfInputProtoNotFound() {
         Mockito.when(sourceConfig.getVariables()).thenReturn("driver_pickup_location");
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessageTest"};
+        inputProtoClasses = new String[]{"io.odpf.dagger.consumer.TestBookingLogMessage1"};
 
         Row row = new Row(2);
         Row inputData = new Row(2);

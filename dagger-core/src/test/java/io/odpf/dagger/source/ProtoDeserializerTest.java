@@ -58,10 +58,10 @@ public class ProtoDeserializerTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
         TypeInformation<Row> producedType = protoDeserializer.getProducedType();
         assertArrayEquals(
-                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", INTERNAL_VALIDATION_FILED, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), BOOLEAN, SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING,STRING,STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) producedType).getFieldTypes());
     }
     /*

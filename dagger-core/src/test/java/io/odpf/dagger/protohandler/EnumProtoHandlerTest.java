@@ -2,6 +2,7 @@ package io.odpf.dagger.protohandler;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import io.odpf.dagger.consumer.TestServiceType;
 import io.odpf.dagger.consumer.TestVehicleType;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -70,14 +71,14 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformForKafka(builder, "GO_LIFE");
-        assertEquals(TestVehicleType.Enum.CAR.getValueDescriptor(), returnedBuilder.getField(enumFieldDescriptor));
+        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformForKafka(builder, "GO_RIDE");
+        assertEquals(TestServiceType.Enum.GO_RIDE.getValueDescriptor(), returnedBuilder.getField(enumFieldDescriptor));
     }
 
     @Test
     public void shouldThrowExceptionIfFieldNotFoundInGivenEnumFieldTypeDescriptor() {
         expectedException.expect(EnumFieldNotFoundException.class);
-        expectedException.expectMessage("field: test not found in gojek.esb.booking.BookingLogMessage.service_type");
+        expectedException.expectMessage("field: test not found in io.odpf.dagger.consumer.TestBookingLogMessage.service_type");
         Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
