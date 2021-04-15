@@ -71,4 +71,5 @@ jacocoTestReport {
     finalizedBy jacocoTestCoverageVerification
 }
 
-
+// TODO: Add jar stage and publish stratergy for common
+// Does publishing minimal jar make sense ?

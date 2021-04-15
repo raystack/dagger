@@ -6,6 +6,7 @@ import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.UserDefinedFunction;
 
 import io.odpf.dagger.common.contracts.UDFFactory;
+import io.odpf.dagger.common.metrics.telemetry.udf.AggregatedUDFTelemetryPublisher;
 import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 
 import java.util.HashMap;
@@ -22,7 +23,11 @@ public class AggregateFunctionFactory implements UDFFactory {
 
     @Override
     public void registerFunctions() {
-        addfunctions().forEach((aggregateFunctionName, aggregateUDF) -> streamTableEnvironment
+        Map<String, UserDefinedFunction> aggregateFunctionsMap = addfunctions();
+        // TODO : Validate if simple telemetry subsriber will work here.
+        AggregatedUDFTelemetryPublisher aggregatedUDFTelemetryPublisher = new AggregatedUDFTelemetryPublisher(daggerConfig, aggregateFunctionsMap);
+        aggregatedUDFTelemetryPublisher.notifySubscriber();
+        aggregateFunctionsMap.forEach((aggregateFunctionName, aggregateUDF) -> streamTableEnvironment
                 .registerFunction(aggregateFunctionName, (AggregateFunction) aggregateUDF));
     }
 
