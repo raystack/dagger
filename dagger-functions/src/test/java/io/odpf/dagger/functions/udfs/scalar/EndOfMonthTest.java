@@ -49,4 +49,10 @@ public class EndOfMonthTest {
         long startOfMonthTimestamp = endOfMonth.eval(Long.parseLong("1562224758"), "Asia/Jakarta");
         assertEquals(Long.parseLong("1564592399"), startOfMonthTimestamp);
     }
+
+    @Test
+    public void shouldRegisterGauge() throws Exception {
+        endOfMonth.open(functionContext);
+        verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
 }
