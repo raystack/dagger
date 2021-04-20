@@ -1,10 +1,9 @@
-package io.odpf.dagger.common.metrics.telemetry.udf;
+package io.odpf.dagger.functions.udfs.telemetry;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.functions.UserDefinedFunction;
 
-import io.odpf.dagger.common.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.common.metrics.telemetry.TelemetryTypes;
+import io.odpf.dagger.common.contracts.TelemetryPublisher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +22,7 @@ public class AggregatedUDFTelemetryPublisher implements TelemetryPublisher {
     private Map<String, UserDefinedFunction> aggregateFunctions;
     private Map<String, List<String>> metrics = new HashMap<>();
     public final static String SQL_QUERY = "SQL_QUERY";
+    public final static String UDFTelemetryKey = "udf";
 
     public AggregatedUDFTelemetryPublisher(Configuration configuration, Map<String, UserDefinedFunction> aggregateFunctions) {
         this.configuration = configuration;
@@ -34,7 +34,7 @@ public class AggregatedUDFTelemetryPublisher implements TelemetryPublisher {
         String lowerCaseSQLQuery = configuration.getString(SQL_QUERY, "").toLowerCase();
         aggregateFunctions.keySet().forEach(aggregateFunctionName -> {
             if (lowerCaseSQLQuery.contains(aggregateFunctionName.toLowerCase())) {
-                addMetric(TelemetryTypes.UDF.getValue(), aggregateFunctionName);
+                addMetric(UDFTelemetryKey, aggregateFunctionName);
             }
         });
     }

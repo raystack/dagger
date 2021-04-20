@@ -1,4 +1,4 @@
-package io.odpf.dagger.functions.udfs;
+package io.odpf.dagger.functions.udfs.telemetry;
 
 /**
  * Not taking care of metrics registration for aggregate functions for now.
@@ -6,7 +6,7 @@ package io.odpf.dagger.functions.udfs;
  *
  * ISSUE : https://issues.apache.org/jira/browse/FLINK-15040
  */
-public enum Udf {
+public enum UDFTypes {
     END_OF_MONTH("EndOfMonth"),
     HISTOGRAM_BUCKET("HistogramBucket");
 
@@ -16,7 +16,7 @@ public enum Udf {
 
     private String value;
 
-    Udf(String value) {
+    UDFTypes(String value) {
         this.value = value;
     }
 }

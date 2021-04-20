@@ -4,8 +4,8 @@ import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
 
-import io.odpf.dagger.common.metrics.telemetry.udf.UdfMetricsManager;
-import io.odpf.dagger.functions.udfs.Udf;
+import io.odpf.dagger.functions.udfs.telemetry.UDFTypes;
+import io.odpf.dagger.functions.udfs.telemetry.UdfMetricsManager;
 
 import java.util.Arrays;
 
@@ -16,7 +16,7 @@ public class HistogramBucket extends TableFunction<Tuple1<String>> {
     public void open(FunctionContext context) throws Exception {
         super.open(context);
         UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context);
-        udfMetricsManager.registerGauge(Udf.HISTOGRAM_BUCKET.getValue());
+        udfMetricsManager.registerGauge(UDFTypes.HISTOGRAM_BUCKET.getValue());
     }
 
     /**

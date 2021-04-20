@@ -1,8 +1,9 @@
-package io.odpf.dagger.metrics.telemetry;
+package io.odpf.dagger.functions.udfs.telemetry;
 
-import com.gojek.dagger.udf.DistinctCount;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.functions.AggregateFunction;
+import org.apache.flink.table.functions.UserDefinedFunction;
+
+import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,12 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.odpf.dagger.utils.Constants.SQL_QUERY;
-import static io.odpf.dagger.utils.Constants.SQL_QUERY_DEFAULT;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+
 public class AggregatedUDFTelemetryPublisherTest {
+
+    private static String SQL_QUERY = "SQL_QUERY";
+    private static String SQL_QUERY_DEFAULT = "";
 
     @Mock
     private Configuration configuration;
@@ -34,7 +37,7 @@ public class AggregatedUDFTelemetryPublisherTest {
         HashMap<String, List<String>> expectedMetrics = new HashMap<>();
         expectedMetrics.put("udf", aggregatedFunctionNames);
 
-        HashMap<String, AggregateFunction> aggregateFunctionHashMap = new HashMap<>();
+        HashMap<String, UserDefinedFunction> aggregateFunctionHashMap = new HashMap<>();
         aggregateFunctionHashMap.put("DistinctCount", new DistinctCount());
         AggregatedUDFTelemetryPublisher aggregatedUDFTelemetryPublisher = new AggregatedUDFTelemetryPublisher(configuration, aggregateFunctionHashMap);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("SELECT DistinctCount(driver_id) AS " +
@@ -47,7 +50,7 @@ public class AggregatedUDFTelemetryPublisherTest {
 
     @Test
     public void shouldNotRegisterNonAggregatedUDFs() {
-        HashMap<String, AggregateFunction> aggregateFunctionHashMap = new HashMap<>();
+        HashMap<String, UserDefinedFunction> aggregateFunctionHashMap = new HashMap<>();
         aggregateFunctionHashMap.put("DistinctCount", new DistinctCount());
         AggregatedUDFTelemetryPublisher aggregatedUDFTelemetryPublisher = new AggregatedUDFTelemetryPublisher(configuration, aggregateFunctionHashMap);
         when(configuration.getString(SQL_QUERY, SQL_QUERY_DEFAULT)).thenReturn("SELECT * FROM `booking`");

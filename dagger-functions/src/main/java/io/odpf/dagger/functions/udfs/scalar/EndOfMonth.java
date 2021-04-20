@@ -3,8 +3,8 @@ package io.odpf.dagger.functions.udfs.scalar;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.ScalarFunction;
 
-import io.odpf.dagger.common.metrics.telemetry.udf.UdfMetricsManager;
-import io.odpf.dagger.functions.udfs.Udf;
+import io.odpf.dagger.functions.udfs.telemetry.UDFTypes;
+import io.odpf.dagger.functions.udfs.telemetry.UdfMetricsManager;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -21,7 +21,7 @@ public class EndOfMonth extends ScalarFunction {
     public void open(FunctionContext context) throws Exception {
         super.open(context);
         UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context);
-        udfMetricsManager.registerGauge(Udf.END_OF_MONTH.getValue());
+        udfMetricsManager.registerGauge(UDFTypes.END_OF_MONTH.getValue());
     }
 
 

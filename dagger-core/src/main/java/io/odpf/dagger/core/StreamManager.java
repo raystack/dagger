@@ -87,14 +87,6 @@ public class StreamManager {
         return this;
     }
 
-    // TODO : Do I even need this
-    private List<String> getStencilUrls() {
-        return Arrays.stream(configuration.getString(Constants.STENCIL_URL_KEY, Constants.STENCIL_URL_DEFAULT).split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-    }
-
-
     public StreamManager registerFunctions() {
         String[] functionFactoryClasses = configuration
                 .getString(Constants.FUNCTION_FACTORY_CLASSES_KEY, Constants.FUNCTION_FACTORY_CLASSES_DEFAULT)
