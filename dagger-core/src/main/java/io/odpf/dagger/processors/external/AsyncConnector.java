@@ -5,22 +5,27 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.contracts.TelemetryPublisher;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import io.odpf.dagger.exception.InvalidConfigurationException;
 import io.odpf.dagger.metrics.MeterStatsManager;
+import io.odpf.dagger.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.metrics.reporters.ErrorReporterFactory;
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.common.EndpointHandler;
 import io.odpf.dagger.processors.types.SourceConfig;
-import com.google.protobuf.Descriptors;
-import io.odpf.dagger.metrics.aspects.ExternalSourceAspects;
-import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IllegalFormatException;
+import java.util.List;
+import java.util.Map;
+import java.util.UnknownFormatConversionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.singleton;

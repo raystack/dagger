@@ -1,12 +1,13 @@
 package io.odpf.dagger.processors;
 
+import org.apache.flink.configuration.Configuration;
+
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.processors.common.ValidRecordsDecorator;
 import io.odpf.dagger.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.processors.transformers.TransformProcessor;
 import io.odpf.dagger.processors.types.Preprocessor;
-import org.apache.flink.configuration.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;

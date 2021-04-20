@@ -2,10 +2,10 @@ package io.odpf.dagger.processors.transformers;
 
 import org.apache.flink.configuration.Configuration;
 
+import io.odpf.dagger.common.contracts.TelemetryPublisher;
 import io.odpf.dagger.common.contracts.Transformer;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.exception.TransformClassNotDefinedException;
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.processors.PostProcessorConfig;
 import io.odpf.dagger.processors.PreProcessorConfig;

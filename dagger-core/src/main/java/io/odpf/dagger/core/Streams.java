@@ -1,22 +1,24 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.source.FlinkKafkaConsumerCustom;
-import io.odpf.dagger.source.ProtoDeserializer;
-import com.google.gson.Gson;
-import io.odpf.dagger.utils.Constants;
-
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.types.Row;
+
+import com.google.gson.Gson;
+import io.odpf.dagger.common.contracts.TelemetryPublisher;
+import io.odpf.dagger.source.FlinkKafkaConsumerCustom;
+import io.odpf.dagger.source.ProtoDeserializer;
+import io.odpf.dagger.utils.Constants;
 
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static io.odpf.dagger.metrics.telemetry.TelemetryTypes.*;
+import static io.odpf.dagger.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
+import static io.odpf.dagger.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
+import static io.odpf.dagger.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
 
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
