@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+// TODO : Remove Telemetry Pub-Sub from here.
 public interface TelemetryPublisher {
     List<TelemetrySubscriber> subscribers = new ArrayList<>();
 

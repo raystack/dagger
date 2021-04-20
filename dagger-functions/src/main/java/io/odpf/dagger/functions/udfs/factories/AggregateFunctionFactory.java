@@ -6,8 +6,8 @@ import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.UserDefinedFunction;
 
 import io.odpf.dagger.common.contracts.UDFFactory;
-import io.odpf.dagger.common.metrics.telemetry.udf.AggregatedUDFTelemetryPublisher;
 import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
+import io.odpf.dagger.functions.udfs.telemetry.AggregatedUDFTelemetryPublisher;
 
 import java.util.HashMap;
 import java.util.Map;

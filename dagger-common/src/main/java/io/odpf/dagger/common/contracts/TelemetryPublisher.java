@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.telemetry;
+package io.odpf.dagger.common.contracts;
 
 import java.util.ArrayList;
 import java.util.List;
