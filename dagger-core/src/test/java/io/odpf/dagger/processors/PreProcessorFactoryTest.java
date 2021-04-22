@@ -35,9 +35,9 @@ public class PreProcessorFactoryTest {
             " \"table_transformers\": [{\n" +
             "   \"table_name\": \"booking\",\n" +
             "   \"transformers\": [{\n" +
-            "    \"transformation_class\": \"com.gojek.daggers.PreProcessorClass\"\n" +
+            "    \"transformation_class\": \"PreProcessorClass\"\n" +
             "   }, {\n" +
-            "    \"transformation_class\": \"com.gojek.daggers.PreProcessorClass\",\n" +
+            "    \"transformation_class\": \"PreProcessorClass\",\n" +
             "    \"transformation_arguments\": {\n" +
             "     \"key\": \"value\"\n" +
             "    }\n" +
@@ -46,7 +46,7 @@ public class PreProcessorFactoryTest {
             "  {\n" +
             "   \"table_name\": \"another_booking\",\n" +
             "   \"transformers\": [{\n" +
-            "    \"transformation_class\": \"com.gojek.daggers.PreProcessorClass\"\n" +
+            "    \"transformation_class\": \"PreProcessorClass\"\n" +
             "   }]\n" +
             "  }\n" +
             " ]\n" +
@@ -74,7 +74,7 @@ public class PreProcessorFactoryTest {
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         Assert.assertEquals(2, preProcessorConfig.getTableTransformers().size());
         Assert.assertEquals(2, preProcessorConfig.getTableTransformers().get(0).getTransformers().size());
-        Assert.assertEquals("com.gojek.daggers.PreProcessorClass", preProcessorConfig.getTableTransformers().get(0).getTransformers().get(0).getTransformationClass());
+        Assert.assertEquals("PreProcessorClass", preProcessorConfig.getTableTransformers().get(0).getTransformers().get(0).getTransformationClass());
     }
 
     @Test

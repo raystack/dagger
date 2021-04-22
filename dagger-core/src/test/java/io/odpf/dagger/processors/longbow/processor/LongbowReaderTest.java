@@ -21,9 +21,11 @@ import org.mockito.Mock;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 import static io.odpf.dagger.metrics.aspects.LongbowReaderAspects.*;
@@ -80,9 +82,20 @@ public class LongbowReaderTest {
             throw new RuntimeException();
         }));
 
-        longBowReader.open(configuration);
-        longBowReader.asyncInvoke(input, outputFuture);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ResultFuture<Row> callback = new ResultFuture<Row>() {
+            @Override
+            public void complete(Collection<Row> result) {
+                countDownLatch.countDown();
+            }
 
+            @Override
+            public void completeExceptionally(Throwable error) {
+            }
+        };
+        longBowReader.open(configuration);
+        longBowReader.asyncInvoke(input, callback);
+        countDownLatch.await();
         verify(meterStatsManager, times(1)).markEvent(FAILED_ON_READ_DOCUMENT);
         verify(errorReporter, times(1)).reportNonFatalException(any(LongbowReaderException.class));
     }

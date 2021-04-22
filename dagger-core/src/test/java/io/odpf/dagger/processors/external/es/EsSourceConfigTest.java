@@ -48,7 +48,7 @@ public class EsSourceConfigTest {
         password = "mysecretpassword";
         endpointPattern = "/drivers/driver/%s";
         endpointVariables = "driver_id";
-        type = "com.gojek.esb.fraud.DriverProfileFlattenLogMessage";
+        type = "TestProtoMessage";
         capacity = "30";
         connectTimeout = "1000";
         retryTimeout = "2000";

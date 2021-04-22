@@ -120,7 +120,7 @@ public class EsExternalPostProcessorIntegrationTest {
                 "        \"socket_timeout\": \"5000\",\n" +
                 "        \"retry_timeout\": \"5000\",\n" +
                 "        \"capacity\": \"30\",\n" +
-                "        \"type\": \"com.gojek.esb.fraud.EnrichedBookingLogMessage\", \n" +
+                "        \"type\": \"com.gojek..fraud.EnrichedBookingLogMessage\", \n" +
                 "        \"output_mapping\": {\n" +
                 "          \"customer_profile\": {\n" +
                 "            \"path\": \"$._source\"\n" +

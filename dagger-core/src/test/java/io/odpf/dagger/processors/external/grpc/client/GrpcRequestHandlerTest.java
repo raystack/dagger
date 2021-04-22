@@ -31,7 +31,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'}");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
@@ -56,7 +56,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
@@ -74,7 +74,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 

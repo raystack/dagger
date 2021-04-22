@@ -88,7 +88,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
     }
 
@@ -140,7 +140,7 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
@@ -172,7 +172,7 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenEventComesToFailureHandleAndFailOnErrorsIsTrue() {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(false);
@@ -224,7 +224,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
                 "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", true);
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);
@@ -262,7 +262,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
                 "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", false);
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);
