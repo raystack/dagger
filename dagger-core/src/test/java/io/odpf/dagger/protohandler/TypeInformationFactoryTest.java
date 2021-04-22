@@ -4,7 +4,6 @@ import io.odpf.dagger.consumer.TestBookingLogKey;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import com.google.protobuf.Descriptors;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 
 import org.junit.Test;
@@ -18,9 +17,8 @@ public class TypeInformationFactoryTest {
     public void shouldReturnTypeInformationForDescriptor() {
         Descriptors.Descriptor descriptor = TestBookingLogKey.getDescriptor();
         TypeInformation<Row> actualTypeInformation = TypeInformationFactory.getRowType(descriptor);
-        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"order_id", "status", "event_timestamp",
-                "bid_id", "service_type", "participant_id", "audit"}, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"},
-                LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)));
+        TypeInformation<Row> expectedTypeInformation = ROW_NAMED(new String[]{"service_type", "order_number", "order_url",
+                "status", "event_timestamp"}, STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT));
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 

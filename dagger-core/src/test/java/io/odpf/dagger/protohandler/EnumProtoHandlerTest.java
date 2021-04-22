@@ -3,7 +3,6 @@ package io.odpf.dagger.protohandler;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
 import io.odpf.dagger.consumer.TestServiceType;
-import io.odpf.dagger.consumer.TestVehicleType;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import io.odpf.dagger.exception.EnumFieldNotFoundException;

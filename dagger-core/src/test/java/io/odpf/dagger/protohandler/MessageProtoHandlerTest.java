@@ -1,6 +1,7 @@
 package io.odpf.dagger.protohandler;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestPaymentOptionMetadata;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -67,13 +68,11 @@ public class MessageProtoHandlerTest {
         inputRow.setField(1, "test2");
         DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
 
-        /*
-        PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
+        TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
         assertEquals("test1", returnedValue.getMaskedCard());
         assertEquals("test2", returnedValue.getNetwork());
 
-         */
     }
 
     @Test
@@ -86,13 +85,11 @@ public class MessageProtoHandlerTest {
         inputRow.setField(0, "test1");
         DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
 
-        /*
-        PaymentOptionMetadata returnedValue = PaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
+        TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
         assertEquals("test1", returnedValue.getMaskedCard());
         assertEquals("", returnedValue.getNetwork());
 
-         */
     }
 
     @Test
@@ -139,12 +136,11 @@ public class MessageProtoHandlerTest {
         assertEquals(null, value.getField(1));
     }
 
-    /*
     @Test
     public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForKafka() throws InvalidProtocolBufferException {
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
-                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
+                .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
                 .build();
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
@@ -162,7 +158,7 @@ public class MessageProtoHandlerTest {
     public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForKafka() throws InvalidProtocolBufferException {
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
-                .setPaymentOptionMetadata(PaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
+                .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
                 .build();
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
@@ -175,7 +171,6 @@ public class MessageProtoHandlerTest {
         assertEquals("test1", value.getField(0));
         assertEquals("", value.getField(1));
     }
-     */
 
     @Test
     public void shouldReturnTypeInformation() {

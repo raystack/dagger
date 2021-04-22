@@ -1,6 +1,7 @@
 package io.odpf.dagger.processors.external.http;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestSurgeFactorLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
@@ -62,7 +63,7 @@ public class HttpResponseHandlerTest {
     @Before
     public void setup() {
         initMocks(this);
-        descriptor = TestBookingLogMessage.getDescriptor();
+        descriptor = TestSurgeFactorLogMessage.getDescriptor();
         outputColumnNames = Collections.singletonList("value");
         inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();

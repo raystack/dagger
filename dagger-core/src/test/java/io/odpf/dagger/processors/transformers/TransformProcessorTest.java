@@ -76,7 +76,7 @@ public class TransformProcessorTest {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("io.odpf.dagger.processors.transformers.TransformProcessor.<init>(java.util.Map,[Ljava.lang.String;,org.apache.flink.configuration.Configuration)");
+        expectedException.expectMessage("io.odpf.dagger.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, org.apache.flink.configuration.Configuration)");
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();

@@ -86,9 +86,9 @@ public class PrimitiveProtoHandlerTest {
     @Test
     public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
         expectedException.expect(InvalidDataTypeException.class);
-        expectedException.expectMessage("type mismatch of field: customer_price, expecting FLOAT type, actual type class java.lang.String");
+        expectedException.expectMessage("type mismatch of field: total_customer_discount, expecting FLOAT type, actual type class java.lang.String");
 
-        Descriptors.FieldDescriptor floatFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_price");
+        Descriptors.FieldDescriptor floatFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_customer_discount");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
         primitiveProtoHandler.transformFromPostProcessor("stringValue");
