@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.grpc;
 
+import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestGrpcRequest;
 import org.apache.flink.configuration.Configuration;
@@ -19,7 +20,6 @@ import io.odpf.dagger.processors.external.SchemaConfig;
 import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.common.OutputMapping;
 import io.odpf.dagger.processors.external.grpc.client.GrpcClient;
-import com.gojek.de.stencil.client.StencilClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,15 +84,15 @@ public class GrpcAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
-        grpcStencilUrl = "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest";
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.BookingLogMessage"};
+        grpcStencilUrl = "http://localhost/feast-proto/latest";
+        inputProtoClasses = new String[]{"InputProtoMessage"};
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.GoFoodBookingLogMessage");
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("OutputProtoMessage");
         externalMetricConfig = new ExternalMetricConfig("metricId-grpc-01", shutDownPeriod, telemetryEnabled);
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -177,7 +177,7 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
 
         String invalid_request_variable = "invalid_variable";
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
                 invalid_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -198,7 +198,7 @@ public class GrpcAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
         String empty_request_variable = "";
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
                 empty_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -223,7 +223,7 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : 'val2'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : 'val2'}",
                 empty_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -247,7 +247,7 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -267,7 +267,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromOutputProtoIfTypeNotGiven() throws Exception {
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, null, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -279,25 +279,25 @@ public class GrpcAsyncConnectorTest {
         grpcAsyncConnector.open(flinkConfiguration);
         grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
         grpcAsyncConnector.close();
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.BookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("InputProtoMessage");
     }
 
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%s'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, "com.gojek.esb.booking.TestBookingLogMessage", false,
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%s'}",
+                "customer_id", "123", "234", true, grpcStencilUrl, "test.booking.TestBookingLogMessage", false,
                 headers, outputMapping, "metricId_02", 30);
 
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
-        when(descriptorManager.getDescriptor("com.gojek.esb.booking.BookingLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor("InputProtoMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.open(flinkConfiguration);
         grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.TestBookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("test.booking.TestBookingLogMessage");
     }
 
     @Test
@@ -306,7 +306,7 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': '%d' , 'field2' : 'val2'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%d' , 'field2' : 'val2'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -329,7 +329,7 @@ public class GrpcAsyncConnectorTest {
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
 
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, null, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -344,7 +344,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldReportFatalInTimeoutIfFailOnErrorIsTrue() {
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", true, grpcStencilUrl, null, true,
                 headers, outputMapping, "metricId_02", 30);
 
@@ -358,7 +358,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() {
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "com.gojek.esb.consumer.TestGrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", false, grpcStencilUrl, null, true,
                 headers, outputMapping, "metricId_02", 30);
 

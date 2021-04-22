@@ -93,11 +93,11 @@ public class HttpAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.BookingLogMessage"};
+        inputProtoClasses = new String[]{"InputProtoMessage"};
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.GoFoodBookingLogMessage");
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("OutputProtoMessage");
         externalMetricConfig = new ExternalMetricConfig("metricId-http-01", shutDownPeriod, telemetryEnabled);
 
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}",
@@ -285,12 +285,12 @@ public class HttpAsyncConnectorTest {
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.BookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("InputProtoMessage");
     }
 
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, "com.gojek.esb.booking.TestBookingLogMessage", "345", headers, outputMapping, "metricId_02", false);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, "TestBookingLogMessage", "345", headers, outputMapping, "metricId_02", false);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -300,7 +300,7 @@ public class HttpAsyncConnectorTest {
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.TestBookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("TestBookingLogMessage");
     }
 
     @Test

@@ -47,7 +47,7 @@ public class HttpSourceConfigTest {
         requestVariables = "customer_id";
         connectTimeout = "234";
         failOnErrors = false;
-        type = "com.gojek.esb.booking.BookingLogMessage";
+        type = "InputProtoMessage";
         capacity = "345";
         metricId = "metricId-http-01";
         retainResponseType = false;

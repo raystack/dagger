@@ -47,12 +47,12 @@ public class FetchOutputDecoratorTest {
     public void setup() {
         initMocks(this);
         outputColumnNames = new String[]{"order_number", "service_type"};
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("TestProtoClass");
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
         when(schemaConfig.getColumnNameManager()).thenReturn(columnNameManager);
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
+        when(stencilClient.get("TestProtoClass")).thenReturn(TestBookingLogMessage.getDescriptor());
 
     }
 
@@ -103,7 +103,7 @@ public class FetchOutputDecoratorTest {
 
     @Test
     public void shouldDecorateStreamAndReturnTypesAsObjectIfDescriptorNullIfSqlProcessorEnabled() {
-        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(null);
+        when(stencilClient.get("TestProtoClass")).thenReturn(null);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);
