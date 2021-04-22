@@ -4,7 +4,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.TelemetrySubscriber;
+import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.processors.common.FetchOutputDecorator;

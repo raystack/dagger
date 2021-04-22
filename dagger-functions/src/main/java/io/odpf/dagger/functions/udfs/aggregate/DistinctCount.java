@@ -1,10 +1,10 @@
 package io.odpf.dagger.functions.udfs.aggregate;
 
-import org.apache.flink.table.functions.AggregateFunction;
+import io.odpf.dagger.common.udfs.AggregateUdf;
 
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.distinctcount.DistinctCountAccumulator;
 
-public class DistinctCount extends AggregateFunction<Integer, DistinctCountAccumulator> {
+public class DistinctCount extends AggregateUdf<Integer, DistinctCountAccumulator> {
 
     @Override
     public DistinctCountAccumulator createAccumulator() {

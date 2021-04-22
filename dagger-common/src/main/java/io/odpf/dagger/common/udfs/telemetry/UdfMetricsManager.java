@@ -1,4 +1,4 @@
-package io.odpf.dagger.functions.udfs.telemetry;
+package io.odpf.dagger.common.udfs.telemetry;
 
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;

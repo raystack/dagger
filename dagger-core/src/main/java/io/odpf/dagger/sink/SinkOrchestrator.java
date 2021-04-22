@@ -6,7 +6,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.sink.influx.ErrorHandler;

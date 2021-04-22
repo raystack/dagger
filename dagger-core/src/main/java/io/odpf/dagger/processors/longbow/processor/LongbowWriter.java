@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.LongbowWriterAspects;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;

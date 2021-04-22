@@ -51,6 +51,8 @@ sourceSets {
 dependencies {
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
 
     testImplementation 'junit:junit:4.12'
 }

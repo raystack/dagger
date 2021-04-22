@@ -27,6 +27,7 @@ configurations {
 
     minimalFunctionsJar.extendsFrom runtime
     compileOnly.extendsFrom minimalFunctionsJar
+    compileOnly.extendsFrom dependenciesFunctionsJar
     testCompile.extendsFrom compileOnly
 }
 

@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
-import io.odpf.dagger.common.contracts.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import io.odpf.dagger.exception.InvalidConfigurationException;
 import io.odpf.dagger.metrics.MeterStatsManager;
