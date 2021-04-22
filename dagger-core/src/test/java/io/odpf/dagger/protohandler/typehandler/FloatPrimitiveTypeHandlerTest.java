@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class FloatPrimitiveTypeHandlerTest {
     @Test
     public void shouldHandleFloatTypes() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         assertTrue(floatPrimitiveTypeHandler.canHandle());
     }
@@ -29,7 +29,7 @@ public class FloatPrimitiveTypeHandlerTest {
     public void shouldFetchValueForFieldForFieldDescriptorOfTypeFloat() {
         float actualValue = 5.1f;
 
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         Object value = floatPrimitiveTypeHandler.getValue(actualValue);
 
@@ -40,7 +40,7 @@ public class FloatPrimitiveTypeHandlerTest {
     public void shouldFetchParsedValueForFieldForFieldDescriptorOfTypeFloat() {
         float actualValue = 5.1f;
 
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         Object value = floatPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
 
@@ -49,7 +49,7 @@ public class FloatPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeFloat() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         Object value = floatPrimitiveTypeHandler.getValue(null);
 
@@ -58,21 +58,21 @@ public class FloatPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.FLOAT, floatPrimitiveTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.PRIMITIVE_ARRAY(Types.FLOAT), floatPrimitiveTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Float> inputValues = new ArrayList<>(Arrays.asList(1F, 2F, 3F));
         Object actualValues = floatPrimitiveTypeHandler.getArray(inputValues);
@@ -81,7 +81,7 @@ public class FloatPrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_unsubsidised_price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = floatPrimitiveTypeHandler.getArray(null);
         assertEquals(0, ((Float[]) actualValues).length);

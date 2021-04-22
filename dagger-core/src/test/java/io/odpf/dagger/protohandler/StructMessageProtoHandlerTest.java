@@ -29,7 +29,7 @@ public class StructMessageProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseForCanHandleForMessageFieldDescriptor() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_eta_pickup");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_pickup_location");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
         assertFalse(structMessageProtoHandler.canHandle());
     }

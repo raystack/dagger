@@ -31,7 +31,7 @@ public class RepeatedStructMessageProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseForCanHandleForMessageFieldDescriptor() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_eta_pickup");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_pickup_location");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(fieldDescriptor);
         assertFalse(repeatedStructMessageProtoHandler.canHandle());
     }

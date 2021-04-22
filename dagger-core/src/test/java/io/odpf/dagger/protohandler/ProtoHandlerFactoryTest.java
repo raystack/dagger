@@ -2,6 +2,7 @@ package io.odpf.dagger.protohandler;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
 import org.junit.Before;
@@ -42,14 +43,14 @@ public class ProtoHandlerFactoryTest {
 
     @Test
     public void shouldReturnRepeatedProtoHandlerIfRepeatedFieldDescriptorPassed() {
-        Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("favourite_service_provider_guids");
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedFieldDescriptor);
         assertEquals(RepeatedPrimitiveProtoHandler.class, protoHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedMessageProtoHandlerIfRepeatedMessageFieldDescriptorPassed() {
-        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("routes");
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor);
         assertEquals(RepeatedMessageProtoHandler.class, protoHandler.getClass());
     }
@@ -77,7 +78,7 @@ public class ProtoHandlerFactoryTest {
 
     @Test
     public void shouldReturnMessageProtoHandlerIfMessageFieldDescriptorPassed() {
-        Descriptors.FieldDescriptor messageFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_eta_pickup");
+        Descriptors.FieldDescriptor messageFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(messageFieldDescriptor);
         assertEquals(MessageProtoHandler.class, protoHandler.getClass());
     }

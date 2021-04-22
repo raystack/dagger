@@ -1,6 +1,7 @@
 package io.odpf.dagger.processors.external.pg;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestSurgeFactorLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
@@ -247,7 +248,7 @@ public class PgResponseHandlerTest {
         when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(rowSetIterator.next()).thenReturn(row);
         when(row.getValue("surge_factor")).thenReturn("123");
-        descriptor = TestBookingLogMessage.getDescriptor();
+        descriptor = TestSurgeFactorLogMessage.getDescriptor();
         inputColumnNames = new String[]{"s2_id"};
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("s2_id");

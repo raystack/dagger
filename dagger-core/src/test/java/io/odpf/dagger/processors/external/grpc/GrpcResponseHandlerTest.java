@@ -2,6 +2,7 @@ package io.odpf.dagger.processors.external.grpc;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestGrpcResponse;
+import io.odpf.dagger.consumer.TestLocation;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
@@ -74,15 +75,15 @@ public class GrpcResponseHandlerTest {
         streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 5000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 5000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.GrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
     }
 
     @Test
     public void shouldDetectProperBodyAndHandleResponseIfRetainResponseTypeIsFalse() throws InvalidProtocolBufferException {
         outputMapping.put("success", new OutputMapping("$.success"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
-        grpcSourceConfig.setType("com.gojek.esb.de.meta.GrpcResponse");
+        grpcSourceConfig.setType("io.odpf.dagger.consumer.TestGrpcResponse");
         DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
         GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
@@ -107,9 +108,9 @@ public class GrpcResponseHandlerTest {
         descriptor = TestBookingLogMessage.getDescriptor();
 
         outputMapping.put("driver_id", new OutputMapping("$.driver_id"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
         grpcSourceConfig.setRetainResponseType(false);
-        grpcSourceConfig.setType("com.gojek.esb.bicicilan.BiDriverCicilanLogMessage");
+        grpcSourceConfig.setType("io.odpf.dagger.consumer.TestAggregatedSupplyMessage");
 
 
         streamData.setField(0, inputData);
@@ -127,7 +128,7 @@ public class GrpcResponseHandlerTest {
         rowManager = new RowManager(streamData);
         Row resultStreamData = new Row(2);
         Row outputData = new Row(1);
-        outputData.setField(0, 250);
+        outputData.setField(0, "250");
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
 
@@ -144,7 +145,7 @@ public class GrpcResponseHandlerTest {
     @Test
     public void shouldRecordErrorInCaseOfUnknownException() throws InvalidProtocolBufferException {
         outputMapping.put("success", new OutputMapping("$.success"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
@@ -166,7 +167,7 @@ public class GrpcResponseHandlerTest {
     @Test
     public void shouldRecordFatalErrorInCaseOfUnknownExceptionWithFailOnErrorTrue() throws InvalidProtocolBufferException {
         outputMapping.put("success", new OutputMapping("$.success"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setFailOnErrors(true);
         GrpcResponseHandler grpcResponseHandler = new GrpcResponseHandler(grpcSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
@@ -189,7 +190,7 @@ public class GrpcResponseHandlerTest {
     @Test
     public void shouldDetectExceptionIfMessageIsWrong() throws InvalidProtocolBufferException {
         outputMapping.put("success", new OutputMapping("$.order_number"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.WrongGrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.de.meta.WrongGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
         grpcSourceConfig.setRetainResponseType(true);
         grpcSourceConfig.setFailOnErrors(true);
@@ -217,9 +218,9 @@ public class GrpcResponseHandlerTest {
     @Test
     public void shouldThrowErrorWhenFieldIsNotPresentInOutputDescriptor() throws InvalidProtocolBufferException {
         outputMapping.put("value", new OutputMapping("$.field3"));
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
 
-        grpcSourceConfig.setType("com.gojek.esb.de.meta.GrpcResponse");
+        grpcSourceConfig.setType("io.odpf.dagger.consumer.TestGrpcResponse");
 
 
         DynamicMessage message = DynamicMessage.parseFrom(TestGrpcResponse.getDescriptor(), TestGrpcResponse.newBuilder().setSuccess(true).build().toByteArray());
@@ -246,15 +247,14 @@ public class GrpcResponseHandlerTest {
 
     @Test
     public void shouldDetectProperComplexBodyAndHandleResponseIfRetainResponseTypeIsFalse() throws InvalidProtocolBufferException {
-        outputMapping.put("address", new OutputMapping("$.driver_arrived_location.address"));
-        outputMapping.put("name", new OutputMapping("$.driver_arrived_location.name"));
+        outputMapping.put("address", new OutputMapping("$.driver_pickup_location.address"));
+        outputMapping.put("name", new OutputMapping("$.driver_pickup_location.name"));
 
 
-//        Location location = Location.newBuilder().setAddress("Indonesia").setName("GojekTech").build();
-        //TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.newBuilder().setDriverArrivedLocation(location).setCustomerId("123456").build();
-        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.newBuilder().build();
+        TestLocation location = TestLocation.newBuilder().setAddress("Indonesia").setName("GojekTech").build();
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.newBuilder().setDriverPickupLocation(location).setCustomerId("123456").build();
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "com.gojek.esb.GrpcRequest", "com.gojek.esb.de.meta.GrpcResponse", "com.gojek.esb.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
+        grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
         grpcSourceConfig.setRetainResponseType(true);
 
         outputColumnNames = Arrays.asList(new String[]{"address", "name"});

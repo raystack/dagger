@@ -14,14 +14,14 @@ public class DoublePrimitiveTypeHandlerTest {
 
     @Test
     public void shouldHandleDoubleTypes() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         assertTrue(doublePrimitiveTypeHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanDouble() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("quantity");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         assertFalse(doublePrimitiveTypeHandler.canHandle());
     }
@@ -30,7 +30,7 @@ public class DoublePrimitiveTypeHandlerTest {
     public void shouldFetchValueForFieldForFieldDescriptorOfTypeDouble() {
         double actualValue = 2.0D;
 
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object value = doublePrimitiveTypeHandler.getValue(actualValue);
 
@@ -41,7 +41,7 @@ public class DoublePrimitiveTypeHandlerTest {
     public void shouldFetchParsedValueForFieldForFieldDescriptorOfTypeDouble() {
         double actualValue = 2.0D;
 
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object value = doublePrimitiveTypeHandler.getValue(String.valueOf(actualValue));
 
@@ -50,7 +50,7 @@ public class DoublePrimitiveTypeHandlerTest {
 
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeDouble() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object value = doublePrimitiveTypeHandler.getValue(null);
 
@@ -59,21 +59,21 @@ public class DoublePrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.DOUBLE, doublePrimitiveTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         assertEquals(Types.PRIMITIVE_ARRAY(Types.DOUBLE), doublePrimitiveTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Double> inputValues = new ArrayList<>(Arrays.asList(1D, 2D, 3D));
         Object actualValues = doublePrimitiveTypeHandler.getArray(inputValues);
@@ -82,7 +82,7 @@ public class DoublePrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("price");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = doublePrimitiveTypeHandler.getArray(null);
         assertEquals(0, ((Double[]) actualValues).length);

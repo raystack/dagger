@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.common;
 
+import io.odpf.dagger.consumer.TestEnumType;
 import io.odpf.dagger.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.processors.types.SourceConfig;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -104,16 +105,16 @@ public class EndpointHandlerTest {
     }
 
     @Test
-    public void shouldReturnJsonValueOfEndpointQueryValuesIncaseOfArray() {
-        Mockito.when(sourceConfig.getVariables()).thenReturn("payment_actions");
+    public void shouldReturnJsonValueOfEndpointQueryValuesInCaseOfArray() {
+        Mockito.when(sourceConfig.getVariables()).thenReturn("test_enums");
 
         Row row = new Row(2);
         Row inputData = new Row(2);
         List<Row> experimentsRow = new ArrayList<>();
         Row row1 = new Row(1);
-        row1.setField(0, "UNKNOWN");
+        row1.setField(0, TestEnumType.Enum.UNKNOWN);
         Row row2 = new Row(1);
-        row2.setField(0, "REFUND_CUSTOMER");
+        row2.setField(0, TestEnumType.Enum.TYPE1);
         experimentsRow.add(row1);
         experimentsRow.add(row2);
 
@@ -124,11 +125,11 @@ public class EndpointHandlerTest {
         RowManager rowManager = new RowManager(row);
 
         endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
-                inputProtoClasses, getColumnNameManager(new String[]{"order_number", "payment_actions"}), descriptorManager);
+                inputProtoClasses, getColumnNameManager(new String[]{"order_number", "test_enums"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        Assert.assertArrayEquals(endpointOrQueryVariablesValues, new Object[]{"[\"UNKNOWN\",\"REFUND_CUSTOMER\"]"});
+        Assert.assertArrayEquals(new Object[]{"[\"UNKNOWN\",\"TYPE1\"]"}, endpointOrQueryVariablesValues);
     }
 
     @Test
