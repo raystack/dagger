@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.contracts;
+package io.odpf.dagger.metrics.telemetry;
 
 public interface TelemetrySubscriber {
     void updated(TelemetryPublisher publisher);

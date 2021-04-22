@@ -11,7 +11,7 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.UDFFactory;
+import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.processors.PostProcessorFactory;
@@ -92,7 +92,7 @@ public class StreamManager {
 
         for (String className : functionFactoryClasses) {
             try {
-                UDFFactory udfFactory = getUDFFactory(className);
+                UdfFactory udfFactory = getUdfFactory(className);
                 udfFactory.registerFunctions();
             } catch (ReflectiveOperationException e) {
                 throw new UDFFactoryClassNotDefinedException(e.getMessage());
@@ -101,11 +101,11 @@ public class StreamManager {
         return this;
     }
 
-    private UDFFactory getUDFFactory(String udfFactoryClassName) throws ClassNotFoundException,
+    private UdfFactory getUdfFactory(String udfFactoryClassName) throws ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> udfFactoryClass = Class.forName(udfFactoryClassName);
-        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(Configuration.class, StreamTableEnvironment.class);
-        return (UDFFactory) udfFactoryClassConstructor.newInstance(configuration, tableEnvironment);
+        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class);
+        return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment);
     }
 
     public StreamManager registerOutputStream() {

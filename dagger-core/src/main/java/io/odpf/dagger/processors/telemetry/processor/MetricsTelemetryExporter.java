@@ -4,8 +4,8 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.TelemetryPublisher;
-import io.odpf.dagger.common.contracts.TelemetrySubscriber;
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.metrics.GaugeStatsManager;
 import io.odpf.dagger.metrics.aspects.TelemetryAspects;
 import org.slf4j.Logger;

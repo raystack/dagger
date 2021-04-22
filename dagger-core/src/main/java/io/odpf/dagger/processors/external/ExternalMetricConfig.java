@@ -2,7 +2,7 @@ package io.odpf.dagger.processors.external;
 
 import org.apache.flink.configuration.Configuration;
 
-import io.odpf.dagger.common.contracts.TelemetrySubscriber;
+import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.utils.Constants;
 
 import java.io.Serializable;

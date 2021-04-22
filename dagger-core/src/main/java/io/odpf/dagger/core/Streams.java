@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.types.Row;
 
 import com.google.gson.Gson;
-import io.odpf.dagger.common.contracts.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.source.ProtoDeserializer;
 import io.odpf.dagger.utils.Constants;
