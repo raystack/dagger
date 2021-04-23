@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.consumer.TestSerDeLogKey;
-import io.odpf.dagger.consumer.TestServiceType;
+import io.odpf.dagger.consumer.*;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
@@ -15,6 +14,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -75,7 +76,7 @@ public class ProtoSerializerTest {
     @Test
     public void shouldSerializeMessageProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type", "unique_customers",
-        "event_timestamp","string_type", "bool_type", "message_type", "repeated_message_type", "map_type" };
+                "event_timestamp", "string_type", "bool_type", "message_type", "repeated_message_type", "map_type"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestSerDeLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
         ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
@@ -94,216 +95,56 @@ public class ProtoSerializerTest {
         element.setField(3, 3322909458387959808L);
         element.setField(4, TestServiceType.Enum.GO_RIDE);
         element.setField(5, 2L);
-
-    }
-    /*
-
-    @Test
-    public void shouldSerializeValueForDemandProto() throws InvalidProtocolBufferException {
-        String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type", "unique_customers"};
-        String outputProtoKey = "com.gojek.esb.aggregate.demand.AggregatedDemandKey";
-        String outputProtoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
-        long seconds = System.currentTimeMillis() / 1000;
-
-        Row element = new Row(6);
-        Timestamp timestamp = new Timestamp(seconds * 1000);
-        com.google.protobuf.Timestamp expectedTimestamp = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(seconds)
-                .setNanos(0)
-                .build();
-
-        element.setField(0, timestamp);
-        element.setField(1, timestamp);
-        element.setField(2, 13);
-        element.setField(3, 3322909458387959808L);
-        element.setField(4, GO_RIDE);
-        element.setField(5, 2L);
+        element.setField(6, timestamp);
+        element.setField(7, "test");
+        element.setField(8, true);
+        element.setField(9, new Row(1){{setField(0,"driver_test");}});
+        element.setField(10, new ArrayList<Row>() {{
+            add(new Row(1){{setField(0,"driver_id");}});
+        }});
+        element.setField(11, new HashMap<String, String>() {{
+            put("key", "value");
+        }});
 
         ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
 
-        AggregatedDemandMessage actualValue = AggregatedDemandMessage.parseFrom(producerRecord.value());
+        TestSerDeLogMessage actualMessage = TestSerDeLogMessage.parseFrom(producerRecord.value());
 
-        assertEquals(expectedTimestamp, actualValue.getWindowStartTime());
-        assertEquals(expectedTimestamp, actualValue.getWindowEndTime());
-        assertEquals(13, actualValue.getS2IdLevel());
-        assertEquals(3322909458387959808L, actualValue.getS2Id());
-        assertEquals("GO_RIDE", actualValue.getServiceType().toString());
-        assertEquals(2L, actualValue.getUniqueCustomers());
+        assertEquals(expectedTimestamp, actualMessage.getWindowStartTime());
+        assertEquals(expectedTimestamp, actualMessage.getWindowEndTime());
+        assertEquals(13, actualMessage.getS2IdLevel());
+        assertEquals(3322909458387959808L, actualMessage.getS2Id());
+        assertEquals("GO_RIDE", actualMessage.getServiceType().toString());
+        assertEquals(expectedTimestamp, actualMessage.getEventTimestamp());
+        assertEquals("test", actualMessage.getStringType());
+        assertEquals(true, actualMessage.getBoolType());
+        assertEquals(TestProfile.newBuilder().setDriverId("driver_test").build(), actualMessage.getMessageType());
+        assertEquals(new ArrayList<TestProfile>(){{add(TestProfile.newBuilder().setDriverId("driver_id").build());}},actualMessage.getRepeatedMessageTypeList());
+        assertEquals(new HashMap<String, String>() {{
+            put("key", "value");
+        }}, actualMessage.getMapTypeMap());
     }
 
-    @Test
-    public void shouldSerializeKeyForSupplyProto() throws InvalidProtocolBufferException {
-        String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type"};
-        String outputProtoKey = "com.gojek.esb.aggregate.supply.AggregatedSupplyKey";
-        String outputProtoMessage = "com.gojek.esb.aggregate.supply.AggregatedSupplyMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
-        long startTimeInSeconds = System.currentTimeMillis() / 1000;
-        long endTimeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
-
-        Row element = new Row(5);
-        Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);
-        Timestamp endTimestamp = new java.sql.Timestamp(endTimeInSeconds * 1000);
-        com.google.protobuf.Timestamp expectedStartTimestamp = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(startTimeInSeconds)
-                .setNanos(0)
-                .build();
-        com.google.protobuf.Timestamp expectedEndTimestamp = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(endTimeInSeconds)
-                .setNanos(0)
-                .build();
-
-        element.setField(0, startTimestamp);
-        element.setField(1, endTimestamp);
-        element.setField(2, 13);
-        element.setField(3, 3322909458387959808L);
-        element.setField(4, BIKE);
-
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
-
-
-        AggregatedSupplyKey actualKey = AggregatedSupplyKey.parseFrom(producerRecord.key());
-
-        assertEquals(expectedStartTimestamp, actualKey.getWindowStartTime());
-        assertEquals(expectedEndTimestamp, actualKey.getWindowEndTime());
-        assertEquals(13, actualKey.getS2IdLevel());
-        assertEquals(3322909458387959808L, actualKey.getS2Id());
-        assertEquals("BIKE", actualKey.getVehicleType().toString());
-    }
-
-    @Test
-    public void shouldSerializeValueForSupplyProto() throws InvalidProtocolBufferException {
-        String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "vehicle_type", "unique_drivers"};
-        String outputProtoKey = "com.gojek.esb.aggregate.supply.AggregatedSupplyKey";
-        String outputProtoMessage = "com.gojek.esb.aggregate.supply.AggregatedSupplyMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
-        long startTimeInSeconds = System.currentTimeMillis() / 1000;
-        long endTimeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
-
-        Row element = new Row(6);
-        Timestamp startTimestamp = new java.sql.Timestamp(startTimeInSeconds * 1000);
-        Timestamp endTimestamp = new java.sql.Timestamp(endTimeInSeconds * 1000);
-        com.google.protobuf.Timestamp expectedStartTimestamp = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(startTimeInSeconds)
-                .setNanos(0)
-                .build();
-        com.google.protobuf.Timestamp expectedEndTimestamp = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(endTimeInSeconds)
-                .setNanos(0)
-                .build();
-
-        element.setField(0, startTimestamp);
-        element.setField(1, endTimestamp);
-        element.setField(2, 13);
-        element.setField(3, 3322909458387959808L);
-        element.setField(4, BIKE);
-        element.setField(5, 2L);
-
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
-
-        AggregatedSupplyMessage actualValue = AggregatedSupplyMessage.parseFrom(producerRecord.value());
-
-        assertEquals(expectedStartTimestamp, actualValue.getWindowStartTime());
-        assertEquals(expectedEndTimestamp, actualValue.getWindowEndTime());
-        assertEquals(13, actualValue.getS2IdLevel());
-        assertEquals(3322909458387959808L, actualValue.getS2Id());
-        assertEquals("BIKE", actualValue.getVehicleType().toString());
-        assertEquals(2L, actualValue.getUniqueDrivers());
-    }
-
-    @Test
-    public void shouldSerializeValueForEnrichedBookingLogProto() throws InvalidProtocolBufferException {
-        String[] columnNames = {"service_type", "order_url", "status", "order_number", "event_timestamp", "customer_id", "customer_url", "driver_id", "driver_url", "helooo"};
-        String outputProtoKey = "com.gojek.esb.booking.BookingLogKey";
-        String outputProtoMessage = "com.gojek.esb.booking.BookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
-        com.google.protobuf.Timestamp timestampProto = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(((System.currentTimeMillis() + 10000) / 1000))
-                .setNanos(0)
-                .build();
-
-        long endTimeInSeconds = (System.currentTimeMillis() + 10000) / 1000;
-        Timestamp timestamp = new java.sql.Timestamp(endTimeInSeconds * 1000);
-        Row element = new Row(columnNames.length);
-        element.setField(0, GO_RIDE);
-        element.setField(1, "TEST");
-        element.setField(2, BookingStatusProto.BookingStatus.Enum.COMPLETED);
-        element.setField(3, "12345");
-        element.setField(4, timestamp);
-        element.setField(5, "67890");
-        element.setField(6, "CUST_TEST");
-        element.setField(7, "1234556677");
-        element.setField(8, "DRIVER_TEST");
-        element.setField(9, "world");
-
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
-
-        BookingLogMessage bookingLogMessage = BookingLogMessage.parseFrom(producerRecord.value());
-
-        assertNotNull(bookingLogMessage);
-        assertEquals(timestampProto, bookingLogMessage.getEventTimestamp());
-        assertEquals("12345", bookingLogMessage.getOrderNumber());
-
-        String jsonString = "{\n" +
-                " \"_index\": \"customers\",\n" +
-                " \"_type\": \"customer\",\n" +
-                " \"_id\": \"547774090\",\n" +
-                " \"_version\": 11,\n" +
-                " \"found\": true,\n" +
-                " \"_source\": {\n" +
-                "   \"created_at\": \"2015-11-06T12:47:20Z\",\n" +
-                "   \"customer_id\": \"547774090\",\n" +
-                "   \"email\": \"asfarudin@go-jek.com\",\n" +
-                "   \"is_fb_linked\": false,\n" +
-                "   \"phone\": \"+6285725742946\",\n" +
-                "   \"name\": \"Asfar Daiman\",\n" +
-                "   \"wallet_id\": \"16230120432734932822\",\n" +
-                "   \"type\": \"customer\",\n" +
-                "   \"blacklisted\": null,\n" +
-                "   \"updated_at\": 1537423759,\n" +
-                "   \"active\": true,\n" +
-                "   \"wallet-id\": \"16230120432734932822\",\n" +
-                "   \"last_login_date\": 1549512271\n" +
-                " }\n" +
-                "}";
-
-        String updatedJsonString = Arrays.stream(jsonString.split(",")).filter((val) -> !(val.contains("updated_at"))).collect(Collectors.joining(","));
-
-        String customerSource = updatedJsonString.substring(updatedJsonString.indexOf("\"_source\": {") + 11, updatedJsonString.indexOf("}") + 1);
-
-        CustomerLogMessage.Builder customerLogBuilder = CustomerLogMessage.newBuilder();
-        JsonFormat.parser().ignoringUnknownFields().merge(customerSource, customerLogBuilder);
-        CustomerLogMessage customerLogMessage = customerLogBuilder.build();
-        assertNotNull(customerLogMessage);
-        assertEquals("547774090", customerLogMessage.getCustomerId());
-
-        EnrichedBookingLogMessage enrichedBookingLogMessage = EnrichedBookingLogMessage.newBuilder()
-                .mergeBookingLog(bookingLogMessage)
-                .mergeCustomerProfile(customerLogMessage)
-                .build();
-        assertNotNull(enrichedBookingLogMessage);
-        assertEquals(timestampProto, enrichedBookingLogMessage.getBookingLog().getEventTimestamp());
-        assertEquals("547774090", enrichedBookingLogMessage.getCustomerProfile().getCustomerId());
-    }
 
     @Test
     public void shouldSerializeDataForOneFieldInNestedProtoWhenMappedFromQuery() throws InvalidProtocolBufferException {
-        String[] columnNames = {"customer_profile.name"};
-        String outputProtoKey = "com.gojek.esb.fraud.EnrichedBookingLogKey";
-        String outputProtoMessage = "com.gojek.esb.fraud.EnrichedBookingLogMessage";
+        String[] columnNames = {"customer_profile.customer_id"};
+        String outputProtoKey = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
+        String outputProtoMessage = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
         ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(1);
 
-        element.setField(0, "test-name");
+        element.setField(0, "test-id");
 
         ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
 
-        EnrichedBookingLogMessage actualValue = EnrichedBookingLogMessage.parseFrom(producerRecord.value());
+        TestEnrichedBookingLogMessage actualValue = TestEnrichedBookingLogMessage.parseFrom(producerRecord.value());
 
-        assertEquals("test-name", actualValue.getCustomerProfile().getName());
+        assertEquals("test-id", actualValue.getCustomerProfile().getCustomerId());
     }
 
+    /*
     @Test
     public void shouldSerializeDataForMultipleFieldsInSameNestedProtoWhenMappedFromQuery() throws InvalidProtocolBufferException {
         String[] columnNames = {"customer_profile.name", "customer_profile.email", "customer_profile.phone_verified"};
