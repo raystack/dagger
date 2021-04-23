@@ -243,12 +243,38 @@ message TestSurgeFactorLogMessage {
 
 message TestEnrichedBookingLogMessage {
   TestBookingLogMessage booking_log = 1;
-  //    TestCustomerLogMessage customer_profile = 2;
+  TestCustomerLogMessage customer_profile = 2;
   TestProfile driver_profile = 3;
   google.protobuf.Timestamp event_timestamp = 4;
+}
+
+message TestCustomerLogMessage {
+  string customer_id = 1;
 }
 
 message TestProfile {
   string driver_id = 1;
 }
 
+message TestSerDeLogKey {
+  google.protobuf.Timestamp window_start_time = 1;
+  google.protobuf.Timestamp window_end_time = 2;
+  int32 s2_id_level = 3;
+  int64 s2_id = 4;
+  TestServiceType.Enum service_type = 5;
+}
+message TestSerDeLogMessage {
+  google.protobuf.Timestamp window_start_time = 1;
+  google.protobuf.Timestamp window_end_time = 2;
+  int32 s2_id_level = 3;
+  int64 s2_id = 4;
+  TestServiceType.Enum service_type = 5;
+  int64 unique_customers = 6;
+  google.protobuf.Timestamp event_timestamp = 7;
+
+  string string_type = 8;
+  bool bool_type = 9;
+  TestProfile message_type = 10;
+  repeated TestProfile repeated_message_type = 11;
+  map<string, string> map_type = 12;
+}
