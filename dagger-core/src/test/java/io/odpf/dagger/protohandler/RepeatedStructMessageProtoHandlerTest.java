@@ -1,10 +1,9 @@
 package io.odpf.dagger.protohandler;
 
-import com.gojek.esb.booking.GoLifeBookingLogMessage;
-import com.gojek.esb.clevertap.ClevertapEventLogMessage;
-import com.gojek.esb.consumer.TestNestedRepeatedMessage;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -25,14 +24,14 @@ public class RepeatedStructMessageProtoHandlerTest {
 
     @Test
     public void shouldReturnFalseForCanHandleForStructFieldDescriptor() {
-        Descriptors.FieldDescriptor fieldDescriptor = ClevertapEventLogMessage.getDescriptor().findFieldByName("profile_data");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(fieldDescriptor);
         assertFalse(repeatedStructMessageProtoHandler.canHandle());
     }
 
     @Test
     public void shouldReturnFalseForCanHandleForMessageFieldDescriptor() {
-        Descriptors.FieldDescriptor fieldDescriptor = GoLifeBookingLogMessage.getDescriptor().findFieldByName("driver_eta_pickup");
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("driver_pickup_location");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(fieldDescriptor);
         assertFalse(repeatedStructMessageProtoHandler.canHandle());
     }

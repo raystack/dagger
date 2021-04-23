@@ -56,14 +56,14 @@ public class GrpcSourceConfigTest {
         requestVariables = "customer_id";
         connectTimeout = "234";
         failOnErrors = false;
-        grpcStencilUrl = "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest";
-        type = "com.gojek.esb.booking.BookingLogMessage";
+        grpcStencilUrl = "http://localhost/feast-proto/latest";
+        type = "InputProtoMessage";
         capacity = 345;
         metricId = "metricId-http-01";
         retainResponseType = false;
-        grpcMethodUrl = "com.esb.test/TestMethod";
-        grpcResponseProtoSchema = "com.gojek.esb.response";
-        grpcRequestProtoSchema = "com.gojek.esb.request";
+        grpcMethodUrl = "test/TestMethod";
+        grpcResponseProtoSchema = "ResponseMessage";
+        grpcRequestProtoSchema = "RequestMessage";
         grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
     }
 
@@ -168,21 +168,21 @@ public class GrpcSourceConfigTest {
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
         Assert.assertEquals(1, grpcStencilUrl.size());
-        Assert.assertEquals("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest", grpcStencilUrl.get(0));
+        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
     }
 
     @Test
     public void shouldCollectMultipleStencilURLSFromGRPCSourceConfiguration() {
-        grpcStencilUrl = "http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/goid-events/latest,http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/growth-log-entities/release";
+        grpcStencilUrl = "http://localhost/feast-proto/latest,http://localhost/log-entities/latest,http://localhost/events/latest,http://localhost/growth/release";
         grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, grpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
 
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
         Assert.assertEquals(4, grpcStencilUrl.size());
-        Assert.assertEquals("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest", grpcStencilUrl.get(0));
-        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest", grpcStencilUrl.get(1));
-        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/goid-events/latest", grpcStencilUrl.get(2));
-        Assert.assertEquals("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/growth-log-entities/release", grpcStencilUrl.get(3));
+        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
+        Assert.assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));
+        Assert.assertEquals("http://localhost/events/latest", grpcStencilUrl.get(2));
+        Assert.assertEquals("http://localhost/growth/release", grpcStencilUrl.get(3));
     }
 
 

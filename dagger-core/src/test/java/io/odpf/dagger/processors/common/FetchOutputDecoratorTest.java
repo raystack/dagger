@@ -1,10 +1,10 @@
 package io.odpf.dagger.processors.common;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.external.SchemaConfig;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.BookingLogMessage;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -47,12 +47,12 @@ public class FetchOutputDecoratorTest {
     public void setup() {
         initMocks(this);
         outputColumnNames = new String[]{"order_number", "service_type"};
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("TestProtoClass");
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
         when(schemaConfig.getColumnNameManager()).thenReturn(columnNameManager);
         when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(BookingLogMessage.getDescriptor());
+        when(stencilClient.get("TestProtoClass")).thenReturn(TestBookingLogMessage.getDescriptor());
 
     }
 
@@ -103,7 +103,7 @@ public class FetchOutputDecoratorTest {
 
     @Test
     public void shouldDecorateStreamAndReturnTypesAsObjectIfDescriptorNullIfSqlProcessorEnabled() {
-        when(stencilClient.get("com.gojek.esb.booking.BookingLogMessage")).thenReturn(null);
+        when(stencilClient.get("TestProtoClass")).thenReturn(null);
         when(inputDataStream.map(any(MapFunction.class))).thenReturn(outputDataStream);
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
         fetchOutputDecorator.decorate(inputDataStream);

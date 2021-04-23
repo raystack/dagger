@@ -44,7 +44,7 @@ public class PgSourceConfigTest {
         user = "user";
         password = "password";
         database = "db";
-        type = "com.gojek.esb.fraud.DriverProfileFlattenLogMessage";
+        type = "TestMessage";
         capacity = "30";
         streamTimeout = "4000";
         outputMapping = new HashMap<>();

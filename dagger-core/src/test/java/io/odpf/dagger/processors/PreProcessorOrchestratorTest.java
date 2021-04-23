@@ -43,7 +43,7 @@ public class PreProcessorOrchestratorTest {
         Configuration configuration = new Configuration();
         PreProcessorConfig config = new PreProcessorConfig();
         List<TransformConfig> transformConfigs = new ArrayList<>();
-        transformConfigs.add(new TransformConfig("com.gojek.dagger.transformer.filter.InvalidRecordFilterTransformer", new HashMap<>()));
+        transformConfigs.add(new TransformConfig("InvalidRecordFilterTransformer", new HashMap<>()));
         TableTransformConfig ttc = new TableTransformConfig("test", transformConfigs);
         config.tableTransformers = Collections.singletonList(ttc);
         PreProcessorOrchestrator ppo = new PreProcessorOrchestrator(configuration, config, exporter, "test");

@@ -1,10 +1,10 @@
 package io.odpf.dagger.processors.common;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import com.google.protobuf.Descriptors;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,20 +40,20 @@ public class DescriptorManagerTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         DescriptorManager descriptorManager = new DescriptorManager(stencilClientOrchestrator);
         Descriptors.Descriptor descriptor = descriptorManager
-                .getDescriptor("com.gojek.esb.booking.GoFoodBookingLogMessage");
+                .getDescriptor("io.odpf.dagger.consumer.TestBookingLogMessage");
 
-        Assert.assertEquals(GoFoodBookingLogMessage.getDescriptor(), descriptor);
+        Assert.assertEquals(TestBookingLogMessage.getDescriptor(), descriptor);
     }
 
     @Test
     public void shouldReturnValidDescriptorsInCaseOfEnrichment() {
-        List<String> grpcSpecificStencilURLs = Collections.singletonList("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest");
+        List<String> grpcSpecificStencilURLs = Collections.singletonList("http://localhost/url");
         when(stencilClientOrchestrator.enrichStencilClient(grpcSpecificStencilURLs)).thenReturn(stencilClient);
         DescriptorManager descriptorManager = new DescriptorManager(stencilClientOrchestrator, grpcSpecificStencilURLs);
         Descriptors.Descriptor descriptor = descriptorManager
-                .getDescriptor("com.gojek.esb.booking.GoFoodBookingLogMessage");
+                .getDescriptor("io.odpf.dagger.consumer.TestBookingLogMessage");
 
-        Assert.assertEquals(GoFoodBookingLogMessage.getDescriptor(), descriptor);
+        Assert.assertEquals(TestBookingLogMessage.getDescriptor(), descriptor);
     }
 
     @Test

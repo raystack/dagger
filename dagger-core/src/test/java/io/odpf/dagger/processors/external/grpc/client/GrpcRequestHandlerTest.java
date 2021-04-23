@@ -1,14 +1,12 @@
 package io.odpf.dagger.processors.external.grpc.client;
 
+import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.exception.InvalidGrpcBodyException;
 import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.external.grpc.GrpcSourceConfig;
-import com.gojek.esb.consumer.TestGrpcRequest;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.odpf.dagger.processors.common.DescriptorManager;
-import io.odpf.dagger.processors.external.grpc.GrpcSourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +31,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'}");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
@@ -58,7 +56,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
@@ -76,7 +74,7 @@ public class GrpcRequestHandlerTest {
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("com.gojek.esb.consumer.TestGrpcRequest");
+        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
         when(grpcSourceConfig.getPattern()).thenReturn("");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 

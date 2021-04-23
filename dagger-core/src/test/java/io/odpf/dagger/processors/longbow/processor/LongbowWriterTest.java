@@ -23,11 +23,9 @@ import org.mockito.Mock;
 import org.threeten.bp.Duration;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 import static org.mockito.Mockito.*;
@@ -169,9 +167,20 @@ public class LongbowWriterTest {
             throw new RuntimeException();
         }));
 
-        defaultLongbowWriter.open(configuration);
-        defaultLongbowWriter.asyncInvoke(input, resultFuture);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ResultFuture<Row> callback = new ResultFuture<Row>() {
+            @Override
+            public void complete(Collection<Row> result) {
+                countDownLatch.countDown();
+            }
 
+            @Override
+            public void completeExceptionally(Throwable error) {
+            }
+        };
+        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.asyncInvoke(input, callback);
+        countDownLatch.await();
         verify(errorReporter, times(1)).reportNonFatalException(any(LongbowWriterException.class));
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILED_ON_WRITE_DOCUMENT);
         verify(meterStatsManager, times(1))

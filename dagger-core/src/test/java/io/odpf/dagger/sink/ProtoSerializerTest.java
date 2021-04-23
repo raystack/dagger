@@ -6,14 +6,6 @@ import io.odpf.dagger.exception.DescriptorNotFoundException;
 import io.odpf.dagger.exception.InvalidColumnMappingException;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.aggregate.demand.AggregatedDemandKey;
-import com.gojek.esb.aggregate.demand.AggregatedDemandMessage;
-import com.gojek.esb.aggregate.supply.AggregatedSupplyKey;
-import com.gojek.esb.aggregate.supply.AggregatedSupplyMessage;
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.customer.CustomerLogMessage;
-import com.gojek.esb.fraud.EnrichedBookingLogMessage;
-import com.gojek.esb.types.BookingStatusProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import org.apache.flink.types.Row;
@@ -28,8 +20,6 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static com.gojek.esb.types.ServiceTypeProto.ServiceType.Enum.GO_RIDE;
-import static com.gojek.esb.types.VehicleTypeProto.VehicleType.Enum.BIKE;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -52,6 +42,7 @@ public class ProtoSerializerTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
     }
 
+    /*
     @Test
     public void shouldSerializeKeyForDemandProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type"};
@@ -581,4 +572,6 @@ public class ProtoSerializerTest {
 
         protoSerializer.serialize(element, null);
     }
+
+     */
 }

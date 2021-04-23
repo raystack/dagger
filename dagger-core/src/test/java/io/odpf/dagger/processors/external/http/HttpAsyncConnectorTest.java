@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.http;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -19,7 +20,6 @@ import io.odpf.dagger.processors.external.SchemaConfig;
 import io.odpf.dagger.processors.common.DescriptorManager;
 import io.odpf.dagger.processors.common.OutputMapping;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.junit.Assert;
@@ -93,11 +93,11 @@ public class HttpAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.BookingLogMessage"};
+        inputProtoClasses = new String[]{"InputProtoMessage"};
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.GoFoodBookingLogMessage");
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("OutputProtoMessage");
         externalMetricConfig = new ExternalMetricConfig("metricId-http-01", shutDownPeriod, telemetryEnabled);
 
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}",
@@ -159,7 +159,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         DescriptorManager descriptorManager = new DescriptorManager(stencilClientOrchestrator);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
@@ -176,7 +176,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(httpConfigType)).thenThrow(new DescriptorNotFoundException());
 
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
@@ -193,7 +193,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         String invalid_request_variable = "invalid_variable";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", invalid_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
@@ -216,7 +216,7 @@ public class HttpAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
         String empty_request_variable = "";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", empty_request_variable, "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
@@ -257,7 +257,7 @@ public class HttpAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() {
         String invalidRequestPattern = "{\"key\": \"%\"}";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
@@ -279,35 +279,35 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.BookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("InputProtoMessage");
     }
 
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, "com.gojek.esb.booking.TestBookingLogMessage", "345", headers, outputMapping, "metricId_02", false);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, "TestBookingLogMessage", "345", headers, outputMapping, "metricId_02", false);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
 
         httpAsyncConnector.open(flinkConfiguration);
         httpAsyncConnector.asyncInvoke(streamData, resultFuture);
-        verify(descriptorManager, times(1)).getDescriptor("com.gojek.esb.booking.TestBookingLogMessage");
+        verify(descriptorManager, times(1)).getDescriptor("TestBookingLogMessage");
     }
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() throws Exception {
         String invalidRequestPattern = "{\"key\": \"%d\"}";
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", invalidRequestPattern, "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
@@ -328,7 +328,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
 
@@ -344,7 +344,7 @@ public class HttpAsyncConnectorTest {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"key\": \"123456\"}")).thenReturn(boundRequestBuilder);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
 
@@ -394,7 +394,7 @@ public class HttpAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionIfUnsupportedHttpVerbProvided() throws Exception {
-        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
         HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "{\"key\": \"%s\"}", "customer_id", "123", "234", true, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(httpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, descriptorManager);
