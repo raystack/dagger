@@ -11,10 +11,10 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.StencilClientOrchestrator;
-import io.odpf.dagger.processors.PostProcessorFactory;
-import io.odpf.dagger.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.processors.types.PostProcessor;
-import io.odpf.dagger.utils.Constants;
+import io.odpf.dagger.core.processors.PostProcessorFactory;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
+import io.odpf.dagger.core.utils.Constants;
 import org.grpcmock.GrpcMock;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -24,9 +24,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.odpf.dagger.utils.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
-import static io.odpf.dagger.utils.Constants.STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
+import static io.odpf.dagger.core.utils.Constants.STENCIL_ENABLE_KEY;
 import static org.grpcmock.GrpcMock.stubFor;
 import static org.grpcmock.GrpcMock.unaryMethod;
 import static org.junit.Assert.assertEquals;

@@ -17,8 +17,8 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 
-import io.odpf.dagger.source.CustomStreamingTableSource;
-import io.odpf.dagger.source.FlinkKafkaConsumerCustom;
+import io.odpf.dagger.core.source.CustomStreamingTableSource;
+import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
