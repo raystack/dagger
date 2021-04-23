@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 buildscript {
     repositories {
         mavenLocal()
@@ -12,11 +10,10 @@ buildscript {
 }
 plugins {
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
-version "0.0.1"
+version "0.1.0"
 
 description = """common dependencies for dagger"""
 
@@ -33,6 +30,7 @@ configurations {
 
     minimalCommonJar.extendsFrom runtime
     compileOnly.extendsFrom minimalCommonJar
+    compileOnly.extendsFrom dependenciesCommonJar
     testCompile.extendsFrom compileOnly
 }
 
@@ -84,9 +82,8 @@ jar {
 
 publishing {
     publications {
-        shadow(MavenPublication) {
-            publication ->
-                project.shadow.component(publication)
+        mavenJava(MavenPublication) {
+            from components.java
         }
     }
 
