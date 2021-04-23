@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.odpf.dagger.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 

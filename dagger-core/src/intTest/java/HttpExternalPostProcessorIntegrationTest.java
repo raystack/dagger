@@ -9,10 +9,10 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.StencilClientOrchestrator;
-import io.odpf.dagger.processors.PostProcessorFactory;
-import io.odpf.dagger.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.processors.types.PostProcessor;
-import io.odpf.dagger.utils.Constants;
+import io.odpf.dagger.core.processors.PostProcessorFactory;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
+import io.odpf.dagger.core.utils.Constants;
 import org.junit.*;
 
 import java.sql.Timestamp;
@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static io.odpf.dagger.utils.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
+import static io.odpf.dagger.core.utils.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

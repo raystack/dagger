@@ -1,6 +1,6 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.source.FlinkKafkaConsumerCustom;
+import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import org.apache.flink.configuration.Configuration;
@@ -11,7 +11,7 @@ import org.mockito.Mock;
 
 import java.util.*;
 
-import static io.odpf.dagger.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;

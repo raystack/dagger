@@ -13,16 +13,16 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.exception.UDFFactoryClassNotDefinedException;
-import io.odpf.dagger.processors.PostProcessorFactory;
-import io.odpf.dagger.processors.PreProcessorConfig;
-import io.odpf.dagger.processors.PreProcessorFactory;
-import io.odpf.dagger.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.processors.types.PostProcessor;
-import io.odpf.dagger.processors.types.Preprocessor;
-import io.odpf.dagger.sink.SinkOrchestrator;
-import io.odpf.dagger.source.CustomStreamingTableSource;
-import io.odpf.dagger.utils.Constants;
+import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
+import io.odpf.dagger.core.processors.PostProcessorFactory;
+import io.odpf.dagger.core.processors.PreProcessorConfig;
+import io.odpf.dagger.core.processors.PreProcessorFactory;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
+import io.odpf.dagger.core.processors.types.Preprocessor;
+import io.odpf.dagger.core.sink.SinkOrchestrator;
+import io.odpf.dagger.core.source.CustomStreamingTableSource;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

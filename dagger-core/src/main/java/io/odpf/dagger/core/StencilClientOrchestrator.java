@@ -4,7 +4,7 @@ import org.apache.flink.configuration.Configuration;
 
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.utils.Constants;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.io.Serializable;
 import java.util.ArrayList;
