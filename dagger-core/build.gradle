@@ -23,14 +23,10 @@ plugins {
 
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
-def daggerVersion = '12.4.0'
+def minimalVersion = '0.1.0'
 def dependenciesVersion = '0.1.0'
 
-
-version "${flinkVersion}_${daggerVersion}"
-
-def dependenciesArtifactVersion = "${flinkVersion}_${dependenciesVersion}"
-def minimalVersion = version + '_' + dependenciesVersion
+version minimalVersion
 
 description = """dagger to the heart!"""
 
@@ -41,7 +37,7 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-def mainClassName = "io.odpf.dagger.KafkaProtoSQLProcessor"
+def mainClassName = "io.odpf.dagger.core.KafkaProtoSQLProcessor"
 
 configurations {
     minimalJar
@@ -77,6 +73,7 @@ dependencies {
     implementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-table-planner_2.11:' + flinkVersion
 
+    dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
 
     dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
@@ -126,7 +123,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.2
+                minimum = 0.89
             }
         }
     }
@@ -135,9 +132,11 @@ jacocoTestCoverageVerification {
 sourceSets {
     main.compileClasspath += configurations.minimalJar
     main.compileClasspath += project(":dagger-common").configurations.minimalCommonJar
+    main.compileClasspath += project(":dagger-common").configurations.dependenciesCommonJar
     main.compileClasspath += configurations.dependenciesJar
     main.runtimeClasspath += configurations.minimalJar
-    main.compileClasspath += project(":dagger-common").configurations.minimalCommonJar
+    main.runtimeClasspath += project(":dagger-common").configurations.minimalCommonJar
+    main.runtimeClasspath += project(":dagger-common").configurations.dependenciesCommonJar
     main.runtimeClasspath += configurations.dependenciesJar
 
     test.compileClasspath += configurations.minimalJar
@@ -226,7 +225,7 @@ task dependenciesJar(type: ShadowJar) {
     zip64 true
     exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
     configurations = [project.configurations.dependenciesJar]
-    version = dependenciesArtifactVersion
+    version = dependenciesVersion
 }
 
 task fatJar(type: ShadowJar) {
@@ -260,13 +259,12 @@ publishing {
             version = minimalVersion + '-minimal'
         }
         dependenciesArtifact(MavenPublication) {
-            artifact file("$buildDir/libs/dagger-core-${dependenciesArtifactVersion}-dependencies.jar")
+            artifact file("$buildDir/libs/dagger-core-${dependenciesVersion}-dependencies.jar")
             groupId project.group
             artifactId project.name
-            version = dependenciesArtifactVersion + '-dependencies'
+            version = dependenciesVersion + '-dependencies'
         }
     }
-
 
     repositories {
         maven {
