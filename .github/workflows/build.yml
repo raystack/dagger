@@ -15,4 +15,4 @@ jobs:
         run: chmod +x gradlew
       # Todo: remove the test exclusion part for the core repo after the tests get fixed
       - name: Building dagger core. All dependent sub project would be built as part of this
-        run: ./gradlew dagger-core:buildNeeded -x dagger-core:test
+        run: ./gradlew build

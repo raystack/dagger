@@ -1,7 +1,7 @@
 package io.odpf.dagger.processors.transformers;
 
-import io.odpf.dagger.common.contracts.Transformer;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
