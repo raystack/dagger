@@ -16,6 +16,7 @@ plugins {
 }
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+version "0.0.1"
 
 description = """common dependencies for dagger"""
 
@@ -50,7 +51,8 @@ sourceSets {
 dependencies {
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
-    dependenciesCommonJar 'com.gojek:stencil:2.0.15'
+    compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
 
     testImplementation 'junit:junit:4.12'
 }
@@ -72,22 +74,49 @@ jacocoTestReport {
 }
 
 jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     zip64 true
     from {
-        (configurations.compileClasspath).collect {
+        (configurations.runtime).collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
 }
 
-task fatJar(type: ShadowJar) {
-    description = "Builds a executable jar"
-    classifier = 'fat'
-    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
-    configurations = [project.configurations.runtimeClasspath, project.configurations.minimalCommonJar, project.configurations.dependenciesCommonJar]
-    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-    zip64 true
-    mergeServiceFiles()
-    append('reference.conf')
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            publication ->
+                project.shadow.component(publication)
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/odpf/dagger"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        csv.enabled false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
 }

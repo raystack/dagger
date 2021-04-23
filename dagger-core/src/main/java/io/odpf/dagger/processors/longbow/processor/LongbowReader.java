@@ -1,31 +1,36 @@
 package io.odpf.dagger.processors.longbow.processor;
 
-import io.odpf.dagger.metrics.MeterStatsManager;
-import io.odpf.dagger.metrics.aspects.LongbowReaderAspects;
-import io.odpf.dagger.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.metrics.reporters.ErrorReporterFactory;
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.processors.longbow.LongbowSchema;
-import io.odpf.dagger.processors.longbow.data.LongbowData;
-import io.odpf.dagger.processors.longbow.exceptions.LongbowReaderException;
-import io.odpf.dagger.processors.longbow.outputRow.ReaderOutputRow;
-import io.odpf.dagger.processors.longbow.request.ScanRequestFactory;
-import io.odpf.dagger.processors.longbow.range.LongbowRange;
-import io.odpf.dagger.processors.longbow.storage.LongbowStore;
-import io.odpf.dagger.processors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.metrics.MeterStatsManager;
+import io.odpf.dagger.metrics.aspects.LongbowReaderAspects;
+import io.odpf.dagger.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.metrics.reporters.ErrorReporterFactory;
 import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
+import io.odpf.dagger.processors.longbow.LongbowSchema;
+import io.odpf.dagger.processors.longbow.data.LongbowData;
+import io.odpf.dagger.processors.longbow.exceptions.LongbowReaderException;
+import io.odpf.dagger.processors.longbow.outputRow.ReaderOutputRow;
+import io.odpf.dagger.processors.longbow.range.LongbowRange;
+import io.odpf.dagger.processors.longbow.request.ScanRequestFactory;
+import io.odpf.dagger.processors.longbow.storage.LongbowStore;
+import io.odpf.dagger.processors.longbow.storage.ScanRequest;
 import io.odpf.dagger.utils.Constants;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.Duration.between;
@@ -86,8 +91,9 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         super.close();
         meterStatsManager.markEvent(LongbowReaderAspects.CLOSE_CONNECTION_ON_READER);
         LOGGER.error("LongbowReader : Connection closed");
-        if (longBowStore != null)
+        if (longBowStore != null) {
             longBowStore.close();
+        }
     }
 
     @Override

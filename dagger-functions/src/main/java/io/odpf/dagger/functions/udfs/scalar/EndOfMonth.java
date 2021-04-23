@@ -1,24 +1,17 @@
-package io.odpf.dagger.functions.udfs;
+package io.odpf.dagger.functions.udfs.scalar;
 
-import org.apache.flink.table.functions.FunctionContext;
-import org.apache.flink.table.functions.ScalarFunction;
+import io.odpf.dagger.common.udfs.ScalarUdf;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class EndOfMonth extends ScalarFunction {
+public class EndOfMonth extends ScalarUdf {
 
     private static final Integer END_OF_DAY_HOUR = 23;
     private static final Integer END_OF_DAY_MINUTE_AND_SECOND = 59;
     private static final Integer MAX_MILLISECONDS = 999;
     private static final Integer SECOND_IN_MILLIS = 1000;
-
-    @Override
-    public void open(FunctionContext context) throws Exception {
-        super.open(context);
-    }
-
 
     /**
      * Calculates the seconds in Unix timestamp for end of a month of a given timestamp second and timezone.

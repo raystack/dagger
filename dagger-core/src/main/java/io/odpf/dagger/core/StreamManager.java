@@ -7,12 +7,11 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.UDFFactory;
+import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.processors.PostProcessorFactory;
@@ -27,9 +26,7 @@ import io.odpf.dagger.utils.Constants;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class StreamManager {
 
@@ -88,14 +85,6 @@ public class StreamManager {
         return this;
     }
 
-    // TODO : Do I even need this
-    private List<String> getStencilUrls() {
-        return Arrays.stream(configuration.getString(Constants.STENCIL_URL_KEY, Constants.STENCIL_URL_DEFAULT).split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-    }
-
-
     public StreamManager registerFunctions() {
         String[] functionFactoryClasses = configuration
                 .getString(Constants.FUNCTION_FACTORY_CLASSES_KEY, Constants.FUNCTION_FACTORY_CLASSES_DEFAULT)
@@ -103,7 +92,7 @@ public class StreamManager {
 
         for (String className : functionFactoryClasses) {
             try {
-                UDFFactory udfFactory = getUDFFactory(className);
+                UdfFactory udfFactory = getUdfFactory(className);
                 udfFactory.registerFunctions();
             } catch (ReflectiveOperationException e) {
                 throw new UDFFactoryClassNotDefinedException(e.getMessage());
@@ -112,10 +101,11 @@ public class StreamManager {
         return this;
     }
 
-    private UDFFactory getUDFFactory(String udfFactoryClassName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private UdfFactory getUdfFactory(String udfFactoryClassName) throws ClassNotFoundException,
+            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> udfFactoryClass = Class.forName(udfFactoryClassName);
-        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(Configuration.class, TableEnvironment.class);
-        return (UDFFactory) udfFactoryClassConstructor.newInstance(configuration, tableEnvironment);
+        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class);
+        return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment);
     }
 
     public StreamManager registerOutputStream() {

@@ -1,22 +1,22 @@
 package io.odpf.dagger.processors.longbow.processor;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.LongbowWriterAspects;
 import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.metrics.reporters.ErrorReporterFactory;
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.processors.longbow.LongbowSchema;
 import io.odpf.dagger.processors.longbow.exceptions.LongbowWriterException;
 import io.odpf.dagger.processors.longbow.outputRow.WriterOutputRow;
 import io.odpf.dagger.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.processors.longbow.storage.PutRequest;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.types.Row;
-
-import io.odpf.dagger.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.utils.Constants;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -24,7 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
@@ -67,11 +71,13 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        if (longBowStore == null)
+        if (longBowStore == null) {
             longBowStore = LongbowStore.create(configuration);
+        }
 
-        if (meterStatsManager == null)
+        if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+        }
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (errorReporter == null) {
@@ -139,8 +145,9 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     @Override
     public void close() throws Exception {
         super.close();
-        if (longBowStore != null)
+        if (longBowStore != null) {
             longBowStore.close();
+        }
         meterStatsManager.markEvent(LongbowWriterAspects.CLOSE_CONNECTION_ON_WRITER);
         LOGGER.error("LongbowWriter : Connection closed");
     }

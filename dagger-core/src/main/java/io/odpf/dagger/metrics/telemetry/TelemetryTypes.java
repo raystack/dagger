@@ -10,8 +10,7 @@ public enum TelemetryTypes {
     OUTPUT_STREAM("output_stream"),
     POST_PROCESSOR_TYPE("post_processor_type"),
     PRE_PROCESSOR_TYPE("pre_processor_type"),
-    SOURCE_METRIC_ID("source_metricId"),
-    UDF("udf");
+    SOURCE_METRIC_ID("source_metricId");
 
     public String getValue() {
         return value;
