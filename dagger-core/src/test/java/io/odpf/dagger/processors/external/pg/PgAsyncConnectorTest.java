@@ -1,5 +1,6 @@
 package io.odpf.dagger.processors.external.pg;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
 import io.odpf.dagger.exception.InvalidConfigurationException;
@@ -11,7 +12,6 @@ import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.processors.external.SchemaConfig;
 import com.gojek.de.stencil.client.StencilClient;
-import com.gojek.esb.booking.GoFoodBookingLogMessage;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.RowSet;
 import org.apache.flink.configuration.Configuration;
@@ -73,22 +73,22 @@ public class PgAsyncConnectorTest {
         streamRow.setField(0, inputData);
         streamRow.setField(1, outputData);
         outputMapping = new HashMap<>();
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
         resultFuture = mock(ResultFuture.class);
         String[] inputColumnNames = new String[]{"order_id", "event_timestamp", "driver_id", "customer_id", "status", "service_area_id"};
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
 
-        inputProtoClasses = new String[]{"com.gojek.esb.booking.GoFoodBookingLogMessage"};
+        inputProtoClasses = new String[]{"io.odpf.consumer.TestLogMessage"};
         metricId = "metricId-pg-01";
         externalMetricConfig = new ExternalMetricConfig(metricId, shutDownPeriod, telemetryEnabled);
         stencilClient = mock(StencilClient.class);
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, new ArrayList<>()));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
-        when(schemaConfig.getOutputProtoClassName()).thenReturn("com.gojek.esb.booking.BookingLogMessage");
-        when(stencilClient.get(inputProtoClasses[0])).thenReturn(GoFoodBookingLogMessage.getDescriptor());
+        when(schemaConfig.getOutputProtoClassName()).thenReturn("io.odpf.consumer.TestBookingLogMessage");
+        when(stencilClient.get(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
     }
 
@@ -102,7 +102,7 @@ public class PgAsyncConnectorTest {
         pgAsyncConnector.open(configuration);
         pgAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
-        verify(stencilClient, times(1)).get("com.gojek.esb.fraud.DriverProfileFlattenLogMessage");
+        verify(stencilClient, times(1)).get("io.odpf.consumer.TestFlattenLogMessage");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldNotEnrichOutputWhenQueryVariableIsInvalid() throws Exception {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "invalid_variable", "select * from public.customers where customer_id = '%s'", false, metricId, false);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
 
@@ -142,7 +142,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shoulCompleteExceptionallyWhenQueryVariableFieldIsNullOrRemovedButRequiredInPattern() throws Exception {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", null, "select * from public.customers where customer_id = '%s'", false, metricId, false);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
 
@@ -158,7 +158,7 @@ public class PgAsyncConnectorTest {
     @Test
     public void shouldEnrichWhenQueryVariableFieldIsNullOrRemovedButNotRequiredInPattern() throws Exception {
         String query = "select * from public.customers where customer_id = '12345'";
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", null, query, false, metricId, false);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
 
@@ -179,7 +179,7 @@ public class PgAsyncConnectorTest {
     public void shouldGiveErrorWhenQueryPatternIsInvalid() throws Exception {
         inputData.setField(3, "11223344545");
         String invalidQueryPattern = "select * from public.customers where customer_id = %";
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, true, metricId, false);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
         pgAsyncConnector.open(configuration);
@@ -195,7 +195,7 @@ public class PgAsyncConnectorTest {
     public void shouldGiveErrorWhenQueryPatternIsIncompatible() throws Exception {
         inputData.setField(3, "11223344545");
         String invalidQueryPattern = "select * from public.customers where customer_id = '%d'";
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", invalidQueryPattern, false, metricId, false);
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
         pgAsyncConnector.open(configuration);
@@ -302,7 +302,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenFailOnErrorsIsTrue() throws Exception {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "9200", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "9200", "user", "password", "db", "io.odpf.consumer.TestFlattenLogMessage", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "", true, metricId, false);
         pgClient = null;
         PgAsyncConnector pgAsyncConnector = new PgAsyncConnector(pgSourceConfig, externalMetricConfig, schemaConfig, meterStatsManager, pgClient, errorReporter);
@@ -316,7 +316,7 @@ public class PgAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromOutputProtoIfTypeNotGiven() throws Exception {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
         inputData.setField(3, "11223344545");
 
@@ -330,7 +330,7 @@ public class PgAsyncConnectorTest {
             e.printStackTrace();
         }
 
-        verify(stencilClient, times(1)).get("com.gojek.esb.booking.BookingLogMessage");
+        verify(stencilClient, times(1)).get("io.odpf.consumer.TestBookingLogMessage");
     }
 
     @Test
@@ -347,7 +347,7 @@ public class PgAsyncConnectorTest {
             e.printStackTrace();
         }
 
-        verify(stencilClient, times(1)).get("com.gojek.esb.fraud.DriverProfileFlattenLogMessage");
+        verify(stencilClient, times(1)).get("io.odpf.consumer.TestFlattenLogMessage");
     }
 
 }

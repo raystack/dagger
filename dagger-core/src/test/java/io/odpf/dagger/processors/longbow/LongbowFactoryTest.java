@@ -48,7 +48,7 @@ public class LongbowFactoryTest {
     public void shouldReturnLongbowProcessorWithWriteOnly() {
         String[] inputColumnNames = new String[]{"longbow_write_key", "longbow_write", "rowtime", "event_timestamp"};
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
-        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[{\"PROTO_CLASS_NAME\": \"com.gojek.esb.booking.BookingLogMessage\"}]");
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[{\"PROTO_CLASS_NAME\": \"InputProtoMessage\"}]");
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();

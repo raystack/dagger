@@ -1,7 +1,6 @@
 package io.odpf.dagger.config.system;
 
-import com.gojek.daggers.config.EnvironmentConfigurationProvider;
-import com.gojek.daggers.config.FileConfigurationProvider;
+import io.odpf.dagger.config.FileConfigurationProvider;
 import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 

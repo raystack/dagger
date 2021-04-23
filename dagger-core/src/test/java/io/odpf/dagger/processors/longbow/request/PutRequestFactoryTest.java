@@ -2,7 +2,6 @@ package io.odpf.dagger.processors.longbow.request;
 
 import org.apache.flink.types.Row;
 
-import com.gojek.daggers.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.processors.longbow.LongbowSchema;
 import io.odpf.dagger.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.sink.ProtoSerializer;

@@ -53,9 +53,9 @@ public class StencilClientOrchestratorTest {
         when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
         when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
         when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
-        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest," +
-                "http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/goid-events/latest," +
-                "http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/growth-log-entities/release");
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://localhost/latest," +
+                "http://localhost/events/latest," +
+                "http://localhost/entities/release");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
@@ -71,13 +71,13 @@ public class StencilClientOrchestratorTest {
         when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
         when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
         when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
-        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,");
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://localhost/latest,");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
 
 
         List<String> enrichmentStencilURLs = Collections
-                .singletonList("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest");
+                .singletonList("http://localhost/latest");
 
         Assert.assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
 
@@ -99,7 +99,7 @@ public class StencilClientOrchestratorTest {
         when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
         when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
         when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
-        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://artifactory-gojek.golabs.io/artifactory/proto-descriptors/esb-log-entities/latest,");
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://localhost/latest,");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
 
@@ -130,7 +130,7 @@ public class StencilClientOrchestratorTest {
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         List<String> enrichmentStencilURLs = Collections
-                .singletonList("http://stencil.golabs.io/artifactory/proto-descriptors/feast-proto/latest");
+                .singletonList("http://localhost/latest");
 
         StencilClient stencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 

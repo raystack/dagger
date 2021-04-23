@@ -1,7 +1,7 @@
 package io.odpf.dagger.processors.external.es;
 
-import com.gojek.daggers.processors.external.ExternalMetricConfig;
-import com.gojek.daggers.processors.external.SchemaConfig;
+import io.odpf.dagger.processors.external.ExternalMetricConfig;
+import io.odpf.dagger.processors.external.SchemaConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class EsStreamDecoratorTest {
     @Before
     public void setUp() {
         esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+                "driver_id", "io.odpf.TestProtoMessage", "30",
                 "5000", "5000", "5000", "5000", false, new HashMap<>(), "metricId_01", false);
     }
 

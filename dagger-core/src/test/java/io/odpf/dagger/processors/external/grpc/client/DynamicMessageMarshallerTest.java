@@ -1,8 +1,8 @@
 package io.odpf.dagger.processors.external.grpc.client;
 
-import com.gojek.esb.consumer.TestGrpcRequest;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.odpf.dagger.consumer.TestGrpcRequest;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;

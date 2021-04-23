@@ -1,12 +1,9 @@
 package io.odpf.dagger.source;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
-import com.gojek.esb.booking.BookingLogMessage;
-import com.gojek.esb.clevertap.ClevertapEventLogMessage;
-import com.gojek.esb.consumer.TestNestedRepeatedMessage;
-import com.gojek.esb.login.LoginRequestMessage;
-import com.gojek.esb.participant.ParticipantLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -43,30 +40,30 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveAllColumnNamesOfProtoAlongWithRowtime() {
-        ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", stencilClientOrchestrator);
-        ProtoType bookingKeyProtoType = new ProtoType("com.gojek.esb.booking.BookingLogKey", "rowtime", stencilClientOrchestrator);
+        ProtoType feedbackKeyProtoType = new ProtoType("io.odpf.dagger.consumer.TestFeedbackLogKey", "rowtime", stencilClientOrchestrator);
+        ProtoType bookingKeyProtoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new String[]{"order_id", "status", "event_timestamp", "bid_id", "service_type", "participant_id", "audit", INTERNAL_VALIDATION_FILED, "rowtime"},
-                ((RowTypeInfo) participantKeyProtoType.getRowType()).getFieldNames());
+                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
+                ((RowTypeInfo) feedbackKeyProtoType.getRowType()).getFieldNames());
 
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", "audit", INTERNAL_VALIDATION_FILED,"rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
                 ((RowTypeInfo) bookingKeyProtoType.getRowType()).getFieldNames());
     }
 
     @Test
     public void shouldGiveAllTypesOfFieldsAlongWithRowtime() {
-        ProtoType participantKeyProtoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey", "rowtime", stencilClientOrchestrator);
+        ProtoType protoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), STRING, STRING, STRING, ROW_NAMED(new String[]{"request_id", "timestamp"}, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT)), BOOLEAN, SQL_TIMESTAMP},
-                ((RowTypeInfo) participantKeyProtoType.getRowType()).getFieldTypes());
+                new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
+                ((RowTypeInfo) protoType.getRowType()).getFieldTypes());
     }
 
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowConfigurationExceptionWhenClassNotFound() {
-        ProtoType protoType = new ProtoType("com.gojek.esb.participant.ParticipantLogKey211", "rowtime", stencilClientOrchestrator);
+        ProtoType protoType = new ProtoType("io.odpf.dagger.consumer.NotFoundClass", "rowtime", stencilClientOrchestrator);
         protoType.getRowType();
     }
 
@@ -78,33 +75,33 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldGiveSimpleMappedFlinkTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType protoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
-        TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
+        TypeInformation[] fieldTypes = ((RowTypeInfo) protoType.getRowType()).getFieldTypes();
 
-        assertEquals(STRING, fieldTypes[participantLogFieldIndex("order_id")]);
-        assertEquals(INT, fieldTypes[participantLogFieldIndex("customer_straight_line_distance")]);
-        assertEquals(DOUBLE, fieldTypes[participantLogFieldIndex("receive_delay")]);
+        assertEquals(STRING, fieldTypes[bookingLogFieldIndex("order_number")]);
+        assertEquals(INT, fieldTypes[bookingLogFieldIndex("cancel_reason_id")]);
+        assertEquals(DOUBLE, fieldTypes[bookingLogFieldIndex("cash_amount")]);
     }
 
     @Test
     public void shouldGiveSubRowMappedField() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType participantMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
         TypeInformation<Row> expectedTimestampRow = ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT);
 
-        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"latitude", "longitude", "altitude", "accuracy", "speed", "event_timestamp"},
-                DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT));
+        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
+                STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING, FLOAT, STRING);
 
-        assertEquals(expectedTimestampRow, fieldTypes[participantLogFieldIndex("event_timestamp")]);
-        assertEquals(driverLocationRow, fieldTypes[participantLogFieldIndex("location")]);
+        assertEquals(expectedTimestampRow, fieldTypes[bookingLogFieldIndex("event_timestamp")]);
+        assertEquals(driverLocationRow, fieldTypes[bookingLogFieldIndex("driver_pickup_location")]);
     }
 
     @Test
     public void shouldProcessArrayForObjectData() {
-        ProtoType bookingLogMessageProtoType = new ProtoType(BookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType bookingLogMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) bookingLogMessageProtoType.getRowType()).getFieldTypes();
         TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
@@ -117,42 +114,32 @@ public class ProtoTypeTest {
 
     @Test
     public void shouldProcessArrayForStringData() {
-        ProtoType loginRequestMessageProtoType = new ProtoType(LoginRequestMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        ProtoType rowtime = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
-        TypeInformation[] fieldTypes = ((RowTypeInfo) loginRequestMessageProtoType.getRowType()).getFieldTypes();
+        TypeInformation[] fieldTypes = ((RowTypeInfo) rowtime.getRowType()).getFieldTypes();
 
         TypeInformation<?> registeredDeviceType = ObjectArrayTypeInfo.getInfoFor(STRING);
 
-        assertEquals(registeredDeviceType, fieldTypes[loginRequestFieldIndex("registered_device")]);
+        assertEquals(registeredDeviceType, fieldTypes[bookingLogFieldIndex("meta_array")]);
     }
 
-
-    @Test
-    public void shouldGiveNamesAndTypes() {
-        ProtoType participantMessageProtoType = new ProtoType(ParticipantLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-
-        RowTypeInfo rowType = (RowTypeInfo) participantMessageProtoType.getRowType();
-
-        assertEquals("order_id", rowType.getFieldNames()[0]);
-        assertEquals(DOUBLE, rowType.getFieldTypes()[participantLogFieldIndex("receive_delay")]);
-    }
 
     @Test
     public void shouldGiveAllNamesAndTypesIncludingStructFields() {
-        ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
-        assertEquals(12, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
+        ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        assertEquals(46, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
+        assertEquals(46, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
     }
 
     @Test
     public void shouldReturnRowTypeForStructFields() {
-        ProtoType clevertapMessageProtoType = new ProtoType(ClevertapEventLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[7]);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[8]);
-        assertEquals(ROW(), ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes()[9]);
-        assertEquals("profile_data", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[7]);
-        assertEquals("event_properties", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[8]);
-        assertEquals("key_values", ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames()[9]);
+        ProtoType protoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[35]);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[36]);
+        assertEquals(ROW(), ((RowTypeInfo) protoType.getRowType()).getFieldTypes()[37]);
+        assertEquals("profile_data", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[35]);
+        assertEquals("event_properties", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[36]);
+        assertEquals("key_values", ((RowTypeInfo) protoType.getRowType()).getFieldNames()[37]);
     }
 
     @Test
@@ -168,16 +155,8 @@ public class ProtoTypeTest {
         assertEquals(OBJECT_ARRAY(ROW()), ((RowTypeInfo) testNestedRepeatedMessage.getRowType()).getFieldTypes()[4]);
     }
 
-    private int participantLogFieldIndex(String propertyName) {
-        return ParticipantLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
-    }
-
     private int bookingLogFieldIndex(String propertyName) {
-        return BookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
-    }
-
-    private int loginRequestFieldIndex(String propertyName) {
-        return LoginRequestMessage.getDescriptor().findFieldByName(propertyName).getIndex();
+        return TestBookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
 
 }

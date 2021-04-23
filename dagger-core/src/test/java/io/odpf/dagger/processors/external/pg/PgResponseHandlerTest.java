@@ -1,5 +1,7 @@
 package io.odpf.dagger.processors.external.pg;
 
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestSurgeFactorLogMessage;
 import io.odpf.dagger.exception.HttpFailureException;
 import io.odpf.dagger.metrics.MeterStatsManager;
 import io.odpf.dagger.metrics.aspects.Aspects;
@@ -7,7 +9,6 @@ import io.odpf.dagger.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.processors.ColumnNameManager;
 import io.odpf.dagger.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.processors.common.RowManager;
-import com.gojek.esb.aggregate.surge.SurgeFactorLogMessage;
 import com.google.protobuf.Descriptors;
 import io.vertx.core.AsyncResult;
 import io.vertx.sqlclient.RowIterator;
@@ -74,7 +75,7 @@ public class PgResponseHandlerTest {
     @Before
     public void setup() {
         initMocks(this);
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         inputColumnNames = new String[0];
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("customer_url");
@@ -87,7 +88,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
     }
 
@@ -139,7 +140,7 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
@@ -171,7 +172,7 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenEventComesToFailureHandleAndFailOnErrorsIsTrue() {
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", "com.gojek.esb.fraud.DriverProfileFlattenLogMessage", "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
                 "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(false);
@@ -209,7 +210,7 @@ public class PgResponseHandlerTest {
         when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(rowSetIterator.next()).thenReturn(row);
         when(row.getValue("surge_factor")).thenReturn("123");
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestBookingLogMessage.getDescriptor();
         inputColumnNames = new String[]{"s2_id"};
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("s2_id");
@@ -223,7 +224,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
                 "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", true);
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);
@@ -247,7 +248,7 @@ public class PgResponseHandlerTest {
         when(rowSetIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(rowSetIterator.next()).thenReturn(row);
         when(row.getValue("surge_factor")).thenReturn("123");
-        descriptor = SurgeFactorLogMessage.getDescriptor();
+        descriptor = TestSurgeFactorLogMessage.getDescriptor();
         inputColumnNames = new String[]{"s2_id"};
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("s2_id");
@@ -261,7 +262,7 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("10.0.60.227,10.0.60.229,10.0.60.228", "5432", "user", "password", "db", null, "30",
+        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
                 "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", false);
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);

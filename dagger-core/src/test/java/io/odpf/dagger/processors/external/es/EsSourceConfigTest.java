@@ -1,6 +1,6 @@
 package io.odpf.dagger.processors.external.es;
 
-import com.gojek.daggers.processors.common.OutputMapping;
+import io.odpf.dagger.processors.common.OutputMapping;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +48,7 @@ public class EsSourceConfigTest {
         password = "mysecretpassword";
         endpointPattern = "/drivers/driver/%s";
         endpointVariables = "driver_id";
-        type = "com.gojek.esb.fraud.DriverProfileFlattenLogMessage";
+        type = "TestProtoMessage";
         capacity = "30";
         connectTimeout = "1000";
         retryTimeout = "2000";
