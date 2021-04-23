@@ -10,7 +10,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.contracts.Transformer;
+import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.common.core.StreamInfo;
 
 import java.io.Serializable;

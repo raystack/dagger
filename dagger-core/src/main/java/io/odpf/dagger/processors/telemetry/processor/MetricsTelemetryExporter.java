@@ -1,17 +1,21 @@
 package io.odpf.dagger.processors.telemetry.processor;
 
-import io.odpf.dagger.metrics.GaugeStatsManager;
-import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.metrics.telemetry.TelemetrySubscriber;
+import io.odpf.dagger.metrics.GaugeStatsManager;
 import io.odpf.dagger.metrics.aspects.TelemetryAspects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implements TelemetrySubscriber {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
