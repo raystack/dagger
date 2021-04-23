@@ -1,5 +1,7 @@
 package io.odpf.dagger.sink;
 
+import io.odpf.dagger.consumer.TestSerDeLogKey;
+import io.odpf.dagger.consumer.TestServiceType;
 import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.exception.DaggerSerializationException;
 import io.odpf.dagger.exception.DescriptorNotFoundException;
@@ -42,13 +44,13 @@ public class ProtoSerializerTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
     }
 
-    /*
     @Test
-    public void shouldSerializeKeyForDemandProto() throws InvalidProtocolBufferException {
+    public void shouldSerializeKeyForProto() throws InvalidProtocolBufferException {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type"};
-        String outputProtoKey = "com.gojek.esb.aggregate.demand.AggregatedDemandKey";
-        String outputProtoMessage = "com.gojek.esb.aggregate.demand.AggregatedDemandMessage";
+        String outputProtoKey = "io.odpf.dagger.consumer.TestSerDeLogKey";
+        String outputProtoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
         ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+
         long seconds = System.currentTimeMillis() / 1000;
 
         Row element = new Row(5);
@@ -62,18 +64,45 @@ public class ProtoSerializerTest {
         element.setField(1, timestamp);
         element.setField(2, 13);
         element.setField(3, 3322909458387959808L);
-        element.setField(4, GO_RIDE);
+        element.setField(4, TestServiceType.Enum.GO_RIDE);
 
         ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
 
-        AggregatedDemandKey actualKey = AggregatedDemandKey.parseFrom(producerRecord.key());
+        TestSerDeLogKey actualKey = TestSerDeLogKey.parseFrom(producerRecord.key());
 
         assertEquals(expectedTimestamp, actualKey.getWindowStartTime());
         assertEquals(expectedTimestamp, actualKey.getWindowEndTime());
         assertEquals(13, actualKey.getS2IdLevel());
         assertEquals(3322909458387959808L, actualKey.getS2Id());
         assertEquals("GO_RIDE", actualKey.getServiceType().toString());
+
     }
+
+    @Test
+    public void shouldSerializeMessageProto() throws InvalidProtocolBufferException {
+        String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type", "unique_customers",
+        "event_timestamp","string_type", "bool_type", "message_type", "repeated_message_type", "map_type" };
+        String outputProtoKey = "io.odpf.dagger.consumer.TestSerDeLogKey";
+        String outputProtoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
+        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        long seconds = System.currentTimeMillis() / 1000;
+
+        Row element = new Row(12);
+        Timestamp timestamp = new Timestamp(seconds * 1000);
+        com.google.protobuf.Timestamp expectedTimestamp = com.google.protobuf.Timestamp.newBuilder()
+                .setSeconds(seconds)
+                .setNanos(0)
+                .build();
+
+        element.setField(0, timestamp);
+        element.setField(1, timestamp);
+        element.setField(2, 13);
+        element.setField(3, 3322909458387959808L);
+        element.setField(4, TestServiceType.Enum.GO_RIDE);
+        element.setField(5, 2L);
+
+    }
+    /*
 
     @Test
     public void shouldSerializeValueForDemandProto() throws InvalidProtocolBufferException {
