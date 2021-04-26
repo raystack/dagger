@@ -127,8 +127,8 @@ public class ProtoTypeTest {
     @Test
     public void shouldGiveAllNamesAndTypesIncludingStructFields() {
         ProtoType clevertapMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
-        assertEquals(46, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
-        assertEquals(46, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
+        assertEquals(47, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldNames().length);
+        assertEquals(47, ((RowTypeInfo) clevertapMessageProtoType.getRowType()).getFieldTypes().length);
     }
 
     @Test
