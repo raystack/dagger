@@ -4,6 +4,11 @@ import io.odpf.dagger.common.udfs.telemetry.UdfMetricsManager;
 import org.apache.flink.table.functions.AggregateFunction;
 import org.apache.flink.table.functions.FunctionContext;
 
+/**
+ * This class will not publish the UDF telemetry because
+ * for AggregatedFunction it can not be done due to this bug in flink
+ * ISSUE : https://issues.apache.org/jira/browse/FLINK-15040
+ */
 public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {
 
     @Override
