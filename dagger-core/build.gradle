@@ -210,28 +210,28 @@ shadowJar {
 
 task minimalJar(type: ShadowJar) {
     manifest.attributes 'Main-Class': mainClassName
-    classifier = 'minimal'
+    archiveClassifier = 'minimal'
     zip64 true
     exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
     from sourceSets.main.output
     configurations = [project.configurations.minimalJar]
-    version = minimalVersion
+    archiveVersion = minimalVersion
 }
 
 task dependenciesJar(type: ShadowJar) {
     mergeServiceFiles()
     manifest.attributes 'Main-Class': mainClassName
-    classifier = 'dependencies'
+    archiveClassifier = 'dependencies'
     zip64 true
     exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
     configurations = [project.configurations.dependenciesJar]
-    version = dependenciesVersion
+    archiveVersion = dependenciesVersion
 }
 
 task fatJar(type: ShadowJar) {
     description = "Builds a executable jar"
     manifest.attributes 'Main-Class': mainClassName
-    classifier = 'fat'
+    archiveClassifier = 'fat'
     from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
     configurations = [project.configurations.runtimeClasspath, project.configurations.minimalJar, project.configurations.dependenciesJar]
     exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
