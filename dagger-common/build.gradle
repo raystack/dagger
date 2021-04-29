@@ -71,6 +71,16 @@ jacocoTestReport {
     finalizedBy jacocoTestCoverageVerification
 }
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
+}
+
 jar {
     zip64 true
     from {
@@ -94,25 +104,6 @@ publishing {
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled false
-        html.enabled true
-        csv.enabled false
-    }
-    finalizedBy jacocoTestCoverageVerification
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.8
             }
         }
     }
