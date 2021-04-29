@@ -1,18 +1,19 @@
 package io.odpf.dagger.core.processors.external.http;
 
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.metrics.aspects.Aspects;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestSurgeFactorLogMessage;
 import io.odpf.dagger.core.exception.HttpFailureException;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
-import io.odpf.dagger.core.metrics.aspects.Aspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.asynchttpclient.Response;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpResponseHandlerTest {

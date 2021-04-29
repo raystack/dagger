@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.udfs;
 
-import io.odpf.dagger.common.udfs.telemetry.UdfMetricsManager;
+import io.odpf.dagger.common.metrics.managers.UdfMetricsManager;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
 
