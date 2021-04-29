@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Histogram;
@@ -17,19 +16,19 @@ import java.util.concurrent.TimeUnit;
 
 public class MeterStatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
-    private RuntimeContext runtimeContext;
     private Boolean enabled;
     private HashMap<Aspects, Meter> meterMap;
+    private MetricGroup metricGroup;
 
-    public MeterStatsManager(RuntimeContext runtimeContext, Boolean enabled) {
-        this.runtimeContext = runtimeContext;
+    public MeterStatsManager(MetricGroup metricGroup, Boolean enabled) {
+        this.metricGroup = metricGroup;
         this.enabled = enabled;
         histogramMap = new HashMap<>();
         meterMap = new HashMap<>();
     }
 
-    public MeterStatsManager(RuntimeContext runtimeContext, Boolean enabled, HashMap histogramMap, HashMap meterMap) {
-        this.runtimeContext = runtimeContext;
+    public MeterStatsManager(MetricGroup metricGroup, Boolean enabled, HashMap histogramMap, HashMap meterMap) {
+        this.metricGroup = metricGroup;
         this.enabled = enabled;
         this.histogramMap = histogramMap;
         this.meterMap = meterMap;
@@ -37,19 +36,7 @@ public class MeterStatsManager {
 
     public void register(String groupName, Aspects[] aspects) {
         if (enabled) {
-            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupName);
-            register(metricGroup, aspects);
-        }
-    }
-
-    private void register(MetricGroup metricGroup, Aspects[] aspects) {
-        for (Aspects aspect : aspects) {
-            if (AspectType.Histogram.equals(aspect.getAspectType())) {
-                histogramMap.put(aspect, metricGroup.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
-            }
-            if (AspectType.Metric.equals(aspect.getAspectType())) {
-                meterMap.put(aspect, metricGroup.meter(aspect.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
-            }
+            register(metricGroup.addGroup(groupName), aspects);
         }
     }
 
@@ -71,8 +58,18 @@ public class MeterStatsManager {
 
     public void register(String groupKey, String groupValue, Aspects[] aspects) {
         if (enabled) {
-            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupKey, groupValue);
-            register(metricGroup, aspects);
+            register(metricGroup.addGroup(groupKey, groupValue), aspects);
+        }
+    }
+
+    private void register(MetricGroup metricGroup, Aspects[] aspects) {
+        for (Aspects aspect : aspects) {
+            if (AspectType.Histogram.equals(aspect.getAspectType())) {
+                histogramMap.put(aspect, metricGroup.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+            }
+            if (AspectType.Metric.equals(aspect.getAspectType())) {
+                meterMap.put(aspect, metricGroup.meter(aspect.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ public abstract class TableUdf<T> extends TableFunction<T> {
     @Override
     public void open(FunctionContext context) throws Exception {
         super.open(context);
-        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context);
+        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context.getMetricGroup());
         udfMetricsManager.registerGauge(getName());
     }
 

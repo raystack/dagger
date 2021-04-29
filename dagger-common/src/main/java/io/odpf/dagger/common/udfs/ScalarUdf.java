@@ -9,7 +9,7 @@ public abstract class ScalarUdf extends ScalarFunction {
     @Override
     public void open(FunctionContext context) throws Exception {
         super.open(context);
-        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context);
+        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context.getMetricGroup());
         udfMetricsManager.registerGauge(getName());
     }
 

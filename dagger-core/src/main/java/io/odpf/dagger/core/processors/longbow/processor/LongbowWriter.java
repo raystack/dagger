@@ -76,7 +76,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         }
 
         if (meterStatsManager == null) {
-            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+            meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
