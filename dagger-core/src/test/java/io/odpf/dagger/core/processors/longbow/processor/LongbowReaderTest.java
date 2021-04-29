@@ -1,0 +1,169 @@
+package io.odpf.dagger.core.processors.longbow.processor;
+
+import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
+import io.odpf.dagger.core.processors.longbow.LongbowSchema;
+import io.odpf.dagger.core.processors.longbow.data.LongbowData;
+import io.odpf.dagger.core.processors.longbow.exceptions.LongbowReaderException;
+import io.odpf.dagger.core.processors.longbow.outputRow.ReaderOutputRow;
+import io.odpf.dagger.core.processors.longbow.range.LongbowAbsoluteRange;
+import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
+import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
+import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
+
+import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.*;
+import static io.odpf.dagger.core.utils.Constants.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class LongbowReaderTest {
+
+    @Mock
+    ResultFuture<Row> resultFuture;
+    @Mock
+    LongbowData longbowData;
+    @Mock
+    private Configuration configuration;
+    @Mock
+    private LongbowStore longBowStore;
+    @Mock
+    private ResultFuture<Row> outputFuture;
+    @Mock
+    private MeterStatsManager meterStatsManager;
+    @Mock
+    private ErrorReporter errorReporter;
+    @Mock
+    private LongbowAbsoluteRange longbowAbsoluteRow;
+    @Mock
+    private TelemetrySubscriber telemetrySubscriber;
+    @Mock
+    private ReaderOutputRow readerOutputRow;
+    private LongbowSchema longBowSchema;
+    private Timestamp currentTimestamp;
+    private ScanRequestFactory scanRequestFactory;
+    private String tableId = "tableId";
+
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        when(configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
+        when(configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
+        when(configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT)).thenReturn("test-job");
+        currentTimestamp = new Timestamp(System.currentTimeMillis());
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
+        longBowSchema = new LongbowSchema(columnNames);
+        scanRequestFactory = new ScanRequestFactory(longBowSchema, tableId);
+    }
+
+    @Test
+    public void shouldCaptureExceptionWithStatsDManagerOnReadDocumentFailure() throws Exception {
+        Row input = getRow("driver0", "order1", currentTimestamp, "24h");
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+        when(longBowStore.scanAll(any(ScanRequest.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException();
+        }));
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ResultFuture<Row> callback = new ResultFuture<Row>() {
+            @Override
+            public void complete(Collection<Row> result) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void completeExceptionally(Throwable error) {
+            }
+        };
+        longBowReader.open(configuration);
+        longBowReader.asyncInvoke(input, callback);
+        countDownLatch.await();
+        verify(meterStatsManager, times(1)).markEvent(FAILED_ON_READ_DOCUMENT);
+        verify(errorReporter, times(1)).reportNonFatalException(any(LongbowReaderException.class));
+    }
+
+    @Test
+    public void shouldHandleClose() throws Exception {
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
+        longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+
+        longBowReader.close();
+
+        verify(longBowStore, times(1)).close();
+        verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_READER);
+    }
+
+    @Test
+    public void shouldReturnLongbowRow() {
+        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
+        longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+        Assert.assertEquals(longBowReader.getLongbowRange(), longbowAbsoluteRow);
+    }
+
+    @Test
+    public void shouldAddPostProcessorTypeMetrics() {
+        ArrayList<String> postProcessorType = new ArrayList<>();
+        postProcessorType.add("longbow_reader_processor");
+        HashMap<String, List<String>> metrics = new HashMap<>();
+        metrics.put("post_processor_type", postProcessorType);
+
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+
+        longBowReader.preProcessBeforeNotifyingSubscriber();
+        Assert.assertEquals(metrics, longBowReader.getTelemetry());
+    }
+
+    @Test
+    public void shouldNotifySubscribers() {
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+        longBowReader.notifySubscriber(telemetrySubscriber);
+
+        verify(telemetrySubscriber, times(1)).updated(longBowReader);
+    }
+
+    @Test
+    public void shouldFailOnTimeout() throws Exception {
+        String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
+        LongbowSchema longBowSchema = new LongbowSchema(columnNames);
+        LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
+        Row input = getRow("driver0", "order1", currentTimestamp, "24h");
+
+        longBowReader.timeout(input, resultFuture);
+
+        verify(meterStatsManager, times(1)).markEvent(TIMEOUTS_ON_READER);
+        verify(errorReporter, times(1)).reportFatalException(any(TimeoutException.class));
+        verify(resultFuture, times(1)).completeExceptionally(any(TimeoutException.class));
+    }
+
+    private Row getRow(Object... dataList) {
+        Row input = new Row(dataList.length);
+        for (int i = 0; i < dataList.length; i++) {
+            input.setField(i, dataList[i]);
+        }
+        return input;
+    }
+}

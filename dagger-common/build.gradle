@@ -1,0 +1,110 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+}
+plugins {
+    id 'maven-publish'
+}
+
+def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+version "0.1.0"
+
+description = """common dependencies for dagger"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations {
+    minimalCommonJar
+    dependenciesCommonJar
+
+    minimalCommonJar.extendsFrom runtime
+    compileOnly.extendsFrom minimalCommonJar
+    compileOnly.extendsFrom dependenciesCommonJar
+    testCompile.extendsFrom compileOnly
+}
+
+sourceSets {
+    main.compileClasspath += configurations.minimalCommonJar
+    main.compileClasspath += configurations.dependenciesCommonJar
+    main.runtimeClasspath += configurations.minimalCommonJar
+    main.runtimeClasspath += configurations.dependenciesCommonJar
+
+    test.compileClasspath += configurations.minimalCommonJar
+    test.compileClasspath += configurations.dependenciesCommonJar
+    test.runtimeClasspath += configurations.minimalCommonJar
+    test.runtimeClasspath += configurations.dependenciesCommonJar
+}
+
+dependencies {
+    compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
+
+    testImplementation 'junit:junit:4.12'
+}
+
+test {
+    finalizedBy jacocoTestReport
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        csv.enabled false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
+}
+
+jar {
+    zip64 true
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/odpf/dagger"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
