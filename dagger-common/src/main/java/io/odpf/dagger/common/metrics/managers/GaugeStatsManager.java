@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 
@@ -8,24 +7,19 @@ import io.odpf.dagger.common.metrics.aspects.Aspects;
 
 public class GaugeStatsManager {
 
-    private final RuntimeContext runtimeContext;
     private final Boolean enabled;
+    private final MetricGroup metricGroup;
 
-    public GaugeStatsManager(RuntimeContext runtimeContext, Boolean enabled) {
-        this.runtimeContext = runtimeContext;
+    public GaugeStatsManager(MetricGroup metricGroup, Boolean enabled) {
+        this.metricGroup = metricGroup;
         this.enabled = enabled;
     }
 
     public void register(String groupKey, String groupValue, Aspects[] aspects, int gaugeValue) {
         if (enabled) {
-            MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupKey, groupValue);
-            register(metricGroup, aspects, gaugeValue);
-        }
-    }
-
-    private void register(MetricGroup metricGroup, Aspects[] aspects, int gaugeValue) {
-        for (Aspects aspect : aspects) {
-            metricGroup.gauge(aspect.getValue(), (Gauge<Integer>) () -> gaugeValue);
+            for (Aspects aspect : aspects) {
+                metricGroup.addGroup(groupKey, groupValue).gauge(aspect.getValue(), (Gauge<Integer>) () -> gaugeValue);
+            }
         }
     }
 }

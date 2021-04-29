@@ -14,7 +14,7 @@ public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {
     @Override
     public void open(FunctionContext context) throws Exception {
         super.open(context);
-        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context);
+        UdfMetricsManager udfMetricsManager = new UdfMetricsManager(context.getMetricGroup());
         udfMetricsManager.registerGauge(getName());
     }
 

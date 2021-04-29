@@ -33,7 +33,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     @Override
     public void open(Configuration parameters) throws Exception {
         if (gaugeStatsManager == null) {
-            gaugeStatsManager = new GaugeStatsManager(getRuntimeContext(), true);
+            gaugeStatsManager = new GaugeStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (metrics != null) {
             registerGroups(gaugeStatsManager);

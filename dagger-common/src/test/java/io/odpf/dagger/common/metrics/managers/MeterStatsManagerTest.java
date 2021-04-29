@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.Meter;
@@ -23,9 +22,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MeterStatsManagerTest {
 
     @Mock
-    private RuntimeContext runtimeContext;
-
-    @Mock
     private MetricGroup metricGroup;
 
     @Mock
@@ -46,13 +42,12 @@ public class MeterStatsManagerTest {
     @Before
     public void setUp() {
         initMocks(this);
-        meterStatsManager = new MeterStatsManager(runtimeContext, true);
+        meterStatsManager = new MeterStatsManager(metricGroup, true);
     }
 
     @Test
     public void shouldRegisterHistogramAspects() {
         String groupName = "test_groupName";
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(groupName)).thenReturn(metricGroup);
 
         meterStatsManager.register(groupName, TestAspects.values());
@@ -62,7 +57,6 @@ public class MeterStatsManagerTest {
     @Test
     public void shouldRegisterMeterAspects() {
         String groupName = "test_groupName";
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(groupName)).thenReturn(metricGroup);
 
         meterStatsManager.register(groupName, TestAspects.values());
@@ -71,7 +65,7 @@ public class MeterStatsManagerTest {
 
     @Test
     public void shouldUpdateHistogram() {
-        meterStatsManager = new MeterStatsManager(runtimeContext, true, histogramMap, meterMap);
+        meterStatsManager = new MeterStatsManager(metricGroup, true, histogramMap, meterMap);
         when(histogramMap.get(TestAspects.TEST_ASPECT_ONE)).thenReturn(histogram);
 
         meterStatsManager.updateHistogram(TestAspects.TEST_ASPECT_ONE, 100);
@@ -80,7 +74,7 @@ public class MeterStatsManagerTest {
 
     @Test
     public void shouldMarkMeterEvents() {
-        meterStatsManager = new MeterStatsManager(runtimeContext, true, histogramMap, meterMap);
+        meterStatsManager = new MeterStatsManager(metricGroup, true, histogramMap, meterMap);
         when(meterMap.get(TestAspects.TEST_ASPECT_TWO)).thenReturn(meter);
 
         meterStatsManager.markEvent(TestAspects.TEST_ASPECT_TWO);

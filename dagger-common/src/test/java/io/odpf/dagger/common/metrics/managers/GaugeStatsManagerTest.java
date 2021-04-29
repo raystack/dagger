@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 
@@ -18,10 +17,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class GaugeStatsManagerTest {
-
-    @Mock
-    private RuntimeContext runtimeContext;
-
     @Mock
     private MetricGroup metricGroup;
 
@@ -30,12 +25,11 @@ public class GaugeStatsManagerTest {
     @Before
     public void setup() {
         initMocks(this);
-        gaugeStatsManager = new GaugeStatsManager(runtimeContext, true);
+        gaugeStatsManager = new GaugeStatsManager(metricGroup, true);
     }
 
     @Test
     public void shouldRegisterGaugeForAllTheAspects() {
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("test_key", "test_value")).thenReturn(metricGroup);
         gaugeStatsManager.register("test_key", "test_value", TestAspects.values(), 1);
         verify(metricGroup, times(2)).gauge(any(String.class), any(Gauge.class));

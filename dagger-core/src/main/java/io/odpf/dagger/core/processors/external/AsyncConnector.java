@@ -100,7 +100,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
                     .getErrorReporter(getRuntimeContext(), externalMetricConfig.isTelemetryEnabled(), externalMetricConfig.getShutDownPeriod());
         }
         if (meterStatsManager == null) {
-            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+            meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (endpointHandler == null) {
             endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
