@@ -42,7 +42,7 @@ public class PostProcessorFactoryTest {
             + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
             + "            \"PROTO_CLASS_NAME\": \"TestLogMessage\",\n"
             + "            \"TABLE_NAME\": \"data_stream\",\n"
-            + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+            + "            \"TOPIC_NAMES\": \"test-topic\"\n"
             + "        }\n"
             + "]";
 
