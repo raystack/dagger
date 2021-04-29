@@ -48,7 +48,7 @@ public class StreamsTest {
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
                 + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
@@ -70,12 +70,12 @@ public class StreamsTest {
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
                 + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
         ArrayList<String> topicNames = new ArrayList<>();
-        topicNames.add("GO_RIDE-booking-log");
+        topicNames.add("test-topic");
         ArrayList<String> protoName = new ArrayList<>();
         protoName.add("io.odpf.dagger.consumer.TestBookingLogMessage");
         ArrayList<String> streamName = new ArrayList<>();
@@ -108,7 +108,7 @@ public class StreamsTest {
                 + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
                 + "            \"STREAM_NAME\": \"mainstream\",\n"
-                + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
                 + "        },\n"
                 + "        {\n"
                 + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"1\",\n"
@@ -119,13 +119,13 @@ public class StreamsTest {
                 + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogKey\",\n"
                 + "            \"TABLE_NAME\": \"data_stream_1\",\n"
                 + "            \"STREAM_NAME\": \"locstream\",\n"
-                + "            \"TOPIC_NAMES\": \"surge-s2idcluster-log\"\n"
+                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
         ArrayList<String> topicNames = new ArrayList<>();
-        topicNames.add("GO_RIDE-booking-log");
-        topicNames.add("surge-s2idcluster-log");
+        topicNames.add("test-topic");
+        topicNames.add("test-topic");
         ArrayList<String> protoName = new ArrayList<>();
         protoName.add("io.odpf.dagger.consumer.TestBookingLogMessage");
         protoName.add("io.odpf.dagger.consumer.TestBookingLogKey");
@@ -159,7 +159,7 @@ public class StreamsTest {
                 + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
                 + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"GO_RIDE-booking-log\"\n"
+                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 

@@ -26,7 +26,7 @@ public class OutputSynchronizerTest {
 
     @Test
     public void shouldAppendRowWithStaticMeteadata() {
-        String inputProtoClassName = "com.gojek.booking.BookingLogMessage";
+        String inputProtoClassName = "Test";
         String tableId = "tableId";
         Row inputRow = new Row(2);
         String mockedValue = "order_123_4312";

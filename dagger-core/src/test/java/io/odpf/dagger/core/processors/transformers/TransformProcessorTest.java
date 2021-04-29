@@ -201,14 +201,14 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldPopulateDefaultArguments() {
-        TransformConfig config = new TransformConfig("com.gojek.TestProcessor", new HashMap<String, Object>() {{
+        TransformConfig config = new TransformConfig("io.odpf.TestProcessor", new HashMap<String, Object>() {{
             put("test-key", "test-value");
         }});
         TransformProcessor processor = new TransformProcessor("test_table", TelemetryTypes.PRE_PROCESSOR_TYPE, Collections.singletonList(config), configuration);
         Assert.assertEquals("test_table", processor.tableName);
         Assert.assertEquals(TelemetryTypes.PRE_PROCESSOR_TYPE, processor.type);
         Assert.assertEquals(1, processor.transformConfigs.size());
-        Assert.assertEquals("com.gojek.TestProcessor", processor.transformConfigs.get(0).getTransformationClass());
+        Assert.assertEquals("io.odpf.TestProcessor", processor.transformConfigs.get(0).getTransformationClass());
         Assert.assertEquals("test_table", processor.transformConfigs.get(0).getTransformationArguments().get("table_name"));
         Assert.assertEquals("test-value", processor.transformConfigs.get(0).getTransformationArguments().get("test-key"));
     }

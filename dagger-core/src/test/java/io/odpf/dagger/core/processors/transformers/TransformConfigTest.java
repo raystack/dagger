@@ -21,7 +21,7 @@ public class TransformConfigTest {
 
     @Before
     public void setUp() {
-        transformationClass = "com.gojek.daggers.postprocessor.XTransformer";
+        transformationClass = "io.odpf.daggers.postprocessor.XTransformer";
         transformationArguments = new HashMap<>();
         transformationArguments.put("keyColumnName", "key");
         transformationArguments.put("valueColumnName", "value");
@@ -31,7 +31,7 @@ public class TransformConfigTest {
 
     @Test
     public void shouldReturnTransformationClass() {
-        assertEquals("com.gojek.daggers.postprocessor.XTransformer", transformConfig.getTransformationClass());
+        assertEquals("io.odpf.daggers.postprocessor.XTransformer", transformConfig.getTransformationClass());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TransformConfigTest {
     @Test
     public void shouldReturnMandatoryFields() {
         HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
-        expectedMandatoryFields.put("transformationClass", "com.gojek.daggers.postprocessor.XTransformer");
+        expectedMandatoryFields.put("transformationClass", "io.odpf.daggers.postprocessor.XTransformer");
         HashMap<String, Object> actualMandatoryFields = transformConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("transformationClass"), actualMandatoryFields.get("transformationClass"));
     }
@@ -60,7 +60,7 @@ public class TransformConfigTest {
     public void shouldThrowExceptionIfDefaultFieldsAreOverridden() {
         expectedException.expectMessage("Transformation arguments cannot contain `table_name` as a key");
         expectedException.expect(IllegalArgumentException.class);
-        TransformConfig config = new TransformConfig("com.gojek.TestClass", new HashMap<String, Object>() {{
+        TransformConfig config = new TransformConfig("io.odpf.TestClass", new HashMap<String, Object>() {{
             put(TransformerUtils.DefaultArgument.TABLE_NAME.toString(), "test-value");
         }});
         config.validateFields();
