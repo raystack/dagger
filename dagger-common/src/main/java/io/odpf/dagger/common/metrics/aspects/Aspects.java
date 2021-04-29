@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.metrics.aspects;
+package io.odpf.dagger.common.metrics.aspects;
 
 public interface Aspects {
     String getValue();

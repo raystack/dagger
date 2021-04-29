@@ -1,15 +1,15 @@
-package io.odpf.dagger.core.metrics;
+package io.odpf.dagger.common.metrics.managers;
 
-import com.codahale.metrics.SlidingTimeWindowReservoir;
-import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
-import io.odpf.dagger.core.metrics.aspects.AspectType;
-import io.odpf.dagger.core.metrics.aspects.Aspects;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
+
+import com.codahale.metrics.SlidingTimeWindowReservoir;
+import io.odpf.dagger.common.metrics.aspects.AspectType;
+import io.odpf.dagger.common.metrics.aspects.Aspects;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -44,10 +44,12 @@ public class MeterStatsManager {
 
     private void register(MetricGroup metricGroup, Aspects[] aspects) {
         for (Aspects aspect : aspects) {
-            if (AspectType.Histogram.equals(aspect.getAspectType()))
+            if (AspectType.Histogram.equals(aspect.getAspectType())) {
                 histogramMap.put(aspect, metricGroup.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
-            if (AspectType.Metric.equals(aspect.getAspectType()))
+            }
+            if (AspectType.Metric.equals(aspect.getAspectType())) {
                 meterMap.put(aspect, metricGroup.meter(aspect.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+            }
         }
     }
 
@@ -56,16 +58,18 @@ public class MeterStatsManager {
     }
 
     public void updateHistogram(Aspects aspects, long value) {
-        if (enabled)
+        if (enabled) {
             histogramMap.get(aspects).update(value);
+        }
     }
 
     public void markEvent(Aspects aspect) {
-        if (enabled)
+        if (enabled) {
             meterMap.get(aspect).markEvent();
+        }
     }
 
-    public void register(String groupKey, String groupValue, ExternalSourceAspects[] aspects) {
+    public void register(String groupKey, String groupValue, Aspects[] aspects) {
         if (enabled) {
             MetricGroup metricGroup = runtimeContext.getMetricGroup().addGroup(groupKey, groupValue);
             register(metricGroup, aspects);

@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.protohandler.ProtoHandler;

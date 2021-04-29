@@ -1,9 +1,10 @@
-package io.odpf.dagger.core.metrics;
+package io.odpf.dagger.common.metrics.managers;
 
-import io.odpf.dagger.core.metrics.aspects.Aspects;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+
+import io.odpf.dagger.common.metrics.aspects.Aspects;
 
 public class GaugeStatsManager {
 
