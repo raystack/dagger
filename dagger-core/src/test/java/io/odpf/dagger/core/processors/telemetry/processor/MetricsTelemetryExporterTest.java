@@ -81,7 +81,7 @@ public class MetricsTelemetryExporterTest {
         when(topicPublisher.getTelemetry()).thenReturn(metrics);
 
         metricsTelemetryExporter.updated(topicPublisher);
-        verify(gaugeStatsManager, times(3)).register(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
+        verify(gaugeStatsManager, times(3)).registerAspects(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
 
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
@@ -112,7 +112,7 @@ public class MetricsTelemetryExporterTest {
         metricsTelemetryExporter.updated(topicPublisher);
         metricsTelemetryExporter.updated(sinkPublisher);
 
-        verify(gaugeStatsManager, times(4)).register(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
+        verify(gaugeStatsManager, times(4)).registerAspects(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
 
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();

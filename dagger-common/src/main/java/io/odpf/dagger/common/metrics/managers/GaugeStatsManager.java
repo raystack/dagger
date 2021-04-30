@@ -15,11 +15,17 @@ public class GaugeStatsManager {
         this.enabled = enabled;
     }
 
-    public void register(String groupKey, String groupValue, Aspects[] aspects, int gaugeValue) {
+    public void registerAspects(String groupKey, String groupValue, Aspects[] aspects, int gaugeValue) {
         if (enabled) {
             for (Aspects aspect : aspects) {
                 metricGroup.addGroup(groupKey, groupValue).gauge(aspect.getValue(), (Gauge<Integer>) () -> gaugeValue);
             }
+        }
+    }
+
+    public void register(String groupKey, String groupValue, String gaugeAspectName, int gaugeValue) {
+        if (enabled) {
+            metricGroup.addGroup(groupKey, groupValue).gauge(gaugeAspectName, (Gauge<Integer>) () -> gaugeValue);
         }
     }
 }

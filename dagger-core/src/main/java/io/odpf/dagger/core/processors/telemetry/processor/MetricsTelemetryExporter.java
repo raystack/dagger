@@ -62,7 +62,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
 
     protected void registerGroups(GaugeStatsManager gaugeStatsManager) {
         metrics.forEach((groupKey, groupValues) -> groupValues
-                .forEach(groupValue -> gaugeStatsManager.register(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
+                .forEach(groupValue -> gaugeStatsManager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
         LOGGER.info("Sending Metrics: " + metrics);
         metrics.clear();
     }
