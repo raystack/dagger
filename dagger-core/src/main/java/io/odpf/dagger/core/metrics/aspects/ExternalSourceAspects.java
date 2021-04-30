@@ -1,25 +1,25 @@
 package io.odpf.dagger.core.metrics.aspects;
 
 public enum ExternalSourceAspects implements Aspects {
-    CLOSE_CONNECTION_ON_EXTERNAL_CLIENT("closeConnectionOnExternalClient", AspectType.Metric),
-    FAILURES_ON_READING_PATH("failuresOnReadingPath", AspectType.Metric),
-    TOTAL_FAILED_REQUESTS("totalFailures", AspectType.Metric),
+    CLOSE_CONNECTION_ON_EXTERNAL_CLIENT("close_connection_on_external_client", AspectType.Metric),
+    FAILURES_ON_READING_PATH("failures_on_reading_path", AspectType.Metric),
+    TOTAL_FAILED_REQUESTS("total_failures", AspectType.Metric),
     TIMEOUTS("timeouts", AspectType.Metric),
-    SUCCESS_RESPONSE_TIME("successResponseTime", AspectType.Histogram),
-    FAILURES_RESPONSE_TIME("failureResponseTime", AspectType.Histogram),
-    SUCCESS_RESPONSE("successResponse", AspectType.Metric),
-    ERROR_PARSING_RESPONSE("parseErrors", AspectType.Metric),
-    REQUEST_ERROR("requestError", AspectType.Metric),
-    OTHER_ERRORS("otherErrors", AspectType.Metric),
-    TOTAL_EXTERNAL_CALLS("totalExternalCalls", AspectType.Metric),
-    EMPTY_INPUT("emptyInput", AspectType.Metric),
-    ERROR_READING_RESPONSE("errorReadingResponse", AspectType.Metric),
-    OTHER_ERRORS_PROCESSING_RESPONSE("otherErrorsProcessingResponse", AspectType.Metric),
-    INVALID_CONFIGURATION("invalidConfiguration", AspectType.Metric),
-    FAILURE_CODE_5XX("failuresCode5XX", AspectType.Metric),
-    FAILURE_CODE_4XX("failuresCode4XX", AspectType.Metric),
-    FAILURE_CODE_404("failuresCode404", AspectType.Metric),
-    GRPC_CHANNEL_NOT_AVAILABLE("grpcChannelNotAvailable", AspectType.Metric);
+    SUCCESS_RESPONSE_TIME("success_response_time", AspectType.Histogram),
+    FAILURES_RESPONSE_TIME("failure_response_time", AspectType.Histogram),
+    SUCCESS_RESPONSE("success_response", AspectType.Metric),
+    ERROR_PARSING_RESPONSE("parse_errors", AspectType.Metric),
+    REQUEST_ERROR("request_error", AspectType.Metric),
+    OTHER_ERRORS("other_errors", AspectType.Metric),
+    TOTAL_EXTERNAL_CALLS("total_external_calls", AspectType.Metric),
+    EMPTY_INPUT("empty_input", AspectType.Metric),
+    ERROR_READING_RESPONSE("error_reading_response", AspectType.Metric),
+    OTHER_ERRORS_PROCESSING_RESPONSE("other_errors_processing_response", AspectType.Metric),
+    INVALID_CONFIGURATION("invalid_configuration", AspectType.Metric),
+    FAILURE_CODE_5XX("failures_code5XX", AspectType.Metric),
+    FAILURE_CODE_4XX("failures_code4XX", AspectType.Metric),
+    FAILURE_CODE_404("failures_code404", AspectType.Metric),
+    GRPC_CHANNEL_NOT_AVAILABLE("grpc_channel_not_available", AspectType.Metric);
 
     private String value;
     private AspectType aspectType;
