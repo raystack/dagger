@@ -31,8 +31,15 @@ public class GaugeStatsManagerTest {
     @Test
     public void shouldRegisterGaugeForAllTheAspects() {
         when(metricGroup.addGroup("test_key", "test_value")).thenReturn(metricGroup);
-        gaugeStatsManager.register("test_key", "test_value", TestAspects.values(), 1);
+        gaugeStatsManager.registerAspects("test_key", "test_value", TestAspects.values(), 1);
         verify(metricGroup, times(2)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void shouldRegisterGaugeForSingleAspect() {
+        when(metricGroup.addGroup("test_key", "test_value")).thenReturn(metricGroup);
+        gaugeStatsManager.register("test_key", "test_value", TestAspects.TEST_ASPECT_ONE.getValue(), 1);
+        verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
     }
 
     enum TestAspects implements Aspects {
