@@ -12,4 +12,7 @@ public class Constants {
     public static final String STENCIL_CONFIG_TIMEOUT_MS_DEFAULT = "60000";
     public static final String STENCIL_CONFIG_REFRESH_CACHE_KEY = "REFRESH_CACHE";
     public static final String STENCIL_CONFIG_REFRESH_CACHE_DEFAULT = "false";
+
+    public static final String UDF_TELEMETRY_GROUP_KEY = "udf";
+    public static final String GAUGE_ASPECT_NAME = "value";
 }
