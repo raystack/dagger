@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;

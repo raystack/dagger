@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.types.MapDecorator;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;

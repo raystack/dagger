@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
