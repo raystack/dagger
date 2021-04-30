@@ -64,6 +64,16 @@ public class MeterStatsManagerTest {
     }
 
     @Test
+    public void shouldRegisterMeterAspectsWithGroupKeyAndGroupValue() {
+        String groupKey = "test_groupKey";
+        String groupValue = "test_groupValue";
+        when(metricGroup.addGroup(groupKey, groupValue)).thenReturn(metricGroup);
+
+        meterStatsManager.register(groupKey, groupValue, TestAspects.values());
+        verify(metricGroup, times(1)).meter(any(String.class), any(DropwizardMeterWrapper.class));
+    }
+
+    @Test
     public void shouldUpdateHistogram() {
         meterStatsManager = new MeterStatsManager(metricGroup, true, histogramMap, meterMap);
         when(histogramMap.get(TestAspects.TEST_ASPECT_ONE)).thenReturn(histogram);
