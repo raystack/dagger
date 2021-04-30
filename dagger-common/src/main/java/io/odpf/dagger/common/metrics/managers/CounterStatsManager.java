@@ -33,7 +33,8 @@ public class CounterStatsManager {
 
     public void register(Aspects aspect, String groupName) {
         if (aspect.getAspectType() == AspectType.Counter) {
-            counters.put(aspect, metricGroup.addGroup(groupName).counter(aspect.getValue()));
+            Counter counter = metricGroup.addGroup(groupName).counter(aspect.getValue());
+            counters.put(aspect, counter);
         }
     }
 }
