@@ -4,7 +4,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=apache)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/odpf/dagger?logo=semantic-release)](Version)
 
-Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink and Kubernetes. With Dagger, you don't need to write custom applications or manage resources to process data in real time. Instead simple SQL on input Data stream does the job. 
+Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink. With Dagger, you don't need to write custom applications or manage resources to process data in real time.
+Instead you can write SQLs to do the processing and analysis on streaming data.
 
 <p align="center"><img src="./docs/assets/overview.svg" /></p>
 
@@ -29,7 +30,7 @@ Explore the following resources to get started with Dagger:
 * [Contribute](docs/contribute/contribution.md) contains resources for anyone who wants to contribute to Dagger.
 
 ## Running locally
-
+Make sure you have Java8 and local kafka-2.4+ setup pre-installed on your local machine.
 ```sh
 # Clone the repo
 $ git clone https://github.com/odpf/dagger.git  
@@ -43,7 +44,7 @@ $ cat env/local.properties
 # Run a Dagger
 $ ./gradlew runFlink
 ```
-**Note:** Sample configuration for running a basic dagger can be found  [here](/docs/reference/configuration.md).
+**Note:** Sample configuration for running a basic dagger can be found [here](/docs/reference/configuration.md).
 
 ## Running tests 
 ```sh
@@ -59,13 +60,11 @@ $ ./gradlew clean
 
 ## Contribute
 
-Development of Dagger is open on GitHub, and we are grateful to the community for contributing bugfixes and improvements. Read below to learn how you can take part in improving Dagger.
+Development of Dagger happens in the open on GitHub, and we are grateful to the community for contributing bugfixes and improvements. Read below to learn how you can take part in improving Dagger.
 
 Read our [contributing guide](docs/contribute/contribution.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Dagger.
 
 To help you get your feet wet and get you familiar with our contribution process, we have a list of [good first issues](https://github.com/odpf/dagger/labels/good%20first%20issue) that contain bugs which have a relatively limited scope. This is a great place to get started.
-
-## Credits
 
 This project exists thanks to all the [contributors](https://github.com/odpf/dagger/graphs/contributors).
 
