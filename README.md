@@ -4,14 +4,18 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=apache)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/odpf/dagger?logo=semantic-release)](Version)
 
-Dagger is a cloud native service for delivering real-time streaming data to destinations such as service endpoints (HTTP or GRPC) & managed databases (Postgres, InfluxDB,  Redis, & Elasticsearch). With Dagger, you don't need to write applications or manage resources. It can be scaled up to match the throughput of your data. If your data is present in Kafka, Dagger delivers it to the destination(SINK) that you specified.
+Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink. With Dagger, you don't need to write custom applications or manage resources to process data in real time.
+Instead you can write SQLs to do the processing and analysis on streaming data.
 
 <p align="center"><img src="./docs/assets/overview.svg" /></p>
 
 ## Key Features
-Discover why users choose Dagger as their main Kafka Consumer
+Discover why to use Dagger
 
+* **Processing:** Dagger can transform, aggregate, join and enrich protobuf data in real-time.
+* **Scale:** Dagger scales in an instant, both vertically and horizontally for high performance streaming sink and zero data drops.
 * **Extensibility:** Add your own sink to dagger with a clearly defined interface or choose from already provided ones.
+* **Pluggability:** Add custom bussiness logics in form puglins \(UDFs, Transformers, Preprocessors and Post Processors\) independent of core logic. 
 * **Metrics:** Always know what’s going on with your deployment with built-in [monitoring](./docs/assets/dagger-grafana-dashboard.json) of throughput, response times, errors and more.
 
 To know more, follow the detailed [documentation](docs)
@@ -25,6 +29,34 @@ Explore the following resources to get started with Dagger:
 * [Reference](docs/reference) contains details about configurations, metrics and other aspects of Dagger.
 * [Contribute](docs/contribute/contribution.md) contains resources for anyone who wants to contribute to Dagger.
 
+## Running locally
+Make sure you have Java8 and local kafka-2.4+ setup pre-installed on your local machine.
+```sh
+# Clone the repo
+$ git clone https://github.com/odpf/dagger.git  
+
+# Build the jar
+$ ./gradlew clean build 
+
+# Configure env variables
+$ cat env/local.properties
+
+# Run a Dagger
+$ ./gradlew runFlink
+```
+**Note:** Sample configuration for running a basic dagger can be found [here](/docs/reference/configuration.md).
+
+## Running tests 
+```sh
+# Running unit tests
+$ ./gradlew clean test
+
+# Run code quality checks
+$ ./gradlew checkstyleMain checkstyleTest
+
+#Cleaning the build
+$ ./gradlew clean
+```
 
 ## Contribute
 
