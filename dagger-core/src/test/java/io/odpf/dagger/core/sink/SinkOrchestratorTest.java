@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.sink.influx.InfluxRowSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 import org.apache.flink.api.common.functions.Function;
@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.OUTPUT_KAFKA_BROKER;
+import static io.odpf.dagger.core.utils.Constants.PRODUCE_LARGE_MESSAGE_KEY;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

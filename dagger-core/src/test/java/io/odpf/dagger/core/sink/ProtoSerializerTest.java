@@ -6,7 +6,7 @@ import io.odpf.dagger.consumer.TestProfile;
 import io.odpf.dagger.consumer.TestSerDeLogKey;
 import io.odpf.dagger.consumer.TestSerDeLogMessage;
 import io.odpf.dagger.consumer.TestServiceType;
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.InvalidProtocolBufferException;

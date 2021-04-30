@@ -1,11 +1,9 @@
-package io.odpf.dagger.core;
-
-import org.apache.flink.configuration.Configuration;
+package io.odpf.dagger.common.core;
 
 import com.gojek.de.stencil.client.ClassLoadStencilClient;
 import com.gojek.de.stencil.client.MultiURLStencilClient;
 import com.gojek.de.stencil.client.StencilClient;
-import org.junit.Assert;
+import org.apache.flink.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,12 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.common.core.Constants.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class StencilClientOrchestratorTest {
-
     @Mock
     private Configuration configuration;
 
@@ -41,7 +39,7 @@ public class StencilClientOrchestratorTest {
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
-        Assert.assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
+        assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
@@ -59,7 +57,7 @@ public class StencilClientOrchestratorTest {
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
-        Assert.assertEquals(MultiURLStencilClient.class, stencilClient.getClass());
+        assertEquals(MultiURLStencilClient.class, stencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
@@ -79,15 +77,15 @@ public class StencilClientOrchestratorTest {
         List<String> enrichmentStencilURLs = Collections
                 .singletonList("http://localhost/latest");
 
-        Assert.assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
+        assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
 
         StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 
-        Assert.assertNotSame(oldStencilClient, enrichedStencilClient);
-        Assert.assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
+        assertNotSame(oldStencilClient, enrichedStencilClient);
+        assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
 
 
-        Assert.assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
+        assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
@@ -106,15 +104,15 @@ public class StencilClientOrchestratorTest {
 
         List<String> enrichmentStencilURLs = new ArrayList<>();
 
-        Assert.assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
+        assertSame(oldStencilClient, stencilClientOrchestrator.getStencilClient());
 
         StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 
-        Assert.assertSame(oldStencilClient, enrichedStencilClient);
-        Assert.assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
+        assertSame(oldStencilClient, enrichedStencilClient);
+        assertSame(enrichedStencilClient, stencilClientOrchestrator.getStencilClient());
 
 
-        Assert.assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
+        assertEquals(MultiURLStencilClient.class, enrichedStencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
@@ -134,7 +132,7 @@ public class StencilClientOrchestratorTest {
 
         StencilClient stencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 
-        Assert.assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
+        assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
