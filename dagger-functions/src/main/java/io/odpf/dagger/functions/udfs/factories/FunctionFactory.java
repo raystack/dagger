@@ -5,6 +5,7 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.common.udfs.TableUdf;
 import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import io.odpf.dagger.common.udfs.UdfFactory;
@@ -14,8 +15,8 @@ import java.util.HashSet;
 
 public class FunctionFactory extends UdfFactory {
 
-    public FunctionFactory(StreamTableEnvironment streamTableEnvironment) {
-        super(streamTableEnvironment);
+    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
+        super(streamTableEnvironment, configuration);
     }
 
     @Override
