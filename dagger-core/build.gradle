@@ -77,13 +77,11 @@ dependencies {
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
 
     dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
-    dependenciesJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
     dependenciesJar 'org.influxdb:influxdb-java:2.8'
     dependenciesJar 'com.google.code.gson:gson:2.8.2'
-    dependenciesJar 'com.gojek:stencil:2.0.15'
     dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
     dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'

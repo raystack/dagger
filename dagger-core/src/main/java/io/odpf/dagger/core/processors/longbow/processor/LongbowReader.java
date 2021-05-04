@@ -12,7 +12,7 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
@@ -73,7 +73,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
             longBowStore = LongbowStore.create(configuration);
         }
         if (meterStatsManager == null) {
-            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+            meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (errorReporter == null) {
             errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);

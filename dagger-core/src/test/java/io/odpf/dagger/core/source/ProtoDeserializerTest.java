@@ -2,15 +2,14 @@ package io.odpf.dagger.core.source;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.*;
-import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -55,7 +55,7 @@ public class ProtoDeserializerTest {
                 new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING,STRING,STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) producedType).getFieldTypes());
     }
 
@@ -181,7 +181,7 @@ public class ProtoDeserializerTest {
     @Test
     public void shouldDeserializeProtobufMapAsSubRows() throws IOException {
         String orderNumber = "1";
-        Map<String,String> currentState = new HashMap();
+        Map<String, String> currentState = new HashMap();
         currentState.put("force_close", "true");
         currentState.put("image", "example.png");
 
@@ -206,7 +206,7 @@ public class ProtoDeserializerTest {
     @Test
     public void shouldDeserializeProtobufMapOfNullValueAsSubRows() throws IOException {
         String orderNumber = "1";
-        Map<String,String> metaData = new HashMap<String, String>();
+        Map<String, String> metaData = new HashMap<String, String>();
         metaData.put("force_close", "true");
         metaData.put("image", "");
 
@@ -254,6 +254,7 @@ public class ProtoDeserializerTest {
         assertFalse((boolean) row.getField(row.getArity() - 2));
         assertEquals(new java.sql.Timestamp(0), row.getField(row.getArity() - 1));
     }
+
     @Test(expected = DescriptorNotFoundException.class)
     public void shouldThrowDescriptorNotFoundException() {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
@@ -263,6 +264,7 @@ public class ProtoDeserializerTest {
     private int bookingLogFieldIndex(String propertyName) {
         return TestBookingLogMessage.getDescriptor().findFieldByName(propertyName).getIndex();
     }
+
     private int routeFieldIndex(String propertyName) {
         return TestRoute.getDescriptor().findFieldByName(propertyName).getIndex();
     }

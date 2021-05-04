@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowReadColumnModifier;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowWriteColumnModifier;

@@ -6,7 +6,7 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
-import io.odpf.dagger.core.metrics.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
 import io.odpf.dagger.core.metrics.aspects.TelemetryAspects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     @Override
     public void open(Configuration parameters) throws Exception {
         if (gaugeStatsManager == null) {
-            gaugeStatsManager = new GaugeStatsManager(getRuntimeContext(), true);
+            gaugeStatsManager = new GaugeStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (metrics != null) {
             registerGroups(gaugeStatsManager);
@@ -62,7 +62,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
 
     protected void registerGroups(GaugeStatsManager gaugeStatsManager) {
         metrics.forEach((groupKey, groupValues) -> groupValues
-                .forEach(groupValue -> gaugeStatsManager.register(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
+                .forEach(groupValue -> gaugeStatsManager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
         LOGGER.info("Sending Metrics: " + metrics);
         metrics.clear();
     }

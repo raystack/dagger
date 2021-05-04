@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowWriterAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;

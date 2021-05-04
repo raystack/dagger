@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.external;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import com.google.gson.Gson;
 import io.odpf.dagger.core.utils.Constants;

@@ -1,12 +1,12 @@
 package io.odpf.dagger.core.processors.common;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.types.FilterDecorator;
 import io.odpf.dagger.core.source.ProtoDeserializer;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -20,7 +20,8 @@ import org.mockito.Mock;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidRecordsDecoratorTest {

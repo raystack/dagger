@@ -2,10 +2,10 @@ package io.odpf.dagger.core.processors.external.pg;
 
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;

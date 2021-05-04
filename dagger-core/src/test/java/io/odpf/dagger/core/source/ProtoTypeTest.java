@@ -1,8 +1,8 @@
 package io.odpf.dagger.core.source;
 
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
-import io.odpf.dagger.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -13,7 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

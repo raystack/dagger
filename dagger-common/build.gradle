@@ -51,8 +51,13 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
+    
+    dependenciesCommonJar 'com.gojek:stencil:2.0.15'
+    dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.jmockit:jmockit:1.25'
+    testImplementation 'org.mockito:mockito-core:2.25.1'
 }
 
 test {
@@ -75,7 +80,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.8
+                minimum = 0.7
             }
         }
     }

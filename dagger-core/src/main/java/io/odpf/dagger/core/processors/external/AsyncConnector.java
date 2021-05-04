@@ -13,7 +13,7 @@ import com.google.protobuf.Descriptors;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
@@ -100,7 +100,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
                     .getErrorReporter(getRuntimeContext(), externalMetricConfig.isTelemetryEnabled(), externalMetricConfig.getShutDownPeriod());
         }
         if (meterStatsManager == null) {
-            meterStatsManager = new MeterStatsManager(getRuntimeContext(), true);
+            meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (endpointHandler == null) {
             endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,

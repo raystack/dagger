@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.postprocessors;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ParentPostProcessor;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.longbow.LongbowProcessor;

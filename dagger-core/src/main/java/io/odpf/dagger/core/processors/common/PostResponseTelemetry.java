@@ -1,5 +1,5 @@
 package io.odpf.dagger.core.processors.common;
-import io.odpf.dagger.core.metrics.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 
 import java.time.Instant;
