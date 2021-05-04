@@ -51,8 +51,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
-    compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
-
+    
     dependenciesCommonJar 'com.gojek:stencil:2.0.15'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
 
