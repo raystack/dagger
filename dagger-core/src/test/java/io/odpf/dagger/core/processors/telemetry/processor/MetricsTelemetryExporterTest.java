@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.telemetry.processor;
 
-import io.odpf.dagger.core.metrics.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -81,7 +81,7 @@ public class MetricsTelemetryExporterTest {
         when(topicPublisher.getTelemetry()).thenReturn(metrics);
 
         metricsTelemetryExporter.updated(topicPublisher);
-        verify(gaugeStatsManager, times(3)).register(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
+        verify(gaugeStatsManager, times(3)).registerAspects(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
 
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
@@ -112,7 +112,7 @@ public class MetricsTelemetryExporterTest {
         metricsTelemetryExporter.updated(topicPublisher);
         metricsTelemetryExporter.updated(sinkPublisher);
 
-        verify(gaugeStatsManager, times(4)).register(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
+        verify(gaugeStatsManager, times(4)).registerAspects(keyCaptor.capture(), valueCaptor.capture(), any(), any(Integer.class));
 
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();

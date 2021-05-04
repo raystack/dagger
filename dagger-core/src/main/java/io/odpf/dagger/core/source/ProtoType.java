@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.source;
 
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DescriptorNotFoundException;
 import io.odpf.dagger.core.protohandler.TypeInformationFactory;
 import io.odpf.dagger.core.utils.Constants;

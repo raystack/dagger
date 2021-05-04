@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.external;
 
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.ColumnNameManager;

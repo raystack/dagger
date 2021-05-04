@@ -1,5 +1,8 @@
 package io.odpf.dagger.core.metrics.aspects;
 
+import io.odpf.dagger.common.metrics.aspects.AspectType;
+import io.odpf.dagger.common.metrics.aspects.Aspects;
+
 public enum TelemetryAspects implements Aspects {
     VALUE("value", AspectType.Metric);
 

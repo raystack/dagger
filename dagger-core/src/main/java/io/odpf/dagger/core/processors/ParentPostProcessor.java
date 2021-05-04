@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.common.FetchOutputDecorator;
 import io.odpf.dagger.core.processors.common.InitializationDecorator;
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
