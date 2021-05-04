@@ -77,7 +77,6 @@ dependencies {
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
 
     dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
-    dependenciesJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'

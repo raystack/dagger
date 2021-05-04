@@ -54,6 +54,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
 
     dependenciesCommonJar 'com.gojek:stencil:2.0.15'
+    dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jmockit:jmockit:1.25'
