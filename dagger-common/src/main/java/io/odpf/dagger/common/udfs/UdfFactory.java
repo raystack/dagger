@@ -1,14 +1,17 @@
 package io.odpf.dagger.common.udfs;
 
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import java.util.HashSet;
 
 public abstract class UdfFactory {
     private final StreamTableEnvironment streamTableEnvironment;
+    private final Configuration configuration;
 
-    public UdfFactory(StreamTableEnvironment streamTableEnvironment) {
+    public UdfFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
         this.streamTableEnvironment = streamTableEnvironment;
+        this.configuration = configuration;
     }
 
     final public void registerFunctions() {
@@ -25,4 +28,8 @@ public abstract class UdfFactory {
     public abstract HashSet<TableUdf> getTableUdfs();
 
     public abstract HashSet<AggregateUdf> getAggregateUdfs();
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 }
