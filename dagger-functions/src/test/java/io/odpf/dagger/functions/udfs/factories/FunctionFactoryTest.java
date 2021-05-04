@@ -6,6 +6,7 @@ import io.odpf.dagger.common.udfs.TableUdf;
 import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,6 +25,9 @@ public class FunctionFactoryTest {
     @Mock
     private StreamTableEnvironment streamTableEnvironment;
 
+    @Mock
+    private Configuration configuration;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -31,14 +35,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnScalarUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<ScalarUdf> scalarUdfs = functionFactory.getScalarUdfs();
         Assert.assertTrue(scalarUdfs.stream().anyMatch(scalarUdf -> scalarUdf.getClass() == EndOfMonth.class));
     }
 
     @Test
     public void shouldRegisterScalarUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<ScalarUdf> scalarUdfs = functionFactory.getScalarUdfs();
         functionFactory.registerFunctions();
         ArgumentCaptor<ScalarUdf> scalarUdfArgumentCaptor = ArgumentCaptor.forClass(ScalarUdf.class);
@@ -52,14 +56,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnTableUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<TableUdf> tableUdfs = functionFactory.getTableUdfs();
         Assert.assertTrue(tableUdfs.stream().anyMatch(tableUdf -> tableUdf.getClass() == HistogramBucket.class));
     }
 
     @Test
     public void shouldRegisterTableUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<TableUdf> tableUdfs = functionFactory.getTableUdfs();
         functionFactory.registerFunctions();
         ArgumentCaptor<TableUdf> tableUdfArgumentCaptor = ArgumentCaptor.forClass(TableUdf.class);
@@ -73,14 +77,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnAggregateUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<AggregateUdf> aggregateUdfs = functionFactory.getAggregateUdfs();
         Assert.assertTrue(aggregateUdfs.stream().anyMatch(aggregateUdf -> aggregateUdf.getClass() == DistinctCount.class));
     }
 
     @Test
     public void shouldRegisterAggregateUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<AggregateUdf> aggregateUdfs = functionFactory.getAggregateUdfs();
         functionFactory.registerFunctions();
         ArgumentCaptor<AggregateUdf> aggregateUdfArgumentCaptor = ArgumentCaptor.forClass(AggregateUdf.class);

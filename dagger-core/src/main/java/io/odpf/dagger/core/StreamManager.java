@@ -105,8 +105,8 @@ public class StreamManager {
     private UdfFactory getUdfFactory(String udfFactoryClassName) throws ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> udfFactoryClass = Class.forName(udfFactoryClassName);
-        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class);
-        return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment);
+        Constructor udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class, Configuration.class);
+        return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment, configuration);
     }
 
     public StreamManager registerOutputStream() {
