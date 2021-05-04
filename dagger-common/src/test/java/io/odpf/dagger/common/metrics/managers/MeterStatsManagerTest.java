@@ -5,8 +5,7 @@ import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 
-import io.odpf.dagger.common.metrics.aspects.AspectType;
-import io.odpf.dagger.common.metrics.aspects.Aspects;
+import io.odpf.dagger.common.metrics.managers.utils.TestAspects;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -91,26 +90,4 @@ public class MeterStatsManagerTest {
         verify(meter, times(1)).markEvent();
     }
 
-    enum TestAspects implements Aspects {
-        TEST_ASPECT_ONE("test_aspect1", AspectType.Histogram),
-        TEST_ASPECT_TWO("test_aspect2", AspectType.Metric);
-
-        private String value;
-        private AspectType aspectType;
-
-        TestAspects(String value, AspectType aspectType) {
-            this.value = value;
-            this.aspectType = aspectType;
-        }
-
-        @Override
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public AspectType getAspectType() {
-            return aspectType;
-        }
-    }
 }
