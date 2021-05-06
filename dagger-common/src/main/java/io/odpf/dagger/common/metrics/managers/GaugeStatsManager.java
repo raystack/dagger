@@ -23,9 +23,21 @@ public class GaugeStatsManager {
         }
     }
 
-    public void register(String groupKey, String groupValue, String gaugeAspectName, int gaugeValue) {
+    public void registerInteger(String groupKey, String groupValue, String gaugeAspectName, int gaugeValue) {
         if (enabled) {
             metricGroup.addGroup(groupKey, groupValue).gauge(gaugeAspectName, (Gauge<Integer>) () -> gaugeValue);
+        }
+    }
+
+    public void registerString(String groupKey, String groupValue, String gaugeAspectName, String gaugeValue) {
+        if (enabled) {
+            metricGroup.addGroup(groupKey, groupValue).gauge(gaugeAspectName, (Gauge<String>) () -> gaugeValue);
+        }
+    }
+
+    public void registerDouble(String groupKey, String groupValue, String gaugeAspectName, Double gaugeValue) {
+        if (enabled) {
+            metricGroup.addGroup(groupKey, groupValue).gauge(gaugeAspectName, (Gauge<Double>) () -> gaugeValue);
         }
     }
 }
