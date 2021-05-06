@@ -57,6 +57,7 @@ dependencies {
     testImplementation 'org.asynchttpclient:async-http-client:2.10.1'
     testImplementation 'com.gojek:stencil:2.0.15'
     testImplementation 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
+    testImplementation 'io.vertx:vertx-pg-client:3.9.0'
     testImplementation gradleTestKit()
 }
 
