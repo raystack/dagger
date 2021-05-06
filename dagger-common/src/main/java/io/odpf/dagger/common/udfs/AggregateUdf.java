@@ -14,14 +14,20 @@ import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
  */
 public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {
 
+    private GaugeStatsManager gaugeStatsManager;
+
     @Override
     public void open(FunctionContext context) throws Exception {
         super.open(context);
-        GaugeStatsManager metricsManager = new GaugeStatsManager(context.getMetricGroup(), true);
-        metricsManager.register(UDF_TELEMETRY_GROUP_KEY, getName(), GAUGE_ASPECT_NAME, 1);
+        gaugeStatsManager = new GaugeStatsManager(context.getMetricGroup(), true);
+        gaugeStatsManager.registerInteger(UDF_TELEMETRY_GROUP_KEY, getName(), GAUGE_ASPECT_NAME, 1);
     }
 
     public String getName() {
         return this.getClass().getSimpleName();
+    }
+
+    public GaugeStatsManager getGaugeStatsManager() {
+        return gaugeStatsManager;
     }
 }
