@@ -14,6 +14,7 @@ buildscript {
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.17.0"
     }
 }
+
 plugins {
     id 'maven-publish'
     id 'com.google.protobuf' version '0.8.13'
@@ -51,11 +52,6 @@ configurations {
     compile.extendsFrom minimalJar
     testCompile.extendsFrom compileOnly
     testRuntimeOnly.extendsFrom runtimeOnly
-    intTestImplementation.extendsFrom minimalJar
-    intTestImplementation.extendsFrom dependenciesJar
-    intTestImplementation.extendsFrom implementation
-    intTestImplementation.extendsFrom testImplementation
-    intTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 // minimalJar: add all dependencies to be included in dagger cluster user jar
@@ -142,25 +138,7 @@ sourceSets {
     test.runtimeClasspath += configurations.minimalJar
     test.runtimeClasspath += configurations.dependenciesJar
 
-    intTest {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        compileClasspath += sourceSets.test.output
-        runtimeClasspath += sourceSets.test.output
-    }
 }
-
-task integrationTest(type: Test) {
-    description = 'Runs integration tests.'
-    group = 'verification'
-
-    testClassesDirs = sourceSets.intTest.output.classesDirs
-    classpath = sourceSets.intTest.runtimeClasspath
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
-
 
 protobuf {
     generatedFilesBaseDir = "$projectDir/src/generated"
@@ -320,6 +298,5 @@ task runFlink(type: JavaExec, dependsOn: classes) {
 idea {
     module {
         testSourceDirs += file("$projectDir/src/generated/test/java")
-        testSourceDirs += project.sourceSets.intTest.java.srcDirs
     }
 }
