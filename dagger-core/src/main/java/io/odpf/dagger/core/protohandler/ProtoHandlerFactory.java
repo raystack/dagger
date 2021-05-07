@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProtoHandlerFactory {
-    private static final Map<String, ProtoHandler> protoHandlerMap = new ConcurrentHashMap<>();
+    private static Map<String, ProtoHandler> protoHandlerMap = new ConcurrentHashMap<>();
 
     public static ProtoHandler getProtoHandler(final Descriptors.FieldDescriptor fieldDescriptor) {
         return protoHandlerMap.computeIfAbsent(fieldDescriptor.getFullName(),

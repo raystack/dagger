@@ -63,8 +63,9 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onSuccess(Response response) {
         try {
-            if (response.getStatusLine().getStatusCode() != RESPONSE_CODE_200)
+            if (response.getStatusLine().getStatusCode() != RESPONSE_CODE_200) {
                 return;
+            }
             String responseBody = EntityUtils.toString(response.getEntity());
             List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
             esOutputColumnNames.forEach(outputColumnName -> {

@@ -73,8 +73,8 @@ public class LongbowSchema implements Serializable {
     }
 
     public long getDurationInMillis(Row input) {
-        String longbow_duration = (String) input.getField(columnIndexMap.get(Constants.LONGBOW_DURATION));
-        return getDurationInMillis(longbow_duration);
+        String longbowDuration = (String) input.getField(columnIndexMap.get(Constants.LONGBOW_DURATION));
+        return getDurationInMillis(longbowDuration);
     }
 
     public long getDurationInMillis(String durationString) {

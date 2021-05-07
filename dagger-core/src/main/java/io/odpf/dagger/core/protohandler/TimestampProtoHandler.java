@@ -14,7 +14,7 @@ import java.util.TimeZone;
 
 public class TimestampProtoHandler implements ProtoHandler {
     public static final int MILLI_TO_SECONDS = 1000;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     public TimestampProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
