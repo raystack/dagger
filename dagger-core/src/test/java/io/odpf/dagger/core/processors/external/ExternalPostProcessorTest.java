@@ -95,31 +95,31 @@ public class ExternalPostProcessorTest {
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(SHUTDOWN_PERIOD_DEFAULT);
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(TELEMETRY_ENABLED_VALUE_DEFAULT);
 
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"http\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"http://localhost/predictions\",\n" +
-                "        \"verb\": \"post\",\n" +
-                "        \"body_pattern\": \"{'data':{'names': ['s2id'], 'tensor': {'shape': [1,1], 'values':[%s]}}}\",\n" +
-                "        \"body_variables\": \"s2_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": \"false\", \n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"headers\": {\n" +
-                "          \"content-type\": \"application/json\"\n" +
-                "        },\n" +
-                "        \"type\": \"TestLogMessage\", \n" +
-                "        \"output_mapping\": {\n" +
-                "          \"surge_factor\": {\n" +
-                "            \"path\": \"$.data.tensor.values[0]\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        String postProcessorConfigString = "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"http\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"http://localhost/predictions\",\n"
+                + "        \"verb\": \"post\",\n"
+                + "        \"body_pattern\": \"{'data':{'names': ['s2id'], 'tensor': {'shape': [1,1], 'values':[%s]}}}\",\n"
+                + "        \"body_variables\": \"s2_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": \"false\", \n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"headers\": {\n"
+                + "          \"content-type\": \"application/json\"\n"
+                + "        },\n"
+                + "        \"type\": \"TestLogMessage\", \n"
+                + "        \"output_mapping\": {\n"
+                + "          \"surge_factor\": {\n"
+                + "            \"path\": \"$.data.tensor.values[0]\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
 
         externalMetricConfig = new ExternalMetricConfig(configuration, telemetrySubscriber);
         postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
@@ -165,25 +165,25 @@ public class ExternalPostProcessorTest {
 
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"http\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"http://localhost:8000\",\n" +
-                "        \"verb\": \"post\",\n" +
-                "        \"body_column_from_sql\": \"request_body\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": \"true\", \n" +
-                "        \"headers\": {\n" +
-                "          \"content-type\": \"application/json\"\n" +
-                "        },\n" +
-                "        \"output_mapping\": {\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        String postProcessorConfigString = "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"http\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"http://localhost:8000\",\n"
+                + "        \"verb\": \"post\",\n"
+                + "        \"body_column_from_sql\": \"request_body\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": \"true\", \n"
+                + "        \"headers\": {\n"
+                + "          \"content-type\": \"application/json\"\n"
+                + "        },\n"
+                + "        \"output_mapping\": {\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
 
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
 
@@ -196,31 +196,31 @@ public class ExternalPostProcessorTest {
 
     @Test
     public void shouldAddMultipleColumnNamesToExistingColumnNamesOnTheBasisOfConfigGiven() {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"http\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"http://localhost:8000\",\n" +
-                "        \"verb\": \"post\",\n" +
-                "        \"body_column_from_sql\": \"request_body\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": \"true\", \n" +
-                "        \"headers\": {\n" +
-                "          \"content-type\": \"application/json\"\n" +
-                "        },\n" +
-                "        \"output_mapping\": {\n" +
-                "        \"surge_factor\": {\n" +
-                "          \"path\": \"$.surge\"\n" +
-                "        },\n" +
-                "        \"surge\": {\n" +
-                "          \"path\": \"$.surge\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        String postProcessorConfigString = "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"http\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"http://localhost:8000\",\n"
+                + "        \"verb\": \"post\",\n"
+                + "        \"body_column_from_sql\": \"request_body\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": \"true\", \n"
+                + "        \"headers\": {\n"
+                + "          \"content-type\": \"application/json\"\n"
+                + "        },\n"
+                + "        \"output_mapping\": {\n"
+                + "        \"surge_factor\": {\n"
+                + "          \"path\": \"$.surge\"\n"
+                + "        },\n"
+                + "        \"surge\": {\n"
+                + "          \"path\": \"$.surge\"\n"
+                + "        }\n"
+                + "      }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
 
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
         String[] inputColumnNames = {"request_body", "order_number"};
@@ -230,12 +230,12 @@ public class ExternalPostProcessorTest {
     }
 
 
-    class ExternalPostProcessorMock extends ExternalPostProcessor {
+    final class ExternalPostProcessorMock extends ExternalPostProcessor {
 
         private HttpStreamDecorator httpStreamDecorator;
         private EsStreamDecorator esStreamDecorator;
 
-        public ExternalPostProcessorMock(SchemaConfig schemaConfig, ExternalSourceConfig externalSourceConfig, ExternalMetricConfig externalMetricConfig, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator) {
+        private ExternalPostProcessorMock(SchemaConfig schemaConfig, ExternalSourceConfig externalSourceConfig, ExternalMetricConfig externalMetricConfig, HttpStreamDecorator httpStreamDecorator, EsStreamDecorator esStreamDecorator) {
             super(schemaConfig, externalSourceConfig, externalMetricConfig);
             this.httpStreamDecorator = httpStreamDecorator;
             this.esStreamDecorator = esStreamDecorator;
@@ -251,5 +251,4 @@ public class ExternalPostProcessorTest {
             return esStreamDecorator;
         }
     }
-
 }

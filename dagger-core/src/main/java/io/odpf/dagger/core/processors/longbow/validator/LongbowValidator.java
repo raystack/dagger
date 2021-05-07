@@ -25,9 +25,11 @@ public class LongbowValidator {
                         .anyMatch(columnName -> columnName.contains(field)))
                 .collect(Collectors.joining(","));
 
-        if (StringUtils.isNotEmpty(missingFields))
+        if (StringUtils.isNotEmpty(missingFields)) {
             throw new DaggerConfigurationException("Missing required field: " + missingFields + " in Longbow type : " + longbowType.getTypeName());
-        if (StringUtils.isNotEmpty(wrongFields))
+        }
+        if (StringUtils.isNotEmpty(wrongFields)) {
             throw new DaggerConfigurationException("Invalid fields present : " + wrongFields + " in Longbow type : " + longbowType.getTypeName());
+        }
     }
 }

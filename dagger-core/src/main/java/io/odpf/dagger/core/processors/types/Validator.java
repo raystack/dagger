@@ -14,20 +14,24 @@ public interface Validator {
         ArrayList fieldsMissing = new ArrayList<>();
         ArrayList<Object> nestedFields = new ArrayList<>();
         getMandatoryFields().forEach((key, value) -> {
-            if (value == null || StringUtils.isEmpty(String.valueOf(value)))
+            if (value == null || StringUtils.isEmpty(String.valueOf(value))) {
                 fieldsMissing.add(key);
+            }
             if (value instanceof Map) {
-                if (((Map) value).isEmpty())
+                if (((Map) value).isEmpty()) {
                     fieldsMissing.add(key);
+                }
                 nestedFields.addAll(((Map) value).values());
             }
         });
-        if (fieldsMissing.size() != 0)
+        if (fieldsMissing.size() != 0) {
             throw new IllegalArgumentException("Missing required fields: " + fieldsMissing.toString());
+        }
 
         nestedFields.forEach(field -> {
-            if (field instanceof Validator)
+            if (field instanceof Validator) {
                 ((Validator) field).validateFields();
+            }
         });
     }
 }

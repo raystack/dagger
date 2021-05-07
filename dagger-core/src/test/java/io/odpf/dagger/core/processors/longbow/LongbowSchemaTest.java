@@ -160,8 +160,8 @@ public class LongbowSchemaTest {
         longBowSchema = new LongbowSchema(columnNames);
 
         expectedException.expect(DaggerConfigurationException.class);
-        expectedException.expectMessage("Unable to identify LongbowProcessor. Provide either " +
-                LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
+        expectedException.expectMessage("Unable to identify LongbowProcessor. Provide either "
+                + LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
         longBowSchema.getType();
     }
 

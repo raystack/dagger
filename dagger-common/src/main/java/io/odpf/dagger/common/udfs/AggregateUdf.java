@@ -8,8 +8,8 @@ import static io.odpf.dagger.common.core.Constants.GAUGE_ASPECT_NAME;
 import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
 
 /**
- * This class will not publish the UDF telemetry because
- * for AggregatedFunction it can not be done due to this bug in flink
+ * This class will not publish the UDF telemetry.
+ * because for AggregatedFunction it can not be done due to this bug in flink
  * ISSUE : https://issues.apache.org/jira/browse/FLINK-15040
  */
 public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {

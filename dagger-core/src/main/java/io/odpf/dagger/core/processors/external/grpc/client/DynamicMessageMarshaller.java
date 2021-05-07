@@ -9,7 +9,9 @@ import com.google.protobuf.ExtensionRegistryLite;
 
 import io.grpc.MethodDescriptor.Marshaller;
 
-/** A {@link Marshaller} for dynamic messages. */
+/**
+ * A {@link Marshaller} for dynamic messages.
+ */
 public class DynamicMessageMarshaller implements Marshaller<DynamicMessage> {
     private final Descriptor messageDescriptor;
 

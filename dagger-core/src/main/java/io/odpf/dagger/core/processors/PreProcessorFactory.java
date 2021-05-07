@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PreProcessorFactory {
-    private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+    private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     public static PreProcessorConfig parseConfig(Configuration configuration) {
         if (!configuration.getBoolean(Constants.PRE_PROCESSOR_ENABLED_KEY, Constants.PRE_PROCESSOR_ENABLED_DEFAULT)) {
@@ -24,7 +24,7 @@ public class PreProcessorFactory {
         String configJson = configuration.getString(Constants.PRE_PROCESSOR_CONFIG_KEY, "");
         PreProcessorConfig config;
         try {
-            config = gson.fromJson(configJson, PreProcessorConfig.class);
+            config = GSON.fromJson(configJson, PreProcessorConfig.class);
         } catch (JsonSyntaxException exception) {
             throw new InvalidJsonException("Invalid JSON Given for " + Constants.PRE_PROCESSOR_CONFIG_KEY);
         }

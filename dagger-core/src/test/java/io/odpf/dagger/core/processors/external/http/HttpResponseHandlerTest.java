@@ -251,9 +251,9 @@ public class HttpResponseHandlerTest {
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
@@ -278,10 +278,10 @@ public class HttpResponseHandlerTest {
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732,\n" +
-                "  \"prediction\": 345\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732,\n"
+                + "  \"prediction\": 345\n"
+                + "}");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
@@ -300,9 +300,9 @@ public class HttpResponseHandlerTest {
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         httpResponseHandler.startTimer();
@@ -327,9 +327,9 @@ public class HttpResponseHandlerTest {
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
@@ -352,9 +352,9 @@ public class HttpResponseHandlerTest {
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
@@ -377,9 +377,9 @@ public class HttpResponseHandlerTest {
         resultStreamData.setField(0, inputData);
         resultStreamData.setField(1, outputData);
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn("{\n" +
-                "  \"surge\": 0.732\n" +
-                "}");
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
 
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);

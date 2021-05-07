@@ -14,7 +14,7 @@ public abstract class UdfFactory {
         this.configuration = configuration;
     }
 
-    final public void registerFunctions() {
+    public final void registerFunctions() {
         HashSet<ScalarUdf> scalarFunctions = getScalarUdfs();
         HashSet<TableUdf> tableFunctions = getTableUdfs();
         HashSet<AggregateUdf> aggregateFunctions = getAggregateUdfs();

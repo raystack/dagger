@@ -29,6 +29,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import static io.odpf.dagger.core.utils.Constants.*;
+
 public class StreamManager {
 
     private Configuration configuration;
@@ -48,18 +50,18 @@ public class StreamManager {
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.MAX_PARALLELISM_KEY, Constants.MAX_PARALLELISM_DEFAULT));
         executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        executionEnvironment.setParallelism(configuration.getInteger("PARALLELISM", 1));
-        executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000));
+        executionEnvironment.setParallelism(configuration.getInteger(PARALLELISM_KEY, PARALLELISM_DEFAULT));
+        executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger(WATERMARK_INTERVAL_MS_KEY, WATERMARK_INTERVAL_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setTolerableCheckpointFailureNumber(Integer.MAX_VALUE);
-        executionEnvironment.enableCheckpointing(configuration.getLong("CHECKPOINT_INTERVAL", 30000));
+        executionEnvironment.enableCheckpointing(configuration.getLong(CHECKPOINT_INTERVAL_KEY, CHECKPOINT_INTERVAL_DEFAULT));
         executionEnvironment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong("CHECKPOINT_TIMEOUT", 900000));
-        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000));
-        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1));
+        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong(CHECKPOINT_TIMEOUT_KEY, CHECKPOINT_TIMEOUT_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong(CHECKPOINT_MIN_PAUSE_KEY, CHECKPOINT_MIN_PAUSE_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger(MAX_CONCURRECT_CHECKPOINTS_KEY, MAX_CONCURRECT_CHECKPOINTS_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(configuration);
 
-        tableEnvironment.getConfig().setIdleStateRetentionTime(Time.hours(configuration.getInteger("MIN_IDLE_STATE_RETENTION_TIME", 8)),
-                Time.hours(configuration.getInteger("MAX_IDLE_STATE_RETENTION_TIME", 9)));
+        tableEnvironment.getConfig().setIdleStateRetentionTime(Time.hours(configuration.getInteger(MIN_IDLE_STATE_RETENTION_TIME_KEY, MIN_IDLE_STATE_RETENTION_TIME_DEFAULT)),
+                Time.hours(configuration.getInteger(MAX_IDLE_STATE_RETENTION_TIME_KEY, MAX_IDLE_STATE_RETENTION_TIME_DEFAULT)));
         return this;
     }
 
@@ -67,7 +69,7 @@ public class StreamManager {
     public StreamManager registerSourceWithPreProcessors() {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
-        Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
+        Long watermarkDelay = configuration.getLong(WATERMARK_DELAY_MS_KEY, WATERMARK_DELAY_MS_DEFAULT);
         kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
@@ -155,7 +157,7 @@ public class StreamManager {
     private Streams getKafkaStreams() {
         String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
         Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
-        Long watermarkDelay = configuration.getLong("WATERMARK_DELAY_MS", 10000);
+        Long watermarkDelay = configuration.getLong(WATERMARK_DELAY_MS_KEY, WATERMARK_DELAY_MS_DEFAULT);
         return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
     }
 }

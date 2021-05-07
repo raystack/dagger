@@ -89,7 +89,7 @@ public class EndpointHandler {
         }
         return false;
     }
-    
+
     private Map<String, Descriptors.FieldDescriptor> createDescriptorMap(String[] requiredInputColumns,
                                                                          String[] inputProtoClasses,
                                                                          ResultFuture<Row> resultFuture) {

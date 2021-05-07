@@ -56,19 +56,20 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
 
     @Override
     public void handle(AsyncResult<RowSet<io.vertx.sqlclient.Row>> event) {
-        if (event.succeeded())
+        if (event.succeeded()) {
             successHandler(event.result());
-        else
+        } else {
             failureHandler(event.cause());
+        }
     }
 
     private void successHandler(RowSet<io.vertx.sqlclient.Row> resultRowSet) {
         if (resultRowSet.size() > 1) {
             meterStatsManager.markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
             Exception illegalArgumentException = new IllegalArgumentException("Invalid query resulting in more than one rows. ");
-            if (pgSourceConfig.isFailOnErrors())
+            if (pgSourceConfig.isFailOnErrors()) {
                 reportAndThrowError(illegalArgumentException);
-            else {
+            } else {
                 errorReporter.reportNonFatalException(illegalArgumentException);
                 resultFuture.complete(Collections.singleton(rowManager.getAll()));
             }

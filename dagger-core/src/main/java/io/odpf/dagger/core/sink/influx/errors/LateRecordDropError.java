@@ -14,7 +14,7 @@ public class LateRecordDropError implements InfluxError {
     private final Counter counter;
     private static final Logger LOGGER = LoggerFactory.getLogger(LateRecordDropError.class.getName());
     private ErrorStatsReporter errorStatsReporter;
-    static String PREFIX = "{\"error\":\"partial write: points beyond retention policy dropped=";
+    private static final String PREFIX = "{\"error\":\"partial write: points beyond retention policy dropped=";
 
     public LateRecordDropError(RuntimeContext runtimeContext) {
         this.counter = runtimeContext.getMetricGroup()
@@ -56,7 +56,7 @@ public class LateRecordDropError implements InfluxError {
     }
 
     private boolean isLateDropping(Throwable throwable) {
-        return throwable instanceof InfluxDBException &&
-                throwable.getMessage().startsWith(PREFIX);
+        return throwable instanceof InfluxDBException
+                && throwable.getMessage().startsWith(PREFIX);
     }
 }

@@ -30,7 +30,7 @@ public class CustomStreamingTableSourceTest {
     private FlinkKafkaConsumerCustom flinkConsumer;
 
     @Mock
-    private DataStream  dataStream;
+    private DataStream dataStream;
 
     @Before
     public void setUp() {

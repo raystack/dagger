@@ -323,8 +323,8 @@ public class InfluxRowSinkTest {
         ArrayList points = new ArrayList<Point>();
         points.add(point);
         try {
-            errorHandler.getExceptionHandler().accept(points, new InfluxDBException("{\"error\":\"partial write:" +
-                    " max-values-per-tag limit exceeded (100453/100000)"));
+            errorHandler.getExceptionHandler().accept(points, new InfluxDBException("{\"error\":\"partial write:"
+                    + " max-values-per-tag limit exceeded (100453/100000)"));
             influxRowSink.invoke(getRow(), null);
         } catch (Exception e) {
             Assert.assertEquals("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)", e.getMessage());

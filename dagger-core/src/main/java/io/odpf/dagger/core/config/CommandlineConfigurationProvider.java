@@ -9,7 +9,7 @@ import java.util.Base64;
 public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private String[] args;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public CommandlineConfigurationProvider(String[] args) {
 
@@ -33,15 +33,12 @@ public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private boolean isEncodedArgsPresent() {
         String encodedArgs = ParameterTool.fromArgs(args).get("encodedArgs");
-        if (encodedArgs == null) {
-            return false;
-        }
-        return true;
+        return encodedArgs != null;
     }
 
     private String[] parseEncodedProgramArgs() {
         String encodedArgs = ParameterTool.fromArgs(args).get("encodedArgs");
         byte[] decoded = Base64.getMimeDecoder().decode(encodedArgs);
-        return gson.fromJson(new String(decoded), String[].class);
+        return GSON.fromJson(new String(decoded), String[].class);
     }
 }

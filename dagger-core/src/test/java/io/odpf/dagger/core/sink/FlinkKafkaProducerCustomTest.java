@@ -160,7 +160,9 @@ public class FlinkKafkaProducerCustomTest {
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
             if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
                 return errorStatsReporter;
-            } else return noOpErrorReporter;
+            } else {
+                return noOpErrorReporter;
+            }
         }
 
         protected void invokeBaseProducer(Row value, Context context) {

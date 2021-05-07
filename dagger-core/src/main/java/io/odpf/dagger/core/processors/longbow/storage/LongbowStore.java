@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
-public class LongbowStore {
+public final class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
     private Map<String, AsyncTable<AdvancedScanResultConsumer>> tables;
@@ -68,9 +68,11 @@ public class LongbowStore {
     }
 
     public void close() throws IOException {
-        if (tableClient != null)
+        if (tableClient != null) {
             tableClient.close();
-        if (adminClient != null)
+        }
+        if (adminClient != null) {
             adminClient.close();
+        }
     }
 }

@@ -27,30 +27,30 @@ public class PreProcessorFactoryTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
-    Configuration configuration;
+    private Configuration configuration;
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
-    String preProcessorConfigJson = "{\n" +
-            " \"table_transformers\": [{\n" +
-            "   \"table_name\": \"booking\",\n" +
-            "   \"transformers\": [{\n" +
-            "    \"transformation_class\": \"PreProcessorClass\"\n" +
-            "   }, {\n" +
-            "    \"transformation_class\": \"PreProcessorClass\",\n" +
-            "    \"transformation_arguments\": {\n" +
-            "     \"key\": \"value\"\n" +
-            "    }\n" +
-            "   }]\n" +
-            "  },\n" +
-            "  {\n" +
-            "   \"table_name\": \"another_booking\",\n" +
-            "   \"transformers\": [{\n" +
-            "    \"transformation_class\": \"PreProcessorClass\"\n" +
-            "   }]\n" +
-            "  }\n" +
-            " ]\n" +
-            "}";
+    private String preProcessorConfigJson = "{\n"
+            + " \"table_transformers\": [{\n"
+            + "   \"table_name\": \"booking\",\n"
+            + "   \"transformers\": [{\n"
+            + "    \"transformation_class\": \"PreProcessorClass\"\n"
+            + "   }, {\n"
+            + "    \"transformation_class\": \"PreProcessorClass\",\n"
+            + "    \"transformation_arguments\": {\n"
+            + "     \"key\": \"value\"\n"
+            + "    }\n"
+            + "   }]\n"
+            + "  },\n"
+            + "  {\n"
+            + "   \"table_name\": \"another_booking\",\n"
+            + "   \"transformers\": [{\n"
+            + "    \"transformation_class\": \"PreProcessorClass\"\n"
+            + "   }]\n"
+            + "  }\n"
+            + " ]\n"
+            + "}";
 
     @Before
     public void setup() {

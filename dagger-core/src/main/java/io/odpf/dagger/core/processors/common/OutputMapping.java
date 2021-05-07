@@ -26,8 +26,12 @@ public class OutputMapping implements Serializable, Validator {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         OutputMapping that = (OutputMapping) o;
         return Objects.equals(path, that.path);
     }

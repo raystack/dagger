@@ -76,7 +76,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     public Object transformToJson(Object field) {
         Row timeField = (Row) field;
         if (timeField.getArity() == 2) {
-            java.sql.Timestamp timestamp = new java.sql.Timestamp((Long) timeField.getField(0) * 1000);
+            java.sql.Timestamp timestamp = new java.sql.Timestamp((Long) timeField.getField(0) * MILLI_TO_SECONDS);
             return dateFormat.format(timestamp);
         } else {
             return field;

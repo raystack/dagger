@@ -1,7 +1,6 @@
-package io.odpf.dagger.core.processors.postprocessors;
+package io.odpf.dagger.core.processors;
 
 import com.jayway.jsonpath.InvalidJsonException;
-import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.ExternalSourceConfig;
 import io.odpf.dagger.core.processors.external.es.EsSourceConfig;
