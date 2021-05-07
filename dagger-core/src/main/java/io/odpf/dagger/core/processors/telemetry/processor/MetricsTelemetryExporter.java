@@ -21,7 +21,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
     private GaugeStatsManager gaugeStatsManager;
     private Integer gaugeValue = 1;
-    protected Map<String, Set<String>> metrics = new HashMap<>();
+    private Map<String, Set<String>> metrics = new HashMap<>();
 
     public MetricsTelemetryExporter(GaugeStatsManager gaugeStatsManager) {
         this.gaugeStatsManager = gaugeStatsManager;

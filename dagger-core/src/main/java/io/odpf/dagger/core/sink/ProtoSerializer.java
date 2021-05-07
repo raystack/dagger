@@ -41,16 +41,17 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(Row row, @Nullable Long aLong) {
-        if (Objects.isNull(outputTopic) || outputTopic.equals(""))
+        if (Objects.isNull(outputTopic) || outputTopic.equals("")) {
             throw new DaggerSerializationException("outputTopic is required");
+        }
         byte[] key = serializeKey(row);
         byte[] message = serializeValue(row);
         return new ProducerRecord<>(outputTopic, key, message);
     }
 
     public byte[] serializeKey(Row row) {
-        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null :
-                parse(row, getDescriptor(keyProtoClassName)).toByteArray();
+        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null
+                : parse(row, getDescriptor(keyProtoClassName)).toByteArray();
     }
 
     public byte[] serializeValue(Row row) {
@@ -66,8 +67,9 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
             String[] nestedColumnNames = columnName.split("\\.");
             if (nestedColumnNames.length > 1) {
                 Descriptors.FieldDescriptor firstField = descriptor.findFieldByName(nestedColumnNames[0]);
-                if (firstField == null)
+                if (firstField == null) {
                     continue;
+                }
                 builder = populateNestedBuilder(descriptor, nestedColumnNames, builder, data);
             } else {
                 Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(columnName);
@@ -98,7 +100,7 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
             return builder;
         }
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-        if (data != null)
+        if (data != null) {
             try {
                 builder = protoHandler.transformForKafka(builder, data);
             } catch (IllegalArgumentException e) {
@@ -109,6 +111,7 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
                 String errMessage = String.format("column invalid: type mismatch of column %s, expecting %s type. Actual type %s", fieldDescriptor.getName(), protoType, data.getClass());
                 throw new InvalidColumnMappingException(errMessage, e);
             }
+        }
 
         return builder;
     }

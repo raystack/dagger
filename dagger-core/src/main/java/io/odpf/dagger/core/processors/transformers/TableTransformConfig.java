@@ -17,7 +17,6 @@ public class TableTransformConfig {
         this.transformers = transformers;
     }
 
-
     public String getTableName() {
         return tableName;
     }

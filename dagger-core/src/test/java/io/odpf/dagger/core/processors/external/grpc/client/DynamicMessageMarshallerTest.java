@@ -23,7 +23,7 @@ public class DynamicMessageMarshallerTest {
 
         InputStream stream = dynamicMessageMarshaller.stream(message);
 
-        Assert.assertTrue(IOUtils.contentEquals( stream, message.toByteString().newInput() ));
+        Assert.assertTrue(IOUtils.contentEquals(stream, message.toByteString().newInput()));
 
     }
 

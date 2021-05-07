@@ -13,6 +13,8 @@ import io.odpf.dagger.common.metrics.aspects.Aspects;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import static io.odpf.dagger.common.core.Constants.SLIDING_TIME_WINDOW;
+
 
 public class MeterStatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
@@ -41,7 +43,7 @@ public class MeterStatsManager {
     }
 
     private com.codahale.metrics.Histogram getHistogram() {
-        return new com.codahale.metrics.Histogram(new SlidingTimeWindowReservoir(10, TimeUnit.SECONDS));
+        return new com.codahale.metrics.Histogram(new SlidingTimeWindowReservoir(SLIDING_TIME_WINDOW, TimeUnit.SECONDS));
     }
 
     public void updateHistogram(Aspects aspects, long value) {

@@ -37,15 +37,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class LongbowReaderTest {
 
     @Mock
-    ResultFuture<Row> resultFuture;
+    private ResultFuture<Row> resultFuture;
     @Mock
-    LongbowData longbowData;
+    private LongbowData longbowData;
     @Mock
     private Configuration configuration;
     @Mock
     private LongbowStore longBowStore;
-    @Mock
-    private ResultFuture<Row> outputFuture;
     @Mock
     private MeterStatsManager meterStatsManager;
     @Mock

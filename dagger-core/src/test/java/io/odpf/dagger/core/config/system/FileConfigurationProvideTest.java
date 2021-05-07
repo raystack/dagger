@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class FileConfigurationProvideTest {
 
     @Test
-    public void ReadFromAConfigurationFile() {
+    public void readFromAConfigurationFile() {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
         Configuration stringStringMap = new FileConfigurationProvider().get();

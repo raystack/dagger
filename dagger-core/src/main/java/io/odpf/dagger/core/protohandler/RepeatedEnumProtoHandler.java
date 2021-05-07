@@ -16,7 +16,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 
 public class RepeatedEnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public RepeatedEnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
@@ -44,7 +44,7 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformToJson(Object field) {
-        return gson.toJson(getValue(field));
+        return GSON.toJson(getValue(field));
     }
 
     @Override
@@ -54,7 +54,9 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
 
     private Object getValue(Object field) {
         List<String> values = new ArrayList<>();
-        if (field != null) values = getStringRow((List) field);
+        if (field != null) {
+            values = getStringRow((List) field);
+        }
         return values.toArray(new String[]{});
     }
 

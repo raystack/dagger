@@ -124,7 +124,9 @@ public class FlinkKafkaConsumerCustomTest {
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
             if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
                 return errorReporter;
-            } else return noOpErrorReporter;
+            } else {
+                return noOpErrorReporter;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ public class ConfigurationProviderFactory {
         System.out.println("Arguments are : ");
         Arrays.asList(args).stream().forEach(s -> {
             System.out.println(s);
-            if(s.contains("ConfigFile")) {
+            if (s.contains("ConfigFile")) {
                 System.setProperty("ConfigSource", "FILE");
                 System.setProperty("DAGGER_CONFIG_PATH", s.split("=")[1]);
             }

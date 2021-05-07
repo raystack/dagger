@@ -51,7 +51,7 @@ public class OutputLongbowDataTest {
         String[] columnNames = {"longbow_data1", "longbow_data2", "longbow_key"};
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(longbowSchema);
-        String[] customerIds= new String[]{"123"};
+        String[] customerIds = new String[]{"123"};
         scanResult.put("longbow_data2", customerIds);
 
         input = new Row(3);

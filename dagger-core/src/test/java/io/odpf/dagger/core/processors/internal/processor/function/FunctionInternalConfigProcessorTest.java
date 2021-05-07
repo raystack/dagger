@@ -78,11 +78,11 @@ public class FunctionInternalConfigProcessorTest {
         return new InternalSourceConfig("field", "value", type);
     }
 
-    class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
+    final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
 
         private Timestamp currentTimestamp;
 
-        public FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
+        private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
             super(columnNameManager, internalSourceConfig);
             this.currentTimestamp = currentTimestamp;
         }

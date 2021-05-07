@@ -16,10 +16,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ErrorReporterFactoryTest {
 
     @Mock
-    Configuration configuration;
+    private Configuration configuration;
 
     @Mock
-    RuntimeContext runtimeContext;
+    private RuntimeContext runtimeContext;
 
     @Before
     public void setup() {
@@ -45,5 +45,4 @@ public class ErrorReporterFactoryTest {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, false, 0L);
         Assert.assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
     }
-
 }

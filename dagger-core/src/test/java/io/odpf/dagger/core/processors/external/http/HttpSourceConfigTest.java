@@ -17,7 +17,7 @@ public class HttpSourceConfigTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    HashMap<String, String> headerMap;
+    private HashMap<String, String> headerMap;
     private HttpSourceConfig httpSourceConfig;
     private HashMap<String, OutputMapping> outputMappings;
     private OutputMapping outputMapping;

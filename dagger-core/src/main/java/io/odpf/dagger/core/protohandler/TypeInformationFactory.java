@@ -9,8 +9,9 @@ import org.apache.flink.types.Row;
 
 public class TypeInformationFactory {
     public static TypeInformation<Row> getRowType(Descriptors.Descriptor descriptor) {
-        if (descriptor == null)
+        if (descriptor == null) {
             throw new DescriptorNotFoundException();
+        }
         String[] fieldNames = descriptor
                 .getFields()
                 .stream()

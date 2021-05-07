@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExternalSourceConfig {
-    List<HttpSourceConfig> http;
-    List<EsSourceConfig> es;
-    List<PgSourceConfig> pg;
-    List<GrpcSourceConfig> grpc;
+    private List<HttpSourceConfig> http;
+    private List<EsSourceConfig> es;
+    private List<PgSourceConfig> pg;
+    private List<GrpcSourceConfig> grpc;
 
     public ExternalSourceConfig(List<HttpSourceConfig> http, List<EsSourceConfig> es, List<PgSourceConfig> pg, List<GrpcSourceConfig> grpc) {
         this.http = http;
@@ -39,7 +39,6 @@ public class ExternalSourceConfig {
     }
 
 
-
     public boolean isEmpty() {
         return (http == null || http.isEmpty()) && (es == null || es.isEmpty()) && (pg == null || pg.isEmpty()) && (grpc == null || grpc.isEmpty());
     }
@@ -55,8 +54,9 @@ public class ExternalSourceConfig {
 
     private <T extends SourceConfig> ArrayList<String> getOutputColumnNames(List<T> configs) {
         ArrayList<String> columnNames = new ArrayList<>();
-        if (configs == null)
+        if (configs == null) {
             return columnNames;
+        }
         configs.forEach(config -> columnNames.addAll(config.getOutputColumns()));
         return columnNames;
     }

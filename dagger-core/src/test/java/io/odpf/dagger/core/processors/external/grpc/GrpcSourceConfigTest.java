@@ -20,7 +20,7 @@ public class GrpcSourceConfigTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    HashMap<String, String> headerMap;
+    private HashMap<String, String> headerMap;
     private GrpcSourceConfig grpcSourceConfig;
     private String endpoint;
     private int servicePort;
@@ -78,7 +78,7 @@ public class GrpcSourceConfigTest {
     }
 
     @Test
-    public void shouldRe̵turnStreamTimeout() {
+    public void shouldReturnStreamTimeout() {
         assertEquals(Integer.valueOf(streamTimeout), grpcSourceConfig.getStreamTimeout());
     }
 

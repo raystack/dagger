@@ -26,7 +26,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TransformProcessorTest {
 
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -220,16 +219,16 @@ public class TransformProcessorTest {
         }
     }
 
-    class TransformProcessorMock extends TransformProcessor {
+    final class TransformProcessorMock extends TransformProcessor {
 
         private Transformer mockMapFunction;
 
-        public TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
+        private TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
             super(transformConfigs, configuration);
             this.mockMapFunction = mockMapFunction;
         }
 
-        public TransformProcessorMock(String table, TelemetryTypes type, Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
+        private TransformProcessorMock(String table, TelemetryTypes type, Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
             super(table, type, transformConfigs, configuration);
             this.mockMapFunction = mockMapFunction;
         }

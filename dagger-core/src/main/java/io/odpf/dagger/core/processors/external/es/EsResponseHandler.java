@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
+import static io.odpf.dagger.core.utils.Constants.RESPONSE_CODE_200;
 import static java.util.Collections.singleton;
 
 public class EsResponseHandler implements ResponseListener {
@@ -62,7 +63,7 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onSuccess(Response response) {
         try {
-            if (response.getStatusLine().getStatusCode() != 200)
+            if (response.getStatusLine().getStatusCode() != RESPONSE_CODE_200)
                 return;
             String responseBody = EntityUtils.toString(response.getEntity());
             List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();

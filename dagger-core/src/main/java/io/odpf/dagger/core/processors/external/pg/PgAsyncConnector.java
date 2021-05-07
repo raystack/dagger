@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+import static io.odpf.dagger.core.utils.Constants.MAX_EVENT_LOOP_EXECUTE_TIME;
+
 public class PgAsyncConnector extends AsyncConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(PgAsyncConnector.class.getName());
     private final PgSourceConfig pgSourceConfig;
@@ -100,7 +102,7 @@ public class PgAsyncConnector extends AsyncConnector {
             throw new IllegalStateException("Running in a Vertx context => use PgPool#pool(Vertx, PgConnectOptions, PoolOptions) instead");
         }
         VertxOptions vertxOptions = new VertxOptions();
-        vertxOptions.setMaxEventLoopExecuteTime(10000);
+        vertxOptions.setMaxEventLoopExecuteTime(MAX_EVENT_LOOP_EXECUTE_TIME);
         vertxOptions.setMaxEventLoopExecuteTimeUnit(TimeUnit.MILLISECONDS);
         if (connectOptions.isUsingDomainSocket()) {
             vertxOptions.setPreferNativeTransport(true);

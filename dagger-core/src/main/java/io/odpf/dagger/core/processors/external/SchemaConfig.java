@@ -17,7 +17,7 @@ public class SchemaConfig implements Serializable {
     private ColumnNameManager columnNameManager;
     private String[] inputProtoClasses;
     private String outputProtoClassName;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public SchemaConfig(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager) {
         this.configuration = configuration;
@@ -45,7 +45,7 @@ public class SchemaConfig implements Serializable {
 
     private String[] getMessageProtoClasses() {
         String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
-        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
+        Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         ArrayList<String> protoClasses = new ArrayList<>();
         for (Map individualStreamConfig : streamsConfig) {
             protoClasses.add((String) individualStreamConfig.get(Constants.STREAM_PROTO_CLASS_NAME));

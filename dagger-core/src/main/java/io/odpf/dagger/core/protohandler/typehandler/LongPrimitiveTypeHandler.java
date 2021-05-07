@@ -28,7 +28,9 @@ public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<Long> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<Long>) field;
+        if (field != null) {
+            inputValues = (List<Long>) field;
+        }
         return inputValues.toArray(new Long[]{});
     }
 

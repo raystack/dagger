@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
+import static io.odpf.dagger.core.utils.Constants.RESPONSE_CODE_200;
+
 public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseHandler.class.getName());
     private final RowManager rowManager;
@@ -60,9 +62,9 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     @Override
     public Object onCompleted(Response response) {
         int statusCode = response.getStatusCode();
-        if (statusCode == 200)
+        if (statusCode == RESPONSE_CODE_200) {
             successHandler(response);
-        else {
+        } else {
             postResponseTelemetry.validateResponseCode(meterStatsManager, statusCode);
             failureHandler("Received status code : " + statusCode);
         }

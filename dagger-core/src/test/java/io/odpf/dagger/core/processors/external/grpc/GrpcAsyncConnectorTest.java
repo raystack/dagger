@@ -176,9 +176,9 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
 
-        String invalid_request_variable = "invalid_variable";
+        String invalidRequestVariable = "invalid_variable";
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                invalid_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
+                invalidRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
@@ -196,10 +196,10 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
-        String empty_request_variable = "";
+        String emptyRequestVariable = "";
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                empty_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
+                emptyRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
@@ -218,13 +218,13 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldEnrichWhenEndpointVariableIsEmptyAndNotRequiredInPattern() throws Exception {
-        String empty_request_variable = "";
+        String emptyRequestVariable = "";
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
 
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : 'val2'}",
-                empty_request_variable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
+                emptyRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);

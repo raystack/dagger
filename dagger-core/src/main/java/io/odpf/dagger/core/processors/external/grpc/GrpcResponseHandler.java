@@ -76,13 +76,12 @@ public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
                 int fieldIndex = columnNameManager.getOutputIndex(key);
                 setField(key, value, fieldIndex);
             });
+        } catch (InvalidProtocolBufferException e) {
+            meterStatsManager.markEvent(ExternalSourceAspects.OTHER_ERRORS);
+            LOGGER.error(e.getMessage());
+            reportAndThrowError(e);
+            return;
         }
-        catch (InvalidProtocolBufferException e) {
-                meterStatsManager.markEvent(ExternalSourceAspects.OTHER_ERRORS);
-                LOGGER.error(e.getMessage());
-                reportAndThrowError(e);
-                return;
-            }
         postResponseTelemetry.sendSuccessTelemetry(meterStatsManager, startTime);
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
 

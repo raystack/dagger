@@ -66,7 +66,7 @@ public class GrpcResponseHandlerTest {
     public void setup() {
         initMocks(this);
         descriptor = TestGrpcResponse.getDescriptor();
-        outputColumnNames = Arrays.asList(new String[]{"success", "value", "surge_factor"});
+        outputColumnNames = Arrays.asList("success", "value", "surge_factor");
         inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
         headers = new HashMap<>();
@@ -118,7 +118,7 @@ public class GrpcResponseHandlerTest {
 
         streamData.setField(0, inputData);
         inputData.setField(2, "123456");
-        outputColumnNames = Arrays.asList(new String[]{"driver_id"});
+        outputColumnNames = Arrays.asList("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
 
@@ -260,7 +260,7 @@ public class GrpcResponseHandlerTest {
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8000, "io.odpf.dagger.consumer.TestGrpcRequest", "io.odpf.dagger.consumer.TestGrpcResponse", "io.odpf.dagger.consumer.test/TestMethod", "{\"key\": \"%s\"}", "customer_id", outputMapping);
         grpcSourceConfig.setRetainResponseType(true);
 
-        outputColumnNames = Arrays.asList(new String[]{"address", "name"});
+        outputColumnNames = Arrays.asList("address", "name");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
 

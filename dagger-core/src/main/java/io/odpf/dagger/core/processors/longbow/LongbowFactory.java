@@ -38,7 +38,7 @@ public class LongbowFactory {
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter metricsTelemetryExporter;
     private String[] columnNames;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
@@ -126,7 +126,7 @@ public class LongbowFactory {
 
     private String getMessageProtoClassName(Configuration configuration) {
         String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
-        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
+        Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         return (String) streamsConfig[0].get(Constants.STREAM_PROTO_CLASS_NAME);
     }
 }

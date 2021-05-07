@@ -13,14 +13,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GrpcStreamDecoratorTest {
     @Mock
-    SchemaConfig schemaConfig;
+    private SchemaConfig schemaConfig;
 
     @Mock
     private GrpcSourceConfig grpcSourceConfig;
 
     @Mock
     private ExternalMetricConfig externalMetricConfig;
-
 
     @Before
     public void setUp() {

@@ -54,7 +54,7 @@ public class InvalidInternalConfigProcessorTest {
         expectedException.expect(InvalidConfigurationException.class);
         expectedException.expectMessage("Invalid configuration, type 'invalid' for custom doesn't exists");
 
-        InvalidInternalConfigProcessor invalidInternalConfigProcessor = new InvalidInternalConfigProcessor(new InternalSourceConfig("output","value", "invalid"));
+        InvalidInternalConfigProcessor invalidInternalConfigProcessor = new InvalidInternalConfigProcessor(new InternalSourceConfig("output", "value", "invalid"));
 
         invalidInternalConfigProcessor.process(null);
     }
