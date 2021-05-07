@@ -27,7 +27,6 @@ public class ScanRequestFactory implements Serializable {
     }
 
     private String parseTableName(Row input) {
-        //TODO: add proper exception here
         return (String) longbowSchema.getValue(input, Constants.SYNCHRONIZER_BIGTABLE_TABLE_ID_KEY);
     }
 }
