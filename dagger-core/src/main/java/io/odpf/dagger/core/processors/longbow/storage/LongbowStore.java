@@ -21,12 +21,12 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
-public final class LongbowStore {
+public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
     private Map<String, AsyncTable<AdvancedScanResultConsumer>> tables;
 
-    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
+    public LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
         this.tables = new HashMap<>();
