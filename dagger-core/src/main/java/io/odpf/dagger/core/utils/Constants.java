@@ -112,12 +112,10 @@ public class Constants {
     public static final String GCS_BUCKET_ID = "GCS_BUCKET_ID";
     public static final String GCS_BUCKET_DEFAULT = "p-godata-daggers-darts-storage";
 
-    public static final int RESPONSE_CODE_200 = 200;
-    public static final int RESPONSE_CODE_400 = 400;
-    public static final int RESPONSE_CODE_404 = 404;
-    public static final int RESPONSE_CODE_499 = 499;
-    public static final int RESPONSE_CODE_500 = 500;
-    public static final int RESPONSE_CODE_599 = 599;
+    public static final int CLIENT_ERROR_MIN_STATUS_CODE = 400;
+    public static final int CLIENT_ERROR_MAX_STATUS_CODE = 499;
+    public static final int SERVER_ERROR_MIN_STATUS_CODE = 500;
+    public static final int SERVER_ERROR_MAX_STATUS_CODE = 599;
 
     public static final long MAX_EVENT_LOOP_EXECUTE_TIME = 10000;
     public static final int ADDITIONAL_ARITY = 3;
