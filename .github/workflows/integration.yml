@@ -14,13 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       flinkVersion: "1.9.0"
-      POSTGRES_DB: test_db
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_HOST_AUTH_METHOD: trust
     services:
       postgres:
-        image: postgres:12.2-alpine
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
       elasticsearch:
         env:
           xpack.security.enabled: false
@@ -44,4 +50,4 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Run test
-        run: PG_HOST=postgres ES_HOST=localhost ./gradlew integrationTest
+        run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew integrationTest

@@ -103,9 +103,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 "      {\n" +
                 "        \"host\": \"" + host + "\",\n" +
                 "        \"port\": \"5432\",\n" +
-                "        \"user\": \"root\",\n" +
-                "        \"password\": \"root\",\n" +
-                "        \"database\": \"test_db\",\n" +
+                "        \"user\": \"postgres\",\n" +
+                "        \"password\": \"postgres\",\n" +
+                "        \"database\": \"postgres\",\n" +
                 "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n" +
                 "        \"query_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -153,9 +153,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 "      {\n" +
                 "        \"host\": \"" + host + "\",\n" +
                 "        \"port\": \"5432\",\n" +
-                "        \"user\": \"root\",\n" +
-                "        \"password\": \"root\",\n" +
-                "        \"database\": \"test_db\",\n" +
+                "        \"user\": \"postgres\",\n" +
+                "        \"password\": \"postgres\",\n" +
+                "        \"database\": \"postgres\",\n" +
                 "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n" +
                 "        \"query_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -214,9 +214,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 "      {\n" +
                 "        \"host\": \"" + host + "\",\n" +
                 "        \"port\": \"5432\",\n" +
-                "        \"user\": \"root\",\n" +
-                "        \"password\": \"root\",\n" +
-                "        \"database\": \"test_db\",\n" +
+                "        \"user\": \"postgres\",\n" +
+                "        \"password\": \"postgres\",\n" +
+                "        \"database\": \"postgres\",\n" +
                 "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n" +
                 "        \"query_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -315,9 +315,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
             PgConnectOptions connectOptions = new PgConnectOptions()
                     .setPort(5432)
                     .setHost(host)
-                    .setDatabase("test_db")
-                    .setUser("root")
-                    .setPassword("root")
+                    .setDatabase("postgres")
+                    .setUser("postgres")
+                    .setPassword("postgres")
                     .setConnectTimeout(5000)
                     .setIdleTimeout(5000);
 
