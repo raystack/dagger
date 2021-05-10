@@ -261,7 +261,7 @@ public class EsExternalPostProcessorIntegrationTest {
                 ",\n" +
                 " \"transformers\": [" +
                 "{\n" +
-                "  \"transformation_class\": \"com.gojek.dagger.transformer.ClearColumnTransformer\",\n" +
+                "  \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n" +
                 "  \"transformation_arguments\": {\n" +
                 "    \"targetColumnName\": \"driver_id\"\n" +
                 "  }\n" +
