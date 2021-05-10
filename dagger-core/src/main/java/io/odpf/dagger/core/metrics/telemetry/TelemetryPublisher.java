@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 public interface TelemetryPublisher {
-    @SuppressWarnings("checkstyle")
     List<TelemetrySubscriber> TELEMETRY_SUBSCRIBERS = new ArrayList<>();
 
     default void addSubscriber(TelemetrySubscriber subscriber) {

@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
-import static io.odpf.dagger.core.utils.Constants.RESPONSE_CODE_200;
 import static java.util.Collections.singleton;
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class EsResponseHandler implements ResponseListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EsResponseHandler.class.getName());
@@ -63,7 +63,7 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onSuccess(Response response) {
         try {
-            if (response.getStatusLine().getStatusCode() != RESPONSE_CODE_200) {
+            if (response.getStatusLine().getStatusCode() != SC_OK) {
                 return;
             }
             String responseBody = EntityUtils.toString(response.getEntity());
