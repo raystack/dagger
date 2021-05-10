@@ -221,7 +221,6 @@ public class EsExternalPostProcessorIntegrationTest {
 
     }
 
-    //TODO : fix this test after transformers
     @Test
     public void shouldPopulateFieldFromESOnSuccessResponseWithAllThreeSourcesIncludingTransformer() throws Exception {
         String postProcessorConfigString = "{\n" +

@@ -240,7 +240,6 @@ public class HttpExternalPostProcessorIntegrationTest {
         assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
     }
 
-    // TODO : Fix after FeatureTransformer have been added
     @Test
     public void shouldPopulateFieldFromHTTPGetApiOnSuccessResponseWithAllThreeSourcesIncludingTransformer() throws Exception {
         String postProcessorConfigWithTransformerString = "{\n" +
@@ -280,16 +279,15 @@ public class HttpExternalPostProcessorIntegrationTest {
                 "       }" +
                 "   ]" +
                 ",\n" +
-                " \"transformers\": [" +
-                "    {" +
-                "   \"transformation_arguments\": { \n" +
-                "   \"keyColumnName\": \"customer_id\", \n" +
-                "    \"valueColumnName\": \"features\" \n" +
-                "   }," +
-                "   \"transformation_class\": \"com.gojek.dagger.transformer.FeatureTransformer\" \n" +
-                "   } \n" +
-                "   ]   \n" +
-                "}";
+                "   \"transformers\": [" +
+                "     {\n" +
+                "       \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n" +
+                "       \"transformation_arguments\": {\n" +
+                "         \"targetColumnName\": \"customer_id\"\n" +
+                "       }\n" +
+                "     }\n" +
+                "   ] \n" +
+                " }";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
@@ -317,8 +315,9 @@ public class HttpExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertEquals(23.33, ((Row) ((Row[]) CollectSink.values.get(0).getField(0))[0].getField(1)).getField(4));
+        assertEquals(23.33, CollectSink.values.get(0).getField(0));
         assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
+        assertEquals("", CollectSink.values.get(0).getField(2));
     }
 
     @Test
