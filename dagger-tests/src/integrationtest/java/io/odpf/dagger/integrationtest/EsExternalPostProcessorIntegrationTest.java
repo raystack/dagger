@@ -115,7 +115,7 @@ public class EsExternalPostProcessorIntegrationTest {
                 "    \"es\": [\n" +
                 "      {\n" +
                 "        \"host\":" + host + ",\n" +
-                "        \"port\": \"9200\",\n" +
+                "        \"port\": \"49153\",\n" +
                 "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
                 "        \"endpoint_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -164,7 +164,7 @@ public class EsExternalPostProcessorIntegrationTest {
                 "    \"es\": [\n" +
                 "      {\n" +
                 "        \"host\":" + host + ",\n" +
-                "        \"port\": \"9200\",\n" +
+                "        \"port\": \"49153\",\n" +
                 "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
                 "        \"endpoint_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -229,7 +229,7 @@ public class EsExternalPostProcessorIntegrationTest {
                 "    \"es\": [\n" +
                 "      {\n" +
                 "        \"host\":" + host + ",\n" +
-                "        \"port\": \"9200\",\n" +
+                "        \"port\": \"49153\",\n" +
                 "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
                 "        \"endpoint_variables\": \"customer_id\",\n" +
                 "        \"stream_timeout\": \"5000\",\n" +
@@ -296,7 +296,7 @@ public class EsExternalPostProcessorIntegrationTest {
 
 
     private RestClient getESClient() {
-        HttpHost localhost = new HttpHost(host, 9200);
+        HttpHost localhost = new HttpHost(host, 49153);
         return RestClient.builder(localhost)
                 .setRequestConfigCallback(requestConfigBuilder ->
                         requestConfigBuilder
