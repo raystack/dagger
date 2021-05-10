@@ -204,7 +204,6 @@ public class PostGresExternalPostProcessorIntegrationTest {
         assertEquals(23.33F, (Float) CollectSink.values.get(0).getField(0), 0.0F);
     }
 
-    // TODO: fix this test after transformers have been added
     @Test
     public void shouldPopulateFieldFromPostgresOnSuccessResponseWithAllThreeSourcesIncludingTransformer() throws Exception {
 

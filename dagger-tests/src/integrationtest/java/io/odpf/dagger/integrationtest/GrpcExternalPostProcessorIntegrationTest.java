@@ -209,7 +209,6 @@ public class GrpcExternalPostProcessorIntegrationTest {
         assertEquals("123", CollectSink.values.get(0).getField(3));
     }
 
-    // TODO: fix the test after addtion of Transformers
     @Test
     public void shouldPopulateFieldFromGrpcOnSuccessWithAllThreeSourcesIncludingTransformer() throws Exception {
         String postProcessorConfigString = "{\n" +
