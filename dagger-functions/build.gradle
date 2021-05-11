@@ -53,6 +53,8 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
 
+    dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile 'org.mockito:mockito-core:2.0.99-beta'
     testCompile gradleTestKit()
