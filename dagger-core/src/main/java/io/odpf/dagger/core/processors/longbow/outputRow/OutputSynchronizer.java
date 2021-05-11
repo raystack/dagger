@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 
 import java.util.stream.IntStream;
 
-import static io.odpf.dagger.core.utils.Constants.ADDITIONAL_ARITY;
+import static io.odpf.dagger.core.utils.Constants.LONGBOW_OUTPUT_ADDITIONAL_ARITY;
 
 public class OutputSynchronizer implements WriterOutputRow {
     private LongbowSchema longbowSchema;
@@ -22,7 +22,7 @@ public class OutputSynchronizer implements WriterOutputRow {
 
     @Override
     public Row get(Row input) {
-        int outputArity = input.getArity() + ADDITIONAL_ARITY;
+        int outputArity = input.getArity() + LONGBOW_OUTPUT_ADDITIONAL_ARITY;
         int inputArity = input.getArity();
         Row output = new Row(outputArity);
         IntStream.range(0, inputArity).forEach(i -> output.setField(i, input.getField(i)));

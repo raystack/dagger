@@ -13,7 +13,7 @@ import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 
 public class TimestampProtoHandler implements ProtoHandler {
-    public static final int MILLI_TO_SECONDS = 1000;
+    private static final int SECOND_TO_MS_FACTOR = 1000;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
@@ -76,7 +76,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     public Object transformToJson(Object field) {
         Row timeField = (Row) field;
         if (timeField.getArity() == 2) {
-            java.sql.Timestamp timestamp = new java.sql.Timestamp((Long) timeField.getField(0) * MILLI_TO_SECONDS);
+            java.sql.Timestamp timestamp = new java.sql.Timestamp((Long) timeField.getField(0) * SECOND_TO_MS_FACTOR);
             return dateFormat.format(timestamp);
         } else {
             return field;
@@ -89,7 +89,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     private Timestamp convertSqlTimestamp(java.sql.Timestamp field) {
-        long timestampSeconds = field.getTime() / MILLI_TO_SECONDS;
+        long timestampSeconds = field.getTime() / SECOND_TO_MS_FACTOR;
         int timestampNanos = field.getNanos();
         return Timestamp.newBuilder()
                 .setSeconds(timestampSeconds)

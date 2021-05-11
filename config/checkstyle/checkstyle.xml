@@ -129,14 +129,6 @@
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
 
-        <module name="HiddenField">
-            <property name="ignoreSetter" value="true"/>
-            <!-- For Builder classes -->
-            <property name="setterCanReturnItsClass" value="true"/>
-            <property name="ignoreConstructorParameter" value="true"/>
-            <property name="severity" value="warning"/>
-        </module>
-
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
