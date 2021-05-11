@@ -12,8 +12,9 @@ public class RowFactory {
     public static Row createRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) {
         List<FieldDescriptor> descriptorFields = descriptor.getFields();
         Row row = new Row(descriptorFields.size());
-        if (inputMap == null)
+        if (inputMap == null) {
             return row;
+        }
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
             if (inputMap.get(fieldDescriptor.getName()) != null) {

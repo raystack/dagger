@@ -41,6 +41,5 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
             throw ex;
         }
         return true;
-
     }
 }

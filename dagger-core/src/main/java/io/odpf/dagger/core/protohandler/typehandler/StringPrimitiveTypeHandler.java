@@ -29,7 +29,9 @@ public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<String> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<String>) field;
+        if (field != null) {
+            inputValues = (List<String>) field;
+        }
         return inputValues.toArray(new String[]{});
     }
 

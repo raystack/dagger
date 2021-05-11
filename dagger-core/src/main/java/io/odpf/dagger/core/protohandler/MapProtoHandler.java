@@ -32,9 +32,13 @@ public class MapProtoHandler implements ProtoHandler {
             return builder;
         }
 
-        if (field instanceof Map) convertFromMap(builder, (Map<String, String>) field);
+        if (field instanceof Map) {
+            convertFromMap(builder, (Map<String, String>) field);
+        }
 
-        if (field instanceof Object[]) convertFromRow(builder, (Object[]) field);
+        if (field instanceof Object[]) {
+            convertFromRow(builder, (Object[]) field);
+        }
 
         return builder;
     }
@@ -87,17 +91,18 @@ public class MapProtoHandler implements ProtoHandler {
 
     private Object parse(DynamicMessage proto, String fieldName) {
         Object field = proto.getField(proto.getDescriptorForType().findFieldByName(fieldName));
-        if (DynamicMessage.class.equals(field.getClass()))
+        if (DynamicMessage.class.equals(field.getClass())) {
             field = RowFactory.createRow((DynamicMessage) field);
+        }
         return field;
     }
-
 
     private void convertFromRow(DynamicMessage.Builder builder, Object[] field) {
         for (Object inputValue : field) {
             Row inputRow = (Row) inputValue;
-            if (inputRow.getArity() != 2)
+            if (inputRow.getArity() != 2) {
                 throw new IllegalArgumentException("Row: " + inputRow.toString() + " of size: " + inputRow.getArity() + " cannot be converted to map");
+            }
             MapEntry<String, String> mapEntry = MapEntry
                     .newDefaultInstance(fieldDescriptor.getMessageType(), WireFormat.FieldType.STRING, "", WireFormat.FieldType.STRING, "");
             builder.addRepeatedField(fieldDescriptor,

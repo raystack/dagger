@@ -64,16 +64,16 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     @Override
-    public boolean canProcess(PostProcessorConfig postProcessorConfig) {
-        return postProcessorConfig != null && !postProcessorConfig.isEmpty();
+    public boolean canProcess(PostProcessorConfig config) {
+        return config != null && !config.isEmpty();
     }
 
-    private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber telemetrySubscriber, SchemaConfig schemaConfig) {
+    private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
         if (!configuration.getBoolean(Constants.POST_PROCESSOR_ENABLED_KEY, Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, telemetrySubscriber);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         processors.add(new InternalPostProcessor(postProcessorConfig));
@@ -83,8 +83,8 @@ public class ParentPostProcessor implements PostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private ExternalMetricConfig getExternalMetricConfig(Configuration configuration, TelemetrySubscriber telemetrySubscriber) {
-        return new ExternalMetricConfig(configuration, telemetrySubscriber);
+    private ExternalMetricConfig getExternalMetricConfig(Configuration config, TelemetrySubscriber subscriber) {
+        return new ExternalMetricConfig(config, subscriber);
     }
 
 }

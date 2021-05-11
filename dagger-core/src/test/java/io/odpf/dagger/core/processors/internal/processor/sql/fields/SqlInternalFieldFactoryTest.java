@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class SqlInternalFieldFactoryTest {
 
     @Test
-    public void shouldReturnSqlInternalAutoFieldImportClass(){
+    public void shouldReturnSqlInternalAutoFieldImportClass() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
@@ -25,7 +25,7 @@ public class SqlInternalFieldFactoryTest {
     }
 
     @Test
-    public void shouldReturnSqlInternalFieldImportClass(){
+    public void shouldReturnSqlInternalFieldImportClass() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "value", "sql");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);

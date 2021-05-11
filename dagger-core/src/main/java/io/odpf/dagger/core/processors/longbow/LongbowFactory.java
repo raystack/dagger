@@ -38,7 +38,7 @@ public class LongbowFactory {
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter metricsTelemetryExporter;
     private String[] columnNames;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
@@ -120,13 +120,13 @@ public class LongbowFactory {
         return new LongbowWriter(configuration, longbowSchema, putRequestFactory, tableId, outputIdentity);
     }
 
-    private String getTableId(Configuration configuration) {
-        return configuration.getString(Constants.LONGBOW_GCP_TABLE_ID_KEY, configuration.getString(Constants.DAGGER_NAME_KEY, Constants.DAGGER_NAME_DEFAULT));
+    private String getTableId(Configuration config) {
+        return config.getString(Constants.LONGBOW_GCP_TABLE_ID_KEY, config.getString(Constants.DAGGER_NAME_KEY, Constants.DAGGER_NAME_DEFAULT));
     }
 
-    private String getMessageProtoClassName(Configuration configuration) {
-        String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
-        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
+    private String getMessageProtoClassName(Configuration config) {
+        String jsonArrayString = config.getString(Constants.INPUT_STREAMS, "");
+        Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         return (String) streamsConfig[0].get(Constants.STREAM_PROTO_CLASS_NAME);
     }
 }

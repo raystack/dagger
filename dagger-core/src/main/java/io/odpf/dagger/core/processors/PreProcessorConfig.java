@@ -11,7 +11,6 @@ public class PreProcessorConfig {
 
     protected List<TableTransformConfig> tableTransformers;
 
-
     public boolean hasTransformConfigs() {
         return tableTransformers != null && !tableTransformers.isEmpty();
     }

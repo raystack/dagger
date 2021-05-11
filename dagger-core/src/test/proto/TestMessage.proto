@@ -10,45 +10,45 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
 message TestKey {
-    string order_number = 1;
-    string order_url = 2;
+  string order_number = 1;
+  string order_url = 2;
 }
 
 message TestMessage {
-    string order_number = 1;
-    string order_url = 2;
-    string order_details = 3;
+  string order_number = 1;
+  string order_url = 2;
+  string order_details = 3;
 }
 
 message TestNestedMessage {
-    string nested_id = 1;
-    TestMessage single_message = 2;
+  string nested_id = 1;
+  TestMessage single_message = 2;
 }
 
 message TestNestedRepeatedMessage {
-    TestMessage single_message = 1;
-    repeated TestMessage repeated_message = 2;
-    int32 number_field = 3;
-    repeated int32 repeated_number_field = 4;
-    repeated google.protobuf.Struct metadata = 5;
-    google.protobuf.Timestamp event_timestamp = 6;
+  TestMessage single_message = 1;
+  repeated TestMessage repeated_message = 2;
+  int32 number_field = 3;
+  repeated int32 repeated_number_field = 4;
+  repeated google.protobuf.Struct metadata = 5;
+  google.protobuf.Timestamp event_timestamp = 6;
 }
 
 message TestMapMessage {
-    string order_number = 1;
-    map<string, string> current_state = 2;
+  string order_number = 1;
+  map<string, string> current_state = 2;
 }
 
 message TestRepeatedEnumMessage {
-    repeated TestEnumMessage.Enum test_enums = 1;
+  repeated TestEnumMessage.Enum test_enums = 1;
 }
 
 message TestEnumMessage {
-    enum Enum {
-        UNKNOWN = 0;
-    }
+  enum Enum {
+    UNKNOWN = 0;
+  }
 }
 
 message TestComplexMap {
-    map<int32, TestMessage> complex_map = 1;
+  map<int32, TestMessage> complex_map = 1;
 }

@@ -35,10 +35,10 @@ public class FlinkKafkaProducerCustomTest {
     private Configuration configuration;
 
     @Mock
-    private Context context;
+    private Context defaultContext;
 
     @Mock
-    private RuntimeContext runtimeContext;
+    private RuntimeContext defaultRuntimeContext;
 
     @Mock
     private ErrorReporter errorStatsReporter;
@@ -108,9 +108,9 @@ public class FlinkKafkaProducerCustomTest {
     @Test
     public void shouldCallFlinkProducerSetRuntimeContext() {
         FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
-        flinkKafkaProducerCustom.setRuntimeContext(runtimeContext);
+        flinkKafkaProducerCustom.setRuntimeContext(defaultRuntimeContext);
 
-        verify(flinkKafkaProducer, times(1)).setRuntimeContext(runtimeContext);
+        verify(flinkKafkaProducer, times(1)).setRuntimeContext(defaultRuntimeContext);
     }
 
 
@@ -120,7 +120,7 @@ public class FlinkKafkaProducerCustomTest {
         when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
 
         try {
-            flinkKafkaProducerCustomStub.invoke(row, context);
+            flinkKafkaProducerCustomStub.invoke(row, defaultContext);
         } catch (Exception e) {
             Assert.assertEquals("test producer exception", e.getMessage());
         }
@@ -132,7 +132,7 @@ public class FlinkKafkaProducerCustomTest {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
 
         try {
-            flinkKafkaProducerCustomStub.invoke(row, context);
+            flinkKafkaProducerCustomStub.invoke(row, defaultContext);
         } catch (Exception e) {
             Assert.assertEquals("test producer exception", e.getMessage());
         }
@@ -142,9 +142,9 @@ public class FlinkKafkaProducerCustomTest {
     @Test
     public void shouldReturnErrorStatsReporter() {
         when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
-        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(runtimeContext).getClass());
+        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(defaultRuntimeContext).getClass());
     }
 
     public class FlinkKafkaProducerCustomStub extends FlinkKafkaProducerCustom {
@@ -154,13 +154,15 @@ public class FlinkKafkaProducerCustomTest {
 
         @Override
         public RuntimeContext getRuntimeContext() {
-            return runtimeContext;
+            return defaultRuntimeContext;
         }
 
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
             if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
                 return errorStatsReporter;
-            } else return noOpErrorReporter;
+            } else {
+                return noOpErrorReporter;
+            }
         }
 
         protected void invokeBaseProducer(Row value, Context context) {

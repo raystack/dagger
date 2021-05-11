@@ -37,10 +37,10 @@ public class MetricsTelemetryExporterTest {
     private RuntimeContext runtimeContext;
 
     @Captor
-    ArgumentCaptor<String> keyCaptor;
+    private ArgumentCaptor<String> keyCaptor;
 
     @Captor
-    ArgumentCaptor<String> valueCaptor;
+    private ArgumentCaptor<String> valueCaptor;
 
     @Mock
     private TelemetryPublisher topicPublisher;
