@@ -17,7 +17,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     private final FieldDescriptor fieldDescriptor;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public RepeatedPrimitiveProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
@@ -60,7 +60,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformToJson(Object field) {
-        return gson.toJson(field);
+        return GSON.toJson(field);
     }
 
     @Override

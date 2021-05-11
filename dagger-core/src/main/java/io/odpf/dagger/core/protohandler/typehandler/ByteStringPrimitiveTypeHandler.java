@@ -29,7 +29,9 @@ public class ByteStringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<ByteString> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<ByteString>) field;
+        if (field != null) {
+            inputValues = (List<ByteString>) field;
+        }
         return inputValues.toArray(new ByteString[]{});
     }
 

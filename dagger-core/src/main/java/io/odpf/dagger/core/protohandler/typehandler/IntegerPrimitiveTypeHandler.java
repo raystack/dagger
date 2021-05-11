@@ -28,7 +28,9 @@ public class IntegerPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<Integer> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<Integer>) field;
+        if (field != null) {
+            inputValues = (List<Integer>) field;
+        }
         return inputValues.toArray(new Integer[]{});
     }
 

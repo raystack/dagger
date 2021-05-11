@@ -7,7 +7,8 @@ option java_package = "io.odpf.dagger.consumer";
 option java_outer_classname = "SampleGrpcServerProto";
 
 service TestServer {
-  rpc TestRpcMethod (TestGrpcRequest) returns (TestGrpcResponse) {}
+  rpc TestRpcMethod (TestGrpcRequest) returns (TestGrpcResponse) {
+  }
 }
 
 message TestGrpcRequest {

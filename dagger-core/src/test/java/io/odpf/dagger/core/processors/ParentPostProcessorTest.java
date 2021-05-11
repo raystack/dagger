@@ -1,8 +1,6 @@
-package io.odpf.dagger.core.processors.postprocessors;
+package io.odpf.dagger.core.processors;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
-import io.odpf.dagger.core.processors.ParentPostProcessor;
-import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.external.ExternalSourceConfig;
 import io.odpf.dagger.core.processors.external.es.EsSourceConfig;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;

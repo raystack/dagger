@@ -21,7 +21,7 @@ public class EsSourceConfigTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private EsSourceConfig esSourceConfig;
+    private EsSourceConfig defaultEsSourceConfig;
     private String host;
     private String port;
     private String user;
@@ -35,7 +35,7 @@ public class EsSourceConfigTest {
     private String socketTimeout;
     private String streamTimeout;
     private boolean failOnErrors;
-    private HashMap<String, OutputMapping> outputMapping;
+    private HashMap<String, OutputMapping> defaultOutputMapping;
     private String metricId;
     private boolean retainResponseType;
 
@@ -54,40 +54,40 @@ public class EsSourceConfigTest {
         socketTimeout = "3000";
         streamTimeout = "4000";
         failOnErrors = false;
-        outputMapping = new HashMap<>();
+        defaultOutputMapping = new HashMap<>();
         metricId = "metricId_01";
         retainResponseType = false;
 
-        esSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern,
+        defaultEsSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern,
                 endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
     }
 
     @Test
     public void getHostShouldGetRightConfig() {
-        assertEquals(host, esSourceConfig.getHost());
+        assertEquals(host, defaultEsSourceConfig.getHost());
     }
 
     @Test
     public void getPortShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(port), esSourceConfig.getPort());
+        assertEquals(Integer.valueOf(port), defaultEsSourceConfig.getPort());
     }
 
     @Test
     public void getUserShouldGetRightConfig() {
-        assertEquals(user, esSourceConfig.getUser());
+        assertEquals(user, defaultEsSourceConfig.getUser());
     }
 
     @Test
     public void getPasswordShouldGetRightConfig() {
-        assertEquals(password, esSourceConfig.getPassword());
+        assertEquals(password, defaultEsSourceConfig.getPassword());
     }
 
     @Test
     public void getUserWhenUserIsNullShouldReturnEmptyString() {
         EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, null, password, endpointPattern,
                 endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
         assertEquals("", esSourceConfig.getUser());
     }
 
@@ -95,44 +95,44 @@ public class EsSourceConfigTest {
     public void getPasswordWhenPasswordIsNullShouldReturnEmptyString() {
         EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, null, endpointPattern,
                 endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
+                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
         assertEquals("", esSourceConfig.getPassword());
     }
 
     @Test
     public void getEndpointPatternShouldGetRightConfig() {
-        assertEquals(endpointPattern, esSourceConfig.getPattern());
+        assertEquals(endpointPattern, defaultEsSourceConfig.getPattern());
     }
 
     @Test
     public void getEndpointVariablesShouldGetRightConfig() {
-        assertEquals(endpointVariables, esSourceConfig.getVariables());
+        assertEquals(endpointVariables, defaultEsSourceConfig.getVariables());
     }
 
     @Test
     public void getMetricIdShouldGetRightConfig() {
-        assertEquals(metricId, esSourceConfig.getMetricId());
+        assertEquals(metricId, defaultEsSourceConfig.getMetricId());
     }
 
     @Test
     public void isRetainResponseTypeShouldGetTheRightConfig() {
-        assertEquals(retainResponseType, esSourceConfig.isRetainResponseType());
+        assertEquals(retainResponseType, defaultEsSourceConfig.isRetainResponseType());
     }
 
     @Test
     public void isFailOnErrorsShouldGetRightConfig() {
-        assertEquals(failOnErrors, esSourceConfig.isFailOnErrors());
+        assertEquals(failOnErrors, defaultEsSourceConfig.isFailOnErrors());
     }
 
 
     @Test
     public void getTypeShouldGetRightConfig() {
-        assertEquals(type, esSourceConfig.getType());
+        assertEquals(type, defaultEsSourceConfig.getType());
     }
 
     @Test
     public void hasTypeShouldBeTrueWhenTypeIsPresent() {
-        assertTrue(esSourceConfig.hasType());
+        assertTrue(defaultEsSourceConfig.hasType());
     }
 
     @Test
@@ -149,41 +149,41 @@ public class EsSourceConfigTest {
 
     @Test
     public void getCapacityShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(capacity), esSourceConfig.getCapacity());
+        assertEquals(Integer.valueOf(capacity), defaultEsSourceConfig.getCapacity());
     }
 
     @Test
     public void getRetryTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(retryTimeout), esSourceConfig.getRetryTimeout());
+        assertEquals(Integer.valueOf(retryTimeout), defaultEsSourceConfig.getRetryTimeout());
     }
 
     @Test
     public void getSocketTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(socketTimeout), esSourceConfig.getSocketTimeout());
+        assertEquals(Integer.valueOf(socketTimeout), defaultEsSourceConfig.getSocketTimeout());
     }
 
     @Test
     public void getStreamTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(streamTimeout), esSourceConfig.getStreamTimeout());
+        assertEquals(Integer.valueOf(streamTimeout), defaultEsSourceConfig.getStreamTimeout());
     }
 
     @Test
     public void getConnectTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(connectTimeout), esSourceConfig.getConnectTimeout());
+        assertEquals(Integer.valueOf(connectTimeout), defaultEsSourceConfig.getConnectTimeout());
     }
 
     @Test
     public void getOutputColumnNames() {
         List<String> keys = new ArrayList<>();
         keys.add("key");
-        outputMapping.put("key", new OutputMapping("path"));
-        assertEquals(keys, esSourceConfig.getOutputColumns());
+        defaultOutputMapping.put("key", new OutputMapping("path"));
+        assertEquals(keys, defaultEsSourceConfig.getOutputColumns());
     }
 
     @Test
     public void shouldReturnPathForOutputField() {
-        outputMapping.put("outputField", new OutputMapping("path"));
-        assertEquals("path", esSourceConfig.getPath("outputField"));
+        defaultOutputMapping.put("outputField", new OutputMapping("path"));
+        assertEquals("path", defaultEsSourceConfig.getPath("outputField"));
     }
 
     @Test
@@ -198,8 +198,8 @@ public class EsSourceConfigTest {
         expectedMandatoryFields.put("socket_timeout", socketTimeout);
         expectedMandatoryFields.put("stream_timeout", streamTimeout);
         expectedMandatoryFields.put("fail_on_errors", failOnErrors);
-        expectedMandatoryFields.put("outputMapping", outputMapping);
-        HashMap<String, Object> actualMandatoryFields = esSourceConfig.getMandatoryFields();
+        expectedMandatoryFields.put("outputMapping", defaultOutputMapping);
+        HashMap<String, Object> actualMandatoryFields = defaultEsSourceConfig.getMandatoryFields();
         assertArrayEquals(expectedMandatoryFields.values().toArray(), actualMandatoryFields.values().toArray());
     }
 

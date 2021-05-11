@@ -13,7 +13,13 @@ import io.odpf.dagger.core.source.ProtoDeserializer;
 import io.odpf.dagger.core.utils.Constants;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -33,7 +39,7 @@ public class Streams implements TelemetryPublisher {
     private List<String> topics = new ArrayList<>();
     private List<String> protoClassNames = new ArrayList<>();
     private List<String> streamNames = new ArrayList<>();
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
@@ -41,7 +47,7 @@ public class Streams implements TelemetryPublisher {
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         this.configuration = configuration;
         String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
-        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
+        Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(Constants.STREAM_TABLE_NAME, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));

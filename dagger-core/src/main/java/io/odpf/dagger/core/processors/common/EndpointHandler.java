@@ -89,14 +89,14 @@ public class EndpointHandler {
         }
         return false;
     }
-    
+
     private Map<String, Descriptors.FieldDescriptor> createDescriptorMap(String[] requiredInputColumns,
-                                                                         String[] inputProtoClasses,
+                                                                         String[] inputProtoClassNames,
                                                                          ResultFuture<Row> resultFuture) {
         HashMap<String, Descriptors.FieldDescriptor> descriptorHashMap = new HashMap<>();
         Descriptors.Descriptor currentDescriptor;
         for (String columnName : requiredInputColumns) {
-            for (String protoClassName : inputProtoClasses) {
+            for (String protoClassName : inputProtoClassNames) {
                 currentDescriptor = getInputDescriptor(resultFuture, protoClassName);
                 Descriptors.FieldDescriptor currentFieldDescriptor = currentDescriptor.findFieldByName(columnName);
                 if (currentFieldDescriptor != null && descriptorHashMap.get(columnName) == null) {

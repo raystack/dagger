@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class EsSourceConfig implements Serializable, SourceConfig {
     private final String host;
@@ -147,5 +148,22 @@ public class EsSourceConfig implements Serializable, SourceConfig {
 
     public boolean isRetainResponseType() {
         return retainResponseType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        EsSourceConfig that = (EsSourceConfig) o;
+        return failOnErrors == that.failOnErrors && retainResponseType == that.retainResponseType && Objects.equals(host, that.host) && Objects.equals(port, that.port) && Objects.equals(user, that.user) && Objects.equals(password, that.password) && Objects.equals(endpointPattern, that.endpointPattern) && Objects.equals(endpointVariables, that.endpointVariables) && Objects.equals(type, that.type) && Objects.equals(capacity, that.capacity) && Objects.equals(retryTimeout, that.retryTimeout) && Objects.equals(socketTimeout, that.socketTimeout) && Objects.equals(streamTimeout, that.streamTimeout) && Objects.equals(connectTimeout, that.connectTimeout) && Objects.equals(outputMapping, that.outputMapping) && Objects.equals(metricId, that.metricId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port, user, password, endpointPattern, endpointVariables, type, capacity, retryTimeout, socketTimeout, streamTimeout, connectTimeout, failOnErrors, outputMapping, metricId, retainResponseType);
     }
 }

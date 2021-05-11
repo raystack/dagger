@@ -51,5 +51,4 @@ public class GaugeStatsManagerTest {
         gaugeStatsManager.registerDouble("test_key", "test_value", TestAspects.TEST_ASPECT_ONE.getValue(), 0.01D);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
     }
-
 }

@@ -24,7 +24,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ProtoTypeTest {
 
     @Mock
-    public Configuration configuration;
+    private Configuration configuration;
 
     private StencilClientOrchestrator stencilClientOrchestrator;
 

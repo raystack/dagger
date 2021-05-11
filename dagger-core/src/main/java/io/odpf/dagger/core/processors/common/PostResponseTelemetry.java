@@ -1,10 +1,13 @@
 package io.odpf.dagger.core.processors.common;
+
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 
 import java.time.Instant;
 
+import static io.odpf.dagger.core.utils.Constants.*;
 import static java.time.Duration.between;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 public class PostResponseTelemetry {
 
@@ -23,14 +26,21 @@ public class PostResponseTelemetry {
     }
 
     public void validateResponseCode(MeterStatsManager meterStatsManager, int statusCode) {
-        if (statusCode == 404) {
+        if (statusCode == SC_NOT_FOUND) {
             meterStatsManager.markEvent(ExternalSourceAspects.FAILURE_CODE_404);
-        } else if (statusCode >= 400 && statusCode < 499) {
+        } else if (isClientError(statusCode)) {
             meterStatsManager.markEvent(ExternalSourceAspects.FAILURE_CODE_4XX);
-        } else if (statusCode >= 500 && statusCode < 599) {
+        } else if (isServerError(statusCode)) {
             meterStatsManager.markEvent(ExternalSourceAspects.FAILURE_CODE_5XX);
         } else {
             meterStatsManager.markEvent(ExternalSourceAspects.OTHER_ERRORS);
         }
+    }
+
+    private boolean isClientError(int statusCode) {
+        return statusCode >= CLIENT_ERROR_MIN_STATUS_CODE && statusCode <= CLIENT_ERROR_MAX_STATUS_CODE;
+    }
+    private boolean isServerError(int statusCode) {
+        return statusCode >= SERVER_ERROR_MIN_STATUS_CODE && statusCode <= SERVER_ERROR_MAX_STATUS_CODE;
     }
 }

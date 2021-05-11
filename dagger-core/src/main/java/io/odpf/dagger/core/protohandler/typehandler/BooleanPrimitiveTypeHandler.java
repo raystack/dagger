@@ -28,8 +28,9 @@ public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<Boolean> inputValues = new ArrayList<>();
-        if (field != null)
+        if (field != null) {
             inputValues = (List<Boolean>) field;
+        }
         return inputValues.toArray(new Boolean[]{});
     }
 
