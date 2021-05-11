@@ -3,8 +3,6 @@ package io.odpf.dagger.common.metrics.managers;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 
-import io.odpf.dagger.common.metrics.aspects.AspectType;
-import io.odpf.dagger.common.metrics.aspects.Aspects;
 import io.odpf.dagger.common.metrics.managers.utils.TestAspects;
 import org.junit.Before;
 import org.junit.Test;

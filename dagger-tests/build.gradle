@@ -6,13 +6,6 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
     }
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
-    }
-}
-
-plugins {
-    id 'com.google.protobuf' version '0.8.13'
 }
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
@@ -41,7 +34,7 @@ sourceSets {
 
 dependencies {
     testImplementation project(path: ':dagger-core')
-    testImplementation project(path: ':dagger-common')
+    testImplementation project(':dagger-common').sourceSets.test.output
 
     testImplementation 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'
@@ -77,26 +70,3 @@ task integrationTest(type: Test) {
     }
 }
 
-protobuf {
-    generatedFilesBaseDir = "$projectDir/src/generated"
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.1.0"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.19.0"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
-
-idea {
-    module {
-        testSourceDirs += file("$projectDir/src/generated/integrationtest/java")
-        testSourceDirs += project.sourceSets.integrationtest.java.srcDirs
-    }
-}
