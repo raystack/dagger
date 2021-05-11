@@ -73,8 +73,8 @@ public class LongbowSchema implements Serializable {
     }
 
     public long getDurationInMillis(Row input) {
-        String longbow_duration = (String) input.getField(columnIndexMap.get(Constants.LONGBOW_DURATION));
-        return getDurationInMillis(longbow_duration);
+        String longbowDuration = (String) input.getField(columnIndexMap.get(Constants.LONGBOW_DURATION));
+        return getDurationInMillis(longbowDuration);
     }
 
     public long getDurationInMillis(String durationString) {
@@ -87,8 +87,9 @@ public class LongbowSchema implements Serializable {
                 return TimeUnit.HOURS.toMillis(duration);
             case Constants.DAY_UNIT:
                 return TimeUnit.DAYS.toMillis(duration);
+            default:
+                throw new InvalidLongbowDurationException(String.format("'%s' is a invalid duration string", durationString));
         }
-        throw new InvalidLongbowDurationException(String.format("'%s' is a invalid duration string", durationString));
     }
 
     public LongbowType getType() {
@@ -99,8 +100,8 @@ public class LongbowSchema implements Serializable {
         } else if (columnNames.contains(LongbowType.LongbowRead.getKeyName())) {
             return LongbowType.LongbowRead;
         }
-        throw new DaggerConfigurationException("Unable to identify LongbowProcessor. Provide either " +
-                LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
+        throw new DaggerConfigurationException("Unable to identify LongbowProcessor. Provide either "
+                + LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
     }
 
     public boolean isLongbowPlus() {

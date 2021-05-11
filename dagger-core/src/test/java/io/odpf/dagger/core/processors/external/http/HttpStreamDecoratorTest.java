@@ -12,14 +12,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpStreamDecoratorTest {
     @Mock
-    SchemaConfig schemaConfig;
+    private SchemaConfig schemaConfig;
 
     @Mock
     private HttpSourceConfig httpSourceConfig;
 
     @Mock
     private ExternalMetricConfig externalMetricConfig;
-
 
     @Before
     public void setUp() {

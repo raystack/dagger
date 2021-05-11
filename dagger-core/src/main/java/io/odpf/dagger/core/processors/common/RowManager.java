@@ -32,8 +32,9 @@ public class RowManager {
     }
 
     private Row getChildRow(int index) {
-        if (parentRow.getArity() != 2)
+        if (parentRow.getArity() != 2) {
             throw new InputOutputMappingException("InputOutputRow does not contain output. Something went wrong. Row Arity: " + parentRow.getArity());
+        }
         return (Row) parentRow.getField(index);
     }
 
@@ -51,8 +52,12 @@ public class RowManager {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RowManager that = (RowManager) o;
         return Objects.equals(parentRow, that.parentRow);
     }

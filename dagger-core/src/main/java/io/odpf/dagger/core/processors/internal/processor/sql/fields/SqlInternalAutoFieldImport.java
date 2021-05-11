@@ -14,7 +14,7 @@ public class SqlInternalAutoFieldImport implements SqlInternalFieldConfig {
 
     @Override
     public void processInputColumns(RowManager rowManager) {
-        for (String columnName : columnNameManager.getInputColumnNames()){
+        for (String columnName : columnNameManager.getInputColumnNames()) {
             int inputFieldIndex = columnNameManager.getInputIndex(columnName);
             rowManager.setInOutput(columnNameManager.getOutputIndex(columnName), rowManager.getFromInput(inputFieldIndex));
         }

@@ -28,7 +28,9 @@ public class DoublePrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<Double> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<Double>) field;
+        if (field != null) {
+            inputValues = (List<Double>) field;
+        }
         return inputValues.toArray(new Double[]{});
     }
 

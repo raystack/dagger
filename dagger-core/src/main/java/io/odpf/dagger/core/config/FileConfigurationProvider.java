@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class  FileConfigurationProvider  implements ConfigurationProvider {
+public class FileConfigurationProvider implements ConfigurationProvider {
 
     public FileConfigurationProvider() {
         this.environmentParameters = new HashMap<>();
@@ -18,7 +18,7 @@ public class  FileConfigurationProvider  implements ConfigurationProvider {
         String daggerPropertiesPath = System.getProperty("DAGGER_CONFIG_PATH");
         Properties properties = new Properties();
         try {
-            FileReader reader=new FileReader(daggerPropertiesPath);
+            FileReader reader = new FileReader(daggerPropertiesPath);
             properties.load(reader);
             this.environmentParameters.putAll(properties.entrySet()
                     .stream()
@@ -31,7 +31,7 @@ public class  FileConfigurationProvider  implements ConfigurationProvider {
         }
 
 
-        this.environmentParameters.entrySet().forEach( t -> System.out.println(t.getKey() + t.getValue()));
+        this.environmentParameters.entrySet().forEach(t -> System.out.println(t.getKey() + t.getValue()));
     }
 
 

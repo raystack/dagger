@@ -27,11 +27,11 @@ public class StencilClientOrchestrator implements Serializable {
         this.stencilUrls = getStencilUrls();
     }
 
-    private HashMap<String, String> createStencilConfigMap(Configuration configuration) {
+    private HashMap<String, String> createStencilConfigMap(Configuration config) {
         stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(STENCIL_CONFIG_REFRESH_CACHE_KEY, configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT));
-        stencilConfigMap.put(STENCIL_CONFIG_TIMEOUT_MS_KEY, configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_REFRESH_CACHE_KEY, config.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, config.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT));
+        stencilConfigMap.put(STENCIL_CONFIG_TIMEOUT_MS_KEY, config.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT));
         return stencilConfigMap;
     }
 
@@ -54,10 +54,10 @@ public class StencilClientOrchestrator implements Serializable {
         return stencilClient;
     }
 
-    private StencilClient initStencilClient(List<String> stencilUrls) {
+    private StencilClient initStencilClient(List<String> urls) {
         boolean enableRemoteStencil = configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
-                ? StencilClientFactory.getClient(stencilUrls, stencilConfigMap)
+                ? StencilClientFactory.getClient(urls, stencilConfigMap)
                 : StencilClientFactory.getClient();
     }
 

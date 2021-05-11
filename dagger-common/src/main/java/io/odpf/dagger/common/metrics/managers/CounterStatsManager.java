@@ -1,10 +1,9 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.MetricGroup;
-
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.MetricGroup;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,13 @@ public class CounterStatsManager {
     public void register(Aspects aspect, String groupName) {
         if (aspect.getAspectType() == AspectType.Counter) {
             Counter counter = metricGroup.addGroup(groupName).counter(aspect.getValue());
+            counters.put(aspect, counter);
+        }
+    }
+
+    public void register(Aspects aspect, String groupKey, String groupValue) {
+        if (aspect.getAspectType() == AspectType.Counter) {
+            Counter counter = metricGroup.addGroup(groupKey, groupValue).counter(aspect.getValue());
             counters.put(aspect, counter);
         }
     }

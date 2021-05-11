@@ -21,12 +21,12 @@ public class ScanRequestFactory implements Serializable {
     public ScanRequest create(Row input, LongbowRange longbowRange) {
         if (!longbowSchema.isLongbowPlus()) {
             return new TableScanRequest(longbowRange.getUpperBound(input), longbowRange.getLowerBound(input), longbowSchema, tableId);
-        } else
+        } else {
             return new ProtoByteScanRequest(longbowRange.getUpperBound(input), longbowRange.getLowerBound(input), parseTableName(input));
+        }
     }
 
     private String parseTableName(Row input) {
-        //TODO: add proper exception here
         return (String) longbowSchema.getValue(input, Constants.SYNCHRONIZER_BIGTABLE_TABLE_ID_KEY);
     }
 }

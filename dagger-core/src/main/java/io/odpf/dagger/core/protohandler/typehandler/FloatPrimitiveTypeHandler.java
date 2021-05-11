@@ -28,7 +28,9 @@ public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
     @Override
     public Object getArray(Object field) {
         List<Float> inputValues = new ArrayList<>();
-        if (field != null) inputValues = (List<Float>) field;
+        if (field != null) {
+            inputValues = (List<Float>) field;
+        }
         return inputValues.toArray(new Float[]{});
     }
 

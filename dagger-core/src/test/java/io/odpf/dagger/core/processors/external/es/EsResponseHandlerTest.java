@@ -48,10 +48,10 @@ public class EsResponseHandlerTest {
     private ErrorReporter errorReporter;
 
     private ResultFuture resultFuture;
-    private Descriptors.Descriptor descriptor;
+    private Descriptors.Descriptor defaultDescriptor;
     private MeterStatsManager meterStatsManager;
     private EsResponseHandler esResponseHandler;
-    private Response response;
+    private Response defaultResponse;
     private EsSourceConfig esSourceConfig;
     private RowManager rowManager;
     private ColumnNameManager columnNameManager;
@@ -77,19 +77,19 @@ public class EsResponseHandlerTest {
                 "driver_id", "test", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         resultFuture = mock(ResultFuture.class);
-        descriptor = TestEnrichedBookingLogMessage.getDescriptor();
+        defaultDescriptor = TestEnrichedBookingLogMessage.getDescriptor();
         meterStatsManager = mock(MeterStatsManager.class);
         inputColumnNames = new String[3];
         outputColumnNames = new ArrayList<>();
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
-        response = mock(Response.class);
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        defaultResponse = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
-        when(response.getStatusLine()).thenReturn(statusLine);
+        when(defaultResponse.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(200);
         HttpEntity httpEntity = mock(HttpEntity.class);
-        when(response.getEntity()).thenReturn(httpEntity);
+        when(defaultResponse.getEntity()).thenReturn(httpEntity);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowFactory.createRow(outputDataMap, TestProfile.getDescriptor()));
@@ -115,7 +115,7 @@ public class EsResponseHandlerTest {
 
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         System.out.println("WOH " + outputStreamData);
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
@@ -138,7 +138,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", true);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", "12345");
         outputData.setField(0, outputDataMap);
@@ -146,7 +146,7 @@ public class EsResponseHandlerTest {
 
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -168,7 +168,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         HashMap<String, Object> outputDataMap = new HashMap<>();
         outputDataMap.put("driver_id", 12345);
         outputData.setField(0, RowFactory.createRow(outputDataMap, TestProfile.getDescriptor()));
@@ -176,7 +176,7 @@ public class EsResponseHandlerTest {
 
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -193,19 +193,19 @@ public class EsResponseHandlerTest {
             }
         };
 
-        descriptor = TestBookingLogMessage.getDescriptor();
+        defaultDescriptor = TestBookingLogMessage.getDescriptor();
         outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
         esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", "test", "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
-        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(descriptor.findFieldByName("driver_id")).transformFromPostProcessor(12345));
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(defaultDescriptor.findFieldByName("driver_id")).transformFromPostProcessor(12345));
         outputStreamData.setField(1, outputData);
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -226,7 +226,7 @@ public class EsResponseHandlerTest {
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).completeExceptionally(any(PathNotFoundException.class));
 
@@ -243,7 +243,7 @@ public class EsResponseHandlerTest {
         };
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -260,7 +260,7 @@ public class EsResponseHandlerTest {
         };
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -277,7 +277,7 @@ public class EsResponseHandlerTest {
         };
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -300,7 +300,7 @@ public class EsResponseHandlerTest {
         };
 
         esResponseHandler.startTimer();
-        esResponseHandler.onSuccess(response);
+        esResponseHandler.onSuccess(defaultResponse);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(outputStreamData));
 
@@ -406,7 +406,7 @@ public class EsResponseHandlerTest {
                 "driver_id", "test", "30",
                 "5000", "5000", "5000", "5000", true, outputMapping, "metricId_01", false);
 
-        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         esResponseHandler.startTimer();
         esResponseHandler.onFailure(new IOException(""));

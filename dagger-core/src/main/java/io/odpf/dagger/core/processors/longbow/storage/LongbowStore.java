@@ -68,9 +68,11 @@ public class LongbowStore {
     }
 
     public void close() throws IOException {
-        if (tableClient != null)
+        if (tableClient != null) {
             tableClient.close();
-        if (adminClient != null)
+        }
+        if (adminClient != null) {
             adminClient.close();
+        }
     }
 }

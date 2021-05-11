@@ -23,8 +23,9 @@ public class InvalidInternalConfigProcessor implements InternalConfigProcessor, 
 
     public void process(RowManager rowManager) {
         String type = "";
-        if (internalSourceConfig != null && StringUtils.isNotEmpty(internalSourceConfig.getType()))
+        if (internalSourceConfig != null && StringUtils.isNotEmpty(internalSourceConfig.getType())) {
             type = internalSourceConfig.getType();
+        }
         throw new InvalidConfigurationException(String.format("Invalid configuration, type '%s' for custom doesn't exists", type));
     }
 }

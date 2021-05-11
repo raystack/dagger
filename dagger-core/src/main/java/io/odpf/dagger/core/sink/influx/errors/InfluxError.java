@@ -14,7 +14,7 @@ public interface InfluxError {
 
     void handle(Iterable<Point> points, Throwable throwable);
 
-    default void logFailedPoints(Iterable<Point> points, Logger LOGGER) {
-        points.forEach(point -> LOGGER.warn("Error writing to influx {}", point.toString()));
+    default void logFailedPoints(Iterable<Point> points, Logger logger) {
+        points.forEach(point -> logger.warn("Error writing to influx {}", point.toString()));
     }
 }
