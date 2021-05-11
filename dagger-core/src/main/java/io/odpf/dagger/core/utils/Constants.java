@@ -105,7 +105,6 @@ public class Constants {
     public static final String CONSUME_LARGE_MESSAGE_KEY = "CONSUME_LARGE_MESSAGE";
     public static final boolean CONSUME_LARGE_MESSAGE_DEFAULT = false;
 
-
     public static final String GCS_PROJECT_ID = "GCS_PROJECT_ID";
     public static final String GCS_PROJECT_DEFAULT = "godata-production";
 
@@ -117,6 +116,6 @@ public class Constants {
     public static final int SERVER_ERROR_MIN_STATUS_CODE = 500;
     public static final int SERVER_ERROR_MAX_STATUS_CODE = 599;
 
-    public static final long MAX_EVENT_LOOP_EXECUTE_TIME = 10000;
-    public static final int ADDITIONAL_ARITY = 3;
+    public static final long MAX_EVENT_LOOP_EXECUTE_TIME_DEFAULT = 10000;
+    public static final int LONGBOW_OUTPUT_ADDITIONAL_ARITY = 3;
 }
