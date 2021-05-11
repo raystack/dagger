@@ -1,13 +1,5 @@
 package io.odpf.dagger.integrationtest;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -15,6 +7,13 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -40,12 +39,6 @@ import static org.junit.Assert.assertTrue;
 public class EsExternalPostProcessorIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EsExternalPostProcessorIntegrationTest.class.getName());
-    private StencilClientOrchestrator stencilClientOrchestrator;
-    private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
-    private Configuration configuration = new Configuration();
-    private RestClient esClient;
-    private String host;
-
     @ClassRule
     public static MiniClusterWithClientResource flinkCluster =
             new MiniClusterWithClientResource(
@@ -53,7 +46,11 @@ public class EsExternalPostProcessorIntegrationTest {
                             .setNumberSlotsPerTaskManager(1)
                             .setNumberTaskManagers(1)
                             .build());
-
+    private StencilClientOrchestrator stencilClientOrchestrator;
+    private final MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
+    private final Configuration configuration = new Configuration();
+    private RestClient esClient;
+    private String host;
 
     @Before
     public void setUp() {
@@ -66,26 +63,27 @@ public class EsExternalPostProcessorIntegrationTest {
         }
         esClient = getESClient();
         Request insertRequest = new Request("POST", "/customers/_doc/123");
-        insertRequest.setJsonEntity("{\n" +
-                "  \"customer_id\": \"123\",\n" +
-                "  \"event_timestamp\": {\n" +
-                "    \"seconds\": 1590726932\n" +
-                "  },\n" +
-                "  \"name\": \"dummy user\",\n" +
-                "  \"email\": \"dummyuser123@gmail.com\",\n" +
-                "  \"phone\": \"+22222\",\n" +
-                "  \"phone_verified\": true,\n" +
-                "  \"active\": true,\n" +
-                "  \"wallet_id\": \"11111\",\n" +
-                "  \"signed_up_country\": \"ID\",\n" +
-                "  \"locale\": \"en\",\n" +
-                "  \"created_at\": {\n" +
-                "    \"seconds\": 1498540716\n" +
-                "  },\n" +
-                "  \"updated_at\": {\n" +
-                "    \"seconds\": 1556087608\n" +
-                "  }\n" +
-                "}");
+        insertRequest.setJsonEntity(
+                "{\n"
+                + "  \"customer_id\": \"123\",\n"
+                + "  \"event_timestamp\": {\n"
+                + "    \"seconds\": 1590726932\n"
+                + "  },\n"
+                + "  \"name\": \"dummy user\",\n"
+                + "  \"email\": \"dummyuser123@gmail.com\",\n"
+                + "  \"phone\": \"+22222\",\n"
+                + "  \"phone_verified\": true,\n"
+                + "  \"active\": true,\n"
+                + "  \"wallet_id\": \"11111\",\n"
+                + "  \"signed_up_country\": \"ID\",\n"
+                + "  \"locale\": \"en\",\n"
+                + "  \"created_at\": {\n"
+                + "    \"seconds\": 1498540716\n"
+                + "  },\n"
+                + "  \"updated_at\": {\n"
+                + "    \"seconds\": 1556087608\n"
+                + "  }\n"
+                + "}");
 
         try {
             Response response = esClient.performRequest(insertRequest);
@@ -110,35 +108,36 @@ public class EsExternalPostProcessorIntegrationTest {
 
     @Test
     public void shouldPopulateFieldFromESOnSuccessResponse() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"es\": [\n" +
-                "      {\n" +
-                "        \"host\":" + host + ",\n" +
-                "        \"port\": \"49153\",\n" +
-                "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
-                "        \"endpoint_variables\": \"customer_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"socket_timeout\": \"5000\",\n" +
-                "        \"retry_timeout\": \"5000\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n" +
-                "        \"output_mapping\": {\n" +
-                "          \"customer_profile\": {\n" +
-                "            \"path\": \"$._source\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"es\": [\n"
+                + "      {\n"
+                + "        \"host\":" + host + ",\n"
+                + "        \"port\": \"49153\",\n"
+                + "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n"
+                + "        \"endpoint_variables\": \"customer_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"socket_timeout\": \"5000\",\n"
+                + "        \"retry_timeout\": \"5000\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n"
+                + "        \"output_mapping\": {\n"
+                + "          \"customer_profile\": {\n"
+                + "            \"path\": \"$._source\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_number", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -153,53 +152,54 @@ public class EsExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertEquals("123", CollectSink.values.get(0).getField(0).toString().split(",")[0]);
-        assertEquals("dummyuser123@gmail.com", CollectSink.values.get(0).getField(0).toString().split(",")[2]);
+        assertEquals("123", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[0]);
+        assertEquals("dummyuser123@gmail.com", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[2]);
     }
 
     @Test
     public void shouldPopulateFieldFromESOnSuccessResponseWithExternalAndInternalSource() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"es\": [\n" +
-                "      {\n" +
-                "        \"host\":" + host + ",\n" +
-                "        \"port\": \"49153\",\n" +
-                "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
-                "        \"endpoint_variables\": \"customer_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"socket_timeout\": \"5000\",\n" +
-                "        \"retry_timeout\": \"5000\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n" +
-                "        \"output_mapping\": {\n" +
-                "          \"customer_profile\": {\n" +
-                "            \"path\": \"$._source\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "    \"internal_source\": [\n" +
-                "       {" +
-                "       \"output_field\": \"event_timestamp\", \n" +
-                "       \"type\": \"function\",\n" +
-                "       \"value\": \"CURRENT_TIMESTAMP\"\n" +
-                "       }," +
-                "       {" +
-                "       \"output_field\": \"driver_id\", \n" +
-                "       \"type\": \"sql\",\n" +
-                "       \"value\": \"driver_id\"\n" +
-                "       }" +
-                "   ]" +
-                "}";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"es\": [\n"
+                + "      {\n"
+                + "        \"host\":" + host + ",\n"
+                + "        \"port\": \"49153\",\n"
+                + "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n"
+                + "        \"endpoint_variables\": \"customer_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"socket_timeout\": \"5000\",\n"
+                + "        \"retry_timeout\": \"5000\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n"
+                + "        \"output_mapping\": {\n"
+                + "          \"customer_profile\": {\n"
+                + "            \"path\": \"$._source\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  },\n"
+                + "    \"internal_source\": [\n"
+                + "       {"
+                + "       \"output_field\": \"event_timestamp\", \n"
+                + "       \"type\": \"function\",\n"
+                + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
+                + "       },"
+                + "       {"
+                + "       \"output_field\": \"driver_id\", \n"
+                + "       \"type\": \"sql\",\n"
+                + "       \"value\": \"driver_id\"\n"
+                + "       }"
+                + "   ]"
+                + "}";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_number", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -214,65 +214,66 @@ public class EsExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertEquals("123", CollectSink.values.get(0).getField(0).toString().split(",")[0]);
-        assertEquals("dummy user", CollectSink.values.get(0).getField(0).toString().split(",")[1]);
-        assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
-        assertEquals("456", CollectSink.values.get(0).getField(2));
+        assertEquals("123", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[0]);
+        assertEquals("dummy user", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[1]);
+        assertTrue(CollectSink.OUTPUT_VALUES.get(0).getField(1) instanceof Timestamp);
+        assertEquals("456", CollectSink.OUTPUT_VALUES.get(0).getField(2));
 
     }
 
     @Test
     public void shouldPopulateFieldFromESOnSuccessResponseWithAllThreeSourcesIncludingTransformer() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"es\": [\n" +
-                "      {\n" +
-                "        \"host\":" + host + ",\n" +
-                "        \"port\": \"49153\",\n" +
-                "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n" +
-                "        \"endpoint_variables\": \"customer_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"socket_timeout\": \"5000\",\n" +
-                "        \"retry_timeout\": \"5000\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n" +
-                "        \"output_mapping\": {\n" +
-                "          \"customer_profile\": {\n" +
-                "            \"path\": \"$._source\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "    \"internal_source\": [\n" +
-                "       {" +
-                "       \"output_field\": \"event_timestamp\", \n" +
-                "       \"type\": \"function\",\n" +
-                "       \"value\": \"CURRENT_TIMESTAMP\"\n" +
-                "       }," +
-                "       {" +
-                "       \"output_field\": \"driver_id\", \n" +
-                "       \"type\": \"sql\",\n" +
-                "       \"value\": \"driver_id\"\n" +
-                "       }" +
-                "   ]" +
-                ",\n" +
-                " \"transformers\": [" +
-                "{\n" +
-                "  \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n" +
-                "  \"transformation_arguments\": {\n" +
-                "    \"targetColumnName\": \"driver_id\"\n" +
-                "  }\n" +
-                "}\n" +
-                "   ]   \n" +
-                "}";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"es\": [\n"
+                + "      {\n"
+                + "        \"host\":" + host + ",\n"
+                + "        \"port\": \"49153\",\n"
+                + "        \"endpoint_pattern\": \"/customers/_doc/%s\",\n"
+                + "        \"endpoint_variables\": \"customer_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"socket_timeout\": \"5000\",\n"
+                + "        \"retry_timeout\": \"5000\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"type\": \"io.odpf.dagger.consumer.TestEnrichedBookingLogMessage\", \n"
+                + "        \"output_mapping\": {\n"
+                + "          \"customer_profile\": {\n"
+                + "            \"path\": \"$._source\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  },\n"
+                + "    \"internal_source\": [\n"
+                + "       {"
+                + "       \"output_field\": \"event_timestamp\", \n"
+                + "       \"type\": \"function\",\n"
+                + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
+                + "       },"
+                + "       {"
+                + "       \"output_field\": \"driver_id\", \n"
+                + "       \"type\": \"sql\",\n"
+                + "       \"value\": \"driver_id\"\n"
+                + "       }"
+                + "   ]"
+                + ",\n"
+                + " \"transformers\": ["
+                + "{\n"
+                + "  \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n"
+                + "  \"transformation_arguments\": {\n"
+                + "    \"targetColumnName\": \"driver_id\"\n"
+                + "  }\n"
+                + "}\n"
+                + "   ]   \n"
+                + "}";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_number", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -287,10 +288,10 @@ public class EsExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertEquals("123", CollectSink.values.get(0).getField(0).toString().split(",")[0]);
-        assertEquals("true", CollectSink.values.get(0).getField(0).toString().split(",")[3]);
-        assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
-        assertEquals("", CollectSink.values.get(0).getField(2));
+        assertEquals("123", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[0]);
+        assertEquals("true", CollectSink.OUTPUT_VALUES.get(0).getField(0).toString().split(",")[3]);
+        assertTrue(CollectSink.OUTPUT_VALUES.get(0).getField(1) instanceof Timestamp);
+        assertEquals("", CollectSink.OUTPUT_VALUES.get(0).getField(2));
     }
 
 
@@ -305,16 +306,6 @@ public class EsExternalPostProcessorIntegrationTest {
                 .build();
     }
 
-    private static class CollectSink implements SinkFunction<Row> {
-
-        static final List<Row> values = new ArrayList<>();
-
-        @Override
-        public synchronized void invoke(Row inputRow, Context context) {
-            values.add(inputRow);
-        }
-    }
-
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
@@ -322,5 +313,15 @@ public class EsExternalPostProcessorIntegrationTest {
             postProcessedStream = postProcessor.process(postProcessedStream);
         }
         return postProcessedStream;
+    }
+
+    private static class CollectSink implements SinkFunction<Row> {
+
+        static final List<Row> OUTPUT_VALUES = new ArrayList<>();
+
+        @Override
+        public synchronized void invoke(Row inputRow, Context context) {
+            OUTPUT_VALUES.add(inputRow);
+        }
     }
 }
