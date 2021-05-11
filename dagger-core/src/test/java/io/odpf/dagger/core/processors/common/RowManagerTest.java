@@ -32,7 +32,7 @@ public class RowManagerTest {
 
     @Test
     public void shouldCreateParentRowWithInputDataAndOutputDimension() {
-        Row inputRow = new Row(3);
+        inputRow = new Row(3);
         RowManager rowManager = new RowManager(inputRow, 4);
 
         Row outputData = rowManager.getOutputData();

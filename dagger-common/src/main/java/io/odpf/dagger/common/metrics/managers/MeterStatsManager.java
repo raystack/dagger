@@ -64,13 +64,13 @@ public class MeterStatsManager {
         }
     }
 
-    private void register(MetricGroup metricGroup, Aspects[] aspects) {
+    private void register(MetricGroup group, Aspects[] aspects) {
         for (Aspects aspect : aspects) {
             if (AspectType.Histogram.equals(aspect.getAspectType())) {
-                histogramMap.put(aspect, metricGroup.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
+                histogramMap.put(aspect, group.histogram(aspect.getValue(), new DropwizardHistogramWrapper(getHistogram())));
             }
             if (AspectType.Metric.equals(aspect.getAspectType())) {
-                meterMap.put(aspect, metricGroup.meter(aspect.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
+                meterMap.put(aspect, group.meter(aspect.getValue(), new DropwizardMeterWrapper(new com.codahale.metrics.Meter())));
             }
         }
     }

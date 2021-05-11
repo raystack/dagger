@@ -25,7 +25,7 @@ public class PgSourceConfigTest {
     private String type;
     private String capacity;
     private String streamTimeout;
-    private Map<String, String> outputMapping;
+    private Map<String, String> defaultOutputMapping;
     private String connectTimeout;
     private String idleTimeout;
     private String queryVariables;
@@ -46,7 +46,7 @@ public class PgSourceConfigTest {
         type = "TestMessage";
         capacity = "30";
         streamTimeout = "4000";
-        outputMapping = new HashMap<>();
+        defaultOutputMapping = new HashMap<>();
         queryPattern = "/drivers/driver/%s";
         queryVariables = "driver_id";
         connectTimeout = "1000";
@@ -54,7 +54,7 @@ public class PgSourceConfigTest {
         metricId = "metricId-pg-01";
         failOnErrors = false;
         retainResponseType = false;
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, type, capacity, streamTimeout, defaultOutputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors, metricId, retainResponseType);
 
     }
@@ -106,14 +106,14 @@ public class PgSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, null, capacity, streamTimeout, defaultOutputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors, metricId, retainResponseType);
         assertFalse(pgSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, outputMapping, connectTimeout, idleTimeout, queryVariables,
+        pgSourceConfig = new PgSourceConfig(host, port, user, password, database, "", capacity, streamTimeout, defaultOutputMapping, connectTimeout, idleTimeout, queryVariables,
                 queryPattern, failOnErrors, metricId, retainResponseType);
         assertFalse(pgSourceConfig.hasType());
     }
@@ -147,13 +147,13 @@ public class PgSourceConfigTest {
     public void getOutputColumnNames() {
         List<String> keys = new ArrayList<>();
         keys.add("outputField");
-        outputMapping.put("outputField", "param");
+        defaultOutputMapping.put("outputField", "param");
         assertEquals(keys, pgSourceConfig.getOutputColumns());
     }
 
     @Test
     public void shouldReturnPathForOutputField() {
-        outputMapping.put("outputField", "param");
+        defaultOutputMapping.put("outputField", "param");
         assertEquals("param", pgSourceConfig.getMappedQueryParam("outputField"));
     }
 
@@ -181,7 +181,7 @@ public class PgSourceConfigTest {
         expectedMandatoryFields.put("connect_timeout", connectTimeout);
         expectedMandatoryFields.put("idle_timeout", idleTimeout);
         expectedMandatoryFields.put("query_pattern", queryPattern);
-        expectedMandatoryFields.put("output_mapping", outputMapping);
+        expectedMandatoryFields.put("output_mapping", defaultOutputMapping);
         expectedMandatoryFields.put("fail_on_errors", failOnErrors);
         HashMap<String, Object> actualMandatoryFields = pgSourceConfig.getMandatoryFields();
         assertArrayEquals(expectedMandatoryFields.values().toArray(), actualMandatoryFields.values().toArray());

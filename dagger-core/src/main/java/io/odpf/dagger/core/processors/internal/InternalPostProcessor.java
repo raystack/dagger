@@ -22,8 +22,8 @@ public class InternalPostProcessor implements PostProcessor {
     }
 
     @Override
-    public boolean canProcess(PostProcessorConfig postProcessorConfig) {
-        return postProcessorConfig.hasInternalSource();
+    public boolean canProcess(PostProcessorConfig config) {
+        return config.hasInternalSource();
     }
 
     @Override

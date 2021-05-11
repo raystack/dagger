@@ -26,7 +26,7 @@ public class LongbowStore {
     private BigtableAsyncConnection tableClient;
     private Map<String, AsyncTable<AdvancedScanResultConsumer>> tables;
 
-    public LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
+    private LongbowStore(BigtableTableAdminClient adminClient, BigtableAsyncConnection tableClient) {
         this.adminClient = adminClient;
         this.tableClient = tableClient;
         this.tables = new HashMap<>();

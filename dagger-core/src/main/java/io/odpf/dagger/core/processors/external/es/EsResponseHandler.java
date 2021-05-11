@@ -122,8 +122,8 @@ public class EsResponseHandler implements ResponseListener {
     }
 
 
-    private void setField(EsSourceConfig esSourceConfig, int index, Object value, String name) {
-        if (!esSourceConfig.isRetainResponseType() || esSourceConfig.hasType()) {
+    private void setField(EsSourceConfig esConfig, int index, Object value, String name) {
+        if (!esConfig.isRetainResponseType() || esConfig.hasType()) {
             Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
             if (fieldDescriptor == null) {
                 Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
