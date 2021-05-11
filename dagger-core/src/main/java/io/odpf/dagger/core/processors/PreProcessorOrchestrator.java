@@ -58,8 +58,8 @@ public class PreProcessorOrchestrator implements Preprocessor {
     }
 
     @Override
-    public boolean canProcess(PreProcessorConfig processorConfig) {
-        return processorConfig != null && !processorConfig.isEmpty();
+    public boolean canProcess(PreProcessorConfig config) {
+        return config != null && !config.isEmpty();
     }
 
 }

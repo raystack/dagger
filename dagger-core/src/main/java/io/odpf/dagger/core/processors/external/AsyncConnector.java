@@ -81,8 +81,8 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         return descriptorManager;
     }
 
-    protected DescriptorManager initDescriptorManager(SchemaConfig schemaConfig) {
-        return new DescriptorManager(schemaConfig.getStencilClientOrchestrator());
+    protected DescriptorManager initDescriptorManager(SchemaConfig config) {
+        return new DescriptorManager(config.getStencilClientOrchestrator());
     }
 
     @Override

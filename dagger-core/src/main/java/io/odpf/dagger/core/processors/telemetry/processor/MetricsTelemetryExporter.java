@@ -60,9 +60,9 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
         );
     }
 
-    protected void registerGroups(GaugeStatsManager gaugeStatsManager) {
+    protected void registerGroups(GaugeStatsManager manager) {
         metrics.forEach((groupKey, groupValues) -> groupValues
-                .forEach(groupValue -> gaugeStatsManager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
+                .forEach(groupValue -> manager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
         LOGGER.info("Sending Metrics: " + metrics);
         metrics.clear();
     }

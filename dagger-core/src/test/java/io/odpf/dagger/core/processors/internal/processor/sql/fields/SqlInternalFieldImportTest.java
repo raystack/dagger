@@ -18,7 +18,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class SqlInternalFieldImportTest {
 
     @Mock
-    private ColumnNameManager columnNameManager;
+    private ColumnNameManager defaultColumnNameManager;
 
     @Before
     public void setup() {
@@ -48,8 +48,8 @@ public class SqlInternalFieldImportTest {
     @Test
     public void shouldReturnNullIfOutputIndexIsNotFoundInOutputColumnManager() {
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("outputField", "inputField", "sql");
-        SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
-        SqlInternalFieldImport sqlInternalFieldImport = new SqlInternalFieldImport(columnNameManager, sqlPathParser, internalSourceConfig);
+        SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, defaultColumnNameManager);
+        SqlInternalFieldImport sqlInternalFieldImport = new SqlInternalFieldImport(defaultColumnNameManager, sqlPathParser, internalSourceConfig);
 
         Row inputRow = new Row(1);
         inputRow.setField(0, "inputValue1");
@@ -59,7 +59,7 @@ public class SqlInternalFieldImportTest {
         parentRow.setField(1, outputRow);
         RowManager rowManager = new RowManager(parentRow);
 
-        when(columnNameManager.getOutputIndex("field")).thenReturn(-1);
+        when(defaultColumnNameManager.getOutputIndex("field")).thenReturn(-1);
         sqlInternalFieldImport.processInputColumns(rowManager);
 
         Assert.assertNull(rowManager.getOutputData().getField(1));

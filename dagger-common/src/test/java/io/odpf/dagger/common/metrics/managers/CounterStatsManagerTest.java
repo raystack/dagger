@@ -61,9 +61,9 @@ public class CounterStatsManagerTest {
 
     @Test
     public void shouldUpdateCountAndReturnTheCorrectCountValue() {
-        Counter counter = new SimpleCounter();
+        Counter simpleCounter = new SimpleCounter();
         when(metricGroup.addGroup("counterTest")).thenReturn(metricGroup);
-        when(metricGroup.counter("test_aspect3")).thenReturn(counter);
+        when(metricGroup.counter("test_aspect3")).thenReturn(simpleCounter);
         counterStatsManager.registerAspects(TestAspects.values(), "counterTest");
         counterStatsManager.inc(TestAspects.TEST_ASPECT_THREE);
         counterStatsManager.inc(TestAspects.TEST_ASPECT_THREE);

@@ -129,6 +129,12 @@
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
 
+        <module name="HiddenField">
+            <property name="ignoreSetter" value="true"/>
+            <!-- For Builder classes -->
+            <property name="setterCanReturnItsClass" value="true"/>
+            <property name="ignoreConstructorParameter" value="true"/>
+        </module>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
@@ -138,7 +144,6 @@
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->
-        <module name="FinalClass"/>
         <module name="InterfaceIsType"/>
         <module name="VisibilityModifier">
             <property name="protectedAllowed" value="true"/>

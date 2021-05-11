@@ -18,7 +18,7 @@ public class HttpSourceConfigTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private HashMap<String, String> headerMap;
-    private HttpSourceConfig httpSourceConfig;
+    private HttpSourceConfig defaultHttpSourceConfig;
     private HashMap<String, OutputMapping> outputMappings;
     private OutputMapping outputMapping;
     private String streamTimeout;
@@ -51,62 +51,62 @@ public class HttpSourceConfigTest {
         capacity = "345";
         metricId = "metricId-http-01";
         retainResponseType = false;
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, metricId, retainResponseType);
+        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, metricId, retainResponseType);
     }
 
     @Test
     public void shouldReturnConnectTimeout() {
-        Assert.assertEquals(Integer.parseInt(connectTimeout), (int) httpSourceConfig.getConnectTimeout());
+        Assert.assertEquals(Integer.parseInt(connectTimeout), (int) defaultHttpSourceConfig.getConnectTimeout());
     }
 
     @Test
     public void shouldReturnEndpoint() {
-        assertEquals(endpoint, httpSourceConfig.getEndpoint());
+        assertEquals(endpoint, defaultHttpSourceConfig.getEndpoint());
     }
 
     @Test
     public void shouldReturnStreamTimeout() {
-        assertEquals(Integer.valueOf(streamTimeout), httpSourceConfig.getStreamTimeout());
+        assertEquals(Integer.valueOf(streamTimeout), defaultHttpSourceConfig.getStreamTimeout());
     }
 
     @Test
     public void shouldReturnBodyPattern() {
-        assertEquals(requestPattern, httpSourceConfig.getPattern());
+        assertEquals(requestPattern, defaultHttpSourceConfig.getPattern());
     }
 
     @Test
     public void shouldReturnBodyVariable() {
-        assertEquals(requestVariables, httpSourceConfig.getRequestVariables());
+        assertEquals(requestVariables, defaultHttpSourceConfig.getRequestVariables());
     }
 
     @Test
     public void isRetainResponseTypeShouldGetTheRightConfig() {
-        assertEquals(retainResponseType, httpSourceConfig.isRetainResponseType());
+        assertEquals(retainResponseType, defaultHttpSourceConfig.isRetainResponseType());
     }
 
     @Test
     public void shouldReturnFailOnErrors() {
-        assertEquals(failOnErrors, httpSourceConfig.isFailOnErrors());
+        assertEquals(failOnErrors, defaultHttpSourceConfig.isFailOnErrors());
     }
 
     @Test
     public void shouldReturnVerb() {
-        assertEquals(verb, httpSourceConfig.getVerb());
+        assertEquals(verb, defaultHttpSourceConfig.getVerb());
     }
 
     @Test
     public void getMetricIdShouldGetRightConfig() {
-        assertEquals(metricId, httpSourceConfig.getMetricId());
+        assertEquals(metricId, defaultHttpSourceConfig.getMetricId());
     }
 
     @Test
     public void shouldReturnType() {
-        assertEquals(type, httpSourceConfig.getType());
+        assertEquals(type, defaultHttpSourceConfig.getType());
     }
 
     @Test
     public void hasTypeShouldBeTrueWhenTypeIsPresent() {
-        assertTrue(httpSourceConfig.hasType());
+        assertTrue(defaultHttpSourceConfig.hasType());
     }
 
     @Test
@@ -123,22 +123,22 @@ public class HttpSourceConfigTest {
 
     @Test
     public void shouldReturnHeaderMap() {
-        assertEquals(headerMap, httpSourceConfig.getHeaders());
+        assertEquals(headerMap, defaultHttpSourceConfig.getHeaders());
     }
 
     @Test
     public void shouldReturnOutputMapping() {
-        assertEquals(outputMappings, httpSourceConfig.getOutputMapping());
+        assertEquals(outputMappings, defaultHttpSourceConfig.getOutputMapping());
     }
 
     @Test
     public void shouldReturnCapacity() {
-        assertEquals(Integer.valueOf(capacity), httpSourceConfig.getCapacity());
+        assertEquals(Integer.valueOf(capacity), defaultHttpSourceConfig.getCapacity());
     }
 
     @Test
     public void shouldReturnColumnNames() {
-        List<String> actualColumns = httpSourceConfig.getOutputColumns();
+        List<String> actualColumns = defaultHttpSourceConfig.getOutputColumns();
         String[] expectedColumns = {"surge_factor"};
         Assert.assertArrayEquals(expectedColumns, actualColumns.toArray());
     }
@@ -147,7 +147,7 @@ public class HttpSourceConfigTest {
     public void shouldValidate() {
         expectedException = ExpectedException.none();
 
-        httpSourceConfig.validateFields();
+        defaultHttpSourceConfig.validateFields();
     }
 
     @Test
@@ -177,9 +177,9 @@ public class HttpSourceConfigTest {
 
         outputMappings.put("field", outputMappingWithNullField);
 
-        httpSourceConfig = new HttpSourceConfig("http://localhost",
+        defaultHttpSourceConfig = new HttpSourceConfig("http://localhost",
                 "post", "request_body", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
-        httpSourceConfig.validateFields();
+        defaultHttpSourceConfig.validateFields();
     }
 
     @Test
@@ -191,9 +191,9 @@ public class HttpSourceConfigTest {
 
         outputMappings.put("field", outputMappingWithNullField);
 
-        httpSourceConfig = new HttpSourceConfig("http://localhost",
+        defaultHttpSourceConfig = new HttpSourceConfig("http://localhost",
                 "post", "", requestVariables, "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
-        httpSourceConfig.validateFields();
+        defaultHttpSourceConfig.validateFields();
     }
 
     @Test
@@ -209,7 +209,7 @@ public class HttpSourceConfigTest {
         expectedMandatoryFields.put("connectTimeout", connectTimeout);
         expectedMandatoryFields.put("outputMapping", outputMapping);
         expectedMandatoryFields.put("metric_id", metricId);
-        HashMap<String, Object> actualMandatoryFields = httpSourceConfig.getMandatoryFields();
+        HashMap<String, Object> actualMandatoryFields = defaultHttpSourceConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("endpoint"), actualMandatoryFields.get("endpoint"));
         assertEquals(expectedMandatoryFields.get("verb"), actualMandatoryFields.get("verb"));
         assertEquals(expectedMandatoryFields.get("failOnErrors"), actualMandatoryFields.get("failOnErrors"));
@@ -226,8 +226,8 @@ public class HttpSourceConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        httpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>(), "metricId_01", retainResponseType);
+        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, verb, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>(), "metricId_01", retainResponseType);
 
-        httpSourceConfig.validateFields();
+        defaultHttpSourceConfig.validateFields();
     }
 }

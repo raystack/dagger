@@ -130,9 +130,9 @@ public class StencilClientOrchestratorTest {
         List<String> enrichmentStencilURLs = Collections
                 .singletonList("http://localhost/latest");
 
-        StencilClient stencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
+        StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 
-        assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
+        assertEquals(ClassLoadStencilClient.class, enrichedStencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);

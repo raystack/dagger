@@ -25,7 +25,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SinkOrchestratorTest {
 
-    private Configuration configuration;
+    private Configuration defaultConfiguration;
 
     private StencilClientOrchestrator stencilClientOrchestrator;
     private SinkOrchestrator sinkOrchestrator;
@@ -33,13 +33,13 @@ public class SinkOrchestratorTest {
     @Before
     public void setup() {
         initMocks(this);
-        configuration = mock(Configuration.class, withSettings().serializable());
-        when(configuration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn(STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
-        when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn(STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
-        when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
-        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
+        defaultConfiguration = mock(Configuration.class, withSettings().serializable());
+        when(defaultConfiguration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn(STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
+        when(defaultConfiguration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn(STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
+        when(defaultConfiguration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
+        when(defaultConfiguration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
 
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(defaultConfiguration);
         sinkOrchestrator = new SinkOrchestrator();
     }
 
@@ -55,17 +55,17 @@ public class SinkOrchestratorTest {
 
     @Test
     public void shouldGiveLogSinkWhenConfiguredToUseLog() throws Exception {
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("log");
+        when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("log");
 
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Function sinkFunction = sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
 
         assertThat(sinkFunction, instanceOf(LogSink.class));
     }
 
     @Test
     public void shouldGiveInfluxWhenConfiguredToUseNothing() throws Exception {
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
+        Function sinkFunction = sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
 
         assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
     }
@@ -73,9 +73,9 @@ public class SinkOrchestratorTest {
 
     @Test
     public void shouldSetKafkaProducerConfigurations() throws Exception {
-        when(configuration.getString(eq(OUTPUT_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
-        when(configuration.getBoolean(eq(PRODUCE_LARGE_MESSAGE_KEY), anyBoolean())).thenReturn(true);
-        Properties producerProperties = sinkOrchestrator.getProducerProperties(configuration);
+        when(defaultConfiguration.getString(eq(OUTPUT_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
+        when(defaultConfiguration.getBoolean(eq(PRODUCE_LARGE_MESSAGE_KEY), anyBoolean())).thenReturn(true);
+        Properties producerProperties = sinkOrchestrator.getProducerProperties(defaultConfiguration);
 
         assertEquals(producerProperties.getProperty("compression.type"), "snappy");
         assertEquals(producerProperties.getProperty("max.request.size"), "20971520");
@@ -83,12 +83,12 @@ public class SinkOrchestratorTest {
 
     @Test
     public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(configuration.getString(eq("OUTPUT_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
-        when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
-        when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
+        when(defaultConfiguration.getString(eq("OUTPUT_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
+        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
 
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Function sinkFunction = sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
 
         assertThat(sinkFunction, instanceOf(FlinkKafkaProducerCustom.class));
     }
@@ -100,9 +100,9 @@ public class SinkOrchestratorTest {
         HashMap<String, List<String>> expectedMetrics = new HashMap<>();
         expectedMetrics.put("sink_type", sinkType);
 
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
+        when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
 
-        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
         Assert.assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 
@@ -125,13 +125,13 @@ public class SinkOrchestratorTest {
         expectedMetrics.put("output_stream", outputStream);
 
 
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(configuration.getString(eq("OUTPUT_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
-        when(configuration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
-        when(configuration.getString(eq("OUTPUT_STREAM"), anyString())).thenReturn("test_output_stream");
-        when(configuration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
+        when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
+        when(defaultConfiguration.getString(eq("OUTPUT_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
+        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("OUTPUT_STREAM"), anyString())).thenReturn("test_output_stream");
+        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
 
-        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
         Assert.assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 }
