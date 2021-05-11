@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class SqlInternalAutoFieldImportTest {
 
     @Test
-    public void shouldReturnAllOfTheInputFieldToOutputField(){
+    public void shouldReturnAllOfTheInputFieldToOutputField() {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add("*");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
@@ -22,7 +22,7 @@ public class SqlInternalAutoFieldImportTest {
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
         Row inputRow = new Row(2);
-        inputRow.setField(0,"inputValue1");
+        inputRow.setField(0, "inputValue1");
         inputRow.setField(1, "inputValue2");
         Row outputRow = new Row(2);
         Row parentRow = new Row(2);
@@ -36,7 +36,7 @@ public class SqlInternalAutoFieldImportTest {
     }
 
     @Test
-    public void shouldReturnAllOfTheInputFieldToOutputFieldWithAnyOutputValueConfig(){
+    public void shouldReturnAllOfTheInputFieldToOutputFieldWithAnyOutputValueConfig() {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add("*");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
@@ -45,7 +45,7 @@ public class SqlInternalAutoFieldImportTest {
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
         Row inputRow = new Row(2);
-        inputRow.setField(0,"inputValue1");
+        inputRow.setField(0, "inputValue1");
         inputRow.setField(1, "inputValue2");
         Row outputRow = new Row(2);
         Row parentRow = new Row(2);
@@ -59,7 +59,7 @@ public class SqlInternalAutoFieldImportTest {
     }
 
     @Test
-    public void shouldNotReturnAllOfTheInputFieldToOutputField(){
+    public void shouldNotReturnAllOfTheInputFieldToOutputField() {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add(".");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
@@ -68,7 +68,7 @@ public class SqlInternalAutoFieldImportTest {
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
         Row inputRow = new Row(2);
-        inputRow.setField(0,"inputValue1");
+        inputRow.setField(0, "inputValue1");
         inputRow.setField(1, "inputValue2");
         Row outputRow = new Row(2);
         Row parentRow = new Row(2);

@@ -15,7 +15,7 @@ public class TransformConfigTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private TransformConfig transformConfig;
+    private TransformConfig defaultTransformConfig;
     private String transformationClass;
     private Map<String, Object> transformationArguments;
 
@@ -26,17 +26,17 @@ public class TransformConfigTest {
         transformationArguments.put("keyColumnName", "key");
         transformationArguments.put("valueColumnName", "value");
 
-        transformConfig = new TransformConfig(transformationClass, transformationArguments);
+        defaultTransformConfig = new TransformConfig(transformationClass, transformationArguments);
     }
 
     @Test
     public void shouldReturnTransformationClass() {
-        assertEquals("io.odpf.daggers.postprocessor.XTransformer", transformConfig.getTransformationClass());
+        assertEquals("io.odpf.daggers.postprocessor.XTransformer", defaultTransformConfig.getTransformationClass());
     }
 
     @Test
     public void shouldReturnTransformationArguments() {
-        assertEquals(transformationArguments, transformConfig.getTransformationArguments());
+        assertEquals(transformationArguments, defaultTransformConfig.getTransformationArguments());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class TransformConfigTest {
     public void shouldReturnMandatoryFields() {
         HashMap<String, Object> expectedMandatoryFields = new HashMap<>();
         expectedMandatoryFields.put("transformationClass", "io.odpf.daggers.postprocessor.XTransformer");
-        HashMap<String, Object> actualMandatoryFields = transformConfig.getMandatoryFields();
+        HashMap<String, Object> actualMandatoryFields = defaultTransformConfig.getMandatoryFields();
         assertEquals(expectedMandatoryFields.get("transformationClass"), actualMandatoryFields.get("transformationClass"));
     }
 

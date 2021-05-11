@@ -35,7 +35,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PgAsyncConnectorTest {
 
-    ResultFuture<Row> resultFuture;
+    private ResultFuture<Row> resultFuture;
 
     @Mock
     private Configuration configuration;

@@ -138,7 +138,7 @@ public class StreamManagerTest {
         streamManager.registerConfigs();
         streamManager.registerSourceWithPreProcessors();
 
-        verify(env,Mockito.times(1)).addSource(any(FlinkKafkaConsumerCustom.class));
+        verify(env, Mockito.times(1)).addSource(any(FlinkKafkaConsumerCustom.class));
         verify(tableEnvironment, Mockito.times(1)).registerTableSource(eq("data_stream"), any(CustomStreamingTableSource.class));
     }
 
@@ -156,11 +156,11 @@ public class StreamManagerTest {
         verify(env, Mockito.times(1)).execute("SQL Flink job");
     }
 
-    class StreamManagerStub extends StreamManager {
+    final class StreamManagerStub extends StreamManager {
 
         private StreamInfo streamInfo;
 
-        public StreamManagerStub(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment, StreamInfo streamInfo) {
+        private StreamManagerStub(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment, StreamInfo streamInfo) {
             super(configuration, executionEnvironment, tableEnvironment);
             this.streamInfo = streamInfo;
         }

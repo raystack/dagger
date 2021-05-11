@@ -9,6 +9,12 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'idea'
+    apply plugin: 'checkstyle'
+
     group 'io.odpf'
 
+    checkstyle {
+        toolVersion '7.6.1'
+        configFile rootProject.file("config/checkstyle/checkstyle.xml")
+    }
 }

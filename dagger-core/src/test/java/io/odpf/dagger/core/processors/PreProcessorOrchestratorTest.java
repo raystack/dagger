@@ -25,13 +25,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PreProcessorOrchestratorTest {
 
     @Mock
-    MetricsTelemetryExporter exporter;
+    private MetricsTelemetryExporter exporter;
 
     @Mock
-    StreamInfo streamInfo;
+    private StreamInfo streamInfo;
 
     @Mock
-    DataStream<Row> stream;
+    private DataStream<Row> stream;
 
     @Before
     public void setup() {

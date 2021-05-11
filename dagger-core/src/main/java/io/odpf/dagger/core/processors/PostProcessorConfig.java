@@ -21,7 +21,7 @@ public class PostProcessorConfig implements Serializable {
     private ExternalSourceConfig externalSource;
     private List<TransformConfig> transformers;
     private List<InternalSourceConfig> internalSource;
-    private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+    private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     public PostProcessorConfig(ExternalSourceConfig externalSource, List<TransformConfig> transformers, List<InternalSourceConfig> internalSource) {
         this.externalSource = externalSource;
@@ -34,7 +34,7 @@ public class PostProcessorConfig implements Serializable {
         try {
             Type typeToken = new TypeToken<PostProcessorConfig>() {
             }.getType();
-            postProcessorConfig = gson.fromJson(configuration, typeToken);
+            postProcessorConfig = GSON.fromJson(configuration, typeToken);
         } catch (JsonSyntaxException exception) {
             throw new InvalidJsonException("Invalid JSON Given for " + Constants.POST_PROCESSOR_CONFIG_KEY);
         }
@@ -80,10 +80,12 @@ public class PostProcessorConfig implements Serializable {
 
     public List<String> getOutputColumnNames() {
         List<String> outputColumnNames = new ArrayList<>();
-        if (externalSource != null && !externalSource.isEmpty())
+        if (externalSource != null && !externalSource.isEmpty()) {
             outputColumnNames.addAll(externalSource.getOutputColumnNames());
-        if (internalSource != null && !internalSource.isEmpty())
+        }
+        if (internalSource != null && !internalSource.isEmpty()) {
             internalSource.forEach(config -> outputColumnNames.add(config.getOutputField()));
+        }
         return outputColumnNames;
     }
 }

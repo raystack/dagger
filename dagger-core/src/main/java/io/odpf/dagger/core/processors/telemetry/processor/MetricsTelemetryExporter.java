@@ -21,7 +21,7 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
     private GaugeStatsManager gaugeStatsManager;
     private Integer gaugeValue = 1;
-    protected Map<String, Set<String>> metrics = new HashMap<>();
+    private Map<String, Set<String>> metrics = new HashMap<>();
 
     public MetricsTelemetryExporter(GaugeStatsManager gaugeStatsManager) {
         this.gaugeStatsManager = gaugeStatsManager;
@@ -60,9 +60,9 @@ public class MetricsTelemetryExporter extends RichMapFunction<Row, Row> implemen
         );
     }
 
-    protected void registerGroups(GaugeStatsManager gaugeStatsManager) {
+    protected void registerGroups(GaugeStatsManager manager) {
         metrics.forEach((groupKey, groupValues) -> groupValues
-                .forEach(groupValue -> gaugeStatsManager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
+                .forEach(groupValue -> manager.registerAspects(groupKey, groupValue, TelemetryAspects.values(), gaugeValue)));
         LOGGER.info("Sending Metrics: " + metrics);
         metrics.clear();
     }

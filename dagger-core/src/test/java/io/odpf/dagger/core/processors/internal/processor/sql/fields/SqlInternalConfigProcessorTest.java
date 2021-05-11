@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class SqlInternalConfigProcessorTest {
 
     @Test
-    public void shouldBeAbleToProcessSqlCustomType(){
+    public void shouldBeAbleToProcessSqlCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
@@ -23,7 +23,7 @@ public class SqlInternalConfigProcessorTest {
     }
 
     @Test
-    public void shouldNotBeAbleToProcessFunctionCustomType(){
+    public void shouldNotBeAbleToProcessFunctionCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "function");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
@@ -33,7 +33,7 @@ public class SqlInternalConfigProcessorTest {
     }
 
     @Test
-    public void shouldNotBeAbleToProcessConstantCustomType(){
+    public void shouldNotBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "constant");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
@@ -43,7 +43,7 @@ public class SqlInternalConfigProcessorTest {
     }
 
     @Test
-    public void processWithRightConfiguration(){
+    public void processWithRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"field"}, Arrays.asList("field1", "newField", "field2"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("newField", "field", "sql");
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);

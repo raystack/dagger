@@ -23,6 +23,8 @@ public class PutRequestFactory implements Serializable {
     public PutRequest create(Row input) {
         if (!longbowSchema.isLongbowPlus()) {
             return new TablePutRequest(longbowSchema, input, tableId);
-        } else return new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
+        } else {
+            return new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
+        }
     }
 }

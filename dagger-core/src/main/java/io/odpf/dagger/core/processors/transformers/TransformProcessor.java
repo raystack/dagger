@@ -43,7 +43,6 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
         TransformerUtils.populateDefaultArguments(this);
     }
 
-    //TODO : validate transformation logic if works properly or not
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         for (TransformConfig transformConfig : transformConfigs) {
@@ -57,7 +56,6 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
         }
         return streamInfo;
     }
-
 
     @Override
     public boolean canProcess(PreProcessorConfig processorConfig) {
@@ -77,6 +75,8 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
                 break;
             case PRE_PROCESSOR_TYPE:
                 addMetric(type.getValue(), this.tableName + "_" + Constants.TRANSFORM_PROCESSOR);
+                break;
+            default:
                 break;
         }
     }

@@ -51,9 +51,9 @@ public class StencilClientOrchestratorTest {
         when(configuration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn("30");
         when(configuration.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT)).thenReturn(STENCIL_CONFIG_TIMEOUT_MS_DEFAULT);
         when(configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(true);
-        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://localhost/latest," +
-                "http://localhost/events/latest," +
-                "http://localhost/entities/release");
+        when(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn("http://localhost/latest,"
+                + "http://localhost/events/latest,"
+                + "http://localhost/entities/release");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
@@ -130,9 +130,9 @@ public class StencilClientOrchestratorTest {
         List<String> enrichmentStencilURLs = Collections
                 .singletonList("http://localhost/latest");
 
-        StencilClient stencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
+        StencilClient enrichedStencilClient = stencilClientOrchestrator.enrichStencilClient(enrichmentStencilURLs);
 
-        assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
+        assertEquals(ClassLoadStencilClient.class, enrichedStencilClient.getClass());
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);

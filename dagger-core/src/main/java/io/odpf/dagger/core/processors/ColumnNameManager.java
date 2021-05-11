@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ColumnNameManager implements Serializable {
-    private List<String> inputColumnNames;
+    private final List<String> inputColumnNames;
     private List<String> outputColumnNames;
 
     public ColumnNameManager(String[] inputColumnNames, List<String> outputColumnNames) {
@@ -35,15 +35,15 @@ public class ColumnNameManager implements Serializable {
         return inputColumnNames.toArray(new String[0]);
     }
 
-    private List<String> setOutputColumnNames(List<String> outputColumnNames) {
-        if (selectAllFromInputColumns(outputColumnNames)) {
-            outputColumnNames.remove(Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE);
-            outputColumnNames.addAll(inputColumnNames);
+    private List<String> setOutputColumnNames(List<String> names) {
+        if (selectAllFromInputColumns(names)) {
+            names.remove(Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE);
+            names.addAll(inputColumnNames);
         }
-        return outputColumnNames;
+        return names;
     }
 
-    private boolean selectAllFromInputColumns(List<String> outputColumnNames) {
-        return outputColumnNames != null && outputColumnNames.contains(Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE);
+    private boolean selectAllFromInputColumns(List<String> names) {
+        return names != null && names.contains(Constants.SQL_PATH_SELECT_ALL_CONFIG_VALUE);
     }
 }

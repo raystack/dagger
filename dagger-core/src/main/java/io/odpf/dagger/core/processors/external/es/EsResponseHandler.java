@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
 import static java.util.Collections.singleton;
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class EsResponseHandler implements ResponseListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EsResponseHandler.class.getName());
@@ -62,8 +63,9 @@ public class EsResponseHandler implements ResponseListener {
     @Override
     public void onSuccess(Response response) {
         try {
-            if (response.getStatusLine().getStatusCode() != 200)
+            if (response.getStatusLine().getStatusCode() != SC_OK) {
                 return;
+            }
             String responseBody = EntityUtils.toString(response.getEntity());
             List<String> esOutputColumnNames = esSourceConfig.getOutputColumns();
             esOutputColumnNames.forEach(outputColumnName -> {
@@ -120,8 +122,8 @@ public class EsResponseHandler implements ResponseListener {
     }
 
 
-    private void setField(EsSourceConfig esSourceConfig, int index, Object value, String name) {
-        if (!esSourceConfig.isRetainResponseType() || esSourceConfig.hasType()) {
+    private void setField(EsSourceConfig esConfig, int index, Object value, String name) {
+        if (!esConfig.isRetainResponseType() || esConfig.hasType()) {
             Descriptors.FieldDescriptor fieldDescriptor = outputDescriptor.findFieldByName(name);
             if (fieldDescriptor == null) {
                 Exception illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + name);
