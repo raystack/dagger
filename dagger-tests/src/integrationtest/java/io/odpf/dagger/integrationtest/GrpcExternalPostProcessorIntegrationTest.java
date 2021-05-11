@@ -62,35 +62,36 @@ public class GrpcExternalPostProcessorIntegrationTest {
 
     @Test
     public void shouldPopulateFieldFromGrpcOnSuccess() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"grpc\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"localhost\",\n" +
-                "        \"service_port\": " + port + ",\n" +
-                "        \"request_pattern\": \"{'field1': '%s'}\",\n" +
-                "        \"request_variables\": \"order_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": false,\n" +
-                "        \"retain_response_type\": true,\n" +
-                "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n" +
-                "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n" +
-                "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n" +
-                "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"headers\": {\n" +
-                "           \"content-type\": \"application/json\" \n" +
-                "          }, \n" +
-                "        \"output_mapping\": {\n" +
-                "          \"field3\": {\n" +
-                "            \"path\": \"$.field3\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  } \n" +
-                "}";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"grpc\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"localhost\",\n"
+                + "        \"service_port\": " + port + ",\n"
+                + "        \"request_pattern\": \"{'field1': '%s'}\",\n"
+                + "        \"request_variables\": \"order_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": false,\n"
+                + "        \"retain_response_type\": true,\n"
+                + "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n"
+                + "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n"
+                + "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n"
+                + "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"headers\": {\n"
+                + "           \"content-type\": \"application/json\" \n"
+                + "          }, \n"
+                + "        \"output_mapping\": {\n"
+                + "          \"field3\": {\n"
+                + "            \"path\": \"$.field3\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  } \n"
+                + "}";
 
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
@@ -108,7 +109,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 .willReturn(response));
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -123,55 +124,56 @@ public class GrpcExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertEquals("Grpc Response Success", CollectSink.values.get(0).getField(0));
+        assertEquals("Grpc Response Success", CollectSink.OUTPUT_VALUES.get(0).getField(0));
     }
 
 
     @Test
     public void shouldPopulateFieldFromGrpcOnSuccessWithExternalAndInternalSource() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"grpc\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"localhost\" ,\n" +
-                "        \"service_port\": " + port + ",\n" +
-                "        \"request_pattern\": \"{'field1': '%s'}\",\n" +
-                "        \"request_variables\": \"order_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": false,\n" +
-                "        \"retain_response_type\": true,\n" +
-                "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n" +
-                "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n" +
-                "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n" +
-                "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"output_mapping\": {\n" +
-                "          \"field3\": {\n" +
-                "            \"path\": \"$.field3\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }, \n" +
-                "  \"internal_source\": [\n" +
-                "    {\n" +
-                "      \"output_field\": \"event_timestamp\",\n" +
-                "      \"type\": \"function\",\n" +
-                "      \"value\": \"CURRENT_TIMESTAMP\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"output_field\": \"order_id\",\n" +
-                "      \"type\": \"sql\",\n" +
-                "      \"value\": \"order_id\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"output_field\": \"customer_id\",\n" +
-                "      \"type\": \"sql\",\n" +
-                "      \"value\": \"customer_id\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"grpc\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"localhost\" ,\n"
+                + "        \"service_port\": " + port + ",\n"
+                + "        \"request_pattern\": \"{'field1': '%s'}\",\n"
+                + "        \"request_variables\": \"order_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": false,\n"
+                + "        \"retain_response_type\": true,\n"
+                + "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n"
+                + "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n"
+                + "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n"
+                + "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"output_mapping\": {\n"
+                + "          \"field3\": {\n"
+                + "            \"path\": \"$.field3\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }, \n"
+                + "  \"internal_source\": [\n"
+                + "    {\n"
+                + "      \"output_field\": \"event_timestamp\",\n"
+                + "      \"type\": \"function\",\n"
+                + "      \"value\": \"CURRENT_TIMESTAMP\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"output_field\": \"order_id\",\n"
+                + "      \"type\": \"sql\",\n"
+                + "      \"value\": \"order_id\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"output_field\": \"customer_id\",\n"
+                + "      \"type\": \"sql\",\n"
+                + "      \"value\": \"customer_id\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
@@ -188,7 +190,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 .willReturn(response));
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -203,65 +205,66 @@ public class GrpcExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
-        assertEquals("Grpc Response Success", CollectSink.values.get(0).getField(0));
-        assertEquals("dummy-customer-id", CollectSink.values.get(0).getField(2));
-        assertEquals("123", CollectSink.values.get(0).getField(3));
+        assertTrue(CollectSink.OUTPUT_VALUES.get(0).getField(1) instanceof Timestamp);
+        assertEquals("Grpc Response Success", CollectSink.OUTPUT_VALUES.get(0).getField(0));
+        assertEquals("dummy-customer-id", CollectSink.OUTPUT_VALUES.get(0).getField(2));
+        assertEquals("123", CollectSink.OUTPUT_VALUES.get(0).getField(3));
     }
 
     @Test
     public void shouldPopulateFieldFromGrpcOnSuccessWithAllThreeSourcesIncludingTransformer() throws Exception {
-        String postProcessorConfigString = "{\n" +
-                "  \"external_source\": {\n" +
-                "    \"grpc\": [\n" +
-                "      {\n" +
-                "        \"endpoint\": \"localhost\" ,\n" +
-                "        \"service_port\": " + port + ",\n" +
-                "        \"request_pattern\": \"{'field1': '%s'}\",\n" +
-                "        \"request_variables\": \"order_id\",\n" +
-                "        \"stream_timeout\": \"5000\",\n" +
-                "        \"connect_timeout\": \"5000\",\n" +
-                "        \"fail_on_errors\": false,\n" +
-                "        \"retain_response_type\": true,\n" +
-                "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n" +
-                "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n" +
-                "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n" +
-                "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n" +
-                "        \"capacity\": \"30\",\n" +
-                "        \"output_mapping\": {\n" +
-                "          \"field3\": {\n" +
-                "            \"path\": \"$.field3\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }, \n" +
-                "  \"internal_source\": [\n" +
-                "    {\n" +
-                "      \"output_field\": \"event_timestamp\",\n" +
-                "      \"type\": \"function\",\n" +
-                "      \"value\": \"CURRENT_TIMESTAMP\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"output_field\": \"order_id\",\n" +
-                "      \"type\": \"sql\",\n" +
-                "      \"value\": \"order_id\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"output_field\": \"customer_id\",\n" +
-                "      \"type\": \"sql\",\n" +
-                "      \"value\": \"customer_id\"\n" +
-                "    }\n" +
-                "  ], \n" +
-                "   \"transformers\": [" +
-                "     {\n" +
-                "       \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n" +
-                "       \"transformation_arguments\": {\n" +
-                "         \"targetColumnName\": \"customer_id\"\n" +
-                "       }\n" +
-                "     }\n" +
-                "   ] \n" +
-                " }";
+        String postProcessorConfigString =
+                "{\n"
+                + "  \"external_source\": {\n"
+                + "    \"grpc\": [\n"
+                + "      {\n"
+                + "        \"endpoint\": \"localhost\" ,\n"
+                + "        \"service_port\": " + port + ",\n"
+                + "        \"request_pattern\": \"{'field1': '%s'}\",\n"
+                + "        \"request_variables\": \"order_id\",\n"
+                + "        \"stream_timeout\": \"5000\",\n"
+                + "        \"connect_timeout\": \"5000\",\n"
+                + "        \"fail_on_errors\": false,\n"
+                + "        \"retain_response_type\": true,\n"
+                + "        \"grpc_stencil_url\": \"http://localhost:8000/messages.desc\",\n"
+                + "        \"grpc_request_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcRequest\",\n"
+                + "        \"grpc_response_proto_schema\": \"io.odpf.dagger.consumer.TestGrpcResponse\",\n"
+                + "        \"grpc_method_url\": \"io.odpf.dagger.consumer.TestServer/TestRpcMethod\",\n"
+                + "        \"capacity\": \"30\",\n"
+                + "        \"output_mapping\": {\n"
+                + "          \"field3\": {\n"
+                + "            \"path\": \"$.field3\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }, \n"
+                + "  \"internal_source\": [\n"
+                + "    {\n"
+                + "      \"output_field\": \"event_timestamp\",\n"
+                + "      \"type\": \"function\",\n"
+                + "      \"value\": \"CURRENT_TIMESTAMP\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"output_field\": \"order_id\",\n"
+                + "      \"type\": \"sql\",\n"
+                + "      \"value\": \"order_id\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"output_field\": \"customer_id\",\n"
+                + "      \"type\": \"sql\",\n"
+                + "      \"value\": \"customer_id\"\n"
+                + "    }\n"
+                + "  ], \n"
+                + "   \"transformers\": ["
+                + "     {\n"
+                + "       \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n"
+                + "       \"transformation_arguments\": {\n"
+                + "         \"targetColumnName\": \"customer_id\"\n"
+                + "       }\n"
+                + "     }\n"
+                + "   ] \n"
+                + " }";
 
         configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
@@ -278,7 +281,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 .willReturn(response));
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        CollectSink.values.clear();
+        CollectSink.OUTPUT_VALUES.clear();
 
         String[] inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         Row inputData = new Row(3);
@@ -293,19 +296,19 @@ public class GrpcExternalPostProcessorIntegrationTest {
         postProcessedStreamInfo.getDataStream().addSink(new CollectSink());
 
         env.execute();
-        assertTrue(CollectSink.values.get(0).getField(1) instanceof Timestamp);
-        assertEquals("Grpc Response Success", CollectSink.values.get(0).getField(0));
-        assertEquals("dummy-customer-id", CollectSink.values.get(0).getField(2));
-        assertEquals("", CollectSink.values.get(0).getField(3));
+        assertTrue(CollectSink.OUTPUT_VALUES.get(0).getField(1) instanceof Timestamp);
+        assertEquals("Grpc Response Success", CollectSink.OUTPUT_VALUES.get(0).getField(0));
+        assertEquals("dummy-customer-id", CollectSink.OUTPUT_VALUES.get(0).getField(2));
+        assertEquals("", CollectSink.OUTPUT_VALUES.get(0).getField(3));
     }
 
     private static class CollectSink implements SinkFunction<Row> {
 
-        static final List<Row> values = new ArrayList<>();
+        static final List<Row> OUTPUT_VALUES = new ArrayList<>();
 
         @Override
         public synchronized void invoke(Row inputRow, Context context) {
-            values.add(inputRow);
+            OUTPUT_VALUES.add(inputRow);
         }
     }
 
