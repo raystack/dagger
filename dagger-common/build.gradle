@@ -5,11 +5,17 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+
+        dependencies {
+            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
+        }
     }
 
 }
 plugins {
     id 'maven-publish'
+    id 'com.google.protobuf' version '0.8.13'
+    id "java-test-fixtures"
 }
 
 def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
@@ -58,6 +64,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jmockit:jmockit:1.25'
     testImplementation 'org.mockito:mockito-core:2.25.1'
+    testImplementation 'io.grpc:grpc-protobuf:1.18.0'
+    testImplementation 'io.grpc:grpc-api:1.37.0'
+    testImplementation 'io.grpc:grpc-stub:1.18.0'
+    testImplementation 'com.google.protobuf:protobuf-java:3.5.0'
+    testImplementation 'com.google.protobuf:protobuf-java-util:3.5.0'
+    testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
 }
 
 test {
@@ -111,5 +123,29 @@ publishing {
                 password = System.getenv("GITHUB_TOKEN")
             }
         }
+    }
+}
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src/generated"
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.1.0"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.19.0"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+idea {
+    module {
+        testSourceDirs += file("$projectDir/src/generated/test/java")
+        testSourceDirs += project.sourceSets.test.java.srcDirs
     }
 }
