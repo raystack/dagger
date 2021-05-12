@@ -9,7 +9,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
         classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.17.0"
     }
@@ -17,7 +16,6 @@ buildscript {
 
 plugins {
     id 'maven-publish'
-    id 'com.google.protobuf' version '0.8.13'
     id 'com.jfrog.artifactory' version '4.17.0'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
@@ -85,6 +83,7 @@ dependencies {
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
 
+    testImplementation project(':dagger-common').sourceSets.test.output
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
     testImplementation 'org.apache.kafka:kafka-clients:2.5.0'
@@ -139,24 +138,6 @@ sourceSets {
     test.runtimeClasspath += configurations.dependenciesJar
 
 }
-
-protobuf {
-    generatedFilesBaseDir = "$projectDir/src/generated"
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.1.0"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.19.0"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
-
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -294,9 +275,3 @@ task runFlink(type: JavaExec, dependsOn: classes) {
     environment properties
 }
 
-
-idea {
-    module {
-        testSourceDirs += file("$projectDir/src/generated/test/java")
-    }
-}
