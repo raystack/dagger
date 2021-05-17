@@ -1,4 +1,4 @@
-package io.odpf.dagger.functions.udfs.aggregate.accumulator.distinctcount;
+package io.odpf.dagger.functions.udfs.aggregate.accumulator;
 
 import org.junit.Test;
 
