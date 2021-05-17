@@ -51,6 +51,9 @@ $ ./gradlew runFlink
 # Running unit tests
 $ ./gradlew clean test
 
+# Running integration tests
+$ ./gradlew clean integrationTest
+
 # Run code quality checks
 $ ./gradlew checkstyleMain checkstyleTest
 
