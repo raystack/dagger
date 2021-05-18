@@ -63,8 +63,8 @@ public class LongbowReaderTest {
     @Before
     public void setup() {
         initMocks(this);
-        when(configuration.getString(LONGBOW_GCP_PROJECT_ID_KEY, LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
-        when(configuration.getString(LONGBOW_GCP_INSTANCE_ID_KEY, LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
+        when(configuration.getString(PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
+        when(configuration.getString(PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
         when(configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT)).thenReturn("test-job");
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};

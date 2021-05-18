@@ -26,12 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.utils.Constants.ASYNC_IO_CAPACITY_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.ASYNC_IO_CAPACITY_KEY;
-import static io.odpf.dagger.core.utils.Constants.SHUTDOWN_PERIOD_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SHUTDOWN_PERIOD_KEY;
-import static io.odpf.dagger.core.utils.Constants.TELEMETRY_ENABLED_KEY;
-import static io.odpf.dagger.core.utils.Constants.TELEMETRY_ENABLED_VALUE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -87,9 +85,8 @@ public class ExternalPostProcessorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("TestLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpStreamDecorator.decorate(dataStream)).thenReturn(dataStream);
-        when(configuration.getString(ASYNC_IO_CAPACITY_KEY, ASYNC_IO_CAPACITY_DEFAULT)).thenReturn(ASYNC_IO_CAPACITY_DEFAULT);
-        when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(SHUTDOWN_PERIOD_DEFAULT);
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(TELEMETRY_ENABLED_VALUE_DEFAULT);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
 
         String postProcessorConfigString = "{\n"
                 + "  \"external_source\": {\n"

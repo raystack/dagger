@@ -53,8 +53,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
         this.configuration = configuration;
         this.longbowSchema = longbowSchema;
-        this.longbowDocumentDuration = configuration.getString(Constants.LONGBOW_DOCUMENT_DURATION,
-                Constants.LONGBOW_DOCUMENT_DURATION_DEFAULT);
+        this.longbowDocumentDuration = configuration.getString(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
+                Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
         this.tableId = tableId;
         this.writerOutputRow = writerOutputRow;

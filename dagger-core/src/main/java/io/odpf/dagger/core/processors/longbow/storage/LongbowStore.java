@@ -40,8 +40,8 @@ public class LongbowStore {
     }
 
     public static LongbowStore create(Configuration configuration) throws IOException {
-        String gcpProjectID = configuration.getString(Constants.LONGBOW_GCP_PROJECT_ID_KEY, Constants.LONGBOW_GCP_PROJECT_ID_DEFAULT);
-        String gcpInstanceID = configuration.getString(Constants.LONGBOW_GCP_INSTANCE_ID_KEY, Constants.LONGBOW_GCP_INSTANCE_ID_DEFAULT);
+        String gcpProjectID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
+        String gcpInstanceID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);

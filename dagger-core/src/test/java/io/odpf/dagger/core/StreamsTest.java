@@ -30,10 +30,9 @@ public class StreamsTest {
     public void setup() {
         initMocks(this);
         configuration = new Configuration();
-        configuration.setString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
-        configuration.setString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
-        configuration.setBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
-        configuration.setString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT);
+        configuration.setString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        configuration.setBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        configuration.setString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
 
         stencilClient = StencilClientFactory.getClient();
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -43,14 +42,14 @@ public class StreamsTest {
     public void shouldTakeAJSONArrayWithSingleObject() {
         String configString = "[\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
-                + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
@@ -65,14 +64,14 @@ public class StreamsTest {
     public void shouldAddTopicsStreamsAndProtosToMetrics() {
         String configString = "[\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
-                + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
@@ -102,26 +101,26 @@ public class StreamsTest {
     public void shouldAddTopicsStreamsAndProtosToMetricsInCaseOfJoins() {
         String configString = "[\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
-                + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"STREAM_NAME\": \"mainstream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+                + "            \"NAME\": \"mainstream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        },\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"1\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogKey\",\n"
-                + "            \"TABLE_NAME\": \"data_stream_1\",\n"
-                + "            \"STREAM_NAME\": \"locstream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"1\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogKey\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream_1\",\n"
+                + "            \"NAME\": \"locstream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 
@@ -154,14 +153,14 @@ public class StreamsTest {
     public void shouldReturnProtoClassName() {
         String configString = "[\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
-                + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";
 

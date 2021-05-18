@@ -48,28 +48,28 @@ public class StreamManager {
 
     public StreamManager registerConfigs() {
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
-        executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.MAX_PARALLELISM_KEY, Constants.MAX_PARALLELISM_DEFAULT));
+        executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
         executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        executionEnvironment.setParallelism(configuration.getInteger(PARALLELISM_KEY, PARALLELISM_DEFAULT));
-        executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger(WATERMARK_INTERVAL_MS_KEY, WATERMARK_INTERVAL_MS_DEFAULT));
+        executionEnvironment.setParallelism(configuration.getInteger(FLINK_PARALLELISM_KEY, FLINK_PARALLELISM_DEFAULT));
+        executionEnvironment.getConfig().setAutoWatermarkInterval(configuration.getInteger(FLINK_WATERMARK_INTERVAL_MS_KEY, FLINK_WATERMARK_INTERVAL_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setTolerableCheckpointFailureNumber(Integer.MAX_VALUE);
-        executionEnvironment.enableCheckpointing(configuration.getLong(CHECKPOINT_INTERVAL_KEY, CHECKPOINT_INTERVAL_DEFAULT));
+        executionEnvironment.enableCheckpointing(configuration.getLong(FLINK_CHECKPOINT_INTERVAL_MS_KEY, FLINK_CHECKPOINT_INTERVAL_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong(CHECKPOINT_TIMEOUT_KEY, CHECKPOINT_TIMEOUT_DEFAULT));
-        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong(CHECKPOINT_MIN_PAUSE_KEY, CHECKPOINT_MIN_PAUSE_DEFAULT));
-        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger(MAX_CONCURRECT_CHECKPOINTS_KEY, MAX_CONCURRECT_CHECKPOINTS_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(configuration.getLong(FLINK_CHECKPOINT_TIMEOUT_MS_KEY, FLINK_CHECKPOINT_TIMEOUT_MS_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong(FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY, FLINK_CHECKPOINT_MIN_PAUSE_MS_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(configuration);
 
-        tableEnvironment.getConfig().setIdleStateRetentionTime(Time.hours(configuration.getInteger(MIN_IDLE_STATE_RETENTION_TIME_KEY, MIN_IDLE_STATE_RETENTION_TIME_DEFAULT)),
-                Time.hours(configuration.getInteger(MAX_IDLE_STATE_RETENTION_TIME_KEY, MAX_IDLE_STATE_RETENTION_TIME_DEFAULT)));
+        tableEnvironment.getConfig().setIdleStateRetentionTime(Time.hours(configuration.getInteger(FLINK_RETENTION_MIN_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_MIN_IDLE_STATE_HOUR_DEFAULT)),
+                Time.hours(configuration.getInteger(FLINK_RETENTION_MAX_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_MAX_IDLE_STATE_HOUR_DEFAULT)));
         return this;
     }
 
 
     public StreamManager registerSourceWithPreProcessors() {
-        String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
-        Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
-        Long watermarkDelay = configuration.getLong(WATERMARK_DELAY_MS_KEY, WATERMARK_DELAY_MS_DEFAULT);
+        String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
+        Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
+        Long watermarkDelay = configuration.getLong(FLINK_WATERMARK_INTERVAL_DELAY_MS_KEY, FLINK_WATERMARK_INTERVAL_DELAY_MS_DEFAULT);
         kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
@@ -120,7 +120,7 @@ public class StreamManager {
     }
 
     public void execute() throws Exception {
-        executionEnvironment.execute(configuration.getString("FLINK_JOB_ID", "SQL Flink job"));
+        executionEnvironment.execute(configuration.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT));
     }
 
     protected StreamInfo createStreamInfo(Table table) {
@@ -155,9 +155,9 @@ public class StreamManager {
     }
 
     private Streams getKafkaStreams() {
-        String rowTimeAttributeName = configuration.getString("ROWTIME_ATTRIBUTE_NAME", "");
-        Boolean enablePerPartitionWatermark = configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false);
-        Long watermarkDelay = configuration.getLong(WATERMARK_DELAY_MS_KEY, WATERMARK_DELAY_MS_DEFAULT);
+        String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
+        Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
+        Long watermarkDelay = configuration.getLong(FLINK_WATERMARK_INTERVAL_DELAY_MS_KEY, FLINK_WATERMARK_INTERVAL_DELAY_MS_DEFAULT);
         return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
     }
 }

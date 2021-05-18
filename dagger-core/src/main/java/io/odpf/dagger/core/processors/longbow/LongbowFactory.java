@@ -121,12 +121,12 @@ public class LongbowFactory {
     }
 
     private String getTableId(Configuration config) {
-        return config.getString(Constants.LONGBOW_GCP_TABLE_ID_KEY, config.getString(Constants.DAGGER_NAME_KEY, Constants.DAGGER_NAME_DEFAULT));
+        return config.getString(Constants.PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, config.getString(Constants.DAGGER_NAME_KEY, Constants.DAGGER_NAME_DEFAULT));
     }
 
     private String getMessageProtoClassName(Configuration config) {
         String jsonArrayString = config.getString(Constants.INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
-        return (String) streamsConfig[0].get(Constants.STREAM_PROTO_CLASS_NAME);
+        return (String) streamsConfig[0].get(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS);
     }
 }

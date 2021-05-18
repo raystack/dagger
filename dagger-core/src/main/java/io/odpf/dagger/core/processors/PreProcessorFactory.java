@@ -18,15 +18,15 @@ public class PreProcessorFactory {
     private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     public static PreProcessorConfig parseConfig(Configuration configuration) {
-        if (!configuration.getBoolean(Constants.PRE_PROCESSOR_ENABLED_KEY, Constants.PRE_PROCESSOR_ENABLED_DEFAULT)) {
+        if (!configuration.getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)) {
             return null;
         }
-        String configJson = configuration.getString(Constants.PRE_PROCESSOR_CONFIG_KEY, "");
+        String configJson = configuration.getString(Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY, "");
         PreProcessorConfig config;
         try {
             config = GSON.fromJson(configJson, PreProcessorConfig.class);
         } catch (JsonSyntaxException exception) {
-            throw new InvalidJsonException("Invalid JSON Given for " + Constants.PRE_PROCESSOR_CONFIG_KEY);
+            throw new InvalidJsonException("Invalid JSON Given for " + Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY);
         }
         return config;
     }

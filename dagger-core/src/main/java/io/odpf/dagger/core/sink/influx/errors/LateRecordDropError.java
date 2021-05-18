@@ -18,9 +18,9 @@ public class LateRecordDropError implements InfluxError {
 
     public LateRecordDropError(RuntimeContext runtimeContext) {
         this.counter = runtimeContext.getMetricGroup()
-                .addGroup(Constants.INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
+                .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED).counter("value");
         this.errorStatsReporter = new ErrorStatsReporter(runtimeContext,
-                Constants.SHUTDOWN_PERIOD_DEFAULT);
+                Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
     }
 
     @Override

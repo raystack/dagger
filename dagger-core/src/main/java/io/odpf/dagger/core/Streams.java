@@ -26,9 +26,10 @@ import java.util.regex.Pattern;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {
-    private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private static final String KAFKA_PREFIX = "kafka_config_";
     private final Configuration configuration;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
@@ -49,7 +50,7 @@ public class Streams implements TelemetryPublisher {
         String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
-            String tableName = streamConfig.getOrDefault(Constants.STREAM_TABLE_NAME, "");
+            String tableName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_TABLE, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
         }
     }
@@ -78,14 +79,14 @@ public class Streams implements TelemetryPublisher {
     }
 
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topicsForStream = streamConfig.getOrDefault(Constants.STREAM_TOPIC_NAMES, "");
+        String topicsForStream = streamConfig.getOrDefault(Constants.STREAM_SOURCE_KAFKA_TOPIC_NAMES, "");
         topics.add(topicsForStream);
-        String protoClassName = streamConfig.getOrDefault(Constants.STREAM_PROTO_CLASS_NAME, "");
+        String protoClassName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
         protoClassNames.add(protoClassName);
         streamNames.add(streamConfig.getOrDefault(Constants.INPUT_STREAM_NAME, ""));
-        String tableName = streamConfig.getOrDefault(Constants.STREAM_TABLE_NAME, "");
+        String tableName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_TABLE, "");
         protoClassForTable.put(tableName, protoClassName);
-        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault("EVENT_TIMESTAMP_FIELD_INDEX", ""));
+        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX, ""));
         Properties kafkaProps = new Properties();
         streamConfig.entrySet()
                 .stream()
@@ -112,8 +113,8 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
-        if (configuration.getBoolean(Constants.CONSUME_LARGE_MESSAGE_KEY, Constants.CONSUME_LARGE_MESSAGE_DEFAULT)) {
-            kafkaProps.setProperty("max.partition.fetch.bytes", "5242880");
+        if (configuration.getBoolean(Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+            kafkaProps.setProperty(SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY, SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT);
         }
     }
 

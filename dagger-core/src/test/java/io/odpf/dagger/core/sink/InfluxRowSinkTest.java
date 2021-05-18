@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class InfluxRowSinkTest {
 
-    private static final int INFLUX_BATCH_SIZE = 100;
+    private static final int SINK_INFLUX_BATCH_SIZE = 100;
     private static final int INFLUX_FLUSH_DURATION = 1000;
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -68,17 +68,17 @@ public class InfluxRowSinkTest {
     @Before
     public void setUp() throws Exception {
         parameters = new Configuration();
-        parameters.setString("INFLUX_URL", "http://localhost:1111");
-        parameters.setString("INFLUX_USERNAME", "usr");
-        parameters.setString("INFLUX_PASSWORD", "pwd");
-        parameters.setInteger("INFLUX_BATCH_SIZE", INFLUX_BATCH_SIZE);
-        parameters.setInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", INFLUX_FLUSH_DURATION);
-        parameters.setString("INFLUX_DATABASE", "dagger_test");
-        parameters.setString("INFLUX_RETENTION_POLICY", "two_day_policy");
-        parameters.setString("INFLUX_MEASUREMENT_NAME", "test_table");
+        parameters.setString("SINK_INFLUX_URL", "http://localhost:1111");
+        parameters.setString("SINK_INFLUX_USERNAME", "usr");
+        parameters.setString("SINK_INFLUX_PASSWORD", "pwd");
+        parameters.setInteger("SINK_INFLUX_BATCH_SIZE", SINK_INFLUX_BATCH_SIZE);
+        parameters.setInteger("SINK_INFLUX_FLUSH_DURATION_MS", INFLUX_FLUSH_DURATION);
+        parameters.setString("SINK_INFLUX_DATABASE", "dagger_test");
+        parameters.setString("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
+        parameters.setString("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
-        when(metricGroup.addGroup(Constants.INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
+        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED)).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY,
                 InfluxDBException.class.getName())).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
@@ -133,7 +133,7 @@ public class InfluxRowSinkTest {
     public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
         setupStubedInfluxDB(new String[]{});
 
-        verify(influxDb).enableBatch(eq(INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
+        verify(influxDb).enableBatch(eq(SINK_INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
     }
 
     @Test

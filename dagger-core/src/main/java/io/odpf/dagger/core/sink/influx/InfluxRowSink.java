@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static io.odpf.dagger.core.utils.Constants.*;
+
 public class InfluxRowSink extends RichSinkFunction<Row> implements CheckpointedFunction {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
 
@@ -39,9 +41,9 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         this.columnNames = columnNames;
         this.parameters = parameters;
         this.errorHandler = errorHandler;
-        databaseName = parameters.getString("INFLUX_DATABASE", "");
-        retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
-        measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
+        databaseName = parameters.getString(SINK_INFLUX_DATABASE_KEY, SINK_INFLUX_DATABASE_DEFAULT);
+        retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
@@ -50,21 +52,21 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         this.parameters = parameters;
         this.errorHandler = errorHandler;
         this.errorReporter = errorReporter;
-        databaseName = parameters.getString("INFLUX_DATABASE", "");
-        retentionPolicy = parameters.getString("INFLUX_RETENTION_POLICY", "");
-        measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
+        databaseName = parameters.getString(SINK_INFLUX_DATABASE_KEY, SINK_INFLUX_DATABASE_DEFAULT);
+        retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     @Override
-    public void open(Configuration unusedDepricatedParameters) throws Exception {
+    public void open(Configuration unusedDeprecatedParameters) throws Exception {
         errorHandler.init(getRuntimeContext());
-        influxDB = influxDBFactory.connect(parameters.getString("INFLUX_URL", ""),
-                parameters.getString("INFLUX_USERNAME", ""),
-                parameters.getString("INFLUX_PASSWORD", "")
+        influxDB = influxDBFactory.connect(parameters.getString(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
+                parameters.getString(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
+                parameters.getString(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
         );
 
-        influxDB.enableBatch(parameters.getInteger("INFLUX_BATCH_SIZE", 0),
-                parameters.getInteger("INFLUX_FLUSH_DURATION_IN_MILLISECONDS", 0),
+        influxDB.enableBatch(parameters.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
+                parameters.getInteger(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
                 TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
         );
         if (errorReporter == null) {

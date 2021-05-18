@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.transformers;
 
 public class TransformerUtils {
     enum DefaultArgument {
-        TABLE_NAME("table_name");
+        INPUT_SCHEMA_TABLE("table_name");
         private final String argument;
 
         DefaultArgument(String argument) {
@@ -18,7 +18,7 @@ public class TransformerUtils {
     protected static void populateDefaultArguments(TransformProcessor processor) {
         for (TransformConfig config : processor.transformConfigs) {
             config.validateFields();
-            config.getTransformationArguments().put(DefaultArgument.TABLE_NAME.toString(), processor.tableName);
+            config.getTransformationArguments().put(DefaultArgument.INPUT_SCHEMA_TABLE.toString(), processor.tableName);
         }
     }
 }
