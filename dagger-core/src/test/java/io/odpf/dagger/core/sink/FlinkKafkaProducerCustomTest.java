@@ -116,8 +116,8 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldReportErrorIfTelemetryEnabled() {
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
-        when(configuration.getLong(SHUTDOWN_PERIOD_KEY, SHUTDOWN_PERIOD_DEFAULT)).thenReturn(0L);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
 
         try {
             flinkKafkaProducerCustomStub.invoke(row, defaultContext);
@@ -129,7 +129,7 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldNotReportIfTelemetryDisabled() {
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(false);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
 
         try {
             flinkKafkaProducerCustomStub.invoke(row, defaultContext);
@@ -141,7 +141,7 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldReturnErrorStatsReporter() {
-        when(configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
         Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(defaultRuntimeContext).getClass());
@@ -158,7 +158,7 @@ public class FlinkKafkaProducerCustomTest {
         }
 
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-            if (configuration.getBoolean(TELEMETRY_ENABLED_KEY, TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+            if (configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
                 return errorStatsReporter;
             } else {
                 return noOpErrorReporter;

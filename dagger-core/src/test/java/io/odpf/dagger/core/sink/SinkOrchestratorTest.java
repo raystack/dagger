@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.OUTPUT_KAFKA_BROKER;
-import static io.odpf.dagger.core.utils.Constants.PRODUCE_LARGE_MESSAGE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKER;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -34,10 +34,9 @@ public class SinkOrchestratorTest {
     public void setup() {
         initMocks(this);
         defaultConfiguration = mock(Configuration.class, withSettings().serializable());
-        when(defaultConfiguration.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT)).thenReturn(STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
-        when(defaultConfiguration.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT)).thenReturn(STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
-        when(defaultConfiguration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT)).thenReturn(STENCIL_ENABLE_DEFAULT);
-        when(defaultConfiguration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT)).thenReturn(STENCIL_URL_DEFAULT);
+        when(defaultConfiguration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(defaultConfiguration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(defaultConfiguration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
 
         stencilClientOrchestrator = new StencilClientOrchestrator(defaultConfiguration);
         sinkOrchestrator = new SinkOrchestrator();
@@ -73,8 +72,8 @@ public class SinkOrchestratorTest {
 
     @Test
     public void shouldSetKafkaProducerConfigurations() throws Exception {
-        when(defaultConfiguration.getString(eq(OUTPUT_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
-        when(defaultConfiguration.getBoolean(eq(PRODUCE_LARGE_MESSAGE_KEY), anyBoolean())).thenReturn(true);
+        when(defaultConfiguration.getString(eq(SINK_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
+        when(defaultConfiguration.getBoolean(eq(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY), anyBoolean())).thenReturn(true);
         Properties producerProperties = sinkOrchestrator.getProducerProperties(defaultConfiguration);
 
         assertEquals(producerProperties.getProperty("compression.type"), "snappy");
@@ -84,9 +83,9 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
         when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(defaultConfiguration.getString(eq("OUTPUT_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
-        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
-        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
 
         Function sinkFunction = sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
 
@@ -124,12 +123,11 @@ public class SinkOrchestratorTest {
         expectedMetrics.put("output_proto", outputProto);
         expectedMetrics.put("output_stream", outputStream);
 
-
         when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(defaultConfiguration.getString(eq("OUTPUT_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
-        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
-        when(defaultConfiguration.getString(eq("OUTPUT_STREAM"), anyString())).thenReturn("test_output_stream");
-        when(defaultConfiguration.getString(eq("OUTPUT_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_STREAM"), anyString())).thenReturn("test_output_stream");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
 
         sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
         Assert.assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());

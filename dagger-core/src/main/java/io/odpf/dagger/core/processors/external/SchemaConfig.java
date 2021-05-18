@@ -24,7 +24,7 @@ public class SchemaConfig implements Serializable {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.inputProtoClasses = getMessageProtoClasses();
-        this.outputProtoClassName = configuration.getString(Constants.OUTPUT_PROTO_MESSAGE, "");
+        this.outputProtoClassName = configuration.getString(Constants.SINK_KAFKA_PROTO_MESSAGE, "");
     }
 
     public StencilClientOrchestrator getStencilClientOrchestrator() {
@@ -48,7 +48,7 @@ public class SchemaConfig implements Serializable {
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         ArrayList<String> protoClasses = new ArrayList<>();
         for (Map individualStreamConfig : streamsConfig) {
-            protoClasses.add((String) individualStreamConfig.get(Constants.STREAM_PROTO_CLASS_NAME));
+            protoClasses.add((String) individualStreamConfig.get(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS));
         }
         return protoClasses.toArray(new String[0]);
     }

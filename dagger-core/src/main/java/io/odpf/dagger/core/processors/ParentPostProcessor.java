@@ -69,7 +69,7 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!configuration.getBoolean(Constants.POST_PROCESSOR_ENABLED_KEY, Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
+        if (!configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY_DEFAULT)) {
             return new ArrayList<>();
         }
 
@@ -86,5 +86,4 @@ public class ParentPostProcessor implements PostProcessor {
     private ExternalMetricConfig getExternalMetricConfig(Configuration config, TelemetrySubscriber subscriber) {
         return new ExternalMetricConfig(config, subscriber);
     }
-
 }

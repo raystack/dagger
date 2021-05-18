@@ -14,9 +14,9 @@ import org.mockito.Mock;
 
 import java.util.List;
 
-import static io.odpf.dagger.core.utils.Constants.PRE_PROCESSOR_CONFIG_KEY;
-import static io.odpf.dagger.core.utils.Constants.PRE_PROCESSOR_ENABLED_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.PRE_PROCESSOR_ENABLED_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -59,8 +59,8 @@ public class PreProcessorFactoryTest {
 
     @Test
     public void shouldReturnPreProcessors() {
-        when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(true);
-        when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
+        when(configuration.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
+        when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         Assert.assertNotNull(preProcessorConfig);
         List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(configuration, preProcessorConfig, "booking", metricsTelemetryExporter);
@@ -69,8 +69,8 @@ public class PreProcessorFactoryTest {
 
     @Test
     public void shouldParseConfig() {
-        when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(true);
-        when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
+        when(configuration.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
+        when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         Assert.assertEquals(2, preProcessorConfig.getTableTransformers().size());
         Assert.assertEquals(2, preProcessorConfig.getTableTransformers().get(0).getTransformers().size());
@@ -79,17 +79,17 @@ public class PreProcessorFactoryTest {
 
     @Test
     public void shouldThrowExceptionForInvalidJson() {
-        when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(true);
-        when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn("blah");
-        expectedException.expectMessage("Invalid JSON Given for PRE_PROCESSOR_CONFIG");
+        when(configuration.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
+        when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn("blah");
+        expectedException.expectMessage("Invalid JSON Given for PROCESSOR_PREPROCESSOR_CONFIG");
         expectedException.expect(InvalidJsonException.class);
         PreProcessorFactory.parseConfig(configuration);
     }
 
     @Test
     public void shouldNotParseConfigWhenDisabled() {
-        when(configuration.getBoolean(PRE_PROCESSOR_ENABLED_KEY, PRE_PROCESSOR_ENABLED_DEFAULT)).thenReturn(false);
-        when(configuration.getString(PRE_PROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
+        when(configuration.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
+        when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         Assert.assertNull(preProcessorConfig);
     }

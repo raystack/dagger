@@ -60,7 +60,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
             String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
 
-            configuration.setString(Constants.POST_PROCESSOR_ENABLED_KEY, "true");
+            configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
 
             configuration.setString(Constants.INPUT_STREAMS, streams);
 
@@ -151,7 +151,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 
@@ -209,7 +209,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 
@@ -284,7 +284,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]   \n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 

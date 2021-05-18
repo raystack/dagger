@@ -23,10 +23,10 @@ public class PostProcessorFactory {
         if (Arrays.stream(columnNames).anyMatch(s -> Pattern.compile(".*\\blongbow.*key\\b.*").matcher(s).find())) {
             postProcessors.add(getLongBowProcessor(columnNames, configuration, metricsTelemetryExporter, stencilClientOrchestrator));
         }
-        if (configuration.getBoolean(Constants.POST_PROCESSOR_ENABLED_KEY, Constants.POST_PROCESSOR_ENABLED_KEY_DEFAULT)) {
+        if (configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY_DEFAULT)) {
             postProcessors.add(new ParentPostProcessor(parsePostProcessorConfig(configuration), configuration, stencilClientOrchestrator, metricsTelemetryExporter));
         }
-        if (configuration.getBoolean(Constants.TELEMETRY_ENABLED_KEY, Constants.TELEMETRY_ENABLED_VALUE_DEFAULT)) {
+        if (configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
             postProcessors.add(new TelemetryProcessor(metricsTelemetryExporter));
         }
         return postProcessors;
@@ -40,7 +40,7 @@ public class PostProcessorFactory {
     }
 
     private static PostProcessorConfig parsePostProcessorConfig(Configuration configuration) {
-        String postProcessorConfigString = configuration.getString(Constants.POST_PROCESSOR_CONFIG_KEY, "");
+        String postProcessorConfigString = configuration.getString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, "");
         return PostProcessorConfig.parse(postProcessorConfigString);
     }
 }

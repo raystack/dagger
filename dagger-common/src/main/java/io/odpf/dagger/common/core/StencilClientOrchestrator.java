@@ -29,9 +29,7 @@ public class StencilClientOrchestrator implements Serializable {
 
     private HashMap<String, String> createStencilConfigMap(Configuration config) {
         stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(STENCIL_CONFIG_REFRESH_CACHE_KEY, config.getString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, config.getString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT));
-        stencilConfigMap.put(STENCIL_CONFIG_TIMEOUT_MS_KEY, config.getString(STENCIL_CONFIG_TIMEOUT_MS_KEY, STENCIL_CONFIG_TIMEOUT_MS_DEFAULT));
+        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
         return stencilConfigMap;
     }
 
@@ -55,14 +53,14 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private StencilClient initStencilClient(List<String> urls) {
-        boolean enableRemoteStencil = configuration.getBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
+        boolean enableRemoteStencil = configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
                 ? StencilClientFactory.getClient(urls, stencilConfigMap)
                 : StencilClientFactory.getClient();
     }
 
     private HashSet<String> getStencilUrls() {
-        stencilUrls = Arrays.stream(configuration.getString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT).split(","))
+        stencilUrls = Arrays.stream(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT).split(","))
                 .map(String::trim)
                 .collect(Collectors.toCollection(HashSet::new));
         return stencilUrls;
