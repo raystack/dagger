@@ -129,7 +129,7 @@ public class Constants {
 
     public static final String SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY = "SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE";
     public static final boolean SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT = false;
-    public static final String SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY = "SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES";
+    public static final String SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY = "max.partition.fetch.bytes";
     public static final String SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT = "5242880";
 
     public static final int CLIENT_ERROR_MIN_STATUS_CODE = 400;
