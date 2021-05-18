@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class KafkaEnvironmentVariables {
 
-    private static final String KAFKA_PREFIX = "kafka_config_";
+    private static final String KAFKA_PREFIX = "source_kafka_config_";
 
     public static Properties parse(Configuration configuration) {
         Properties props = new Properties();
