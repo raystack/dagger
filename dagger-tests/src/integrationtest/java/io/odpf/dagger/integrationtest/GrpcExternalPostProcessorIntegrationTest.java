@@ -51,7 +51,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
 
     @Before
     public void setUp() {
-        String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"NAME\":\"localkafka\"}]";
         configuration.setString(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
         configuration.setString(Constants.INPUT_STREAMS, streams);
         configuration.setString(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, "false");
