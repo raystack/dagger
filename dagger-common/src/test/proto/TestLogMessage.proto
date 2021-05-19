@@ -112,8 +112,6 @@ message TestBookingLogMessage {
   repeated TestRoute routes = 69;
 
   double customer_price = 70;
-
-
 }
 
 message TestPaymentOptionMetadata {
