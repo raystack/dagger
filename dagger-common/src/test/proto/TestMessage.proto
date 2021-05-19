@@ -32,6 +32,7 @@ message TestNestedRepeatedMessage {
     repeated int32 repeated_number_field = 4;
     repeated google.protobuf.Struct metadata = 5;
     google.protobuf.Timestamp event_timestamp = 6;
+    repeated int64 repeated_long_field = 7;
 }
 
 message TestMapMessage {

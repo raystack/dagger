@@ -1,0 +1,76 @@
+package io.odpf.dagger.functions.transformers;
+
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.functions.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.functions.transformers.hash.PathReader;
+import io.odpf.dagger.functions.transformers.hash.field.RowHasher;
+import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.types.Row;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class HashTransformer extends RichMapFunction<Row, Row> implements Serializable, Transformer {
+    private static final String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
+    private static final String ENCRYPTION_FIELD_KEY = "maskColumns";
+    private final List<String> fieldsToHash;
+    private final Configuration configuration;
+
+    private final String[] columnNames;
+    private Map<String, RowHasher> rowHasherMap;
+
+    public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+        this.fieldsToHash = getFieldsToHash(transformationArguments);
+        this.columnNames = columnNames;
+        this.configuration = configuration;
+    }
+
+    private ArrayList<String> getFieldsToHash(Map<String, Object> transformationArguments) {
+        return (ArrayList<String>) transformationArguments.get(ENCRYPTION_FIELD_KEY);
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        if (this.rowHasherMap == null) {
+            this.rowHasherMap = createRowHasherMap(configuration);
+        }
+        super.open(parameters);
+    }
+
+    @Override
+    public StreamInfo transform(StreamInfo streamInfo) {
+        DataStream<Row> inputStream = streamInfo.getDataStream();
+        SingleOutputStreamOperator<Row> outputStream = inputStream.map(this);
+        return new StreamInfo(outputStream, streamInfo.getColumnNames());
+    }
+
+    protected Map<String, RowHasher> createRowHasherMap(Configuration daggerConfig) {
+        String outputProtoClassName = daggerConfig.getString(OUTPUT_PROTO_MESSAGE, "");
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfig);
+        Descriptors.Descriptor outputDescriptor = stencilClientOrchestrator.getStencilClient().get(outputProtoClassName);
+        if (outputDescriptor == null) {
+            throw new DescriptorNotFoundException("Output Descriptor for class: " + outputProtoClassName
+                    + " not found");
+        }
+        PathReader pathReader = new PathReader(outputDescriptor, new ArrayList<>(Arrays.asList(columnNames)));
+        return pathReader.fieldMaskingPath(fieldsToHash);
+    }
+
+    @Override
+    public Row map(Row inputRow) {
+        Row outPutRow = Row.copy(inputRow);
+        for (String fieldPath : rowHasherMap.keySet()) {
+            rowHasherMap.get(fieldPath).maskRow(outPutRow);
+        }
+        return outPutRow;
+    }
+}
