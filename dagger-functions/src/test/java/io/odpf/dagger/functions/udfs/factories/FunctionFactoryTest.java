@@ -39,9 +39,7 @@ import org.mockito.Mock;
 
 import java.util.HashSet;
 
-import static io.odpf.dagger.common.core.Constants.STENCIL_ENABLE_KEY;
-import static io.odpf.dagger.common.core.Constants.STENCIL_URL_KEY;
-import static io.odpf.dagger.functions.common.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
