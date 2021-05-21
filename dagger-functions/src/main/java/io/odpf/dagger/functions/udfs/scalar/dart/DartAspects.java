@@ -8,12 +8,12 @@ import static io.odpf.dagger.common.metrics.aspects.AspectType.Metric;
 
 public enum DartAspects implements Aspects {
 
-    DART_GCS_PATH("DartBucketPath", Gauge),
-    DART_GCS_FETCH_FAILURES("DartGcsBucketFetchFailure", Metric),
-    DART_GCS_FETCH_SUCCESS("DartGcsBucketFetchSuccess", Metric),
-    DART_CACHE_HIT("DartCacheFetchSuccess", Metric),
-    DART_CACHE_MISS("DartCacheFetchFailure", Metric),
-    DART_GCS_FILE_SIZE("DartGcsFileSize", Gauge);
+    DART_GCS_PATH("dart_bucket_path", Gauge),
+    DART_GCS_FETCH_FAILURES("dart_gcs_bucket_fetch_failure", Metric),
+    DART_GCS_FETCH_SUCCESS("dart_gcs_bucket_fetch_success", Metric),
+    DART_CACHE_HIT("dart_cache_fetch_success", Metric),
+    DART_CACHE_MISS("dart_cache_fetch_failure", Metric),
+    DART_GCS_FILE_SIZE("dart_gcs_file_size", Gauge);
 
     private String value;
     private AspectType aspectType;

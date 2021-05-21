@@ -10,6 +10,8 @@ import org.apache.flink.table.functions.FunctionContext;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
+
 public class DartContains extends ScalarUdf {
     private final GcsDataStore dataStore;
     private final Map<String, SetCache> setCache;
@@ -27,7 +29,7 @@ public class DartContains extends ScalarUdf {
     public void open(FunctionContext context) throws Exception {
         super.open(context);
         MeterStatsManager meterStatsManager = new MeterStatsManager(context.getMetricGroup(), true);
-        meterStatsManager.register(this.getClass().getSimpleName(), DartAspects.values());
+        meterStatsManager.register(UDF_TELEMETRY_GROUP_KEY, this.getClass().getSimpleName(), DartAspects.values());
         this.dataStore.setMeterStatsManager(meterStatsManager);
         this.dataStore.setGaugeStatsManager(getGaugeStatsManager());
 
