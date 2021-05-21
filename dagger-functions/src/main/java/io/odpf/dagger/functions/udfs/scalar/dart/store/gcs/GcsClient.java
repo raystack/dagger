@@ -10,6 +10,7 @@ import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
 import io.odpf.dagger.functions.exceptions.BucketDoesNotExistException;
 import io.odpf.dagger.functions.exceptions.TagDoesNotExistException;
 
+import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
 import static io.odpf.dagger.functions.udfs.scalar.dart.DartAspects.DART_GCS_FILE_SIZE;
 import static io.odpf.dagger.functions.udfs.scalar.dart.DartAspects.DART_GCS_PATH;
 
@@ -18,8 +19,7 @@ public class GcsClient {
     private Storage storage;
 
     private static final Double BYTES_TO_KB = 1024.0;
-    private static final String DART_PATH = "DartPath";
-    private static final String UDF_TELEMETRY_GROUP_KEY = "udf";
+    private static final String DART_PATH = "dartpath";
 
     public GcsClient(String projectId) {
 
