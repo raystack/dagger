@@ -1,20 +1,20 @@
 # Create Dagger
 
-This page contains how-to guides for creating Dagger and configure it.
+This page contains how-to guides for creating a Dagger and configure it.
 
 ## Prerequisites
 
-Dagger is a streaming processing framework built with Apache Flink to process protobuf data. To run a dagger in any environment you need to have the following things set up beforehand.
+Dagger is a stream processing framework built with Apache Flink to process/aggregate/transform protobuf data. To run a dagger in any environment you need to have the following things set up beforehand.
 
 #### `Kafka Cluster`
 
-- Dagger use [Kafka](https://kafka.apache.org/) as the source of Data. So you need to set up Kafka(1.0+) either in local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in local machine.
+- Dagger use [Kafka](https://kafka.apache.org/) as the source of Data. So you need to set up Kafka(1.0+) either in local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in local machine. If you have a clustered kafka you can use it directly.
 
 #### `Flink [optional]`
 
 - Dagger uses [Apache Flink](https://flink.apache.org/) as the underlying framework for distributed stream processing. The current version of Dagger uses [Flink-1.9](https://ci.apache.org/projects/flink/flink-docs-release-1.9/).
 
-- For distributed stream processing Flink could be configured either on standalone cluster or in one of the supported resource manager. To know more about deploying Flink on production read the deployment section[update link].
+- For distributed stream processing Flink could be configured either on standalone cluster or in one of the supported resource managers(like Yarn, Kubernetes or docker-compose). To know more about deploying Flink on production read the deployment section[update link].
 
 - If you want to run dagger in local machine on a single process, you don't actually need to install Flink. The following gradle command should be able to do so.
 
@@ -33,9 +33,9 @@ java -jar build/dagger-core/libs/<dagger-version>.jar ConfigFile=<filepath>
 
 #### `Protobuf Data`
 
-- Dagger extensively works for [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from kafka topics, do the processing and produces data in protobuf format to a kafka topic(when sink is kafka).
-- So you need to push some proto encoded data to a kafka topic to run a dagger. This you can do from any of easily using any of the Kafka client library. Follow this[tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a kafka topic.
-- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the class path or use in-house schema registry tool like [stencil](github.com/odpf/stencil) to let dagger know about the data formats. The stencil is a proprietary library that provides an abstraction layer, for schema handling.Schema Caching, dynamic schema updates are features of the stencil client library.
+- Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from kafka topics, do the processing and produces data in protobuf format to a kafka topic(when sink is kafka).
+- So you need to push proto data to a kafka topic to run a dagger. This you can do from any of easily using any of the Kafka client library. Follow this[tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a kafka topic.
+- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the class path or use our in-house schema registry tool like [stencil](github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates.
 
 #### `Sinks`
 
@@ -43,8 +43,9 @@ java -jar build/dagger-core/libs/<dagger-version>.jar ConfigFile=<filepath>
 
   ##### `Influx Sink`
 
-  - [InfluxDB](https://github.com/influxdata/influxdb) is an opensource time series database with a rich ecosystem. Enabling Influx sink lets dagger solve real time analytics problems and visualize the results in real time in visualization tools like grafana.
-  - To you need to set up Opensource version of InfluxDB to use it as a sink. Follow [this](https://docs.influxdata.com/influxdb/v1.8/introduction/install/) to get started with influx. We currently support InfluxDB-1.0+ in dagger.
+  - [InfluxDB](https://github.com/influxdata/influxdb) is an opensource time series database with a rich ecosystem. Enabling Influx sink lets dagger solve real time analytics problems and visualize the results in real time in some visualization tools like grafana.
+  - You need to set up Opensourced version of InfluxDB to use it as a sink. Follow [this](https://docs.influxdata.com/influxdb/v1.8/introduction/install/) to get started with influx. We currently support InfluxDB-1.0+ in dagger.
+  - If you want to visualize the data pushed to influxDB, you have to set up grafana and add the configured influxDB as a data source.
 
   ##### `Kafka Sink` :
 
@@ -53,10 +54,11 @@ java -jar build/dagger-core/libs/<dagger-version>.jar ConfigFile=<filepath>
 
 ## Common Configurations
 
-- These configurations are mandatory for dagger creation and sink independent. Here you need to set the kafka source level information as well as SQLs required for daggers. In local execution they would be set inside `local.properties` file.
-- The streams is a array of json representing logical source configurations and one to one mapped to a kafka topic. You can have more than one stream and each stream can even point to different Kafka topics in different clusters.
+- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the kafka source level information as well as SQL required for dagger. In local execution they would be set inside `local.properties` file. In clustered environment they can be passed as job parameters to the Flink exposed job creation API.
+- Streams is a array of json representing logical source kafka configurations and each stream is one to one mapped to a kafka topic. You can have more than one streams and each stream can even point to different Kafka topics in different clusters.
 - The `FLINK_JOB_ID` define the name of the flink job and `ROWTIME_ATTRIBUTE_NAME` is the [time attribute](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/) required for stream processing.
-- Read more about the mandatory configurations here.
+- In clustered mode you can set up the `parallelism` configuration for distributed processing.
+- Read more about the mandatory configurations here[update link].
 
 ```properties
 STREAMS=[
@@ -79,36 +81,35 @@ FLINK_JOB_ID=TestDagger
 
 ## Write SQL
 
-- Dagger is built keeping SQL first philosophy in mind. Though there are other ways to define data processing in dagger like transformers and processors, SQL always play required in dagger. You can define the SQL query on the streaming table as part of a configuration. This is a sample SELECT star query on the about data source.
+- Dagger is built keeping SQL first philosophy in mind. Though there are other ways to define data processing in dagger like transformers and processors, SQL is always required in dagger. You can define the SQL query on the streaming table as part of a configuration. This example is a sample SELECT star query on the about data source.
 
 ```properties
 SQL_QUERY= SELECT * from `test-table`
 ```
 
-- Flink has a really good native support for SQLs. All the Flink supported [SQL statements](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/table/sql/overview/) should be available out of the box for dagger.
-- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have pre-supported some SQL some UDFs[update link]. Follow this[update link] to add your own UDF to dagger.
-- We have noted some of the sample queries here[update link] for different use cases and things that should be considered while writing a dagger query.
+- Flink has a really good native support for SQL. All the Flink supported [SQL statements](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/table/sql/overview/) should be available out of the box for dagger.
+- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have pre-supported some UDFs[update link] as defined here[update link]. Follow this[update link] to add your own UDFs to dagger.
+- We have noted some of the sample queries here[update link] for different use cases.
 
 ## Log Sink
 
-- Dagger provides a log sink to make it easy to consume the processed messages in standard output. A log sink dagger requires the following config to be set.
+- Dagger provides a log sink to make it easy to consume the processed messages in standard output in a readable format. A log sink dagger requires the following config to be set.
 
 ```properties
 SQL_QUERY= SELECT * from `test-table`
 ```
 
-- Log sink is mostly used to testing and debugging purpose since it just print the output. This is a sample message produced in log sink after a simple count query like
-  `SQL_QUERY= SELECT * from table`
+- Log sink is mostly used to testing and debugging purpose since it just print the output. This is a sample message produced in log sink after the simple query above.
 
 ```
-Show a sample message
+INFO  com.gojek.daggers.sink.log.LogSink                            - {sample_field=81179979,sample_field_2=81179979, rowtime=2021-05-21 11:55:33.0, event_timestamp=1621598133,0}
 ```
 
 ## Influx Sink
 
 - Influx sink is useful for data analytics or even for data validation while iterating over the business logic.
 - For the InfluxDB sink, you have to specify the InfluxDB level information as well as an influx measurement to push the processed data.
-- Showing some of the configurations essential for influx sink Dagger. Find more about them here.
+- Showing some of the configurations essential for influx sink Dagger. Find more about them here[update link].
 
 ```properties
 # === sink config ===
@@ -142,7 +143,7 @@ OUTPUT_KAFKA_BROKER=localhost:9092
 OUTPUT_KAFKA_TOPIC=test-kafka-output
 ```
 
-- Dimensions & metrics from the SELECT section in the query should be mapped to field names in the output proto.
+- Dimensions & metrics from the SELECT section in the query need to be mapped to field names in the output proto.
 - Find more examples on Kafka sink SQL queries here[update link].
 
 ## Advanced Data processing
