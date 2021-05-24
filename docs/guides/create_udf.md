@@ -14,7 +14,7 @@ For adding custom UDFs follow these steps
 
 - Extend either of ScalarUdf, TableUdf or AggregateUdf from `dagger-common`. They are boilerplate contracts on flink supported interfaces.
 
-- Manually Register the UDF in this[https://github.com/odpf/dagger/blob/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs/factories/FunctionFactory.java] class. This is required to let Flink know about your function.
+- Manually Register the UDF in [this](https://github.com/odpf/dagger/blob/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs/factories/FunctionFactory.java) class. This is required to let Flink know about your function.
 
 - Create a UDF on this repo and raise a PR for the same. Also please add the registered function to the [list of udfs doc][update link].
 
