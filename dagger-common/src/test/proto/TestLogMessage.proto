@@ -112,6 +112,14 @@ message TestBookingLogMessage {
   repeated TestRoute routes = 69;
 
   double customer_price = 70;
+
+  repeated bool boolean_array_field = 71;
+
+  repeated double double_array_field = 72;
+
+  repeated float float_array_field = 73;
+
+  repeated int64 long_array_field = 74;
 }
 
 message TestPaymentOptionMetadata {
