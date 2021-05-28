@@ -39,7 +39,7 @@ Our preference is the use of git rebase instead of git merge. Signing commits
 $ git commit -s -m "feat: my first commit"
 ```
 
-Good practices to keep in mind
+### Good practices to follow
 
 * Follow the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) format for all commit messages.
 * Fill in the description based on the default template configured when you first open the PR.

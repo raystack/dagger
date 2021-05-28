@@ -55,7 +55,7 @@ java -jar build/dagger-core/libs/<dagger-version>.jar ConfigFile=<filepath>
 ## Common Configurations
 
 - These configurations are mandatory for dagger creation and are sink independent. Here you need to set the kafka source level information as well as SQL required for dagger. In local execution they would be set inside `local.properties` file. In clustered environment they can be passed as job parameters to the Flink exposed job creation API.
-- Streams is a array of json representing logical source kafka configurations and each stream is one to one mapped to a kafka topic. You can have more than one streams and each stream can even point to different Kafka topics in different clusters.
+- Streams is a array of json representing logical source kafka configurations and each stream is one to one mapped to a group of kafka topics with the same schema. You can have more than one streams and each stream can even point to different Kafka topics in different clusters.
 - The `FLINK_JOB_ID` define the name of the flink job and `ROWTIME_ATTRIBUTE_NAME` is the [time attribute](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/) required for stream processing.
 - In clustered mode you can set up the `parallelism` configuration for distributed processing.
 - Read more about the mandatory configurations here[update link].
