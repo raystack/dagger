@@ -81,7 +81,8 @@ public class BooleanPrimitiveTypeHandlerTest {
         BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Boolean> inputValues = new ArrayList<>(Arrays.asList(true, false, false));
         Object actualValues = booleanPrimitiveTypeHandler.getArray(inputValues);
-        assertArrayEquals(inputValues.toArray(), (Boolean[]) actualValues);
+
+        assertArrayEquals(new boolean[]{true, false, false}, (boolean[]) actualValues);
     }
 
     @Test
@@ -90,6 +91,7 @@ public class BooleanPrimitiveTypeHandlerTest {
 
         BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = booleanPrimitiveTypeHandler.getArray(null);
-        assertEquals(0, ((Boolean[]) actualValues).length);
+
+        assertEquals(0, ((boolean[]) actualValues).length);
     }
 }
