@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static io.odpf.dagger.core.utils.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.core.utils.Constants.OUTPUT_PROTO_MESSAGE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

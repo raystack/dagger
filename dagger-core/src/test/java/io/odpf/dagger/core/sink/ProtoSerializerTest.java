@@ -11,7 +11,7 @@ import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
-import io.odpf.dagger.core.exception.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerRecord;
