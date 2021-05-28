@@ -73,7 +73,7 @@ public class ProtoDeserializerTest {
     }
 
     @Test
-    public void shouldAddTimestampFieldToRow() {
+    public void shouldAddExtraFieldsToRow() {
         String expectedOrderNumber = "111";
         byte[] protoBytes = TestBookingLogMessage
                 .newBuilder()
@@ -85,9 +85,10 @@ public class ProtoDeserializerTest {
 
         Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
-        assertEquals(47, row.getArity());
-        assertTrue((Boolean) row.getField(45));
-        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(46)).getTime());
+        int size = row.getArity();
+        assertEquals(51, size);
+        assertTrue("Didn't add field at the penultimate index", (Boolean) row.getField(size - 2));
+        assertEquals(1595548800000L, ((java.sql.Timestamp) row.getField(size - 1)).getTime());
     }
 
     @Test

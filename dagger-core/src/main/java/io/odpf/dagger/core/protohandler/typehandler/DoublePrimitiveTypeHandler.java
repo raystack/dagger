@@ -1,11 +1,11 @@
 package io.odpf.dagger.core.protohandler.typehandler;
 
+import com.google.common.primitives.Doubles;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DoublePrimitiveTypeHandler implements PrimitiveTypeHandler {
@@ -27,11 +27,11 @@ public class DoublePrimitiveTypeHandler implements PrimitiveTypeHandler {
 
     @Override
     public Object getArray(Object field) {
-        List<Double> inputValues = new ArrayList<>();
+        double[] inputValues = new double[0];
         if (field != null) {
-            inputValues = (List<Double>) field;
+            inputValues = Doubles.toArray((List<Double>) field);
         }
-        return inputValues.toArray(new Double[]{});
+        return inputValues;
     }
 
     @Override

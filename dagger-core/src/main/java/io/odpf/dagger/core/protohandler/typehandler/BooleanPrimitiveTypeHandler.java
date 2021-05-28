@@ -1,11 +1,11 @@
 package io.odpf.dagger.core.protohandler.typehandler;
 
+import com.google.common.primitives.Booleans;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
@@ -27,11 +27,11 @@ public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
     @Override
     public Object getArray(Object field) {
-        List<Boolean> inputValues = new ArrayList<>();
+        boolean[] inputValues = new boolean[0];
         if (field != null) {
-            inputValues = (List<Boolean>) field;
+            inputValues = Booleans.toArray((List<Boolean>) field);
         }
-        return inputValues.toArray(new Boolean[]{});
+        return inputValues;
     }
 
     @Override
