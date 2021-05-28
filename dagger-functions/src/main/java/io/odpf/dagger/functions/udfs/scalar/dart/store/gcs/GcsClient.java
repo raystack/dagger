@@ -43,7 +43,6 @@ public class GcsClient {
         if (blob == null) {
             throw new TagDoesNotExistException(String.format("Could not find the content in gcs for %s", dartName));
         }
-
         gaugeStatsManager.registerString(UDF_TELEMETRY_GROUP_KEY, udfName, DART_GCS_PATH.getValue(), dartName);
         gaugeStatsManager.registerDouble(DART_PATH, dartName, DART_GCS_FILE_SIZE.getValue(), blob.getContent().length / BYTES_TO_KB);
 

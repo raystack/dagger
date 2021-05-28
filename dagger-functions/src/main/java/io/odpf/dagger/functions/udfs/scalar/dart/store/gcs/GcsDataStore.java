@@ -79,7 +79,6 @@ public class GcsDataStore implements DataStore, Serializable {
             getMeterStatsManager().markEvent(DartAspects.DART_GCS_FETCH_FAILURES);
             e.printStackTrace();
         }
-
         return map;
     }
 

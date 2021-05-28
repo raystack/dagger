@@ -29,7 +29,7 @@ public class DartContains extends ScalarUdf {
     public void open(FunctionContext context) throws Exception {
         super.open(context);
         MeterStatsManager meterStatsManager = new MeterStatsManager(context.getMetricGroup(), true);
-        meterStatsManager.register(UDF_TELEMETRY_GROUP_KEY, this.getClass().getSimpleName(), DartAspects.values());
+        meterStatsManager.register(UDF_TELEMETRY_GROUP_KEY, this.getName(), DartAspects.values());
         this.dataStore.setMeterStatsManager(meterStatsManager);
         this.dataStore.setGaugeStatsManager(getGaugeStatsManager());
 
