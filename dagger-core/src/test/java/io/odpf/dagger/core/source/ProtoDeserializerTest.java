@@ -5,7 +5,7 @@ import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.*;
 import io.odpf.dagger.core.exception.DaggerDeserializationException;
-import io.odpf.dagger.core.exception.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;

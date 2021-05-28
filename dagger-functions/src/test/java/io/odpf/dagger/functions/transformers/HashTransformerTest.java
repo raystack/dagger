@@ -2,8 +2,8 @@ package io.odpf.dagger.functions.transformers;
 
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.functions.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.functions.exceptions.InvalidHashFieldException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;

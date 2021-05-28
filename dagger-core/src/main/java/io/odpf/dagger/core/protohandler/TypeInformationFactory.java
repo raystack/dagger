@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.protohandler;
 
-import io.odpf.dagger.core.exception.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import com.google.protobuf.Descriptors;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;

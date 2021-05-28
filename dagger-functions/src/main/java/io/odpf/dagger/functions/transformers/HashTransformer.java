@@ -4,7 +4,7 @@ import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
-import io.odpf.dagger.functions.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.functions.transformers.hash.PathReader;
 import io.odpf.dagger.functions.transformers.hash.field.RowHasher;
 import org.apache.flink.api.common.functions.RichMapFunction;
