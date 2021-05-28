@@ -17,4 +17,7 @@ public class Constants {
     public static final String GAUGE_ASPECT_NAME = "value";
 
     public static final long SLIDING_TIME_WINDOW = 10;
+    public static final String STREAM_PROTO_CLASS_NAME = "PROTO_CLASS_NAME";
+    public static final String STREAM_TABLE_NAME = "TABLE_NAME";
+    public static final String INPUT_STREAMS = "STREAMS";
 }

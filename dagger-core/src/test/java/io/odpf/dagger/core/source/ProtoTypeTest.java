@@ -3,7 +3,7 @@ package io.odpf.dagger.core.source;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
-import io.odpf.dagger.core.exception.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;

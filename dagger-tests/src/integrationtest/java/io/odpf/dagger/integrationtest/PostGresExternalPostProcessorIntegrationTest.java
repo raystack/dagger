@@ -5,7 +5,6 @@ import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.utils.Constants;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
@@ -29,6 +28,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static io.vertx.pgclient.PgPool.pool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,9 +62,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
             String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
 
-            configuration.setString(Constants.POST_PROCESSOR_ENABLED_KEY, "true");
+            configuration.setString(POST_PROCESSOR_ENABLED_KEY, "true");
 
-            configuration.setString(Constants.INPUT_STREAMS, streams);
+            configuration.setString(INPUT_STREAMS, streams);
 
             pgClient = getPGClient();
 
@@ -151,7 +153,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 
@@ -209,7 +211,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 
@@ -284,7 +286,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]   \n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
 

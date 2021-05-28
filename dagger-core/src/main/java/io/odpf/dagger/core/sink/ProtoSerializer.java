@@ -2,7 +2,7 @@ package io.odpf.dagger.core.sink;
 
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
-import io.odpf.dagger.core.exception.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import io.odpf.dagger.core.protohandler.ProtoHandler;
 import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
