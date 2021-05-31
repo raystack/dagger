@@ -6,7 +6,7 @@ Queries in Dagger are similar to standard ANSI SQL with some additional syntax. 
 
 To check if your desired function is supported by Flink follow these steps :
 
-- Dagger uses Apache Calcite for Query evaluation. You can use Calcite supported functions in Dagger with exceptions of some functions. So first check the calcite supported functions [here](https://calcite.apache.org/docs/reference.html) . Try to use them in a Dagger query to check if Dagger supports them.
+- Dagger uses Apache Calcite for Query evaluation. You can use Calcite supported functions in Dagger with the exceptions of some. So first check the calcite supported functions [here](https://calcite.apache.org/docs/reference.html). Try to use them in a Dagger query to check if Dagger supports them.
 - Flink also supports some generic functions as Built-in Functions. You can check them out [flink-udfs](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/table/functions/systemfunctions/). You can use them directly.
 - If Calcite and Flink do not support your desired function, try exploring generic pre-existing custom User Defined Functions (UDFs) developed by us which are listed in the next section.
 
@@ -26,6 +26,6 @@ Some of the use-cases can not be solved using Flink SQL & the Apache Calcite fun
 
   Maps zero or more values to multiple rows and each row may have multiple columns.
 
-All the supported udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory. Follow this to find more details about the already supported UDFs in dagger.
+All the supported udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory. Follow this to find more details about the already supported UDFs in the dagger.
 
-If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow this[update link] to add your custom UDFs in dagger.
+If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow this[update link] to add your custom UDFs in the dagger.
