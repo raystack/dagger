@@ -2,19 +2,19 @@
 
 For a complex application like Dagger monitoring plays an important role.
 Monitoring goes hand-in-hand with observability, which is a prerequisite for troubleshooting and performance tuning.
-In this section will give a brief overview of Dagger's monotoring stack and explain some important panels from the pre-built dashboards which might help you in running your dagger in production.
+This section will give a brief overview of Dagger's monitoring stack and explain some important panels from the pre-built dashboards which might help you in running your dagger in production.
 
 ## Metrics Stack
 
-We use Flink's inbuilt metrics reporter to publish application metrics to one of the supported sinks. Other metrics like JMX can be enabled from Flink. Find more details on Flink's metrics reporting and supported sinks [here](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/deployment/metric_reporters/).
-To register a new application metrics from the dagger code base follow [this](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/ops/metrics/).
+We use Flink's inbuilt metrics reporter to publish application metrics to one of the supported sinks. Other metrics like JMX can be enabled from Flink. Find more details on Flink's metrics reporting and supported sinks [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/monitoring/metrics.html#reporter).
+To register new application metrics from the dagger codebase follow [this](https://ci.apache.org/projects/flink/flink-docs-release-1.9/monitoring/metrics.html#registering-metrics/).
 
-We have also included a custom grafana dashboard for dagger related metrics. [Link the dashboard].
-Follow this[Link to how to import grafana dashboards] to import this dashboard.
+We have also included a custom grafana dashboard for dagger related [metrics](update-link).
+Follow [this](https://grafana.com/docs/grafana/latest/dashboards/export-import/) to import this dashboard.
 
 ## Dagger Dashboard
 
-This section gives an overview of the important panels/titles in the dagger dashboard[link the json].
+This section gives an overview of the important panels/titles in the dagger [dashboard](update-link).
 Find more about all the panels here [link to SLI].
 
 #### Health
@@ -34,7 +34,7 @@ Listing some other important panels in this section below.
 
 #### Kafka Consumer
 
-All the metrics related to the Kafka Consumer. Helps you debug the issues from consumer side. Some of the important panels here are
+All the metrics related to the Kafka Consumer. Helps you debug the issues from the consumer side. Some of the important panels here are
 
 `Records Consumed Rate /second` The average number of records consumed per second.
 
@@ -58,7 +58,7 @@ Shows some basic information about output Kafka Stream like Topics, Proto and Ka
 
 #### UDF
 
-Lists the Name of the UDFs in the SQL query. Also have the Dart related metrics for a Dart Dagger.
+Lists the Name of the UDFs in the SQL query. Also, have the Dart related metrics for a Dart Dagger.
 
 #### Post Processors
 
@@ -84,7 +84,7 @@ Lists some important information related to the Longbow Read and Write Dagger.
 
 #### Checkpointing
 
-To make state fault-tolerant, Flink needs to checkpoint the state. Checkpoints allow Flink to recover state and positions in the streams to give the application the same semantics as a failure-free execution. A Dagger job periodically checkpoints to a GCS bucket. This section has all the checkpointing details.
+To make the state fault-tolerant, Flink needs to checkpoint the state. Checkpoints allow Flink to recover state and positions in the streams to give the application the same semantics as a failure-free execution. A Dagger job periodically checkpoints to a GCS bucket. This section has all the checkpointing details.
 `Number of checkpoints` total of checkpoints triggered since the Dagger has been started.
 
 `Number of failed checkpoints` total number of failed checkpoints since the Dagger started. If the failed checkpoint number is high, the Dagger would also restart.
