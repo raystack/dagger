@@ -6,7 +6,7 @@ Dagger is a real-time data aggregator. It feeds data from the stream(s), a group
 
 ### Components
 
-The End to End Architecture Diagram of Dagger looks something like this.[update image] [add a new image removing duplicate information]
+![Dagger Architecture](../assets/architecture.png)
 
 _**Stream**_
 
