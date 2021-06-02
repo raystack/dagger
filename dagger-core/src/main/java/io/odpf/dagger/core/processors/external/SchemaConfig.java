@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
-import static io.odpf.dagger.core.utils.Constants.OUTPUT_PROTO_MESSAGE;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE;
 
 public class SchemaConfig implements Serializable {
     private final Configuration configuration;
@@ -26,7 +26,7 @@ public class SchemaConfig implements Serializable {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.inputProtoClasses = getMessageProtoClasses();
-        this.outputProtoClassName = configuration.getString(Constants.SINK_KAFKA_PROTO_MESSAGE, "");
+        this.outputProtoClassName = configuration.getString(SINK_KAFKA_PROTO_MESSAGE, "");
     }
 
     public StencilClientOrchestrator getStencilClientOrchestrator() {
@@ -50,7 +50,7 @@ public class SchemaConfig implements Serializable {
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         ArrayList<String> protoClasses = new ArrayList<>();
         for (Map individualStreamConfig : streamsConfig) {
-            protoClasses.add((String) individualStreamConfig.get(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS));
+            protoClasses.add((String) individualStreamConfig.get(STREAM_INPUT_SCHEMA_PROTO_CLASS));
         }
         return protoClasses.toArray(new String[0]);
     }

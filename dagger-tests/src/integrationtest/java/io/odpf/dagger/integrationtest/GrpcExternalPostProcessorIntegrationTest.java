@@ -24,7 +24,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY;
 import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY;
 import static org.grpcmock.GrpcMock.stubFor;
 import static org.grpcmock.GrpcMock.unaryMethod;
@@ -49,9 +51,9 @@ public class GrpcExternalPostProcessorIntegrationTest {
 
     @Before
     public void setUp() {
-        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"NAME\":\"localkafka\"}]";
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
         configuration.setString(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        configuration.setString(INPUT_STREAMS, streams);
         configuration.setString(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, "false");
 
         GrpcMock.configureFor(GrpcMock.grpcMock(0).build().start());
@@ -92,7 +94,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "}";
 
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
@@ -173,7 +175,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "  ]\n"
                 + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
@@ -263,8 +265,8 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "     }\n"
                 + "   ] \n"
                 + " }";
-      
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()

@@ -101,11 +101,11 @@ public class FunctionFactory extends UdfFactory {
     }
 
     private String getGcsProjectId() {
-        return getConfiguration().getString(GCS_PROJECT_ID, GCS_PROJECT_DEFAULT);
+        return getConfiguration().getString(UDF_DART_GCS_PROJECT_ID_KEY, UDF_DART_GCS_PROJECT_ID_DEFAULT);
     }
 
     private String getGcsBucketId() {
-        return getConfiguration().getString(GCS_BUCKET_ID, GCS_BUCKET_DEFAULT);
+        return getConfiguration().getString(UDF_DART_GCS_BUCKET_ID_KEY, UDF_DART_GCS_BUCKET_ID_DEFAULT);
     }
 
     private LinkedHashMap<String, String> getProtosInInputStreams() {
@@ -113,8 +113,8 @@ public class FunctionFactory extends UdfFactory {
         String jsonArrayString = getConfiguration().getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
-            String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
-            String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
+            String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
+            String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
             protoClassForTable.put(tableName, protoClassName);
         }
         return protoClassForTable;

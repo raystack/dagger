@@ -108,7 +108,7 @@ public class StreamsTest {
                 + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
                 + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
                 + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
-                + "            \"NAME\": \"mainstream\",\n"
+                + "            \"SOURCE_KAFKA_NAME\": \"mainstream\",\n"
                 + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        },\n"
                 + "        {\n"
@@ -119,7 +119,7 @@ public class StreamsTest {
                 + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
                 + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogKey\",\n"
                 + "            \"INPUT_SCHEMA_TABLE\": \"data_stream_1\",\n"
-                + "            \"NAME\": \"locstream\",\n"
+                + "            \"SOURCE_KAFKA_NAME\": \"locstream\",\n"
                 + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
                 + "        }\n"
                 + "]";

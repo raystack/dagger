@@ -25,8 +25,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_CONFIG_KEY;
-import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -50,10 +49,10 @@ public class HttpExternalPostProcessorIntegrationTest {
     @Before
     public void setUp() {
 
-        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"NAME\":\"localkafka\"}]";
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
+        configuration.setString(INPUT_STREAMS, streams);
     }
 
     @After
@@ -91,7 +90,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -149,7 +148,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -214,7 +213,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "   ]"
                 + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -294,7 +293,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "   ] \n"
                 + " }";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -327,8 +326,8 @@ public class HttpExternalPostProcessorIntegrationTest {
 
     @Test
     public void shouldPopulateFieldsFromHttpPostApiWithProperJsonBodyForComplexDataTypes() throws Exception {
-        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"NAME\":\"localkafka\"}]";
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
+        configuration.setString(INPUT_STREAMS, streams);
         String postProcessorConfigString =
                 "{\n"
                 + "  \"external_source\": {\n"
@@ -355,8 +354,8 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "    ]\n"
                 + "  }\n"
                 + "}";
-      
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+
+        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(post(urlEqualTo("/"))

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HashTransformer extends RichMapFunction<Row, Row> implements Serializable, Transformer {
-    private static final String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
+    private static final String SINK_KAFKA_PROTO_MESSAGE = "SINK_KAFKA_PROTO_MESSAGE";
     private static final String ENCRYPTION_FIELD_KEY = "maskColumns";
     private final List<String> fieldsToHash;
     private final Configuration configuration;
@@ -54,7 +54,7 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     }
 
     protected Map<String, RowHasher> createRowHasherMap(Configuration daggerConfig) {
-        String outputProtoClassName = daggerConfig.getString(OUTPUT_PROTO_MESSAGE, "");
+        String outputProtoClassName = daggerConfig.getString(SINK_KAFKA_PROTO_MESSAGE, "");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfig);
         Descriptors.Descriptor outputDescriptor = stencilClientOrchestrator.getStencilClient().get(outputProtoClassName);
         if (outputDescriptor == null) {
