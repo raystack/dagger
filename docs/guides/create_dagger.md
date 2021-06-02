@@ -39,15 +39,15 @@ java -jar build/dagger-core/libs/<dagger-version>-all.jar ConfigFile=<filepath>
 
 - Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from Kafka topics, do the processing and produces data in protobuf format to a Kafka topic(when the sink is Kafka).
 - So you need to push proto data to a Kafka topic to run a dagger. This you can do using any of the Kafka client libraries. Follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a Kafka topic.
-- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates. [These configurations](update-link) needs to be set if you are using stencil for proto schema handling.
+- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates. [These configurations](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md#stencil) needs to be set if you are using stencil for proto schema handling.
 
 #### `Sinks`
 
-- The current version of dagger supports InfluxDB and Kafka and as supported sinks to push the data after processing. You need to set up the desired sinks beforehand so that data can be pushed seamlessly.
+- The current version of dagger supports Log, InfluxDB and Kafka and as supported sinks to push the data after processing. You need to set up the desired sinks beforehand so that data can be pushed seamlessly.
 
   ##### `Influx Sink`
 
-  - [InfluxDB](https://github.com/influxdata/influxdb) is an open-source time-series database with a rich ecosystem. Enabling Influx sink lets dagger solve real-time analytics problems and visualize the results in real-time in some visualization tools like grafana.
+  - [InfluxDB](https://github.com/influxdata/influxdb) is an open-source time-series database with a rich ecosystem. Influx sink allows users to analyze the data in real-time. With tools like [Grafana](https://grafana.com/), we can even visualize the data and create real-time dashboards to monitor different metrics.
   - You need to set up an Opensourced version of InfluxDB to use it as a sink. Follow [this](https://docs.influxdata.com/influxdb/v1.8/introduction/install/) to get started with the influx. We currently support InfluxDB-1.0+ in the dagger.
   - If you want to visualize the data pushed to influxDB, you have to set up grafana and add the configured influxDB as a data source.
 
@@ -58,8 +58,8 @@ java -jar build/dagger-core/libs/<dagger-version>-all.jar ConfigFile=<filepath>
 
 ## Common Configurations
 
-- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the Kafka source-level information as well as SQL required for the dagger. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
-- Stream is an array of JSON representing logical source Kafka configurations and each stream is one to one mapped to a group of Kafka topics with the same schema. You can have more than one streams and each stream can even point to different Kafka topics in different clusters.
+- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the Kafka source-level information as well as SQL required for the dagger. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API. Follow this [`postman.json`](update-link) for a sample API to run a job in Flink cluster.
+- Configuration for a given schema involving one or more Kafka topics is consolidated as a Stream. This involves properties for the Kafka cluster, schema, etc. In daggers, you could configure one or more streams for a single job.
 - The `FLINK_JOB_ID` defines the name of the flink job. `ROWTIME_ATTRIBUTE_NAME` is the key name of [row time attribute](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/) required for stream processing.
 - In clustered mode, you can set up the `parallelism` configuration for distributed processing.
 - Read more about the mandatory configurations here[update link].
@@ -67,19 +67,19 @@ java -jar build/dagger-core/libs/<dagger-version>-all.jar ConfigFile=<filepath>
 ```properties
 STREAMS=[
     {
-        "TOPIC_NAMES": "sample-kafka-topic",
-        "TABLE_NAME": "test-table",
-        "PROTO_CLASS_NAME": "com.tests.TestMessage",
-        "EVENT_TIMESTAMP_FIELD_INDEX": "5",
-        "KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
-        "KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
-        "KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
-        "KAFKA_CONSUMER_CONFIG_GROUP_ID": "sample kafka consumer group",
-        "STREAM_NAME": "test-kafka-stream"
+        "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
+        "INPUT_SCHEMA_TABLE": "data_stream",
+        "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+        "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+        "SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+        "SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE": "",
+        "SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET": "latest",
+        "SOURCE_KAFKA_CONFIG_GROUP_ID": "dummy-consumer-group",
+        "NAME": "local-kafka-stream"
     }
 ]
 
-ROWTIME_ATTRIBUTE_NAME=rowtime
+FLINK_ROWTIME_ATTRIBUTE_NAME=rowtime
 FLINK_JOB_ID=TestDagger
 ```
 
@@ -92,12 +92,12 @@ SQL_QUERY= SELECT COUNT(1) AS no_of_events, sample_field, TUMBLE_END(rowtime, IN
 ```
 
 - Flink has really good native support for SQL. All the Flink supported [SQL statements](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html) should be available out of the box for a dagger.
-- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have some pre-supported UDFs[update link] as defined [here](update-link). Follow [this](https://github.com/odpf/dagger/tree/main/docs/guides/create_udf.md) to add your UDFs to the dagger.
-- We have noted some of the sample queries here[update link] for different use cases.
+- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have some pre-supported UDFs[https://github.com/odpf/dagger/tree/main/docs/guides/use_udf.md] as defined [here](https://github.com/odpf/dagger/tree/main/docs/reference/udf.md). Follow [this](https://github.com/odpf/dagger/tree/main/docs/guides/create_udf.md) to add your UDFs to the dagger.
+- We have noted some of the sample queries here[https://github.com/odpf/dagger/tree/main/docs/reference/sample_queries.md] for different use cases.
 
 ## Log Sink
 
-- Dagger provides a log sink to make it easy to consume the processed messages in a standard output console in a readable format. A log sink dagger requires the following config to be set.
+- Dagger provides a log sink which simply logs the Processed Data in a readable format. A log sink dagger requires the following config to be set.
 
 ```properties
 SQL_QUERY= SELECT * from `test-table`
@@ -114,7 +114,7 @@ INFO  io.odpf.dagger.core.sink.log.LogSink                            - {sample_
 
 - Influx sink is useful for data analytics or even for data validation while iterating over the business logic.
 - For the InfluxDB sink, you have to specify the InfluxDB level information as well as an influx measurement to push the processed data.
-- Showing some of the configurations essential for influx sink Dagger. Find more about them here[update link].
+- Showing some of the configurations essential for influx sink Dagger. Find more about them [here](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md).
 
 ```properties
 # === sink config ===
@@ -130,14 +130,14 @@ INFLUX_FLUSH_DURATION_IN_MILLISECONDS=1000
 INFLUX_RETENTION_POLICY=autogen
 ```
 
-- If used with InfluxDB sink, [`tag_`](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#tag-key) should be appended to the beginning of those columns which you want as dimensions. Dimensions will help you slice the data in InfluxDB-Grafana. InfluxDB tags are essentially the columns on which data are indexed. Find more on influxDB tags here. DO NOT use tag* for high cardinal data points with a lot of unique values unless you provide a filtering condition; this will create tag explosion & kill the InfluxDB. Ensure there is at least one value field present in the query(not starting with tag*).
+- In Influx sink, add [`tag_`](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#tag-key) prefix to use the column as a dimension. Dimensions will help you slice the data in InfluxDB-Grafana. InfluxDB tags are essentially the columns on which data are indexed. DO NOT use tag* for high cardinal data points with a lot of unique values unless you provide a filtering condition; this will create tag explosion & kill the InfluxDB. Ensure there is at least one value field present in the query(not starting with tag*).
 
-- The data generated can be visualized in Grafana dashboards integrated with InfluxDB.
+- The data generated can be visualized with the help of tools like Grafana & chronograph.
 
 ## Kafka Sink
 
 - Kafka sink enables aggregated data to be published to a Kafka topic in protobuf encoded format and is available for consumption by any type of consumer. After a Dagger job is deployed, the new topic is automatically created in the output Kafka cluster if auto-creation is enabled.
-- Listing some of the configurations essential for Kafka sink Dagger. Find more about them [here](update-link).
+- Listing some of the configurations essential for Kafka sink Dagger. Find more about them [here](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md).
 
 ```properties
 # === sink config ===

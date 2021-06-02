@@ -18,4 +18,6 @@ For adding custom UDFs follow these steps
 
 - Create a UDF on this repo and raise a PR for the same. Also please add the registered function to the [list of udfs doc][update link].
 
+- In case you have some specific use-cases for UDFs, you can use it without adding it to `dagger-functions`. You can register the UDFs in a similar class like the [`UDFFactory`](https://github.com/odpf/dagger/blob/main/dagger-common/src/main/java/io/odpf/dagger/common/udfs/UdfFactory.java) and add it to the classpath of Dagger. Configure the fully qualified Factory class in `FUNCTION_FACTORY_CLASSES` parameter and you will be able to use the desired UDF in your query.
+
 In the subsequent release of the dagger, your functions should be useable in the query.
