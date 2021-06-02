@@ -1,0 +1,42 @@
+package io.odpf.dagger.functions.transformers;
+
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.functions.transformers.feature.FeatureWithTypeHandler;
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.types.Row;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+public class FeatureWithTypeTransformer implements MapFunction<Row, Row>, Transformer {
+
+    private FeatureWithTypeHandler featureWithTypeHandler;
+
+    public FeatureWithTypeTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+        this.featureWithTypeHandler = new FeatureWithTypeHandler(transformationArguments, columnNames);
+    }
+
+    @Override
+    public Row map(Row inputRow) {
+        ArrayList<Row> featureRows = featureWithTypeHandler.populateFeatures(inputRow);
+
+        Row outputRow = new Row(inputRow.getArity());
+        for (int index = 0; index < inputRow.getArity(); index++) {
+            outputRow.setField(index, inputRow.getField(index));
+        }
+        outputRow.setField(featureWithTypeHandler.getOutputColumnIndex(), featureRows.toArray(new Row[0]));
+        return outputRow;
+    }
+
+    @Override
+    public StreamInfo transform(StreamInfo inputStreamInfo) {
+        DataStream<Row> inputStream = inputStreamInfo.getDataStream();
+        SingleOutputStreamOperator<Row> outputStream = inputStream.map(this);
+        return new StreamInfo(outputStream, inputStreamInfo.getColumnNames());
+    }
+
+}

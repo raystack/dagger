@@ -1,31 +1,28 @@
 package io.odpf.dagger.core;
 
+import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
+import io.odpf.dagger.core.source.ProtoDeserializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.types.Row;
 
-import com.google.gson.Gson;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
-import io.odpf.dagger.core.source.ProtoDeserializer;
-import io.odpf.dagger.core.utils.Constants;
-
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.*;
 import static io.odpf.dagger.core.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {
@@ -47,7 +44,7 @@ public class Streams implements TelemetryPublisher {
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         this.configuration = configuration;
-        String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
+        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_TABLE, "");

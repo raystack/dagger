@@ -1,15 +1,17 @@
 package io.odpf.dagger.core.processors.external;
 
+import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import com.google.gson.Gson;
-import io.odpf.dagger.core.utils.Constants;
-
 import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
+import static io.odpf.dagger.core.utils.Constants.OUTPUT_PROTO_MESSAGE;
 
 public class SchemaConfig implements Serializable {
     private final Configuration configuration;
@@ -44,7 +46,7 @@ public class SchemaConfig implements Serializable {
     }
 
     private String[] getMessageProtoClasses() {
-        String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
+        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         ArrayList<String> protoClasses = new ArrayList<>();
         for (Map individualStreamConfig : streamsConfig) {
