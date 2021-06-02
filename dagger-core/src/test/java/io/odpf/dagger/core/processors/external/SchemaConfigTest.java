@@ -27,7 +27,7 @@ public class SchemaConfigTest {
     @Before
     public void setup() {
         initMocks(this);
-        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"topic-name\",\"INPUT_SCHEMA_TABLE\":\"booking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"InputProtoMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"10.1.2.3:9092\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-config\",\"NAME\":\"test\"}]";
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"topic-name\",\"INPUT_SCHEMA_TABLE\":\"booking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"InputProtoMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\":\"10.1.2.3:9092\",\"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONFIG_GROUP_ID\":\"test-config\",\"SOURCE_KAFKA_NAME\":\"test\"}]";
         configuration.setString(INPUT_STREAMS, streams);
         configuration.setString(SINK_KAFKA_PROTO_MESSAGE, "OutputProtoMessage");
     }

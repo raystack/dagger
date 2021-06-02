@@ -47,7 +47,7 @@ public class Streams implements TelemetryPublisher {
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
-            String tableName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_TABLE, "");
+            String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
         }
     }
@@ -76,12 +76,12 @@ public class Streams implements TelemetryPublisher {
     }
 
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topicsForStream = streamConfig.getOrDefault(Constants.STREAM_SOURCE_KAFKA_TOPIC_NAMES, "");
+        String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES, "");
         topics.add(topicsForStream);
-        String protoClassName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
+        String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
         protoClassNames.add(protoClassName);
-        streamNames.add(streamConfig.getOrDefault(Constants.INPUT_STREAM_NAME, ""));
-        String tableName = streamConfig.getOrDefault(Constants.STREAM_INPUT_SCHEMA_TABLE, "");
+        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME, ""));
+        String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
         protoClassForTable.put(tableName, protoClassName);
         int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX, ""));
         Properties kafkaProps = new Properties();
@@ -110,7 +110,7 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
-        if (configuration.getBoolean(Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+        if (configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
             kafkaProps.setProperty(SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY, SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT);
         }
     }

@@ -6,7 +6,7 @@ public class Constants {
     public static final boolean PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_PREPROCESSOR_CONFIG_KEY = "PROCESSOR_PREPROCESSOR_CONFIG";
     public static final String PROCESSOR_POSTPROCESSOR_ENABLE_KEY = "PROCESSOR_POSTPROCESSOR_ENABLE";
-    public static final boolean PROCESSOR_POSTPROCESSOR_ENABLE_KEY_DEFAULT = false;
+    public static final boolean PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_POSTPROCESSOR_CONFIG_KEY = "PROCESSOR_POSTPROCESSOR_CONFIG";
 
     public static final String LONGBOW_DURATION = "longbow_duration";
@@ -35,8 +35,8 @@ public class Constants {
     public static final String MINUTE_UNIT = "m";
     public static final String HOUR_UNIT = "h";
     public static final String DAY_UNIT = "d";
-    public static final String SQL_QUERY = "SQL_QUERY";
-    public static final String SQL_QUERY_DEFAULT = "";
+    public static final String FLINK_SQL_QUERY_KEY = "FLINK_SQL_QUERY";
+    public static final String FLINK_SQL_QUERY_DEFAULT = "";
 
     public static final int FLINK_PARALLELISM_DEFAULT = 1;
     public static final String FLINK_PARALLELISM_KEY = "FLINK_PARALLELISM";
@@ -92,12 +92,9 @@ public class Constants {
     public static final String TRANSFORM_PROCESSOR = "transform_processor";
     public static final String SQL_TRANSFORMER_CLASS = "io.odpf.dagger.functions.transformers.SQLTransformer";
 
-    public static final String STREAM_INPUT_SCHEMA_PROTO_CLASS = "INPUT_SCHEMA_PROTO_CLASS";
-    public static final String STREAM_INPUT_SCHEMA_TABLE = "INPUT_SCHEMA_TABLE";
     public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
     public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES = "SOURCE_KAFKA_TOPIC_NAMES";
-    public static final String INPUT_STREAMS = "STREAMS";
-    public static final String INPUT_STREAM_NAME = "NAME";
+    public static final String INPUT_STREAM_NAME = "SOURCE_KAFKA_NAME";
 
     public static final String METRIC_TELEMETRY_ENABLE_KEY = "METRIC_TELEMETRY_ENABLE";
     public static final boolean METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT = true;

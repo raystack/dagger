@@ -102,7 +102,7 @@ public class StreamManagerTest {
         when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
-        when(configuration.getString("SQL_QUERY", "")).thenReturn("");
+        when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
         when(configuration.getInteger("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
         when(configuration.getInteger("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
         when(env.getConfig()).thenReturn(executionConfig);

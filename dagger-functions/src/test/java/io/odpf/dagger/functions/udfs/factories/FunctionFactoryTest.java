@@ -56,19 +56,19 @@ public class FunctionFactoryTest {
         initMocks(this);
         String jsonArray = "[\n"
                 + "        {\n"
-                + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\",\n"
-                + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-gp0330\",\n"
-                + "            \"PROTO_CLASS_NAME\": \"io.odpf.test.TestLogMessage\",\n"
-                + "            \"TABLE_NAME\": \"data_stream\",\n"
-                + "            \"TOPIC_NAMES\": \"test-log\"\n"
+                + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\",\n"
+                + "            \"SOURCE_KAFKA_CONFIG_GROUP_ID\": \"flink-sql-gp0330\",\n"
+                + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.test.TestLogMessage\",\n"
+                + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+                + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-log\"\n"
                 + "        }\n"
                 + "]";
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
-        when(configuration.getBoolean(STENCIL_ENABLE_KEY, false)).thenReturn(false);
-        when(configuration.getString(STENCIL_URL_KEY, "")).thenReturn("");
+        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, false)).thenReturn(false);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, "")).thenReturn("");
     }
 
     @Test
@@ -136,5 +136,4 @@ public class FunctionFactoryTest {
         verify(streamTableEnvironment, times(1)).registerFunction(eq("FeaturesWithType"), any(FeaturesWithType.class));
         verify(streamTableEnvironment, times(1)).registerFunction(eq("PercentileAggregator"), any(PercentileAggregator.class));
     }
-
 }

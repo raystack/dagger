@@ -112,7 +112,7 @@ public class StreamManager {
     }
 
     public StreamManager registerOutputStream() {
-        Table table = tableEnvironment.sqlQuery(configuration.getString(Constants.SQL_QUERY, Constants.SQL_QUERY_DEFAULT));
+        Table table = tableEnvironment.sqlQuery(configuration.getString(Constants.FLINK_SQL_QUERY_KEY, Constants.FLINK_SQL_QUERY_DEFAULT));
         StreamInfo streamInfo = createStreamInfo(table);
         streamInfo = addPostProcessor(streamInfo);
         addSink(streamInfo);

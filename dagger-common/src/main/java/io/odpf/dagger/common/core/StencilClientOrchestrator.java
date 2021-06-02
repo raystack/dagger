@@ -30,6 +30,7 @@ public class StencilClientOrchestrator implements Serializable {
     private HashMap<String, String> createStencilConfigMap(Configuration config) {
         stencilConfigMap = new HashMap<>();
         stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
+        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT));
         return stencilConfigMap;
     }
 

@@ -34,11 +34,11 @@ public class HashTransformerTest {
     @Before
     public void setup() {
         initMocks(this);
-        when(configuration.getString("OUTPUT_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestBookingLogMessage");
-        when(configuration.getBoolean("ENABLE_STENCIL_URL", false))
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
                 .thenReturn(false);
-        when(configuration.getString("STENCIL_URL", ""))
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
                 .thenReturn("");
     }
 
@@ -135,7 +135,7 @@ public class HashTransformerTest {
 
     @Test
     public void shouldHashNestedFields() throws Exception {
-        when(configuration.getString("OUTPUT_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestEnrichedBookingLogMessage");
         HashMap<String, Object> transformationArguments = new HashMap<>();
 
@@ -191,7 +191,7 @@ public class HashTransformerTest {
         HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
         hashTransformer.open(configuration);
 
-        verify(configuration, times(1)).getString("OUTPUT_PROTO_MESSAGE", "");
+        verify(configuration, times(1)).getString("SINK_KAFKA_PROTO_MESSAGE", "");
     }
 
 
@@ -214,7 +214,7 @@ public class HashTransformerTest {
 
     @Test
     public void shouldThrowErrorIfUnableToFindOpDescriptor() throws Exception {
-        when(configuration.getString("OUTPUT_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.RandomTestMessage");
         thrown.expect(DescriptorNotFoundException.class);
         thrown.expectMessage("Output Descriptor for class: io.odpf.dagger.consumer.RandomTestMessage not found");
