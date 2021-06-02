@@ -4,6 +4,7 @@ The following guide will help you quickly run Dagger in your local machine. The 
 
 - Streams: All Kafka source related information for Data consumption.
 - SQL: SQL Query to process input stream data.
+- Processors: Plugins to define custom Operators and to interact with external Data sources.
 - Sink: Sinking data after processing is done.
 
 ## Requirements
@@ -20,7 +21,7 @@ The following components/services are required to run Dagger:
 
 - Kafka &gt; 2.4 to consume messages from.
 - Corresponding sink service to sink data to.
-- Flink \(Optional\) only needed if you want to run in cluster mode. For standalone mode, it's not required.
+- Flink Cluster \(Optional\) only needed if you want to run in cluster mode. For standalone mode, it's not required.
 
 ## Style Guide
 

@@ -11,8 +11,7 @@ In this section, we will know more about transformers, how to use them and how y
 
 - [Transformers](update-link) are a type of processors that let users define more complex processing capability by writing custom Java code. With transformers, all the [Flink Operators](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/datastream/operators/overview/) and granularity of [Flink process Function](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/datastream/operators/process_function/) are supported out of the box. This lets users solve some of the more complex business-specific problems.
 - There can be multiple transformers chained as well. They will be processed sequentially.
-- Transformer is a single-stream operation transforming one stream to other. So there are some inherent limitations like multi-stream operations in transformations. 
-
+- Transformer is a single-stream operation transforming one stream to other. So there are some inherent limitations like multi-stream operations in transformations.
 
 ## Explore Pre-built Transformer
 
@@ -29,21 +28,24 @@ In this section, we will know more about transformers, how to use them and how y
   SQL_QUERY = "SELECT data_1, data_2, event_timestamp from data_stream"
   POST_PROCESSOR_ENABLED = true.
   POST_PROCESSOR_CONFIG = {
-      "internal_source": [
-          {
-              "output_field": "*",
-              "value": "*",
-              "type": "sql"
-          }
-      ],
-      "transformers": [
-          {
-              "transformation_class": "io.odpf.dagger.functions.transformers.SQLTransformer",
-              "transformation_arguments": {
-                  "sqlQuery": "SELECT count(distinct data_1) AS `count`,data_2, TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS event_timestamp FROM data_stream group by TUMBLE (rowtime, INTERVAL '60' SECOND), data_2"
-              }
-          }
-      ]
+    "internal_source": [
+        {
+            "output_field": "*",
+            "value": "*",
+            "type": "sql"
+        }
+    ],
+    "transformers": [
+        {
+            "transformation_class": "io.odpf.dagger.functions.transformers.HashTransformer",
+            "transformation_arguments": {
+                "maskColumns": [
+                    "data_2",
+                    "data_1"
+                ]
+            }
+        }
+    ]
   }
   ```
 - In the example, the internal source just says to select all the fields as selected from the SQL query. Find more about the `internal_source` config parameter [here](update-link).
