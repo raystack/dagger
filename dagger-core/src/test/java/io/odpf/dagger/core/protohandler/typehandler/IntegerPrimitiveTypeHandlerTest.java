@@ -77,7 +77,8 @@ public class IntegerPrimitiveTypeHandlerTest {
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
         Object actualValues = integerPrimitiveTypeHandler.getArray(inputValues);
-        assertArrayEquals(inputValues.toArray(), (Integer[]) actualValues);
+
+        assertArrayEquals(new int[]{1, 2, 3}, (int[]) actualValues);
     }
 
     @Test
@@ -85,7 +86,8 @@ public class IntegerPrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = integerPrimitiveTypeHandler.getArray(null);
-        assertEquals(0, ((Integer[]) actualValues).length);
+
+        assertEquals(0, ((int[]) actualValues).length);
     }
 
 }

@@ -1,6 +1,6 @@
 package io.odpf.dagger.functions.udfs.aggregate;
 
-import io.odpf.dagger.functions.udfs.aggregate.accumulator.distinctcount.DistinctCountAccumulator;
+import io.odpf.dagger.functions.udfs.aggregate.accumulator.DistinctCountAccumulator;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.table.functions.FunctionContext;

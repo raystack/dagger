@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.exception;
+package io.odpf.dagger.common.exceptions;
 
 public class DescriptorNotFoundException extends RuntimeException {
     public static final String DESCRIPTOR_NOT_FOUND = "descriptor not found";

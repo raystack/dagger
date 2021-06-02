@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowReadColumnModifier;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowWriteColumnModifier;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.NoOpColumnModifier;
@@ -13,23 +13,25 @@ import io.odpf.dagger.core.processors.longbow.outputRow.ReaderOutputLongbowData;
 import io.odpf.dagger.core.processors.longbow.outputRow.ReaderOutputProtoData;
 import io.odpf.dagger.core.processors.longbow.processor.LongbowReader;
 import io.odpf.dagger.core.processors.longbow.processor.LongbowWriter;
-import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
-import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
 import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
 import io.odpf.dagger.core.processors.longbow.range.LongbowRangeFactory;
+import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
+import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowValidator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.sink.ProtoSerializer;
-import com.google.gson.Gson;
-import io.odpf.dagger.core.utils.Constants;
-
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 public class LongbowFactory {
     private LongbowSchema longbowSchema;
@@ -125,7 +127,7 @@ public class LongbowFactory {
     }
 
     private String getMessageProtoClassName(Configuration config) {
-        String jsonArrayString = config.getString(Constants.INPUT_STREAMS, "");
+        String jsonArrayString = config.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         return (String) streamsConfig[0].get(Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS);
     }
