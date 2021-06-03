@@ -6,7 +6,6 @@ Service-level Indicators \(SLIs\) are the measurements used to calculate the per
 
 ## Table of Contents
 
-- [Health](metrics.md#health)
 - [Overview](metrics.md#overview)
 - [Kafka Consumer Details](metrics.md#kafka-consumer-details)
 - [Input Stream](metrics.md#input-stream)
@@ -17,14 +16,6 @@ Service-level Indicators \(SLIs\) are the measurements used to calculate the per
 - [Processors](metrics.md#processors)
 - [Longbow](metrics.md#longbow)
 - [Checkpointing](metrics.md#checkpointing)
-
-## Health
-
-This shows the health of the dagger.
-
-### `Heath`
-
-- This shows the health of the job every minute. In case the job is not running fine you would see a red bar.
 
 ## Overview
 

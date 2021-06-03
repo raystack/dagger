@@ -21,6 +21,16 @@ To know more about Flink's cluster mode deployment follow [this](https://ci.apac
 
 - After the jar is generated it should be available as `dagger-core/build/libs/dagger-core-version-all.jar`.
 - Upload to cluster can be done using [REST api](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/ops/rest_api/#jars-upload) or [CLI](https://ci.apache.org/projects/flink/flink-docs-master/docs/deployment/cli/#submitting-a-job) or manually from the cluster's user interface.
+- For optimized jar size in the cluster we also have another set-up where we divide the fat jar into two different jars called `-minimal.jar` and `-dependencies.jar`. As the minimal jar is the jar for dagger code base only without any dependencies whereas the dependencies jar contains all the external dependencies for running a dagger. Since the external dependencies do not change that much it's kind of static and can be updated to the cluster directly. And you will run a dagger with updating the minimal jar to the cluster.
+
+```bash
+# local minimal jar creation
+./gradlew :dagger-core:minimalJar
+
+#creating a dependency jar
+./gradlew :dagger-core:dependenciesJar
+
+```
 
 ## Cluster Deployment
 

@@ -17,10 +17,6 @@ Follow [this](https://grafana.com/docs/grafana/latest/dashboards/export-import/)
 This section gives an overview of the important panels/titles in the dagger [dashboard](update-link).
 Find more about all the panels here [link to SLI].
 
-#### Health
-
-This consists of only a single Panel called the Health Panel which shows the uptime of a Dagger. Running Dagger is Green, Restarting is Red, and Stopped is Gray.
-
 #### Overview
 
 It shows the basic status of a Dagger which is kind of self-explanatory like running since, number of restarts, downtime etc.
