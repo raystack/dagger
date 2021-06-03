@@ -20,7 +20,7 @@ Some of the use-cases can not be solved using Flink SQL & the Apache Calcite fun
 
 - ### Aggregate Functions
 
-  Aggregates one or more rows, each with one or more columns to a value. int DistinctCount(int metric) // calculates distinct count of a metric in a given window. Eg: DistinctCount(driver_id) will return unique driver IDs in a window.
+  Aggregates one or more rows, each with one or more columns to a value. Aggregates data per dimension. int DistinctCount(int metric) // calculates distinct count of a metric in a given window. Eg: DistinctCount(driver_id) will return unique driver IDs in a window.
 
 - ### Table Functions
 

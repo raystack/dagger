@@ -8,14 +8,6 @@ This section contains guides, best practices and advice related to troubleshooti
 
 Listing some of the most frequent errors below and how to debug them.
 
-### Error : `java.util.concurrent.TimeoutException: Heartbeat of TaskManager with id xxx timed out ...`[add image]
-
-- This issue mostly means some issues with the checkpointing of states in Dagger though it can happen due to other reasons.
-- You confirm this by checking if the checkpoint dashboards. The “Number of failed Checkpoints” dashboard would have an increasing curve and the last checkpoint size would be high (500+MB).
-
-- If the checkpoint size is in MBs, you can scale up the job(increase parallelism to fix this). Try increasing the parallelism by 1 or 2 depending on the state size and increase it gradually. Don’t forget to reset the offset after scaling up the job.
-- But if the checkpoint size near GBs, you may have to make some changes in the query like reducing window size to your existing query.
-
 ### Error : `org.influxdb.InfluxDBException: {"error":"unable to parse: invalid number...`
 
 - This means you are pushing a time field (except rowtime) to influxDB without casting it to String/Varchar.
