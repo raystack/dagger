@@ -252,10 +252,17 @@ artifactory {
     clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
 }
 
+task minimalAndShadowPublish(dependsOn: 'minimalJar') {
+    dependsOn('publishMinimalArtifactPublicationToGitHubPackagesRepository', 'publishShadowPublicationToGitHubPackagesRepository')
+    description('Publishes minimal and shadow jar')
+}
+
+task dependenciesPublish(dependsOn: 'dependenciesJar') {
+    dependsOn('publishDependenciesArtifactPublicationToGitHubPackagesRepository')
+    description('Publishes dependencies jar')
+}
+
 project.afterEvaluate {
-    tasks.withType(PublishToMavenRepository) {
-        dependsOn minimalJar, dependenciesJar
-    }
     tasks.withType(PublishToMavenLocal) {
         dependsOn minimalJar, dependenciesJar
     }
