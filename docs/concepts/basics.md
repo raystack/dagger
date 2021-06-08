@@ -10,7 +10,7 @@ For Stream processing and hence for dagger user must know about some basic conce
 
 ### Streams
 
-A group of Kafka topics sharing the same schema define a stream. The schema is defined using `protobuf`. You can have any number of schemas you want but the streaming queries become more complex with the addition of new schemas.
+A group of Kafka topics sharing the same schema define a stream. The schema is defined using [`protobuf`](https://developers.google.com/protocol-buffers). You can have any number of schemas you want but the streaming queries become more complex with the addition of new schemas.
 
 ### Apache Flink
 
@@ -18,16 +18,16 @@ Apache Flink is a framework and distributed processing engine for processing ove
 
 ### Time Series Database
 
-A time-series database (TSDB) is a database optimized for time-stamped or time-series data. Time series data are simply measurements or events that are tracked, monitored, down-sampled, and aggregated over time. Dagger platform used InfluxDB, a Time Series Database as one of its sink for Analytical use cases.
+A time-series database [(TSDB)](https://www.influxdata.com/time-series-database/) is a database optimized for time-stamped or time-series data. Time series data are simply measurements or events that are tracked, monitored, down-sampled, and aggregated over time. Dagger platform used InfluxDB, a Time Series Database as one of its sink for Analytical use cases.
 
 ### Protobuf
 
-Protocol buffer or Protobuf is a serialization mechanism for structured data. It’s
+[Protocol buffer or Protobuf](https://developers.google.com/protocol-buffers) is a serialization mechanism for structured data. It’s
 well optimized to be transferred via the network. Dagger supports processing Data which is in Protobuf format.
 
 ### Parallelism
 
-Dagger uses Flink for Distributed Data processing in scale. Slots/Parallelism is the Flink’s unit for Parallel Processing Data which provides an efficient way to horizontally scale up your job.
+Dagger uses Flink for Distributed Data processing in scale. [Slots/Parallelism](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/execution/parallel/) is the Flink’s unit for Parallel Processing Data which provides an efficient way to horizontally scale up your job.
 
 ### Dagger Queries
 
@@ -39,11 +39,11 @@ Dagger supports some SQL functions out of the box to be used in the queries. Mos
 
 ### User Defined Functions(UDF)
 
-If Calcite and Flink do not support your desired function, it is pretty easy to expose new custom functions to Dagger which we call User Defined Functions.
+If Calcite and Flink do not support your desired function, it is pretty easy to expose new custom functions to Dagger which we call User Defined Functions. [List of supported UDFs](https://github.com/odpf/dagger/tree/main/docs/reference/udfs.md) in Dagger.
 
 ### Windowing
 
-Time Windows are at the heart of processing infinite streams. As Data being ingested to streams are unbounded and infinite, time windows provide a mechanism to split the stream into “buckets” of finite size, over which we can apply computations.
+[Time Windows](https://flink.apache.org/news/2015/12/04/Introducing-windows.html) are at the heart of processing infinite streams. As Data being ingested to streams are unbounded and infinite, time windows provide a mechanism to split the stream into “buckets” of finite size, over which we can apply computations.
 
 Dagger provides two different types of windows
 
@@ -57,4 +57,4 @@ Dagger provides two different types of windows
 
 ### Rowtime
 
-Rowtime is the timestamp field in your Data streams on which you can run your time windowed aggregations. You can configure this while creating a Dagger.
+Rowtime is the time attribute field in your Data streams on which you can run your time windowed aggregations. You can configure this while creating a Dagger. Rowtime is the one of the time definition fields in input schema on which Dagger does all time it's time-base Operations. Read [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/zh/dev/table/streaming/time_attributes.html) on time attributes.

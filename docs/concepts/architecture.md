@@ -1,6 +1,6 @@
 # Dagger Architecture
 
-Dagger is a real-time data aggregator. It feeds data from the stream(s), a group of Kafka topics sharing the same schema defines a stream and the schema is defined using protobuf. Dagger is powered by Apache Flink. Apache Flink runs in cluster mode on Kubernetes.
+or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink.
 
 ## System Design
 
@@ -26,7 +26,7 @@ _**Dagger Core**_
 _**Pre-Processor**_
 
 - Each stream registered on daggers can have chained pre-processors. They will run and transform the table before registering it for SQL.
-- Currently, only [transformers](update-link) are supported as part of the pre-processor. - Pre-processor are simply Flink's ProcessFunctions/Operators which can transform the input stream to another stream of data prior to execution of SQL. They are ideal for complex filtration logic.
+- Currently, only [transformers](update-link) are supported as part of the pre-processor. Pre-processor are simply Flink's ProcessFunctions/Operators which can transform the input stream to another stream of data prior to execution of SQL. They are ideal for complex filtration logic.
 
 _**SQL Execution**_
 
@@ -68,7 +68,7 @@ _**Sink and Serializer**_
 
 - Protocol buffers are Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data. Data streams on Kafka topics are bound to a protobuf schema.
 
-- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artefacts. The schema handling ie., find the mapped schema for the topic, downloading the descriptors, and dynamically being notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
+- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts. The schema handling ie., find the mapped schema for the topic, downloading the descriptors, and dynamically being notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
 
 - Stencil is a proprietary library that provides an abstraction layer, for schema handling.
 
@@ -82,7 +82,7 @@ _**Sink and Serializer**_
 
 ### ProtoDescriptors
 
-- Generated protobuf descriptors which are hosted behind an artifactory/HTTP endpoint. This endpoint URL and the proto that the firehose deployment should use to deserialize data with is configured in firehose.
+- Generated protobuf descriptors which are hosted behind an artifactory/HTTP endpoint. This endpoint URL and the proto that the dagger deployment should use to deserialize data can be configured.
 
 ### Flink Job Manager
 
