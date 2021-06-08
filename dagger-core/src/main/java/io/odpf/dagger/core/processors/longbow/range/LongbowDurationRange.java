@@ -5,9 +5,17 @@ import io.odpf.dagger.core.utils.Constants;
 
 import org.apache.flink.types.Row;
 
+/**
+ * Duration range on Longbow.
+ */
 public class LongbowDurationRange implements LongbowRange {
     private LongbowSchema longbowSchema;
 
+    /**
+     * Instantiates a new Longbow duration range.
+     *
+     * @param longbowSchema the longbow schema
+     */
     public LongbowDurationRange(LongbowSchema longbowSchema) {
         this.longbowSchema = longbowSchema;
     }

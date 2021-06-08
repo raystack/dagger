@@ -5,15 +5,27 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import java.util.HashSet;
 
+/**
+ * The Udf factory for scalar functions, table functions, and aggregate functions.
+ */
 public abstract class UdfFactory {
     private final StreamTableEnvironment streamTableEnvironment;
     private final Configuration configuration;
 
+    /**
+     * Instantiates a new Udf factory.
+     *
+     * @param streamTableEnvironment the stream table environment
+     * @param configuration          the configuration
+     */
     public UdfFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
         this.streamTableEnvironment = streamTableEnvironment;
         this.configuration = configuration;
     }
 
+    /**
+     * Register functions.
+     */
     public final void registerFunctions() {
         HashSet<ScalarUdf> scalarFunctions = getScalarUdfs();
         HashSet<TableUdf> tableFunctions = getTableUdfs();
@@ -23,12 +35,32 @@ public abstract class UdfFactory {
         aggregateFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
     }
 
+    /**
+     * Gets scalar udfs.
+     *
+     * @return the scalar udfs
+     */
     public abstract HashSet<ScalarUdf> getScalarUdfs();
 
+    /**
+     * Gets table udfs.
+     *
+     * @return the table udfs
+     */
     public abstract HashSet<TableUdf> getTableUdfs();
 
+    /**
+     * Gets aggregate udfs.
+     *
+     * @return the aggregate udfs
+     */
     public abstract HashSet<AggregateUdf> getAggregateUdfs();
 
+    /**
+     * Gets configuration.
+     *
+     * @return the configuration
+     */
     public Configuration getConfiguration() {
         return configuration;
     }

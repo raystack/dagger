@@ -6,6 +6,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * The Start of month udf.
+ */
 public class StartOfMonth extends ScalarUdf {
 
     private static final Integer FIRST_HOUR_OF_DAY = 0;

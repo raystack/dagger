@@ -19,6 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Enables encryption on a set of fields as configured.
+ * Using SHA-256 hashing to encrypt data.
+ */
 public class HashTransformer extends RichMapFunction<Row, Row> implements Serializable, Transformer {
     private static final String OUTPUT_PROTO_MESSAGE = "OUTPUT_PROTO_MESSAGE";
     private static final String ENCRYPTION_FIELD_KEY = "maskColumns";
@@ -28,6 +32,13 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     private final String[] columnNames;
     private Map<String, RowHasher> rowHasherMap;
 
+    /**
+     * Instantiates a new Hash transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.fieldsToHash = getFieldsToHash(transformationArguments);
         this.columnNames = columnNames;
@@ -53,6 +64,12 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
         return new StreamInfo(outputStream, streamInfo.getColumnNames());
     }
 
+    /**
+     * Create row hasher map.
+     *
+     * @param daggerConfig the dagger config
+     * @return the map
+     */
     protected Map<String, RowHasher> createRowHasherMap(Configuration daggerConfig) {
         String outputProtoClassName = daggerConfig.getString(OUTPUT_PROTO_MESSAGE, "");
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfig);

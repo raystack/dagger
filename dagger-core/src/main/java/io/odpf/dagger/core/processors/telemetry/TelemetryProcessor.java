@@ -8,9 +8,17 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
+/**
+ * The Telemetry processor.
+ */
 public class TelemetryProcessor implements PostProcessor {
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
+    /**
+     * Instantiates a new Telemetry processor.
+     *
+     * @param metricsTelemetryExporter the metrics telemetry exporter
+     */
     public TelemetryProcessor(MetricsTelemetryExporter metricsTelemetryExporter) {
         this.metricsTelemetryExporter = metricsTelemetryExporter;
     }

@@ -8,6 +8,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Map;
 
+/**
+ * Request scan the table.
+ */
 public class TableScanRequest implements ScanRequest {
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
     private byte[] startRow;
@@ -15,6 +18,14 @@ public class TableScanRequest implements ScanRequest {
     private LongbowSchema longbowSchema;
     private String tableId;
 
+    /**
+     * Instantiates a new Table scan request.
+     *
+     * @param startRow      the start row
+     * @param stopRow       the stop row
+     * @param longbowSchema the longbow schema
+     * @param tableId       the table id
+     */
     public TableScanRequest(byte[] startRow, byte[] stopRow, LongbowSchema longbowSchema, String tableId) {
         this.startRow = startRow;
         this.stopRow = stopRow;

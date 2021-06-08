@@ -8,13 +8,27 @@ import java.util.Optional;
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
 
+/**
+ * The Custom descriptor.
+ */
 public class CustomDescriptor {
     private Descriptor descriptor;
 
+    /**
+     * Instantiates a new Custom descriptor.
+     *
+     * @param descriptor the descriptor
+     */
     public CustomDescriptor(Descriptor descriptor) {
         this.descriptor = descriptor;
     }
 
+    /**
+     * Gets field descriptor.
+     *
+     * @param path the path
+     * @return the field descriptor
+     */
     public Optional<FieldDescriptor> getFieldDescriptor(String path) {
         if (descriptor == null) {
             return Optional.empty();
@@ -26,6 +40,12 @@ public class CustomDescriptor {
                 .findFirst();
     }
 
+    /**
+     * Gets descriptor.
+     *
+     * @param path the path
+     * @return the descriptor
+     */
     Optional<Descriptor> getDescriptor(String path) {
         Optional<Descriptors.FieldDescriptor> fieldDescriptorOptional = getFieldDescriptor(path);
         if (!fieldDescriptorOptional.isPresent()) {
@@ -38,6 +58,12 @@ public class CustomDescriptor {
         return Optional.empty();
     }
 
+    /**
+     * Get optional custom descriptor.
+     *
+     * @param path the path
+     * @return the optional
+     */
     public Optional<CustomDescriptor> get(String path) {
         Optional<Descriptor> nextDescriptor = getDescriptor(path);
         return nextDescriptor.map(CustomDescriptor::new);

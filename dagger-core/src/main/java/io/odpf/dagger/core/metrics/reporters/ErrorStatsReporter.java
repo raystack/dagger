@@ -8,12 +8,21 @@ import org.apache.flink.metrics.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Error stats reporter.
+ */
 public class ErrorStatsReporter implements ErrorReporter {
     private RuntimeContext runtimeContext;
     private long shutDownPeriod;
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTelemetryExporter.class.getName());
 
 
+    /**
+     * Instantiates a new Error stats reporter.
+     *
+     * @param runtimeContext the runtime context
+     * @param shutDownPeriod the shut down period
+     */
     public ErrorStatsReporter(RuntimeContext runtimeContext, long shutDownPeriod) {
         this.runtimeContext = runtimeContext;
         this.shutDownPeriod = shutDownPeriod;

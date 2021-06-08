@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * Enables to apply a SQL transformation on top of streaming data in post processors.
+ */
 public class SQLTransformer implements Serializable, Transformer {
     private final String[] columnNames;
     private final String sqlQuery;
@@ -27,6 +30,13 @@ public class SQLTransformer implements Serializable, Transformer {
     private final long allowedLatenessInMs;
     private static final String ROWTIME = "rowtime";
 
+    /**
+     * Instantiates a new Sql transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;
         this.sqlQuery = transformationArguments.get("sqlQuery");
@@ -57,6 +67,12 @@ public class SQLTransformer implements Serializable, Transformer {
         return new StreamInfo(outputStream, table.getSchema().getFieldNames());
     }
 
+    /**
+     * Gets stream table environment.
+     *
+     * @param streamExecutionEnvironment the stream execution environment
+     * @return the stream table environment
+     */
     protected StreamTableEnvironment getStreamTableEnvironment(StreamExecutionEnvironment streamExecutionEnvironment) {
         return StreamTableEnvironment.create(streamExecutionEnvironment);
     }

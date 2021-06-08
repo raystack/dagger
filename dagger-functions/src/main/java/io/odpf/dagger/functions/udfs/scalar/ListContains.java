@@ -4,6 +4,9 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 
 import java.util.Arrays;
 
+/**
+ * The List contains udf.
+ */
 public class ListContains extends ScalarUdf {
     /**
      * checks if a list contains a given item.

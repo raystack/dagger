@@ -13,6 +13,9 @@ import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
 import static io.odpf.dagger.core.utils.Constants.OUTPUT_PROTO_MESSAGE;
 
+/**
+ * The Schema config.
+ */
 public class SchemaConfig implements Serializable {
     private final Configuration configuration;
     private final StencilClientOrchestrator stencilClientOrchestrator;
@@ -21,6 +24,13 @@ public class SchemaConfig implements Serializable {
     private String outputProtoClassName;
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Schema config.
+     *
+     * @param configuration             the configuration
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param columnNameManager         the column name manager
+     */
     public SchemaConfig(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager) {
         this.configuration = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
@@ -29,18 +39,38 @@ public class SchemaConfig implements Serializable {
         this.outputProtoClassName = configuration.getString(OUTPUT_PROTO_MESSAGE, "");
     }
 
+    /**
+     * Gets stencil client orchestrator.
+     *
+     * @return the stencil client orchestrator
+     */
     public StencilClientOrchestrator getStencilClientOrchestrator() {
         return stencilClientOrchestrator;
     }
 
+    /**
+     * Gets column name manager.
+     *
+     * @return the column name manager
+     */
     public ColumnNameManager getColumnNameManager() {
         return columnNameManager;
     }
 
+    /**
+     * Get input proto classes.
+     *
+     * @return the input proto classes
+     */
     public String[] getInputProtoClasses() {
         return inputProtoClasses;
     }
 
+    /**
+     * Gets output proto class name.
+     *
+     * @return the output proto class name
+     */
     public String getOutputProtoClassName() {
         return outputProtoClassName;
     }

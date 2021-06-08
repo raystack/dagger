@@ -10,8 +10,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+/**
+ * The class which handle configuration provided from File..
+ */
 public class FileConfigurationProvider implements ConfigurationProvider {
 
+    /**
+     * Instantiates a new File configuration provider.
+     */
     public FileConfigurationProvider() {
         this.environmentParameters = new HashMap<>();
 

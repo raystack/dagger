@@ -9,6 +9,9 @@ import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+/**
+ * The Function internal config processor.
+ */
 public class FunctionInternalConfigProcessor implements InternalConfigProcessor, Serializable {
 
     public static final String FUNCTION_CONFIG_HANDLER_TYPE = "function";
@@ -17,6 +20,12 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
     private ColumnNameManager columnNameManager;
     private InternalSourceConfig internalSourceConfig;
 
+    /**
+     * Instantiates a new Function internal config processor.
+     *
+     * @param columnNameManager    the column name manager
+     * @param internalSourceConfig the internal source config
+     */
     public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig) {
         this.columnNameManager = columnNameManager;
         this.internalSourceConfig = internalSourceConfig;
@@ -38,6 +47,11 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
         }
     }
 
+    /**
+     * Gets current time.
+     *
+     * @return the current time
+     */
     protected Timestamp getCurrentTime() {
         return new Timestamp(System.currentTimeMillis());
     }

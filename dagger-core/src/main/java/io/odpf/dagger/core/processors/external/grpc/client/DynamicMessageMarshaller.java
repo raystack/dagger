@@ -15,6 +15,11 @@ import io.grpc.MethodDescriptor.Marshaller;
 public class DynamicMessageMarshaller implements Marshaller<DynamicMessage> {
     private final Descriptor messageDescriptor;
 
+    /**
+     * Instantiates a new Dynamic message marshaller.
+     *
+     * @param messageDescriptor the message descriptor
+     */
     public DynamicMessageMarshaller(Descriptor messageDescriptor) {
         this.messageDescriptor = messageDescriptor;
     }

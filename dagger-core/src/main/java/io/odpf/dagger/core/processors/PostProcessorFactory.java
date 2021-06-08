@@ -15,8 +15,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * The factory class for Post processor.
+ */
 public class PostProcessorFactory {
 
+    /**
+     * Gets post processors.
+     *
+     * @param configuration             the configuration
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param columnNames               the column names
+     * @param metricsTelemetryExporter  the metrics telemetry exporter
+     * @return the post processors
+     */
     public static List<PostProcessor> getPostProcessors(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, String[] columnNames, MetricsTelemetryExporter metricsTelemetryExporter) {
         List<PostProcessor> postProcessors = new ArrayList<>();
 

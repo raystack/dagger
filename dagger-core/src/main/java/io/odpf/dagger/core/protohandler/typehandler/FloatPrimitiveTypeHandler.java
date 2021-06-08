@@ -8,9 +8,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import java.util.List;
 
+/**
+ * The type Float primitive type handler.
+ */
 public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Float primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public FloatPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

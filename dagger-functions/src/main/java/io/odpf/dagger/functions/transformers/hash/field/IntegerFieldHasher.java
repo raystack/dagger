@@ -3,10 +3,18 @@ package io.odpf.dagger.functions.transformers.hash.field;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.functions.exceptions.RowHashException;
 
+/**
+ * The Integer field hasher.
+ */
 public class IntegerFieldHasher implements FieldHasher {
 
     private final String[] fieldPath;
 
+    /**
+     * Instantiates a new Integer field hasher.
+     *
+     * @param fieldPath the field path
+     */
     public IntegerFieldHasher(String[] fieldPath) {
         this.fieldPath = fieldPath;
     }

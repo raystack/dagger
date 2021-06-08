@@ -21,12 +21,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The Parent post processor.
+ */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
     private Configuration configuration;
 
+    /**
+     * Instantiates a new Parent post processor.
+     *
+     * @param postProcessorConfig       the post processor config
+     * @param configuration             the configuration
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param telemetrySubscriber       the telemetry subscriber
+     */
     public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
         this.configuration = configuration;

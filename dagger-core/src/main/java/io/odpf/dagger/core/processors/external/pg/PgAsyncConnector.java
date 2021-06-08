@@ -27,11 +27,24 @@ import java.util.concurrent.TimeUnit;
 
 import static io.odpf.dagger.core.utils.Constants.MAX_EVENT_LOOP_EXECUTE_TIME_DEFAULT;
 
+/**
+ * The Postgre async connector.
+ */
 public class PgAsyncConnector extends AsyncConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(PgAsyncConnector.class.getName());
     private final PgSourceConfig pgSourceConfig;
     private PgPool pgClient;
 
+    /**
+     * Instantiates a new Postgre async connector with specified postgre client.
+     *
+     * @param pgSourceConfig       the pg source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     * @param meterStatsManager    the meter stats manager
+     * @param pgClient             the pg client
+     * @param errorReporter        the error reporter
+     */
     public PgAsyncConnector(PgSourceConfig pgSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
                             MeterStatsManager meterStatsManager, PgPool pgClient, ErrorReporter errorReporter) {
         this(pgSourceConfig, externalMetricConfig, schemaConfig);
@@ -40,6 +53,13 @@ public class PgAsyncConnector extends AsyncConnector {
         setMeterStatsManager(meterStatsManager);
     }
 
+    /**
+     * Instantiates a new Postgre async connector.
+     *
+     * @param pgSourceConfig       the pg source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public PgAsyncConnector(PgSourceConfig pgSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         super(Constants.PG_TYPE, pgSourceConfig, externalMetricConfig, schemaConfig);
         this.pgSourceConfig = pgSourceConfig;
@@ -111,7 +131,12 @@ public class PgAsyncConnector extends AsyncConnector {
         return new PgPoolImpl(vertx.getOrCreateContext(), true, connectOptions, poolOptions);
     }
 
-    Object getPgCient() {
+    /**
+     * Gets postgre client.
+     *
+     * @return the pg client
+     */
+    Object getPgClient() {
         return pgClient;
     }
 }

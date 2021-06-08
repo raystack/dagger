@@ -9,6 +9,9 @@ import io.odpf.dagger.core.processors.internal.processor.sql.SqlInternalFieldCon
 
 import java.io.Serializable;
 
+/**
+ * The Sql internal config processor.
+ */
 public class SqlInternalConfigProcessor implements InternalConfigProcessor, Serializable {
 
     public static final String SQL_CONFIG_HANDLER_TYPE = "sql";
@@ -17,6 +20,13 @@ public class SqlInternalConfigProcessor implements InternalConfigProcessor, Seri
     private SqlConfigTypePathParser sqlPathParser;
     private InternalSourceConfig internalSourceConfig;
 
+    /**
+     * Instantiates a new Sql internal config processor.
+     *
+     * @param columnNameManager    the column name manager
+     * @param sqlPathParser        the sql path parser
+     * @param internalSourceConfig the internal source config
+     */
     public SqlInternalConfigProcessor(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig) {
         this.columnNameManager = columnNameManager;
         this.sqlPathParser = sqlPathParser;

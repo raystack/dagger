@@ -8,10 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
+/**
+ * Invalid internal config processor.
+ */
 public class InvalidInternalConfigProcessor implements InternalConfigProcessor, Serializable {
 
     private InternalSourceConfig internalSourceConfig;
 
+    /**
+     * Instantiates a new Invalid internal config processor.
+     *
+     * @param internalSourceConfig the internal source config
+     */
     public InvalidInternalConfigProcessor(InternalSourceConfig internalSourceConfig) {
         this.internalSourceConfig = internalSourceConfig;
     }

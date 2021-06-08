@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * User-defined aggregate function to get Percentile.
  *
  * @author lavkesh.lahngir
- * @team lens@go-jek.com
+ * @team lens @go-jek.com
  */
 public class PercentileAggregator extends AggregateUdf<Double, PercentileAccumulator> {
 
@@ -25,6 +25,13 @@ public class PercentileAggregator extends AggregateUdf<Double, PercentileAccumul
         return acc.getPercentileValue();
     }
 
+    /**
+     * Accumulate.
+     *
+     * @param acc        the acc
+     * @param percentile the percentile
+     * @param dValue     the d value
+     */
     public void accumulate(PercentileAccumulator acc, BigDecimal percentile, BigDecimal dValue) {
         acc.add(percentile.doubleValue(), dValue.doubleValue());
     }

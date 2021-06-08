@@ -9,9 +9,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Byte string primitive type handler.
+ */
 public class ByteStringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Byte string primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public ByteStringPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.FloatType;
 
+/**
+ * The Float value transformer.
+ */
 public class FloatValueTransformer implements ValueTransformer {
     @Override
     public boolean canTransform(Object value) {

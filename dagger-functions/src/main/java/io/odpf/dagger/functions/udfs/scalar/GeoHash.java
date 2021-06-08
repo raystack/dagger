@@ -4,6 +4,9 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 
 import static com.github.davidmoten.geo.GeoHash.encodeHash;
 
+/**
+ * The Geo hash udf.
+ */
 public class GeoHash extends ScalarUdf {
 
     /**

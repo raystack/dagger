@@ -20,12 +20,22 @@ import org.apache.flink.types.Row;
 
 import java.util.List;
 
+/**
+ * The External post processor.
+ */
 public class ExternalPostProcessor implements PostProcessor {
 
     private final SchemaConfig schemaConfig;
     private final ExternalSourceConfig externalSourceConfig;
     private final ExternalMetricConfig externalMetricConfig;
 
+    /**
+     * Instantiates a new External post processor.
+     *
+     * @param schemaConfig         the schema config
+     * @param externalSourceConfig the external source config
+     * @param externalMetricConfig the external metric config
+     */
     public ExternalPostProcessor(SchemaConfig schemaConfig, ExternalSourceConfig externalSourceConfig, ExternalMetricConfig externalMetricConfig) {
         this.schemaConfig = schemaConfig;
         this.externalSourceConfig = externalSourceConfig;
@@ -83,10 +93,22 @@ public class ExternalPostProcessor implements PostProcessor {
         return decorator.decorate(resultStream);
     }
 
+    /**
+     * Gets http decorator.
+     *
+     * @param httpSourceConfig the http source config
+     * @return the http decorator
+     */
     protected HttpStreamDecorator getHttpDecorator(HttpSourceConfig httpSourceConfig) {
         return new HttpStreamDecorator(httpSourceConfig, externalMetricConfig, schemaConfig);
     }
 
+    /**
+     * Gets es decorator.
+     *
+     * @param esSourceConfig the es source config
+     * @return the es decorator
+     */
     protected EsStreamDecorator getEsDecorator(EsSourceConfig esSourceConfig) {
         return new EsStreamDecorator(esSourceConfig, externalMetricConfig, schemaConfig);
     }

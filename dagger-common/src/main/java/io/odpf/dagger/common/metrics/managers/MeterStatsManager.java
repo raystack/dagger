@@ -16,12 +16,21 @@ import java.util.concurrent.TimeUnit;
 import static io.odpf.dagger.common.core.Constants.SLIDING_TIME_WINDOW;
 
 
+/**
+ * The Meter stats manager.
+ */
 public class MeterStatsManager {
     private final HashMap<Aspects, Histogram> histogramMap;
     private Boolean enabled;
     private HashMap<Aspects, Meter> meterMap;
     private MetricGroup metricGroup;
 
+    /**
+     * Instantiates a new Meter stats manager.
+     *
+     * @param metricGroup the metric group
+     * @param enabled     the enabled
+     */
     public MeterStatsManager(MetricGroup metricGroup, Boolean enabled) {
         this.metricGroup = metricGroup;
         this.enabled = enabled;
@@ -29,6 +38,14 @@ public class MeterStatsManager {
         meterMap = new HashMap<>();
     }
 
+    /**
+     * Instantiates a new Meter stats manager.
+     *
+     * @param metricGroup  the metric group
+     * @param enabled      the enabled
+     * @param histogramMap the histogram map
+     * @param meterMap     the meter map
+     */
     public MeterStatsManager(MetricGroup metricGroup, Boolean enabled, HashMap histogramMap, HashMap meterMap) {
         this.metricGroup = metricGroup;
         this.enabled = enabled;
@@ -36,6 +53,12 @@ public class MeterStatsManager {
         this.meterMap = meterMap;
     }
 
+    /**
+     * Register aspects.
+     *
+     * @param groupName the group name
+     * @param aspects   the aspects
+     */
     public void register(String groupName, Aspects[] aspects) {
         if (enabled) {
             register(metricGroup.addGroup(groupName), aspects);
@@ -46,18 +69,36 @@ public class MeterStatsManager {
         return new com.codahale.metrics.Histogram(new SlidingTimeWindowReservoir(SLIDING_TIME_WINDOW, TimeUnit.SECONDS));
     }
 
+    /**
+     * Update histogram.
+     *
+     * @param aspects the aspects
+     * @param value   the value
+     */
     public void updateHistogram(Aspects aspects, long value) {
         if (enabled) {
             histogramMap.get(aspects).update(value);
         }
     }
 
+    /**
+     * Mark event.
+     *
+     * @param aspect the aspect
+     */
     public void markEvent(Aspects aspect) {
         if (enabled) {
             meterMap.get(aspect).markEvent();
         }
     }
 
+    /**
+     * Register aspects with specified group key and group value pair.
+     *
+     * @param groupKey   the group key
+     * @param groupValue the group value
+     * @param aspects    the aspects
+     */
     public void register(String groupKey, String groupValue, Aspects[] aspects) {
         if (enabled) {
             register(metricGroup.addGroup(groupKey, groupValue), aspects);

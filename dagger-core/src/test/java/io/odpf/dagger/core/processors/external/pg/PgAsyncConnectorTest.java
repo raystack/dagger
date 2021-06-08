@@ -296,7 +296,7 @@ public class PgAsyncConnectorTest {
         pgAsyncConnector.close();
 
         verify(pgClient, times(1)).close();
-        Assert.assertNull(pgAsyncConnector.getPgCient());
+        Assert.assertNull(pgAsyncConnector.getPgClient());
         verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
     }
 

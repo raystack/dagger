@@ -16,6 +16,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Post processor config.
+ */
 public class PostProcessorConfig implements Serializable {
 
     private ExternalSourceConfig externalSource;
@@ -23,12 +26,25 @@ public class PostProcessorConfig implements Serializable {
     private List<InternalSourceConfig> internalSource;
     private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
+    /**
+     * Instantiates a new Post processor config.
+     *
+     * @param externalSource the external source
+     * @param transformers   the transformers
+     * @param internalSource the internal source
+     */
     public PostProcessorConfig(ExternalSourceConfig externalSource, List<TransformConfig> transformers, List<InternalSourceConfig> internalSource) {
         this.externalSource = externalSource;
         this.transformers = transformers;
         this.internalSource = internalSource;
     }
 
+    /**
+     * Parse post processor config.
+     *
+     * @param configuration the configuration
+     * @return the post processor config
+     */
     public static PostProcessorConfig parse(String configuration) {
         PostProcessorConfig postProcessorConfig;
         try {
@@ -42,34 +58,74 @@ public class PostProcessorConfig implements Serializable {
         return postProcessorConfig;
     }
 
+    /**
+     * Gets external source.
+     *
+     * @return the external source
+     */
     public ExternalSourceConfig getExternalSource() {
         return externalSource;
     }
 
+    /**
+     * Gets internal source.
+     *
+     * @return the internal source
+     */
     public List<InternalSourceConfig> getInternalSource() {
         return internalSource;
     }
 
+    /**
+     * Check if it has external source config.
+     *
+     * @return the boolean
+     */
     public boolean hasExternalSource() {
         return externalSource != null && !externalSource.isEmpty();
     }
 
+    /**
+     * Check if it has internal source config.
+     *
+     * @return the boolean
+     */
     public boolean hasInternalSource() {
         return internalSource != null && !internalSource.isEmpty();
     }
 
+    /**
+     * Check if transformers config, external source, and internal source is empty.
+     *
+     * @return the boolean
+     */
     public boolean isEmpty() {
         return !hasTransformConfigs() && !hasExternalSource() && !hasInternalSource();
     }
 
+    /**
+     * Gets transformers.
+     *
+     * @return the transformers
+     */
     public List<TransformConfig> getTransformers() {
         return transformers;
     }
 
+    /**
+     * Check if it has transformer configs.
+     *
+     * @return the boolean
+     */
     public boolean hasTransformConfigs() {
         return transformers != null && !transformers.isEmpty();
     }
 
+    /**
+     * Check if it has sql transformer.
+     *
+     * @return the boolean
+     */
     public boolean hasSQLTransformer() {
         return hasTransformConfigs() && transformers
                 .stream()
@@ -78,6 +134,11 @@ public class PostProcessorConfig implements Serializable {
                         .equals(Constants.SQL_TRANSFORMER_CLASS));
     }
 
+    /**
+     * Gets output column names.
+     *
+     * @return the output column names
+     */
     public List<String> getOutputColumnNames() {
         List<String> outputColumnNames = new ArrayList<>();
         if (externalSource != null && !externalSource.isEmpty()) {

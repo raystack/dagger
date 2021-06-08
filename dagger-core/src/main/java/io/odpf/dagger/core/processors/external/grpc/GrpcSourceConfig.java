@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A class that holds Grpc configuration.
+ */
 public class GrpcSourceConfig implements Serializable, SourceConfig {
     private String endpoint;
     private int servicePort;
@@ -34,6 +37,18 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
     private String metricId;
     private int capacity;
 
+    /**
+     * Instantiates a new Grpc source config.
+     *
+     * @param endpoint                the endpoint
+     * @param servicePort             the service port
+     * @param grpcRequestProtoSchema  the grpc request proto schema
+     * @param grpcResponseProtoSchema the grpc response proto schema
+     * @param grpcMethodUrl           the grpc method url
+     * @param requestPattern          the request pattern
+     * @param requestVariables        the request variables
+     * @param outputMapping           the output mapping
+     */
     public GrpcSourceConfig(String endpoint, int servicePort, String grpcRequestProtoSchema, String grpcResponseProtoSchema, String grpcMethodUrl, String requestPattern, String requestVariables, Map<String, OutputMapping> outputMapping) {
         this.endpoint = endpoint;
         this.servicePort = servicePort;
@@ -45,6 +60,27 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         this.outputMapping = outputMapping;
     }
 
+    /**
+     * Instantiates a new Grpc source config with specified grpc stencil url.
+     *
+     * @param endpoint                the endpoint
+     * @param servicePort             the service port
+     * @param grpcRequestProtoSchema  the grpc request proto schema
+     * @param grpcResponseProtoSchema the grpc response proto schema
+     * @param grpcMethodUrl           the grpc method url
+     * @param requestPattern          the request pattern
+     * @param requestVariables        the request variables
+     * @param streamTimeout           the stream timeout
+     * @param connectTimeout          the connect timeout
+     * @param failOnErrors            the fail on errors
+     * @param grpcStencilUrl          the grpc stencil url
+     * @param type                    the type
+     * @param retainResponseType      the retain response type
+     * @param headers                 the headers
+     * @param outputMapping           the output mapping
+     * @param metricId                the metric id
+     * @param capacity                the capacity
+     */
     public GrpcSourceConfig(String endpoint, int servicePort, String grpcRequestProtoSchema, String grpcResponseProtoSchema, String grpcMethodUrl, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String grpcStencilUrl, String type, boolean retainResponseType, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, int capacity) {
         this.endpoint = endpoint;
         this.servicePort = servicePort;
@@ -65,10 +101,20 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         this.capacity = capacity;
     }
 
+    /**
+     * Gets connect timeout.
+     *
+     * @return the connect timeout
+     */
     public Integer getConnectTimeout() {
         return Integer.parseInt(connectTimeout);
     }
 
+    /**
+     * Gets endpoint.
+     *
+     * @return the endpoint
+     */
     public String getEndpoint() {
         return endpoint;
     }
@@ -83,6 +129,11 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         return requestVariables;
     }
 
+    /**
+     * Gets stream timeout.
+     *
+     * @return the stream timeout
+     */
     public Integer getStreamTimeout() {
         return Integer.valueOf(streamTimeout);
     }
@@ -100,10 +151,20 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         return type;
     }
 
+    /**
+     * Gets headers.
+     *
+     * @return the headers
+     */
     public Map<String, String> getHeaders() {
         return headers;
     }
 
+    /**
+     * Gets output mapping.
+     *
+     * @return the output mapping
+     */
     public Map<String, OutputMapping> getOutputMapping() {
         return outputMapping;
     }
@@ -130,50 +191,110 @@ public class GrpcSourceConfig implements Serializable, SourceConfig {
         return mandatoryFields;
     }
 
+    /**
+     * Gets grpc response proto schema.
+     *
+     * @return the grpc response proto schema
+     */
     public String getGrpcResponseProtoSchema() {
         return grpcResponseProtoSchema;
     }
 
+    /**
+     * Gets grpc method url.
+     *
+     * @return the grpc method url
+     */
     public String getGrpcMethodUrl() {
         return grpcMethodUrl;
     }
 
+    /**
+     * Gets service port.
+     *
+     * @return the service port
+     */
     public int getServicePort() {
         return servicePort;
     }
 
+    /**
+     * Check if type config is not empty.
+     *
+     * @return the boolean
+     */
     public boolean hasType() {
         return StringUtils.isNotEmpty(type);
     }
 
+    /**
+     * Check if it is retain response type.
+     *
+     * @return the boolean
+     */
     public boolean isRetainResponseType() {
         return retainResponseType;
     }
 
+    /**
+     * Sets fail on errors.
+     *
+     * @param failOnErrors the fail on errors
+     */
     public void setFailOnErrors(boolean failOnErrors) {
         this.failOnErrors = failOnErrors;
     }
 
+    /**
+     * Sets type.
+     *
+     * @param type the type
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * Sets retain response type.
+     *
+     * @param retainResponseType the retain response type
+     */
     public void setRetainResponseType(boolean retainResponseType) {
         this.retainResponseType = retainResponseType;
     }
 
+    /**
+     * Sets headers.
+     *
+     * @param headers the headers
+     */
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
 
+    /**
+     * Gets grpc request proto schema.
+     *
+     * @return the grpc request proto schema
+     */
     public String getGrpcRequestProtoSchema() {
         return grpcRequestProtoSchema;
     }
 
+    /**
+     * Gets capacity.
+     *
+     * @return the capacity
+     */
     public int getCapacity() {
         return capacity;
     }
 
+    /**
+     * Gets grpc stencil url.
+     *
+     * @return the grpc stencil url
+     */
     public List<String> getGrpcStencilUrl() {
         return Arrays.stream(grpcStencilUrl.split(","))
                 .map(String::trim)

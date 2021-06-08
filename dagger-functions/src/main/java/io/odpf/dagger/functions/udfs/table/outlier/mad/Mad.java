@@ -13,16 +13,30 @@ import java.util.stream.Collectors;
 import static java.util.Collections.nCopies;
 import static java.util.Collections.sort;
 
+/**
+ * The Mad for OutlierMad udf.
+ */
 public class Mad {
     private static final Logger LOGGER = LoggerFactory.getLogger(Mad.class.getName());
     private List<Point> points;
     private final Integer tolerance;
 
+    /**
+     * Instantiates a new Mad.
+     *
+     * @param points    the points
+     * @param tolerance the tolerance
+     */
     public Mad(List<Point> points, Integer tolerance) {
         this.points = points;
         this.tolerance = tolerance;
     }
 
+    /**
+     * Gets outliers.
+     *
+     * @return the outliers
+     */
     public List<Point> getOutliers() {
         ArrayList<Double> doubleMAD;
         try {
