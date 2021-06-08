@@ -1,13 +1,5 @@
 package io.odpf.dagger.integrationtest;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.consumer.TestGrpcRequest;
@@ -16,7 +8,13 @@ import io.odpf.dagger.consumer.TestServerGrpc;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.utils.Constants;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
 import org.grpcmock.GrpcMock;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -26,7 +24,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_CONFIG_KEY;
 import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static org.grpcmock.GrpcMock.stubFor;
 import static org.grpcmock.GrpcMock.unaryMethod;
@@ -53,7 +53,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
     public void setUp() {
         String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
         configuration.setString(POST_PROCESSOR_ENABLED_KEY, "true");
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        configuration.setString(INPUT_STREAMS, streams);
         configuration.setString(STENCIL_ENABLE_KEY, "false");
 
         GrpcMock.configureFor(GrpcMock.grpcMock(0).build().start());
@@ -94,7 +94,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "}";
 
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
@@ -175,7 +175,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "  ]\n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
@@ -266,7 +266,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
                 + "   ] \n"
                 + " }";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()

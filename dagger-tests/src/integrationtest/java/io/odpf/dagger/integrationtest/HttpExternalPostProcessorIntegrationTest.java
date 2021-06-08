@@ -1,5 +1,11 @@
 package io.odpf.dagger.integrationtest;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.processors.PostProcessorFactory;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -7,14 +13,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.apache.flink.types.Row;
-
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.processors.PostProcessorFactory;
-import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.utils.Constants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -26,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.POST_PROCESSOR_ENABLED_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -51,8 +52,8 @@ public class HttpExternalPostProcessorIntegrationTest {
 
         String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
 
-        configuration.setString(Constants.POST_PROCESSOR_ENABLED_KEY, "true");
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        configuration.setString(POST_PROCESSOR_ENABLED_KEY, "true");
+        configuration.setString(INPUT_STREAMS, streams);
     }
 
     @After
@@ -90,7 +91,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -148,7 +149,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -213,7 +214,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "   ]"
                 + "}";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -293,7 +294,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "   ] \n"
                 + " }";
 
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
@@ -327,7 +328,7 @@ public class HttpExternalPostProcessorIntegrationTest {
     @Test
     public void shouldPopulateFieldsFromHttpPostApiWithProperJsonBodyForComplexDataTypes() throws Exception {
         String streams = "[{\"TOPIC_NAMES\":\"dummy-topic\",\"TABLE_NAME\":\"testbooking\",\"PROTO_CLASS_NAME\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"STREAM_NAME\":\"localkafka\"}]";
-        configuration.setString(Constants.INPUT_STREAMS, streams);
+        configuration.setString(INPUT_STREAMS, streams);
         String postProcessorConfigString =
                 "{\n"
                 + "  \"external_source\": {\n"
@@ -354,7 +355,7 @@ public class HttpExternalPostProcessorIntegrationTest {
                 + "    ]\n"
                 + "  }\n"
                 + "}";
-        configuration.setString(Constants.POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration.setString(POST_PROCESSOR_CONFIG_KEY, postProcessorConfigString);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(post(urlEqualTo("/"))

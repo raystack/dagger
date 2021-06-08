@@ -2,7 +2,7 @@ package io.odpf.dagger.functions.udfs.aggregate;
 
 import io.odpf.dagger.common.udfs.AggregateUdf;
 
-import io.odpf.dagger.functions.udfs.aggregate.accumulator.distinctcount.DistinctCountAccumulator;
+import io.odpf.dagger.functions.udfs.aggregate.accumulator.DistinctCountAccumulator;
 
 public class DistinctCount extends AggregateUdf<Integer, DistinctCountAccumulator> {
 

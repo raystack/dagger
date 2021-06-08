@@ -4,9 +4,14 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeutils.TypeSerializer;
+import org.apache.flink.api.java.typeutils.runtime.RowSerializer;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +38,7 @@ public class RowFactoryTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
-        assertEquals(45, row.getArity());
+        assertEquals(49, row.getArity());
     }
 
     @Test
@@ -83,7 +88,7 @@ public class RowFactoryTest {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
-        assertEquals(45, row.getArity());
+        assertEquals(49, row.getArity());
     }
 
     @Test
@@ -97,6 +102,33 @@ public class RowFactoryTest {
         Row row = RowFactory.createRow(dynamicMessage);
         assertEquals("144614", row.getField(5));
         assertEquals("https://www.abcd.com/1234", row.getField(6));
+    }
+
+    @Test
+    public void shouldBeAbleToCreateAValidCopyOfTheRowCreated() throws InvalidProtocolBufferException {
+        TestBookingLogMessage customerLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setCustomerId("144614")
+                .setCustomerUrl("https://www.abcd.com/1234")
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        Row row = RowFactory.createRow(dynamicMessage);
+        assertEquals("144614", row.getField(5));
+        assertEquals("https://www.abcd.com/1234", row.getField(6));
+        ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
+        ExecutionConfig config = new ExecutionConfig();
+        TestBookingLogMessage.getDescriptor().getFields().forEach(fieldDescriptor -> {
+            typeInformations.add(ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
+        });
+        ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
+        typeInformations.forEach(rowTypeInformation -> {
+            typeSerializers.add(rowTypeInformation.createSerializer(config));
+        });
+        RowSerializer rowSerializer = new RowSerializer(typeSerializers.toArray(new TypeSerializer[0]));
+
+        Row copy = rowSerializer.copy(row);
+
+        assertEquals(copy, row);
     }
 
 }

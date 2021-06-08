@@ -76,8 +76,9 @@ public class DoublePrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Double> inputValues = new ArrayList<>(Arrays.asList(1D, 2D, 3D));
-        Object actualValues = doublePrimitiveTypeHandler.getArray(inputValues);
-        assertArrayEquals(inputValues.toArray(), (Double[]) actualValues);
+        double[] actualValues = (double[]) doublePrimitiveTypeHandler.getArray(inputValues);
+
+        assertTrue(Arrays.equals(new double[]{1D, 2D, 3D}, actualValues));
     }
 
     @Test
@@ -85,7 +86,8 @@ public class DoublePrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = doublePrimitiveTypeHandler.getArray(null);
-        assertEquals(0, ((Double[]) actualValues).length);
+
+        assertEquals(0, ((double[]) actualValues).length);
     }
 
 }

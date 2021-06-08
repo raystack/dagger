@@ -76,7 +76,8 @@ public class FloatPrimitiveTypeHandlerTest {
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         ArrayList<Float> inputValues = new ArrayList<>(Arrays.asList(1F, 2F, 3F));
         Object actualValues = floatPrimitiveTypeHandler.getArray(inputValues);
-        assertArrayEquals(inputValues.toArray(), (Float[]) actualValues);
+
+        assertTrue(Arrays.equals(new float[]{1F, 2F, 3F}, (float[]) actualValues));
     }
 
     @Test
@@ -84,7 +85,8 @@ public class FloatPrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
         Object actualValues = floatPrimitiveTypeHandler.getArray(null);
-        assertEquals(0, ((Float[]) actualValues).length);
+
+        assertEquals(0, ((float[]) actualValues).length);
     }
 
 }
