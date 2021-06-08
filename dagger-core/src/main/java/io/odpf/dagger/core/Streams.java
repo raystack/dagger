@@ -1,31 +1,29 @@
 package io.odpf.dagger.core;
 
+import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
+import io.odpf.dagger.core.source.ProtoDeserializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.types.Row;
 
-import com.google.gson.Gson;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
-import io.odpf.dagger.core.source.ProtoDeserializer;
-import io.odpf.dagger.core.utils.Constants;
-
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.*;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
@@ -46,10 +44,10 @@ public class Streams implements TelemetryPublisher {
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         this.configuration = configuration;
-        String jsonArrayString = configuration.getString(Constants.INPUT_STREAMS, "");
+        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
-            String tableName = streamConfig.getOrDefault(Constants.STREAM_TABLE_NAME, "");
+            String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
         }
     }
@@ -78,12 +76,12 @@ public class Streams implements TelemetryPublisher {
     }
 
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topicsForStream = streamConfig.getOrDefault(Constants.STREAM_TOPIC_NAMES, "");
+        String topicsForStream = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
         topics.add(topicsForStream);
-        String protoClassName = streamConfig.getOrDefault(Constants.STREAM_PROTO_CLASS_NAME, "");
+        String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
         protoClassNames.add(protoClassName);
-        streamNames.add(streamConfig.getOrDefault(Constants.INPUT_STREAM_NAME, ""));
-        String tableName = streamConfig.getOrDefault(Constants.STREAM_TABLE_NAME, "");
+        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME, ""));
+        String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
         protoClassForTable.put(tableName, protoClassName);
         int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault("EVENT_TIMESTAMP_FIELD_INDEX", ""));
         Properties kafkaProps = new Properties();
@@ -112,7 +110,7 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
-        if (configuration.getBoolean(Constants.CONSUME_LARGE_MESSAGE_KEY, Constants.CONSUME_LARGE_MESSAGE_DEFAULT)) {
+        if (configuration.getBoolean(CONSUME_LARGE_MESSAGE_KEY, CONSUME_LARGE_MESSAGE_DEFAULT)) {
             kafkaProps.setProperty("max.partition.fetch.bytes", "5242880");
         }
     }

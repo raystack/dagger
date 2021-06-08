@@ -84,10 +84,7 @@ public class Constants {
     public static final String TRANSFORM_PROCESSOR = "transform_processor";
     public static final String SQL_TRANSFORMER_CLASS = "io.odpf.dagger.functions.transformers.SQLTransformer";
 
-    public static final String STREAM_PROTO_CLASS_NAME = "PROTO_CLASS_NAME";
-    public static final String STREAM_TABLE_NAME = "TABLE_NAME";
     public static final String STREAM_TOPIC_NAMES = "TOPIC_NAMES";
-    public static final String INPUT_STREAMS = "STREAMS";
     public static final String INPUT_STREAM_NAME = "STREAM_NAME";
 
     public static final String SHUTDOWN_PERIOD_KEY = "SHUTDOWN_PERIOD";
@@ -104,12 +101,6 @@ public class Constants {
     public static final boolean PRODUCE_LARGE_MESSAGE_DEFAULT = false;
     public static final String CONSUME_LARGE_MESSAGE_KEY = "CONSUME_LARGE_MESSAGE";
     public static final boolean CONSUME_LARGE_MESSAGE_DEFAULT = false;
-
-    public static final String GCS_PROJECT_ID = "GCS_PROJECT_ID";
-    public static final String GCS_PROJECT_DEFAULT = "godata-production";
-
-    public static final String GCS_BUCKET_ID = "GCS_BUCKET_ID";
-    public static final String GCS_BUCKET_DEFAULT = "p-godata-daggers-darts-storage";
 
     public static final int CLIENT_ERROR_MIN_STATUS_CODE = 400;
     public static final int CLIENT_ERROR_MAX_STATUS_CODE = 499;
