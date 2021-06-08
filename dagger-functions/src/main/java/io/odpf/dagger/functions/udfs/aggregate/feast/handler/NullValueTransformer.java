@@ -5,6 +5,9 @@ import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_DATA_TYPES_IN_FEATURE_ROW;
 
+/**
+ * The Null value transformer.
+ */
 public class NullValueTransformer implements ValueTransformer {
 
     @Override

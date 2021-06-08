@@ -18,15 +18,26 @@ import io.grpc.stub.StreamObserver;
 
 import java.util.Map;
 
+/**
+ * The Grpc client.
+ */
 public class GrpcClient {
     private final GrpcSourceConfig grpcConfig;
 
     private Channel decoratedChannel;
 
+    /**
+     * Instantiates a new Grpc client.
+     *
+     * @param grpcConfig the grpc config
+     */
     public GrpcClient(GrpcSourceConfig grpcConfig) {
         this.grpcConfig = grpcConfig;
     }
 
+    /**
+     * Add channel.
+     */
     public void addChannel() {
         Channel channel = ManagedChannelBuilder.forAddress(grpcConfig.getEndpoint(), grpcConfig.getServicePort()).usePlaintext().build();
 
@@ -43,6 +54,15 @@ public class GrpcClient {
 
     }
 
+    /**
+     * Async unary call.
+     *
+     * @param request          the request
+     * @param responseObserver the response observer
+     * @param inputDescriptor  the input descriptor
+     * @param outputDescriptor the output descriptor
+     * @throws Exception the exception
+     */
     public void asyncUnaryCall(
             DynamicMessage request,
             StreamObserver<DynamicMessage> responseObserver, Descriptor inputDescriptor, Descriptor outputDescriptor) throws Exception {
@@ -65,10 +85,18 @@ public class GrpcClient {
                 .build(), callOptions);
     }
 
+    /**
+     * Close channel.
+     */
     public void close() {
         this.decoratedChannel = null;
     }
 
+    /**
+     * Gets decorated channel.
+     *
+     * @return the decorated channel
+     */
     public Channel getDecoratedChannel() {
         return decoratedChannel;
     }

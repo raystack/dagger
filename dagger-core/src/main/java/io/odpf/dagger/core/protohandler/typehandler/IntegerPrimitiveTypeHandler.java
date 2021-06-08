@@ -8,9 +8,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import java.util.List;
 
+/**
+ * The type Integer primitive type handler.
+ */
 public class IntegerPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Integer primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public IntegerPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

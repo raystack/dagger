@@ -4,6 +4,9 @@ import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.TimestampType;
 
+/**
+ * The Timestamp value transformer.
+ */
 public class TimestampValueTransformer implements ValueTransformer {
 
     @Override

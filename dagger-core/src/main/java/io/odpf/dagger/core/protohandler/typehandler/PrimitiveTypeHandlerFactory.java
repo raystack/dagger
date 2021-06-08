@@ -7,7 +7,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The factory class for Primitive type handler.
+ */
 public class PrimitiveTypeHandlerFactory {
+    /**
+     * Gets type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     * @return the type handler
+     */
     public static PrimitiveTypeHandler getTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         Optional<PrimitiveTypeHandler> filteredTypeHandlers =
                 getSpecificHandlers(fieldDescriptor)

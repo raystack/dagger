@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A class that holds Http configuration.
+ */
 public class HttpSourceConfig implements Serializable, SourceConfig {
     private String endpoint;
     private String verb;
@@ -30,6 +33,23 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     private String metricId;
     private boolean retainResponseType;
 
+    /**
+     * Instantiates a new Http source config.
+     *
+     * @param endpoint           the endpoint
+     * @param verb               the verb
+     * @param requestPattern     the request pattern
+     * @param requestVariables   the request variables
+     * @param streamTimeout      the stream timeout
+     * @param connectTimeout     the connect timeout
+     * @param failOnErrors       the fail on errors
+     * @param type               the type
+     * @param capacity           the capacity
+     * @param headers            the headers
+     * @param outputMapping      the output mapping
+     * @param metricId           the metric id
+     * @param retainResponseType the retain response type
+     */
     public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
         this.endpoint = endpoint;
         this.verb = verb;
@@ -46,18 +66,38 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         this.retainResponseType = retainResponseType;
     }
 
+    /**
+     * Gets connect timeout.
+     *
+     * @return the connect timeout
+     */
     public Integer getConnectTimeout() {
         return Integer.parseInt(connectTimeout);
     }
 
+    /**
+     * Gets endpoint.
+     *
+     * @return the endpoint
+     */
     public String getEndpoint() {
         return endpoint;
     }
 
+    /**
+     * Gets verb.
+     *
+     * @return the verb
+     */
     public String getVerb() {
         return verb;
     }
 
+    /**
+     * Gets request variables.
+     *
+     * @return the request variables
+     */
     public String getRequestVariables() {
         return requestVariables;
     }
@@ -72,6 +112,11 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return requestVariables;
     }
 
+    /**
+     * Gets stream timeout.
+     *
+     * @return the stream timeout
+     */
     public Integer getStreamTimeout() {
         return Integer.valueOf(streamTimeout);
     }
@@ -89,14 +134,29 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return type;
     }
 
+    /**
+     * Check if type config is not empty.
+     *
+     * @return the boolean
+     */
     public boolean hasType() {
         return StringUtils.isNotEmpty(type);
     }
 
+    /**
+     * Gets headers.
+     *
+     * @return the headers
+     */
     public Map<String, String> getHeaders() {
         return headers;
     }
 
+    /**
+     * Gets output mapping.
+     *
+     * @return the output mapping
+     */
     public Map<String, OutputMapping> getOutputMapping() {
         return outputMapping;
     }
@@ -121,10 +181,20 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return mandatoryFields;
     }
 
+    /**
+     * Gets capacity.
+     *
+     * @return the capacity
+     */
     public Integer getCapacity() {
         return Integer.parseInt(capacity);
     }
 
+    /**
+     * Check if it is retain response type.
+     *
+     * @return the boolean
+     */
     public boolean isRetainResponseType() {
         return retainResponseType;
     }

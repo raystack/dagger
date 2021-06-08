@@ -10,6 +10,9 @@ import org.apache.flink.types.Row;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The Decorator for Postgre stream.
+ */
 public class PgStreamDecorator implements StreamDecorator {
 
 
@@ -17,6 +20,13 @@ public class PgStreamDecorator implements StreamDecorator {
     private final ExternalMetricConfig externalMetricConfig;
     private final SchemaConfig schemaConfig;
 
+    /**
+     * Instantiates a new Postgre stream decorator.
+     *
+     * @param pgSourceConfig       the pg source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public PgStreamDecorator(PgSourceConfig pgSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         this.pgSourceConfig = pgSourceConfig;
         this.externalMetricConfig = externalMetricConfig;

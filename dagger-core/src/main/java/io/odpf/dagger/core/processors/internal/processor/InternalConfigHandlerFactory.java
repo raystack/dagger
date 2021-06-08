@@ -11,6 +11,9 @@ import io.odpf.dagger.core.processors.internal.processor.sql.fields.SqlInternalC
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The factory class for Internal config handler.
+ */
 public class InternalConfigHandlerFactory {
     private static List<InternalConfigProcessor> getHandlers(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig) {
         return Arrays.asList(new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig),
@@ -18,6 +21,14 @@ public class InternalConfigHandlerFactory {
                 new ConstantInternalConfigProcessor(columnNameManager, internalSourceConfig));
     }
 
+    /**
+     * Gets processor.
+     *
+     * @param internalSourceConfig the internal source config
+     * @param columnNameManager    the column name manager
+     * @param sqlPathParser        the sql path parser
+     * @return the processor
+     */
     public static InternalConfigProcessor getProcessor(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser) {
         return getHandlers(columnNameManager, sqlPathParser, internalSourceConfig)
                 .stream()

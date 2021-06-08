@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.StringType;
 
+/**
+ * The String value transformer.
+ */
 public class StringValueTransformer implements ValueTransformer {
 
     @Override

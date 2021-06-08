@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.IntegerType;
 
+/**
+ * The Integer value transformer.
+ */
 public class IntegerValueTransformer implements ValueTransformer {
 
 

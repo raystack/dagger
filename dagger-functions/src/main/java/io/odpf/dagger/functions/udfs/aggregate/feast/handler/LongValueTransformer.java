@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.LongType;
 
+/**
+ * The Long value transformer.
+ */
 public class LongValueTransformer implements ValueTransformer {
 
     @Override

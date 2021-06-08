@@ -13,11 +13,21 @@ import io.odpf.dagger.common.core.Transformer;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * Allows to clear the specified column of data produced by the dagger.
+ */
 public class ClearColumnTransformer implements MapFunction<Row, Row>, Transformer {
     private static final String TARGET_KEY_COLUMN_NAME = "targetColumnName";
     private final String targetColumnName;
     private String[] columnNames;
 
+    /**
+     * Instantiates a new Clear column transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public ClearColumnTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;
         this.targetColumnName = transformationArguments.get(TARGET_KEY_COLUMN_NAME);

@@ -16,6 +16,9 @@ import java.util.Map;
 import static io.odpf.dagger.functions.transformers.filter.FilterAspects.FILTERED_INVALID_RECORDS;
 
 
+/**
+ * Filter the invalid records produced by dagger.
+ */
 public class InvalidRecordFilterTransformer extends RichFilterFunction<Row> implements Transformer {
     private final String tableName;
     private final int validationIndex;
@@ -25,6 +28,13 @@ public class InvalidRecordFilterTransformer extends RichFilterFunction<Row> impl
     protected static final String INTERNAL_VALIDATION_FILED = "__internal_validation_field__";
     private static final String PER_TABLE = "per_table";
 
+    /**
+     * Instantiates a new Invalid record filter transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public InvalidRecordFilterTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.tableName = (String) transformationArguments.getOrDefault("table_name", "");
         validationIndex = Arrays.asList(columnNames).indexOf(INTERNAL_VALIDATION_FILED);

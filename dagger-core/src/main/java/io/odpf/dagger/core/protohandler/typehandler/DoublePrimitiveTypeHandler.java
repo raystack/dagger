@@ -8,9 +8,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import java.util.List;
 
+/**
+ * The type Double primitive type handler.
+ */
 public class DoublePrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Double primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public DoublePrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

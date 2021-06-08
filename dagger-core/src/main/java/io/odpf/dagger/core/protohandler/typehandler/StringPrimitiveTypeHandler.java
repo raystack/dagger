@@ -9,9 +9,17 @@ import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type String primitive type handler.
+ */
 public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new String primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public StringPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

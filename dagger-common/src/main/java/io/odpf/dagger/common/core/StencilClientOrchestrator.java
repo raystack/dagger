@@ -15,12 +15,20 @@ import java.util.stream.Collectors;
 
 import static io.odpf.dagger.common.core.Constants.*;
 
+/**
+ * The Stencil client orchestrator for dagger.
+ */
 public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
     private Configuration configuration;
     private HashMap<String, String> stencilConfigMap;
     private HashSet<String> stencilUrls;
 
+    /**
+     * Instantiates a new Stencil client orchestrator.
+     *
+     * @param configuration the configuration
+     */
     public StencilClientOrchestrator(Configuration configuration) {
         this.configuration = configuration;
         this.stencilConfigMap = createStencilConfigMap(configuration);
@@ -35,6 +43,11 @@ public class StencilClientOrchestrator implements Serializable {
         return stencilConfigMap;
     }
 
+    /**
+     * Gets stencil client.
+     *
+     * @return the stencil client
+     */
     public StencilClient getStencilClient() {
         if (stencilClient != null) {
             return stencilClient;
@@ -44,6 +57,12 @@ public class StencilClientOrchestrator implements Serializable {
         return stencilClient;
     }
 
+    /**
+     * Enrich stencil client.
+     *
+     * @param additionalStencilUrls the additional stencil urls
+     * @return the stencil client
+     */
     public StencilClient enrichStencilClient(List<String> additionalStencilUrls) {
         if (additionalStencilUrls.isEmpty()) {
             return stencilClient;

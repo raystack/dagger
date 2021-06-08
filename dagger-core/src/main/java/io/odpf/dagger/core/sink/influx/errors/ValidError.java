@@ -5,6 +5,9 @@ import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Valid error.
+ */
 public class ValidError implements InfluxError {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());

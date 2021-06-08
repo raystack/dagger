@@ -6,10 +6,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The interface Validator.
+ */
 public interface Validator {
 
+    /**
+     * Gets mandatory fields.
+     *
+     * @return the mandatory fields
+     */
     HashMap<String, Object> getMandatoryFields();
 
+    /**
+     * Validate fields.
+     *
+     * @throws IllegalArgumentException the illegal argument exception
+     */
     default void validateFields() throws IllegalArgumentException {
         ArrayList fieldsMissing = new ArrayList<>();
         ArrayList<Object> nestedFields = new ArrayList<>();

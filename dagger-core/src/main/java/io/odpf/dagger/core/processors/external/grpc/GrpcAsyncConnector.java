@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Grpc async connector.
+ */
 public class GrpcAsyncConnector extends AsyncConnector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcAsyncConnector.class.getName());
@@ -32,6 +35,17 @@ public class GrpcAsyncConnector extends AsyncConnector {
 
     private GrpcClient grpcClient;
 
+    /**
+     * Instantiates a new Grpc async connector with specified grpc client.
+     *
+     * @param grpcSourceConfig     the grpc source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     * @param grpcClient           the grpc client
+     * @param errorReporter        the error reporter
+     * @param meterStatsManager    the meter stats manager
+     * @param descriptorManager    the descriptor manager
+     */
     public GrpcAsyncConnector(GrpcSourceConfig grpcSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
                               GrpcClient grpcClient, ErrorReporter errorReporter, MeterStatsManager meterStatsManager, DescriptorManager descriptorManager) {
         this(grpcSourceConfig, externalMetricConfig, schemaConfig);
@@ -41,6 +55,13 @@ public class GrpcAsyncConnector extends AsyncConnector {
         setDescriptorManager(descriptorManager);
     }
 
+    /**
+     * Instantiates a new Grpc async connector.
+     *
+     * @param grpcSourceConfig     the grpc source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public GrpcAsyncConnector(GrpcSourceConfig grpcSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         super(Constants.GRPC_TYPE, grpcSourceConfig, externalMetricConfig, schemaConfig);
         this.grpcSourceConfig = grpcSourceConfig;
@@ -127,6 +148,11 @@ public class GrpcAsyncConnector extends AsyncConnector {
         LOGGER.info("GRPC Connector : Connection closed");
     }
 
+    /**
+     * Gets grpc client.
+     *
+     * @return the grpc client
+     */
     public GrpcClient getGrpcClient() {
         return grpcClient;
     }

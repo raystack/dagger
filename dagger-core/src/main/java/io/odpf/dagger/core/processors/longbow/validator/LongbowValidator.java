@@ -6,13 +6,26 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * The Longbow validator.
+ */
 public class LongbowValidator {
     private String[] columnNames;
 
+    /**
+     * Instantiates a new Longbow validator.
+     *
+     * @param columnNames the column names
+     */
     public LongbowValidator(String[] columnNames) {
         this.columnNames = columnNames;
     }
 
+    /**
+     * Validate longbow.
+     *
+     * @param longbowType the longbow type
+     */
     public void validateLongbow(LongbowType longbowType) {
         String missingFields = Arrays
                 .stream(longbowType.getMandatoryFields())

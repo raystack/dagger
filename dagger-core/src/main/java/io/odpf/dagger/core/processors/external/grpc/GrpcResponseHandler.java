@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * The Grpc response handler.
+ */
 public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcResponseHandler.class.getName());
@@ -41,6 +44,18 @@ public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
     private ErrorReporter errorReporter;
     private PostResponseTelemetry postResponseTelemetry;
 
+    /**
+     * Instantiates a new Grpc response handler.
+     *
+     * @param grpcSourceConfig      the grpc source config
+     * @param meterStatsManager     the meter stats manager
+     * @param rowManager            the row manager
+     * @param columnNameManager     the column name manager
+     * @param outputDescriptor      the output descriptor
+     * @param resultFuture          the result future
+     * @param errorReporter         the error reporter
+     * @param postResponseTelemetry the post response telemetry
+     */
     public GrpcResponseHandler(GrpcSourceConfig grpcSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
 
         this.grpcSourceConfig = grpcSourceConfig;
@@ -112,6 +127,11 @@ public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
     }
 
 
+    /**
+     * Failure handler.
+     *
+     * @param logMessage the log message
+     */
     public void failureHandler(String logMessage) {
         postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         LOGGER.error(logMessage);
@@ -124,6 +144,9 @@ public class GrpcResponseHandler implements StreamObserver<DynamicMessage> {
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
+    /**
+     * Start timer.
+     */
     public void startTimer() {
         startTime = Instant.now();
     }

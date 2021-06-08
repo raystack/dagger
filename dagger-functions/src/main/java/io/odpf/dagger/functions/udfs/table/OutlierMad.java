@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * The class responsible for Outlier mad udf.
+ */
 public class OutlierMad extends TableUdf<Tuple5<Timestamp, Double, Double, Double, Boolean>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OutlierMad.class.getName());
@@ -29,8 +32,7 @@ public class OutlierMad extends TableUdf<Tuple5<Timestamp, Double, Double, Doubl
      * @param windowLengthInMinutes      length of the window in minutes
      * @param observationPeriodInMinutes time for which the outliers should be looked in minutes
      * @param tolerance                  permitted deviation
-     * @param outlierPercentage          the minimum threshold percentage of outliers in the observation window to consider
-     *                                   whole window as outlier
+     * @param outlierPercentage          the minimum threshold percentage of outliers in the observation window to consider                                   whole window as outlier
      */
     public void eval(ArrayList<Double> values, ArrayList<Timestamp> timestampsArray, Timestamp windowStartTime, Integer windowLengthInMinutes,
                      Integer observationPeriodInMinutes, Integer tolerance, Integer outlierPercentage) {

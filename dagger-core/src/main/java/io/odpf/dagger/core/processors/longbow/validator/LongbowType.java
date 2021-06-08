@@ -2,6 +2,9 @@ package io.odpf.dagger.core.processors.longbow.validator;
 
 import io.odpf.dagger.core.utils.Constants;
 
+/**
+ * The enum Longbow type.
+ */
 public enum LongbowType {
     LongbowRead(LongbowKey.LONGBOW_READ, MandatoryFields.LONGBOW_READ, InvalidFields.LONGBOW_READ),
     LongbowWrite(LongbowKey.LONGBOW_WRITE, MandatoryFields.LONGBOW_WRITE, InvalidFields.LONGBOW_WRITE),
@@ -18,18 +21,38 @@ public enum LongbowType {
         this.invalidFields = invalidFields;
     }
 
+    /**
+     * Gets key name.
+     *
+     * @return the key name
+     */
     public String getKeyName() {
         return keyName;
     }
 
+    /**
+     * Get mandatory fields.
+     *
+     * @return the mandatory fields
+     */
     public String[] getMandatoryFields() {
         return mandatoryFields;
     }
 
+    /**
+     * Get invalid fields.
+     *
+     * @return the array of invalid fields
+     */
     public String[] getInvalidFields() {
         return invalidFields;
     }
 
+    /**
+     * Gets type name.
+     *
+     * @return the type name
+     */
     public String getTypeName() {
         return keyName.replace(LONGBOW_TYPE_PREFIX, "");
     }

@@ -11,8 +11,18 @@ import io.odpf.dagger.functions.transformers.hash.field.UnsupportedDataTypeHashe
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The factory class for Field hasher.
+ */
 public class FieldHasherFactory {
 
+    /**
+     * Create child hasher.
+     *
+     * @param fieldPath       the field path
+     * @param fieldDescriptor the field descriptor
+     * @return the field hasher
+     */
     public static FieldHasher createChildHasher(String[] fieldPath, Descriptors.FieldDescriptor fieldDescriptor) {
         List<FieldHasher> fieldHashers = Arrays.asList(
                 new StringFieldHasher(fieldPath),

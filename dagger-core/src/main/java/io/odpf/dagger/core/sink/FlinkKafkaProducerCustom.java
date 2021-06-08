@@ -15,12 +15,21 @@ import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A class responsible for produce the messages to kafka.
+ */
 public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements CheckpointedFunction, CheckpointListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducerCustom.class.getName());
     private Configuration configuration;
     private ErrorReporter errorReporter;
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
 
+    /**
+     * Instantiates a new Flink kafka producer custom.
+     *
+     * @param flinkKafkaProducer the flink kafka producer
+     * @param configuration      the configuration
+     */
     public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
         this.flinkKafkaProducer = flinkKafkaProducer;
         this.configuration = configuration;
@@ -78,10 +87,23 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
         flinkKafkaProducer.setRuntimeContext(t);
     }
 
+    /**
+     * Invoke base producer.
+     *
+     * @param value   the value
+     * @param context the context
+     * @throws Exception the exception
+     */
     protected void invokeBaseProducer(Row value, Context context) throws Exception {
         flinkKafkaProducer.invoke(value, context);
     }
 
+    /**
+     * Gets error reporter.
+     *
+     * @param runtimeContext the runtime context
+     * @return the error reporter
+     */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
         return ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
     }

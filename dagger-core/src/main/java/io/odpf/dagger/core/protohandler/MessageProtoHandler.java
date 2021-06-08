@@ -13,10 +13,18 @@ import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
+/**
+ * The type Message proto handler.
+ */
 public class MessageProtoHandler implements ProtoHandler {
     private FieldDescriptor fieldDescriptor;
     private JsonRowSerializationSchema jsonRowSerializationSchema;
 
+    /**
+     * Instantiates a new Message proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public MessageProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

@@ -43,6 +43,9 @@ import java.util.Map;
 import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.functions.common.Constants.*;
 
+/**
+ * The factory class for all the udf.
+ */
 public class FunctionFactory extends UdfFactory {
 
     private static final Gson GSON = new Gson();
@@ -50,6 +53,12 @@ public class FunctionFactory extends UdfFactory {
     private StencilClientOrchestrator stencilClientOrchestrator;
 
 
+    /**
+     * Instantiates a new Function factory.
+     *
+     * @param streamTableEnvironment the stream table environment
+     * @param configuration          the configuration
+     */
     public FunctionFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
         super(streamTableEnvironment, configuration);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
