@@ -2,6 +2,8 @@
 
 Architecturally after the creation of Dagger, it goes through several stages before materializing the results to an output stream.
 
+![Dagger Lifecycle](../assets/dagger-lifecycle.png)
+
 - `Stage-1` : Dagger registers all defined configurations. JobManager validates the configurations and the query and creates a job-graph for the same.
 - `Stage-2` : Data consumption from the Kafka topic(s) and Deserialization of proto Data from the input Kafka topic based on some predefined schema.
 - `Stage-3` : Before executing the streaming SQL, Dagger undergoes a Pre-processor stage. Pre-processor is similar to post processors and currently support only transformers. They can be used to do some filtration of data or to do some basic processing before SQL.
