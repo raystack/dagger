@@ -1,6 +1,6 @@
 # Dagger Architecture
 
-or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink.
+Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink.
 
 ## System Design
 
@@ -19,7 +19,7 @@ _**Dagger Core**_
 - The core part of the dagger(StreamManager) has the following responsibilities. It works sort of as a controller for other components in the dagger.
   - Configuration management.
   - Table registration.
-  - Deserialization and serialization of messages.
+  - Configuring Deserialization and Serialization of data.
   - Manage execution of other plugins like pre and post processors.
   - User-Defined functions registration.
 
@@ -90,7 +90,7 @@ _**Sink and Serializer**_
 
 ### Flink Task Manager
 
-- A Taskmanagers (TM) are the JVM processes which are actually responsible for parallel stateful stream processing of unbounded data. Taskslots are single threads inside Flink's Taskmanager that process single operators in the job graph.
+- Taskmanagers (TM) are the JVM processes which are actually responsible for parallel stateful stream processing of unbounded data. Taskslots are single threads inside Flink's Taskmanager that process single operators in the job graph.
 
 ### Zookeeper
 

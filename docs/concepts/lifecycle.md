@@ -2,7 +2,9 @@
 
 Architecturally after the creation of Dagger, it goes through several stages before materializing the results to an output stream.
 
-![Dagger Lifecycle](../assets/dagger-lifecycle.png)
+<p align="center">
+  <img src="../assets/dagger-lifecycle.png" />
+</p>
 
 - `Stage-1` : Dagger registers all defined configurations. JobManager validates the configurations and the query and creates a job-graph for the same.
 - `Stage-2` : Data consumption from the Kafka topic(s) and Deserialization of proto Data from the input Kafka topic based on some predefined schema.

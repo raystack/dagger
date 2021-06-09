@@ -49,12 +49,12 @@ Dagger provides two different types of windows
 
 - Hop/Tumbling Windows
 
-  Each element to a window of specified window size. Tumbling windows have a fixed size and do not overlap. For example, if you specify a tumbling window with a size of 5 minutes, the current window will be evaluated and a new window will be started every five minutes as illustrated by the following figure. [update image]
+  Each element to a window of specified window size. Tumbling windows have a fixed size and do not overlap. For example, if you specify a tumbling window with a size of 5 minutes, the current window will be evaluated and a new window will be started every five minutes as illustrated by the following figure. (image credit: [Flink Operators](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/windows.html))
   ![Tumble Window](../assets/tumble.png)
 
 - Sliding Windows
 
-  Each element gets assigned to windows of fixed length. An additional window slide parameter controls how frequently a sliding window is started. Hence, sliding windows can be overlapping if the slide is smaller than the window size. In this case, elements are assigned to multiple windows.
+  Each element gets assigned to windows of fixed length. An additional window slide parameter controls how frequently a sliding window is started. Hence, sliding windows can be overlapping if the slide is smaller than the window size. In this case, elements are assigned to multiple windows. (image credit: [Flink Operators](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/windows.html))
   ![Sliding Window](../assets/sliding.png)
 
 ### Rowtime
