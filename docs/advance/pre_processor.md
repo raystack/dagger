@@ -5,14 +5,20 @@ Pre processors enable the users to add Flink operators/transformations before pa
 Currently, there is only one type of pre-processor. 
 * [Transformers](docs/../../guides/use_transformer.md)
 
+## Data flow in preprocessors
 
 <p align="center">
   <img src="../assets/pre-processor.png" />
 </p>
 
+In the above diagram:
+* Data is getting ingested from two different streams.
+* The `InvalidRecordFilterTransformer` is applied on both the streams in order to filter out invalid records.
+* Then the filtered records are passed to further operators.
+* Data is finally pushed to sink.
 ## Configuration
 
-Following variables need to be configured as part of PRE_PROCESSOR_CONFIG json
+Following variables need to be configured as part of [PRE_PROCESSOR_CONFIG](update link) json
 
 ### `table_transformers`
 
@@ -50,16 +56,15 @@ A key-value map required for parameters required for the custom transformation c
 * Type: `optional`
 
 ## Sample config
-```properties
+  ```properties
   SQL_QUERY = "SELECT data_1, data_2, event_timestamp from data_stream"
   PRE_PROCESSOR_ENABLED = true
   PRE_PROCESSOR_CONFIG = {
-	"table_transformers": [{
-		"table_name": "testtable",
-		"transformers": [{
-			"transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"
-		}]
-	}]
-}
-
+    "table_transformers": [{
+      "table_name": "testtable",
+      "transformers": [{
+        "transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"
+      }]
+    }]
+  }
   ```
