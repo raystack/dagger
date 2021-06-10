@@ -26,7 +26,7 @@ import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.*;
 import static io.odpf.dagger.core.utils.Constants.*;
 
 public class Streams implements TelemetryPublisher {
-    private static final String KAFKA_PREFIX = "source_kafka_config_";
+    private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
     private final Configuration configuration;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
