@@ -12,6 +12,10 @@ In the flow of Post Processors, External Post Processors, Internal Post Processo
 
 * From the previous example, assume you want the information of customer_id and amount which are fields from input proto. Internal SQL Post Processor can be used for selecting these fields from the input stream.
 
+<p align="center">
+  <img src="../assets/external-internal-post-processor.png" width="70%"/>
+</p>
+
 * After getting customer_id, amount, and cashback amount, you may want to round off the cashback amount. For this, you can write a custom transformer which is a simple Java Flink Map function to calculate the round-off amount. Given a simple Data flow diagram for this.
 
 ## Types of Post Processors
