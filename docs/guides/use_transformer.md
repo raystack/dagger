@@ -19,7 +19,7 @@ In this section, we will know more about transformers, how to use them and how y
 
 - All the pre-supported transformers present in the `dagger-functions` sub-module in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers) directory. Find more details about each of the existing transformers and some sample examples [here](update-link).
 
-- In case any of the predefined transformers do not meet your requirement, you can create your custom Transformers by extending some contract. Follow this[contribution guidelines](update-link) on how to add a transformer in dagger.
+- In case any of the predefined transformers do not meet your requirement, you can create your custom Transformers by extending some contract. Follow this [contribution guidelines](update-link) on how to add a transformer in dagger.
 
 ## Use a Transformer
 
