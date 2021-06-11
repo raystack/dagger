@@ -43,7 +43,7 @@ List of transformers per table.
 
 ### `transformation_class`
 
-Fully qualified name of the class to be used for transformation. Class should be added here.
+Fully qualified name of the class to be used for transformation.
 
 * Example value: `"io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"`
 * Type: `required`
