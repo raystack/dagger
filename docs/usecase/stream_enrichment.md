@@ -121,8 +121,6 @@ Sample Post Processor Configuration
 
 In The example Postprocessor configuration, the internal source instructs to populate the `booking_log` field of output schema using the SQL select statement and `customer_profile` from the fetched Documents of ES for a given customer. Follow [this](update link) for more details about each configuration fields.
 
-This is basic data flow of the example profile enrichment.
-
 ![Profile Enrichment](../assets/enrichment.png)
 
-### Final Data
+This is how the basic data flow of profile enrichment looks like.
