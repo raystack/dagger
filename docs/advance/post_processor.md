@@ -18,6 +18,10 @@ In the flow of Post Processors, External Post Processors, Internal Post Processo
 
 * After getting customer_id, amount, and cashback amount, you may want to round off the cashback amount. For this, you can write a custom transformer which is a simple Java Flink Map function to calculate the round-off amount. Given a simple Data flow diagram for this.
 
+<p align="center">
+  <img src="../assets/external-internal-transformer-post-processor.png" width="70%"/>
+</p>
+
 ## Types of Post Processors
 There are three types of Post Processors :
 * [External Post Processor](post_processor.md#external-post-processor)
