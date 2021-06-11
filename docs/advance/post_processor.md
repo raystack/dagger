@@ -7,19 +7,19 @@ In the flow of Post Processors, External Post Processors, Internal Post Processo
 * Let's assume that you want to find cashback given for a particular order number from an external API endpoint. You can use an HTTP external post-processor for this. Here is a basic Data flow diagram.
 
 <p align="center">
-  <img src="../assets/external-http-post-processor.png" width="70%"/>
+  <img src="../assets/external-http-post-processor.png" width="80%"/>
 </p>
 
 * From the previous example, assume you want the information of customer_id and amount which are fields from input proto. Internal SQL Post Processor can be used for selecting these fields from the input stream.
 
 <p align="center">
-  <img src="../assets/external-internal-post-processor.png" width="70%"/>
+  <img src="../assets/external-internal-post-processor.png" width="80%"/>
 </p>
 
 * After getting customer_id, amount, and cashback amount, you may want to round off the cashback amount. For this, you can write a custom transformer which is a simple Java Flink Map function to calculate the round-off amount. Given a simple Data flow diagram for this.
 
 <p align="center">
-  <img src="../assets/external-internal-transformer-post-processor.png" width="70%"/>
+  <img src="../assets/external-internal-transformer-post-processor.png" width="80%"/>
 </p>
 
 ## Types of Post Processors
