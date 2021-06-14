@@ -37,7 +37,7 @@ External Post Processor is the one that connects to an external data source to f
 Currently, we are supporting four external sources as part of this.
 
 #### Elasticsearch 
-This enables you to enrich the input streams with any information present in some remote [Elasticsearch](https://www.elastic.co/). For example let's say you have payment transaction logs in input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
+This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example let's say you have payment transaction logs in input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
 
 ##### Configuration
 
@@ -95,21 +95,21 @@ If true it will not cast the response from ES to output proto schema. The defaul
 
 ###### `retry_timeout`
 
-Timeout between request retries.
+Timeout between request retries in ms.
 
 * Example value: `5000`
 * Type: `required`
 
 ###### `socket_timeout`
 
-The time waiting for data after establishing the connection; maximum time of inactivity between two data packets.
+The time waiting for data after establishing the connection in ms; maximum time of inactivity between two data packets.
 
 * Example value: `6000`
 * Type: `required`
 
 ###### `connect_timeout`
 
-Timeout value for ES client.
+Timeout value for ES client in ms.
 
 * Example value: `5000`
 * Type: `required`
@@ -213,14 +213,14 @@ List of comma separated parameters to be replaced in request_pattern, these vari
 
 ###### `stream_timeout`
 
-Timeout value for the stream.
+Timeout value for the stream in ms.
 
 * Example value: `5000`
 * Type: `required`
 
 ###### `connect_timeout`
 
-Timeout value for HTTP client.
+Timeout value for HTTP client in ms.
 
 * Example value: `5000`
 * Type: `required`
@@ -336,6 +336,158 @@ You can select the fields that you want to get from input stream or you want to 
   ```
 
 **Note:** Post request patterns support both primitive and complex data types. But for complex objects you need to remove the quotes from the selector ( `%s`). So in case of a primitive datapoint of string the selector will be (`”%s”`) whereas for complex fields it will be (`%s`).
+
+#### Postgres 
+This enables you to enrich the input streams with any information present in any remote [Postgres](https://www.postgresql.org). For example let's say you have payment transaction logs in input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
+
+##### Configuration
+
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+
+###### `host`
+
+IP(s) of the nodes/haproxy.
+
+* Example value: `http://127.0.0.1`
+* Type: `required`
+
+###### `port`
+
+Port exposed for the same.
+
+* Example value: `5432`
+* Type: `required`
+
+###### `user`
+
+Username for Postgres.
+
+* Example value: `testuser`
+* Type: `required`
+
+###### `password`
+
+Password for particular user.
+
+* Example value: `test`
+* Type: `required`
+
+###### `database`
+
+Postgres database name.
+
+* Example value: `testdb`
+* Type: `required`
+
+###### `query_pattern`
+
+SQL query pattern to populate the data from PostgresDB.
+
+* Example value: `select email, phone from public.customers where customer_id = '%s'`
+* Type: `required`
+
+###### `query_variables`
+
+This is a comma-separated list (without any whitespaces in between) of parameters to be replaced in the query_pattern, and these variables must be present in the input proto.
+
+* Example value: `customer_id`
+* Type: `optional`
+
+###### `stream_timeout`
+
+Timeout value for the stream in ms.
+
+* Example value: `25000`
+* Type: `required`
+
+###### `idle_timeout`
+
+Timeout value for Postgres connection in ms.
+
+* Example value: `25000`
+* Type: `required`
+
+###### `connect_timeout`
+
+Timeout value for client in ms.
+
+* Example value: `25000`
+* Type: `required`
+
+###### `fail_on_errors`
+
+A flag for deciding whether the job should fail on encountering errors(timeout and status codes apart from 2XX) or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `capacity`
+
+This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+
+* Example value: `30`
+* Type: `required`
+
+###### `retain_response_type`
+
+If true it will not cast the response from Postgres Query to output proto schema. The default behaviour is to cast the response to output proto schema.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `output_mapping`
+
+Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
+
+* Example value: `{"customer_email": "email","customer_phone": "phone”}`
+* Type: `required`
+
+###### `metric_id`
+
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+
+* Example value: `test_id`
+* Type: `optional`
+
+##### Sample Query
+You can select the fields that you want to get from input stream or you want to use for making the request.
+  ```SQL
+  SELECT customer_id from `booking`
+  ```
+
+##### Sample Configuration
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "external_source": {
+      "pg": [
+        { 
+          "host"="http://127.0.0.1",
+          "port"="5432",
+          "user"="test",
+          "password"="test",
+          "database"="my_db",
+          "capacity": "30",
+          "stream_timeout": "25000",
+          "connect_timeout": "25000",
+          "idle_timeout": "25000",
+          "query_pattern"="select email, phone from public.customers where customer_id = '%s'",                     
+          "query_variables"="customer_id",
+          "output_mapping":{
+              "customer_email": "email",
+              "customer_phone": "phone”
+          },
+          "fail_on_errors": "true"
+        }
+      ]
+    }
+  }
+  ```
+
+**Note:** If you want to use % as a special character in your Postgres query, you’ll need to provide an additional % with it as an escape character so that Java doesn’t take it as a string formatter and try to format it, which in turn might end up in invalid format exception.
+E.g. "select email, phone from public.customers where name like '%%smith'"
 
 ### Internal Post Processor
 
