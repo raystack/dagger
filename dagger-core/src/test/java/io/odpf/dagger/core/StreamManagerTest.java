@@ -96,7 +96,7 @@ public class StreamManagerTest {
         when(configuration.getInteger("FLINK_CHECKPOINT_MAX_CONCURRENT", 1)).thenReturn(1);
         when(configuration.getString("FLINK_ROWTIME_ATTRIBUTE_NAME", "")).thenReturn("");
         when(configuration.getBoolean("FLINK_WATERMARK_PER_PARTITION_ENABLE", false)).thenReturn(false);
-        when(configuration.getLong("FLINK_WATERMARK_INTERVAL_DELAY_MS", 10000)).thenReturn(10000L);
+        when(configuration.getLong("FLINK_WATERMARK_DELAY_MS", 10000)).thenReturn(10000L);
         when(configuration.getString("STREAMS", "")).thenReturn(jsonArray);
         when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false)).thenReturn(false);
         when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");

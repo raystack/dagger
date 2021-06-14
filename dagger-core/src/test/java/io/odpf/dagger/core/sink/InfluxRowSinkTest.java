@@ -73,7 +73,7 @@ public class InfluxRowSinkTest {
         parameters.setString("SINK_INFLUX_PASSWORD", "pwd");
         parameters.setInteger("SINK_INFLUX_BATCH_SIZE", SINK_INFLUX_BATCH_SIZE);
         parameters.setInteger("SINK_INFLUX_FLUSH_DURATION_MS", INFLUX_FLUSH_DURATION);
-        parameters.setString("SINK_INFLUX_DATABASE", "dagger_test");
+        parameters.setString("SINK_INFLUX_DB_NAME", "dagger_test");
         parameters.setString("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
         parameters.setString("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
