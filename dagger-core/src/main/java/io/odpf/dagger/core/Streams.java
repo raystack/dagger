@@ -76,14 +76,14 @@ public class Streams implements TelemetryPublisher {
     }
 
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES, "");
+        String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY, "");
         topics.add(topicsForStream);
         String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
         protoClassNames.add(protoClassName);
-        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME, ""));
+        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME_KEY, ""));
         String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
         protoClassForTable.put(tableName, protoClassName);
-        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX, ""));
+        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY, ""));
         Properties kafkaProps = new Properties();
         streamConfig.entrySet()
                 .stream()

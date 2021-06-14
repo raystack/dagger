@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -51,7 +51,7 @@ public class ProtoDeserializerTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
         TypeInformation<Row> producedType = protoDeserializer.getProducedType();
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
                 new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},

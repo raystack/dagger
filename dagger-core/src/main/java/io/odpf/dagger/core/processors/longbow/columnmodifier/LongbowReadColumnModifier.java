@@ -10,7 +10,7 @@ public class LongbowReadColumnModifier implements ColumnModifier {
     @Override
     public String[] modifyColumnNames(String[] inputColumnNames) {
         ArrayList<String> inputColumnList = new ArrayList<>(Arrays.asList(inputColumnNames));
-        inputColumnList.add(inputColumnList.size(), Constants.LONGBOW_PROTO_DATA);
+        inputColumnList.add(inputColumnList.size(), Constants.LONGBOW_PROTO_DATA_KEY);
         return inputColumnList.toArray(new String[0]);
     }
 }

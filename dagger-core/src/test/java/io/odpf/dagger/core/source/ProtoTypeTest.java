@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -44,11 +44,11 @@ public class ProtoTypeTest {
         ProtoType bookingKeyProtoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
+                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) feedbackKeyProtoType.getRowType()).getFieldNames());
 
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) bookingKeyProtoType.getRowType()).getFieldNames());
     }
 

@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.utils;
 
 public class Constants {
-    public static final String INTERNAL_VALIDATION_FILED = "__internal_validation_field__";
+    public static final String INTERNAL_VALIDATION_FILED_KEY = "__internal_validation_field__";
     public static final String PROCESSOR_PREPROCESSOR_ENABLE_KEY = "PROCESSOR_PREPROCESSOR_ENABLE";
     public static final boolean PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_PREPROCESSOR_CONFIG_KEY = "PROCESSOR_PREPROCESSOR_CONFIG";
@@ -9,14 +9,14 @@ public class Constants {
     public static final boolean PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_POSTPROCESSOR_CONFIG_KEY = "PROCESSOR_POSTPROCESSOR_CONFIG";
 
-    public static final String LONGBOW_DURATION = "longbow_duration";
-    public static final String LONGBOW_LATEST = "longbow_latest";
-    public static final String LONGBOW_EARLIEST = "longbow_earliest";
+    public static final String LONGBOW_DURATION_KEY = "longbow_duration";
+    public static final String LONGBOW_LATEST_KEY = "longbow_latest";
+    public static final String LONGBOW_EARLIEST_KEY = "longbow_earliest";
     public static final String PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY = "PROCESSOR_LONGBOW_DOCUMENT_DURATION";
     public static final String PROCESSOR_LONGBOW_DOCUMENT_DURATION_DEFAULT = "90d";
     public static final String LONGBOW_DELIMITER = "#";
-    public static final String LONGBOW_DATA = "longbow_data";
-    public static final String LONGBOW_PROTO_DATA = "proto_data";
+    public static final String LONGBOW_DATA_KEY = "longbow_data";
+    public static final String LONGBOW_PROTO_DATA_KEY = "proto_data";
     public static final String PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY = "PROCESSOR_LONGBOW_GCP_PROJECT_ID";
     public static final String PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT = "godata-production";
     public static final String PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY = "PROCESSOR_LONGBOW_GCP_INSTANCE_ID";
@@ -67,13 +67,13 @@ public class Constants {
 
     public static final String SYNCHRONIZER_BIGTABLE_TABLE_ID_KEY = "bigtable_table_id";
     public static final String SYNCHRONIZER_INPUT_CLASSNAME_KEY = "input_class_name";
-    public static final String SYNCHRONIZER_LONGBOWREAD_KEY = "longbow_read_key";
+    public static final String SYNCHRONIZER_LONGBOW_READ_KEY = "longbow_read_key";
 
-    public static final String SINK_KAFKA_TOPIC = "SINK_KAFKA_TOPIC";
-    public static final String SINK_KAFKA_BROKER = "SINK_KAFKA_BROKER";
+    public static final String SINK_KAFKA_TOPIC_KEY = "SINK_KAFKA_TOPIC";
+    public static final String SINK_KAFKA_BROKERS_KEY = "SINK_KAFKA_BROKERS";
     public static final String SINK_KAFKA_PROTO_KEY = "SINK_KAFKA_PROTO_KEY";
-    public static final String SINK_KAFKA_PROTO_MESSAGE = "SINK_KAFKA_PROTO_MESSAGE";
-    public static final String SINK_KAFKA_STREAM = "SINK_KAFKA_STREAM";
+    public static final String SINK_KAFKA_PROTO_MESSAGE_KEY = "SINK_KAFKA_PROTO_MESSAGE";
+    public static final String SINK_KAFKA_STREAM_KEY = "SINK_KAFKA_STREAM";
     public static final String SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY = "SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE";
     public static final boolean SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT = false;
     public static final String SINK_KAFKA_COMPRESSION_TYPE_KEY = "compression.type";
@@ -87,14 +87,14 @@ public class Constants {
     public static final String GRPC_TYPE = "GRPC";
     public static final String SQL_PATH_SELECT_ALL_CONFIG_VALUE = "*";
 
-    public static final String LONGBOW_WRITER_PROCESSOR = "longbow_writer_processor";
-    public static final String LONGBOW_READER_PROCESSOR = "longbow_reader_processor";
-    public static final String TRANSFORM_PROCESSOR = "transform_processor";
+    public static final String LONGBOW_WRITER_PROCESSOR_KEY = "longbow_writer_processor";
+    public static final String LONGBOW_READER_PROCESSOR_KEY = "longbow_reader_processor";
+    public static final String TRANSFORM_PROCESSOR_KEY = "transform_processor";
     public static final String SQL_TRANSFORMER_CLASS = "io.odpf.dagger.functions.transformers.SQLTransformer";
 
-    public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
-    public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES = "SOURCE_KAFKA_TOPIC_NAMES";
-    public static final String INPUT_STREAM_NAME = "SOURCE_KAFKA_NAME";
+    public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
+    public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY = "SOURCE_KAFKA_TOPIC_NAMES";
+    public static final String INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
 
     public static final String METRIC_TELEMETRY_ENABLE_KEY = "METRIC_TELEMETRY_ENABLE";
     public static final boolean METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT = true;
@@ -106,9 +106,9 @@ public class Constants {
     public static final String FUNCTION_FACTORY_CLASSES_KEY = "FUNCTION_FACTORY_CLASSES";
     public static final String FUNCTION_FACTORY_CLASSES_DEFAULT = "io.odpf.dagger.functions.udfs.factories.FunctionFactory";
 
-    public static final String SINK_INFLUX_LATE_RECORDS_DROPPED = "influx.late.records.dropped";
-    public static final String SINK_INFLUX_DATABASE_KEY = "SINK_INFLUX_DATABASE";
-    public static final String SINK_INFLUX_DATABASE_DEFAULT = "";
+    public static final String SINK_INFLUX_LATE_RECORDS_DROPPED_KEY = "influx.late.records.dropped";
+    public static final String SINK_INFLUX_DB_NAME_KEY = "SINK_INFLUX_DB_NAME";
+    public static final String SINK_INFLUX_DB_NAME_DEFAULT = "";
     public static final String SINK_INFLUX_RETENTION_POLICY_KEY = "SINK_INFLUX_RETENTION_POLICY";
     public static final String SINK_INFLUX_RETENTION_POLICY_DEFAULT = "";
     public static final String SINK_INFLUX_MEASUREMENT_NAME_KEY = "SINK_INFLUX_MEASUREMENT_NAME";

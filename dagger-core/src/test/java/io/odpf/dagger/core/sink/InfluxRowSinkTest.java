@@ -78,7 +78,7 @@ public class InfluxRowSinkTest {
         parameters.setString("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
-        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED)).thenReturn(metricGroup);
+        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY,
                 InfluxDBException.class.getName())).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);

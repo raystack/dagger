@@ -41,7 +41,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         this.columnNames = columnNames;
         this.parameters = parameters;
         this.errorHandler = errorHandler;
-        databaseName = parameters.getString(SINK_INFLUX_DATABASE_KEY, SINK_INFLUX_DATABASE_DEFAULT);
+        databaseName = parameters.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
         retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
         measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
@@ -52,7 +52,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         this.parameters = parameters;
         this.errorHandler = errorHandler;
         this.errorReporter = errorReporter;
-        databaseName = parameters.getString(SINK_INFLUX_DATABASE_KEY, SINK_INFLUX_DATABASE_DEFAULT);
+        databaseName = parameters.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
         retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
         measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
