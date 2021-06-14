@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A class that holds ElasticSearch configuration.
+ */
 public class EsSourceConfig implements Serializable, SourceConfig {
     private final String host;
     private final String port;
@@ -33,6 +36,26 @@ public class EsSourceConfig implements Serializable, SourceConfig {
     private final boolean retainResponseType;
 
 
+    /**
+     * Instantiates a new ElasticSearch source config.
+     *
+     * @param host               the host
+     * @param port               the port
+     * @param user               the user
+     * @param password           the password
+     * @param endpointPattern    the endpoint pattern
+     * @param endpointVariables  the endpoint variables
+     * @param type               the type
+     * @param capacity           the capacity
+     * @param connectTimeout     the connect timeout
+     * @param retryTimeout       the retry timeout
+     * @param socketTimeout      the socket timeout
+     * @param streamTimeout      the stream timeout
+     * @param failOnErrors       the fail on errors
+     * @param outputMapping      the output mapping
+     * @param metricId           the metric id
+     * @param retainResponseType the retain response type
+     */
     public EsSourceConfig(String host, String port, String user, String password, String endpointPattern, String endpointVariables,
                           String type, String capacity, String connectTimeout, String retryTimeout, String socketTimeout, String streamTimeout,
                           boolean failOnErrors, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
@@ -55,18 +78,38 @@ public class EsSourceConfig implements Serializable, SourceConfig {
     }
 
 
+    /**
+     * Gets host.
+     *
+     * @return the host
+     */
     public String getHost() {
         return host;
     }
 
+    /**
+     * Gets port.
+     *
+     * @return the port
+     */
     public Integer getPort() {
         return Integer.valueOf(port);
     }
 
+    /**
+     * Gets user.
+     *
+     * @return the user
+     */
     public String getUser() {
         return user == null ? "" : user;
     }
 
+    /**
+     * Gets password.
+     *
+     * @return the password
+     */
     public String getPassword() {
         return password == null ? "" : password;
     }
@@ -96,30 +139,66 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         return type;
     }
 
+    /**
+     * Check if type config is not empty.
+     *
+     * @return the boolean
+     */
     public boolean hasType() {
         return StringUtils.isNotEmpty(type);
     }
 
+    /**
+     * Gets capacity.
+     *
+     * @return the capacity
+     */
     public Integer getCapacity() {
         return Integer.valueOf(capacity);
     }
 
+    /**
+     * Gets retry timeout.
+     *
+     * @return the retry timeout
+     */
     public Integer getRetryTimeout() {
         return Integer.valueOf(retryTimeout);
     }
 
+    /**
+     * Gets socket timeout.
+     *
+     * @return the socket timeout
+     */
     public Integer getSocketTimeout() {
         return Integer.valueOf(socketTimeout);
     }
 
+    /**
+     * Gets stream timeout.
+     *
+     * @return the stream timeout
+     */
     public Integer getStreamTimeout() {
         return Integer.valueOf(streamTimeout);
     }
 
+    /**
+     * Gets connect timeout.
+     *
+     * @return the connect timeout
+     */
     public Integer getConnectTimeout() {
         return Integer.valueOf(connectTimeout);
     }
 
+    /**
+     * Gets path.
+     *
+     * @param outputColumn the output column
+     * @return the path
+     */
     public String getPath(String outputColumn) {
         return outputMapping.get(outputColumn).getPath();
     }
@@ -146,6 +225,11 @@ public class EsSourceConfig implements Serializable, SourceConfig {
         return new ArrayList<>(outputMapping.keySet());
     }
 
+    /**
+     * Check if it is retain response type.
+     *
+     * @return the boolean
+     */
     public boolean isRetainResponseType() {
         return retainResponseType;
     }

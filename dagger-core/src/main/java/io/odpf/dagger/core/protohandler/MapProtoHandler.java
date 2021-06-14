@@ -13,10 +13,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * The type Map proto handler.
+ */
 public class MapProtoHandler implements ProtoHandler {
 
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Map proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public MapProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

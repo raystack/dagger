@@ -6,9 +6,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * The Time in date udf.
+ */
 public class TimeInDate extends ScalarUdf {
     private static final Integer SECOND_IN_MILLIS = 1000;
 
+    /**
+     * returns calender's time value in seconds for a given event timestamp, hour, and minute.
+     *
+     * @param eventTimestamp the event timestamp
+     * @param hour           the hour
+     * @param minute         the minute
+     * @return the long
+     */
     public long eval(long eventTimestamp, int hour, int minute) {
         return eval(eventTimestamp, hour, minute, "UTC");
     }

@@ -6,10 +6,13 @@ import org.apache.flink.api.java.tuple.Tuple1;
 import java.util.Arrays;
 
 
+/**
+ * The class responsible for Histogram bucket udf.
+ */
 public class HistogramBucket extends TableUdf<Tuple1<String>> {
 
     /**
-     * This UDTF returns buckets for given value to calculate histograms.
+     * This UDF returns buckets for given value to calculate histograms.
      * see https://github.com/influxdata/telegraf/tree/master/plugins/aggregators/histogram#tags
      *
      * @param dValue  Value to be compared

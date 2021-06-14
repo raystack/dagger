@@ -6,6 +6,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * The EndOfWeek udf.
+ */
 public class EndOfWeek extends ScalarUdf {
 
     private static final Integer END_OF_DAY_HOUR = 23;

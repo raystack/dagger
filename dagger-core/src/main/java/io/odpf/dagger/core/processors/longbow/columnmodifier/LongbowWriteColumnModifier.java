@@ -5,6 +5,9 @@ import io.odpf.dagger.core.utils.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * The Longbow write column modifier.
+ */
 public class LongbowWriteColumnModifier implements ColumnModifier {
 
     @Override

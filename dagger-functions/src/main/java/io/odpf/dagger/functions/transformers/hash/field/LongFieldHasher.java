@@ -3,10 +3,18 @@ package io.odpf.dagger.functions.transformers.hash.field;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.functions.exceptions.RowHashException;
 
+/**
+ * The Long field hasher.
+ */
 public class LongFieldHasher implements FieldHasher {
 
     private final String[] fieldPath;
 
+    /**
+     * Instantiates a new Long field hasher.
+     *
+     * @param fieldPath the field path
+     */
     public LongFieldHasher(String[] fieldPath) {
         this.fieldPath = fieldPath;
     }

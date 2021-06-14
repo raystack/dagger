@@ -31,6 +31,9 @@ import java.util.List;
 
 import static io.odpf.dagger.core.utils.Constants.*;
 
+/**
+ * The Stream manager.
+ */
 public class StreamManager {
 
     private Configuration configuration;
@@ -40,12 +43,24 @@ public class StreamManager {
     private Streams kafkaStreams;
     private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
 
+    /**
+     * Instantiates a new Stream manager.
+     *
+     * @param configuration        the configuration
+     * @param executionEnvironment the execution environment
+     * @param tableEnvironment     the table environment
+     */
     public StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
         this.configuration = configuration;
         this.executionEnvironment = executionEnvironment;
         this.tableEnvironment = tableEnvironment;
     }
 
+    /**
+     * Register configs stream manager.
+     *
+     * @return the stream manager
+     */
     public StreamManager registerConfigs() {
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
@@ -66,6 +81,11 @@ public class StreamManager {
     }
 
 
+    /**
+     * Register source with pre processors stream manager.
+     *
+     * @return the stream manager
+     */
     public StreamManager registerSourceWithPreProcessors() {
         String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
@@ -88,6 +108,11 @@ public class StreamManager {
         return this;
     }
 
+    /**
+     * Register functions stream manager.
+     *
+     * @return the stream manager
+     */
     public StreamManager registerFunctions() {
         String[] functionFactoryClasses = configuration
                 .getString(Constants.FUNCTION_FACTORY_CLASSES_KEY, Constants.FUNCTION_FACTORY_CLASSES_DEFAULT)
@@ -111,6 +136,11 @@ public class StreamManager {
         return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment, configuration);
     }
 
+    /**
+     * Register output stream manager.
+     *
+     * @return the stream manager
+     */
     public StreamManager registerOutputStream() {
         Table table = tableEnvironment.sqlQuery(configuration.getString(Constants.FLINK_SQL_QUERY_KEY, Constants.FLINK_SQL_QUERY_DEFAULT));
         StreamInfo streamInfo = createStreamInfo(table);
@@ -119,10 +149,21 @@ public class StreamManager {
         return this;
     }
 
+    /**
+     * Execute dagger job.
+     *
+     * @throws Exception the exception
+     */
     public void execute() throws Exception {
         executionEnvironment.execute(configuration.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT));
     }
 
+    /**
+     * Create stream info.
+     *
+     * @param table the table
+     * @return the stream info
+     */
     protected StreamInfo createStreamInfo(Table table) {
         DataStream<Row> stream = tableEnvironment
                 .toRetractStream(table, Row.class)

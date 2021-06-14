@@ -33,6 +33,9 @@ import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
 import static java.util.Collections.singleton;
 import static org.apache.http.HttpStatus.SC_OK;
 
+/**
+ * The ElasticSearch response handler.
+ */
 public class EsResponseHandler implements ResponseListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EsResponseHandler.class.getName());
     private EsSourceConfig esSourceConfig;
@@ -45,6 +48,18 @@ public class EsResponseHandler implements ResponseListener {
     private ErrorReporter errorReporter;
     private PostResponseTelemetry postResponseTelemetry;
 
+    /**
+     * Instantiates a new ElasticSearch response handler.
+     *
+     * @param esSourceConfig        the es source config
+     * @param meterStatsManager     the meter stats manager
+     * @param rowManager            the row manager
+     * @param columnNameManager     the column name manager
+     * @param outputDescriptor      the output descriptor
+     * @param resultFuture          the result future
+     * @param errorStatsReporter    the error stats reporter
+     * @param postResponseTelemetry the post response telemetry
+     */
     public EsResponseHandler(EsSourceConfig esSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorStatsReporter, PostResponseTelemetry postResponseTelemetry) {
         this.esSourceConfig = esSourceConfig;
         this.rowManager = rowManager;
@@ -56,6 +71,9 @@ public class EsResponseHandler implements ResponseListener {
         this.postResponseTelemetry = postResponseTelemetry;
     }
 
+    /**
+     * Start timer.
+     */
     public void startTimer() {
         startTime = Instant.now();
     }

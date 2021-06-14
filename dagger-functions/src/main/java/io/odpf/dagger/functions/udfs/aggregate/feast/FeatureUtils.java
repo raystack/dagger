@@ -9,7 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The utils for Feature udf.
+ */
 public class FeatureUtils {
+    /**
+     * Populate features.
+     *
+     * @param featureRows      the feature rows
+     * @param key              the key
+     * @param value            the value
+     * @param featureRowLength the feature row length
+     */
     public static void populateFeatures(ArrayList<Row> featureRows, String key, Object value, Integer featureRowLength) {
         List<ValueTransformer> valueTransformers = ValueTransformerFactory.getValueTransformers();
         Optional<ValueTransformer> valueHandler = valueTransformers
@@ -26,6 +37,15 @@ public class FeatureUtils {
         featureRows.add(featureRow);
     }
 
+    /**
+     * Populate features with type.
+     *
+     * @param featureRows      the feature rows
+     * @param key              the key
+     * @param value            the value
+     * @param type             the type
+     * @param featureRowLength the feature row length
+     */
     public static void populateFeaturesWithType(ArrayList<Row> featureRows, String key, Object value, ValueEnum type, Integer featureRowLength) {
         List<ValueTransformer> valueTransformers = ValueTransformerFactory.getValueTransformers();
 

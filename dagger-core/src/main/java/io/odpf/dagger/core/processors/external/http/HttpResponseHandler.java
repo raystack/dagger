@@ -28,6 +28,9 @@ import java.util.Map;
 
 import static org.apache.http.HttpStatus.SC_OK;
 
+/**
+ * The Http response handler.
+ */
 public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseHandler.class.getName());
     private final RowManager rowManager;
@@ -41,6 +44,18 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private PostResponseTelemetry postResponseTelemetry;
 
 
+    /**
+     * Instantiates a new Http response handler.
+     *
+     * @param httpSourceConfig      the http source config
+     * @param meterStatsManager     the meter stats manager
+     * @param rowManager            the row manager
+     * @param columnNameManager     the column name manager
+     * @param descriptor            the descriptor
+     * @param resultFuture          the result future
+     * @param errorReporter         the error reporter
+     * @param postResponseTelemetry the post response telemetry
+     */
     public HttpResponseHandler(HttpSourceConfig httpSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager,
                                ColumnNameManager columnNameManager, Descriptors.Descriptor descriptor, ResultFuture<Row> resultFuture,
                                ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
@@ -55,6 +70,9 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         this.postResponseTelemetry = postResponseTelemetry;
     }
 
+    /**
+     * Start timer.
+     */
     public void startTimer() {
         startTime = Instant.now();
     }
@@ -99,6 +117,11 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
         resultFuture.complete(Collections.singleton(rowManager.getAll()));
     }
 
+    /**
+     * Failure handler.
+     *
+     * @param logMessage the log message
+     */
     public void failureHandler(String logMessage) {
         postResponseTelemetry.sendFailureTelemetry(meterStatsManager, startTime);
         LOGGER.error(logMessage);

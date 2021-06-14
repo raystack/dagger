@@ -4,10 +4,19 @@ import org.apache.flink.configuration.Configuration;
 
 import java.util.Properties;
 
+/**
+ * The type Kafka environment variables.
+ */
 public class KafkaEnvironmentVariables {
 
     private static final String KAFKA_PREFIX = "source_kafka_config_";
 
+    /**
+     * Parse properties.
+     *
+     * @param configuration the configuration
+     * @return the properties
+     */
     public static Properties parse(Configuration configuration) {
         Properties props = new Properties();
 

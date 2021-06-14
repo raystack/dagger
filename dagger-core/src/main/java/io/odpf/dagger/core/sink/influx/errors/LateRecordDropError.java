@@ -10,12 +10,20 @@ import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Late record drop error.
+ */
 public class LateRecordDropError implements InfluxError {
     private final Counter counter;
     private static final Logger LOGGER = LoggerFactory.getLogger(LateRecordDropError.class.getName());
     private ErrorStatsReporter errorStatsReporter;
     private static final String PREFIX = "{\"error\":\"partial write: points beyond retention policy dropped=";
 
+    /**
+     * Instantiates a new Late record drop error.
+     *
+     * @param runtimeContext the runtime context
+     */
     public LateRecordDropError(RuntimeContext runtimeContext) {
         this.counter = runtimeContext.getMetricGroup()
                 .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");

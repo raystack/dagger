@@ -30,6 +30,9 @@ import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.singleton;
 
+/**
+ * The Async connector.
+ */
 public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
     private final String sourceType;
     private final SourceConfig sourceConfig;
@@ -42,6 +45,14 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
     private Descriptors.Descriptor outputDescriptor;
     private EndpointHandler endpointHandler;
 
+    /**
+     * Instantiates a new Async connector.
+     *
+     * @param sourceType           the source type
+     * @param sourceConfig         the source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public AsyncConnector(String sourceType, SourceConfig sourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         this.sourceType = sourceType;
         this.sourceConfig = sourceConfig;
@@ -49,38 +60,84 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         this.schemaConfig = schemaConfig;
     }
 
+    /**
+     * Gets error reporter.
+     *
+     * @return the error reporter
+     */
     protected ErrorReporter getErrorReporter() {
         return errorReporter;
     }
 
+    /**
+     * Gets meter stats manager.
+     *
+     * @return the meter stats manager
+     */
     protected MeterStatsManager getMeterStatsManager() {
         return meterStatsManager;
     }
 
+    /**
+     * Gets endpoint handler.
+     *
+     * @return the endpoint handler
+     */
     protected EndpointHandler getEndpointHandler() {
         return endpointHandler;
     }
 
+    /**
+     * Gets column name manager.
+     *
+     * @return the column name manager
+     */
     public ColumnNameManager getColumnNameManager() {
         return schemaConfig.getColumnNameManager();
     }
 
+    /**
+     * Sets error reporter.
+     *
+     * @param errorReporter the error reporter
+     */
     public void setErrorReporter(ErrorReporter errorReporter) {
         this.errorReporter = errorReporter;
     }
 
+    /**
+     * Sets meter stats manager.
+     *
+     * @param meterStatsManager the meter stats manager
+     */
     public void setMeterStatsManager(MeterStatsManager meterStatsManager) {
         this.meterStatsManager = meterStatsManager;
     }
 
+    /**
+     * Sets descriptor manager.
+     *
+     * @param descriptorManager the descriptor manager
+     */
     public void setDescriptorManager(DescriptorManager descriptorManager) {
         this.descriptorManager = descriptorManager;
     }
 
+    /**
+     * Gets descriptor manager.
+     *
+     * @return the descriptor manager
+     */
     public DescriptorManager getDescriptorManager() {
         return descriptorManager;
     }
 
+    /**
+     * Initialize the descriptor manager.
+     *
+     * @param config the config
+     * @return the descriptor manager
+     */
     protected DescriptorManager initDescriptorManager(SchemaConfig config) {
         return new DescriptorManager(config.getStencilClientOrchestrator());
     }
@@ -112,8 +169,18 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         meterStatsManager.register(groupKey, groupValue, ExternalSourceAspects.values());
     }
 
+    /**
+     * Create client.
+     */
     protected abstract void createClient();
 
+    /**
+     * Process async.
+     *
+     * @param input        the input
+     * @param resultFuture the result future
+     * @throws Exception the exception
+     */
     protected abstract void process(Row input, ResultFuture<Row> resultFuture) throws Exception;
 
     @Override
@@ -136,6 +203,12 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         }
     }
 
+    /**
+     * Report and throw error.
+     *
+     * @param resultFuture the result future
+     * @param exception    the exception
+     */
     protected void reportAndThrowError(ResultFuture<Row> resultFuture, Exception exception) {
         errorReporter.reportFatalException(exception);
         resultFuture.completeExceptionally(exception);
@@ -173,6 +246,12 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
+    /**
+     * Gets output descriptor.
+     *
+     * @param resultFuture the result future
+     * @return the output descriptor
+     */
     protected Descriptors.Descriptor getOutputDescriptor(ResultFuture<Row> resultFuture) {
         String descriptorClassName = sourceConfig.getType() != null ? sourceConfig.getType() : schemaConfig.getOutputProtoClassName();
         if (StringUtils.isNotEmpty(descriptorClassName)) {

@@ -14,9 +14,18 @@ import org.apache.flink.configuration.Configuration;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The factory class for Preprocessor.
+ */
 public class PreProcessorFactory {
     private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
+    /**
+     * Parse config preprocessor config.
+     *
+     * @param configuration the configuration
+     * @return the preprocessor config
+     */
     public static PreProcessorConfig parseConfig(Configuration configuration) {
         if (!configuration.getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)) {
             return null;
@@ -31,6 +40,15 @@ public class PreProcessorFactory {
         return config;
     }
 
+    /**
+     * Gets preprocessors.
+     *
+     * @param configuration            the configuration
+     * @param processorConfig          the processor config
+     * @param tableName                the table name
+     * @param metricsTelemetryExporter the metrics telemetry exporter
+     * @return the preprocessors
+     */
     public static List<Preprocessor> getPreProcessors(Configuration configuration, PreProcessorConfig processorConfig, String tableName, MetricsTelemetryExporter metricsTelemetryExporter) {
         return Collections.singletonList(new PreProcessorOrchestrator(configuration, processorConfig, metricsTelemetryExporter, tableName));
     }

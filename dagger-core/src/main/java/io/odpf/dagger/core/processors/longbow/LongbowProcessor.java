@@ -14,6 +14,9 @@ import org.apache.flink.types.Row;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The Longbow processor.
+ */
 public class LongbowProcessor implements PostProcessor {
 
     private AsyncProcessor asyncProcessor;
@@ -21,6 +24,14 @@ public class LongbowProcessor implements PostProcessor {
     private ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions;
     private ColumnModifier modifier;
 
+    /**
+     * Instantiates a new Longbow processor.
+     *
+     * @param asyncProcessor       the async processor
+     * @param configuration        the configuration
+     * @param longbowRichFunctions the longbow rich functions
+     * @param modifier             the modifier
+     */
     public LongbowProcessor(AsyncProcessor asyncProcessor, Configuration configuration, ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions, ColumnModifier modifier) {
         this.asyncProcessor = asyncProcessor;
         this.configuration = configuration;

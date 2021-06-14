@@ -13,15 +13,30 @@ import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
 
+/**
+ * The DartGet udf.
+ */
 public class DartGet extends ScalarUdf {
     private final GcsDataStore dataStore;
     private final Map<String, MapCache> cache;
 
+    /**
+     * Instantiates a new Dart get.
+     *
+     * @param dataStore the data store
+     */
     public DartGet(GcsDataStore dataStore) {
         this.dataStore = dataStore;
         cache = new HashMap<>();
     }
 
+    /**
+     * With gcs data store dart get.
+     *
+     * @param projectId the project id
+     * @param bucketId  the bucket id
+     * @return the dart get
+     */
     public static DartGet withGcsDataStore(String projectId, String bucketId) {
         return new DartGet(new GcsDataStore(projectId, bucketId));
     }
@@ -54,6 +69,15 @@ public class DartGet extends ScalarUdf {
         return cache.get(collectionName).get(key);
     }
 
+    /**
+     * Corresponding value in a GCS bucket given a key from data point.
+     *
+     * @param collectionName     the collection name
+     * @param key                the key
+     * @param refreshRateInHours the refresh rate in hours
+     * @param defaultValue       the default value
+     * @return the string
+     */
     public String eval(String collectionName, String key, int refreshRateInHours, String defaultValue) {
         try {
             return eval(collectionName, key, refreshRateInHours);

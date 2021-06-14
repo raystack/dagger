@@ -34,6 +34,9 @@ import java.util.concurrent.TimeoutException;
 
 import static java.time.Duration.between;
 
+/**
+ * The Longbow writer.
+ */
 public class LongbowWriter extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowWriter.class.getName());
@@ -50,6 +53,15 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private Map<String, List<String>> metrics = new HashMap<>();
     private ErrorReporter errorReporter;
 
+    /**
+     * Instantiates a new Longbow writer.
+     *
+     * @param configuration     the configuration
+     * @param longbowSchema     the longbow schema
+     * @param putRequestFactory the put request factory
+     * @param tableId           the table id
+     * @param writerOutputRow   the writer output row
+     */
     public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
         this.configuration = configuration;
         this.longbowSchema = longbowSchema;
@@ -60,6 +72,18 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         this.writerOutputRow = writerOutputRow;
     }
 
+    /**
+     * Instantiates a new Longbow writer with specified longbow store.
+     *
+     * @param configuration     the configuration
+     * @param longBowSchema     the longbow schema
+     * @param meterStatsManager the meter stats manager
+     * @param errorReporter     the error reporter
+     * @param longBowStore      the longbow store
+     * @param putRequestFactory the put request factory
+     * @param tableId           the table id
+     * @param writerOutputRow   the writer output row
+     */
     LongbowWriter(Configuration configuration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
                   ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
         this(configuration, longBowSchema, putRequestFactory, tableId, writerOutputRow);

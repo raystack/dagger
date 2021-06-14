@@ -12,6 +12,9 @@ import io.odpf.dagger.core.processors.transformers.TransformProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Preprocessor orchestrator.
+ */
 public class PreProcessorOrchestrator implements Preprocessor {
 
     private final MetricsTelemetryExporter metricsTelemetryExporter;
@@ -19,6 +22,14 @@ public class PreProcessorOrchestrator implements Preprocessor {
     private final String tableName;
     private final Configuration configuration;
 
+    /**
+     * Instantiates a new Preprocessor orchestrator.
+     *
+     * @param configuration            the configuration
+     * @param processorConfig          the processor config
+     * @param metricsTelemetryExporter the metrics telemetry exporter
+     * @param tableName                the table name
+     */
     public PreProcessorOrchestrator(Configuration configuration, PreProcessorConfig processorConfig, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
         this.processorConfig = processorConfig;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
@@ -37,6 +48,11 @@ public class PreProcessorOrchestrator implements Preprocessor {
                 streamInfo.getColumnNames());
     }
 
+    /**
+     * Gets processors.
+     *
+     * @return the processors
+     */
     protected List<Preprocessor> getProcessors() {
         List<Preprocessor> preprocessors = new ArrayList<>();
         if (canProcess(processorConfig)) {

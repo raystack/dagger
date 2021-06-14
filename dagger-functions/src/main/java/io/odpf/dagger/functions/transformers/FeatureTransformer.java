@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * Converts to feast Features from post processors.
+ */
 public class FeatureTransformer implements MapFunction<Row, Row>, Transformer {
     private static final int FEATURE_ROW_LENGTH = 3;
     private static final String KEY_COLUMN_NAME = "keyColumnName";
@@ -21,6 +24,13 @@ public class FeatureTransformer implements MapFunction<Row, Row>, Transformer {
     private final String valueColumn;
     private String[] columnNames;
 
+    /**
+     * Instantiates a new Feature transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public FeatureTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;
         this.keyColumn = transformationArguments.get(KEY_COLUMN_NAME);

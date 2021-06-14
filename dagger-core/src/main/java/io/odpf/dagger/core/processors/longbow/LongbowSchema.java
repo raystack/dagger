@@ -18,10 +18,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * A class that holds the Longbow schema.
+ */
 public class LongbowSchema implements Serializable {
     private HashMap<String, Integer> columnIndexMap;
     private List<String> columnNames;
 
+    /**
+     * Instantiates a new Longbow schema.
+     *
+     * @param columnNames the column names
+     */
     public LongbowSchema(String[] columnNames) {
         this.columnNames = Arrays.asList(columnNames);
         this.columnIndexMap = new HashMap<>();
@@ -30,12 +38,26 @@ public class LongbowSchema implements Serializable {
         }
     }
 
+    /**
+     * Get key.
+     *
+     * @param input  the input
+     * @param offset the offset
+     * @return the key in byte array
+     */
     public byte[] getKey(Row input, long offset) {
         Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(Constants.ROWTIME));
         long requiredTimestamp = rowTime.getTime() - offset;
         return getAbsoluteKey(input, requiredTimestamp);
     }
 
+    /**
+     * Get absolute key.
+     *
+     * @param input     the input
+     * @param timestamp the timestamp
+     * @return get key in byte array
+     */
     public byte[] getAbsoluteKey(Row input, long timestamp) {
         String longbowKey = (String) input.getField(columnIndexMap.get(getType().getKeyName()));
         long reversedTimestamp = Long.MAX_VALUE - timestamp;
@@ -43,22 +65,52 @@ public class LongbowSchema implements Serializable {
         return Bytes.toBytes(key);
     }
 
+    /**
+     * Gets column size.
+     *
+     * @return the column size
+     */
     public Integer getColumnSize() {
         return columnIndexMap.size();
     }
 
+    /**
+     * Gets index of a column.
+     *
+     * @param column the column
+     * @return the index
+     */
     public Integer getIndex(String column) {
         return columnIndexMap.get(column);
     }
 
+    /**
+     * Gets value on the specified column.
+     *
+     * @param input  the input
+     * @param column the column
+     * @return the value
+     */
     public Object getValue(Row input, String column) {
         return input.getField(columnIndexMap.get(column));
     }
 
+    /**
+     * Check if it contains the specified column name.
+     *
+     * @param column the column
+     * @return the boolean
+     */
     public Boolean contains(String column) {
         return columnNames.contains(column);
     }
 
+    /**
+     * Gets column names.
+     *
+     * @param filterCondition the filter condition
+     * @return the column names
+     */
     public List<String> getColumnNames(Predicate<Map.Entry<String, Integer>> filterCondition) {
         return columnIndexMap
                 .entrySet()
@@ -68,15 +120,32 @@ public class LongbowSchema implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets column names.
+     *
+     * @return the column names
+     */
     public List<String> getColumnNames() {
         return this.columnNames;
     }
 
+    /**
+     * Gets duration in millis.
+     *
+     * @param input the input
+     * @return the duration in millis
+     */
     public long getDurationInMillis(Row input) {
         String longbowDuration = (String) input.getField(columnIndexMap.get(Constants.LONGBOW_DURATION_KEY));
         return getDurationInMillis(longbowDuration);
     }
 
+    /**
+     * Gets duration in millis with specified duration.
+     *
+     * @param durationString the duration string
+     * @return the duration in millis
+     */
     public long getDurationInMillis(String durationString) {
         String durationUnit = durationString.substring(durationString.length() - 1);
         long duration = Long.parseLong(durationString.substring(0, durationString.length() - 1));
@@ -92,6 +161,11 @@ public class LongbowSchema implements Serializable {
         }
     }
 
+    /**
+     * Gets longbow type.
+     *
+     * @return the type
+     */
     public LongbowType getType() {
         if (columnNames.contains(LongbowType.LongbowProcess.getKeyName())) {
             return LongbowType.LongbowProcess;
@@ -104,6 +178,11 @@ public class LongbowSchema implements Serializable {
                 + LongbowType.LongbowProcess.getKeyName() + ", " + LongbowType.LongbowRead.getKeyName() + " or " + LongbowType.LongbowWrite.getKeyName());
     }
 
+    /**
+     * Check if it is a Longbow plus.
+     *
+     * @return the boolean
+     */
     public boolean isLongbowPlus() {
         return getType() != LongbowType.LongbowProcess;
     }

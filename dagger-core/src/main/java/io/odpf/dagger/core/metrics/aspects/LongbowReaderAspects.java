@@ -3,6 +3,9 @@ package io.odpf.dagger.core.metrics.aspects;
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 
+/**
+ * The enum Longbow reader aspects.
+ */
 public enum LongbowReaderAspects implements Aspects {
     TIMEOUTS_ON_READER("timeouts_on_reader", AspectType.Metric),
     CLOSE_CONNECTION_ON_READER("close_connection_on_reader", AspectType.Metric),

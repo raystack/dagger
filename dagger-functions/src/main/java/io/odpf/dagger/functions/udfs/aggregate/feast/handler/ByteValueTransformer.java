@@ -4,6 +4,9 @@ import com.google.protobuf.ByteString;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.ByteType;
 
+/**
+ * The Byte value transformer.
+ */
 public class ByteValueTransformer implements ValueTransformer {
     @Override
     public boolean canTransform(Object value) {

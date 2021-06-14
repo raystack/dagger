@@ -26,6 +26,9 @@ import java.util.Map;
 
 import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
 
+/**
+ * The Postgre response handler.
+ */
 public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sqlclient.Row>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PgResponseHandler.class.getName());
     private final PgSourceConfig pgSourceConfig;
@@ -38,6 +41,18 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
     private PostResponseTelemetry postResponseTelemetry;
     private Instant startTime;
 
+    /**
+     * Instantiates a new Postgre response handler.
+     *
+     * @param pgSourceConfig        the pg source config
+     * @param meterStatsManager     the meter stats manager
+     * @param rowManager            the row manager
+     * @param columnNameManager     the column name manager
+     * @param outputDescriptor      the output descriptor
+     * @param resultFuture          the result future
+     * @param errorReporter         the error reporter
+     * @param postResponseTelemetry the post response telemetry
+     */
     public PgResponseHandler(PgSourceConfig pgSourceConfig, MeterStatsManager meterStatsManager, RowManager rowManager, ColumnNameManager columnNameManager, Descriptors.Descriptor outputDescriptor, ResultFuture<Row> resultFuture, ErrorReporter errorReporter, PostResponseTelemetry postResponseTelemetry) {
 
         this.pgSourceConfig = pgSourceConfig;
@@ -50,6 +65,9 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
         this.postResponseTelemetry = postResponseTelemetry;
     }
 
+    /**
+     * Start timer.
+     */
     public void startTimer() {
         startTime = Instant.now();
     }

@@ -7,6 +7,9 @@ import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor
 
 import org.apache.flink.types.Row;
 
+/**
+ * The decorator for Internal post processor.
+ */
 public class InternalDecorator implements MapDecorator {
 
     public static final int OUTPUT_ROW_INDEX = 1;
@@ -15,7 +18,13 @@ public class InternalDecorator implements MapDecorator {
     private InternalConfigProcessor internalConfigProcessor;
     private ColumnNameManager columnNameManager;
 
-
+    /**
+     * Instantiates a new Internal decorator.
+     *
+     * @param internalSourceConfig    the internal source config
+     * @param internalConfigProcessor the internal config processor
+     * @param columnNameManager       the column name manager
+     */
     public InternalDecorator(InternalSourceConfig internalSourceConfig, InternalConfigProcessor internalConfigProcessor, ColumnNameManager columnNameManager) {
         this.internalSourceConfig = internalSourceConfig;
         this.internalConfigProcessor = internalConfigProcessor;

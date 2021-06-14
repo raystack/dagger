@@ -8,14 +8,28 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The accumulator for Feature udf.
+ */
 public class FeatureAccumulator implements Serializable {
     private final List<Tuple2<String, Object>> features = new ArrayList<>();
     private static final Integer FEATURE_ROW_LENGTH = 3;
 
+    /**
+     * Add features.
+     *
+     * @param key   the key
+     * @param value the value
+     */
     public void add(String key, Object value) {
         features.add(new Tuple2<>(key, value));
     }
 
+    /**
+     * Get features rows.
+     *
+     * @return the rows
+     */
     public Row[] getFeatures() {
         ArrayList<Row> featureRows = new ArrayList<>();
         for (Tuple2<String, Object> feature : features) {

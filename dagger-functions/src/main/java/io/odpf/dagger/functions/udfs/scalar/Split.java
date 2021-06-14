@@ -4,6 +4,9 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Split udf.
+ */
 public class Split extends ScalarUdf {
     private static final Logger LOGGER = LoggerFactory.getLogger(Split.class.getName());
 

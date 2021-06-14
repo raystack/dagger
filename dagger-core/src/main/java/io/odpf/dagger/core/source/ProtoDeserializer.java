@@ -19,6 +19,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Deserializer for protobuf messages.
+ */
 public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
     private final String protoClassName;
@@ -27,6 +30,14 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
     private final TypeInformation<Row> typeInformation;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoDeserializer.class);
 
+    /**
+     * Instantiates a new Proto deserializer.
+     *
+     * @param protoClassName            the proto class name
+     * @param timestampFieldIndex       the timestamp field index
+     * @param rowtimeAttributeName      the rowtime attribute name
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     */
     public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protoClassName = protoClassName;
         this.timestampFieldIndex = timestampFieldIndex;

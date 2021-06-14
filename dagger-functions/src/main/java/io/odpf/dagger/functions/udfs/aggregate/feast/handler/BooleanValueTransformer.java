@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.BooleanType;
 
+/**
+ * The Boolean value transformer.
+ */
 public class BooleanValueTransformer implements ValueTransformer {
     @Override
     public boolean canTransform(Object value) {

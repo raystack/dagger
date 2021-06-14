@@ -11,6 +11,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.sql.Timestamp;
 
+/**
+ * Create PutRequest in form of proto byte.
+ */
 public class ProtoBytePutRequest implements PutRequest {
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
     private static final byte[] QUALIFIER_NAME = Bytes.toBytes(Constants.LONGBOW_QUALIFIER_DEFAULT);
@@ -20,6 +23,14 @@ public class ProtoBytePutRequest implements PutRequest {
     private String tableId;
 
 
+    /**
+     * Instantiates a new Proto byte put request.
+     *
+     * @param longbowSchema   the longbow schema
+     * @param input           the input
+     * @param protoSerializer the proto serializer
+     * @param tableId         the table id
+     */
     public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;

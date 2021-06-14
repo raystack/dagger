@@ -25,11 +25,24 @@ import java.util.Arrays;
 import java.util.List;
 
 
+/**
+ * The ElasticSearch async connector.
+ */
 public class EsAsyncConnector extends AsyncConnector {
 
     private final EsSourceConfig esSourceConfig;
     private RestClient esClient;
 
+    /**
+     * Instantiates a new ElasticSearch async connector with specified elasticsearch client.
+     *
+     * @param esSourceConfig       the es source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     * @param esClient             the es client
+     * @param errorReporter        the error reporter
+     * @param meterStatsManager    the meter stats manager
+     */
     EsAsyncConnector(EsSourceConfig esSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
                      RestClient esClient, ErrorReporter errorReporter, MeterStatsManager meterStatsManager) {
         this(esSourceConfig, externalMetricConfig, schemaConfig);
@@ -38,6 +51,13 @@ public class EsAsyncConnector extends AsyncConnector {
         setMeterStatsManager(meterStatsManager);
     }
 
+    /**
+     * Instantiates a new ElasticSearch async connector.
+     *
+     * @param esSourceConfig       the es source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public EsAsyncConnector(EsSourceConfig esSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         super(Constants.ES_TYPE, esSourceConfig, externalMetricConfig, schemaConfig);
         this.esSourceConfig = esSourceConfig;

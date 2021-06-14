@@ -23,12 +23,26 @@ import org.slf4j.LoggerFactory;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
 
+/**
+ * The Http async connector.
+ */
 public class HttpAsyncConnector extends AsyncConnector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpAsyncConnector.class.getName());
     private AsyncHttpClient httpClient;
     private HttpSourceConfig httpSourceConfig;
 
+    /**
+     * Instantiates a new Http async connector with specified http client.
+     *
+     * @param httpSourceConfig     the http source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     * @param httpClient           the http client
+     * @param errorReporter        the error reporter
+     * @param meterStatsManager    the meter stats manager
+     * @param descriptorManager    the descriptor manager
+     */
     public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig,
                               AsyncHttpClient httpClient, ErrorReporter errorReporter, MeterStatsManager meterStatsManager, DescriptorManager descriptorManager) {
         this(httpSourceConfig, externalMetricConfig, schemaConfig);
@@ -38,11 +52,23 @@ public class HttpAsyncConnector extends AsyncConnector {
         setDescriptorManager(descriptorManager);
     }
 
+    /**
+     * Instantiates a new Http async connector.
+     *
+     * @param httpSourceConfig     the http source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public HttpAsyncConnector(HttpSourceConfig httpSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         super(Constants.HTTP_TYPE, httpSourceConfig, externalMetricConfig, schemaConfig);
         this.httpSourceConfig = httpSourceConfig;
     }
 
+    /**
+     * Gets http client.
+     *
+     * @return the http client
+     */
     AsyncHttpClient getHttpClient() {
         return httpClient;
     }

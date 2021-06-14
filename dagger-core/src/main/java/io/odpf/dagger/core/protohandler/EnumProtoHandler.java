@@ -7,9 +7,17 @@ import io.odpf.dagger.core.exception.EnumFieldNotFoundException;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
+/**
+ * The type Enum proto handler.
+ */
 public class EnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Enum proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public EnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

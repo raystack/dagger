@@ -25,6 +25,10 @@ import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_STREAM
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.SINK_TYPE;
 import static io.odpf.dagger.core.utils.Constants.*;
 
+/**
+ * The Sink orchestrator.
+ * Responsible for handling the sink type.
+ */
 public class SinkOrchestrator implements TelemetryPublisher {
 
     private Map<String, List<String>> metrics = new HashMap<>();
@@ -34,6 +38,14 @@ public class SinkOrchestrator implements TelemetryPublisher {
         return metrics;
     }
 
+    /**
+     * Gets sink.
+     *
+     * @param configuration             the configuration
+     * @param columnNames               the column names
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @return the sink
+     */
     public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         String sinkType = configuration.getString("SINK_TYPE", "influx");
         addMetric(SINK_TYPE.getValue(), sinkType);
@@ -66,6 +78,12 @@ public class SinkOrchestrator implements TelemetryPublisher {
         metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
+    /**
+     * Gets producer properties.
+     *
+     * @param configuration the configuration
+     * @return the producer properties
+     */
     protected Properties getProducerProperties(Configuration configuration) {
         String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");
         Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
