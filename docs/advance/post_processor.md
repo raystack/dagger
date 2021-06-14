@@ -765,7 +765,7 @@ Any number of Post Processors can be added based on the use-case. And also there
 The throughput depends on the input topic of Dagger and after SQL filtering, the enrichment store should be able to handle that load.
 
 ## Output Proto
-The output proto should have all the fields that you want to output from the input stream as well as fields getting enriched from the Post Processor with the correct data type. For example in the sample Post Processor given here, the output proto should contain the fields like customer_id, round_off_amount, and cashback. Here the later two fields are enriched by the Post Processor while the customer_id is just selected from the input topic. The types of enrichment fields are provided as part of the configuration.
+The output proto should have all the fields that you want to output from the input stream as well as fields getting enriched from the Post Processor with the correct data type.
 
 ## Connectivity
 The enrichment store should have connectivity to the Dagger deployment.
