@@ -3,9 +3,17 @@ package io.odpf.dagger.functions.transformers.hash.field;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.functions.exceptions.InvalidHashFieldException;
 
+/**
+ * The Unsupported data type hasher.
+ */
 public class UnsupportedDataTypeHasher implements FieldHasher {
     private String[] fieldPath;
 
+    /**
+     * Instantiates a new Unsupported data type hasher.
+     *
+     * @param fieldPath the field path
+     */
     public UnsupportedDataTypeHasher(String[] fieldPath) {
         this.fieldPath = fieldPath;
     }

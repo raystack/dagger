@@ -16,6 +16,9 @@ import org.apache.flink.types.Row;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A class that responsible for defines stream table and rowtime attributes.
+ */
 public class CustomStreamingTableSource implements StreamTableSource<Row>, DefinedRowtimeAttributes {
 
     private final String rowTimeAttributeName;
@@ -23,6 +26,14 @@ public class CustomStreamingTableSource implements StreamTableSource<Row>, Defin
     private final boolean enablePerPartitionWatermark;
     private final DataStream<Row> dataStream;
 
+    /**
+     * Instantiates a new Custom streaming table source.
+     *
+     * @param rowTimeAttributeName        the row time attribute name
+     * @param watermarkDelay              the watermark delay
+     * @param enablePerPartitionWatermark the enable per partition watermark
+     * @param dataStream                  the data stream
+     */
     public CustomStreamingTableSource(String rowTimeAttributeName, Long watermarkDelay, boolean enablePerPartitionWatermark, DataStream<Row> dataStream) {
         this.rowTimeAttributeName = rowTimeAttributeName;
         this.watermarkDelay = watermarkDelay;

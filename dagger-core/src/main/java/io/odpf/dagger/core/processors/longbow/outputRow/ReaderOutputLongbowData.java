@@ -8,9 +8,17 @@ import org.apache.flink.types.Row;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Reader output longbow data.
+ */
 public class ReaderOutputLongbowData implements ReaderOutputRow {
     private LongbowSchema longbowSchema;
 
+    /**
+     * Instantiates a new Reader output longbow data.
+     *
+     * @param longbowSchema the longbow schema
+     */
     public ReaderOutputLongbowData(LongbowSchema longbowSchema) {
         this.longbowSchema = longbowSchema;
     }

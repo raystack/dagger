@@ -5,10 +5,18 @@ import io.odpf.dagger.functions.exceptions.RowHashException;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The String field hasher.
+ */
 public class StringFieldHasher implements FieldHasher {
 
     private final String[] fieldPath;
 
+    /**
+     * Instantiates a new String field hasher.
+     *
+     * @param fieldPath the field path
+     */
     public StringFieldHasher(String[] fieldPath) {
         this.fieldPath = fieldPath;
     }

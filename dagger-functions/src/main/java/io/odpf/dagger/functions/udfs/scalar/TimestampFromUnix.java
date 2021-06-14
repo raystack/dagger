@@ -5,6 +5,9 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 import java.sql.Timestamp;
 
 
+/**
+ * The Timestamp from unix udf.
+ */
 public class TimestampFromUnix extends ScalarUdf {
 
     private static final int SECONDS_TO_MILISECONDS = 1000;

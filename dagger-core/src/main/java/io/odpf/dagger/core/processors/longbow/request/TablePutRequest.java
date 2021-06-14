@@ -22,6 +22,13 @@ public class TablePutRequest implements PutRequest {
     private Row input;
     private String tableId;
 
+    /**
+     * Instantiates a new Table put request.
+     *
+     * @param longbowSchema the longbow schema
+     * @param input         the input row
+     * @param tableId       the table id
+     */
     public TablePutRequest(LongbowSchema longbowSchema, Row input, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;

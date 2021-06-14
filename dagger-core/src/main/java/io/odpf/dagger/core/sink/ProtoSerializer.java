@@ -16,6 +16,9 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Serialize the proto if sink type is kafka.
+ */
 public class ProtoSerializer implements KafkaSerializationSchema<Row> {
     private String[] columnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -24,6 +27,14 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
     private String outputTopic;
 
 
+    /**
+     * Instantiates a new Proto serializer.
+     *
+     * @param keyProtoClassName         the key proto class name
+     * @param messageProtoClassName     the message proto class name
+     * @param columnNames               the column names
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
@@ -34,6 +45,15 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
+    /**
+     * Instantiates a new Proto serializer with specified output topic name.
+     *
+     * @param keyProtoClassName         the key proto class name
+     * @param messageProtoClassName     the message proto class name
+     * @param columnNames               the column names
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param outputTopic               the output topic
+     */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
         this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator);
         this.outputTopic = outputTopic;
@@ -49,11 +69,23 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
         return new ProducerRecord<>(outputTopic, key, message);
     }
 
+    /**
+     * Serialize key message.
+     *
+     * @param row the row
+     * @return the byte [ ]
+     */
     public byte[] serializeKey(Row row) {
         return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null
                 : parse(row, getDescriptor(keyProtoClassName)).toByteArray();
     }
 
+    /**
+     * Serialize value message.
+     *
+     * @param row the row
+     * @return the byte [ ]
+     */
     public byte[] serializeValue(Row row) {
         return parse(row, getDescriptor(messageProtoClassName)).toByteArray();
     }

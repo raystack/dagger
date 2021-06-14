@@ -8,6 +8,9 @@ import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR;
 
+/**
+ * The Single feature with type udf.
+ */
 public class SingleFeatureWithType extends ScalarUdf {
     /**
      * Converts the given list of objects to a FeatureRow type to store in feast(https://github.com/feast-dev/feast) with
@@ -15,7 +18,7 @@ public class SingleFeatureWithType extends ScalarUdf {
      * This is to be used when there is no aggregation involved and we want to convert only one event to feature row. Unlike the aggregator
      *
      * @param objects the objects
-     * @return featuresWithRow  the list of featureRows in form of flink Row
+     * @return featuresWithRow the list of featureRows in form of flink Row
      * @author gaurav.singhania
      * @team DE
      */

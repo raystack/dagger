@@ -12,12 +12,24 @@ import org.apache.flink.types.Row;
 
 import java.util.Arrays;
 
+/**
+ * The Valid records decorator.
+ */
 public class ValidRecordsDecorator extends RichFilterFunction<Row> implements FilterDecorator {
 
     private final String tableName;
     private final int validationIndex;
+    /**
+     * The Error reporter.
+     */
     protected ErrorReporter errorReporter;
 
+    /**
+     * Instantiates a new Valid records decorator.
+     *
+     * @param tableName the table name
+     * @param columns   the columns
+     */
     public ValidRecordsDecorator(String tableName, String[] columns) {
         this.tableName = tableName;
         validationIndex = Arrays.asList(columns).indexOf(Constants.INTERNAL_VALIDATION_FILED_KEY);

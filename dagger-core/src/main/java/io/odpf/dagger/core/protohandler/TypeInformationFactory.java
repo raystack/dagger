@@ -7,7 +7,16 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 
+/**
+ * The factory class for Type information.
+ */
 public class TypeInformationFactory {
+    /**
+     * Gets row type info.
+     *
+     * @param descriptor the descriptor
+     * @return the row type
+     */
     public static TypeInformation<Row> getRowType(Descriptors.Descriptor descriptor) {
         if (descriptor == null) {
             throw new DescriptorNotFoundException();

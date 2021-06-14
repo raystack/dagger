@@ -5,6 +5,9 @@ import io.odpf.dagger.functions.exceptions.OddNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureAccumulator;
 import org.apache.flink.types.Row;
 
+/**
+ * User-defined aggregate function to get Features.
+ */
 public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
 
     @Override
@@ -23,7 +26,7 @@ public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
      *
      * @param featureAccumulator the feature accumulator
      * @param objects            the objects as arguments
-     * @return features          the output in FeatureRow for every even pairs
+     * @return features the output in FeatureRow for every even pairs
      * @author zhilingc
      * @team DS
      */

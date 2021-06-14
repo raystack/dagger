@@ -21,6 +21,9 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.google.cloud.bigtable.admin.v2.models.GCRules.GCRULES;
 
+/**
+ * A class that responsible to store the event to big table for longbow.
+ */
 public class LongbowStore {
     private BigtableTableAdminClient adminClient;
     private BigtableAsyncConnection tableClient;
@@ -39,6 +42,13 @@ public class LongbowStore {
         return tables.get(tableId);
     }
 
+    /**
+     * Create longbow store.
+     *
+     * @param configuration the configuration
+     * @return the longbow store
+     * @throws IOException the io exception
+     */
     public static LongbowStore create(Configuration configuration) throws IOException {
         String gcpProjectID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
         String gcpInstanceID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
@@ -48,10 +58,24 @@ public class LongbowStore {
         return new LongbowStore(bigtableTableAdminClient, bigtableAsyncConnection);
     }
 
+    /**
+     * Check if the table exists.
+     *
+     * @param tableId the table id
+     * @return the boolean
+     */
     public boolean tableExists(String tableId) {
         return adminClient.exists(tableId);
     }
 
+    /**
+     * Create the table.
+     *
+     * @param maxAgeDuration   the max age duration
+     * @param columnFamilyName the column family name
+     * @param tableId          the table id
+     * @throws Exception the exception
+     */
     public void createTable(Duration maxAgeDuration, String columnFamilyName, String tableId) throws Exception {
         adminClient.createTable(CreateTableRequest.of(tableId).addFamily(columnFamilyName,
                 GCRULES.union()
@@ -59,14 +83,31 @@ public class LongbowStore {
                         .rule(GCRULES.maxAge(maxAgeDuration))));
     }
 
+    /**
+     * Put completable future.
+     *
+     * @param putRequest the put request
+     * @return the completable future
+     */
     public CompletableFuture<Void> put(PutRequest putRequest) {
         return getTable(putRequest.getTableId()).put(putRequest.get());
     }
 
+    /**
+     * Scan all completable future.
+     *
+     * @param scanRequest the scan request
+     * @return the completable future
+     */
     public CompletableFuture<List<Result>> scanAll(ScanRequest scanRequest) {
         return getTable(scanRequest.getTableId()).scanAll(scanRequest.get());
     }
 
+    /**
+     * Close the client.
+     *
+     * @throws IOException the io exception
+     */
     public void close() throws IOException {
         if (tableClient != null) {
             tableClient.close();

@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The Map get udf.
+ */
 public class MapGet extends ScalarUdf {
     /**
      * returns value for a corresponding key inside a map data type.

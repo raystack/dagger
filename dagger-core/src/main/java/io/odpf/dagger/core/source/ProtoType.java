@@ -16,6 +16,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Getting TypeInformation required for Flink from the proto.
+ */
 public class ProtoType implements Serializable {
 
     private transient Descriptor protoFieldDescriptor;
@@ -23,12 +26,24 @@ public class ProtoType implements Serializable {
     private String rowtimeAttributeName;
     private StencilClientOrchestrator stencilClientOrchestrator;
 
+    /**
+     * Instantiates a new Proto type.
+     *
+     * @param protoClassName            the proto class name
+     * @param rowtimeAttributeName      the rowtime attribute name
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     */
     public ProtoType(String protoClassName, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.protoClassName = protoClassName;
         this.rowtimeAttributeName = rowtimeAttributeName;
     }
 
+    /**
+     * Gets row type info.
+     *
+     * @return the row type info
+     */
     public TypeInformation<Row> getRowType() {
         TypeInformation<Row> rowNamed = TypeInformationFactory.getRowType(getProtoFieldDescriptor());
         RowTypeInfo rowTypeInfo = (RowTypeInfo) rowNamed;

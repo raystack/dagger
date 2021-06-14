@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.DoubleType;
 
+/**
+ * The Big decimal value transformer.
+ */
 public class BigDecimalValueTransformer implements ValueTransformer {
     @Override
     public boolean canTransform(Object value) {

@@ -6,11 +6,19 @@ import org.apache.flink.configuration.Configuration;
 
 import java.util.Base64;
 
+/**
+ * The class which handle configuration provided from Commandline.
+ */
 public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private String[] args;
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Commandline configuration provider.
+     *
+     * @param args the args
+     */
     public CommandlineConfigurationProvider(String[] args) {
 
         this.args = args;

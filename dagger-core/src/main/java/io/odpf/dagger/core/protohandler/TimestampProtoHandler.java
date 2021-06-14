@@ -12,11 +12,19 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 
+/**
+ * The type Timestamp proto handler.
+ */
 public class TimestampProtoHandler implements ProtoHandler {
     private static final int SECOND_TO_MS_FACTOR = 1000;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Timestamp proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public TimestampProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

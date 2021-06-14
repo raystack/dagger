@@ -11,11 +11,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The Longbow table data.
+ */
 public class LongbowTableData implements LongbowData {
 
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
     private LongbowSchema longbowSchema;
 
+    /**
+     * Instantiates a new Longbow table data.
+     *
+     * @param longbowSchema the longbow schema
+     */
     public LongbowTableData(LongbowSchema longbowSchema) {
         this.longbowSchema = longbowSchema;
     }

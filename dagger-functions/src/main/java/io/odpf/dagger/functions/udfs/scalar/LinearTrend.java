@@ -8,9 +8,21 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * The Linear trend udf.
+ */
 public class LinearTrend extends ScalarUdf {
     private static final long MILLI_SECONDS_IN_MINUTE = 60000;
 
+    /**
+     * returns the gradient of the best fit line of the list of non-null demand values given the defined time window.
+     *
+     * @param timestampsArray       the timestamps array
+     * @param values                the values
+     * @param hopStartTime          the hop start time
+     * @param windowLengthInMinutes the window length in minutes
+     * @return the double
+     */
     public double eval(ArrayList<Timestamp> timestampsArray, ArrayList<Double> values, Timestamp hopStartTime, Integer windowLengthInMinutes) {
         return calculateLinearTrend(timestampsArray, values, hopStartTime, windowLengthInMinutes);
     }

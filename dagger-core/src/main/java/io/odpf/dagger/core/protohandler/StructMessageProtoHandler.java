@@ -6,9 +6,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
+/**
+ * The type Struct message proto handler.
+ */
 public class StructMessageProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Struct message proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public StructMessageProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

@@ -9,9 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Longbow proto data.
+ */
 public class LongbowProtoData implements LongbowData {
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
 
+    /**
+     * Instantiates a new Longbow proto data.
+     */
     public LongbowProtoData() {
     }
 

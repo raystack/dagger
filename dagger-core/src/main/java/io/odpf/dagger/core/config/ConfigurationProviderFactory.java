@@ -4,10 +4,18 @@ import io.odpf.dagger.core.exception.DaggerConfigurationException;
 
 import java.util.Arrays;
 
+/**
+ * The Factory class for configuration provider.
+ */
 public class ConfigurationProviderFactory {
 
     private String[] args;
 
+    /**
+     * Instantiates a new Configuration provider factory.
+     *
+     * @param args the args
+     */
     public ConfigurationProviderFactory(String[] args) {
 
         this.args = args;
@@ -22,6 +30,11 @@ public class ConfigurationProviderFactory {
 
     }
 
+    /**
+     * Get configuration provider.
+     *
+     * @return the configuration provider
+     */
     public ConfigurationProvider provider() {
         if (System.getProperties().containsKey("ConfigSource")) {
             String configSource = System.getProperty("ConfigSource");

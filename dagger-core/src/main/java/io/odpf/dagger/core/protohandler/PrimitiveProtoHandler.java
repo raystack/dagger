@@ -8,9 +8,17 @@ import io.odpf.dagger.core.protohandler.typehandler.PrimitiveTypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
+/**
+ * The type Primitive proto handler.
+ */
 public class PrimitiveProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Primitive proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public PrimitiveProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

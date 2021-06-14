@@ -4,6 +4,9 @@ import com.google.common.geometry.S2Cell;
 import com.google.common.geometry.S2CellId;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 
+/**
+ * The type S2AreaInKm2 udf.
+ */
 public class S2AreaInKm2 extends ScalarUdf {
 
     private static final long TOTAL_EARTH_AREA_KM2 = 510072000;
