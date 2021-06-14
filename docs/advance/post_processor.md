@@ -57,6 +57,20 @@ Port exposed for the same.
 * Example value: `9200`
 * Type: `required`
 
+###### `user`
+
+Username for Elasticsearch.
+
+* Example value: `testuser`
+* Type: `optional`
+
+###### `password`
+
+Password for Elasticsearch.
+
+* Example value: `test`
+* Type: `optional`
+
 ###### `endpoint_pattern`
 
 String template for the endpoint. This will be appended to the host to create the final URL.
@@ -84,28 +98,28 @@ If true it will not cast the response from ES to output proto schema. The defaul
 Timeout between request retries.
 
 * Example value: `5000`
-* Type: `optional`
+* Type: `required`
 
 ###### `socket_timeout`
 
 The time waiting for data after establishing the connection; maximum time of inactivity between two data packets.
 
 * Example value: `6000`
-* Type: `optional`
+* Type: `required`
 
 ###### `connect_timeout`
 
 Timeout value for ES client.
 
 * Example value: `5000`
-* Type: `optional`
+* Type: `required`
 
 ###### `capacity`
 
 This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
 
 * Example value: `30`
-* Type: `optional`
+* Type: `required`
 
 ###### `output_mapping`
 
@@ -114,8 +128,23 @@ Mapping of fields in output Protos goes here. Based on which part of the respons
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
 
+###### `fail_on_errors`
+
+A flag for deciding whether the job should fail on encountering errors or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `metric_id`
+
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+
+* Example value: `test_id`
+* Type: `optional`
+
 ##### Sample Query
-You can select the fields that want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from input stream or you want to use for making the request.
   ```SQL
   SELECT customer_id from `booking`
   ```
@@ -136,6 +165,134 @@ You can select the fields that want to get from input stream or you want to use 
           "stream_timeout": "5000",
           "connect_timeout": "5000",
           "capacity": "30",
+          "output_mapping": {
+            "customer_profile": {
+              "path": "$._source"
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+#### HTTP 
+HTTP Post Processor connects to an external REST endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
+
+##### Configuration
+
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+
+###### `endpoint`
+
+IP(s) of the nodes/haproxy.
+
+* Example value: `http://127.0.0.1/api/customer`
+* Type: `required`
+
+###### `verb`
+
+HTTP verb (currently support POST and GET).
+
+* Example value: `GET`
+* Type: `required`
+
+###### `request_pattern`
+
+Template for the body in case of POST and endpoint path in case of GET.
+
+* Example value: `/customers/customer/%s`
+* Type: `required`
+
+###### `request_variables`
+
+List of comma separated parameters to be replaced in request_pattern, these variables must be present in the input proto.
+
+* Example value: `customer_id`
+* Type: `optional`
+
+###### `stream_timeout`
+
+Timeout value for the stream.
+
+* Example value: `5000`
+* Type: `required`
+
+###### `connect_timeout`
+
+Timeout value for HTTP client.
+
+* Example value: `5000`
+* Type: `required`
+
+###### `fail_on_errors`
+
+A flag for deciding whether the job should fail on encountering errors(timeout and status codes apart from 2XX) or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `capacity`
+
+This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+
+* Example value: `30`
+* Type: `required`
+
+###### `headers`
+
+Key-value pairs for adding headers to the request.
+
+* Example value: `{"content-type": "application/json"}`
+* Type: `optional`
+
+###### `retain_response_type`
+
+If true it will not cast the response from HTTP to output proto schema. The default behaviour is to cast the response to output proto schema.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `output_mapping`
+
+A mapping for all the fields we need to populate from the API response providing a path to fetch the required field from the response body.
+
+* Example value: `{"customer_profile":{ "path":"$._source"}}`
+* Type: `required`
+
+###### `metric_id`
+
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+
+* Example value: `test_id`
+* Type: `optional`
+
+##### Sample Query
+You can select the fields that you want to get from input stream or you want to use for making the request.
+  ```SQL
+  SELECT customer_id from `booking`
+  ```
+
+##### Sample Configuration
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "external_source": {
+      "http": [
+        {
+          "endpoint": "http://127.0.0.1",
+          "verb": "get",
+          "request_pattern": "/customers/customer/%s",
+          "request_variables": "customer_id",
+          "stream_timeout": "5000",
+          "connect_timeout": "5000",
+          "fail_on_errors": "false",
+          "capacity": "30",
+          "headers": {
+            "content-type": "application/json"
+          },
           "output_mapping": {
             "customer_profile": {
               "path": "$._source"
