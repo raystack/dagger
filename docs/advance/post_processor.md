@@ -1,22 +1,24 @@
 # Introduction
 Post Processors give the capability to do custom stream processing after the SQL processing is performed. Complex transformation, enrichment & aggregation use cases are difficult to execute & maintain using SQL. Post Processors solve this problem through code and/or configuration. This can be used to enrich the stream from external sources (HTTP, ElasticSearch, PostgresDB, GRPC), enhance data points using function or query and transform through user-defined code.
 
+All the post processors mentioned in this doc can be applied in a sequential manner, which enables you to get information from multiple different external data sources and apply as many transformers required. The output of one processor will be the input for the other and final result will be pushed to the configured sink.
+
 ## Flow of Execution
 In the flow of Post Processors, External Post Processors, Internal Post Processors and Transformers can be applied sequentially via config. The output of one Post Processor will be the input of the next one. The input SQL is executed first before any of the Post Processors and the Post Processors run only on the output of the SQL. Here is an example of a simple use case that can be solved using Post Processor and sample Data flow Diagrams for that.
 
-* Let's assume that you want to find cashback given for a particular order number from an external API endpoint. You can use an HTTP external post-processor for this. Here is a basic Data flow diagram.
+* Let's assume that you want to find cashback given for a particular order number from an external API endpoint. You can use an [HTTP external post-processor](post_processor.md#http) for this. Here is a basic Data flow diagram.
 
 <p align="center">
   <img src="../assets/external-http-post-processor.png" width="80%"/>
 </p>
 
-* In the above example, assume you also want to output the information of customer_id and amount which are fields from input proto. Internal SQL Post Processor can be used for selecting these fields from the input stream.
+* In the above example, assume you also want to output the information of customer_id and amount which are fields from input proto. [Internal Post Processor](post_processor.md#internal-post-processor) can be used for selecting these fields from the input stream.
 
 <p align="center">
   <img src="../assets/external-internal-post-processor.png" width="80%"/>
 </p>
 
-* After getting customer_id, amount, and cashback amount, you may want to round off the cashback amount. For this, you can write a custom transformer which is a simple Java Flink Map function to calculate the round-off amount.
+* After getting customer_id, amount and cashback amount, you may want to round off the cashback amount. For this, you can write a custom [transformer](docs/../../guides/use_transformer.md) which is a simple Java Flink Map function to calculate the round-off amount.
 
   **Note:** All the above processors are chained sequentially on the output of previous processor. The order of execution is determined via the order provided in json config.
 
@@ -34,7 +36,12 @@ There are three types of Post Processors :
 
 ### External Post Processor
 External Post Processor is the one that connects to an external data source to fetch data in an async manner and perform enrichment of the stream message. These kinds of Post Processors use Flink’s API for asynchronous I/O with external data stores. For more details on Flink’s Async I/O find the doc [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html).
-Currently, we are supporting four external sources as part of this.
+
+Currently, we are supporting four external sources.
+* [Elasticsearch](post_processor.md#elasticsearch)
+* [HTTP](post_processor.md#http)
+* [Postgres](post_processor.md#postgres)
+* [GRPC](post_processor.md#grpc)
 
 #### Elasticsearch 
 This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example let's say you have payment transaction logs in input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
@@ -650,7 +657,91 @@ You can select the fields that you want to get from input stream or you want to 
   ```
 
 ### Internal Post Processor
+In order to enhance output with data that doesn’t need an external data store, you can use this configuration. At present we support 3 types :
+* **SQL**: Data fields from the SQL query output. You could either use a specific field or ` * ` for all the fields.
+* **Constant**: Constant value without any transformation.
+* **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
 
+#### Configuration
+
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+
+##### `output_field`
+
+Field in output proto where this field should be populated.
+
+* Example value: `event_timestamp`
+* Type: `required`
+
+##### `value`
+
+The input data.
+
+* Example value: `CURRENT_TIMESTAMP`
+* Type: `required`
+
+##### `type`
+
+The type of internal post processor. This could be ‘SQL’, ‘constant’ or ‘function’ as explained above.
+
+* Example value: `function`
+* Type: `optional`
+
+#### Sample Query
+You can select the fields that you want to get from input stream or you want to use for making the request.
+  ```SQL
+  SELECT * from `booking`
+  ```
+
+#### Sample Configurations
+
+**SQL**
+
+This configuration will populate field `booking_log` with all the input fields selected in the SQL
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "internal_source": [
+      {
+        "output_field": "booking_log",
+        "type": "sql",
+        "value": "*"
+      }
+    ]
+  }
+  ```
+
+**Constant**
+
+This configuration will populate field `s2id_level` with value 13 for all the events
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "internal_source": [
+      {
+        "output_field": "s2id_level",
+        "type": "constant",
+        "value": "13"
+      }
+    ]
+  }
+  ```
+
+**Function**
+
+This configuration will populate field `event_timestamp` with a timestamp of when the event is processed
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "internal_source": [
+      {
+        "output_field": "event_timestamp",
+        "type": "function",
+        "value": "CURRENT_TIMESTAMP"
+      }
+    ]
+  }
+  ```
 ## Post Processor requirements
 
 Some basic information you need to know before the creation of a Post Processor Dagger is as follow
