@@ -40,10 +40,10 @@ public class SinkOrchestrator implements TelemetryPublisher {
         SinkFunction<Row> sink;
         switch (sinkType) {
             case "kafka":
-                String outputTopic = configuration.getString(SINK_KAFKA_TOPIC, "");
+                String outputTopic = configuration.getString(SINK_KAFKA_TOPIC_KEY, "");
                 String outputProtoKey = configuration.getString(SINK_KAFKA_PROTO_KEY, null);
-                String outputProtoMessage = configuration.getString(SINK_KAFKA_PROTO_MESSAGE, "");
-                String outputStream = configuration.getString(SINK_KAFKA_STREAM, "");
+                String outputProtoMessage = configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
+                String outputStream = configuration.getString(SINK_KAFKA_STREAM_KEY, "");
                 addMetric(OUTPUT_TOPIC.getValue(), outputTopic);
                 addMetric(OUTPUT_PROTO.getValue(), outputProtoMessage);
                 addMetric(OUTPUT_STREAM.getValue(), outputStream);
@@ -67,7 +67,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
     }
 
     protected Properties getProducerProperties(Configuration configuration) {
-        String outputBrokerList = configuration.getString(SINK_KAFKA_BROKER, "");
+        String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");
         Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
         if (configuration.getBoolean(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY, SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT)) {
             kafkaProducerConfigs.setProperty(SINK_KAFKA_COMPRESSION_TYPE_KEY, SINK_KAFKA_COMPRESSION_TYPE_DEFAULT);

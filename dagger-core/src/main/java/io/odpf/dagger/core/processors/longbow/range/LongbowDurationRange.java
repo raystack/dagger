@@ -24,6 +24,6 @@ public class LongbowDurationRange implements LongbowRange {
 
     @Override
     public String[] getInvalidFields() {
-        return new String[]{Constants.LONGBOW_EARLIEST, Constants.LONGBOW_LATEST};
+        return new String[]{Constants.LONGBOW_EARLIEST_KEY, Constants.LONGBOW_LATEST_KEY};
     }
 }

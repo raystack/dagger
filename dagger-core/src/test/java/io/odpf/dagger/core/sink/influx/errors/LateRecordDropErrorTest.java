@@ -40,7 +40,7 @@ public class LateRecordDropErrorTest {
     public void setUp() {
         initMocks(this);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
-        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED)).thenReturn(metricGroup);
+        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY,
                 InfluxDBException.class.getName())).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
@@ -103,7 +103,7 @@ public class LateRecordDropErrorTest {
     @Test
     public void shouldIncreaseTheCountersInCaseOfMultipleErrors() {
         SimpleCounter simpleCounter = new SimpleCounter();
-        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED)).thenReturn(metricGroupForLateRecords);
+        when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroupForLateRecords);
         when(metricGroupForLateRecords.counter("value")).thenReturn(simpleCounter);
         LateRecordDropError lateRecordDropError = new LateRecordDropError(runtimeContext);
         lateRecordDropError.handle(points,

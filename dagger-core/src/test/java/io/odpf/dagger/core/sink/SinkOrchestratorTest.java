@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKER;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
 import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -72,7 +72,7 @@ public class SinkOrchestratorTest {
 
     @Test
     public void shouldSetKafkaProducerConfigurations() throws Exception {
-        when(defaultConfiguration.getString(eq(SINK_KAFKA_BROKER), anyString())).thenReturn("10.200.216.87:6668");
+        when(defaultConfiguration.getString(eq(SINK_KAFKA_BROKERS_KEY), anyString())).thenReturn("10.200.216.87:6668");
         when(defaultConfiguration.getBoolean(eq(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY), anyBoolean())).thenReturn(true);
         Properties producerProperties = sinkOrchestrator.getProducerProperties(defaultConfiguration);
 
@@ -84,7 +84,7 @@ public class SinkOrchestratorTest {
     public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
         when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
         when(defaultConfiguration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
-        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(defaultConfiguration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
 
         Function sinkFunction = sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
@@ -125,7 +125,7 @@ public class SinkOrchestratorTest {
 
         when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
         when(defaultConfiguration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
-        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKER"), anyString())).thenReturn("output_broker:2667");
+        when(defaultConfiguration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(defaultConfiguration.getString(eq("SINK_KAFKA_STREAM"), anyString())).thenReturn("test_output_stream");
         when(defaultConfiguration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
 

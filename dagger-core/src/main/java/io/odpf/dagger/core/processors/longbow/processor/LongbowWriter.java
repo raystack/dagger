@@ -108,7 +108,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void preProcessBeforeNotifyingSubscriber() {
-        addMetric(TelemetryTypes.POST_PROCESSOR_TYPE.getValue(), Constants.LONGBOW_WRITER_PROCESSOR);
+        addMetric(TelemetryTypes.POST_PROCESSOR_TYPE.getValue(), Constants.LONGBOW_WRITER_PROCESSOR_KEY);
     }
 
     @Override

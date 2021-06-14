@@ -83,7 +83,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
     @Override
     public void preProcessBeforeNotifyingSubscriber() {
-        addMetric(TelemetryTypes.POST_PROCESSOR_TYPE.getValue(), Constants.LONGBOW_READER_PROCESSOR);
+        addMetric(TelemetryTypes.POST_PROCESSOR_TYPE.getValue(), Constants.LONGBOW_READER_PROCESSOR_KEY);
     }
 
     @Override

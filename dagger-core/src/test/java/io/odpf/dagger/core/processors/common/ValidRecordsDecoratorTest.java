@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidRecordsDecoratorTest {
@@ -50,7 +50,7 @@ public class ValidRecordsDecoratorTest {
                 .getFields()
                 .stream()
                 .map(Descriptors.FieldDescriptor::getName).collect(Collectors.toList());
-        fields.add(INTERNAL_VALIDATION_FILED);
+        fields.add(INTERNAL_VALIDATION_FILED_KEY);
         fields.add("rowtime");
         return fields.toArray(new String[0]);
     }

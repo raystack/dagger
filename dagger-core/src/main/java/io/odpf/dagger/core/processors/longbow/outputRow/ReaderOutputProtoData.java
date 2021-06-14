@@ -25,11 +25,11 @@ public class ReaderOutputProtoData implements ReaderOutputRow {
         columnMap.forEach((name, data) -> {
             output.setField(longbowSchema.getIndex(name), data);
         });
-        output.setField(arity - 1, scanResult.get(Constants.LONGBOW_PROTO_DATA));
+        output.setField(arity - 1, scanResult.get(Constants.LONGBOW_PROTO_DATA_KEY));
         return output;
     }
 
     private boolean isLongbowProtoData(Map.Entry<String, Integer> c) {
-        return c.getKey().contains(Constants.LONGBOW_PROTO_DATA);
+        return c.getKey().contains(Constants.LONGBOW_PROTO_DATA_KEY);
     }
 }

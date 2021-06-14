@@ -32,7 +32,7 @@ public class TablePutRequest implements PutRequest {
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
         Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, Constants.ROWTIME);
-        longbowSchema.getColumnNames(c -> c.getKey().contains(Constants.LONGBOW_DATA))
+        longbowSchema.getColumnNames(c -> c.getKey().contains(Constants.LONGBOW_DATA_KEY))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(),
                         Bytes.toBytes((String) longbowSchema.getValue(input, column))));
         return putRequest;

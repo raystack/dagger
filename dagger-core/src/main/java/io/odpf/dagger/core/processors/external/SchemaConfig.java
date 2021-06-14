@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
 
 public class SchemaConfig implements Serializable {
     private final Configuration configuration;
@@ -26,7 +26,7 @@ public class SchemaConfig implements Serializable {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.inputProtoClasses = getMessageProtoClasses();
-        this.outputProtoClassName = configuration.getString(SINK_KAFKA_PROTO_MESSAGE, "");
+        this.outputProtoClassName = configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
     }
 
     public StencilClientOrchestrator getStencilClientOrchestrator() {

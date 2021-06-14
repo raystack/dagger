@@ -71,10 +71,10 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     public void preProcessBeforeNotifyingSubscriber() {
         switch (this.type) {
             case POST_PROCESSOR_TYPE:
-                addMetric(type.getValue(), Constants.TRANSFORM_PROCESSOR);
+                addMetric(type.getValue(), Constants.TRANSFORM_PROCESSOR_KEY);
                 break;
             case PRE_PROCESSOR_TYPE:
-                addMetric(type.getValue(), this.tableName + "_" + Constants.TRANSFORM_PROCESSOR);
+                addMetric(type.getValue(), this.tableName + "_" + Constants.TRANSFORM_PROCESSOR_KEY);
                 break;
             default:
                 break;
