@@ -7,12 +7,20 @@ import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor
 
 import java.io.Serializable;
 
+/**
+ * The Constant internal config processor.
+ */
 public class ConstantInternalConfigProcessor implements InternalConfigProcessor, Serializable {
-
     public static final String CONSTANT_CONFIG_HANDLER_TYPE = "constant";
     private ColumnNameManager columnNameManager;
     private InternalSourceConfig internalSourceConfig;
 
+    /**
+     * Instantiates a new Constant internal config processor.
+     *
+     * @param columnNameManager    the column name manager
+     * @param internalSourceConfig the internal source config
+     */
     public ConstantInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig) {
         this.columnNameManager = columnNameManager;
         this.internalSourceConfig = internalSourceConfig;

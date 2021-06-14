@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ * The type Gcs data store.
+ */
 public class GcsDataStore implements DataStore, Serializable {
 
     private final String projectId;
@@ -33,6 +36,12 @@ public class GcsDataStore implements DataStore, Serializable {
     private MeterStatsManager meterStatsManager;
     private GaugeStatsManager gaugeStatsManager;
 
+    /**
+     * Instantiates a new Gcs data store.
+     *
+     * @param projectId the project id
+     * @param bucketId  the bucket id
+     */
     public GcsDataStore(String projectId, String bucketId) {
         this.projectId = projectId;
         this.bucketId = bucketId;
@@ -50,18 +59,38 @@ public class GcsDataStore implements DataStore, Serializable {
         return new MapCache(mapOfObjects);
     }
 
+    /**
+     * Sets meter stats manager.
+     *
+     * @param meterStatsManager the meter stats manager
+     */
     public void setMeterStatsManager(MeterStatsManager meterStatsManager) {
         this.meterStatsManager = meterStatsManager;
     }
 
+    /**
+     * Gets meter stats manager.
+     *
+     * @return the meter stats manager
+     */
     public MeterStatsManager getMeterStatsManager() {
         return this.meterStatsManager;
     }
 
+    /**
+     * Sets gauge stats manager.
+     *
+     * @param gaugeStatsManager the gauge stats manager
+     */
     public void setGaugeStatsManager(GaugeStatsManager gaugeStatsManager) {
         this.gaugeStatsManager = gaugeStatsManager;
     }
 
+    /**
+     * Gets gauge stats manager.
+     *
+     * @return the gauge stats manager
+     */
     public GaugeStatsManager getGaugeStatsManager() {
         return gaugeStatsManager;
     }
@@ -102,6 +131,11 @@ public class GcsDataStore implements DataStore, Serializable {
         return new HashSet<>();
     }
 
+    /**
+     * Gets gcs client.
+     *
+     * @return the gcs client
+     */
     GcsClient getGcsClient() {
         if (this.gcsClient == null) {
             this.gcsClient = new GcsClient(this.projectId);

@@ -5,10 +5,18 @@ import io.odpf.dagger.core.processors.types.MapDecorator;
 
 import org.apache.flink.types.Row;
 
+/**
+ * The Initialization decorator.
+ */
 public class InitializationDecorator implements MapDecorator {
 
     private ColumnNameManager columnNameManager;
 
+    /**
+     * Instantiates a new Initialization decorator.
+     *
+     * @param columnNameManager the column name manager
+     */
     public InitializationDecorator(ColumnNameManager columnNameManager) {
         this.columnNameManager = columnNameManager;
     }

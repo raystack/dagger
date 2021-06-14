@@ -4,6 +4,9 @@ import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2LatLng;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 
+/**
+ * The type S2id udf.
+ */
 public class S2Id extends ScalarUdf {
     /**
      * computes s2id for a given lat, long and level.
@@ -11,7 +14,7 @@ public class S2Id extends ScalarUdf {
      * @param latitude  the latitude
      * @param longitude the longitude
      * @param level     the level of s2 cells
-     * @return s2id
+     * @return s2id string
      * @author gaurav.s
      * @team DE
      */

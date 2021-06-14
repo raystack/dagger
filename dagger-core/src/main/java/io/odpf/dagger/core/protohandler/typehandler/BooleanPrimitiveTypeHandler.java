@@ -8,9 +8,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import java.util.List;
 
+/**
+ * The type Boolean primitive type handler.
+ */
 public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Boolean primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public BooleanPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

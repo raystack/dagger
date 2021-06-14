@@ -1,5 +1,8 @@
 package io.odpf.dagger.core.metrics.telemetry;
 
+/**
+ * The enum Telemetry types.
+ */
 public enum TelemetryTypes {
     INPUT_TOPIC("input_topic"),
     INPUT_PROTO("input_proto"),
@@ -12,6 +15,11 @@ public enum TelemetryTypes {
     PRE_PROCESSOR_TYPE("pre_processor_type"),
     SOURCE_METRIC_ID("source_metricId");
 
+    /**
+     * Gets telemetry type value.
+     *
+     * @return the value
+     */
     public String getValue() {
         return value;
     }

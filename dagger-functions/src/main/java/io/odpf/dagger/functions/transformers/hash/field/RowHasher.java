@@ -6,16 +6,30 @@ import org.apache.flink.types.Row;
 
 import java.util.Arrays;
 
+/**
+ * The Row hasher.
+ */
 public class RowHasher implements FieldHasher {
 
     private String[] splittedFieldPath;
     private FieldHasher child;
     private int childIndex;
 
+    /**
+     * Instantiates a new Row hasher.
+     *
+     * @param splittedFieldPath the splitted field path
+     */
     public RowHasher(String[] splittedFieldPath) {
         this.splittedFieldPath = splittedFieldPath;
     }
 
+    /**
+     * Instantiates a new Row hasher with specified child index.
+     *
+     * @param childIndex the child index
+     * @param child      the child
+     */
     public RowHasher(int childIndex, FieldHasher child) {
         this.child = child;
         this.childIndex = childIndex;

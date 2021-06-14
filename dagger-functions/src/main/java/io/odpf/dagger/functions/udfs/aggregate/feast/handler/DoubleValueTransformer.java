@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.aggregate.feast.handler;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.DoubleType;
 
+/**
+ * The Double value transformer.
+ */
 public class DoubleValueTransformer implements ValueTransformer {
 
     @Override

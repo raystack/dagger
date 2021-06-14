@@ -8,7 +8,17 @@ import org.apache.flink.types.Row;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Factory class for Row.
+ */
 public class RowFactory {
+    /**
+     * Create row from specified input map and descriptor.
+     *
+     * @param inputMap   the input map
+     * @param descriptor the descriptor
+     * @return the row
+     */
     public static Row createRow(Map<String, Object> inputMap, Descriptors.Descriptor descriptor) {
         List<FieldDescriptor> descriptorFields = descriptor.getFields();
         Row row = new Row(descriptorFields.size());
@@ -24,6 +34,13 @@ public class RowFactory {
         return row;
     }
 
+    /**
+     * Create row from specified proto and extra columns.
+     *
+     * @param proto        the proto
+     * @param extraColumns the extra columns
+     * @return the row
+     */
     public static Row createRow(DynamicMessage proto, int extraColumns) {
         List<FieldDescriptor> descriptorFields = proto.getDescriptorForType().getFields();
         Row row = new Row(descriptorFields.size() + extraColumns);
@@ -34,6 +51,12 @@ public class RowFactory {
         return row;
     }
 
+    /**
+     * Create row from specfied proto and extra columns equals to zero.
+     *
+     * @param proto the proto
+     * @return the row
+     */
     public static Row createRow(DynamicMessage proto) {
         return createRow(proto, 0);
     }

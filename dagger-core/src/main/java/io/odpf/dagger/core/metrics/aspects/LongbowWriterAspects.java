@@ -3,6 +3,9 @@ package io.odpf.dagger.core.metrics.aspects;
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 
+/**
+ * The enum Longbow writer aspects.
+ */
 public enum LongbowWriterAspects implements Aspects {
     SUCCESS_ON_CREATE_BIGTABLE("success_on_create_bigtable", AspectType.Metric),
     SUCCESS_ON_CREATE_BIGTABLE_RESPONSE_TIME("success_on_create_bigtable_response_time", AspectType.Histogram),

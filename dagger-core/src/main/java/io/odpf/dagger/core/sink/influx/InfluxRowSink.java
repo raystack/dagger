@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The Influx row sink.
+ */
 public class InfluxRowSink extends RichSinkFunction<Row> implements CheckpointedFunction {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
 
@@ -34,6 +37,14 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private ErrorHandler errorHandler;
     private ErrorReporter errorReporter;
 
+    /**
+     * Instantiates a new Influx row sink.
+     *
+     * @param influxDBFactory the influx db factory
+     * @param columnNames     the column names
+     * @param parameters      the parameters
+     * @param errorHandler    the error handler
+     */
     public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
@@ -44,6 +55,15 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
         measurementName = parameters.getString("INFLUX_MEASUREMENT_NAME", "");
     }
 
+    /**
+     * Instantiates a new Influx row sink with specified error reporter.
+     *
+     * @param influxDBFactory the influx db factory
+     * @param columnNames     the column names
+     * @param parameters      the parameters
+     * @param errorHandler    the error handler
+     * @param errorReporter   the error reporter
+     */
     public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;

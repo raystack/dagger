@@ -12,15 +12,30 @@ import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
 
+/**
+ * The DartContains udf.
+ */
 public class DartContains extends ScalarUdf {
     private final GcsDataStore dataStore;
     private final Map<String, SetCache> setCache;
 
+    /**
+     * Instantiates a new Dart contains.
+     *
+     * @param dataStore the data store
+     */
     DartContains(GcsDataStore dataStore) {
         this.dataStore = dataStore;
         setCache = new HashMap<>();
     }
 
+    /**
+     * With gcs data store dart contains.
+     *
+     * @param projectId the project id
+     * @param bucketId  the bucket id
+     * @return the dart contains
+     */
     public static DartContains withGcsDataStore(String projectId, String bucketId) {
         return new DartContains(new GcsDataStore(projectId, bucketId));
     }
@@ -35,6 +50,13 @@ public class DartContains extends ScalarUdf {
 
     }
 
+    /**
+     * To check if a data point in the message is present in the Redis collection.
+     *
+     * @param listName the list name
+     * @param field    the field
+     * @return the boolean
+     */
     public boolean eval(String listName, String field) {
         return eval(listName, field, 1);
     }
@@ -49,7 +71,6 @@ public class DartContains extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-
     public boolean eval(String listName, String field, int refreshRateInHours) {
         SetCache listData = getListData(listName, field, refreshRateInHours);
         boolean isPresent = listData.contains(field);
@@ -57,11 +78,27 @@ public class DartContains extends ScalarUdf {
         return isPresent;
     }
 
-
+    /**
+     * Check if a data point in the message is present in the GCS bucket.
+     *
+     * @param listName the list name
+     * @param field    the field
+     * @param regex    the regex
+     * @return the boolean
+     */
     public boolean eval(String listName, String field, String regex) {
         return eval(listName, field, regex, 1);
     }
 
+    /**
+     * Check if a data point in the message is present in the GCS bucket.
+     *
+     * @param listName           the list name
+     * @param field              the field
+     * @param regex              the regex
+     * @param refreshRateInHours the refresh rate in hours
+     * @return the boolean
+     */
     public boolean eval(String listName, String field, String regex, int refreshRateInHours) {
         SetCache listData = getListData(listName, field, refreshRateInHours);
         boolean isPresent = listData.matches(field, regex);

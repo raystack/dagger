@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Feature with type handler.
+ */
 public class FeatureWithTypeHandler implements Serializable {
     private static final String OUTPUT_COLUMN_NAME_KEY = "outputColumnName";
     private static final String OUTPUT_COLUMN_DATA_KEY = "data";
@@ -24,6 +27,12 @@ public class FeatureWithTypeHandler implements Serializable {
     private List<Tuple3<String, String, String>> featureInfoList;
     private String outputColumnName;
 
+    /**
+     * Instantiates a new Feature with type handler.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param inputColumns            the input columns
+     */
     public FeatureWithTypeHandler(Map<String, Object> transformationArguments, String[] inputColumns) {
         this.inputColumns = inputColumns;
         this.outputColumnName = String.valueOf(transformationArguments.get(OUTPUT_COLUMN_NAME_KEY));
@@ -38,6 +47,11 @@ public class FeatureWithTypeHandler implements Serializable {
         ));
     }
 
+    /**
+     * Gets output column index.
+     *
+     * @return the output column index
+     */
     public int getOutputColumnIndex() {
         int outputColumnIndex = Arrays.asList(inputColumns).indexOf(outputColumnName);
         if (outputColumnIndex == -1) {
@@ -46,6 +60,12 @@ public class FeatureWithTypeHandler implements Serializable {
         return outputColumnIndex;
     }
 
+    /**
+     * Populate features array list.
+     *
+     * @param inputRow the input row
+     * @return the array list
+     */
     public ArrayList<Row> populateFeatures(Row inputRow) {
         ArrayList<Row> featureRows = new ArrayList<>();
         for (Tuple3<String, String, String> stringStringStringTuple3 : featureInfoList) {

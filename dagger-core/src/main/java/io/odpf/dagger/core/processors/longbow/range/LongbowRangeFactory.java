@@ -4,7 +4,16 @@ import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.utils.Constants;
 
+/**
+ * The factor class for Longbow range.
+ */
 public class LongbowRangeFactory {
+    /**
+     * Gets longbow range.
+     *
+     * @param longbowSchema the longbow schema
+     * @return the longbow range
+     */
     public static LongbowRange getLongbowRange(LongbowSchema longbowSchema) {
         if (longbowSchema.contains(Constants.LONGBOW_DURATION)) {
             return new LongbowDurationRange(longbowSchema);

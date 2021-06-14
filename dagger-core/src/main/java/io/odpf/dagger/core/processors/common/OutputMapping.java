@@ -6,14 +6,27 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * The Output mapping.
+ */
 public class OutputMapping implements Serializable, Validator {
 
     private String path;
 
+    /**
+     * Instantiates a new Output mapping.
+     *
+     * @param path the path
+     */
     public OutputMapping(String path) {
         this.path = path;
     }
 
+    /**
+     * Gets path.
+     *
+     * @return the path
+     */
     public String getPath() {
         return path;
     }
