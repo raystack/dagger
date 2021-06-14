@@ -275,7 +275,7 @@ You can select the fields that you want to get from input stream or you want to 
   SELECT customer_id from `booking`
   ```
 
-##### Sample Configuration
+##### Sample Configuration for GET
   ```properties
   POST_PROCESSOR_ENABLED = true
   POST_PROCESSOR_CONFIG = {
@@ -303,6 +303,39 @@ You can select the fields that you want to get from input stream or you want to 
     }
   }
   ```
+
+**Note:** In case you want to use all the fields along with a modification/nested field you can use “select *, modifield_field as custom_column_name from data_stream”.
+
+##### Sample Configuration for POST
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "external_source": {
+      "http": [
+        {
+          "endpoint": "http://127.0.0.1/customer",
+          "verb": "post",
+          "request_pattern": "{'key': \"%s\"}",
+          "request_variables": "customer_id",
+          "stream_timeout": "5000",
+          "connect_timeout": "5000",
+          "fail_on_errors": "false",
+          "capacity": "30",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "output_mapping": {
+            "test_field": {
+              "path": "$._source"
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+**Note:** Post request patterns support both primitive and complex data types. But for complex objects you need to remove the quotes from the selector ( `%s`). So in case of a primitive datapoint of string the selector will be (`”%s”`) whereas for complex fields it will be (`%s`).
 
 ### Internal Post Processor
 
