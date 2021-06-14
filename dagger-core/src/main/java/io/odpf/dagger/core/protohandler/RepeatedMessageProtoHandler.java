@@ -17,10 +17,18 @@ import java.util.Map;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
+/**
+ * The type Repeated message proto handler.
+ */
 public class RepeatedMessageProtoHandler implements ProtoHandler {
     private JsonRowSerializationSchema jsonRowSerializationSchema;
     private FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Repeated message proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public RepeatedMessageProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

@@ -9,20 +9,43 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The type Map cache.
+ */
 public class MapCache extends Cache implements Serializable {
 
+    /**
+     * The constant NULL_CACHE.
+     */
     public static final MapCache NULL_CACHE = new MapCache(new HashMap<String, String>(), null);
     private Map<String, String> cache;
 
+    /**
+     * Instantiates a new Map cache.
+     *
+     * @param cache         the cache
+     * @param timeOfCaching the time of caching
+     */
     public MapCache(Map<String, String> cache, Date timeOfCaching) {
         super(timeOfCaching);
         this.cache = cache;
     }
 
+    /**
+     * Instantiates a new Map cache.
+     *
+     * @param cache the cache
+     */
     public MapCache(Map<String, String> cache) {
         this(cache, new Date());
     }
 
+    /**
+     * Get string.
+     *
+     * @param key the key
+     * @return the string
+     */
     public String get(String key) {
         String value = cache.get(key);
         if (value == null) {
@@ -31,6 +54,11 @@ public class MapCache extends Cache implements Serializable {
         return value;
     }
 
+    /**
+     * Is empty boolean.
+     *
+     * @return the boolean
+     */
     public boolean isEmpty() {
         return cache.isEmpty();
     }

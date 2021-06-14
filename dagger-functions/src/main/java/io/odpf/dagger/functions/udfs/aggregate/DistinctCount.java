@@ -4,6 +4,9 @@ import io.odpf.dagger.common.udfs.AggregateUdf;
 
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.DistinctCountAccumulator;
 
+/**
+ * User-defined aggregate function to get Distinct count.
+ */
 public class DistinctCount extends AggregateUdf<Integer, DistinctCountAccumulator> {
 
     @Override

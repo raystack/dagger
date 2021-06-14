@@ -9,6 +9,9 @@ import org.apache.flink.types.Row;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The Decorator for Grpc stream.
+ */
 public class GrpcStreamDecorator implements StreamDecorator {
 
     private GrpcSourceConfig grpcSourceConfig;
@@ -16,6 +19,13 @@ public class GrpcStreamDecorator implements StreamDecorator {
     private final SchemaConfig schemaConfig;
 
 
+    /**
+     * Instantiates a new Grpc stream decorator.
+     *
+     * @param grpcSourceConfig     the grpc source config
+     * @param externalMetricConfig the external metric config
+     * @param schemaConfig         the schema config
+     */
     public GrpcStreamDecorator(GrpcSourceConfig grpcSourceConfig, ExternalMetricConfig externalMetricConfig, SchemaConfig schemaConfig) {
         this.grpcSourceConfig = grpcSourceConfig;
         this.externalMetricConfig = externalMetricConfig;

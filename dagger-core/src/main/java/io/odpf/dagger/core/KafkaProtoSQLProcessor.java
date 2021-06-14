@@ -9,8 +9,17 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import java.util.TimeZone;
 
+/**
+ * Main class to run Dagger.
+ */
 public class KafkaProtoSQLProcessor {
 
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     * @throws ProgramInvocationException the program invocation exception
+     */
     public static void main(String[] args) throws ProgramInvocationException {
         try {
             Configuration configuration = new ConfigurationProviderFactory(args).provider().get();

@@ -4,6 +4,9 @@ import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Valid exception.
+ */
 public class ValidException implements InfluxError {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidException.class.getName());
     private Exception exception;

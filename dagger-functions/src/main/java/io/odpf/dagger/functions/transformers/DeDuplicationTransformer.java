@@ -16,12 +16,22 @@ import org.apache.flink.types.Row;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * Allows to deduplicate data produced by the dagger.
+ */
 public class DeDuplicationTransformer extends RichFilterFunction<Row> implements Transformer {
     private static final String DE_DUP_STATE = "DE_DUP_STATE";
     private final int keyIndex;
     private final Integer ttlInSeconds;
     private MapState<String, Integer> mapState;
 
+    /**
+     * Instantiates a new De duplication transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         keyIndex = Arrays.asList(columnNames).indexOf(String.valueOf(transformationArguments.get("key_column")));
         ttlInSeconds = Integer.valueOf(String.valueOf(transformationArguments.get("ttl_in_seconds")));

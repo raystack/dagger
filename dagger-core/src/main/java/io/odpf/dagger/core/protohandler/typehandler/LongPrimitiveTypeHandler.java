@@ -8,9 +8,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Long primitive type handler.
+ */
 public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Long primitive type handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public LongPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

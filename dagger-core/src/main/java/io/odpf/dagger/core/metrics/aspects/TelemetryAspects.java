@@ -3,7 +3,13 @@ package io.odpf.dagger.core.metrics.aspects;
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 
+/**
+ * The enum Telemetry aspects.
+ */
 public enum TelemetryAspects implements Aspects {
+    /**
+     * Value telemetry aspects.
+     */
     VALUE("value", AspectType.Metric);
 
     private String value;

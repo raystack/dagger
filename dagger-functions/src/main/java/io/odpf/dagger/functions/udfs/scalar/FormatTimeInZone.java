@@ -9,6 +9,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
+/**
+ * The FormatTimeInZone udf.
+ */
 public class FormatTimeInZone extends ScalarUdf {
     /**
      * gets Formatted time from timestamp in given timezone.

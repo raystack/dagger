@@ -9,15 +9,30 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * The accumulator for FeatureWithType udf.
+ */
 public class FeatureWithTypeAccumulator implements Serializable {
     private static final Integer FEATURE_ROW_LENGTH = 3;
     private final HashMap<String, Tuple3<String, Object, ValueEnum>> features = new HashMap<>();
 
+    /**
+     * Add features.
+     *
+     * @param key   the key
+     * @param value the value
+     * @param type  the type
+     */
     public void add(String key, Object value, ValueEnum type) {
         Tuple3<String, Object, ValueEnum> featureTuple = new Tuple3<>(key, value, type);
         features.put(getMapKey(key, featureTuple.hashCode()), featureTuple);
     }
 
+    /**
+     * Get features rows.
+     *
+     * @return the rows
+     */
     public Row[] getFeatures() {
         ArrayList<Row> featureRows = new ArrayList<>();
         for (Tuple3<String, Object, ValueEnum> feature : features.values()) {
@@ -29,6 +44,13 @@ public class FeatureWithTypeAccumulator implements Serializable {
         return featureRows.toArray(new Row[0]);
     }
 
+    /**
+     * Remove features.
+     *
+     * @param key   the key
+     * @param value the value
+     * @param type  the type
+     */
     public void remove(String key, Object value, ValueEnum type) {
         Tuple3<String, Object, ValueEnum> featureTuple = new Tuple3<>(key, value, type);
         features.remove(getMapKey(key, featureTuple.hashCode()));

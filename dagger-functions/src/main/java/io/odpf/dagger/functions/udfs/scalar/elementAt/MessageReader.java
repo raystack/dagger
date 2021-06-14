@@ -11,12 +11,23 @@ import java.util.Optional;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 
+/**
+ * The Message reader.
+ */
 public class MessageReader {
     private Row message;
     private String protoClassName;
     private String pathOfMessage;
     private StencilClient stencilClient;
 
+    /**
+     * Instantiates a new Message reader.
+     *
+     * @param message        the message
+     * @param protoClassName the proto class name
+     * @param pathOfMessage  the path of message
+     * @param stencilClient  the stencil client
+     */
     public MessageReader(Row message, String protoClassName, String pathOfMessage, StencilClient stencilClient) {
         this.message = message;
         this.protoClassName = protoClassName;
@@ -32,6 +43,13 @@ public class MessageReader {
         return dsc;
     }
 
+    /**
+     * Read path.
+     *
+     * @param path the path
+     * @return the object
+     * @throws ClassNotFoundException the class not found exception
+     */
     public Object read(String path) throws ClassNotFoundException {
         List<String> pathElements = Arrays.asList(path.split("\\."));
         CustomDescriptor rootCustomDescriptor = new CustomDescriptor(getRootDescriptor());

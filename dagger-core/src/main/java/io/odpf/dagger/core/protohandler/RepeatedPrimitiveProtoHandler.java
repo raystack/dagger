@@ -15,10 +15,18 @@ import java.util.List;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
+/**
+ * The type Repeated primitive proto handler.
+ */
 public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     private final FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Repeated primitive proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public RepeatedPrimitiveProtoHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

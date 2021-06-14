@@ -25,6 +25,9 @@ import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.*;
 import static io.odpf.dagger.core.utils.Constants.*;
 
+/**
+ * The Streams.
+ */
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "kafka_consumer_config_";
     private final Configuration configuration;
@@ -39,6 +42,15 @@ public class Streams implements TelemetryPublisher {
     private List<String> streamNames = new ArrayList<>();
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Streams.
+     *
+     * @param configuration               the configuration
+     * @param rowTimeAttributeName        the row time attribute name
+     * @param stencilClientOrchestrator   the stencil client orchestrator
+     * @param enablePerPartitionWatermark the enable per partition watermark
+     * @param watermarkDelay              the watermark delay
+     */
     public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.watermarkDelay = watermarkDelay;
@@ -52,10 +64,20 @@ public class Streams implements TelemetryPublisher {
         }
     }
 
+    /**
+     * Gets streams.
+     *
+     * @return the streams
+     */
     public Map<String, FlinkKafkaConsumerCustom> getStreams() {
         return streams;
     }
 
+    /**
+     * Gets protos.
+     *
+     * @return the protos
+     */
     public LinkedHashMap<String, String> getProtos() {
         return protoClassForTable;
     }

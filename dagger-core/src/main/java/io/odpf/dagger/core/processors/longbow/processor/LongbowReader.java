@@ -35,6 +35,9 @@ import java.util.concurrent.TimeoutException;
 
 import static java.time.Duration.between;
 
+/**
+ * The Longbow reader.
+ */
 public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
@@ -49,6 +52,19 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     private ScanRequestFactory scanRequestFactory;
     private ReaderOutputRow readerOutputRow;
 
+    /**
+     * Instantiates a new Longbow reader with specified longbow store.
+     *
+     * @param configuration      the configuration
+     * @param longBowSchema      the longbow schema
+     * @param longbowRange       the longbow range
+     * @param longBowStore       the longbow store
+     * @param meterStatsManager  the meter stats manager
+     * @param errorReporter      the error reporter
+     * @param longbowData        the longbow data
+     * @param scanRequestFactory the scan request factory
+     * @param readerOutputRow    the reader output row
+     */
     LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
         this(configuration, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
         this.longBowStore = longBowStore;
@@ -56,6 +72,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
         this.errorReporter = errorReporter;
     }
 
+    /**
+     * Instantiates a new Longbow reader.
+     *
+     * @param configuration      the configuration
+     * @param longBowSchema      the longbow schema
+     * @param longbowRange       the longbow range
+     * @param longbowData        the longbow data
+     * @param scanRequestFactory the scan request factory
+     * @param readerOutputRow    the reader output row
+     */
     public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
         this.configuration = configuration;
         this.longBowSchema = longBowSchema;
@@ -109,6 +135,11 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
                 });
     }
 
+    /**
+     * Gets longbow range.
+     *
+     * @return the longbow range
+     */
     public LongbowRange getLongbowRange() {
         return longbowRange;
     }

@@ -3,6 +3,9 @@ package io.odpf.dagger.core.metrics.aspects;
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 
+/**
+ * The enum External source aspects.
+ */
 public enum ExternalSourceAspects implements Aspects {
     CLOSE_CONNECTION_ON_EXTERNAL_CLIENT("close_connection_on_external_client", AspectType.Metric),
     FAILURES_ON_READING_PATH("failures_on_reading_path", AspectType.Metric),

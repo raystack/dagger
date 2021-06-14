@@ -7,7 +7,18 @@ import org.asynchttpclient.BoundRequestBuilder;
 
 import java.util.ArrayList;
 
+/**
+ * The factoy class for Http request.
+ */
 public class HttpRequestFactory {
+    /**
+     * Create request bound request builder.
+     *
+     * @param httpSourceConfig       the http source config
+     * @param httpClient             the http client
+     * @param requestVariablesValues the request variables values
+     * @return the bound request builder
+     */
     public static BoundRequestBuilder createRequest(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues) {
 
         ArrayList<HttpRequestHandler> httpRequestHandlers = new ArrayList<>();

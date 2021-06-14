@@ -9,11 +9,21 @@ import java.util.stream.IntStream;
 
 import static io.odpf.dagger.core.utils.Constants.LONGBOW_OUTPUT_ADDITIONAL_ARITY;
 
+/**
+ * The Output synchronizer.
+ */
 public class OutputSynchronizer implements WriterOutputRow {
     private LongbowSchema longbowSchema;
     private String tableId;
     private String inputProto;
 
+    /**
+     * Instantiates a new Output synchronizer.
+     *
+     * @param longbowSchema the longbow schema
+     * @param tableId       the table id
+     * @param inputProto    the input proto
+     */
     public OutputSynchronizer(LongbowSchema longbowSchema, String tableId, String inputProto) {
         this.longbowSchema = longbowSchema;
         this.tableId = tableId;

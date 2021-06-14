@@ -15,6 +15,9 @@ import org.apache.flink.types.Row;
 
 import java.util.Arrays;
 
+/**
+ * The Fetch output decorator.
+ */
 public class FetchOutputDecorator implements MapDecorator {
 
 
@@ -23,6 +26,12 @@ public class FetchOutputDecorator implements MapDecorator {
     private String outputProtoClassName;
     private boolean hasSQLTransformer;
 
+    /**
+     * Instantiates a new Fetch output decorator.
+     *
+     * @param schemaConfig      the schema config
+     * @param hasSQLTransformer the has sql transformer
+     */
     public FetchOutputDecorator(SchemaConfig schemaConfig, boolean hasSQLTransformer) {
         this.outputColumnNames = schemaConfig.getColumnNameManager().getOutputColumnNames();
         this.stencilClientOrchestrator = schemaConfig.getStencilClientOrchestrator();

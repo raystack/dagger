@@ -10,12 +10,21 @@ import org.apache.flink.types.Row;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+/**
+ * The ElementAt udf.
+ */
 public class ElementAt extends ScalarUdf {
     private LinkedHashMap<String, String> protos;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
 
 
+    /**
+     * Instantiates a new Element at.
+     *
+     * @param protos                    the protos
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     */
     public ElementAt(LinkedHashMap<String, String> protos, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protos = protos;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
@@ -126,6 +135,11 @@ public class ElementAt extends ScalarUdf {
         return null;
     }
 
+    /**
+     * Gets stencil client.
+     *
+     * @return the stencil client
+     */
     public StencilClient getStencilClient() {
         if (stencilClient != null) {
             return stencilClient;

@@ -11,6 +11,9 @@ import static io.odpf.dagger.common.core.Constants.UDF_TELEMETRY_GROUP_KEY;
  * This class will not publish the UDF telemetry.
  * Because for AggregatedFunction it can not be done due to this bug in flink
  * ISSUE : https://issues.apache.org/jira/browse/FLINK-15040
+ *
+ * @param <T>   the type parameter
+ * @param <ACC> the type parameter
  */
 public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {
 
@@ -23,10 +26,20 @@ public abstract class AggregateUdf<T, ACC> extends AggregateFunction<T, ACC> {
         gaugeStatsManager.registerInteger(UDF_TELEMETRY_GROUP_KEY, getName(), GAUGE_ASPECT_NAME, 1);
     }
 
+    /**
+     * Gets aggregate udf name.
+     *
+     * @return the name
+     */
     public String getName() {
         return this.getClass().getSimpleName();
     }
 
+    /**
+     * Gets gauge stats manager.
+     *
+     * @return the gauge stats manager
+     */
     public GaugeStatsManager getGaugeStatsManager() {
         return gaugeStatsManager;
     }

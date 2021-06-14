@@ -5,9 +5,17 @@ import io.odpf.dagger.core.utils.Constants;
 
 import org.apache.flink.types.Row;
 
+/**
+ * Absolute range on Longbow.
+ */
 public class LongbowAbsoluteRange implements LongbowRange {
     private LongbowSchema longbowSchema;
 
+    /**
+     * Instantiates a new Longbow absolute range.
+     *
+     * @param longbowSchema the longbow schema
+     */
     public LongbowAbsoluteRange(LongbowSchema longbowSchema) {
         this.longbowSchema = longbowSchema;
     }

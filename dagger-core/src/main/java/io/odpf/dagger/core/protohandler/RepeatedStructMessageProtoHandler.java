@@ -6,9 +6,17 @@ import org.apache.flink.api.common.typeinfo.Types;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 
+/**
+ * The type Repeated struct message proto handler.
+ */
 public class RepeatedStructMessageProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
+    /**
+     * Instantiates a new Repeated struct message proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public RepeatedStructMessageProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

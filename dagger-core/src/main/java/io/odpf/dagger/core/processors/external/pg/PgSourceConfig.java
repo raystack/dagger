@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class that holds Postgre configuration.
+ */
 public class PgSourceConfig implements Serializable, SourceConfig {
 
     private final String host;
@@ -30,6 +33,26 @@ public class PgSourceConfig implements Serializable, SourceConfig {
     private String metricId;
     private boolean retainResponseType;
 
+    /**
+     * Instantiates a new Postgre source config.
+     *
+     * @param host               the host
+     * @param port               the port
+     * @param user               the user
+     * @param password           the password
+     * @param database           the database
+     * @param type               the type
+     * @param capacity           the capacity
+     * @param streamTimeout      the stream timeout
+     * @param outputMapping      the output mapping
+     * @param connectTimeout     the connect timeout
+     * @param idleTimeout        the idle timeout
+     * @param queryVariables     the query variables
+     * @param queryPattern       the query pattern
+     * @param failOnErrors       the fail on errors
+     * @param metricId           the metric id
+     * @param retainResponseType the retain response type
+     */
     public PgSourceConfig(String host, String port, String user, String password, String database,
                           String type, String capacity, String streamTimeout, Map<String, String> outputMapping, String connectTimeout, String idleTimeout, String queryVariables, String queryPattern, boolean failOnErrors, String metricId, boolean retainResponseType) {
         this.host = host;
@@ -74,42 +97,92 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         return mandatoryFields;
     }
 
+    /**
+     * Gets stream timeout.
+     *
+     * @return the stream timeout
+     */
     public Integer getStreamTimeout() {
         return Integer.valueOf(streamTimeout);
     }
 
+    /**
+     * Gets capacity.
+     *
+     * @return the capacity
+     */
     public Integer getCapacity() {
         return Integer.valueOf(capacity);
     }
 
+    /**
+     * Gets port.
+     *
+     * @return the port
+     */
     public Integer getPort() {
         return Integer.valueOf(port);
     }
 
+    /**
+     * Gets host.
+     *
+     * @return the host
+     */
     public String getHost() {
         return host;
     }
 
+    /**
+     * Gets database.
+     *
+     * @return the database
+     */
     public String getDatabase() {
         return database;
     }
 
+    /**
+     * Gets user.
+     *
+     * @return the user
+     */
     public String getUser() {
         return user;
     }
 
+    /**
+     * Gets password.
+     *
+     * @return the password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Gets connect timeout.
+     *
+     * @return the connect timeout
+     */
     public Integer getConnectTimeout() {
         return Integer.valueOf(connectTimeout);
     }
 
+    /**
+     * Gets idle timeout.
+     *
+     * @return the idle timeout
+     */
     public Integer getIdleTimeout() {
         return Integer.valueOf(idleTimeout);
     }
 
+    /**
+     * Gets query variables.
+     *
+     * @return the query variables
+     */
     public String getQueryVariables() {
         return queryVariables;
     }
@@ -124,6 +197,11 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         return queryVariables;
     }
 
+    /**
+     * Check if type config is not empty.
+     *
+     * @return the boolean
+     */
     public boolean hasType() {
         return StringUtils.isNotEmpty(type);
     }
@@ -132,6 +210,12 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         return type;
     }
 
+    /**
+     * Gets mapped query param.
+     *
+     * @param outputColumn the output column
+     * @return the mapped query param
+     */
     public String getMappedQueryParam(String outputColumn) {
         return outputMapping.get(outputColumn);
     }
@@ -145,6 +229,11 @@ public class PgSourceConfig implements Serializable, SourceConfig {
         return metricId;
     }
 
+    /**
+     * Check if it is retain response type.
+     *
+     * @return the boolean
+     */
     public boolean isRetainResponseType() {
         return retainResponseType;
     }

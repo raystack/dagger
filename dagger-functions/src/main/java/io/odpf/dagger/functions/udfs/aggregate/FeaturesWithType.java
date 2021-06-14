@@ -8,6 +8,9 @@ import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR;
 
+/**
+ * User-defined aggregate function to get Features with type.
+ */
 public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumulator> {
 
     @Override
@@ -26,7 +29,7 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
      *
      * @param featureAccumulator the feature accumulator
      * @param objects            the objects
-     * @return featuresWithRow   the list of featureRows in form of flink Row
+     * @return featuresWithRow the list of featureRows in form of flink Row
      * @author grace.christina
      * @team DS
      */
@@ -37,6 +40,12 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
         }
     }
 
+    /**
+     * Retract.
+     *
+     * @param featureAccumulator the feature accumulator
+     * @param objects            the objects
+     */
     public void retract(FeatureWithTypeAccumulator featureAccumulator, Object... objects) {
         validate(objects);
         for (int elementIndex = 0; elementIndex < objects.length; elementIndex += NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR) {

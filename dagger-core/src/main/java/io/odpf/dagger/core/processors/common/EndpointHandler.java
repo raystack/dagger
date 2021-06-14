@@ -24,6 +24,9 @@ import java.util.Map;
 
 import static java.util.Collections.singleton;
 
+/**
+ * The Endpoint handler.
+ */
 public class EndpointHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(EndpointHandler.class.getName());
     private SourceConfig sourceConfig;
@@ -35,6 +38,16 @@ public class EndpointHandler {
     private DescriptorManager descriptorManager;
     private Descriptors.Descriptor descriptor;
 
+    /**
+     * Instantiates a new Endpoint handler.
+     *
+     * @param sourceConfig      the source config
+     * @param meterStatsManager the meter stats manager
+     * @param errorReporter     the error reporter
+     * @param inputProtoClasses the input proto classes
+     * @param columnNameManager the column name manager
+     * @param descriptorManager the descriptor manager
+     */
     public EndpointHandler(SourceConfig sourceConfig,
                            MeterStatsManager meterStatsManager,
                            ErrorReporter errorReporter,
@@ -49,6 +62,13 @@ public class EndpointHandler {
         this.descriptorManager = descriptorManager;
     }
 
+    /**
+     * Get endpoint or query variables values.
+     *
+     * @param rowManager   the row manager
+     * @param resultFuture the result future
+     * @return the array object
+     */
     public Object[] getEndpointOrQueryVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
         String queryVariables = sourceConfig.getVariables();
         if (StringUtils.isEmpty(queryVariables)) {
@@ -80,6 +100,14 @@ public class EndpointHandler {
         return inputColumnValues.toArray();
     }
 
+    /**
+     * Check if the query is invalid.
+     *
+     * @param resultFuture            the result future
+     * @param rowManager              the row manager
+     * @param endpointVariablesValues the endpoint variables values
+     * @return the boolean
+     */
     public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
         if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.stream(endpointVariablesValues).allMatch(""::equals))) {
             LOGGER.warn("Could not populate any request variable. Skipping external calls");

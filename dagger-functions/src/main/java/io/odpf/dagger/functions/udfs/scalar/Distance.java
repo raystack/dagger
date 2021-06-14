@@ -2,6 +2,9 @@ package io.odpf.dagger.functions.udfs.scalar;
 
 import io.odpf.dagger.common.udfs.ScalarUdf;
 
+/**
+ * The Distance udf.
+ */
 public class Distance extends ScalarUdf {
 
     private static final int RADIUS_OF_EARTH = 6371;

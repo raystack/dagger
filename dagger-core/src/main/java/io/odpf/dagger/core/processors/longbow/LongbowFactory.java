@@ -33,6 +33,9 @@ import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
 import static io.odpf.dagger.core.utils.Constants.*;
 
+/**
+ * The factory class for Longbow.
+ */
 public class LongbowFactory {
     private LongbowSchema longbowSchema;
     private AsyncProcessor asyncProcessor;
@@ -42,6 +45,14 @@ public class LongbowFactory {
     private String[] columnNames;
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Longbow factory.
+     *
+     * @param longbowSchema             the longbow schema
+     * @param configuration             the configuration
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param metricsTelemetryExporter  the metrics telemetry exporter
+     */
     public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
         this.configuration = configuration;
@@ -51,6 +62,15 @@ public class LongbowFactory {
         this.asyncProcessor = new AsyncProcessor();
     }
 
+    /**
+     * Instantiates a new Longbow factory.
+     *
+     * @param longbowSchema             the longbow schema
+     * @param configuration             the configuration
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param metricsTelemetryExporter  the metrics telemetry exporter
+     * @param asyncProcessor            the async processor
+     */
     public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter, AsyncProcessor asyncProcessor) {
         this(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
         this.longbowSchema = longbowSchema;
@@ -61,6 +81,11 @@ public class LongbowFactory {
         this.asyncProcessor = asyncProcessor;
     }
 
+    /**
+     * Gets longbow processor.
+     *
+     * @return the longbow processor
+     */
     public PostProcessor getLongbowProcessor() {
         LongbowReader longbowReader;
         LongbowWriter longbowWriter;

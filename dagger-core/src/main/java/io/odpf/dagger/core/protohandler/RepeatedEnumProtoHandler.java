@@ -14,10 +14,18 @@ import java.util.stream.Collectors;
 
 import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 
+/**
+ * The type Repeated enum proto handler.
+ */
 public class RepeatedEnumProtoHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 
+    /**
+     * Instantiates a new Repeated enum proto handler.
+     *
+     * @param fieldDescriptor the field descriptor
+     */
     public RepeatedEnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }

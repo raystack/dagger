@@ -12,10 +12,21 @@ import org.apache.flink.types.Row;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * Converts to feast Features from post processors.
+ * This is required to do aggregation and feature transformation from a single dagger.
+ */
 public class FeatureWithTypeTransformer implements MapFunction<Row, Row>, Transformer {
 
     private FeatureWithTypeHandler featureWithTypeHandler;
 
+    /**
+     * Instantiates a new Feature with type transformer.
+     *
+     * @param transformationArguments the transformation arguments
+     * @param columnNames             the column names
+     * @param configuration           the configuration
+     */
     public FeatureWithTypeTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.featureWithTypeHandler = new FeatureWithTypeHandler(transformationArguments, columnNames);
     }
