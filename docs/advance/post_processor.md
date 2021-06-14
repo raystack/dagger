@@ -416,7 +416,7 @@ Timeout value for client in ms.
 
 ###### `fail_on_errors`
 
-A flag for deciding whether the job should fail on encountering errors(timeout and status codes apart from 2XX) or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
+A flag for deciding whether the job should fail on encountering errors or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
 
 * Example value: `false`
 * Type: `optional`
@@ -464,18 +464,18 @@ You can select the fields that you want to get from input stream or you want to 
     "external_source": {
       "pg": [
         { 
-          "host"="http://127.0.0.1",
-          "port"="5432",
-          "user"="test",
-          "password"="test",
-          "database"="my_db",
+          "host": "http://127.0.0.1",
+          "port": "5432",
+          "user": "test",
+          "password": "test",
+          "database": "my_db",
           "capacity": "30",
           "stream_timeout": "25000",
           "connect_timeout": "25000",
           "idle_timeout": "25000",
-          "query_pattern"="select email, phone from public.customers where customer_id = '%s'",                     
-          "query_variables"="customer_id",
-          "output_mapping":{
+          "query_pattern": "select email, phone from public.customers where customer_id = '%s'",
+          "query_variables": "customer_id",
+          "output_mapping": {
               "customer_email": "email",
               "customer_phone": "phone”
           },
@@ -488,6 +488,166 @@ You can select the fields that you want to get from input stream or you want to 
 
 **Note:** If you want to use % as a special character in your Postgres query, you’ll need to provide an additional % with it as an escape character so that Java doesn’t take it as a string formatter and try to format it, which in turn might end up in invalid format exception.
 E.g. "select email, phone from public.customers where name like '%%smith'"
+
+#### GRPC
+This enables you to enrich the input streams with any information available via remote [GRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in input stream but user profile information available via a GRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
+
+##### Configuration
+
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+
+###### `endpoint`
+
+Hostname of the gRPC endpoint.
+
+* Example value: `localhost`
+* Type: `required`
+
+###### `service_port`
+
+Port exposed for the service.
+
+* Example value: `5000`
+* Type: `required`
+
+###### `grpc_stencil_url`
+
+Endpoint where request and response proto descriptors are present. If not there, it will try to find from the given stencil_url as of the input and output proto of Dagger.
+
+* Example value: `http://localhost:9000/proto-descriptors/latest`
+* Type: `optional`
+
+###### `grpc_request_proto_schema`
+
+Proto schema for the request for the gRPC API.
+
+* Example value: `io.grpc.test.Request`
+* Type: `required`
+
+###### `grpc_response_proto_schema`
+
+Proto schema for the response from the Grpc API.
+
+* Example value: `io.grpc.test.Response`
+* Type: `required`
+
+###### `grpc_method_url`
+
+Url of the grpc method exposed.
+
+* Example value: `testserver.test/ReturnResponse`
+* Type: `required`
+
+###### `request_pattern`
+
+Json Pattern for the request.
+
+* Example value: `{'key': %s}`
+* Type: `required`
+
+###### `request_variables`
+
+This is a comma-separated list of parameters to be replaced in the request_pattern, and these variables must be present in the input proto.
+
+* Example value: `customer_id`
+* Type: `optional`
+
+###### `stream_timeout`
+
+Timeout value for the stream in ms.
+
+* Example value: `5000`
+* Type: `required`
+
+###### `connect_timeout`
+
+Timeout value for gRPC client in ms.
+
+* Example value: `5000`
+* Type: `required`
+
+###### `fail_on_errors`
+
+A flag for deciding whether the job should fail on encountering errors or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `capacity`
+
+This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+
+* Example value: `30`
+* Type: `required`
+
+###### `headers`
+
+Key-value pairs for adding headers to the request.
+
+* Example value: `{'key': 'value'}`
+* Type: `optional`
+
+###### `retain_response_type`
+
+If true it will not cast the response from gRPC endpoint to output proto schema. The default behaviour is to cast the response to output proto schema.
+
+* Example value: `false`
+* Type: `optional`
+* Default value: `false`
+
+###### `output_mapping`
+
+Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
+
+* Example value: `{"customer_profile":{ "path":"$._source"}}`
+* Type: `required`
+
+###### `metric_id`
+
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+
+* Example value: `test_id`
+* Type: `optional`
+
+##### Sample Query
+You can select the fields that you want to get from input stream or you want to use for making the request.
+  ```SQL
+  SELECT customer_id from `booking`
+  ```
+
+##### Sample Configuration
+  ```properties
+  POST_PROCESSOR_ENABLED = true
+  POST_PROCESSOR_CONFIG = {
+    "external_source": {
+      "grpc": [
+        {
+          "endpoint": "localhost",
+          "service_port": "5000",
+          "request_pattern": "{'key': %s}",
+          "request_variables": "customer_id",
+          "grpc_stencil_url": "http://localhost:9000/proto-descriptors/latest",
+          "grpc_request_proto_schema": "io.grpc.test.Request",
+          "grpc_response_proto_schema": "io.grpc.test.Response",
+          "grpc_method_url": "testserver.test/ReturnResponse",
+          "stream_timeout": "5000",
+          "connect_timeout": "5000",
+          "fail_on_errors": "false",
+          "capacity": "30",
+          "headers": {
+            "key": "value"
+          },
+          "output_mapping": {
+            "customer_profile": {
+              "path": "$._source"
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
 
 ### Internal Post Processor
 
