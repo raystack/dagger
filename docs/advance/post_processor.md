@@ -58,6 +58,15 @@ Currently, we are supporting four external sources.
 ### **Elasticsearch**
 This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example let's say you have payment transaction logs in input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
 
+#### Workflow
+On applying only this post processor, dagger will perform following operations on a single message in happy path
+* Consume the message from configured Kafka stream.
+* Apply the SQL query configured.
+* Generate the endpoint URL using [endpoint_pattern](post_processor.md#endpoint_pattern) and [endpoint_variables](post_processor.md#endpoint_variables).
+* Make the Elasticsearch call.
+* Read the response from Elasticsearch and populate the message according to [output_mapping](post_processor.md#output_mapping).
+* Push the enriched message to configured sink.
+
 #### Configuration
 
 Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
@@ -142,7 +151,7 @@ This parameter(Async I/O capacity) defines how many asynchronous requests may be
 
 ##### `output_mapping`
 
-Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
+Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
 
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
@@ -197,6 +206,15 @@ You can select the fields that you want to get from input stream or you want to 
 
 ### **HTTP**
 HTTP Post Processor connects to an external REST endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
+
+#### Workflow
+On applying only this post processor, dagger will perform following operations on a single message in happy path
+* Consume the message from configured Kafka stream.
+* Apply the SQL query configured.
+* Generate the endpoint URL in case of GET call or request body in case of POST call using [request_pattern](post_processor.md#request_pattern) and [request_variables](post_processor.md#request_variables).
+* Make the HTTP call.
+* Read the response from HTTP API and populate the message according to [output_mapping](post_processor.md#output_mapping-1).
+* Push the enriched message to configured sink.
 
 #### Configuration
 
@@ -276,7 +294,7 @@ If true it will not cast the response from HTTP to output proto schema. The defa
 
 ##### `output_mapping`
 
-A mapping for all the fields we need to populate from the API response providing a path to fetch the required field from the response body.
+A mapping for all the fields we need to populate from the API response providing a path to fetch the required field from the response body. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
 
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
@@ -358,6 +376,15 @@ You can select the fields that you want to get from input stream or you want to 
 
 ### **Postgres**
 This enables you to enrich the input streams with any information present in any remote [Postgres](https://www.postgresql.org). For example let's say you have payment transaction logs in input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
+
+#### Workflow
+On applying only this post processor, dagger will perform following operations on a single message in happy path
+* Consume the message from configured Kafka stream.
+* Apply the SQL query configured.
+* Generate the Postgres query using [query_pattern](post_processor.md#query_pattern) and [query_variables](post_processor.md#query_variables).
+* Make the Postgres call.
+* Read the response from Postgres and populate the message according to [output_mapping](post_processor.md#output_mapping-2).
+* Push the enriched message to configured sink.
 
 #### Configuration
 
@@ -511,6 +538,15 @@ E.g. "select email, phone from public.customers where name like '%%smith'"
 ### **GRPC**
 This enables you to enrich the input streams with any information available via remote [GRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in input stream but user profile information available via a GRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
 
+#### Workflow
+On applying only this post processor, dagger will perform following operations on a single message in happy path
+* Consume the message from configured Kafka stream.
+* Apply the SQL query configured.
+* Generate the gRPC request using [request_pattern](post_processor.md#request_pattern-1) and [request_variables](post_processor.md#request_variables-1).
+* Make the gRPC call.
+* Read the response from gRPC API and populate the message according to [output_mapping](post_processor.md#output_mapping-3).
+* Push the enriched message to configured sink.
+
 #### Configuration
 
 Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
@@ -617,7 +653,7 @@ If true it will not cast the response from gRPC endpoint to output proto schema.
 
 ##### `output_mapping`
 
-Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
+Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
 
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
