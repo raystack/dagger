@@ -18,7 +18,7 @@ In the above diagram:
 * Data is finally pushed to sink.
 # Configuration
 
-Following variables need to be configured as part of [PRE_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CONFIG](update link) json
 
 ## `table_transformers`
 
@@ -57,9 +57,9 @@ A key-value map required for parameters required for the custom transformation c
 
 # Sample config
   ```properties
-  SQL_QUERY = "SELECT data_1, data_2, event_timestamp from data_stream"
-  PRE_PROCESSOR_ENABLED = true
-  PRE_PROCESSOR_CONFIG = {
+  FLINK_SQL_QUERY = "SELECT data_1, data_2, event_timestamp from data_stream"
+  PROCESSOR_PREPROCESSOR_ENABLE = true
+  PROCESSOR_PREPROCESSOR_CONFIG = {
     "table_transformers": [{
       "table_name": "testtable",
       "transformers": [{

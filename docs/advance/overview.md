@@ -12,8 +12,8 @@ Post Processors give the capability to do custom stream processing after the SQL
 
 ### [Longbow](docs/advance/../../longbow.md)
 
-Longbow enables you to perform large windowed aggregation. It used [Bigtable](https://cloud.google.com/bigtable) for state management.
+Longbow enables you to perform large windowed aggregation. It uses [Bigtable](https://cloud.google.com/bigtable) for state management and SQL based DSL for configuration.
 
 ### [DARTS](docs/advance/../../DARTS.md)
 
-DARTS allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of UDFs that can be used in the SQL query.
+DARTS allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of UDFs which can be used in the SQL query.
