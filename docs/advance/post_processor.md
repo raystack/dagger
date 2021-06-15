@@ -69,7 +69,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
 
 ##### `host`
 
@@ -179,8 +179,8 @@ You can select the fields that you want to get from the input stream or you want
 
 #### Sample Configuration
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "external_source": {
       "es": [
         {
@@ -218,7 +218,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
 
 ##### `endpoint`
 
@@ -314,8 +314,8 @@ You can select the fields that you want to get from the input stream or you want
 
 #### Sample Configuration for GET
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "external_source": {
       "http": [
         {
@@ -345,8 +345,8 @@ You can select the fields that you want to get from the input stream or you want
 
 #### Sample Configuration for POST
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "external_source": {
       "http": [
         {
@@ -388,7 +388,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
 
 ##### `host`
 
@@ -505,8 +505,8 @@ You can select the fields that you want to get from the input stream or you want
 
 #### Sample Configuration
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "external_source": {
       "pg": [
         { 
@@ -549,7 +549,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
 
 ##### `endpoint`
 
@@ -673,8 +673,8 @@ You can select the fields that you want to get from the input stream or you want
 
 #### Sample Configuration
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "external_source": {
       "grpc": [
         {
@@ -719,7 +719,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 ### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
 
 #### `output_field`
 
@@ -754,8 +754,8 @@ You can select the fields that you want to get from the input stream or you want
 
 This configuration will populate field `booking_log` with all the input fields selected in the SQL
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "internal_source": [
       {
         "output_field": "booking_log",
@@ -770,8 +770,8 @@ This configuration will populate field `booking_log` with all the input fields s
 
 This configuration will populate field `s2id_level` with value 13 for all the events
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "internal_source": [
       {
         "output_field": "s2id_level",
@@ -786,8 +786,8 @@ This configuration will populate field `s2id_level` with value 13 for all the ev
 
 This configuration will populate field `event_timestamp` with a timestamp of when the event is processed
   ```properties
-  POST_PROCESSOR_ENABLED = true
-  POST_PROCESSOR_CONFIG = {
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
     "internal_source": [
       {
         "output_field": "event_timestamp",
