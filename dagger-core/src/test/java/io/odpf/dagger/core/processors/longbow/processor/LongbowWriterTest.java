@@ -72,11 +72,11 @@ public class LongbowWriterTest {
     @Before
     public void setUp() {
         initMocks(this);
-        when(configuration.getString("LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
+        when(configuration.getString("PROCESSOR_LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
                 .thenReturn("test-project");
-        when(configuration.getString("LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
+        when(configuration.getString("PROCESSOR_LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
-        when(configuration.getString("LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
+        when(configuration.getString("PROCESSOR_LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);

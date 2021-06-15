@@ -58,7 +58,7 @@ public enum LongbowType {
     }
 
     private static class MandatoryFields {
-        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_DATA, Constants.EVENT_TIMESTAMP, Constants.ROWTIME};
+        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_DATA_KEY, Constants.EVENT_TIMESTAMP, Constants.ROWTIME};
         private static final String[] LONGBOW_WRITE = new String[]{Constants.ROWTIME, Constants.EVENT_TIMESTAMP};
         private static final String[] LONGBOW_READ = new String[]{Constants.EVENT_TIMESTAMP};
     }
@@ -70,8 +70,8 @@ public enum LongbowType {
     }
 
     private static class InvalidFields {
-        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_PROTO_DATA};
-        private static final String[] LONGBOW_WRITE = new String[]{Constants.LONGBOW_PROTO_DATA, Constants.LONGBOW_DATA, Constants.LONGBOW_LATEST, Constants.LONGBOW_EARLIEST, Constants.LONGBOW_DURATION};
-        private static final String[] LONGBOW_READ = new String[]{Constants.LONGBOW_DATA, Constants.LONGBOW_PROTO_DATA};
+        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_PROTO_DATA_KEY};
+        private static final String[] LONGBOW_WRITE = new String[]{Constants.LONGBOW_PROTO_DATA_KEY, Constants.LONGBOW_DATA_KEY, Constants.LONGBOW_LATEST_KEY, Constants.LONGBOW_EARLIEST_KEY, Constants.LONGBOW_DURATION_KEY};
+        private static final String[] LONGBOW_READ = new String[]{Constants.LONGBOW_DATA_KEY, Constants.LONGBOW_PROTO_DATA_KEY};
     }
 }

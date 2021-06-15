@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.common.core.Constants.STREAM_PROTO_CLASS_NAME;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
 import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
@@ -148,12 +148,12 @@ public class LongbowFactory {
     }
 
     private String getTableId(Configuration config) {
-        return config.getString(LONGBOW_GCP_TABLE_ID_KEY, config.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
+        return config.getString(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, config.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
     }
 
     private String getMessageProtoClassName(Configuration config) {
         String jsonArrayString = config.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
-        return (String) streamsConfig[0].get(STREAM_PROTO_CLASS_NAME);
+        return (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
     }
 }

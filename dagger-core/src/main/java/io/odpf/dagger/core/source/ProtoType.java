@@ -49,7 +49,7 @@ public class ProtoType implements Serializable {
         RowTypeInfo rowTypeInfo = (RowTypeInfo) rowNamed;
         ArrayList<String> fieldNames = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldNames()));
         ArrayList<TypeInformation> fieldTypes = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldTypes()));
-        fieldNames.add(Constants.INTERNAL_VALIDATION_FILED);
+        fieldNames.add(Constants.INTERNAL_VALIDATION_FILED_KEY);
         fieldTypes.add(Types.BOOLEAN);
         fieldNames.add(rowtimeAttributeName);
         fieldTypes.add(Types.SQL_TIMESTAMP);

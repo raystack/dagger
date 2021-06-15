@@ -1,23 +1,20 @@
 package io.odpf.dagger.common.core;
 
 public class Constants {
-    public static final String STENCIL_ENABLE_KEY = "ENABLE_STENCIL_URL";
-    public static final boolean STENCIL_ENABLE_DEFAULT = false;
-    public static final String STENCIL_URL_KEY = "STENCIL_URL";
-    public static final String STENCIL_URL_DEFAULT = "";
-
-    public static final String STENCIL_CONFIG_TTL_IN_MINUTES_KEY = "TIL_IN_MINUTES";
-    public static final String STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT = "0";
-    public static final String STENCIL_CONFIG_TIMEOUT_MS_KEY = "STENCIL_TIMEOUT_MS";
-    public static final String STENCIL_CONFIG_TIMEOUT_MS_DEFAULT = "60000";
-    public static final String STENCIL_CONFIG_REFRESH_CACHE_KEY = "REFRESH_CACHE";
-    public static final String STENCIL_CONFIG_REFRESH_CACHE_DEFAULT = "false";
+    public static final String SCHEMA_REGISTRY_STENCIL_ENABLE_KEY = "SCHEMA_REGISTRY_STENCIL_ENABLE";
+    public static final boolean SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT = false;
+    public static final String SCHEMA_REGISTRY_STENCIL_URLS_KEY = "SCHEMA_REGISTRY_STENCIL_URLS";
+    public static final String SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT = "";
+    public static final String SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY = "SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE";
+    public static final String SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT = "false";
+    public static final String SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY = "SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS";
+    public static final String SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT = "60000";
 
     public static final String UDF_TELEMETRY_GROUP_KEY = "udf";
     public static final String GAUGE_ASPECT_NAME = "value";
 
     public static final long SLIDING_TIME_WINDOW = 10;
-    public static final String STREAM_PROTO_CLASS_NAME = "PROTO_CLASS_NAME";
-    public static final String STREAM_TABLE_NAME = "TABLE_NAME";
+    public static final String STREAM_INPUT_SCHEMA_PROTO_CLASS = "INPUT_SCHEMA_PROTO_CLASS";
+    public static final String STREAM_INPUT_SCHEMA_TABLE = "INPUT_SCHEMA_TABLE";
     public static final String INPUT_STREAMS = "STREAMS";
 }

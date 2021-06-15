@@ -17,9 +17,9 @@ public class KafkaEnvironmentVariablesTest {
         new HashMap<String, String>() {{
             put("PATH", "/usr/local/bin");
             put("SHELL", "/usr/local/bin/zsh");
-            put("kafka_consumer_config_fetch_min_bytes", "1");
-            put("kafka_consumer_config_ssl_keystore_location", "/home/user/.ssh/keystore");
-            put("kafka_consumer_config_enable_auto_commit", "false");
+            put("source_kafka_config_fetch_min_bytes", "1");
+            put("source_kafka_config_ssl_keystore_location", "/home/user/.ssh/keystore");
+            put("source_kafka_config_enable_auto_commit", "false");
         }}.entrySet()
                 .stream()
                 .forEach(e -> configuration.setString(e.getKey(), e.getValue()));

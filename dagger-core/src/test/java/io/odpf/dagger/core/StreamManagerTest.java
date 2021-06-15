@@ -43,14 +43,14 @@ public class StreamManagerTest {
 
     private String jsonArray = "[\n"
             + "        {\n"
-            + "            \"EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
-            + "            \"KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
-            + "            \"KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
-            + "            \"KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
-            + "            \"KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
-            + "            \"PROTO_CLASS_NAME\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
-            + "            \"TABLE_NAME\": \"data_stream\",\n"
-            + "            \"TOPIC_NAMES\": \"test-topic\"\n"
+            + "            \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"4\",\n"
+            + "            \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\",\n"
+            + "            \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\",\n"
+            + "            \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:6667\",\n"
+            + "            \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
+            + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
+            + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
+            + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
             + "        }\n"
             + "]";
 
@@ -88,23 +88,23 @@ public class StreamManagerTest {
     public void setup() {
 
         initMocks(this);
-        when(configuration.getInteger("PARALLELISM", 1)).thenReturn(1);
-        when(configuration.getInteger("WATERMARK_INTERVAL_MS", 10000)).thenReturn(10000);
-        when(configuration.getLong("CHECKPOINT_INTERVAL", 30000)).thenReturn(30000L);
-        when(configuration.getLong("CHECKPOINT_TIMEOUT", 900000)).thenReturn(900000L);
-        when(configuration.getLong("CHECKPOINT_MIN_PAUSE", 5000)).thenReturn(5000L);
-        when(configuration.getInteger("MAX_CONCURRECT_CHECKPOINTS", 1)).thenReturn(1);
-        when(configuration.getString("ROWTIME_ATTRIBUTE_NAME", "")).thenReturn("");
-        when(configuration.getBoolean("ENABLE_PER_PARTITION_WATERMARK", false)).thenReturn(false);
-        when(configuration.getLong("WATERMARK_DELAY_MS", 10000)).thenReturn(10000L);
+        when(configuration.getInteger("FLINK_PARALLELISM", 1)).thenReturn(1);
+        when(configuration.getInteger("FLINK_WATERMARK_INTERVAL_MS", 10000)).thenReturn(10000);
+        when(configuration.getLong("FLINK_CHECKPOINT_INTERVAL_MS", 30000)).thenReturn(30000L);
+        when(configuration.getLong("FLINK_CHECKPOINT_TIMEOUT_MS", 900000)).thenReturn(900000L);
+        when(configuration.getLong("FLINK_CHECKPOINT_MIN_PAUSE_MS", 5000)).thenReturn(5000L);
+        when(configuration.getInteger("FLINK_CHECKPOINT_MAX_CONCURRENT", 1)).thenReturn(1);
+        when(configuration.getString("FLINK_ROWTIME_ATTRIBUTE_NAME", "")).thenReturn("");
+        when(configuration.getBoolean("FLINK_WATERMARK_PER_PARTITION_ENABLE", false)).thenReturn(false);
+        when(configuration.getLong("FLINK_WATERMARK_DELAY_MS", 10000)).thenReturn(10000L);
         when(configuration.getString("STREAMS", "")).thenReturn(jsonArray);
-        when(configuration.getBoolean("ENABLE_STENCIL_URL", false)).thenReturn(false);
-        when(configuration.getString("STENCIL_URL", "")).thenReturn("");
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false)).thenReturn(false);
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
-        when(configuration.getString("SQL_QUERY", "")).thenReturn("");
-        when(configuration.getInteger("MIN_IDLE_STATE_RETENTION_TIME", 8)).thenReturn(8);
-        when(configuration.getInteger("MAX_IDLE_STATE_RETENTION_TIME", 9)).thenReturn(9);
+        when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
+        when(configuration.getInteger("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
+        when(configuration.getInteger("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -118,7 +118,7 @@ public class StreamManagerTest {
     }
 
     @Test
-    public void shouldRegisterRequiredConfigsOnExecutionEnvironement() {
+    public void shouldRegisterRequiredConfigsOnExecutionEnvironment() {
 
         streamManager.registerConfigs();
 

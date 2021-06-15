@@ -52,7 +52,7 @@ public class PostProcessorConfig implements Serializable {
             }.getType();
             postProcessorConfig = GSON.fromJson(configuration, typeToken);
         } catch (JsonSyntaxException exception) {
-            throw new InvalidJsonException("Invalid JSON Given for " + Constants.POST_PROCESSOR_CONFIG_KEY);
+            throw new InvalidJsonException("Invalid JSON Given for " + Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY);
         }
 
         return postProcessorConfig;

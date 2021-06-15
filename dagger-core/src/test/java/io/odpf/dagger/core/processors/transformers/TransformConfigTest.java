@@ -61,7 +61,7 @@ public class TransformConfigTest {
         expectedException.expectMessage("Transformation arguments cannot contain `table_name` as a key");
         expectedException.expect(IllegalArgumentException.class);
         TransformConfig config = new TransformConfig("io.odpf.TestClass", new HashMap<String, Object>() {{
-            put(TransformerUtils.DefaultArgument.TABLE_NAME.toString(), "test-value");
+            put(TransformerUtils.DefaultArgument.INPUT_SCHEMA_TABLE.toString(), "test-value");
         }});
         config.validateFields();
     }

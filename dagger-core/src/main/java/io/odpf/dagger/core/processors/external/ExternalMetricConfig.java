@@ -23,8 +23,8 @@ public class ExternalMetricConfig implements Serializable {
      * @param telemetrySubscriber the telemetry subscriber
      */
     public ExternalMetricConfig(Configuration configuration, TelemetrySubscriber telemetrySubscriber) {
-        this.shutDownPeriod = configuration.getLong(Constants.SHUTDOWN_PERIOD_KEY, Constants.SHUTDOWN_PERIOD_DEFAULT);
-        this.telemetryEnabled = configuration.getBoolean(Constants.TELEMETRY_ENABLED_KEY, Constants.TELEMETRY_ENABLED_VALUE_DEFAULT);
+        this.shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        this.telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
         this.telemetrySubscriber = telemetrySubscriber;
     }
 

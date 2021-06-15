@@ -38,6 +38,6 @@ public class ReaderOutputLongbowData implements ReaderOutputRow {
     }
 
     private boolean isLongbowData(Map.Entry<String, Integer> c) {
-        return c.getKey().contains(Constants.LONGBOW_DATA);
+        return c.getKey().contains(Constants.LONGBOW_DATA_KEY);
     }
 }

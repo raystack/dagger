@@ -22,16 +22,16 @@ public class LongbowAbsoluteRange implements LongbowRange {
 
     @Override
     public byte[] getUpperBound(Row input) {
-        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, Constants.LONGBOW_LATEST));
+        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, Constants.LONGBOW_LATEST_KEY));
     }
 
     @Override
     public byte[] getLowerBound(Row input) {
-        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, Constants.LONGBOW_EARLIEST));
+        return longbowSchema.getAbsoluteKey(input, (long) longbowSchema.getValue(input, Constants.LONGBOW_EARLIEST_KEY));
     }
 
     @Override
     public String[] getInvalidFields() {
-        return new String[]{Constants.LONGBOW_DURATION};
+        return new String[]{Constants.LONGBOW_DURATION_KEY};
     }
 }

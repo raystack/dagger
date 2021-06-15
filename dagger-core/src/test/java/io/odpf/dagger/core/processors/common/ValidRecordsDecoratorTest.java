@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED;
+import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidRecordsDecoratorTest {
@@ -39,10 +39,9 @@ public class ValidRecordsDecoratorTest {
     public void setUp() {
         initMocks(this);
         configuration = new Configuration();
-        configuration.setString(STENCIL_CONFIG_REFRESH_CACHE_KEY, STENCIL_CONFIG_REFRESH_CACHE_DEFAULT);
-        configuration.setString(STENCIL_CONFIG_TTL_IN_MINUTES_KEY, STENCIL_CONFIG_TTL_IN_MINUTES_DEFAULT);
-        configuration.setBoolean(STENCIL_ENABLE_KEY, STENCIL_ENABLE_DEFAULT);
-        configuration.setString(STENCIL_URL_KEY, STENCIL_URL_DEFAULT);
+        configuration.setString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        configuration.setBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        configuration.setString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
@@ -51,7 +50,7 @@ public class ValidRecordsDecoratorTest {
                 .getFields()
                 .stream()
                 .map(Descriptors.FieldDescriptor::getName).collect(Collectors.toList());
-        fields.add(INTERNAL_VALIDATION_FILED);
+        fields.add(INTERNAL_VALIDATION_FILED_KEY);
         fields.add("rowtime");
         return fields.toArray(new String[0]);
     }

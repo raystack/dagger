@@ -102,7 +102,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldThrowExceptionIfInvalidJsonConfigurationPassed() {
         expectedException.expect(InvalidJsonException.class);
-        expectedException.expectMessage("Invalid JSON Given for POST_PROCESSOR_CONFIG");
+        expectedException.expectMessage("Invalid JSON Given for PROCESSOR_POSTPROCESSOR_CONFIG");
 
         defaultConfiguration = "test";
 

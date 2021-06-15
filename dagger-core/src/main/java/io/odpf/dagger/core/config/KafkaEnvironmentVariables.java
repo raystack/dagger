@@ -9,7 +9,7 @@ import java.util.Properties;
  */
 public class KafkaEnvironmentVariables {
 
-    private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private static final String KAFKA_PREFIX = "source_kafka_config_";
 
     /**
      * Parse properties.

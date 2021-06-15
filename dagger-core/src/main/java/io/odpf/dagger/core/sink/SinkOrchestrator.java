@@ -12,8 +12,6 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
-import io.odpf.dagger.core.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +21,9 @@ import java.util.Properties;
 
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_TOPIC;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.SINK_TYPE;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
  * The Sink orchestrator.
@@ -52,13 +52,13 @@ public class SinkOrchestrator implements TelemetryPublisher {
         SinkFunction<Row> sink;
         switch (sinkType) {
             case "kafka":
-                String outputTopic = configuration.getString(Constants.OUTPUT_KAFKA_TOPIC, "");
-                String outputProtoKey = configuration.getString(Constants.OUTPUT_PROTO_KEY, null);
-                String outputProtoMessage = configuration.getString(Constants.OUTPUT_PROTO_MESSAGE, "");
-                String outputStream = configuration.getString(Constants.OUTPUT_STREAM, "");
+                String outputTopic = configuration.getString(SINK_KAFKA_TOPIC_KEY, "");
+                String outputProtoKey = configuration.getString(SINK_KAFKA_PROTO_KEY, null);
+                String outputProtoMessage = configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
+                String outputStream = configuration.getString(SINK_KAFKA_STREAM_KEY, "");
                 addMetric(OUTPUT_TOPIC.getValue(), outputTopic);
                 addMetric(OUTPUT_PROTO.getValue(), outputProtoMessage);
-                addMetric(TelemetryTypes.OUTPUT_STREAM.getValue(), outputStream);
+                addMetric(OUTPUT_STREAM.getValue(), outputStream);
 
                 ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
                 FlinkKafkaProducer<Row> rowFlinkKafkaProducer = new FlinkKafkaProducer<>(outputTopic, protoSerializer, getProducerProperties(configuration), FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
@@ -85,11 +85,11 @@ public class SinkOrchestrator implements TelemetryPublisher {
      * @return the producer properties
      */
     protected Properties getProducerProperties(Configuration configuration) {
-        String outputBrokerList = configuration.getString(Constants.OUTPUT_KAFKA_BROKER, "");
+        String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");
         Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
-        if (configuration.getBoolean(Constants.PRODUCE_LARGE_MESSAGE_KEY, Constants.PRODUCE_LARGE_MESSAGE_DEFAULT)) {
-            kafkaProducerConfigs.setProperty("compression.type", "snappy");
-            kafkaProducerConfigs.setProperty("max.request.size", "20971520");
+        if (configuration.getBoolean(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY, SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+            kafkaProducerConfigs.setProperty(SINK_KAFKA_COMPRESSION_TYPE_KEY, SINK_KAFKA_COMPRESSION_TYPE_DEFAULT);
+            kafkaProducerConfigs.setProperty(SINK_KAFKA_MAX_REQUEST_SIZE_KEY, SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT);
         }
         return kafkaProducerConfigs;
     }

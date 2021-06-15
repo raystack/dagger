@@ -42,8 +42,8 @@ public class LongbowProcessor implements PostProcessor {
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> inputStream = streamInfo.getDataStream();
-        long longbowAsyncTimeout = configuration.getLong(Constants.LONGBOW_ASYNC_TIMEOUT_KEY, Constants.LONGBOW_ASYNC_TIMEOUT_DEFAULT);
-        Integer longbowThreadCapacity = configuration.getInteger(Constants.LONGBOW_THREAD_CAPACITY_KEY, Constants.LONGBOW_THREAD_CAPACITY_DEFAULT);
+        long longbowAsyncTimeout = configuration.getLong(Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_KEY, Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_DEFAULT);
+        Integer longbowThreadCapacity = configuration.getInteger(Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_KEY, Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_DEFAULT);
         DataStream<Row> outputStream = inputStream;
         for (RichAsyncFunction<Row, Row> longbowRichFunction : longbowRichFunctions) {
             outputStream = asyncProcessor.orderedWait(outputStream, longbowRichFunction, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);

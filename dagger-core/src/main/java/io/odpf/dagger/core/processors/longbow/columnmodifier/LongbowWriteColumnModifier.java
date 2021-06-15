@@ -15,7 +15,7 @@ public class LongbowWriteColumnModifier implements ColumnModifier {
         ArrayList<String> outputList = new ArrayList<>(Arrays.asList(inputColumnNames));
         outputList.add(Constants.SYNCHRONIZER_BIGTABLE_TABLE_ID_KEY);
         outputList.add(Constants.SYNCHRONIZER_INPUT_CLASSNAME_KEY);
-        outputList.add(Constants.SYNCHRONIZER_LONGBOWREAD_KEY);
+        outputList.add(Constants.SYNCHRONIZER_LONGBOW_READ_KEY);
         return outputList.toArray(new String[0]);
     }
 }

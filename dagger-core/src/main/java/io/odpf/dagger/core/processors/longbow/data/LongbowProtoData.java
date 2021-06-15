@@ -30,7 +30,7 @@ public class LongbowProtoData implements LongbowData {
         }
 
         HashMap<String, List<byte[]>> longbowData = new HashMap<>();
-        longbowData.put(Constants.LONGBOW_PROTO_DATA, data);
+        longbowData.put(Constants.LONGBOW_PROTO_DATA_KEY, data);
         return longbowData;
     }
 }

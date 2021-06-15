@@ -15,12 +15,12 @@ public class LongbowRangeFactory {
      * @return the longbow range
      */
     public static LongbowRange getLongbowRange(LongbowSchema longbowSchema) {
-        if (longbowSchema.contains(Constants.LONGBOW_DURATION)) {
+        if (longbowSchema.contains(Constants.LONGBOW_DURATION_KEY)) {
             return new LongbowDurationRange(longbowSchema);
-        } else if (longbowSchema.contains(Constants.LONGBOW_EARLIEST) && longbowSchema.contains(Constants.LONGBOW_LATEST)) {
+        } else if (longbowSchema.contains(Constants.LONGBOW_EARLIEST_KEY) && longbowSchema.contains(Constants.LONGBOW_LATEST_KEY)) {
             return new LongbowAbsoluteRange(longbowSchema);
         } else {
-            throw new DaggerConfigurationException("Missing required field: Either (" + Constants.LONGBOW_DURATION + ") or both (" + Constants.LONGBOW_EARLIEST + " and " + Constants.LONGBOW_LATEST + ") should be passed");
+            throw new DaggerConfigurationException("Missing required field: Either (" + Constants.LONGBOW_DURATION_KEY + ") or both (" + Constants.LONGBOW_EARLIEST_KEY + " and " + Constants.LONGBOW_LATEST_KEY + ") should be passed");
         }
     }
 }

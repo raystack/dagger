@@ -29,7 +29,7 @@ import static io.odpf.dagger.core.utils.Constants.*;
  * The Streams.
  */
 public class Streams implements TelemetryPublisher {
-    private static final String KAFKA_PREFIX = "kafka_consumer_config_";
+    private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
     private final Configuration configuration;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
@@ -59,7 +59,7 @@ public class Streams implements TelemetryPublisher {
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
-            String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
+            String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
         }
     }
@@ -98,14 +98,14 @@ public class Streams implements TelemetryPublisher {
     }
 
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
-        String topicsForStream = streamConfig.getOrDefault(STREAM_TOPIC_NAMES, "");
+        String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY, "");
         topics.add(topicsForStream);
-        String protoClassName = streamConfig.getOrDefault(STREAM_PROTO_CLASS_NAME, "");
+        String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
         protoClassNames.add(protoClassName);
-        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME, ""));
-        String tableName = streamConfig.getOrDefault(STREAM_TABLE_NAME, "");
+        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME_KEY, ""));
+        String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
         protoClassForTable.put(tableName, protoClassName);
-        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault("EVENT_TIMESTAMP_FIELD_INDEX", ""));
+        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY, ""));
         Properties kafkaProps = new Properties();
         streamConfig.entrySet()
                 .stream()
@@ -132,8 +132,8 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
-        if (configuration.getBoolean(CONSUME_LARGE_MESSAGE_KEY, CONSUME_LARGE_MESSAGE_DEFAULT)) {
-            kafkaProps.setProperty("max.partition.fetch.bytes", "5242880");
+        if (configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+            kafkaProps.setProperty(SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY, SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT);
         }
     }
 
