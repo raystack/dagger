@@ -44,7 +44,7 @@ There are three types of Post Processors :
 * [Internal Post Processor](post_processor.md#internal-post-processor)
 * [Transformers](docs/../../guides/use_transformer.md)
 
-(Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PRE_PROCESSOR_CONFIG](update link) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger. )
+Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger.
 
 ## External Post Processor
 External Post Processor is the one that connects to an external data source to fetch data in an async manner and perform enrichment of the stream message. These kinds of Post Processors use Flink’s API for asynchronous I/O with external data stores. For more details on Flink’s Async I/O find the doc [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html).
@@ -205,7 +205,7 @@ You can select the fields that you want to get from the input stream or you want
   ```
 
 ### **HTTP**
-HTTP Post Processor connects to an external REST endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
+HTTP Post Processor connects to an external API endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
 
 #### Workflow
 On applying only this post processor, dagger will perform the following operations on a single message in happy path
@@ -222,7 +222,7 @@ Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CO
 
 ##### `endpoint`
 
-IP(s) of the nodes/haproxy.
+API endpoint.
 
 * Example value: `http://127.0.0.1/api/customer`
 * Type: `required`
@@ -341,7 +341,7 @@ You can select the fields that you want to get from the input stream or you want
   }
   ```
 
-**Note:** In case you want to use all the fields along with a modification/nested field you can use “select *, modifield_field as custom_column_name from data_stream”.
+**Note:** In case you want to use all the fields along with a modified/nested field you can use “select *, modified_field as custom_column_name from data_stream”.
 
 #### Sample Configuration for POST
   ```properties
@@ -485,7 +485,7 @@ If true it will not cast the response from Postgres Query to output proto schema
 
 ##### `output_mapping`
 
-Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
+Mapping of fields in output proto goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly.
 
 * Example value: `{"customer_email": "email","customer_phone": "phone”}`
 * Type: `required`
@@ -536,7 +536,7 @@ You can select the fields that you want to get from the input stream or you want
 E.g. "select email, phone from public.customers where name like '%%smith'"
 
 ### **GRPC**
-This enables you to enrich the input streams with any information available via remote [GRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in the input stream but user profile information available via a GRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
+This enables you to enrich the input streams with any information available via remote [gRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in the input stream but user profile information available via a gRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
 
 #### Workflow
 On applying only this post processor, dagger will perform the following operations on a single message in happy path
@@ -567,21 +567,21 @@ Port exposed for the service.
 
 ##### `grpc_stencil_url`
 
-Endpoint where request and response proto descriptors are present. If not there, it will try to find from the given stencil_url as of the input and output proto of Dagger.
+Endpoint where request and response proto descriptors are present. If not there, it will try to find from the given stencil_url of the input and output proto of Dagger.
 
 * Example value: `http://localhost:9000/proto-descriptors/latest`
 * Type: `optional`
 
 ##### `grpc_request_proto_schema`
 
-Proto schema for the request for the gRPC API.
+Proto schema for the request for the gRPC endpoint.
 
 * Example value: `io.grpc.test.Request`
 * Type: `required`
 
 ##### `grpc_response_proto_schema`
 
-Proto schema for the response from the Grpc API.
+Proto schema for the response from the gRPC endpoint.
 
 * Example value: `io.grpc.test.Response`
 * Type: `required`
@@ -653,7 +653,7 @@ If true it will not cast the response from gRPC endpoint to output proto schema.
 
 ##### `output_mapping`
 
-Mapping of fields in output Protos goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
+Mapping of fields in output proto goes here. Based on which part of the response data to use, you can configure the path, and output message fields will be populated accordingly. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
 
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
@@ -740,7 +740,7 @@ The input data.
 The type of internal post processor. This could be ‘SQL’, ‘constant’ or ‘function’ as explained above.
 
 * Example value: `function`
-* Type: `optional`
+* Type: `required`
 
 ### Sample Query
 You can select the fields that you want to get from the input stream or you want to use for making the request.
@@ -802,7 +802,7 @@ This configuration will populate field `event_timestamp` with a timestamp of whe
 Some basic information you need to know before the creation of a Post Processor Dagger is as follow
 
 ## Number of Post Processors
-Any number of Post Processors can be added based on the use case. And also there can be multiple Post Processors of the same type. The initial SQL should not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
+Any number of Post Processors can be added based on the use case. There can be multiple Post Processors of the same type. The initial SQL do not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
 
 ## Throughput
 The throughput depends on the input topic of Dagger and after SQL filtering, the enrichment store should be able to handle that load.

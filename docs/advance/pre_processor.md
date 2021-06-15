@@ -1,5 +1,5 @@
 # Introduction
-Pre processors enable the users to add Flink [operators/transformations](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators) before passing on the stream to the SQL query. Each stream registered on dagger can have chained processors. They will run and transform the table before registering it.
+Pre processors enable the users to add Flink [operators/transformations](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators) before passing on the stream to the SQL query. Each stream registered on dagger can have chained pre processors. They will run and transform the data before SQL processing.
 
 # Type of Preprocessors
 Currently, there is only one type of pre-processor. 
@@ -16,9 +16,10 @@ In the above diagram:
 * The `InvalidRecordFilterTransformer` is applied on both the streams in order to filter out invalid records.
 * Then the filtered records are passed to further operators.
 * Data is finally pushed to sink.
+
 # Configuration
 
-Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CONFIG](update link) JSON
 
 ## `table_transformers`
 
