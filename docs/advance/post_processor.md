@@ -13,7 +13,7 @@
 # Introduction
 Post Processors give the capability to do custom stream processing after the SQL processing is performed. Complex transformation, enrichment & aggregation use cases are difficult to execute & maintain using SQL. Post Processors solve this problem through code and/or configuration. This can be used to enrich the stream from external sources (HTTP, ElasticSearch, PostgresDB, GRPC), enhance data points using function or query and transform through user-defined code.
 
-All the post processors mentioned in this doc can be applied in a sequential manner, which enables you to get information from multiple different external data sources and apply as many transformers required. The output of one processor will be the input for the other and final result will be pushed to the configured sink.
+All the post processors mentioned in this doc can be applied in a sequential manner, which enables you to get information from multiple different external data sources and apply as many transformers as required. The output of one processor will be the input for the other and the final result will be pushed to the configured sink.
 
 # Flow of Execution
 In the flow of Post Processors, External Post Processors, Internal Post Processors and Transformers can be applied sequentially via config. The output of one Post Processor will be the input of the next one. The input SQL is executed first before any of the Post Processors and the Post Processors run only on the output of the SQL. Here is an example of a simple use case that can be solved using Post Processor and sample Data flow Diagrams for that.
@@ -32,7 +32,7 @@ In the flow of Post Processors, External Post Processors, Internal Post Processo
 
 * After getting customer_id, amount and cashback amount, you may want to round off the cashback amount. For this, you can write a custom [transformer](docs/../../guides/use_transformer.md) which is a simple Java Flink Map function to calculate the round-off amount.
 
-  **Note:** All the above processors are chained sequentially on the output of previous processor. The order of execution is determined via the order provided in json config.
+  **Note:** All the above processors are chained sequentially on the output of the previous processor. The order of execution is determined via the order provided in JSON config.
 
 <p align="center">
   <img src="../assets/external-internal-transformer-post-processor.png" width="80%"/>
@@ -44,7 +44,7 @@ There are three types of Post Processors :
 * [Internal Post Processor](post_processor.md#internal-post-processor)
 * [Transformers](docs/../../guides/use_transformer.md)
 
-(Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PRE_PROCESSOR_CONFIG](update link) json under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger. )
+(Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PRE_PROCESSOR_CONFIG](update link) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger. )
 
 ## External Post Processor
 External Post Processor is the one that connects to an external data source to fetch data in an async manner and perform enrichment of the stream message. These kinds of Post Processors use Flink’s API for asynchronous I/O with external data stores. For more details on Flink’s Async I/O find the doc [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html).
@@ -56,10 +56,10 @@ Currently, we are supporting four external sources.
 * [GRPC](post_processor.md#grpc)
 
 ### **Elasticsearch**
-This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example let's say you have payment transaction logs in input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
+This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example, let's say you have payment transaction logs in the input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
 
 #### Workflow
-On applying only this post processor, dagger will perform following operations on a single message in happy path
+On applying only this post processor, dagger will perform the following operations on a single message in happy path
 * Consume the message from configured Kafka stream.
 * Apply the SQL query configured.
 * Generate the endpoint URL using [endpoint_pattern](post_processor.md#endpoint_pattern) and [endpoint_variables](post_processor.md#endpoint_variables).
@@ -69,7 +69,7 @@ On applying only this post processor, dagger will perform following operations o
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
 
 ##### `host`
 
@@ -137,7 +137,7 @@ The time waiting for data after establishing the connection in ms; maximum time 
 
 ##### `connect_timeout`
 
-Timeout value for ES client in ms.
+The timeout value for ES client in ms.
 
 * Example value: `5000`
 * Type: `required`
@@ -166,13 +166,13 @@ A flag for deciding whether the job should fail on encountering errors or not. I
 
 ##### `metric_id`
 
-Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the JSON config.
 
 * Example value: `test_id`
 * Type: `optional`
 
 #### Sample Query
-You can select the fields that you want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from the input stream or you want to use for making the request.
   ```SQL
   SELECT customer_id from `booking`
   ```
@@ -208,7 +208,7 @@ You can select the fields that you want to get from input stream or you want to 
 HTTP Post Processor connects to an external REST endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
 
 #### Workflow
-On applying only this post processor, dagger will perform following operations on a single message in happy path
+On applying only this post processor, dagger will perform the following operations on a single message in happy path
 * Consume the message from configured Kafka stream.
 * Apply the SQL query configured.
 * Generate the endpoint URL in case of GET call or request body in case of POST call using [request_pattern](post_processor.md#request_pattern) and [request_variables](post_processor.md#request_variables).
@@ -218,7 +218,7 @@ On applying only this post processor, dagger will perform following operations o
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
 
 ##### `endpoint`
 
@@ -243,21 +243,21 @@ Template for the body in case of POST and endpoint path in case of GET.
 
 ##### `request_variables`
 
-List of comma separated parameters to be replaced in request_pattern, these variables must be present in the input proto.
+List of comma-separated parameters to be replaced in request_pattern, these variables must be present in the input proto.
 
 * Example value: `customer_id`
 * Type: `optional`
 
 ##### `stream_timeout`
 
-Timeout value for the stream in ms.
+The timeout value for the stream in ms.
 
 * Example value: `5000`
 * Type: `required`
 
 ##### `connect_timeout`
 
-Timeout value for HTTP client in ms.
+The timeout value for HTTP client in ms.
 
 * Example value: `5000`
 * Type: `required`
@@ -286,7 +286,7 @@ Key-value pairs for adding headers to the request.
 
 ##### `retain_response_type`
 
-If true it will not cast the response from HTTP to output proto schema. The default behaviour is to cast the response to output proto schema.
+If true it will not cast the response from HTTP to output proto schema. The default behaviour is to cast the response to the output proto schema.
 
 * Example value: `false`
 * Type: `optional`
@@ -294,20 +294,20 @@ If true it will not cast the response from HTTP to output proto schema. The defa
 
 ##### `output_mapping`
 
-A mapping for all the fields we need to populate from the API response providing a path to fetch the required field from the response body. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
+Mapping for all the fields we need to populate from the API response providing a path to fetch the required field from the response body. You can use [JsonPath](https://github.com/json-path/JsonPath) to select fields from json response.
 
 * Example value: `{"customer_profile":{ "path":"$._source"}}`
 * Type: `required`
 
 ##### `metric_id`
 
-Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the JSON config.
 
 * Example value: `test_id`
 * Type: `optional`
 
 #### Sample Query
-You can select the fields that you want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from the input stream or you want to use for making the request.
   ```SQL
   SELECT customer_id from `booking`
   ```
@@ -372,13 +372,13 @@ You can select the fields that you want to get from input stream or you want to 
   }
   ```
 
-**Note:** Post request patterns support both primitive and complex data types. But for complex objects you need to remove the quotes from the selector ( `%s`). So in case of a primitive datapoint of string the selector will be (`”%s”`) whereas for complex fields it will be (`%s`).
+**Note:** Post request patterns support both primitive and complex data types. But for complex objects, you need to remove the quotes from the selector ( `%s`). So in the case of a primitive datapoint of string the selector will be (`”%s”`) whereas for complex fields it will be (`%s`).
 
 ### **Postgres**
-This enables you to enrich the input streams with any information present in any remote [Postgres](https://www.postgresql.org). For example let's say you have payment transaction logs in input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
+This enables you to enrich the input streams with any information present in any remote [Postgres](https://www.postgresql.org). For example, let's say you have payment transaction logs in the input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
 
 #### Workflow
-On applying only this post processor, dagger will perform following operations on a single message in happy path
+On applying only this post processor, dagger will perform the following operations on a single message in happy path
 * Consume the message from configured Kafka stream.
 * Apply the SQL query configured.
 * Generate the Postgres query using [query_pattern](post_processor.md#query_pattern) and [query_variables](post_processor.md#query_variables).
@@ -388,7 +388,7 @@ On applying only this post processor, dagger will perform following operations o
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
 
 ##### `host`
 
@@ -413,7 +413,7 @@ Username for Postgres.
 
 ##### `password`
 
-Password for particular user.
+Password for the particular user.
 
 * Example value: `test`
 * Type: `required`
@@ -441,21 +441,21 @@ This is a comma-separated list (without any whitespaces in between) of parameter
 
 ##### `stream_timeout`
 
-Timeout value for the stream in ms.
+The timeout value for the stream in ms.
 
 * Example value: `25000`
 * Type: `required`
 
 ##### `idle_timeout`
 
-Timeout value for Postgres connection in ms.
+The timeout value for Postgres connection in ms.
 
 * Example value: `25000`
 * Type: `required`
 
 ##### `connect_timeout`
 
-Timeout value for client in ms.
+The timeout value for client in ms.
 
 * Example value: `25000`
 * Type: `required`
@@ -477,7 +477,7 @@ This parameter(Async I/O capacity) defines how many asynchronous requests may be
 
 ##### `retain_response_type`
 
-If true it will not cast the response from Postgres Query to output proto schema. The default behaviour is to cast the response to output proto schema.
+If true it will not cast the response from Postgres Query to output proto schema. The default behaviour is to cast the response to the output proto schema.
 
 * Example value: `false`
 * Type: `optional`
@@ -492,13 +492,13 @@ Mapping of fields in output Protos goes here. Based on which part of the respons
 
 ##### `metric_id`
 
-Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the JSON config.
 
 * Example value: `test_id`
 * Type: `optional`
 
 #### Sample Query
-You can select the fields that you want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from the input stream or you want to use for making the request.
   ```SQL
   SELECT customer_id from `booking`
   ```
@@ -536,10 +536,10 @@ You can select the fields that you want to get from input stream or you want to 
 E.g. "select email, phone from public.customers where name like '%%smith'"
 
 ### **GRPC**
-This enables you to enrich the input streams with any information available via remote [GRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in input stream but user profile information available via a GRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
+This enables you to enrich the input streams with any information available via remote [GRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in the input stream but user profile information available via a GRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
 
 #### Workflow
-On applying only this post processor, dagger will perform following operations on a single message in happy path
+On applying only this post processor, dagger will perform the following operations on a single message in happy path
 * Consume the message from configured Kafka stream.
 * Apply the SQL query configured.
 * Generate the gRPC request using [request_pattern](post_processor.md#request_pattern-1) and [request_variables](post_processor.md#request_variables-1).
@@ -549,7 +549,7 @@ On applying only this post processor, dagger will perform following operations o
 
 #### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
 
 ##### `endpoint`
 
@@ -588,14 +588,14 @@ Proto schema for the response from the Grpc API.
 
 ##### `grpc_method_url`
 
-Url of the grpc method exposed.
+Url of the gRPC method exposed.
 
 * Example value: `testserver.test/ReturnResponse`
 * Type: `required`
 
 ##### `request_pattern`
 
-Json Pattern for the request.
+JSON Pattern for the request.
 
 * Example value: `{'key': %s}`
 * Type: `required`
@@ -609,14 +609,14 @@ This is a comma-separated list of parameters to be replaced in the request_patte
 
 ##### `stream_timeout`
 
-Timeout value for the stream in ms.
+The timeout value for the stream in ms.
 
 * Example value: `5000`
 * Type: `required`
 
 ##### `connect_timeout`
 
-Timeout value for gRPC client in ms.
+The timeout value for gRPC client in ms.
 
 * Example value: `5000`
 * Type: `required`
@@ -645,7 +645,7 @@ Key-value pairs for adding headers to the request.
 
 ##### `retain_response_type`
 
-If true it will not cast the response from gRPC endpoint to output proto schema. The default behaviour is to cast the response to output proto schema.
+If true it will not cast the response from gRPC endpoint to output proto schema. The default behaviour is to cast the response to the output proto schema.
 
 * Example value: `false`
 * Type: `optional`
@@ -660,13 +660,13 @@ Mapping of fields in output Protos goes here. Based on which part of the respons
 
 ##### `metric_id`
 
-Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the json config.
+Identifier tag for metrics for every post processor applied. If not given it will use indexes of post processors in the JSON config.
 
 * Example value: `test_id`
 * Type: `optional`
 
 #### Sample Query
-You can select the fields that you want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from the input stream or you want to use for making the request.
   ```SQL
   SELECT customer_id from `booking`
   ```
@@ -705,18 +705,25 @@ You can select the fields that you want to get from input stream or you want to 
   ```
 
 ## Internal Post Processor
-In order to enhance output with data that doesn’t need an external data store, you can use this configuration. At present we support 3 types.
+In order to enhance output with data that doesn’t need an external data store, you can use this configuration. At present, we support 3 types.
 * **SQL**: Data fields from the SQL query output. You could either use a specific field or ` * ` for all the fields.
 * **Constant**: Constant value without any transformation.
 * **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
 
+### Workflow
+On applying only this post processor, dagger will perform the following operations on a single message in happy path
+* Consume the message from configured Kafka stream.
+* Apply the SQL query configured.
+* Populate the provided [output_field](post_processor.md#output_field) with the [value](post_processor.md#value) depending upon the [type](post_processor.md#type).
+* Push the populated message to configured sink.
+
 ### Configuration
 
-Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) json
+Following variables need to be configured as part of [POST_PROCESSOR_CONFIG](update link) JSON
 
 #### `output_field`
 
-Field in output proto where this field should be populated.
+The field in output proto where this field should be populated.
 
 * Example value: `event_timestamp`
 * Type: `required`
@@ -736,7 +743,7 @@ The type of internal post processor. This could be ‘SQL’, ‘constant’ or 
 * Type: `optional`
 
 ### Sample Query
-You can select the fields that you want to get from input stream or you want to use for making the request.
+You can select the fields that you want to get from the input stream or you want to use for making the request.
   ```SQL
   SELECT * from `booking`
   ```
@@ -795,7 +802,7 @@ This configuration will populate field `event_timestamp` with a timestamp of whe
 Some basic information you need to know before the creation of a Post Processor Dagger is as follow
 
 ## Number of Post Processors
-Any number of Post Processors can be added based on the use-case. And also there can be multiple Post Processors of the same type. The initial SQL should not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
+Any number of Post Processors can be added based on the use case. And also there can be multiple Post Processors of the same type. The initial SQL should not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
 
 ## Throughput
 The throughput depends on the input topic of Dagger and after SQL filtering, the enrichment store should be able to handle that load.
