@@ -8,7 +8,7 @@ Enrichment of streaming Data with external more static Data sources is seamless 
 
 ### [Feature Ingestion](https://github.com/odpf/dagger/tree/main/docs/usecase/feature_ingestion.md)
 
-Realtime time feature generation is really important for online machine learn pipelines. Dagger can be a great tool for feature ingestion.
+Realtime time feature generation is really important for online machine learnint pipelines. Dagger can be a great tool for feature ingestion.
 
 ### [API Monitoring](https://github.com/odpf/dagger/tree/main/docs/usecase/api_monitoring.md)
 

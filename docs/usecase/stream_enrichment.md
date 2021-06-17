@@ -33,7 +33,11 @@ The enriched stream information about booking can be used in multiple complex do
 Dagger can solve this easily using simple SQL and post-processor. For the simplicity of this example we are assuming:
 
 - The enrichment of only customer profile with booking information. However, user can have a chain of enrichments for enriching multiple data points.
-- An ElasicSearch instance has all customer-specific information required which we are using as the external data source here and are indexed by customer ids for easy lookups.
+- An ElasticSearch instance has all customer-specific information required which we are using as the external data source here and are indexed by customer ids for easy lookups.
+
+![Profile Enrichment](../assets/enrichment.png)
+
+This is how the basic data flow of profile enrichment looks like.
 
 ### Sample Schema Definition
 
@@ -82,7 +86,7 @@ Sample Query
 SELECT * from `booking`
 ```
 
-The Dagger SQL is just a select all statement from booking. This id would be
+The Dagger SQL is just a select all statement from booking. This would be the
 Sample Post Processor Configuration
 
 ```JSON
@@ -119,8 +123,4 @@ Sample Post Processor Configuration
 }]
 ```
 
-In The example Postprocessor configuration, the internal source instructs to populate the `booking_log` field of output schema using the SQL select statement and `customer_profile` from the fetched Documents of ES for a given customer. Follow [this](update link) for more details about each configuration fields.
-
-![Profile Enrichment](../assets/enrichment.png)
-
-This is how the basic data flow of profile enrichment looks like.
+In the example Postprocessor configuration, the internal source instructs to populate the `booking_log` field of output schema using the SQL select statement and `customer_profile` from the fetched Documents of ES for a given customer. Follow [this](update link) for more details about each configuration fields.

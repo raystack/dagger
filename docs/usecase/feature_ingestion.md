@@ -9,7 +9,7 @@ User can define some kind of custom Feature generation rule in dagger from any b
 - Reusable templates for generic feature transformation using UDF and Transformer.
 - SQL driven Feature logic definition makes defining new features easy for Data Scientists and Analysts. Windowed query helps you defining features in multiple intervals.
 - Long windowed Aggregation support(Longbow) makes it easy to create features on some historical Data points which help you in the training and labelling stage.
-- Great compatibility with some opensource feature store engine like a feast.
+- Great compatibility with some opensource feature store engine like [Feast](https://github.com/feast-dev/feast).
 - Realtime feature generation enables you serving your Machine learning models from the servicing layer in a near realtime.
 
 After the real-time feature is generated they can be pushed to either an offline/batch store for data labelling and training or an online store for model serving.
@@ -21,8 +21,9 @@ This is a simple Dagger Query that generates and ingests features in a predefine
 ```SQL
 SELECT
     "sample-feature" as name,
+    service_type,
     country_code AS country_code,
-    CAST (locality_id as VARCHAR(20)) as service_area,
+    CAST (locality_id as VARCHAR(20)) as locality_id,
     CAST (
         sum(
             case
