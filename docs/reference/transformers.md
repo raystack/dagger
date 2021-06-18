@@ -13,6 +13,8 @@ This page contains reference for all the custom transformers available on Dagger
 - [SQLTransformer](transformers.md#SQLTransformer)
 
 ### ClearColumnTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.ClearColumnTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `targetColumnName`: The field that need to be cleared.
@@ -23,7 +25,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
     SELECT
       event_timestamp,
-      customer_id
+      data1,
+      data2
     FROM
       data_stream
     ```
@@ -41,7 +44,7 @@ This page contains reference for all the custom transformers available on Dagger
         {
           "transformation_class": "io.odpf.dagger.functions.transformers.ClearColumnTransformer",
           "transformation_arguments": {
-            "targetColumnName": "customer_id"
+            "targetColumnName": "data1"
           }
         }
       ]
@@ -49,6 +52,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### DeDuplicationTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.DeDuplicationTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `key_column`: This value will be used as the deduplication key (other events with the same key will be stopped). 
@@ -59,8 +64,8 @@ This page contains reference for all the custom transformers available on Dagger
   * SQL:
     ```
     SELECT
-      customer_id,
-      status
+      data1,
+      data2
     FROM
       data_stream
     ```
@@ -69,20 +74,20 @@ This page contains reference for all the custom transformers available on Dagger
     {
       "internal_source": [
         {
-          "output_field": "customer_id",
-          "value": "customer_id",
+          "output_field": "data1",
+          "value": "data1",
           "type": "sql"
         },
         {
-          "output_field": "status",
-          "value": "status",
+          "output_field": "data2",
+          "value": "data2",
           "type": "sql"
         }
       ],
       "transformers": [
         {
           "transformation_arguments": {
-            "key_column": "status",
+            "key_column": "data1",
             "ttl_in_seconds": "3600"
           },
           "transformation_class": "com.gojek.dagger.transformer.DeDuplicationTransformer"
@@ -92,6 +97,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### FeatureTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.FeatureTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `keyColumnName`: This value will be used to form the key of the feature. 
@@ -103,7 +110,7 @@ This page contains reference for all the custom transformers available on Dagger
     ```
     // You can select the fields that want to retain as part of enrichment or you want to use for making the request.
     SELECT 
-      s2_id, 
+      data1, 
       features 
     FROM
       data_stream
@@ -112,10 +119,17 @@ This page contains reference for all the custom transformers available on Dagger
     ```
     // This configuration is used with other external postprocessors like `http`. Using the below example, the output of http will be transformed to featureRow using the transformation.
     {
+      "internal_source": [
+        {
+          "output_field": "*",
+          "value": "*",
+          "type": "sql"
+        }
+      ],
       "transformers": [
     	{
       	"transformation_arguments": {
-        	"keyColumnName": "s2id",
+        	"keyColumnName": "data1",
         	"valueColumnName": "features"
       	},
       	"transformation_class": "com.gojek.dagger.transformer.FeatureTransformer"
@@ -125,6 +139,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### FeatureWithTypeTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.FeatureWithTypeTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `outputColumnName`: The column where the final feature will be written and data are synonyms with FeatureWithType UDF and a single feature is represented by an element in an array.
@@ -134,8 +150,8 @@ This page contains reference for all the custom transformers available on Dagger
   * SQL:
     ```
     SELECT
-      order_number,
-      customer_id
+      data1,
+      data2
     FROM
       data_stream
     ```
@@ -149,13 +165,13 @@ This page contains reference for all the custom transformers available on Dagger
           "type": "constant"
         },
         {
-          "output_field": "order_number",
-          "value": "order_number",
+          "output_field": "data1",
+          "value": "data1",
           "type": "sql"
         },
         {
-          "output_field": "customer_id",
-          "value": "customer_id",
+          "output_field": "data2",
+          "value": "data2",
           "type": "sql"
         }
       ],
@@ -166,8 +182,8 @@ This page contains reference for all the custom transformers available on Dagger
             "outputColumnName": "features",
             "data": [
               {
-                "keyColumnName": "order_number",
-                "valueColumnName": "customer_id",
+                "keyColumnName": "data1",
+                "valueColumnName": "data2",
                 "type": "StringType"
               }
             ]
@@ -178,6 +194,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### HashTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.HashTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `maskColumns`(mandatory): The fields that need to be encrypted/masked.
@@ -191,7 +209,7 @@ This page contains reference for all the custom transformers available on Dagger
     ```
     SELECT
       event_timestamp,
-      customer_id
+      test_data
     FROM
       data_stream
     ```
@@ -210,7 +228,7 @@ This page contains reference for all the custom transformers available on Dagger
           "transformation_class": "com.gojek.dagger.transformer.HashTransformer",
           "transformation_arguments": {
             "maskColumns": [
-              "test_data.customer_id"
+              "test_data.data1"
             ]
           }
         }
@@ -219,6 +237,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### InvalidRecordFilterTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer`
 * Contract: 
   * Following transformation config can be passed:
     * `table_transformers`: A list of transformer configs.
@@ -232,8 +252,8 @@ This page contains reference for all the custom transformers available on Dagger
   * SQL:
     ```
     SELECT 
-      data_1, 
-      data_2, 
+      data1, 
+      data2, 
       event_timestamp 
     FROM 
       data_stream
@@ -255,6 +275,8 @@ This page contains reference for all the custom transformers available on Dagger
     ```
 
 ### SQLTransformer
+* Transformation Class:
+  * `io.odpf.dagger.functions.transformers.SQLTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
       * `sqlQuery`(mandatory): The SQL query for transformation
@@ -266,8 +288,8 @@ This page contains reference for all the custom transformers available on Dagger
   * SQL:
     ```
     SELECT
-      customer_id,
-      service_type,
+      data1,
+      data2,
       rowtime
     FROM
       data_stream
@@ -277,8 +299,8 @@ This page contains reference for all the custom transformers available on Dagger
     {
       "internal_source": [
         {
-          "output_field": "customer_id",
-          "value": "customer_id",
+          "output_field": "data1",
+          "value": "data1",
           "type": "sql"
         },
         {
@@ -287,8 +309,8 @@ This page contains reference for all the custom transformers available on Dagger
           "type": "sql"
         },
         {
-          "output_field": "service_type",
-          "value": "service_type",
+          "output_field": "data2",
+          "value": "data2",
           "type": "sql"
         }
       ],
@@ -296,7 +318,7 @@ This page contains reference for all the custom transformers available on Dagger
         {
           "transformation_class": "com.gojek.dagger.transformer.SQLTransformer",
           "transformation_arguments": {
-            "sqlQuery": "SELECT count(distinct customer_id) AS `count`,service_type, TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS event_timestamp FROM data_stream group by TUMBLE (rowtime, INTERVAL '60' SECOND), service_type"
+            "sqlQuery": "SELECT count(distinct data1) AS `count`, data2, TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS event_timestamp FROM data_stream group by TUMBLE (rowtime, INTERVAL '60' SECOND), data2"
           }
         }
       ]
