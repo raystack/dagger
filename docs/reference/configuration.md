@@ -127,6 +127,14 @@ Defines the time attribute field name on the data stream
 * Example value: `rowtime`
 * Type: `required`
 
+#### `FUNCTION_FACTORY_CLASSES`
+
+Defines the factory class of the udf. Multiple factory class could be given in a comma separated format.
+
+* Example value: `io.odpf.dagger.functions.udfs.factories.FunctionFactory`
+* Type: `Optional`
+* Default value: `io.odpf.dagger.functions.udfs.factories.FunctionFactory`
+
 #### `SQL_QUERY`
 
 Defines the sql query to get the data from data stream.
