@@ -376,7 +376,7 @@ Defines a a maximum time interval for how long idle state in hour.
 
 ### Dart
 
-Details of using Dart can be seen here[update link].
+Details of using Dart can be seen [here](../advance/DARTS.md).
 
 #### `UDF_DART_GCS_PROJECT_ID`
 
@@ -394,7 +394,7 @@ Defines the gcs bucket id for Dart.
 
 ### Longbow
 
-Details of using Longbow can be seen here[update link].
+Details of using Longbow can be seen [here](../advance/longbow.md).
 
 #### `PROCESSOR_LONGBOW_ASYNC_TIMEOUT`
 
@@ -455,7 +455,7 @@ Enable/Disable using pre processor.
 
 #### `PROCESSOR_PREPROCESSOR_CONFIG`
 
-Details on this configuration can be seen on advance documentation of pre processor[update link].
+Details on this configuration can be seen on [advance documentation](../advance/pre_processor.md) of pre processor.
 
 ### PostProcessor
 
@@ -469,7 +469,7 @@ Enable/Disable using post processor.
 
 #### `PROCESSOR_POSTPROCESSOR_CONFIG`
 
-Details on this configuration can be seen on advance documentation of post processor[update link].
+Details on this configuration can be seen on [advance documentation](../advance/post_processor.md) of post processor.
 
 ### Telemetry
 
