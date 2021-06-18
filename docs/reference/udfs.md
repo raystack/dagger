@@ -533,7 +533,14 @@ GROUP BY
   * Returns buckets for given value to calculate histograms.
 * Example
 ```
-
+SELECT
+  data1, 
+  data2,
+  data3,
+  'buckets', 
+FROM 
+  data_stream,
+LATERAL TABLE(HistogramBucket(data1, 'buckets'));
 ```
 
 #### OutlierMad
@@ -552,48 +559,23 @@ SELECT
     WHEN `isOutlier` THEN 1
     ElSE 0
   END as isOutlier
-FROM
-  (
-    SELECT
-      HOP_START(
-        rowtime,
-        INTERVAL '3' MINUTE,
-        INTERVAL '20' MINUTE
-      ) AS hop_start_time,
-      CollectArray(rowtime) AS timestamps_array,
-      CollectArray(CAST(number_of_records AS DOUBLE)) AS values_array
-    FROM
-      (
-        SELECT
-          COUNT(1) AS number_of_records,
-          TUMBLE_ROWTIME(rowtime, INTERVAL '10' SECOND) AS rowtime
-        FROM
-          `booking`
-        GROUP BY
-          TUMBLE (rowtime, INTERVAL '10' SECOND)
-      )
-    GROUP BY
-      HOP(
-        rowtime,
-        INTERVAL '3' MINUTE,
-        INTERVAL '20' MINUTE
-      )
-  ),
-  LATERAL TABLE(
-    OutlierMad(
-      values_array,
-      timestamps_array,
-      hop_start_time,
-      CAST(20 AS INTEGER),
-      CAST(3 AS INTEGER),
-      CAST(10 AS INTEGER),
-      CAST(10 AS INTEGER)
-    )
-  ) AS T(
-    `timestamp`,
-    `value`,
-    `upperBound`,
-    `lowerBound`,
-    `isOutlier`
+FROM 
+  data_stream
+LATERAL TABLE(
+  OutlierMad(
+    values_array,
+    timestamps_array,
+    hop_start_time,
+    CAST(20 AS INTEGER),
+    CAST(3 AS INTEGER),
+    CAST(10 AS INTEGER),
+    CAST(10 AS INTEGER)
   )
+) AS T(
+  `timestamp`,
+  `value`,
+  `upperBound`,
+  `lowerBound`,
+  `isOutlier`
+)
 ```
