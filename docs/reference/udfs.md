@@ -1,6 +1,6 @@
 # Udfs
 
-This page contains reference for all the custom udfs available on Dagger.
+This page contains references for all the custom udfs available on Dagger.
 
 ## List of Udfs
 
@@ -39,8 +39,8 @@ This page contains reference for all the custom udfs available on Dagger.
 
 #### DartContains
 * Contract: 
-  * Boolean DartContains(String collectionName, String value, int cacheTTLin_hours) OR
-  * Boolean DartContains(String collectionName, String value, String regex, int cacheTTLin_hours)
+  * **Boolean** DartContains(String collectionName, String value, int cacheTTLin_hours) OR
+  * **Boolean** DartContains(String collectionName, String value, String regex, int cacheTTLin_hours)
 * Functionality:
   * Check if a data point in the message is present in the GCS bucket
 * Example
@@ -60,7 +60,7 @@ GROUP BY
 
 #### DartGet
 * Contract
-  * String DartGet(String collectionName, key, int cacheTTLin_hour)
+  * **String** DartGet(String collectionName, key, int cacheTTLin_hour)
 * Functionality: 
   * Corresponding value in a GCS bucket given a key from data point
 * Example:
@@ -76,7 +76,7 @@ GROUP BY
 
 #### Distance
 * Contract
-  * Double Distance(Double latitude1, Double longitude1, Double latitude2, Double longitude2) 
+  * **Double** Distance(Double latitude1, Double longitude1, Double latitude2, Double longitude2) 
 * Functionality: 
   * Calculates the distance between two points in km with given latitude and longitude.
 * Example:
@@ -103,13 +103,13 @@ GROUP BY
 
 #### ElementAt
 * Contract:
-  * String ElementAt(Row[] array, String pathOfArray, int index, String path, String tableName)
-  * String ElementAt(Row[] array, String pathOfArray, int index, String path)
-  * Object ElementAt(Object[] array, int index)
-  * Object ElementAt(ArrayList\<Object\> arrayList, int index)
+  * **String** ElementAt(Row[] array, String pathOfArray, int index, String path, String tableName)
+  * **String** ElementAt(Row[] array, String pathOfArray, int index, String path)
+  * **Object** ElementAt(Object[] array, int index)
+  * **Object** ElementAt(ArrayList\<Object\> arrayList, int index)
   
 * Functionality: 
-  * For the given table name from the streams (In case of multi-streams/JOINS), find out the element at a given index and a given path in an array of complex Data Types.
+  * For the given table name from the streams (In the case of multi-streams/JOINS), find out the element at a given index and a given path in an array of complex Data Types.
   * Finds out the element at a given index and a given path in an array of complex Data Types. Here table name is not provided, In that case, it will always apply the function on the table from the first stream in the configuration.
   * Finds out the element at a given index in case of an object Array or an ArrayList. This is to accompany elements at a given index for Longbow row.
   * Calculates the seconds in Unix time for the end of a month of a given timestamp second and timezone.
@@ -133,7 +133,7 @@ GROUP BY
 
 #### EndOfMonth
 * Contract: 
-  * Long EndOfMonth(long seconds, String timeZone)
+  * **Long** EndOfMonth(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the end of a month of a given timestamp second and timezone.
 * Example
@@ -147,7 +147,7 @@ FROM data_stream
 
 #### EndOfWeek
 * Contract: 
-  * Long EndOfWeek(long seconds, String timeZone)
+  * **Long** EndOfWeek(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the end of a week of a given timestamp second and timezone.
 * Example
@@ -161,17 +161,12 @@ FROM data_stream
 
 #### ExponentialMovingAverage
 * Contract: 
-  * Double ExponentialMovingAverage(ArrayList\<Timestamp\> timestampsArray, ArrayList\<Double\> valuesArray, Timestamp hopStartTime, Double window, Double alpha)
+  * **Double** ExponentialMovingAverage(ArrayList\<Timestamp\> timestampsArray, ArrayList\<Double\> valuesArray, Timestamp hopStartTime, Double window, Double alpha)
 * Functionality:
   * Calculates exponential moving average (at per minute frequency) using a list of non-null values. Parameters are window (in minutes) and alpha. The hopStartTime and the corresponding list of timestamps denote the sequence of the non-null values in the window.
 * Example
 ```
 SELECT
-  TUMBLE_START(rowtime, INTERVAL '1' MINUTE) AS window_start_time,
-  TUMBLE_END(rowtime, INTERVAL '1' MINUTE) AS window_end_time,
-  13 AS s2_id_level,
-  s2_id,
-  service_type,
   CAST(
     ExponentialMovingAverage(
       timestamps_array,
@@ -180,46 +175,15 @@ SELECT
       CAST(15 AS DOUBLE),
       CAST(0.2 AS DOUBLE)
     ) AS BIGINT
-  ) AS unique_customers,
+  ) AS unique_data,
   event_timestamp
 FROM
-  (
-    SELECT
-      HOP_START(
-        rowtime,
-        INTERVAL '1' MINUTE,
-        INTERVAL '15' MINUTE
-      ) as hop_start_time,
-      HOP_END(
-        rowtime,
-        INTERVAl '1' MINUTE,
-        INTERVAL '15' MINUTE
-      ) AS event_timestamp,
-      CollectArray(rowtime) AS timestamps_array,
-      CollectArray(CAST(unique_customers AS DOUBLE)) AS values_array,
-      s2_id,
-      service_type,
-      HOP_ROWTIME(
-        rowtime,
-        INTERVAl '1' MINUTE,
-        INTERVAL '15' MINUTE
-      ) AS rowtime
-    FROM
-      data_stream
-    GROUP BY
-      HOP(
-        rowtime,
-        INTERVAL '1' MINUTE,
-        INTERVAL '15' MINUTE
-      ),
-      s2_id,
-      service_type
-  )
+  data_stream
 ```
 
 #### FormatTimeInZone
 * Contract: 
-  * String FormatTimeInZone(Timestamp timestamp, String timeZone, String dateFormat)
+  * **String** FormatTimeInZone(Timestamp timestamp, String timeZone, String dateFormat)
 * Functionality:
   * Gets formatted time from timestamp in given timezone.
 * Example
@@ -235,7 +199,7 @@ FROM data_stream
 
 #### GeoHash
 * Contract: 
-  * GEOHASH(Double latitude, Double longitude, int level)
+  * **GeoHash**(Double latitude, Double longitude, int level)
 * Functionality:
   * Returns a geohash for a given level and lat-long for the given WGS84 point.
 * Example
@@ -243,7 +207,7 @@ FROM data_stream
 SELECT
   data1_location.longitude AS long,
   data1_location.latitude AS lat,
-  GEOHASH(
+  GeoHash(
     data1_location.longitude,
     data1_location.latitude,
     6
@@ -259,9 +223,9 @@ GROUP BY
 
 #### LinearTrend
 * Contract: 
-  * Double LinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> demandList, Timestamp hopStartTime, Integer windowLengthInMinutes)
+  * **Double** LinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> demandList, Timestamp hopStartTime, Integer windowLengthInMinutes)
 * Functionality:
-  * Returns the gradient of the best fit line of the list of non-null demand values given the defined time window. hopStartTime and timestampsArray denotes the sequence of non-null demand values in the window.
+  * Returns the gradient of the best fit line of the list of non-null demand values given the defined time window. hopStartTime and timestampsArray denote the sequence of non-null demand values in the window.
 * Example
 ```
 SELECT
@@ -280,7 +244,7 @@ FROM
 
 #### ListContains
 * Contract: 
-  * Boolean ListContains(String[] inputList, String item)
+  * **Boolean** ListContains(String[] inputList, String item)
 * Functionality:
   * Checks if a list contains a given item.
 * Example
@@ -296,7 +260,7 @@ WHERE
 
 #### MapGet
 * Contract: 
-  * Object MapGet(Row[] inputMap, Object key)
+  * **Object** MapGet(Row[] inputMap, Object key)
 * Functionality:
   * Returns value for a corresponding key inside a map data type.
 * Example
@@ -313,7 +277,7 @@ FROM data_stream
 
 #### S2AreaInKm2
 * Contract: 
-  * Boolean S2AreaInKm2(String s2id)
+  * **Boolean** S2AreaInKm2(String s2id)
 * Functionality:
   * Computes the area of an s2 cell in km2
 * Example
@@ -327,7 +291,7 @@ FROM data_stream
 
 #### S2Id
 * Contract: 
-  * String S2Id(Double latitude, Double longitude, int level)
+  * **String** S2Id(Double latitude, Double longitude, int level)
 * Functionality:
   * Computes s2id for given lat, long and level.
 * Example
@@ -343,7 +307,7 @@ GROUP BY
 
 #### SingleFeatureWithType
 * Contract: 
-  * Row[] SingleFeatureWithType(Object... value)  [for FeatureRow]
+  * **Row[]** SingleFeatureWithType(Object... value)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
 * Example
@@ -363,9 +327,9 @@ FROM
 
 #### Split
 * Contract: 
-  * String[] Split(String inputString, String delimiter)
+  * **String[]** Split(String inputString, String delimiter)
 * Functionality:
-  * Split input string based on input delimiter. The delimiter basically is a regex string, if you want to split by ".", you should use "\\." or it will give an empty array.
+  * Split input string based on input delimiter. The delimiter is a regex string, if you want to split by ".", you should use "\\." or it will give an empty array.
 * Example
 ```
 SELECT 
@@ -376,7 +340,7 @@ FROM
 
 #### StartOfMonth
 * Contract: 
-  * Long StartOfMonth(long seconds, String time_zone)
+  * **Long** StartOfMonth(long seconds, String time_zone)
 * Functionality:
   * Calculates the seconds in Unix time for the start of a month of a given timestamp second and timezone.
 * Example
@@ -391,7 +355,7 @@ FROM data_stream
 
 #### StartOfWeek
 * Contract: 
-  * Long StartOfWeek(long seconds, String timeZone)
+  * **Long** StartOfWeek(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the start of a week of a given timestamp second and timezone.
 * Example
@@ -406,8 +370,8 @@ FROM data_stream
 
 #### TimeInDate
 * Contract: 
-  * long TimeInDate(long event_timestamp, int hour, int minute)
-  * long TimeInDate(long seconds, int hour, int minute, String time_zone)
+  * **Long** TimeInDate(long event_timestamp, int hour, int minute)
+  * **Long** TimeInDate(long seconds, int hour, int minute, String time_zone)
 * Functionality:
   * Returns calender's time value in seconds
 * Example
@@ -420,7 +384,7 @@ FROM
 
 #### TimestampFromUnix
  * Contract: 
-   * Timestamp TimestampFromUnix(long seconds) 
+   * **Timestamp** TimestampFromUnix(long seconds) 
  * Functionality:
    * Gets java.sql.Timestamp from UNIX seconds.
  * Example
@@ -435,7 +399,7 @@ FROM
 
 #### CollectArray
 * Contract: 
-  * ArrayList<Object> CollectArray(Object obj)
+  * **ArrayList<Object>** CollectArray(Object obj)
 * Functionality:
   * Return an ArrayList of the objects passed.
 * Example
@@ -451,7 +415,7 @@ GROUP BY
 
 #### DistinctCount
 * Contract: 
-  * Int DistinctCount(String metric)
+  * **Int** DistinctCount(String metric)
 * Functionality:
   * Returns the distinct count of a field in the input stream.
 * Example
@@ -467,7 +431,7 @@ GROUP BY
 
 #### Features
 * Contract: 
-  * Row[] Features(Object... objects)  [for FeatureRow]
+  * **Row[]** Features(Object... objects)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from every pair passed in args.
 * Example
@@ -486,7 +450,7 @@ GROUP BY
 
 #### FeaturesWithType
 * Contract: 
-  * Row[] FeaturesWithType(Object... value)  [for FeatureRow]
+  * **Row[]** FeaturesWithType(Object... value)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
 * Example
@@ -508,7 +472,7 @@ GROUP BY
 
 #### PercentileAggregator
 * Contract: 
-  * Double PercentileAggregator(BigDecimal percentile, BigDecimal value)
+  * **Double** PercentileAggregator(BigDecimal percentile, BigDecimal value)
 * Functionality:
   * Get percentile value.
 * Example
@@ -528,7 +492,7 @@ GROUP BY
 
 #### HistogramBucket
 * Contract: 
-  * void HistogramBucket(double dValue, String buckets)
+  * **Void** HistogramBucket(double dValue, String buckets)
 * Functionality:
   * Returns buckets for given value to calculate histograms.
 * Example
@@ -545,7 +509,7 @@ LATERAL TABLE(HistogramBucket(data1, 'buckets'));
 
 #### OutlierMad
 * Contract: 
-  * void OutlierMad(ArrayList<Double> values, ArrayList<Timestamp> timestampsArray, Timestamp windowStartTime, Integer windowLengthInMinutes, Integer observationPeriodInMinutes, Integer tolerance, Integer outlierPercentage)
+  * **Void** OutlierMad(ArrayList<Double> values, ArrayList<Timestamp> timestampsArray, Timestamp windowStartTime, Integer windowLengthInMinutes, Integer observationPeriodInMinutes, Integer tolerance, Integer outlierPercentage)
 * Functionality:
   * Determines outliers for a given time series based on threshold, observation window, and tolerance provided.
 * Example
