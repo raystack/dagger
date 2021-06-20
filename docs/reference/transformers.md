@@ -1,6 +1,6 @@
 # Transformers
 
-This page contains reference for all the custom transformers available on Dagger.
+This page contains references for all the custom transformers available on Dagger.
 
 ## List of Transformers
 
@@ -17,9 +17,9 @@ This page contains reference for all the custom transformers available on Dagger
   * `io.odpf.dagger.functions.transformers.ClearColumnTransformer`
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
-    * `targetColumnName`: The field that need to be cleared.
+    * `targetColumnName`: The field that needs to be cleared.
 * Functionality:
-  * Allows to clear the specified column of data produced by the dagger.
+  * Allows clearing the specified column of data produced by the dagger.
 * Example:
   * SQL:
     ```
@@ -57,7 +57,7 @@ This page contains reference for all the custom transformers available on Dagger
 * Contract: 
   * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `key_column`: This value will be used as the deduplication key (other events with the same key will be stopped). 
-    * `ttl_in_seconds`: The TTL configuration which will decide how long to keep the keys in memory. Once the keys are cleared from memory the data with the same keys will be sent again.
+    * `ttl_in_seconds`: The TTL configuration will decide how long to keep the keys in memory. Once the keys are cleared from memory the data with the same keys will be sent again.
 * Functionality:
   * Allows to deduplicate data produced by the dagger i.e records with the same key will not be sent again till the TTL expires.
 * Example:
@@ -108,7 +108,7 @@ This page contains reference for all the custom transformers available on Dagger
 * Example:
   * SQL:
     ```
-    // You can select the fields that want to retain as part of enrichment or you want to use for making the request.
+    // You can select the fields that want to retain as part of enrichment or you want to use to make the request.
     SELECT 
       data1, 
       features 
@@ -202,8 +202,8 @@ This page contains reference for all the custom transformers available on Dagger
 * Functionality:
   * Enables encryption on a set of fields as configured. Used in Data forwarding daggers to clone production data to integration environments with encryption on sensitive data fields. We are using SHA-256 hashing to encrypt data.
 * Limitations:
-  * Currently support masking on Non Complex Fields of Data type Integer, Big Integer and String. However you can encrypt nested fields of complex data using `.` notations. For example test_data.customer_id is a valid argument which will encrypt the customer_id inside test_data. 
-  * All other Data types including Arrays, complex fields and other primitive types like boolean are not supported.
+  * Currently support masking on Non-Complex Fields of Data type Integer, Big Integer, and String. However, you can encrypt nested fields of complex data using `.` notations. For example test_data.customer_id is a valid argument which will encrypt the customer_id inside test_data. 
+  * All other Data types including Arrays, complex fields, and other primitive types like boolean are not supported.
 * Example:
   * SQL:
     ```
@@ -283,7 +283,7 @@ This page contains reference for all the custom transformers available on Dagger
       * `tableName`(optional): The table name to be used in the above SQL(default: data_stream)
       * `allowedLatenessInMs`(optional): The allowed lateness for the events streaming in Kafka(default: 0))
 * Functionality:
-  * Enables to apply a SQL transformation on top of streaming data in post processors. Primarily useful if users want to apply SQL transformation/aggregation using fields added via External/Internal Post Processors.
+  * Enables applying a SQL transformation on top of streaming data in post processors. Primarily useful if users want to apply SQL transformation/aggregation using fields added via External/Internal Post Processors.
 * Example:
   * SQL:
     ```

@@ -1,6 +1,6 @@
 # Configurations
 
-This page contains reference for all the application configurations for Dagger.
+This page contains references for all the application configurations for Dagger.
 
 ## Table of Contents
 
@@ -21,11 +21,11 @@ A log sink of Dagger requires the following variables to be set
 
 #### `STREAMS`
 
-Dagger can run on multiple streams, so streams config can con consist of multiple stream. For each stream, there are variables need to be configured.
+Dagger can run on multiple streams, so streams config can con consist of multiple streams. For each stream, some variables need to be configured.
 
 ##### `SOURCE_KAFKA_TOPIC_NAMES`
 
-Defines the list of kafka topics to consume from.
+Defines the list of Kafka topics to consume from.
 
 * Example value: `test-topic`
 * Type: `required`
@@ -39,7 +39,7 @@ Defines the table name for the stream.
 
 ##### `INPUT_SCHEMA_PROTO_CLASS`
 
-Defines the schema of input proto class of the data from kafka.
+Defines the schema proto class of input data from Kafka.
 
 * Example value: `com.tests.TestMessage`
 * Type: `required`
@@ -53,14 +53,14 @@ Defines the field index of event timestamp from the input proto class that will 
 
 ##### `SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS`
 
-Defines the bootstrap server of kafka brokers to consume from.
+Defines the bootstrap server of Kafka brokers to consume from.
 
 * Example value: `localhost:9092`
 * Type: `required`
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
-Enable/Disable kafka consumer auto commit
+Enable/Disable Kafka consumer auto-commit
 
 * Example value: `false`
 * Type: `optional`
@@ -68,7 +68,7 @@ Enable/Disable kafka consumer auto commit
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET`
 
-Defines kafka consumer offset reset policy
+Defines the Kafka consumer offset reset policy
 
 * Example value: `latest`
 * Type: `optional`
@@ -76,14 +76,14 @@ Defines kafka consumer offset reset policy
 
 ##### `SOURCE_KAFKA_CONFIG_GROUP_ID`
 
-Deifnes the kafka consumer group ID for Dagger deployment.
+Defines the Kafka consumer group ID for Dagger deployment.
 
 * Example value: `dummy-consumer-group`
 * Type: `optional`
 
 ##### `SOURCE_KAFKA_NAME`
 
-Defines the stream name for the kafka consumer.
+Defines the stream name for the Kafka consumer.
 
 * Example value: `local-kafka-stream`
 * Type: `required`
@@ -129,7 +129,7 @@ Defines the time attribute field name on the data stream
 
 #### `FUNCTION_FACTORY_CLASSES`
 
-Defines the factory class of the udf. Multiple factory class could be given in a comma separated format.
+Defines the factory class of the UDF. Multiple factory classes could be given in a comma-separated format.
 
 * Example value: `io.odpf.dagger.functions.udfs.factories.FunctionFactory`
 * Type: `Optional`
@@ -137,14 +137,14 @@ Defines the factory class of the udf. Multiple factory class could be given in a
 
 #### `SQL_QUERY`
 
-Defines the sql query to get the data from data stream.
+Defines the SQL query to get the data from the data stream.
 
 * Example value: `SELECT * from data_stream`
 * Type: `required`
 
 #### `SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE`
 
-Enable/Disable to consume large message from kafka. by default its configuration using default `max.partition.fetch.bytes` kafka config. If set to enable, will set the `max.partition.fetch.bytes`=`5242880`.
+Enable/Disable to consume large messages from Kafka. by default, its configuration using the default `max.partition.fetch.bytes` Kafka config. If set to enable, will set the `max.partition.fetch.bytes`=`5242880`.
 
 * Example value: `false`
 * Type: `optional`
@@ -207,7 +207,7 @@ Defines the InfluxDB batch size.
 
 #### `SINK_INFLUX_FLUSH_DURATION_MS`
 
-Defines the InfluxDB flush duration in millis.
+Defines the InfluxDB flush duration in milliseconds.
 
 * Example value: `1000`
 * Type: `optional`
@@ -219,42 +219,42 @@ A Kafka sink Dagger \(`SINK_TYPE`=`kafka`\) requires the following variables to 
 
 #### `SINK_KAFKA_BROKERS`
 
-Defines the list of kafka brokers sink 
+Defines the list of Kafka brokers sink 
 
 * Example value: `localhost:9092`
 * Type: `required`
 
 #### `SINK_KAFKA_TOPIC`
 
-Defines the topic of kafka sink
+Defines the topic of Kafka sink
 
 * Example value: `test-kafka-output`
 * Type: `required`
 
 #### `SINK_KAFKA_PROTO_KEY`
 
-Defines the proto class key of the data to kafka sink.
+Defines the proto class key of the data to Kafka sink.
 
 * Example value: `com.tests.OutputKey`
 * Type: `required`
 
 #### `SINK_KAFKA_PROTO_MESSAGE`
 
-Defines the proto class message of the data to kafka sink.
+Defines the proto class message of the data to Kafka sink.
 
 * Example value: `com.tests.OutputMessage`
 * Type: `required`
 
 #### `SINK_KAFKA_STREAM`
 
-Defines the output kafka stream name.
+Defines the output Kafka stream name.
 
 * Example value: `output-stream-name`
 * Type: `required`
 
 #### `SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE`
 
-Enable/Disable to produce large message to kafka. by default its configuration using default `max.request.size` kafka config. If set to enable, will set the `max.request.size`=`20971520` and `compression.type`=`snappy`.
+Enable/Disable to produce large messages to Kafka. by default, its configuration using the default `max.request.size` Kafka config. If set to enable, will set the `max.request.size`=`20971520` and `compression.type`=`snappy`.
  
 * Example value: `false`
 * Type: `optional`
@@ -272,7 +272,7 @@ Enable/Disable using Stencil schema registry.
 
 #### `SCHEMA_REGISTRY_STENCIL_URLS`
 
-Defines the stencil url. Multiple URLs could be given in a comma separated format.
+Defines the stencil URL. Multiple URLs could be given in a comma-separated format.
 
 * Example value: `http://localhost:8000/testproto.desc`
 * Type: `required`
@@ -287,7 +287,7 @@ Enable/Disable the stencil refresh cache.
 
 #### `SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS`
 
-Defines the stencil timeout in millis.
+Defines the stencil timeout in milliseconds.
 
 * Example value: `60000`
 * Type: `optional`
@@ -305,7 +305,7 @@ Defines the number of flink parallelism.
 
 #### `FLINK_WATERMARK_INTERVAL_MS`
 
-Defines the flink watermark interval in millis.
+Defines the flink watermark interval in milliseconds.
 
 * Example value: `10000`
 * Type: `optional`
@@ -313,7 +313,7 @@ Defines the flink watermark interval in millis.
 
 #### `FLINK_WATERMARK_DELAY_MS`
 
-Defines the flink watermark delay in millis.
+Defines the flink watermark delay in milliseconds.
 * Example value: `10000`
 * Type: `optional`
 * Default value: `10000`
@@ -328,7 +328,7 @@ Enable/Disable flink watermark per partition.
 
 #### `FLINK_CHECKPOINT_INTERVAL_MS`
 
-Defines the flink checkpoint interval in millis.
+Defines the flink checkpoint interval in milliseconds.
 
 * Example value: `30000`
 * Type: `optional`
@@ -336,7 +336,7 @@ Defines the flink checkpoint interval in millis.
 
 #### `FLINK_CHECKPOINT_TIMEOUT_MS`
 
-Defines the flink checkpoint timeout in millis.
+Defines the flink checkpoint timeout in milliseconds.
 
 * Example value: `900000`
 * Type: `optional`
@@ -344,7 +344,7 @@ Defines the flink checkpoint timeout in millis.
 
 #### `FLINK_CHECKPOINT_MIN_PAUSE_MS`
 
-Defines the minimal pause between checkpointing attempts in millis.
+Defines the minimal pause between checkpointing attempts in milliseconds.
 
 * Example value: `5000`
 * Type: `optional`
@@ -360,7 +360,7 @@ Defines the maximum number of checkpoint attempts that may be in progress at the
 
 #### `FLINK_RETENTION_MIN_IDLE_STATE_HOUR`
 
-Defines a a minimum time interval for how long idle state in hour.
+Defines a minimum time interval for how long idle state in hours.
 
 * Example value: `8`
 * Type: `optional`
@@ -368,7 +368,7 @@ Defines a a minimum time interval for how long idle state in hour.
 
 #### `FLINK_RETENTION_MAX_IDLE_STATE_HOUR`
 
-Defines a a maximum time interval for how long idle state in hour.
+Defines a maximum time interval for how long idle state in hours.
 
 * Example value: `9`
 * Type: `optional`
@@ -380,14 +380,14 @@ Details of using Dart can be seen [here](../advance/DARTS.md).
 
 #### `UDF_DART_GCS_PROJECT_ID`
 
-Defines the gcs project id for Dart.
+Defines the GCS project id for Dart.
 
 * Example value: `test-project`
 * Type: `required`
 
 #### `UDF_DART_GCS_BUCKET_ID`
 
-Defines the gcs bucket id for Dart.
+Defines the GCS bucket id for Dart.
 
 * Example value: `test-bucket`
 * Type: `required`
@@ -414,21 +414,21 @@ Defines the longbow thread capacity.
 
 #### `PROCESSOR_LONGBOW_GCP_PROJECT_ID`
 
-Defines the gcp project id for longbow.
+Defines the GCP project id for longbow.
 
 * Example value: `test-longbow-project`
 * Type: `required`
 
 #### `PROCESSOR_LONGBOW_GCP_INSTANCE_ID`
 
-Defines the gcp instance id for longbow.
+Defines the GCP instance id for longbow.
 
 * Example value: `test-longbow-instance`
 * Type: `required`
 
 #### `PROCESSOR_LONGBOW_GCP_TABLE_ID`
 
-Defines the gcp table id for longbow.
+Defines the GCP table id for longbow.
 
 * Example value: `test-longbow-table`
 * Type: `required`
@@ -447,7 +447,7 @@ will get `FLINK_JOB_ID` value for this config.
 
 #### `PROCESSOR_PREPROCESSOR_ENABLE`
 
-Enable/Disable using pre processor.
+Enable/Disable using pre-processor.
 
 * Example value: `false`
 * Type: `optional`
@@ -455,13 +455,13 @@ Enable/Disable using pre processor.
 
 #### `PROCESSOR_PREPROCESSOR_CONFIG`
 
-Details on this configuration can be seen on [advance documentation](../advance/pre_processor.md) of pre processor.
+Details on this configuration can be seen on [advance documentation](../advance/pre_processor.md) of pre-processor.
 
 ### PostProcessor
 
 #### `PROCESSOR_POSTPROCESSOR_ENABLE`
 
-Enable/Disable using post processor.
+Enable/Disable using post-processor.
 
 * Example value: `false`
 * Type: `optional`
@@ -469,7 +469,7 @@ Enable/Disable using post processor.
 
 #### `PROCESSOR_POSTPROCESSOR_CONFIG`
 
-Details on this configuration can be seen on [advance documentation](../advance/post_processor.md) of post processor.
+Details on this configuration can be seen on [advance documentation](../advance/post_processor.md) of post-processor.
 
 ### Telemetry
 
@@ -483,7 +483,7 @@ Enable/Disable the flink telemetry for metric collection
 
 #### `METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS`
 
-Shutdown period of metric telemetry in millis.
+Shutdown period of metric telemetry in milliseconds.
 
 * Example value: `10000`
 * Type: `optional`
