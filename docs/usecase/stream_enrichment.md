@@ -60,7 +60,7 @@ Sample Customer Profile schema
 message SampleCustomerInfo {
     string customer_id = 1;
     string customer_url = 2;
-    google.protobuf.Timestamp event_timestamp = 3
+    google.protobuf.Timestamp event_timestamp = 3;
     string name = 4;
     string email = 5;
     string phone = 6;
