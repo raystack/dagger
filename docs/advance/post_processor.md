@@ -8,6 +8,7 @@
     * [Postgres](post_processor.md#postgres)
     * [GRPC](post_processor.md#grpc)
   * [Internal Post Processor](post_processor.md#internal-post-processor)
+  * [Transformers](post_processor.md#transformers)
 * [Post Processor requirements](post_processor.md#post-processor-requirements)
 
 # Introduction
@@ -42,7 +43,7 @@ In the flow of Post Processors, all types of processors viz; External Post Proce
 There are three types of Post Processors :
 * [External Post Processor](post_processor.md#external-post-processor)
 * [Internal Post Processor](post_processor.md#internal-post-processor)
-* [Transformers](docs/../../guides/use_transformer.md)
+* [Transformers](post_processor.md#transformers)
 
 Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger.
 
@@ -815,6 +816,10 @@ This configuration will populate field `event_timestamp` with a timestamp of whe
     ]
   }
   ```
+
+## Transformers
+Transformers are the type of processors that let users define more complex processing capabilities by writing custom Java code. As this is a vast topic, we have covered it in detail [here](docs/../../guides/use_transformer.md).
+
 # Post Processor requirements
 
 Some basic information you need to know before the creation of a Post Processor Dagger is as follow
