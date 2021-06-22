@@ -16,4 +16,4 @@ Longbow enables you to perform large windowed aggregation. It uses [Bigtable](ht
 
 ### [DARTS](docs/advance/../../DARTS.md)
 
-DARTS allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of UDFs which can be used in the SQL query.
+DARTS allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of UDFs which can be used in the SQL query. Currently we only support GCS as reference data source.

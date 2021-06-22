@@ -16,7 +16,7 @@ Post Processors give the capability to do custom stream processing after the SQL
 All the post processors mentioned in this doc can be applied in a sequential manner, which enables you to get information from multiple different external data sources and apply as many transformers as required. The output of one processor will be the input for the other and the final result will be pushed to the configured sink.
 
 # Flow of Execution
-In the flow of Post Processors, External Post Processors, Internal Post Processors and Transformers can be applied sequentially via config. The output of one Post Processor will be the input of the next one. The input SQL is executed first before any of the Post Processors and the Post Processors run only on the output of the SQL. Here is an example of a simple use case that can be solved using Post Processor and sample Data flow Diagrams for that.
+In the flow of Post Processors, all types of processors viz; External Post Processors, Internal Post Processors and Transformers can be applied sequentially via config. The output of one Post Processor will be the input of the next one. The input SQL is executed first before any of the Post Processors and the Post Processors run only on the output of the SQL. Here is an example of a simple use case that can be solved using Post Processor and sample Data flow Diagrams for that.
 
 * Let's assume that you want to find cashback given for a particular order number from an external API endpoint. You can use an [HTTP external post-processor](post_processor.md#http) for this. Here is a basic Data flow diagram.
 
@@ -56,7 +56,7 @@ Currently, we are supporting four external sources.
 * [GRPC](post_processor.md#grpc)
 
 ### **Elasticsearch**
-This enables you to enrich the input streams with any information present in any remote [Elasticsearch](https://www.elastic.co/). For example, let's say you have payment transaction logs in the input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
+This allows you to enrich your data stream with the data on any remote [Elasticsearch](https://www.elastic.co/). For example, let's say you have payment transaction logs in the input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
 
 #### Workflow
 On applying only this post processor, dagger will perform the following operations on a single message in happy path
@@ -144,7 +144,7 @@ The timeout value for ES client in ms.
 
 ##### `capacity`
 
-This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+This parameter(Async I/O capacity) defines how many max asynchronous requests may be in progress at the same time.
 
 * Example value: `30`
 * Type: `required`
@@ -204,6 +204,8 @@ You can select the fields that you want to get from the input stream or you want
   }
   ```
 
+**Note:** Though it is subjective to a lot of factors like data in ES, throughput in Kafka, size of ES cluster. A good thumb of rule is to make index call rather than queries to ES for fetching the data.
+
 ### **HTTP**
 HTTP Post Processor connects to an external API endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
 
@@ -222,7 +224,7 @@ Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CO
 
 ##### `endpoint`
 
-API endpoint.
+API endpoint. For POST call, URL will be just the endpoint. For GET, URL will be a combination of endpoint and request pattern.
 
 * Example value: `http://127.0.0.1/api/customer`
 * Type: `required`
@@ -243,7 +245,7 @@ Template for the body in case of POST and endpoint path in case of GET.
 
 ##### `request_variables`
 
-List of comma-separated parameters to be replaced in request_pattern, these variables must be present in the input proto.
+List of comma-separated parameters to be replaced in request_pattern, these variables must be present in the input proto and selected via the SQL query.
 
 * Example value: `customer_id`
 * Type: `optional`
@@ -272,7 +274,7 @@ A flag for deciding whether the job should fail on encountering errors(timeout a
 
 ##### `capacity`
 
-This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+This parameter(Async I/O capacity) defines how many max asynchronous requests may be in progress at the same time.
 
 * Example value: `30`
 * Type: `required`
@@ -375,7 +377,7 @@ You can select the fields that you want to get from the input stream or you want
 **Note:** Post request patterns support both primitive and complex data types. But for complex objects, you need to remove the quotes from the selector ( `%s`). So in the case of a primitive datapoint of string the selector will be (`”%s”`) whereas for complex fields it will be (`%s`).
 
 ### **Postgres**
-This enables you to enrich the input streams with any information present in any remote [Postgres](https://www.postgresql.org). For example, let's say you have payment transaction logs in the input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
+This allows you to enrich your data stream with the data on any remote [Postgres](https://www.postgresql.org). For example, let's say you have payment transaction logs in the input stream but user profile information in Postgres, then you can use this post processor to get the profile information in each record. Currently, we support enrichment from PostgresDB queries that result in a single row from DB.
 
 #### Workflow
 On applying only this post processor, dagger will perform the following operations on a single message in happy path
@@ -470,7 +472,7 @@ A flag for deciding whether the job should fail on encountering errors or not. I
 
 ##### `capacity`
 
-This parameter(Async I/O capacity) defines how many asynchronous requests may be in progress at the same time.
+This parameter(Async I/O capacity) defines how many max asynchronous requests may be in progress at the same time.
 
 * Example value: `30`
 * Type: `required`
@@ -534,6 +536,8 @@ You can select the fields that you want to get from the input stream or you want
 
 **Note:** If you want to use % as a special character in your Postgres query, you’ll need to provide an additional % with it as an escape character so that Java doesn’t take it as a string formatter and try to format it, which in turn might end up in invalid format exception.
 E.g. "select email, phone from public.customers where name like '%%smith'"
+
+**Note:** Please add relevant indexing in the database to ensure adequate performance.
 
 ### **GRPC**
 This enables you to enrich the input streams with any information available via remote [gRPC](https://grpc.io/) server. For example let's say you have payment transaction logs in the input stream but user profile information available via a gRPC service, then you can use this post processor to get the profile information in each record. Currently, we support only Unary calls.
@@ -706,7 +710,7 @@ You can select the fields that you want to get from the input stream or you want
 
 ## Internal Post Processor
 In order to enhance output with data that doesn’t need an external data store, you can use this configuration. At present, we support 3 types.
-* **SQL**: Data fields from the SQL query output. You could either use a specific field or ` * ` for all the fields.
+* **SQL**: Data fields from the SQL query output. You could either use a specific field or ` * ` for all the fields. In case of selecting ` * ` you have the option to either map all fields to single output field or multiple output fields with the same name. Check the example in [sample configuration](post_processor.md#sample-configurations).
 * **Constant**: Constant value without any transformation.
 * **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
 
@@ -766,6 +770,20 @@ This configuration will populate field `booking_log` with all the input fields s
   }
   ```
 
+In order to select all fields and map them to multiple fields with same name in the output proto
+  ```properties
+  PROCESSOR_POSTPROCESSOR_ENABLE = true
+  PROCESSOR_POSTPROCESSOR_CONFIG = {
+    "internal_source": [
+      {
+        "output_field": "*",
+        "type": "sql",
+        "value": "*"
+      }
+    ]
+  }
+  ```
+
 **Constant**
 
 This configuration will populate field `s2id_level` with value 13 for all the events
@@ -802,7 +820,7 @@ This configuration will populate field `event_timestamp` with a timestamp of whe
 Some basic information you need to know before the creation of a Post Processor Dagger is as follow
 
 ## Number of Post Processors
-Any number of Post Processors can be added based on the use case. There can be multiple Post Processors of the same type. The initial SQL do not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
+Any number of post processors can be chained in a single dagger for a given use-case. The post-processors could be of the same or different type. The initial SQL do not depend on the number of Post Processors and you can simply start with selecting as many fields that are required for the final result as well as the Post Processors in the SQL.
 
 ## Throughput
 The throughput depends on the input topic of Dagger and after SQL filtering, the enrichment store should be able to handle that load.

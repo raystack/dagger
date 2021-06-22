@@ -62,7 +62,7 @@ A key-value map required for parameters required for the custom transformation c
   PROCESSOR_PREPROCESSOR_ENABLE = true
   PROCESSOR_PREPROCESSOR_CONFIG = {
     "table_transformers": [{
-      "table_name": "testtable",
+      "table_name": "data_stream",
       "transformers": [{
         "transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"
       }]
