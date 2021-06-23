@@ -31,6 +31,9 @@ import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
+import io.odpf.dagger.functions.udfs.scalar.CondEq;
+import io.odpf.dagger.functions.udfs.scalar.Filters;
+import io.odpf.dagger.functions.udfs.scalar.SelectFields;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.apache.flink.configuration.Configuration;
@@ -87,6 +90,9 @@ public class FunctionFactory extends UdfFactory {
         scalarUdfs.add(new StartOfWeek());
         scalarUdfs.add(new TimeInDate());
         scalarUdfs.add(new TimestampFromUnix());
+        scalarUdfs.add(new CondEq());
+        scalarUdfs.add(new Filters(stencilClientOrchestrator));
+        scalarUdfs.add(new SelectFields(stencilClientOrchestrator));
         return scalarUdfs;
     }
 

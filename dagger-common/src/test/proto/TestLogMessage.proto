@@ -36,6 +36,7 @@ message TestVehicleType {
     BIKE = 2;
   }
 }
+
 message TestBookingLogKey {
   TestServiceType.Enum service_type = 1;
   string order_number = 2;
@@ -53,8 +54,6 @@ message TestBookingLogMessage {
   string customer_id = 6;
   string customer_url = 7;
   string driver_id = 8;
-
-
   string driver_url = 9;
 
   string activity_source = 11;
@@ -164,7 +163,6 @@ message TestRoute {
   int32 route_order = 5;
 }
 
-
 message TestFeedbackSource {
   enum Enum {
     CUSTOMER = 0;
@@ -238,7 +236,6 @@ message TestMessageEnvelope {
   bytes log_message = 4;
 }
 
-
 message TestSurgeFactorLogMessage {
   google.protobuf.Timestamp event_timestamp = 1;
   google.protobuf.Timestamp start_time = 2;
@@ -274,6 +271,7 @@ message TestSerDeLogKey {
   int64 s2_id = 4;
   TestServiceType.Enum service_type = 5;
 }
+
 message TestSerDeLogMessage {
   google.protobuf.Timestamp window_start_time = 1;
   google.protobuf.Timestamp window_end_time = 2;
@@ -288,4 +286,9 @@ message TestSerDeLogMessage {
   TestProfile message_type = 10;
   repeated TestProfile repeated_message_type = 11;
   map<string, string> map_type = 12;
+}
+
+message TestApiLogMessage {
+  google.protobuf.Timestamp event_timestamp = 1;
+  repeated string request_headers_extra = 2;
 }
