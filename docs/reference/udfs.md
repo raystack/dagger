@@ -5,6 +5,7 @@ This page contains references for all the custom udfs available on Dagger.
 ## List of Udfs
 
 - [Scalar Functions](udfs.md#scalar-functions)
+  - [CondEq](udfs.md#CondEq)
   - [DartContains](udfs.md#DartContains)
   - [DartGet](udfs.md#DartGet)
   - [Distance](udfs.md#Distance)
@@ -12,6 +13,7 @@ This page contains references for all the custom udfs available on Dagger.
   - [EndOfMonth](udfs.md#EndOfMonth)
   - [EndOfWeek](udfs.md#EndOfWeek)
   - [ExponentialMovingAverage](udfs.md#ExponentialMovingAverage)
+  - [Filters](udfs.md#Filters)
   - [FormatTimeInZone](udfs.md#FormatTimeInZone)
   - [GeoHash](udfs.md#GeoHash)
   - [LinearTrend](udfs.md#LinearTrend)
@@ -19,6 +21,7 @@ This page contains references for all the custom udfs available on Dagger.
   - [MapGet](udfs.md#MapGet)
   - [S2AreaInKm2](udfs.md#S2AreaInKm2)
   - [S2Id](udfs.md#S2Id)
+  - [SelectFields](udfs.md#SelectFields)
   - [SingleFeatureWithType](udfs.md#SingleFeatureWithType)
   - [Split](udfs.md#Split)
   - [StartOfMonth](udfs.md#StartOfMonth)
@@ -37,13 +40,43 @@ This page contains references for all the custom udfs available on Dagger.
   
 ### Scalar Functions
 
+#### CondEq
+* Contract: 
+  * **Predicate<DynamicMessage>** CondEq(String fieldName, Object comparison)
+* Functionality:
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **Filters** UDFs.
+  * Can specify an equality condition with a fieldName and a value.
+* Example:
+
+```
+SELECT 
+  SelectFields(
+    proto_data,
+    input_class_name,
+    'order_number'
+  ) AS favourite_service_provider_guids
+FROM 
+  data_stream
+WHERE 
+  cardinality(
+    SelectFields(
+      Filters(
+        proto_data, 
+        input_class_name, 
+        CondEq('status', 'CUSTOMER_CANCELLED')
+      ),
+      'order_number' 
+    )
+  ) > 0
+```
+
 #### DartContains
 * Contract: 
   * **Boolean** DartContains(String collectionName, String value, int cacheTTLin_hours) OR
   * **Boolean** DartContains(String collectionName, String value, String regex, int cacheTTLin_hours)
 * Functionality:
   * Check if a data point in the message is present in the GCS bucket
-* Example
+* Example:
 
 ```
 SELECT 
@@ -59,7 +92,7 @@ GROUP BY
 ```
 
 #### DartGet
-* Contract
+* Contract:
   * **String** DartGet(String collectionName, key, int cacheTTLin_hour)
 * Functionality: 
   * Corresponding value in a GCS bucket given a key from data point
@@ -75,7 +108,7 @@ GROUP BY
 ```
 
 #### Distance
-* Contract
+* Contract:
   * **Double** Distance(Double latitude1, Double longitude1, Double latitude2, Double longitude2) 
 * Functionality: 
   * Calculates the distance between two points in km with given latitude and longitude.
@@ -136,7 +169,7 @@ GROUP BY
   * **Long** EndOfMonth(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the end of a month of a given timestamp second and timezone.
-* Example
+* Example:
 ```
 SELECT 
   EndOfMonth(
@@ -150,7 +183,7 @@ FROM data_stream
   * **Long** EndOfWeek(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the end of a week of a given timestamp second and timezone.
-* Example
+* Example:
 ```
 SELECT 
   EndOfWeek(
@@ -164,7 +197,7 @@ FROM data_stream
   * **Double** ExponentialMovingAverage(ArrayList\<Timestamp\> timestampsArray, ArrayList\<Double\> valuesArray, Timestamp hopStartTime, Double window, Double alpha)
 * Functionality:
   * Calculates exponential moving average (at per minute frequency) using a list of non-null values. Parameters are window (in minutes) and alpha. The hopStartTime and the corresponding list of timestamps denote the sequence of the non-null values in the window.
-* Example
+* Example:
 ```
 SELECT
   CAST(
@@ -181,12 +214,41 @@ FROM
   data_stream
 ```
 
+#### Filters
+* Contract: 
+  * **List<DynamicMessage>** Filters(ByteString[] inputProtoBytes, String protoClassName, Predicate<DynamicMessage>... predicates)
+* Functionality:
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **CondEq** UDFs.
+  * Takes ByteString[] as the data and zero or more Predicates (we have only CondEq as a predicate that is defined for now). Applies the predicated conditions on the proto ByteString list field that is selected from the query and returns filtered Data.
+* Example:
+```
+SELECT 
+  SelectFields(
+    proto_data,
+    input_class_name,
+    'order_number'
+  ) AS favourite_service_provider_guids
+FROM 
+  data_stream
+WHERE 
+  cardinality(
+    SelectFields(
+      Filters(
+        proto_data, 
+        input_class_name, 
+        CondEq('status', 'CUSTOMER_CANCELLED')
+      ),
+      'order_number' 
+    )
+  ) > 0
+```
+
 #### FormatTimeInZone
 * Contract: 
   * **String** FormatTimeInZone(Timestamp timestamp, String timeZone, String dateFormat)
 * Functionality:
   * Gets formatted time from timestamp in given timezone.
-* Example
+* Example:
 ```
 SELECT 
   FormatTimeInZone(
@@ -202,7 +264,7 @@ FROM data_stream
   * **GeoHash**(Double latitude, Double longitude, int level)
 * Functionality:
   * Returns a geohash for a given level and lat-long for the given WGS84 point.
-* Example
+* Example:
 ```
 SELECT
   data1_location.longitude AS long,
@@ -226,7 +288,7 @@ GROUP BY
   * **Double** LinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> demandList, Timestamp hopStartTime, Integer windowLengthInMinutes)
 * Functionality:
   * Returns the gradient of the best fit line of the list of non-null demand values given the defined time window. hopStartTime and timestampsArray denote the sequence of non-null demand values in the window.
-* Example
+* Example:
 ```
 SELECT
   CAST(
@@ -247,7 +309,7 @@ FROM
   * **Boolean** ListContains(String[] inputList, String item)
 * Functionality:
   * Checks if a list contains a given item.
-* Example
+* Example:
 ```
 SELECT 
   data1,
@@ -263,7 +325,7 @@ WHERE
   * **Object** MapGet(Row[] inputMap, Object key)
 * Functionality:
   * Returns value for a corresponding key inside a map data type.
-* Example
+* Example:
 ```
 SELECT 
   CAST(
@@ -280,7 +342,7 @@ FROM data_stream
   * **Boolean** S2AreaInKm2(String s2id)
 * Functionality:
   * Computes the area of an s2 cell in km2
-* Example
+* Example:
 ```
 SELECT
   s2_id,
@@ -289,12 +351,54 @@ SELECT
 FROM data_stream
 ```
 
+#### SelectFields
+* Contract: 
+  * **Object[]** SelectFields(ByteString[] inputProtoBytes, String protoClassName, String fieldPath) , Object[] SelectFields(List<DynamicMessage> filteredData, String fieldPath)
+* Functionality:
+  * This is one of the UDFs related to **LongbowPlus** and has to be used either with **SelectFields** and **Filters** UDFs or alone.
+  * Can select a single field from the list of proto bytes output from the LongbowRead phase. Can be used with or without applying filters on top of LongbowRead output(which will be in repeated bytes).
+* Example:
+  * When used alone:
+    ```
+    SELECT 
+      cardinality(
+        SelectFields(
+          proto_data,
+          input_class_name,
+          'order_number'
+        )
+      )
+    FROM data_stream
+    ```
+  * When used with Filters
+    ```
+    SELECT 
+      SelectFields(
+        proto_data,
+        input_class_name,
+        'order_number'
+      ) AS favourite_service_provider_guids
+    FROM 
+      data_stream
+    WHERE 
+      cardinality(
+        SelectFields(
+          Filters(
+            proto_data, 
+            input_class_name, 
+            CondEq('status', 'CUSTOMER_CANCELLED')
+          ),
+          'order_number' 
+        )
+      ) > 0
+    ```
+
 #### S2Id
 * Contract: 
   * **String** S2Id(Double latitude, Double longitude, int level)
 * Functionality:
   * Computes s2id for given lat, long and level.
-* Example
+* Example:
 ```
 SELECT 
   S2Id(data1.latitude, data1.longitude, 13) AS tag_s2id,
@@ -310,7 +414,7 @@ GROUP BY
   * **Row[]** SingleFeatureWithType(Object... value)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
-* Example
+* Example:
 ```
 SELECT
   SingleFeatureWithType(
@@ -330,7 +434,7 @@ FROM
   * **String[]** Split(String inputString, String delimiter)
 * Functionality:
   * Split input string based on input delimiter. The delimiter is a regex string, if you want to split by ".", you should use "\\." or it will give an empty array.
-* Example
+* Example:
 ```
 SELECT 
   SPLIT(data1) as new_data1, 
@@ -343,7 +447,7 @@ FROM
   * **Long** StartOfMonth(long seconds, String time_zone)
 * Functionality:
   * Calculates the seconds in Unix time for the start of a month of a given timestamp second and timezone.
-* Example
+* Example:
 ```
 SELECT 
   StartOfMonth(
@@ -358,7 +462,7 @@ FROM data_stream
   * **Long** StartOfWeek(long seconds, String timeZone)
 * Functionality:
   * Calculates the seconds in Unix time for the start of a week of a given timestamp second and timezone.
-* Example
+* Example:
 ```
 SELECT 
   StartOfWeek(
@@ -374,7 +478,7 @@ FROM data_stream
   * **Long** TimeInDate(long seconds, int hour, int minute, String time_zone)
 * Functionality:
   * Returns calender's time value in seconds
-* Example
+* Example:
 ```
 SELECT 
   TimeInDate(event_timestamp.seconds, 10, 30, 'America/New_York') AS date
@@ -387,7 +491,7 @@ FROM
    * **Timestamp** TimestampFromUnix(long seconds) 
  * Functionality:
    * Gets java.sql.Timestamp from UNIX seconds.
- * Example
+ * Example:
 ```
 SELECT 
   TimestampFromUnix(event_timestamp.seconds) AS T
@@ -402,7 +506,7 @@ FROM
   * **ArrayList<Object>** CollectArray(Object obj)
 * Functionality:
   * Return an ArrayList of the objects passed.
-* Example
+* Example:
 ```
 SELECT
   CollectArray(DISTINCT data1) AS data1s,
@@ -418,7 +522,7 @@ GROUP BY
   * **Int** DistinctCount(String metric)
 * Functionality:
   * Returns the distinct count of a field in the input stream.
-* Example
+* Example:
 ```
 SELECT
   DistinctCount(data1) AS distic_count_data1,
@@ -434,7 +538,7 @@ GROUP BY
   * **Row[]** Features(Object... objects)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from every pair passed in args.
-* Example
+* Example:
 ```
 SELECT
   Features(
@@ -453,7 +557,7 @@ GROUP BY
   * **Row[]** FeaturesWithType(Object... value)  [for FeatureRow]
 * Functionality:
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
-* Example
+* Example:
 ```
 SELECT
   FeaturesWithType(
@@ -475,7 +579,7 @@ GROUP BY
   * **Double** PercentileAggregator(BigDecimal percentile, BigDecimal value)
 * Functionality:
   * Get percentile value.
-* Example
+* Example:
 ```
 SELECT
   PercentileAggregator(
@@ -495,7 +599,7 @@ GROUP BY
   * **Void** HistogramBucket(double dValue, String buckets)
 * Functionality:
   * Returns buckets for given value to calculate histograms.
-* Example
+* Example:
 ```
 SELECT
   data1, 
@@ -512,7 +616,7 @@ LATERAL TABLE(HistogramBucket(data1, 'buckets'));
   * **Void** OutlierMad(ArrayList<Double> values, ArrayList<Timestamp> timestampsArray, Timestamp windowStartTime, Integer windowLengthInMinutes, Integer observationPeriodInMinutes, Integer tolerance, Integer outlierPercentage)
 * Functionality:
   * Determines outliers for a given time series based on threshold, observation window, and tolerance provided.
-* Example
+* Example:
 ```
 SELECT
   `timestamp` AS window_timestamp,
