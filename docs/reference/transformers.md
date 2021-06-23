@@ -16,7 +16,7 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.ClearColumnTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `targetColumnName`: The field that needs to be cleared.
 * Functionality:
   * Allows clearing the specified column of data produced by the dagger.
@@ -55,7 +55,7 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.DeDuplicationTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `key_column`: This value will be used as the deduplication key (other events with the same key will be stopped). 
     * `ttl_in_seconds`: The TTL configuration will decide how long to keep the keys in memory. Once the keys are cleared from memory the data with the same keys will be sent again.
 * Functionality:
@@ -90,7 +90,7 @@ This page contains references for all the custom transformers available on Dagge
             "key_column": "data1",
             "ttl_in_seconds": "3600"
           },
-          "transformation_class": "com.gojek.dagger.transformer.DeDuplicationTransformer"
+          "transformation_class": "io.odpf.dagger.functions.transformers.DeDuplicationTransformer"
         }
       ]
     }
@@ -100,7 +100,7 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.FeatureTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `keyColumnName`: This value will be used to form the key of the feature. 
     * `valueColumnName`: This value will be used as a value in the feature.
 * Functionality:
@@ -132,7 +132,7 @@ This page contains references for all the custom transformers available on Dagge
         	"keyColumnName": "data1",
         	"valueColumnName": "features"
       	},
-      	"transformation_class": "com.gojek.dagger.transformer.FeatureTransformer"
+      	"transformation_class": "io.odpf.dagger.functions.transformers.FeatureTransformer"
     	}
       ]
     }
@@ -142,7 +142,7 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.FeatureWithTypeTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
     * `outputColumnName`: The column where the final feature will be written and data are synonyms with FeatureWithType UDF and a single feature is represented by an element in an array.
 * Functionality:
   * Converts to feast Features from post processors. This is required to do aggregation and feature transformation from a single dagger.
@@ -177,7 +177,7 @@ This page contains references for all the custom transformers available on Dagge
       ],
       "transformers": [
         {
-          "transformation_class": "com.gojek.dagger.transformer.FeatureWithTypeTransformer",
+          "transformation_class": "io.odpf.dagger.functions.transformers.FeatureTransformer",
           "transformation_arguments": {
             "outputColumnName": "features",
             "data": [
@@ -197,8 +197,8 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.HashTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
-    * `maskColumns`(mandatory): The fields that need to be encrypted/masked.
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+    * `maskColumns`: The fields that need to be encrypted/masked.
 * Functionality:
   * Enables encryption on a set of fields as configured. Used in Data forwarding daggers to clone production data to integration environments with encryption on sensitive data fields. We are using SHA-256 hashing to encrypt data.
 * Limitations:
@@ -225,7 +225,7 @@ This page contains references for all the custom transformers available on Dagge
       ],
       "transformers": [
         {
-          "transformation_class": "com.gojek.dagger.transformer.HashTransformer",
+          "transformation_class": "io.odpf.dagger.functions.transformers.HashTransformer",
           "transformation_arguments": {
             "maskColumns": [
               "test_data.data1"
@@ -278,8 +278,8 @@ This page contains references for all the custom transformers available on Dagge
 * Transformation Class:
   * `io.odpf.dagger.functions.transformers.SQLTransformer`
 * Contract: 
-  * Mandatory post-processing here. After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
-      * `sqlQuery`(mandatory): The SQL query for transformation
+  * After Selecting columns by SQL, you have to reselect by an internal source. Following transformation arguments can be passed:
+      * `sqlQuery`: The SQL query for transformation
       * `tableName`(optional): The table name to be used in the above SQL(default: data_stream)
       * `allowedLatenessInMs`(optional): The allowed lateness for the events streaming in Kafka(default: 0))
 * Functionality:
@@ -316,7 +316,7 @@ This page contains references for all the custom transformers available on Dagge
       ],
       "transformers": [
         {
-          "transformation_class": "com.gojek.dagger.transformer.SQLTransformer",
+          "transformation_class": "io.odpf.dagger.functions.transformers.SQLTransformer",
           "transformation_arguments": {
             "sqlQuery": "SELECT count(distinct data1) AS `count`, data2, TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS event_timestamp FROM data_stream group by TUMBLE (rowtime, INTERVAL '60' SECOND), data2"
           }
