@@ -12,3 +12,4 @@ target/
 bin
 .settings
 .gradletasknamecache
+.DS_Store
