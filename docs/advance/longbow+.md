@@ -78,7 +78,7 @@ FROM
 In the above example, customer_id along with a delimiter and reversed timestamp will form the Bigtable row key. Values of order_number, driver_id and location will be serialized using SampleBookingInfo proto and will be inserted under `proto` column in the Bigtable row.
 
 ### Configurations
-Longbow+ is also entirely driven via SQL query like longbow, i.e. on the basis of the presence of certain columns we identify longbow+ parameters. Following configs should be passed via SQL query as shown in the above example.
+Longbow+ writer is also entirely driven via SQL query like longbow, i.e. on the basis of the presence of certain columns we identify longbow+ writer parameters. Following configs should be passed via SQL query as shown in the above example.
 
 ## `longbow_write_key`
 
@@ -150,6 +150,32 @@ FROM
 In the above example, proto_data field will contain a list of all the historical messages.
 
 **Note:** Select `longbow_read_key` explicitly in the query (even if you have selected *).
+
+### Configurations
+Longbow+ reader is also entirely driven via SQL query like longbow, i.e. on the basis of the presence of certain columns we identify longbow+ reader parameters. Following configs should be passed via SQL query as shown in the above example.
+
+## `longbow_read_key`
+
+The key using which Bigtable scan row keys will be created. Longbow+ reader will be enabled only if this column is present.
+
+* Example value: `customer_id`
+* Type: `required`
+
+## `event_timestamp`
+
+The timestamp to be used to build the Bigtable scan row keys.
+
+* Example value: `created_at`
+* Type: `required`
+
+## `rowtime`
+
+The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtime).
+
+* Example value: `rowtime`
+* Type: `required`
+
+For additional global configs regarding longbow, please refer [here](docs/../../reference/configuration.md#longbow).
 
 ## Using longbow reader output
 Given that the output of longbow_reader will contain a list of bytes, it becomes hard to use it directly in the SQL query. So we added a few custom [UDFs](docs/../../guides/use_udf.md) in order to make this easy for the users. These UDFs simplify the Dagger query for consuming data from longbow reader. They consume the data which is in the form of bytes and do deserialization and filtering/field selection on top of it.
