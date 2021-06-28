@@ -1,5 +1,5 @@
 # Introduction
-This is another type of processor which is also applied post SQL query processing in the Dagger workflow. We currently use Flink's [FsStateBackend](https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/state/state_backends.html#the-fsstatebackend). We observed that for use cases where the aggregation window was larger i.e in days or months, Dagger jobs required a lot of resources in order to maintain the state. Hence we created a solution where we moved the entire state from Dagger's memory to an external data store. After evaluating a lot of data sources we found [Bigtable](https://cloud.google.com/bigtable) to be a good fit primarily because of its low scan queries latencies. This currently works only for kafka sink.
+This is another type of processor which is also applied post SQL query processing in the Dagger workflow. We currently use Flink's [FsStateBackend](https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/state/state_backends.html#the-fsstatebackend). We observed that for use cases where the aggregation window was larger i.e in days or months, Dagger jobs required a lot of resources in order to maintain the state. Hence we created a solution where we moved the entire state from Dagger's memory to an external data store. After evaluating a lot of data sources we found [Bigtable](https://cloud.google.com/bigtable) to be a good fit primarily because of its low scan queries latencies. This currently works only for Kafka sink.
 
 # Components
 In order to make this work in a single Dagger job, we created the following components.
@@ -10,7 +10,7 @@ In order to make this work in a single Dagger job, we created the following comp
 This component is responsible for writing the latest data to Bigtable. It uses Flink's [Async IO](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) in order to make this network call.
 
 ### Workflow
-* Create a new table(if doesn't exist) with the name same as Dagger job name.
+* Create a new table(if doesn't exist) with the name same as Dagger job name or using [PROCESSOR_LONGBOW_GCP_PROJECT_ID](docs/../../reference/configuration.md#processor_longbow_gcp_project_id).
 * Receives the record post SQL query processing.
 * Creates the Bigtable key by combining data from longbow_key, a delimiter, and reversing the event_timestamp. Timestamps are reversed in order to achieve lower latencies in scan query, more details [here](https://cloud.google.com/bigtable/docs/schema-design#time-based).
 * Creates the request by adding all the column values from SQL as Bigtable row columns which are passed with `longbow_data` as a substring in the column name.
@@ -109,7 +109,7 @@ Longbow is entirely driven via SQL query, i.e. on the basis of presence of certa
 
 ## `longbow_key`
 
-The key from the input which should to used to create the row key for Bigtable. Longbow will be enabled only if this column is present.
+The key from the input which should be used to create the row key for Bigtable. Longbow will be enabled only if this column is present.
 
 * Example value: `customer_id`
 * Type: `required`
