@@ -80,21 +80,21 @@ In the above example, customer_id along with a delimiter and reversed timestamp 
 ### Configurations
 Longbow+ writer is also entirely driven via SQL query like longbow, i.e. on the basis of the presence of certain columns we identify longbow+ writer parameters. Following configs should be passed via SQL query as shown in the above example.
 
-## `longbow_write_key`
+#### `longbow_write_key`
 
 The key from the input which should be used to create the row key for Bigtable. Longbow+ writer will be enabled only if this column is present.
 
 * Example value: `customer_id`
 * Type: `required`
 
-## `event_timestamp`
+#### `event_timestamp`
 
 The timestamp to be used to build the Bigtable row keys.
 
 * Example value: `CURRENT_TIMESTAMP`
 * Type: `required`
 
-## `rowtime`
+#### `rowtime`
 
 The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtime).
 
@@ -154,21 +154,21 @@ In the above example, proto_data field will contain a list of all the historical
 ### Configurations
 Longbow+ reader is also entirely driven via SQL query like longbow, i.e. on the basis of the presence of certain columns we identify longbow+ reader parameters. Following configs should be passed via SQL query as shown in the above example.
 
-## `longbow_read_key`
+#### `longbow_read_key`
 
 The key using which Bigtable scan row keys will be created. Longbow+ reader will be enabled only if this column is present.
 
 * Example value: `customer_id`
 * Type: `required`
 
-## `event_timestamp`
+#### `event_timestamp`
 
 The timestamp to be used to build the Bigtable scan row keys.
 
 * Example value: `created_at`
 * Type: `required`
 
-## `rowtime`
+#### `rowtime`
 
 The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtime).
 
