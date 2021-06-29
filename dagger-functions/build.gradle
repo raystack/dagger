@@ -55,6 +55,7 @@ dependencies {
     compileOnly group: 'com.gojek', name: 'stencil', version: '2.0.15'
 
     dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
+    dependenciesFunctionsJar group: 'org.apache.commons', name: 'commons-jexl3', version: '3.1'
     dependenciesFunctionsJar group: 'org.isuper', name: 's2-geometry-library-java', version: '0.0.1'
     dependenciesFunctionsJar group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.67.0'
 

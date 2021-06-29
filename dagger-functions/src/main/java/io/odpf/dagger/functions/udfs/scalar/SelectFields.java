@@ -62,7 +62,7 @@ public class SelectFields extends ScalarUdf {
      * @param inputProtoBytes field containing the whole Data in LongbowRead(proto_data)
      * @param protoClassName  the proto class name of the selected inputData from LongbowRead
      * @param fieldPath       the field path
-     * @return the corresponding values for the fieldPath of inputProtoBytes as list
+     * @return the corresponding values for the fieldPath of inputProtoBytes as a list
      * @throws InvalidProtocolBufferException the invalid protocol buffer exception
      * @throws ClassNotFoundException         the class not found exception
      * @author : arujit
@@ -86,11 +86,11 @@ public class SelectFields extends ScalarUdf {
     }
 
     /**
-     * Eval object [ ].
+     * Can select a single field from the list of filtered DynamicMessage output from LongbowRead phase.
      *
      * @param filteredData the filtered data
      * @param fieldPath    the field path
-     * @return the object [ ]
+     * @return the corresponding values for the fieldPath of filteredDara as a list
      */
     public Object[] eval(List<DynamicMessage> filteredData, String fieldPath) {
         ArrayList<Object> output = new ArrayList<>(filteredData.size());
