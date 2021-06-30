@@ -9,7 +9,7 @@ This page contains references for all the application configurations for Dagger.
 * [Kafka Sink](configuration.md#kafka-sink)
 * [Schema Registry](configuration.md#schema-registry)
 * [Flink](configuration.md#flink)
-* [Dart](configuration.md#dart)
+* [Darts](configuration.md#darts)
 * [Longbow](configuration.md#longbow)
 * [PreProcessor](configuration.md#preprocessor)
 * [PostProcessor](configuration.md#postprocessor)
@@ -17,22 +17,24 @@ This page contains references for all the application configurations for Dagger.
 
 ### Generic
 
-A log sink of Dagger requires the following variables to be set
+All of the sink type of Dagger requires the following variables to be set:
 
 #### `STREAMS`
 
-Dagger can run on multiple streams, so streams config can con consist of multiple streams. For each stream, some variables need to be configured.
+Dagger can run on multiple streams, so streams config can con consist of multiple streams. Multiple streams could be given in a comma-separated format.
+
+For each stream, these following variables need to be configured: 
 
 ##### `SOURCE_KAFKA_TOPIC_NAMES`
 
-Defines the list of Kafka topics to consume from.
+Defines the list of Kafka topics to consume from. To consume from multiple topics, you need to add `|` as separator for each topic.
 
-* Example value: `test-topic`
+* Example value: `test-topic1|test-topic2`
 * Type: `required`
 
 ##### `INPUT_SCHEMA_TABLE`
 
-Defines the table name for the stream.
+Defines the table name for the stream. `FLINK_SQL_QUERY` will get executed on this table name.
 
 * Example value: `data_stream`
 * Type: `required`
@@ -46,21 +48,21 @@ Defines the schema proto class of input data from Kafka.
 
 ##### `INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX`
 
-Defines the field index of event timestamp from the input proto class that will be used.
+Defines the field index of event timestamp from the input proto class that will be used. The field index value can be obtained from `.proto` file.
 
 * Example value: `41`
 * Type: `required`
 
 ##### `SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS`
 
-Defines the bootstrap server of Kafka brokers to consume from.
+Defines the bootstrap server of Kafka brokers to consume from. Multiple Kafka brokers could be given in a comma-separated format.
 
 * Example value: `localhost:9092`
 * Type: `required`
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
-Enable/Disable Kafka consumer auto-commit
+Enable/Disable Kafka consumer auto-commit. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_enable.auto.commit).
 
 * Example value: `false`
 * Type: `optional`
@@ -68,7 +70,7 @@ Enable/Disable Kafka consumer auto-commit
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET`
 
-Defines the Kafka consumer offset reset policy
+Defines the Kafka consumer offset reset policy. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_auto.offset.reset).
 
 * Example value: `latest`
 * Type: `optional`
@@ -76,7 +78,7 @@ Defines the Kafka consumer offset reset policy
 
 ##### `SOURCE_KAFKA_CONFIG_GROUP_ID`
 
-Defines the Kafka consumer group ID for Dagger deployment.
+Defines the Kafka consumer group ID for Dagger deployment. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_group.id).
 
 * Example value: `dummy-consumer-group`
 * Type: `optional`
@@ -122,7 +124,7 @@ Defines the dagger deployment name
 
 #### `FLINK_ROWTIME_ATTRIBUTE_NAME`
 
-Defines the time attribute field name on the data stream
+Defines the time attribute field name on the data stream. Find more details on this config [here](../concepts/basics.md#rowtime).
 
 * Example value: `rowtime`
 * Type: `required`
@@ -144,7 +146,7 @@ Defines the SQL query to get the data from the data stream.
 
 #### `SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE`
 
-Enable/Disable to consume large messages from Kafka. by default, its configuration using the default `max.partition.fetch.bytes` Kafka config. If set to enable, will set the `max.partition.fetch.bytes`=`5242880`.
+Enable/Disable to consume large messages from Kafka. by default, it's configuration using the default `max.partition.fetch.bytes` Kafka config. If set to enable, will set the `max.partition.fetch.bytes`=`5242880`.
 
 * Example value: `false`
 * Type: `optional`
@@ -184,14 +186,14 @@ Defines the InfluxDB database name.
 
 #### `SINK_INFLUX_MEASUREMENT_NAME`
 
-Defines the InfluxDB measurement name.
+Defines the InfluxDB measurement name. Find more details on using this config [here](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#measurement).
 
 * Example value: `concurrent_test`
 * Type: `required`
 
 #### `SINK_INFLUX_RETENTION_POLICY`
 
-Defines the InfluxDB retention policy.
+Defines the InfluxDB retention policy. Find more details on using this config [here](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#retention-policy-rp).
 
 * Example value: `autogen`
 * Type: `optional`
@@ -199,7 +201,7 @@ Defines the InfluxDB retention policy.
 
 #### `SINK_INFLUX_BATCH_SIZE`
 
-Defines the InfluxDB batch size.
+Defines the InfluxDB batch size. Find more details on using this config [here](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#batch).
 
 * Example value: `100`
 * Type: `optional`
@@ -207,7 +209,7 @@ Defines the InfluxDB batch size.
 
 #### `SINK_INFLUX_FLUSH_DURATION_MS`
 
-Defines the InfluxDB flush duration in milliseconds.
+Defines the InfluxDB flush duration in milliseconds. Find more details on using this config [here](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#wal-write-ahead-log).
 
 * Example value: `1000`
 * Type: `optional`
@@ -219,14 +221,14 @@ A Kafka sink Dagger \(`SINK_TYPE`=`kafka`\) requires the following variables to 
 
 #### `SINK_KAFKA_BROKERS`
 
-Defines the list of Kafka brokers sink 
+Defines the list of Kafka brokers sink. 
 
 * Example value: `localhost:9092`
 * Type: `required`
 
 #### `SINK_KAFKA_TOPIC`
 
-Defines the topic of Kafka sink
+Defines the topic of Kafka sink.
 
 * Example value: `test-kafka-output`
 * Type: `required`
@@ -240,7 +242,7 @@ Defines the proto class key of the data to Kafka sink.
 
 #### `SINK_KAFKA_PROTO_MESSAGE`
 
-Defines the proto class message of the data to Kafka sink.
+Defines the proto class to which the message will get serialized and will be sent to a kafka topic after processing.
 
 * Example value: `com.tests.OutputMessage`
 * Type: `required`
@@ -254,13 +256,15 @@ Defines the output Kafka stream name.
 
 #### `SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE`
 
-Enable/Disable to produce large messages to Kafka. by default, its configuration using the default `max.request.size` Kafka config. If set to enable, will set the `max.request.size`=`20971520` and `compression.type`=`snappy`.
+Enable/Disable to produce large messages to Kafka. by default, it's configuration using the default `max.request.size` Kafka config. If set to enable, will set the `max.request.size`=`20971520` and `compression.type`=`snappy`.
  
 * Example value: `false`
 * Type: `optional`
 * Default value: `false`
 
 ### Schema Registry
+
+Stencil is dynamic schema registry for protobuf. Find more details about Stencil [here](https://github.com/odpf/stencil#stencil).
 
 #### `SCHEMA_REGISTRY_STENCIL_ENABLE`
 
@@ -305,7 +309,7 @@ Defines the number of flink parallelism.
 
 #### `FLINK_WATERMARK_INTERVAL_MS`
 
-Defines the flink watermark interval in milliseconds.
+Defines the flink watermark interval in milliseconds. Find more details on this config [here](https://ci.apache.org/projects/flink/flink-docs-master/docs/deployment/config/#pipeline-auto-watermark-interval).
 
 * Example value: `10000`
 * Type: `optional`
@@ -328,6 +332,7 @@ Enable/Disable flink watermark per partition.
 
 #### `FLINK_CHECKPOINT_INTERVAL_MS`
 
+Find more details about Flink checkpoint [here](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/datastream/fault-tolerance/checkpointing/). 
 Defines the flink checkpoint interval in milliseconds.
 
 * Example value: `30000`
@@ -360,6 +365,7 @@ Defines the maximum number of checkpoint attempts that may be in progress at the
 
 #### `FLINK_RETENTION_MIN_IDLE_STATE_HOUR`
 
+Find more details on `Flink Idle State Retention` [here](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/streaming/query_configuration.html#idle-state-retention-time).
 Defines a minimum time interval for how long idle state in hours.
 
 * Example value: `8`
@@ -374,9 +380,11 @@ Defines a maximum time interval for how long idle state in hours.
 * Type: `optional`
 * Default value: `9`
 
-### Dart
+### Darts
 
-Details of using Dart can be seen [here](../advance/DARTS.md).
+Darts allows you to join streaming data from the reference data store. Darts provide a reference data store in the form of a list and <key, value> map and enable the refer-table in the form of UDF that can be used through the Flink SQL query.
+
+Details of using Darts can be seen [here](../advance/DARTS.md).
 
 #### `UDF_DART_GCS_PROJECT_ID`
 
@@ -428,7 +436,7 @@ Defines the GCP instance id for longbow.
 
 #### `PROCESSOR_LONGBOW_GCP_TABLE_ID`
 
-Defines the GCP table id for longbow.
+Defines the GCP Bigtable id for longbow.
 
 * Example value: `test-longbow-table`
 * Type: `required`

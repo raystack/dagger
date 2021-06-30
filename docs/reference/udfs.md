@@ -44,7 +44,7 @@ This page contains references for all the custom udfs available on Dagger.
 * Contract: 
   * **Predicate<DynamicMessage>** CondEq(String fieldName, Object comparison)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **Filters** UDFs.
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **Filters** UDFs. Find details on LongbowPlus [here](../advance/longbow+.md).
   * Can specify an equality condition with a fieldName and a value.
 * Example:
 
@@ -140,30 +140,68 @@ GROUP BY
   * **String** ElementAt(Row[] array, String pathOfArray, int index, String path)
   * **Object** ElementAt(Object[] array, int index)
   * **Object** ElementAt(ArrayList\<Object\> arrayList, int index)
-  
 * Functionality: 
   * For the given table name from the streams (In the case of multi-streams/JOINS), find out the element at a given index and a given path in an array of complex Data Types.
   * Finds out the element at a given index and a given path in an array of complex Data Types. Here table name is not provided, In that case, it will always apply the function on the table from the first stream in the configuration.
   * Finds out the element at a given index in case of an object Array or an ArrayList. This is to accompany elements at a given index for Longbow row.
   * Calculates the seconds in Unix time for the end of a month of a given timestamp second and timezone.
-* Example:
-```
-SELECT
-  CAST(
-    ElementAt(test_data, 'data', 0, 'test_location.latitude') AS double
-  ) AS lat,
-  CAST(
-    ElementAt(test_data, 'data', 0, 'test_location.longitude') AS double
-  ) AS long,
-  TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS window_timestamp
-FROM
-  data_stream
-GROUP BY
-  TUMBLE (rowtime, INTERVAL '60' SECOND),
-  ElementAt(test_data, 'data', 0, 'test_location.latitude'),
-  ElementAt(test_data, 'data', 0, 'test_location.longitude')
-```
-
+* Examples:
+  * Example 1:
+  ```
+  SELECT
+    CAST(
+      ElementAt(test_data, 'data', 0, 'test_location.latitude', 'data_stream_2') AS double
+    ) AS lat,
+    CAST(
+      ElementAt(test_data, 'data', 0, 'test_location.longitude', 'data_stream_2') AS double
+    ) AS long,
+    TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS window_timestamp
+  FROM
+    data_stream_1
+  GROUP BY
+    TUMBLE (rowtime, INTERVAL '60' SECOND),
+    ElementAt(test_data, 'data', 0, 'test_location.latitude', 'data_stream_2'),
+    ElementAt(test_data, 'data', 0, 'test_location.longitude', 'data_stream_2')
+  ```
+  * Example 2:
+  ```
+  SELECT
+    CAST(
+      ElementAt(test_data, 'data', 0, 'test_location.latitude') AS double
+    ) AS lat,
+    CAST(
+      ElementAt(test_data, 'data', 0, 'test_location.longitude') AS double
+    ) AS long,
+    TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS window_timestamp
+  FROM
+    data_stream
+  GROUP BY
+    TUMBLE (rowtime, INTERVAL '60' SECOND),
+    ElementAt(test_data, 'data', 0, 'test_location.latitude'),
+    ElementAt(test_data, 'data', 0, 'test_location.longitude')
+  ```
+  * Example 3:
+  ```
+  WITH tmpTable AS (
+    SELECT
+    SelectFields(
+      proto_data,
+      input_class_name,
+      'cancel_reason_id'
+    ) AS test_data_array,
+    longbow_read_key AS restaurant_id
+    FROM
+    data_stream
+  )
+  SELECT
+    restaurant_id,
+    ElementAt(test_data_array, -1) AS last_test_data_array,
+    ElementAt(test_data_array, -2) AS second_last_test_data_array,
+    ElementAt(test_data_array, -3) AS third_last_test_data_array
+  FROM
+    tmpTable
+  ```
+  
 #### EndOfMonth
 * Contract: 
   * **Long** EndOfMonth(long seconds, String timeZone)
@@ -215,10 +253,11 @@ FROM
 ```
 
 #### Filters
+
 * Contract: 
   * **List<DynamicMessage>** Filters(ByteString[] inputProtoBytes, String protoClassName, Predicate<DynamicMessage>... predicates)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **CondEq** UDFs.
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **CondEq** UDFs. Find details on LongbowPlus [here](../advance/longbow+.md).
   * Takes ByteString[] as the data and zero or more Predicates (we have only CondEq as a predicate that is defined for now). Applies the predicated conditions on the proto ByteString list field that is selected from the query and returns filtered Data.
 * Example:
 ```
@@ -288,6 +327,7 @@ GROUP BY
   * **Double** LinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> demandList, Timestamp hopStartTime, Integer windowLengthInMinutes)
 * Functionality:
   * Returns the gradient of the best fit line of the list of non-null demand values given the defined time window. hopStartTime and timestampsArray denote the sequence of non-null demand values in the window.
+  * Find more details on Linear Trend Algorithm [here](https://en.wikipedia.org/wiki/Linear_trend_estimation).
 * Example:
 ```
 SELECT
@@ -355,7 +395,7 @@ FROM data_stream
 * Contract: 
   * **Object[]** SelectFields(ByteString[] inputProtoBytes, String protoClassName, String fieldPath) , Object[] SelectFields(List<DynamicMessage> filteredData, String fieldPath)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used either with **SelectFields** and **Filters** UDFs or alone.
+  * This is one of the UDFs related to **LongbowPlus** and has to be used either with **SelectFields** and **Filters** UDFs or alone. Find details on LongbowPlus [here](../advance/longbow+.md).
   * Can select a single field from the list of proto bytes output from the LongbowRead phase. Can be used with or without applying filters on top of LongbowRead output(which will be in repeated bytes).
 * Example:
   * When used alone:
@@ -411,8 +451,9 @@ GROUP BY
 
 #### SingleFeatureWithType
 * Contract: 
-  * **Row[]** SingleFeatureWithType(Object... value)  [for FeatureRow]
+  * **Row[]** SingleFeatureWithType(Object... value)
 * Functionality:
+  * This is one of the UDFs related to **Feast**. Find details on Feast [here](https://github.com/feast-dev/feast/tree/master/docs#introduction).
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
 * Example:
 ```
@@ -535,8 +576,9 @@ GROUP BY
 
 #### Features
 * Contract: 
-  * **Row[]** Features(Object... objects)  [for FeatureRow]
+  * **Row[]** Features(Object... objects)
 * Functionality:
+* This is one of the UDFs related to **Feast**. Find details on Feast [here](https://github.com/feast-dev/feast/tree/master/docs#introduction).
   * Converts the given list of objects to a FeatureRow type with key and values from every pair passed in args.
 * Example:
 ```
@@ -556,6 +598,7 @@ GROUP BY
 * Contract: 
   * **Row[]** FeaturesWithType(Object... value)  [for FeatureRow]
 * Functionality:
+  * This is one of the UDFs related to **Feast**. Find details on Feast [here](https://github.com/feast-dev/feast/tree/master/docs#introduction).
   * Converts the given list of objects to a FeatureRow type with key and values from the first two args from every triplet passed in args and data type according to the third element of the triplet.
 * Example:
 ```
