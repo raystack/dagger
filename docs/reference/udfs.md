@@ -5,6 +5,8 @@ This page contains references for all the custom udfs available on Dagger.
 ## List of Udfs
 
 - [Scalar Functions](udfs.md#scalar-functions)
+  - [ArrayAggregate](udfs.md#ArrayAggregate)
+  - [ArrayOperate](udfs.md#ArrayOperate)
   - [CondEq](udfs.md#CondEq)
   - [DartContains](udfs.md#DartContains)
   - [DartGet](udfs.md#DartGet)
@@ -39,6 +41,81 @@ This page contains references for all the custom udfs available on Dagger.
   - [OutlierMad](udfs.md#OutlierMad)
   
 ### Scalar Functions
+
+#### ArrayAggregate
+* Contract: 
+  * **Object** ArrayAggregate(Object[] arrayElements, String operationType, String inputDataType).
+* Functionality:
+  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * Currently, we only support limited operations on limited data types. The supported Data types and functions are listed below.
+* Supported Data types and Functions:
+  * Data type:
+    * Integer
+    * Float
+    * Double
+    * Long
+    * Other(all other data types except the above)
+  * Functions:
+    * Basic Mathematical aggregation functions like ‘average’, ‘sum’, ‘min’, ’max’, ’count’, ’findFirst’ etc.
+    * Do some basic complex aggregations like distinct counts. You need to give an argument like ‘distinct.count’ as operationType.Prefixes have to be added before actual functions with a ‘.’ whenever required. The first operation here needs to output another Array. So for now, ‘sort’ and ‘distinct’ are only supported as the first element in complex types.
+    * In the case of Float, the output will be in double. 
+    * For ‘Other’ data types some basic operations like ‘count’, ‘findFirst’ are supported. You can also do something like ‘distinct.count’/’sort.findFirst’ here, but no other mathematical functions are supported here.
+    * Listing here all the available functions for corresponding data types
+      * Mathematical Data Types:
+        'average', 'min', 'max', 'sum', 'count', 'findFirst', 'findAny'
+      * Prefix:
+        'sort', 'distinct'
+      * Other Data Types:
+        'count', 'findFirst', 'findAny'
+* Example:
+  * When used a single aggregation
+    ```
+    SELECT 
+      ArrayAggregate(
+        SelectFields(proto_data, input_class_name, 'shopping_price'),
+        'sum',
+        'float') AS total_shoping_price_value
+    FROM 
+      data_stream
+    ```
+  * When used a basic double aggregation
+      ```
+      SELECT 
+        ArrayAggregate(
+          SelectFields(proto_data, input_class_name, 'shopping_price'),
+          'distinct.sum',
+          'float') AS average_value
+      FROM 
+        data_stream
+      ```
+
+#### ArrayOperate
+* Contract: 
+  * **Object[]** ArrayOperate(Object[] arrayElements, String operationType, String inputDataType)
+* Functionality:
+  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * Currently, we only support limited operations on limited data types. The supported Data types and functions are listed below.
+* Supported Data types and Functions:
+  * Data type:
+    * Integer
+    * Float
+    * Double
+    * Long
+    * Other(all other data types except the above. For String you need to process it as Other)
+  * Functions:
+    * Distinct
+    * Sorted
+* Example:
+
+```
+SELECT 
+  ArrayOperate(
+    SelectFields(proto_data, input_class_name, 'shopping_price'),
+    'distinct', 
+    'float') AS distinct_shoping_price_values
+FROM 
+  data_stream
+```
 
 #### CondEq
 * Contract: 
