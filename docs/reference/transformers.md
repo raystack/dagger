@@ -144,7 +144,7 @@ This page contains references for all the custom transformers available on Dagge
   * `io.odpf.dagger.functions.transformers.FeatureWithTypeTransformer`
 * Contract: 
   * After Selecting columns by SQL, you need to reselect the desired columns with the help of an internal source. Following transformation arguments can be passed:
-    * `outputColumnName`: The column where the final feature will be written and data are synonyms with `FeatureWithType` UDF and a single feature is represented by an element in an array.
+    * `outputColumnName`: The column where the final feature will be written and `FeatureRow` are synonyms with `FeaturesWithType` UDF and a single feature is represented by an element in an array.
 * Functionality:
   * Converts to feast Features from post processors. This is required to do aggregation and feature transformation from a single dagger.
   * Can be used only on `post-processor`
