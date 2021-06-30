@@ -8,6 +8,7 @@ import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
 import io.odpf.dagger.functions.udfs.aggregate.FeaturesWithType;
 import io.odpf.dagger.functions.udfs.aggregate.PercentileAggregator;
+import io.odpf.dagger.functions.udfs.scalar.CondEq;
 import io.odpf.dagger.functions.udfs.scalar.DartContains;
 import io.odpf.dagger.functions.udfs.scalar.DartGet;
 import io.odpf.dagger.functions.udfs.scalar.Distance;
@@ -15,6 +16,7 @@ import io.odpf.dagger.functions.udfs.scalar.ElementAt;
 import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.EndOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.ExponentialMovingAverage;
+import io.odpf.dagger.functions.udfs.scalar.Filters;
 import io.odpf.dagger.functions.udfs.scalar.FormatTimeInZone;
 import io.odpf.dagger.functions.udfs.scalar.GeoHash;
 import io.odpf.dagger.functions.udfs.scalar.LinearTrend;
@@ -22,12 +24,15 @@ import io.odpf.dagger.functions.udfs.scalar.ListContains;
 import io.odpf.dagger.functions.udfs.scalar.MapGet;
 import io.odpf.dagger.functions.udfs.scalar.S2AreaInKm2;
 import io.odpf.dagger.functions.udfs.scalar.S2Id;
+import io.odpf.dagger.functions.udfs.scalar.SelectFields;
 import io.odpf.dagger.functions.udfs.scalar.SingleFeatureWithType;
 import io.odpf.dagger.functions.udfs.scalar.Split;
 import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
+import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
+import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.apache.flink.configuration.Configuration;
@@ -102,6 +107,11 @@ public class FunctionFactoryTest {
         verify(streamTableEnvironment, times(1)).registerFunction(eq("StartOfWeek"), any(StartOfWeek.class));
         verify(streamTableEnvironment, times(1)).registerFunction(eq("TimeInDate"), any(TimeInDate.class));
         verify(streamTableEnvironment, times(1)).registerFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("Filters"), any(Filters.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("SelectFields"), any(SelectFields.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayOperate"), any(ArrayOperate.class));
     }
 
     @Test

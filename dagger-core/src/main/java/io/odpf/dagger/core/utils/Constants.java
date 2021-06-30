@@ -21,7 +21,7 @@ public class Constants {
     public static final String PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT = "default-gcp-project";
     public static final String PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY = "PROCESSOR_LONGBOW_GCP_INSTANCE_ID";
     public static final String PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT = "default-gcp-project";
-    public static final String PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY = "PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY";
+    public static final String PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY = "PROCESSOR_LONGBOW_GCP_TABLE_ID";
     public static final String LONGBOW_COLUMN_FAMILY_DEFAULT = "ts";
     public static final String LONGBOW_QUALIFIER_DEFAULT = "proto";
     public static final Long PROCESSOR_LONGBOW_ASYNC_TIMEOUT_DEFAULT = 15000L;
