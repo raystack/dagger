@@ -20,6 +20,8 @@ LongbowWrite has two responsibilities, to write an incoming event to BigTable an
 * Passes the row after adding additional metadata fields like input_class_name, bigtable_table_id, longbow_read_key to the sink.
 * Configured Kafka sink publishes the data to Kafka.
 
+**Note:** By default we create tables with retention of 3 months in Bigtable.
+
 ### Example
 In this example, let's assume we have booking events in a Kafka cluster and we want to get information of all the order numbers, their driver ids and location(complex field) for customers in the last 30 days. Here customer_id will become longbow_write_key.
 
@@ -101,7 +103,7 @@ The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtim
 * Example value: `rowtime`
 * Type: `required`
 
-For additional global configs regarding longbow, please refer [here](docs/../../reference/configuration.md#longbow).
+Longbow+ writer utilizes same global longbow configs. Details [here](docs/../../reference/configuration.md#longbow).
 
 ## Longbow reader
 It reads the output of LongbowWrite and fetches the data for a particular key and a time duration from BigTable. It creates accumulative data for a configurable duration for other Daggers to use. It pushes the result along with some metadata to another Kafka topic. It also uses Flink's [Async IO](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) in order to make the network call.
@@ -175,7 +177,7 @@ The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtim
 * Example value: `rowtime`
 * Type: `required`
 
-For additional global configs regarding longbow, please refer [here](docs/../../reference/configuration.md#longbow).
+Longbow+ reader utilizes same global longbow configs. Details [here](docs/../../reference/configuration.md#longbow).
 
 ## Using longbow reader output
 Given that the output of longbow_reader will contain a list of bytes, it becomes hard to use it directly in the SQL query. So we added a few custom [UDFs](docs/../../guides/use_udf.md) in order to make this easy for the users. These UDFs simplify the Dagger query for consuming data from longbow reader. They consume the data which is in the form of bytes and do deserialization and filtering/field selection on top of it.

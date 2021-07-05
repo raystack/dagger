@@ -1,5 +1,6 @@
 # Introduction
-This is another type of processor which is also applied post SQL query processing in the Dagger workflow. We currently use Flink's [FsStateBackend](https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/state/state_backends.html#the-fsstatebackend). We observed that for use cases where the aggregation window was larger i.e in days or months, Dagger jobs required a lot of resources in order to maintain the state. Hence we created a solution where we moved the entire state from Dagger's memory to an external data store. After evaluating a lot of data sources we found [Bigtable](https://cloud.google.com/bigtable) to be a good fit primarily because of its low scan queries latencies. This currently works only for Kafka sink.
+This is another type of processor which is also applied post SQL query processing in the Dagger workflow. This feature allows users to aggregate data over long windows in real-time. For certain use-cases, you need to know the historical data for an event in a given context. Eg: For a booking event, a risk prevention system would be interested in 1 month pattern of the customer.
+Longbow solves the above problem, the entire historical context gets added in the same event which allows downstream systems to process data without any external dependency. In order to achieve this, we store the historical data in an external data source. After evaluating a lot of data sources we found [Bigtable](https://cloud.google.com/bigtable) to be a good fit primarily because of its low scan queries latencies. This currently works only for Kafka sink.
 
 # Components
 In order to make this work in a single Dagger job, we created the following components.
@@ -17,6 +18,7 @@ This component is responsible for writing the latest data to Bigtable. It uses F
 * Makes the request.
 * Passes the original record post SQL without any modifications to longbow_reader.
 
+**Note:** By default we create tables with retention of 3 months in Bigtable.
 
 ## Longbow reader
 This component is responsible for reading the historical data from Bigtable and forwarding it to the sink. It also uses Flink's [Async IO](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) in order to make this network call.
@@ -107,42 +109,42 @@ Here, [StartOfMonth](update link), [EndOfMonth](update link) and [TimestampFromU
 # Configurations
 Longbow is entirely driven via SQL query, i.e. on the basis of presence of certain columns we identify longbow parameters. Following configs should be passed via SQL query as shown in the above example.
 
-## `longbow_key`
+### `longbow_key`
 
 The key from the input which should be used to create the row key for Bigtable. Longbow will be enabled only if this column is present.
 
 * Example value: `customer_id`
 * Type: `required`
 
-## `longbow_duration`
+### `longbow_duration`
 
 The duration for the scan query. It can be passed in minutes(m), hours(h) and days(d).
 
 * Example value: `30d`
 * Type: `optional`
 
-## `longbow_latest`
+### `longbow_latest`
 
 The latest/recent value for the range of scan. This needs to be set only in case of absolute range. You can also use custom UDFs to generate this value as shown in the above example.
 
 * Example value: `1625097599`
 * Type: `optional`
 
-## `longbow_earliest`
+### `longbow_earliest`
 
 The earliest/oldest value for the range of scan. This needs to be set only in case of absolute range. You can also use custom UDFs to generate this value as shown in the above example.
 
 * Example value: `1622505600`
 * Type: `optional`
 
-## `event_timestamp`
+### `event_timestamp`
 
 The timestamp to be used to build the Bigtable row keys.
 
 * Example value: `CURRENT_TIMESTAMP`
 * Type: `required`
 
-## `rowtime`
+### `rowtime`
 
 The time attribute column. Read more [here](docs/../../concepts/basics.md#rowtime).
 
