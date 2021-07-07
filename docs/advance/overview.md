@@ -12,7 +12,11 @@ Post Processors give the capability to do custom stream processing after the SQL
 
 ### [Longbow](docs/advance/../../longbow.md)
 
-Longbow enables you to perform large windowed aggregation. It uses [Bigtable](https://cloud.google.com/bigtable) for state management and SQL based DSL for configuration.
+Longbow enables you to perform large windowed aggregation. It uses [Bigtable](https://cloud.google.com/bigtable) for managing historical data and SQL based DSL for configuration.
+
+### [Longbow+](docs/advance/../../longbow+.md)
+
+Longbow+ is an enhanced version of longbow. It has additional support for complex data types for long windowed aggregations.
 
 ### [DARTS](docs/advance/../../DARTS.md)
 
