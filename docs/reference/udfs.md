@@ -153,20 +153,34 @@ WHERE
   * **Boolean** DartContains(String collectionName, String value, String regex, int cacheTTLin_hours)
 * Functionality:
   * Check if a data point in the message is present in the GCS bucket
-* Example:
-
-```
-SELECT 
-  data1,
-  data2,
-  TUMBLE_END(rowtime, INTERVAL '1' HOUR) AS event_timestamp
-FROM 
-  data_stream
-WHERE 
-  DartContains('test_collection', data1, 24)
-GROUP BY
-  TUMBLE (rowtime, INTERVAL '1' HOUR)
-```
+  * Regex can you used to create the pattern using values from GCS to match against the field value.
+* Example
+  * Without regex
+  ```
+  SELECT 
+    data1,
+    data2,
+    TUMBLE_END(rowtime, INTERVAL '1' HOUR) AS event_timestamp
+  FROM 
+    data_stream
+  WHERE 
+    DartContains('test_collection', data1, 24)
+  GROUP BY
+    TUMBLE (rowtime, INTERVAL '1' HOUR)
+  ```
+  * With regex 
+  ```
+  SELECT 
+    data1,
+    data2,
+    TUMBLE_END(rowtime, INTERVAL '1' HOUR) AS event_timestamp
+  FROM 
+    data_stream
+  WHERE 
+    DartContains('test_collection', data1, '^%s.*' 24)
+  GROUP BY
+    TUMBLE (rowtime, INTERVAL '1' HOUR)
+  ```
 
 #### DartGet
 * Contract:
@@ -220,8 +234,8 @@ GROUP BY
 * Functionality: 
   * For the given table name from the streams (In the case of multi-streams/JOINS), find out the element at a given index and a given path in an array of complex Data Types.
   * Finds out the element at a given index and a given path in an array of complex Data Types. Here table name is not provided, In that case, it will always apply the function on the table from the first stream in the configuration.
-  * Finds out the element at a given index in case of an object Array or an ArrayList. This is to accompany elements at a given index for Longbow row.
-  * Calculates the seconds in Unix time for the end of a month of a given timestamp second and timezone.
+  * Finds out the element at a given index in case of an object Array.
+  * Finds out the element at a given index in case of an object Arraylist.
 * Examples:
   * Example 1:
   ```

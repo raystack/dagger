@@ -85,7 +85,7 @@ Defines the Kafka consumer group ID for Dagger deployment. Find more details on 
 
 ##### `SOURCE_KAFKA_NAME`
 
-Defines the stream name for the Kafka consumer.
+Defines a name for the Kafka cluster. It's a logical way to name your Kafka clusters.This helps with identifying different kafka cluster the job might be interacting with.
 
 * Example value: `local-kafka-stream`
 * Type: `required`
@@ -109,10 +109,11 @@ STREAMS = [
 
 #### `SINK_TYPE`
 
-Defines the Dagger sink type.
+Defines the Dagger sink type. At present, we support `log`, `influx`, `kafka`
 
 * Example value: `log`
 * Type: `required`
+* Default value: `influx`
 
 #### `FLINK_JOB_ID`
 
@@ -249,7 +250,7 @@ Defines the proto class to which the message will get serialized and will be sen
 
 #### `SINK_KAFKA_STREAM`
 
-Defines the output Kafka stream name.
+Defines a name for the Kafka cluster. It's a logical way to name your Kafka clusters.This helps with identifying different kafka cluster the job might be interacting with.
 
 * Example value: `output-stream-name`
 * Type: `required`
