@@ -2,16 +2,17 @@
 
 * [Introduction](README.md)
 * [Roadmap](roadmap.md)
-* [Changelog](https://github.com/odpf/dagger/blob/main/CHANGELOG.md)
+* [Changelog](../CHANGELOG.md)
 
 ## Guides
 
 * [Overview](guides/overview.md)
 * [Creating Dagger](guides/create_dagger.md)
-* [Using transformer](guides/use_transformer.md)
+* [Using Transformer](guides/use_transformer.md)
 * [Using UDFs](guides/use_udf.md)
 * [Deployment](guides/deployment.md)
 * [Monitoring](guides/monitoring.md)
+* [Query Examples](guides/query_examples.md)
 * [Troubleshooting](guides/troubleshooting.md)
 
 ## Concepts
@@ -20,6 +21,15 @@
 * [Fundamentals](concepts/basics.md)
 * [Lifecycle](concepts/lifecycle.md)
 * [Architecture](concepts/architecture.md)
+
+## Advance
+
+* [Overview](advance/overview.md)
+* [DARTS](advance/DARTS.md)
+* [Longbow](advance/longbow.md)
+* [Longbow+](advance/longbow+.md)
+* [Post Processor](advance/post_processor.md)
+* [Pre Processor](advance/pre_processor.md)
 
 ## Usecases
 * [Overview](usecase/overview.md)
@@ -45,5 +55,5 @@
 
 * [Contribution Process](contribute/contribution.md)
 * [Development Guide](contribute/development.md)
-* [Creating transfomer](contribute/add_transformer.md)
+* [Creating Transformer](contribute/add_transformer.md)
 * [Creating UDF](contribute/add_udf.md)

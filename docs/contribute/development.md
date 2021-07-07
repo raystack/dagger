@@ -27,7 +27,7 @@ The following components/services are required to run Dagger:
 
 ### Local Creation
 
-Follow [dagger creation guide](https://github.com/odpf/dagger/tree/main/docs/guides/create_dagger.md) for creating/configuring a Dagger in the local environment and to know more about the basic stages of Dagger.
+Follow [dagger creation guide](docs/../../guides/create_dagger.md) for creating/configuring a Dagger in the local environment and to know more about the basic stages of Dagger.
 
 ## Style Guide
 

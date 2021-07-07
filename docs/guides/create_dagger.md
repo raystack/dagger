@@ -18,28 +18,28 @@ Dagger is a stream processing framework built with Apache Flink to process/aggre
 
 - Dagger uses [Apache Flink](https://flink.apache.org/) as the underlying framework for distributed stream processing. The current version of Dagger uses [Flink-1.9](https://ci.apache.org/projects/flink/flink-docs-release-1.9/).
 
-- For distributed stream processing Flink could be configured either on a standalone cluster or in one of the supported resource managers(like Yarn, Kubernetes or docker-compose). To know more about deploying Flink on production read the [deployment section](https://github.com/odpf/dagger/tree/main/docs/guides/deployment.md).
+- For distributed stream processing Flink could be configured either on a standalone cluster or in one of the supported resource managers(like Yarn, Kubernetes or docker-compose). To know more about deploying Flink on production read the [deployment section](docs/../../guides/deployment.md).
 
 - If you want to run dagger in the local machine on a single process, you don't need to install Flink. The following Gradle command should be able to do so.
 
 ```
-$ ./gradlew runFlink
+$ ./gradlew dagger-core:runFlink
 ```
 
 - Tu run the Flink jobs in the local machine with java jar and local properties run the following commands.
 
 ```sh
-# creating a shadow jar
-./gradlew :dagger-core:shadowJar
+# creating a fat jar
+./gradlew :dagger-core:fatJar
 # running the jvm process
-java -jar build/dagger-core/libs/<dagger-version>-all.jar ConfigFile=<filepath>
+java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFile=<filepath>
 ```
 
 #### `Protobuf Data`
 
 - Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from Kafka topics, do the processing and produces data in protobuf format to a Kafka topic(when the sink is Kafka).
 - So you need to push proto data to a Kafka topic to run a dagger. This you can do using any of the Kafka client libraries. Follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a Kafka topic.
-- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates. [These configurations](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md#stencil) needs to be set if you are using stencil for proto schema handling.
+- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates. [These configurations](docs/../../reference/configuration.md#stencil) needs to be set if you are using stencil for proto schema handling.
 
 #### `Sinks`
 
@@ -58,11 +58,11 @@ java -jar build/dagger-core/libs/<dagger-version>-all.jar ConfigFile=<filepath>
 
 ## Common Configurations
 
-- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the Kafka source-level information as well as SQL required for the dagger. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API. Follow this [`postman.json`](update-link) for a sample API to run a job in Flink cluster.
+- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the Kafka source-level information as well as SQL required for the dagger. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
 - Configuration for a given schema involving one or more Kafka topics is consolidated as a Stream. This involves properties for the Kafka cluster, schema, etc. In daggers, you could configure one or more streams for a single job.
 - The `FLINK_JOB_ID` defines the name of the flink job. `ROWTIME_ATTRIBUTE_NAME` is the key name of [row time attribute](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/) required for stream processing.
 - In clustered mode, you can set up the `parallelism` configuration for distributed processing.
-- Read more about the mandatory configurations here[update link].
+- Read more about the mandatory configurations [here](docs/../../reference/configuration.md).
 
 ```properties
 STREAMS=[
@@ -92,8 +92,8 @@ SQL_QUERY= SELECT COUNT(1) AS no_of_events, sample_field, TUMBLE_END(rowtime, IN
 ```
 
 - Flink has really good native support for SQL. All the Flink supported [SQL statements](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html) should be available out of the box for a dagger.
-- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have some pre-supported UDFs[https://github.com/odpf/dagger/tree/main/docs/guides/use_udf.md] as defined [here](https://github.com/odpf/dagger/tree/main/docs/reference/udf.md). Follow [this](https://github.com/odpf/dagger/tree/main/docs/guides/create_udf.md) to add your UDFs to the dagger.
-- We have noted some of the sample queries here[https://github.com/odpf/dagger/tree/main/docs/reference/sample_queries.md] for different use cases.
+- Also you can define custom User Defined Functions(UDFs) to add your SQL logic. We have some pre-supported [UDFs](docs/../../guides/use_udf.md) as defined [here](docs/../../reference/udfs.md). Follow [this](docs/../../contribute/add_udf.md) to add your UDFs to the dagger.
+- We have noted some of the sample queries [here](docs/../../guides/query_examples.md) for different use cases.
 
 ## Log Sink
 
@@ -114,7 +114,7 @@ INFO  io.odpf.dagger.core.sink.log.LogSink                            - {sample_
 
 - Influx sink is useful for data analytics or even for data validation while iterating over the business logic.
 - For the InfluxDB sink, you have to specify the InfluxDB level information as well as an influx measurement to push the processed data.
-- Showing some of the configurations essential for influx sink Dagger. Find more about them [here](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md).
+- Showing some of the configurations essential for influx sink Dagger. Find more about them [here](docs/../../reference/configuration.md).
 
 ```properties
 # === sink config ===
@@ -137,7 +137,7 @@ INFLUX_RETENTION_POLICY=autogen
 ## Kafka Sink
 
 - Kafka sink enables aggregated data to be published to a Kafka topic in protobuf encoded format and is available for consumption by any type of consumer. After a Dagger job is deployed, the new topic is automatically created in the output Kafka cluster if auto-creation is enabled.
-- Listing some of the configurations essential for Kafka sink Dagger. Find more about them [here](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md).
+- Listing some of the configurations essential for Kafka sink Dagger. Find more about them [here](docs/../../reference/configuration.md).
 
 ```properties
 # === sink config ===
@@ -149,16 +149,16 @@ OUTPUT_KAFKA_TOPIC=test-kafka-output
 ```
 
 - Dimensions & metrics from the SELECT section in the query need to be mapped to field names in the output proto.
-- Find more examples on Kafka sink SQL queries here[update link].
+- Find more examples on Kafka sink SQL queries [here](docs/../../guides/query_examples.md#kafka-sink).
 
 ## Advanced Data Processing
 
-- Dagger's inbuilt SQL enables users to do some complex stream processing like aggregations, joins, windowing, union etc. Find more of the sample queries [here](update-link).
-- Dagger supports an internal framework called [processors](update-link) to support some of the more complex Data processing beyond SQL. Some of them are,
-  - Custom Java code injection (Transformers) [update link]
-  - External source support for data enrichment [update link]
-  - Large Windowed Streaming query [update link]
+- Dagger's inbuilt SQL enables users to do some complex stream processing like aggregations, joins, windowing, union etc. Find more of the sample queries [here](docs../../guides/../query_examples.md).
+- Dagger supports an internal framework called processors to support some of the more complex Data processing beyond SQL. Some of them are,
+  - Custom Java code injection [Transformers](docs/../../guides/use_transformer.md)
+  - [External source support](docs/../../advance/post_processor.md#external-post-processor) for data enrichment
+  - [Large Windowed Streaming query](docs/../../advance/longbow.md)
 
-`Note`: _You can configure a lot of other advanced configurations related to stream processing(like watermarks) and related to the dagger. Please follow the [configuration](https://github.com/odpf/dagger/tree/main/docs/reference/configuration.md) section._
+`Note`: _You can configure a lot of other advanced configurations related to stream processing(like watermarks) and related to the dagger. Please follow the [configuration](docs/../../reference/configuration.md) section._
 
-`Note`: _To add a new feature like support for new source/sinks/postprocessors/udfs please follow the [contribution guidelines](https://github.com/odpf/dagger/tree/main/docs/contribute/contribution.md)._
+`Note`: _To add a new feature like support for new source/sinks/postprocessors/udfs please follow the [contribution guidelines](docs/../../contribute/contribution.md)._

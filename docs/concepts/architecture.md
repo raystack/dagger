@@ -26,13 +26,13 @@ _**Dagger Core**_
 _**Pre-Processor**_
 
 - Each stream registered on daggers can have chained pre-processors. They will run and transform the table before registering it for SQL.
-- Currently, only [transformers](update-link) are supported as part of the pre-processor. Pre-processor are simply Flink's ProcessFunctions/Operators which can transform the input stream to another stream of data prior to execution of SQL. They are ideal for complex filtration logic.
+- Currently, only [transformers](docs/../../guides/use_transformer.md) are supported as part of the pre-processor. Pre-processor are simply Flink's ProcessFunctions/Operators which can transform the input stream to another stream of data prior to execution of SQL. They are ideal for complex filtration logic.
 
 _**SQL Execution**_
 
 - Dagger uses Flink's native SQL Planner to executed SQL(The more powerful Blink Planner will be supported in the next releases).
 - In this layer dagger executes streaming SQL (similar to ANSI SQL) on registered unbounded DataStream(s). Flink uses apache calcite for SQL execution.
-- In case you have registered any UDF [update link] SQL engines picks them up and lets you use them in your defined SQL query.
+- In case you have registered any [UDF](docs/../../guides/use_udf.md), SQL engines picks them up and lets you use them in your defined SQL query.
 
 _**ProtoHandlers**_
 
@@ -46,10 +46,10 @@ _**Post-Processor**_
 - They also enable async processing from external Data source/Service endpoints over network calls and complex transformation beyond SQL.
 - They use some of the advanced Flink functionalities like RichFunctions and RichAsyncFunction as the building block. User can define a JSON based DSL to interact with them.
 - Some of the supported types of post processors are
-  - [External Post-Processors](update-link)
-  - [Longbow](update-link)
-  - [Internal Post-Processors](update-link)
-  - [Transformers](update-link)
+  - [External Post-Processors](docs/../../advance/post_processor.md#external-post-processor)
+  - [Longbow](docs/../../advance/longbow.md)
+  - [Internal Post-Processors](docs/../../advance/post_processor.md#internal-post-processor)
+  - [Transformers](docs/../../guides/use_transformer.md)
 
 _**Telemetry Processor**_
 

@@ -183,13 +183,13 @@ Longbow+ reader utilizes same global longbow configs. Details [here](docs/../../
 Given that the output of longbow_reader will contain a list of bytes, it becomes hard to use it directly in the SQL query. So we added a few custom [UDFs](docs/../../guides/use_udf.md) in order to make this easy for the users. These UDFs simplify the Dagger query for consuming data from longbow reader. They consume the data which is in the form of bytes and do deserialization and filtering/field selection on top of it.
 
 ### Field Selection
-You can use [SelectFields](update link) UDF for this. You can select one of the fields from the output of longbow reader and either use it in the query or send it downstream for other systems to use. It returns an array of the selected data type.
+You can use [SelectFields](docs/../../reference/udfs.md#selectfields) UDF for this. You can select one of the fields from the output of longbow reader and either use it in the query or send it downstream for other systems to use. It returns an array of the selected data type.
 
 ### Filtering
-You can use [Filters](update link) UDF for this. This function is used with predicates that decide what data to keep. One example of the predicate is `CondEq`. You could use one or more predicates to filter data as per your requirements.
+You can use [Filters](docs/../../reference/udfs.md#filters) UDF for this. This function is used with predicates that decide what data to keep. One example of the predicate is `CondEq`. You could use one or more predicates to filter data as per your requirements.
 
 #### CondEq
-One of the predicates to be used in Filters. This predicate allows you to equate the field with a specific value. Ex:`CondEq(‘status’, ‘Completed’)` helps filter function to filter data where status is completed. More info [here](update link).
+One of the predicates to be used in Filters. This predicate allows you to equate the field with a specific value. Ex:`CondEq(‘status’, ‘Completed’)` helps filter function to filter data where status is completed. More info [here](docs/../../reference/udfs.md#condeq).
 
 **Note:** It supports String, Integer & Boolean data type.
 

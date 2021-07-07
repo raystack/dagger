@@ -59,7 +59,7 @@ message FeatureMessage {
 
 ### Long Windowed Features
 
-In case you want to have features for long windowed Data, like data for weeks/months, which is tricky using the inbuilt local state management. Dagger exposes Longbow for long windowed aggregation which can solve this. Find more information about longbow [here](update-link).
+In case you want to have features for long windowed Data, like data for weeks/months, which is tricky using the inbuilt local state management. Dagger exposes Longbow for long windowed aggregation which can solve this. Find more information about longbow [here](docs/../../advance/longbow.md).
 
 ## Integration with Feast
 

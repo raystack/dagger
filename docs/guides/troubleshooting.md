@@ -79,7 +79,7 @@ Please raise an issue in case you have more doubts.
   - TUMBLE (rowtime, INTERVAL '10' MINUTE) use 10 Minute as the watermark interval.
   - HOP( iterations_log.rowtime, INTERVAL '1' MINUTE, INTERVAL '60' MINUTE ) use 60 Minute as the watermark interval.
 - Watermark delay in case of a windowed query should be equal to the duration of join. In case your join is not a windowed query, delay and interval will not impact you. A left join is supported, but for it to be effective, you need to ensure the data has unique keys in the respective stream before the join operation.
-- Find sample queries for different types of joins [here](update link).
+- Find sample queries for different types of joins [here](docs/../../guides/query_examples.md#inner-join).
 
 ### Why is my Left Join query not producing any Data?
 
@@ -100,8 +100,8 @@ For high throughput topics, ensure your parallelism is > 1. Also if you are okay
 ### Is my desired SQL function supported by Dagger?
 
 - Check if the desired function is calcite supported. You can find all the calcite functions listed here. If the given function is present please have a look at the inbuilt function by Flink [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/functions.html). If the function is supported, you can directly use it.
-- If the function is not present in both places, check out the list of built-in functions developed by us [here](update-link).
-- Still can not find any suitable function to be used. Don’t worry it can be added [accordingly](update-link).
+- If the function is not present in both places, check out the list of built-in functions developed by us [here](docs/../../reference/udfs.md).
+- Still can not find any suitable function to be used. Don’t worry it can be added [accordingly](docs/../../contribute/add_udf.md).
 
 ### How Retry is handled in the post processors?
 
