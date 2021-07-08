@@ -27,6 +27,15 @@
 * [Feature Ingestion](usecase/feature_ingestion.md)
 * [Stream Enrichment](usecase/stream_enrichment.md)
 
+## Advance
+
+* [Overview](advance/overview.md)
+* [Pre Processor](advance/pre_processor.md)
+* [Post Processor](advance/post_processor.md)
+* [Longbow](advance/longbow.md)
+* [Longbow+](advance/longbow_plus.md)
+* [Darts](advance/darts.md)
+
 ## Reference
 
 * [Configurations](reference/configuration.md)
