@@ -10,14 +10,14 @@ Streaming enrichment information is useful when you need enriched information in
 
 Dagger gives an easy configuration driven abstraction for enriching streamed events in Kafka. Using streaming enrichment with Dagger SQLs and Transformers make them powerful to use.
 
-Streaming enrichment is wrapped as [Post Processors](update link), more specifically [External Post Processors](update link). All the network calls for Data enrichment over Data sources are non-blocking and happens in an Async fashion using callbacks. We use Flink's native Async IO Operators for this. All the basic parameters like timeouts, request count are configurable via Postprocessor configuration JSON.Read [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) about AsyncIO.
+Streaming enrichment is wrapped as [Post Processors](docs/../../advance/post_processor.md), more specifically [External Post Processors](docs/../../advance/post_processor.md#external-post-processor). All the network calls for Data enrichment over Data sources are non-blocking and happens in an Async fashion using callbacks. We use Flink's native Async IO Operators for this. All the basic parameters like timeouts, request count are configurable via Postprocessor configuration JSON.Read [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) about AsyncIO.
 
 Currently, Dagger supports the following external Datasources for event enrichment.
 
-- [ElasticSearch]()
-- [Postgres]()
-- [HTTP endpoints]()
-- [GRPC endpoints]()
+- [ElasticSearch](docs/../../advance/post_processor.md#elasticsearch)
+- [Postgres](docs/../../advance/post_processor.md#postgres)
+- [HTTP endpoints](docs/../../advance/post_processor.md#http)
+- [GRPC endpoints](docs/../../advance/post_processor.md#grpc)
 
 Note: If you want to support your desired data sources for enrichment feel free to contribute.
 
@@ -123,4 +123,4 @@ Sample Post Processor Configuration
 }]
 ```
 
-In the example Postprocessor configuration, the internal source instructs to populate the `booking_log` field of output schema using the SQL select statement and `customer_profile` from the fetched Documents of ES for a given customer. Follow [this](update link) for more details about each configuration fields.
+In the example Postprocessor configuration, the internal source instructs to populate the `booking_log` field of output schema using the SQL select statement and `customer_profile` from the fetched Documents of ES for a given customer. Follow [this](docs/../../advance/post_processor.md#configuration) for more details about each configuration fields.

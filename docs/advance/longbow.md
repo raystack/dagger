@@ -104,7 +104,7 @@ FROM
   booking
 ```
 
-Here, [StartOfMonth](update link), [EndOfMonth](update link) and [TimestampFromUnix](update link) are custom UDFs.
+Here, [StartOfMonth](docs/../../reference/udfs.md#startofmonth), [EndOfMonth](docs/../../reference/udfs.md#endofmonth) and [TimestampFromUnix](docs/../../reference//udfs.md#timestampfromunix) are custom UDFs.
 
 # Configurations
 Longbow is entirely driven via SQL query, i.e. on the basis of presence of certain columns we identify longbow parameters. Following configs should be passed via SQL query as shown in the above example.

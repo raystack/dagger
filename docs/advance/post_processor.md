@@ -45,7 +45,7 @@ There are three types of Post Processors :
 * [Internal Post Processor](post_processor.md#internal-post-processor)
 * [Transformers](post_processor.md#transformers)
 
-Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger.
+Post Processors are entirely configuration driven. All the Post Processor related configs should be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON under Settings in Dagger creation flow. Multiple Post Processors can be combined in the same configuration and applied to a single Dagger.
 
 ## External Post Processor
 External Post Processor is the one that connects to an external data source to fetch data in an async manner and perform enrichment of the stream message. These kinds of Post Processors use Flink’s API for asynchronous I/O with external data stores. For more details on Flink’s Async I/O find the doc [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html).
@@ -70,7 +70,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON
 
 ##### `host`
 
@@ -221,7 +221,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON
 
 ##### `endpoint`
 
@@ -391,7 +391,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON
 
 ##### `host`
 
@@ -554,7 +554,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 #### Configuration
 
-Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON
 
 ##### `endpoint`
 
@@ -724,7 +724,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 ### Configuration
 
-Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_postprocessor_config) JSON
 
 #### `output_field`
 

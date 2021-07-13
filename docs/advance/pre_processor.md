@@ -19,7 +19,7 @@ In the above diagram:
 
 # Configuration
 
-Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CONFIG](update link) JSON
+Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CONFIG](docs/../../reference/configuration.md#processor_preprocessor_config) JSON
 
 ## `table_transformers`
 
