@@ -25,26 +25,17 @@
 ## Advance
 
 * [Overview](advance/overview.md)
-* [DARTS](advance/DARTS.md)
+* [Pre Processor](advance/pre_processor.md)
+* [Post Processor](advance/post_processor.md)
 * [Longbow](advance/longbow.md)
 * [Longbow+](advance/longbow_plus.md)
-* [Post Processor](advance/post_processor.md)
-* [Pre Processor](advance/pre_processor.md)
+* [Darts](advance/DARTS.md)
 
 ## Usecases
 * [Overview](usecase/overview.md)
 * [API Monitoring](usecase/api_monitoring.md)
 * [Feature Ingestion](usecase/feature_ingestion.md)
 * [Stream Enrichment](usecase/stream_enrichment.md)
-
-## Advance
-
-* [Overview](advance/overview.md)
-* [Pre Processor](advance/pre_processor.md)
-* [Post Processor](advance/post_processor.md)
-* [Longbow](advance/longbow.md)
-* [Longbow+](advance/longbow_plus.md)
-* [Darts](advance/darts.md)
 
 ## Reference
 
