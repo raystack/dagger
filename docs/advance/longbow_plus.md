@@ -3,10 +3,10 @@ Longbow+ is an enhanced version of [longbow](docs/../../advance/longbow.md). It 
 
 # Components
 Similar to longbow, longbow+ also has the following components.
-* [Longbow writer](longbow+.md#longbow-writer)
-* [Longbow reader](longbow+.md#longbow-reader)
+* [Longbow writer](longbow_plus.md#longbow-writer)
+* [Longbow reader](longbow_plus.md#longbow-reader)
 
-But unlike longbow, the above two components are divided into multiple daggers instead of a single one. The main idea behind dividing this into two daggers is to resue the data published by longbow_writer by multiple longbow_reader for different use cases. In order to connect the two daggers, longbow_writer publishes a synchronization log having some metadata that can be consumed by multiple longbow_reader daggers. From the output of a longbow_reader, different daggers can be used in order to query the historical information as explained [here](longbow+.md#using-longbow-reader-output).
+But unlike longbow, the above two components are divided into multiple daggers instead of a single one. The main idea behind dividing this into two daggers is to resue the data published by longbow_writer by multiple longbow_reader for different use cases. In order to connect the two daggers, longbow_writer publishes a synchronization log having some metadata that can be consumed by multiple longbow_reader daggers. From the output of a longbow_reader, different daggers can be used in order to query the historical information as explained [here](longbow_plus.md#using-longbow-reader-output).
 
 ## Longbow writer
 LongbowWrite has two responsibilities, to write an incoming event to BigTable and then emit a resultant event containing metadata(like table name, input proto class name, longbow key, etc.) to a Kafka topic after each successful write. It uses Flink's [Async IO](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/asyncio.html) in order to make the network call.

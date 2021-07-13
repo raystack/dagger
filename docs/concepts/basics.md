@@ -27,7 +27,7 @@ well optimized to be transferred via the network. Dagger supports processing Dat
 
 ### Parallelism
 
-Dagger uses Flink for Distributed Data processing in scale. [Slots/Parallelism](https://ci.apache.org/projects/flink/flink-docs-master/docs/dev/execution/parallel/) is the Flink’s unit for Parallel Processing Data which provides an efficient way to horizontally scale up your job.
+Dagger uses Flink for Distributed Data processing in scale. [Slots/Parallelism](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/parallel.html) is the Flink’s unit for Parallel Processing Data which provides an efficient way to horizontally scale up your job.
 
 ### Dagger Queries
 

@@ -14,12 +14,12 @@ Discover why to use Dagger
 * **Metrics:** Always know what’s going on with your deployment with built-in [monitoring](docs/../reference/metrics.md) of throughput, response times, errors and more.
 
 ## What problems Dagger solves?
-* Map reduce: [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html)
-* Enrichment: [Post Processors](docs/../advance/post_processor.md)
-* Aggregation: [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](docs/../guides/use_udf.md)
-* Masking: [Hash Transformer](docs/../guides/use_transformer.md#HashTransformer)
-* Deduplication: [Deduplication Transformer](docs/../guides/use_transformer.md#DeDuplicationTransformer)
-* Realtime long window processing: [Longbow](docs/../advance/longbow.md)
+* Map reduce -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html)
+* Enrichment -> [Post Processors](docs/../advance/post_processor.md)
+* Aggregation -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](docs/../guides/use_udf.md)
+* Masking -> [Hash Transformer](docs/../reference/transformers.md#HashTransformer)
+* Deduplication -> [Deduplication Transformer](docs/../reference/transformers.md#DeDuplicationTransformer)
+* Realtime long window processing -> [Longbow](docs/../advance/longbow.md)
 
 To know more, follow the detailed [documentation](https://odpf.gitbook.io/dagger).
 

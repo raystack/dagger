@@ -27,7 +27,7 @@
 * [Overview](advance/overview.md)
 * [DARTS](advance/DARTS.md)
 * [Longbow](advance/longbow.md)
-* [Longbow+](advance/longbow+.md)
+* [Longbow+](advance/longbow_plus.md)
 * [Post Processor](advance/post_processor.md)
 * [Pre Processor](advance/pre_processor.md)
 
@@ -48,8 +48,11 @@
 
 ## Reference
 
+* [Overview](reference/overview.md)
 * [Configurations](reference/configuration.md)
 * [Metrics](reference/metrics.md)
+* [Transformers](reference/transformers.md)
+* [UDFs](reference/udfs.md)
 
 ## Contribute
 

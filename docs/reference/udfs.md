@@ -46,7 +46,7 @@ This page contains references for all the custom udfs available on Dagger.
 * Contract: 
   * **Object** ArrayAggregate(Object[] arrayElements, String operationType, String inputDataType).
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow_plus.md).
   * Currently, we only support limited operations on limited data types. The supported Data types and functions are listed below.
 * Supported Data types and Functions:
   * Data type:
@@ -93,7 +93,7 @@ This page contains references for all the custom udfs available on Dagger.
 * Contract: 
   * **Object[]** ArrayOperate(Object[] arrayElements, String operationType, String inputDataType)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * This is one of the UDFs related to **LongbowPlus** but also can be used alone. Given an Object Array, this UDF performs basic Mathematical functions on the Array. You need to give the name of the function you want to use as a string and the Data type of the element inside the input array. Find details on LongbowPlus [here](../advance/longbow_plus.md).
   * Currently, we only support limited operations on limited data types. The supported Data types and functions are listed below.
 * Supported Data types and Functions:
   * Data type:
@@ -121,7 +121,7 @@ FROM
 * Contract: 
   * **Predicate<DynamicMessage>** CondEq(String fieldName, Object comparison)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **Filters** UDFs. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **Filters** UDFs. Find details on LongbowPlus [here](../advance/longbow_plus.md).
   * Can specify an equality condition with a fieldName and a value.
 * Example:
 
@@ -348,7 +348,7 @@ FROM
 * Contract: 
   * **List<DynamicMessage>** Filters(ByteString[] inputProtoBytes, String protoClassName, Predicate<DynamicMessage>... predicates)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **CondEq** UDFs. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * This is one of the UDFs related to **LongbowPlus** and has to be used with **SelectFields** and **CondEq** UDFs. Find details on LongbowPlus [here](../advance/longbow_plus.md).
   * Takes ByteString[] as the data and zero or more Predicates (we have only CondEq as a predicate that is defined for now). Applies the predicated conditions on the proto ByteString list field that is selected from the query and returns filtered Data.
 * Example:
 ```
@@ -486,7 +486,7 @@ FROM data_stream
 * Contract: 
   * **Object[]** SelectFields(ByteString[] inputProtoBytes, String protoClassName, String fieldPath) , Object[] SelectFields(List<DynamicMessage> filteredData, String fieldPath)
 * Functionality:
-  * This is one of the UDFs related to **LongbowPlus** and has to be used either with **SelectFields** and **Filters** UDFs or alone. Find details on LongbowPlus [here](../advance/longbow+.md).
+  * This is one of the UDFs related to **LongbowPlus** and has to be used either with **SelectFields** and **Filters** UDFs or alone. Find details on LongbowPlus [here](../advance/longbow_plus.md).
   * Can select a single field from the list of proto bytes output from the LongbowRead phase. Can be used with or without applying filters on top of LongbowRead output(which will be in repeated bytes).
 * Example:
   * When used alone:

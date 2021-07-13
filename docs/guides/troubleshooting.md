@@ -51,7 +51,7 @@ Please raise an issue in case you have more doubts.
   ./bin/kafka-topics.sh --list --zookeeper localhost:2181
   ```
 
-- `Data verification`: You can use any standard Kafka consumer that supports protobuf encoding in data to verify this. We have a custom consumer called [firehose](github.com/odpf/firehose). You can run a simple log sink firehose for this.
+- `Data verification`: You can use any standard Kafka consumer that supports protobuf encoding in data to verify this. We have a custom consumer called [firehose](https://github.com/odpf/firehose). You can run a simple log sink firehose for this.
 
 ### Why can I not find the Topic created by Daggers?
 

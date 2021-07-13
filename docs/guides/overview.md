@@ -28,10 +28,6 @@ This section contains guides, best practices and bits of advice related to troub
 
 Explains how to use User Defined Functions(UDFs) in Dagger SQL queries.
 
-### [Create UDFs](docs/../../guides/create_udf.md)
-
-How an user create an unsupported UDFs in Dagger and use it.
-
-### [User Transformer](docs/../../guides/use_transformer.md)
+### [Use Transformer](docs/../../guides/use_transformer.md)
 
 Transformers are Dagger specific plugins where user can specify custom Operators and inject them in Dagger. This section talks briefly about how to define and use a Transformer in Dagger.
