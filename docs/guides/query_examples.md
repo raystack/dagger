@@ -41,6 +41,7 @@ message SamplePaymentInfo {
 * While using Dagger with InfluxDB sink, `tag_` should be appended to the beginning of those columns which you want as dimensions. Dimensions will help you slice the data in InfluxDB-Grafana. InfluxDB tags are essentially the columns on which data is indexed. Find more on influxDB tags [here](https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#tag).
 * DO NOT use `tag_` for high cardinal data points such as customer_id, merchant_id etc unless you provide a filtering condition; this will create tag explosion & affect the InfluxDB.
 * Ensure there is at least one value field present in the query(not starting with `tag_`).
+* In case you want your dimensions without the prefix `tag_` you can use `label_` prefix. The name of the dimension will not have `tag_` or `label_` prefix.
 
 ### Example query
 Here booking denotes the booking events stream with [sample booking schema](#sample-booking-event-schema).
