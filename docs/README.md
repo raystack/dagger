@@ -2,7 +2,7 @@
 Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native framework built on top of Apache Flink for stateful processing of real-time streaming data. With Dagger, you don't need to write custom applications or manage resources to process data in real-time.
 Instead, you can write SQLs to do the processing and analysis on streaming data.
 
-<p align="center"><img src="docs/../assets/overview.svg" /></p>
+![](./assets/overview.svg)
 
 ## Key Features
 Discover why to use Dagger
