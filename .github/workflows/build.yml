@@ -26,5 +26,5 @@ jobs:
         run: ./gradlew build
       - name: Cleanup Gradle cache
         run: |
-          rm -f ~/gradle/caches/modules-2/modules-2.lock
-          rm -f ~/gradle/caches/modules-2/gc.properties
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
