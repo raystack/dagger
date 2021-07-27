@@ -24,3 +24,7 @@ jobs:
         run: chmod +x gradlew
       - name: Building dagger core. All dependent sub project would be built as part of this
         run: ./gradlew build
+      - name: Cleanup Gradle cache
+        run: |
+          rm -f ~/gradle/caches/modules-2/modules-2.lock
+          rm -f ~/gradle/caches/modules-2/gc.properties
