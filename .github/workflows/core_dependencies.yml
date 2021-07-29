@@ -40,9 +40,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**.gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-cache-v1-${{ hashFiles('**/*.gradle*', '**.gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-cache-v1-
       - name: Publish dependencies package of core
         run: ./gradlew :dagger-core:dependenciesPublish
         env:
