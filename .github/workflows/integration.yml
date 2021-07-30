@@ -1,11 +1,8 @@
 name: integration-test
 
 on:
-  # Trigger the workflow on push or pull request,
+  # Trigger the workflow on pull request,
   # but only for the main branch
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -50,7 +47,5 @@ jobs:
           key: ${{ runner.os }}-gradle-cache-v1-${{ hashFiles('**/*.gradle*', '**.gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-cache-v1-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
       - name: Run test
         run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew integrationTest
