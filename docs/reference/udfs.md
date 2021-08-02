@@ -122,7 +122,7 @@ FROM
 * Contract:
   * **String** ByteToString(ByteString byteField)
 * Functionality:
-  * Given an ByteString, this UDF converts to String
+  * Given a ByteString, this UDF converts to String
 * Example:
 
 ```
