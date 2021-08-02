@@ -7,6 +7,7 @@ This page contains references for all the custom udfs available on Dagger.
 - [Scalar Functions](udfs.md#scalar-functions)
   - [ArrayAggregate](udfs.md#ArrayAggregate)
   - [ArrayOperate](udfs.md#ArrayOperate)
+  - [ByteToString](udfs.md#ByteToString)
   - [CondEq](udfs.md#CondEq)
   - [DartContains](udfs.md#DartContains)
   - [DartGet](udfs.md#DartGet)
@@ -115,6 +116,20 @@ SELECT
     'float') AS distinct_shoping_price_values
 FROM 
   data_stream
+```
+
+#### ByteToString
+* Contract:
+  * **String** ByteToString(ByteString byteField)
+* Functionality:
+  * Given an ByteString, this UDF converts to String
+* Example:
+
+```
+Select
+    ByteToString(payload) as payload_string
+from
+    data_streams
 ```
 
 #### CondEq
