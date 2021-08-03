@@ -18,7 +18,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-dagger-cache-${{ hashFiles('**/*.gradle*', '**.gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-dagger-cache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-dagger-cache-
       - name: Publish packages of common subprojects
