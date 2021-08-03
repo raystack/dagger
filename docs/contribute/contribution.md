@@ -54,3 +54,10 @@ $ git commit -s -m "feat: my first commit"
 - Include desired labels when opening the PR.
 - Add `WIP:` to PR name if more work needs to be done before review.
 - Avoid force-pushing as it makes reviewing difficult.
+
+We follow [semantic versioning](https://semver.org/) for any code change and release. The version is defined in
+the [version.txt](../../version.txt) file and is common across all the submodules.
+
+- Bump up the patch version for every backward compatible changes like addition of new UDFs/transformers/bug fixes etc.
+- In case of any contract changes bump of minor version.
+- For major feature releases like upgrading the Flink version, update the major version.
