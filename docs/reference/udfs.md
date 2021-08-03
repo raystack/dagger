@@ -117,6 +117,20 @@ FROM
   data_stream
 ```
 
+#### ByteToString
+* Contract:
+  * **String** ByteToString(ByteString byteField)
+* Functionality:
+  * Given a ByteString, this UDF converts to String
+* Example:
+
+```
+Select
+    ByteToString(payload) as payload_string
+from
+    data_streams
+```
+
 #### CondEq
 * Contract: 
   * **Predicate<DynamicMessage>** CondEq(String fieldName, Object comparison)

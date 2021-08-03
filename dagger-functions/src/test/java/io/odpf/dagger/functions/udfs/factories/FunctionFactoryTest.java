@@ -33,6 +33,7 @@ import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
 import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
 import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
+import io.odpf.dagger.functions.udfs.scalar.ByteToString;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.apache.flink.configuration.Configuration;
@@ -112,6 +113,7 @@ public class FunctionFactoryTest {
         verify(streamTableEnvironment, times(1)).registerFunction(eq("SelectFields"), any(SelectFields.class));
         verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
         verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayOperate"), any(ArrayOperate.class));
+        verify(streamTableEnvironment, times(1)).registerFunction(eq("ByteToString"), any(ByteToString.class));
     }
 
     @Test
