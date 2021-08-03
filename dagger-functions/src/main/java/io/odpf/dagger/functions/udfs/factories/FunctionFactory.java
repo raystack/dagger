@@ -34,6 +34,7 @@ import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
 import io.odpf.dagger.functions.udfs.scalar.CondEq;
 import io.odpf.dagger.functions.udfs.scalar.Filters;
 import io.odpf.dagger.functions.udfs.scalar.SelectFields;
+import io.odpf.dagger.functions.udfs.scalar.ByteToString;
 import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
 import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
@@ -97,6 +98,7 @@ public class FunctionFactory extends UdfFactory {
         scalarUdfs.add(new SelectFields(stencilClientOrchestrator));
         scalarUdfs.add(new ArrayAggregate());
         scalarUdfs.add(new ArrayOperate());
+        scalarUdfs.add(new ByteToString());
         return scalarUdfs;
     }
 
