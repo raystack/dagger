@@ -11,7 +11,14 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-dagger-cache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-dagger-cache-
       - name: Building dagger core. All dependent sub project would be built as part of this
         run: ./gradlew build
