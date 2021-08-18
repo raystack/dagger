@@ -42,6 +42,7 @@ public class SqlInternalConfigProcessorTest {
         Assert.assertFalse(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
     }
 
+    //TODO check what to  assert
     @Test
     public void processWithRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"field"}, Arrays.asList("field1", "newField", "field2"));

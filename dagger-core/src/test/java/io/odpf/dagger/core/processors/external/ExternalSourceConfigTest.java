@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ExternalSourceConfigTest {
 
+    //TODO use static import
     private ArrayList<HttpSourceConfig> http;
     private ArrayList<EsSourceConfig> es;
     private List<PgSourceConfig> pg;

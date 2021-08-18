@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 public class SqlConfigTypePathParserTest {
 
+    //TODO use static import
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 

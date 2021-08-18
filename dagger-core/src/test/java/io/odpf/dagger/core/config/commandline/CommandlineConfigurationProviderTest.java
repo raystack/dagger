@@ -25,6 +25,8 @@ public class CommandlineConfigurationProviderTest {
         assertEquals(1, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
+        assertEquals("value", configurations.getString("key", ""));
+        //TODO convert to assert equals for string comparison
         assertTrue(configurations.getString("key", "").equals("value"));
     }
 
@@ -35,8 +37,10 @@ public class CommandlineConfigurationProviderTest {
         assertEquals(2, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
+        //TODO convert to assert equals for string comparison
         assertTrue(configurations.getString("key", "").equals("value"));
         assertTrue(configurations.containsKey("k"));
+        //TODO convert to assert equals for string comparison
         assertTrue(configurations.getString("k", "").equals("v"));
     }
 
@@ -46,6 +50,7 @@ public class CommandlineConfigurationProviderTest {
         Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).get();
 
         assertTrue(configurations.containsKey("key"));
+        //TODO convert to assert equals for string comparison
         assertTrue(configurations.getString("key", "").equals("value"));
     }
 }

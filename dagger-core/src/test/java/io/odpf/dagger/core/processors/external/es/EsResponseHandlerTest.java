@@ -84,6 +84,7 @@ public class EsResponseHandlerTest {
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        //TODO instead of mock create a normal response object, it will avoid methods like mockUp.tearDown();
         defaultResponse = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(defaultResponse.getStatusLine()).thenReturn(statusLine);
@@ -133,6 +134,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
+        //TODO not urgent, convert constructor to builder pattern, helps making code easier to read which fields differ between test
         esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
                 "driver_id", null, "30",
                 "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", true);

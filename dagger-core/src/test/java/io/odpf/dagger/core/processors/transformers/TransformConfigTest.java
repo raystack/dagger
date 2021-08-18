@@ -36,6 +36,7 @@ public class TransformConfigTest {
 
     @Test
     public void shouldReturnTransformationArguments() {
+        //TODO assert create copy of map and then assert
         assertEquals(transformationArguments, defaultTransformConfig.getTransformationArguments());
     }
 

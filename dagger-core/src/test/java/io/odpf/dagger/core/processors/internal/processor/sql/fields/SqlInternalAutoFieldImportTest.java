@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class SqlInternalAutoFieldImportTest {
 
+    //TODO use static import
     @Test
     public void shouldReturnAllOfTheInputFieldToOutputField() {
         ArrayList<String> outputColumnNames = new ArrayList<>();

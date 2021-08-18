@@ -9,6 +9,7 @@ public class LongbowReadColumnModifierTest {
     @Test
     public void shouldAddProtoColumnNames() {
         LongbowReadColumnModifier longbowReadColumnModifier = new LongbowReadColumnModifier();
+        //TODO add one more test where input column names is not empty
         String[] inputColumnNames = {};
         String[] outputColumnNames = longbowReadColumnModifier.modifyColumnNames(inputColumnNames);
         String[] expected = {"proto_data"};

@@ -48,6 +48,7 @@ public class LongbowProcessorTest {
         richAsyncFunctions.add(asyncFunction2);
         LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnModifier);
         longbowProcessor.process(new StreamInfo(dataStream, columnNames));
+        //TODO use argument captor to verity it is LongbowReader and LongbowWriter
         verify(asyncProcessor, times(2))
                 .orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
     }

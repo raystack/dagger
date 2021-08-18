@@ -13,7 +13,7 @@ public class InitializationDecoratorTest {
     @Test
     public void canDecorateShouldBeFalse() {
         InitializationDecorator initializationDecorator = new InitializationDecorator(new ColumnNameManager(new String[0], new ArrayList<>()));
-
+        //TODO use static import
         Assert.assertFalse(initializationDecorator.canDecorate());
     }
 
@@ -23,7 +23,7 @@ public class InitializationDecoratorTest {
 
         Row inputData = new Row(5);
         Row actualRow = initializationDecorator.map(inputData);
-
+        //TODO use static import
         Assert.assertEquals(2, actualRow.getArity());
         Assert.assertEquals(inputData, actualRow.getField(0));
         Row outputRow = ((Row) actualRow.getField(1));

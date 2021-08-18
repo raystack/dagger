@@ -124,6 +124,7 @@ public class HttpAsyncConnectorTest {
 
         verify(httpClient, times(1)).close();
         verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
+        //TODO use static import
         Assert.assertNull(httpAsyncConnector.getHttpClient());
     }
 
@@ -131,6 +132,7 @@ public class HttpAsyncConnectorTest {
     public void shouldReturnHttpClient() {
         HttpAsyncConnector httpAsyncConnector = new HttpAsyncConnector(defaultHttpSourceConfig, externalMetricConfig, schemaConfig, httpClient, errorReporter, meterStatsManager, defaultDescriptorManager);
         AsyncHttpClient returnedHttpClient = httpAsyncConnector.getHttpClient();
+        //TODO use static import
         Assert.assertEquals(httpClient, returnedHttpClient);
     }
 
@@ -182,6 +184,7 @@ public class HttpAsyncConnectorTest {
 
         httpAsyncConnector.open(flinkConfiguration);
         try {
+            //TODO assert exception
             httpAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,6 +210,7 @@ public class HttpAsyncConnectorTest {
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }

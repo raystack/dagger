@@ -187,6 +187,7 @@ public class PgResponseHandlerTest {
         pgResponseHandler.startTimer();
         pgResponseHandler.handle(event);
 
+        //TODO check why httpfailureexception here
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);

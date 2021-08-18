@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 public class ConstantInternalConfigProcessorTest {
 
+    //TODO use static import
     @Test
     public void shouldBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[0], new ArrayList<>());

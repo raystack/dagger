@@ -25,7 +25,7 @@ public class GrpcClientTest {
         grpcClient.addChannel();
 
         Channel decoratedChannel = grpcClient.getDecoratedChannel();
-
+        //TODO use assert not null instead, use static imports
         Assert.assertTrue(decoratedChannel != null);
 
     }
@@ -43,9 +43,11 @@ public class GrpcClientTest {
         grpcClient.addChannel();
 
         Channel decoratedChannel = grpcClient.getDecoratedChannel();
+        //TODO use assert not null instead, use static imports
         Assert.assertTrue(decoratedChannel != null);
 
         grpcClient.close();
+        //TODO use assert null instead, use static imports
         Assert.assertTrue(grpcClient.getDecoratedChannel() == null);
 
     }

@@ -64,6 +64,7 @@ public class ValidRecordsDecoratorTest {
         Row invalidRow = protoDeserializer.deserialize(consumerRecord);
         ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns());
         filter.errorReporter = this.errorReporter;
+        //TODO assertfalse not needed as exception is thrown
         Assert.assertFalse(filter.filter(invalidRow));
     }
 
@@ -73,6 +74,7 @@ public class ValidRecordsDecoratorTest {
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
         Row validRow = protoDeserializer.deserialize(consumerRecord);
         FilterDecorator filter = new ValidRecordsDecorator("test", getColumns());
+        //TODO use static import
         Assert.assertTrue(filter.filter(validRow));
     }
 }

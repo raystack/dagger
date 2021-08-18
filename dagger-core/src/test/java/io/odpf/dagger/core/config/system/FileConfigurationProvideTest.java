@@ -13,7 +13,7 @@ public class FileConfigurationProvideTest {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
         Configuration stringStringMap = new FileConfigurationProvider().get();
-
+        //TODO swap actual and expected
         assertEquals(stringStringMap.getString("FLINK_PARALLELISM", "1"), "1");
     }
 

@@ -14,6 +14,7 @@ public class KafkaEnvironmentVariablesTest {
     @Test
     public void shouldReturnKafkaEnvVarsPositive() {
         Configuration configuration = new Configuration();
+        //TODO remove hashmap and directly set the config
         new HashMap<String, String>() {{
             put("PATH", "/usr/local/bin");
             put("SHELL", "/usr/local/bin/zsh");
@@ -48,7 +49,7 @@ public class KafkaEnvironmentVariablesTest {
         Map<String, String> expectedEnvVars = new HashMap<>();
 
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
-
+        //TOOD use collections.emptymap, improves readability
         assertEquals(expectedEnvVars, actualEnvVars);
     }
 
@@ -58,7 +59,7 @@ public class KafkaEnvironmentVariablesTest {
         Map<String, String> expectedEnvVars = new HashMap<>();
 
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
-
+        //TOOD use collections.emptymap, improves readability
         assertEquals(expectedEnvVars, actualEnvVars);
     }
 
@@ -69,7 +70,7 @@ public class KafkaEnvironmentVariablesTest {
         Map<String, String> expectedEnvVars = new HashMap<>();
 
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
-
+        //TOOD use collections.emptymap, improves readability
         assertEquals(expectedEnvVars, actualEnvVars);
     }
 }

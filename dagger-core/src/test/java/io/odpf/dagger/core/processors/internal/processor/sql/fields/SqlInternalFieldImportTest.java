@@ -17,6 +17,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SqlInternalFieldImportTest {
 
+    //TODO use static import
     @Mock
     private ColumnNameManager defaultColumnNameManager;
 

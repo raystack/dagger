@@ -52,6 +52,7 @@ public class LongbowFactoryTest {
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
+        //TODO use argument captor to verity it is LongbowWriter
         verify(asyncProcessor, times(1)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
         Assert.assertEquals(inputColumnNames.length + 3, outputStream.getColumnNames().length);
     }
@@ -63,7 +64,9 @@ public class LongbowFactoryTest {
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
+        //TODO no need to call process, check if we can just check object parameters of longbowProcessor
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
+        //TODO use argument captor to verity it is LongbowReader
         verify(asyncProcessor, times(1)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
         Assert.assertEquals(inputColumnNames.length + 1, outputStream.getColumnNames().length);
     }
@@ -74,8 +77,10 @@ public class LongbowFactoryTest {
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
+        //TODO no need to call process, check if we can just check object parameters of longbowProcessor
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
+        //TODO use argument captor to verity it is LongbowReader and LongbowWriter
         verify(asyncProcessor, times(2)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
         Assert.assertEquals(inputColumnNames.length, outputStream.getColumnNames().length);
     }

@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 
+//TODO dont need mockito,
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationsTest {
 
@@ -35,7 +36,7 @@ public class ConfigurationsTest {
         System.setProperty("ConfigSource", "ARGS");
 
         ConfigurationProvider provider = providerFactory.provider();
-
+        //TODO swap actual and expected
         assertEquals(provider.get().getString("key", ""), "argValue");
     }
 }

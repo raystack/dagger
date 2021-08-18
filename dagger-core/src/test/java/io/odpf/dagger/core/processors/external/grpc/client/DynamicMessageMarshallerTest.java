@@ -27,6 +27,7 @@ public class DynamicMessageMarshallerTest {
 
     }
 
+    //TODO convert to rule just to keep convention same
     @Test(expected = RuntimeException.class)
     public void parseShouldFailForWrongStream() throws InvalidProtocolBufferException {
 

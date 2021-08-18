@@ -86,6 +86,7 @@ public class GrpcAsyncConnectorTest {
         long shutDownPeriod = 0L;
         grpcStencilUrl = "http://localhost/feast-proto/latest";
         inputProtoClasses = new String[]{"InputProtoMessage"};
+        //TODO use actual object instead of mock
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
@@ -118,6 +119,7 @@ public class GrpcAsyncConnectorTest {
 
         verify(grpcClient, times(1)).close();
         verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
+        //TODO use static imports
         Assert.assertNull(grpcAsyncConnector.getGrpcClient());
     }
 
@@ -140,6 +142,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldInitializeDescriptorManagerInOpen() throws Exception {
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
+        //TODO not needed
         String[] grpcStencils = {grpcStencilUrl};
         List<String> grpcSpecificStencilURLs = Arrays.asList(grpcStencils);
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, null);
@@ -161,6 +164,7 @@ public class GrpcAsyncConnectorTest {
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.open(flinkConfiguration);
+        //TODO assert exception
         try {
             grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
         } catch (Exception e) {
@@ -182,6 +186,7 @@ public class GrpcAsyncConnectorTest {
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
+        //TODO assert exception
         try {
             grpcAsyncConnector.open(flinkConfiguration);
             grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
@@ -190,6 +195,7 @@ public class GrpcAsyncConnectorTest {
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        //TODO verify using exception message using argument captor
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
@@ -238,6 +244,7 @@ public class GrpcAsyncConnectorTest {
         verify(grpcClient, times(1)).asyncUnaryCall(any(), any(), any(), any());
         verify(meterStatsManager, times(1)).markEvent(TOTAL_EXTERNAL_CALLS);
         verify(meterStatsManager, times(0)).markEvent(INVALID_CONFIGURATION);
+        //TODO verify using exception message using argument captor
         verify(errorReporter, times(0)).reportFatalException(any(InvalidConfigurationException.class));
     }
 
@@ -256,11 +263,13 @@ public class GrpcAsyncConnectorTest {
         try {
             grpcAsyncConnector.open(flinkConfiguration);
             grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
+            //TODO assert exception
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        //TODO verify using exception message using argument captor
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
@@ -314,12 +323,13 @@ public class GrpcAsyncConnectorTest {
         try {
             grpcAsyncConnector.open(flinkConfiguration);
             grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-
+            //TODO assert exception
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
+        //TODO verify using exception message using argument captor
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
     }
@@ -357,7 +367,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() {
-
+        //TODO having builder pattern will make this very readable
         grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
                 "customer_id", "123", "234", false, grpcStencilUrl, null, true,
                 headers, outputMapping, "metricId_02", 30);
@@ -387,7 +397,7 @@ public class GrpcAsyncConnectorTest {
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
         grpcAsyncConnector.preProcessBeforeNotifyingSubscriber();
-
+        //TODO static imports
         Assert.assertEquals(metrics, grpcAsyncConnector.getTelemetry());
     }
 
@@ -399,6 +409,7 @@ public class GrpcAsyncConnectorTest {
         verify(telemetrySubscriber, times(1)).updated(grpcAsyncConnector);
     }
 
+    //TODO make use of rule
     @Test(expected = IllegalStateException.class)
     public void shouldThrowIfRuntimeContextNotInitialized() throws Exception {
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, null, meterStatsManager, descriptorManager);

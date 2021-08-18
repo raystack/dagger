@@ -58,6 +58,7 @@ public class FetchOutputDecoratorTest {
 
     @Test
     public void canDecorateShouldBeFalse() {
+        //TODO use static import
         Assert.assertFalse(new FetchOutputDecorator(schemaConfig, false).canDecorate());
     }
 

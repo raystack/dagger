@@ -25,6 +25,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MetricsTelemetryExporterTest {
 
+    //TODO static imports
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
     @Mock
@@ -66,6 +67,7 @@ public class MetricsTelemetryExporterTest {
         Row inputRow = new Row(1);
         inputRow.setField(0, "test_value");
         Row outputRow = metricsTelemetryExporter.map(inputRow);
+        //TODO should create a copy input row and then assert
         Assert.assertEquals(inputRow, outputRow);
     }
 

@@ -178,6 +178,7 @@ public class GrpcSourceConfigTest {
 
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
+        //TODO use static imports
         Assert.assertEquals(4, grpcStencilUrl.size());
         Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
         Assert.assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));

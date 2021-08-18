@@ -8,6 +8,7 @@ import io.odpf.dagger.core.processors.internal.processor.sql.fields.SqlInternalC
 import org.junit.Assert;
 import org.junit.Test;
 
+//TODO use static import
 public class InternalConfigHandlerFactoryTest {
     @Test
     public void shouldGetConstantInternalProcessor() {

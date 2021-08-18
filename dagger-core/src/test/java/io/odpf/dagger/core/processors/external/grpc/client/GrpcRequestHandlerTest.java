@@ -24,7 +24,7 @@ public class GrpcRequestHandlerTest {
 
     @Test
     public void bodyShouldBeCreatedForProperPayload() throws InvalidProtocolBufferException {
-
+        //TODOD use non-mock object, convert to builder pattern
         grpcSourceConfig = mock(GrpcSourceConfig.class);
         descriptorManager = mock(DescriptorManager.class);
         TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
@@ -42,14 +42,16 @@ public class GrpcRequestHandlerTest {
 
         Descriptors.FieldDescriptor field1 = TestGrpcRequest.getDescriptor().findFieldByName("field1");
         Descriptors.FieldDescriptor field2 = TestGrpcRequest.getDescriptor().findFieldByName("field2");
+        //TODO use static imports
         Assert.assertEquals("val1", message.getField(field1));
         Assert.assertEquals("val2", message.getField(field2));
 
     }
 
+    //TODO convert to rule exception
     @Test(expected = InvalidGrpcBodyException.class)
     public void shouldThrowExceptionInCaseOfWrongBody() throws InvalidProtocolBufferException {
-
+        //TODO use actual object
         grpcSourceConfig = mock(GrpcSourceConfig.class);
         descriptorManager = mock(DescriptorManager.class);
         TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();

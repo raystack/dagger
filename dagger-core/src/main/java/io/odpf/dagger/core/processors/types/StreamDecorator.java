@@ -14,6 +14,7 @@ public interface StreamDecorator extends Serializable {
      *
      * @return the boolean
      */
+    //TODO ask if this is used any where because implementations return false
     Boolean canDecorate();
 
     /**

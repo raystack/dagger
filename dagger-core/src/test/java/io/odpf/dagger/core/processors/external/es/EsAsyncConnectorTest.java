@@ -123,6 +123,7 @@ public class EsAsyncConnectorTest {
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
+        //TODO use eq for request matching
         verify(esClient, times(1)).performRequestAsync(any(Request.class), any(EsResponseHandler.class));
         verify(resultFuture, times(0)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(0)).markEvent(INVALID_CONFIGURATION);
@@ -160,6 +161,7 @@ public class EsAsyncConnectorTest {
         when(stencilClient.get("TestMessage")).thenReturn(null);
 
         esAsyncConnector.open(configuration);
+        //TODO assert exception
         try {
             esAsyncConnector.asyncInvoke(streamRow, resultFuture);
         } catch (Exception e) {
@@ -182,7 +184,7 @@ public class EsAsyncConnectorTest {
 
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
-
+        //TODO assert exception message
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
@@ -202,7 +204,7 @@ public class EsAsyncConnectorTest {
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
-
+        //TODO assert exception message
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
@@ -223,6 +225,7 @@ public class EsAsyncConnectorTest {
         esAsyncConnector.open(configuration);
         esAsyncConnector.asyncInvoke(streamRow, resultFuture);
 
+        //TODO assert exception message
         verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
@@ -293,7 +296,7 @@ public class EsAsyncConnectorTest {
 
         EsAsyncConnector esAsyncConnector = new EsAsyncConnector(esSourceConfig, externalMetricConfig, schemaConfig, esClient, errorReporter, meterStatsManager);
         esAsyncConnector.preProcessBeforeNotifyingSubscriber();
-
+        //TODO use static imports
         Assert.assertEquals(metrics, esAsyncConnector.getTelemetry());
     }
 
@@ -317,12 +320,13 @@ public class EsAsyncConnectorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
 
         esAsyncConnector.open(configuration);
+        //TODO assert exception
         try {
             esAsyncConnector.asyncInvoke(streamRow, resultFuture);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        //TODO extract variable for anothertestmessage string
         verify(stencilClient, times(1)).get("AnotherTestMessage");
     }
 

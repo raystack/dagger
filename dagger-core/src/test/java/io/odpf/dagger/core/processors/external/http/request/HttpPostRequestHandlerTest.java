@@ -36,6 +36,7 @@ public class HttpPostRequestHandlerTest {
     public void shouldReturnTrueForPostVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        //TODO use static import
         Assert.assertTrue(httpPostRequestBuilder.canCreate());
     }
 
@@ -43,6 +44,7 @@ public class HttpPostRequestHandlerTest {
     public void shouldReturnFalseForVerbOtherThanPostOnCanBuild() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        //TODO use static import
         Assert.assertFalse(httpPostRequestBuilder.canCreate());
     }
 
@@ -52,6 +54,7 @@ public class HttpPostRequestHandlerTest {
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        //TODO use static import
         Assert.assertEquals(request, httpPostRequestBuilder.create());
     }
 

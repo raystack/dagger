@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class InvalidInternalConfigProcessorTest {
+    //TODO use static import
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 

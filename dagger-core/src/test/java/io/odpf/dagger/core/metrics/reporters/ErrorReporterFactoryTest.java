@@ -31,6 +31,7 @@ public class ErrorReporterFactoryTest {
     @Test
     public void shouldReturnErrorTelemetryFormConfigOnly() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        //TODO not urgent hamcrest matcher gives better error reporting in case of failed test
         Assert.assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 

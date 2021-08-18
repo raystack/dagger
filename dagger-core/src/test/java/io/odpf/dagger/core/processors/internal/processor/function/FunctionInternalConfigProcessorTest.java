@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 public class FunctionInternalConfigProcessorTest {
 
+    //TODO use static import
     @Test
     public void shouldBeAbleToProcessFunctionCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());

@@ -47,6 +47,7 @@ public class TelemetryProcessorTest {
 
     @Test
     public void shouldReturnTrueOnCanProcess() {
+        //TODO method returns a constant, is it still needed to test ?
         telemetryProcessor.canProcess(postProcessorConfig);
         Assert.assertTrue(telemetryProcessor.canProcess(postProcessorConfig));
     }

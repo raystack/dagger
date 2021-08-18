@@ -163,6 +163,7 @@ public class GrpcResponseHandlerTest {
 
 
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
+        //TODO use argument captor to assert exception message
         verify(errorReporter, times(1)).reportNonFatalException(any());
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
@@ -214,6 +215,7 @@ public class GrpcResponseHandlerTest {
 
 
         verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
+        //TODO assert exception using arggument captor
         verify(errorReporter, times(1)).reportFatalException(any());
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
@@ -237,9 +239,11 @@ public class GrpcResponseHandlerTest {
 
         grpcResponseHandler.startTimer();
         try {
+            //TODO assert exception
             grpcResponseHandler.onNext(message);
         } catch (Exception ignored) {
         } finally {
+            //TODO assert exception message using argument captor
             verify(errorReporter, times(1)).reportFatalException(any());
             verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
         }

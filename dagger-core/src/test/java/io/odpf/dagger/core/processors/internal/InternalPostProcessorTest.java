@@ -26,6 +26,7 @@ public class InternalPostProcessorTest {
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
         internalSourceConfigs.add(new InternalSourceConfig("output_field", "value", "sql"));
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
+        //TODO mock, no need to instantiate heavy object
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
 
         Assert.assertTrue(internalPostProcessor.canProcess(postProcessorConfig));
@@ -37,7 +38,7 @@ public class InternalPostProcessorTest {
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, null);
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
-
+        //TODO mock, no need to instantiate heavy object
         Assert.assertFalse(internalPostProcessor.canProcess(postProcessorConfig));
     }
 
@@ -75,6 +76,7 @@ public class InternalPostProcessorTest {
         internalPostProcessor.process(streamInfoMock);
     }
 
+    //TODO check  to add asserts
     @Test
     public void processWithRightConfiguration() {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());

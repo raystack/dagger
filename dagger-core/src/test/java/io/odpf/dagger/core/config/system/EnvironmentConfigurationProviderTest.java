@@ -21,7 +21,7 @@ public class EnvironmentConfigurationProviderTest {
         }};
 
         Configuration stringStringMap = new EnvironmentConfigurationProvider(environmentParameters).get();
-
+        //TODO swap actual and expected
         assertEquals(stringStringMap.getString("key", ""), "value");
         assertEquals(stringStringMap.getString("key2", ""), "value2");
     }

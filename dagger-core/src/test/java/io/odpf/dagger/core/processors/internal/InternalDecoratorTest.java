@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 
 public class InternalDecoratorTest {
 
+    //TODO use static import
     private ColumnNameManager columnNameManager;
 
     @Test

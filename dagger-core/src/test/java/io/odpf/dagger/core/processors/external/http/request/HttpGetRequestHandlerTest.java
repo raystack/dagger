@@ -31,6 +31,7 @@ public class HttpGetRequestHandlerTest {
         requestVariablesValues.add(1);
     }
 
+    //TODO use static import
     @Test
     public void shouldReturnTrueForGetVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);

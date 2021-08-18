@@ -55,6 +55,7 @@ public class HttpRequestFactoryTest {
         verify(httpClient, times(0)).preparePost(any(String.class));
     }
 
+    //TODO convert to rule
     @Test(expected = InvalidHttpVerbException.class)
     public void shouldThrowExceptionForUnsupportedHttpVerb() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);

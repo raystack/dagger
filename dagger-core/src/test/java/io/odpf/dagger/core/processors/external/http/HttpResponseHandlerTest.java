@@ -41,6 +41,7 @@ public class HttpResponseHandlerTest {
     @Mock
     private ResultFuture<Row> resultFuture;
 
+    //TODO use actual object instead of mock
     @Mock
     private Response response;
 
@@ -95,6 +96,7 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -110,6 +112,7 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_4XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -125,6 +128,7 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_5XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -140,6 +144,7 @@ public class HttpResponseHandlerTest {
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -154,6 +159,7 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
+        //TODO assert exception message using argument captor
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);

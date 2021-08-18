@@ -132,6 +132,7 @@ public class ExternalPostProcessorTest {
         assertFalse(externalPostProcessor.canProcess(defaultPostProcessorConfig));
     }
 
+    //TODO check what is being asserted
     @Test
     public void shouldProcessWithRightConfiguration() {
         Map<String, OutputMapping> outputMapping = new HashMap<>();
@@ -155,7 +156,7 @@ public class ExternalPostProcessorTest {
 
         externalPostProcessorMock.process(streamInfoMock);
     }
-
+    //TODO fix
     @Ignore("Need to fix this test")
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {
@@ -188,6 +189,7 @@ public class ExternalPostProcessorTest {
         String[] expectedOutputColumnNames = {"request_body", "order_number"};
     }
 
+    //TODO fix
     @Ignore("Need to fix this test")
     @Test
     public void shouldAddMultipleColumnNamesToExistingColumnNamesOnTheBasisOfConfigGiven() {

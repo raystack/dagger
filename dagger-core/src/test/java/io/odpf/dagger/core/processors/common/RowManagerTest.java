@@ -14,6 +14,8 @@ public class RowManagerTest {
 
     @Before
     public void setup() {
+        //TODO create these at each test level, because these are getting modified at test level
+        // if one test fails it will difficult to debug why its failing
         parentRow = new Row(2);
         inputRow = new Row(3);
         outputRow = new Row(4);
@@ -72,6 +74,7 @@ public class RowManagerTest {
         Assert.assertEquals(outputRow, rowManager.getOutputData());
     }
 
+    //TODO convert to exception rule to follow same convention everywhere
     @Test(expected = InputOutputMappingException.class)
     public void shouldThrowExpectionOnGetOutputDataIfParentRowIsOfArityOtherThanTwo() {
         RowManager rowManager = new RowManager(new Row(3));

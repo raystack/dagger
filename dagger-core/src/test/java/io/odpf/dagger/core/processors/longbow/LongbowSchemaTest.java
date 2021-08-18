@@ -126,7 +126,7 @@ public class LongbowSchemaTest {
         longBowSchema = new LongbowSchema(columnNames);
         Row input = new Row(5);
         input.setField(0, "driver_id");
-
+        //TODO reverse expected and actual
         Assert.assertEquals(longBowSchema.getValue(input, "longbow_key"), "driver_id");
     }
 
@@ -134,7 +134,7 @@ public class LongbowSchemaTest {
     public void shouldReturnIfItContainsTheColumn() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongbowSchema(columnNames);
-
+        //TODO use assertTrue
         Assert.assertEquals(longBowSchema.contains("longbow_key"), true);
         Assert.assertEquals(longBowSchema.contains("longbow_earliest"), false);
     }
@@ -149,6 +149,7 @@ public class LongbowSchemaTest {
 
         String[] thirdColumnNames = {"longbow_key"};
         LongbowSchema thirdLongbowSchema = new LongbowSchema(thirdColumnNames);
+        //TODO reverse expected and actual
         Assert.assertEquals(firstLongBowSchema.getType(), LongbowType.LongbowRead);
         Assert.assertEquals(secondLongBowSchema.getType(), LongbowType.LongbowWrite);
         Assert.assertEquals(thirdLongbowSchema.getType(), LongbowType.LongbowProcess);

@@ -9,6 +9,7 @@ public class LongbowWriteColumnModifierTest {
     @Test
     public void shouldAddSynchronizerColumnNames() {
         LongbowWriteColumnModifier longbowWriteColumnModifier = new LongbowWriteColumnModifier();
+        //TODO add on more test where input columnNames is not empty
         String[] inputColumnNames = {};
         String[] outputColumnNames = longbowWriteColumnModifier.modifyColumnNames(inputColumnNames);
         String[] expected = {"bigtable_table_id", "input_class_name", "longbow_read_key"};

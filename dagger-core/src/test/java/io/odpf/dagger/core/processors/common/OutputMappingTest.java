@@ -21,6 +21,8 @@ public class OutputMappingTest {
         assertEquals("path", path);
     }
 
+    //TODO not neeeded, if exception is thrown junit test will faill and  removing it will keep the convention for
+    // expected exception same
     @Test(expected = Test.None.class)
     public void shouldValidate() {
         OutputMapping outputMapping = new OutputMapping("path");
