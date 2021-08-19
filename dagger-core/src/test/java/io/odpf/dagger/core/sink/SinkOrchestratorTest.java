@@ -39,6 +39,7 @@ public class SinkOrchestratorTest {
         when(defaultConfiguration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
 
         stencilClientOrchestrator = new StencilClientOrchestrator(defaultConfiguration);
+        //TODO create sink orchestrator for every tests
         sinkOrchestrator = new SinkOrchestrator();
     }
 

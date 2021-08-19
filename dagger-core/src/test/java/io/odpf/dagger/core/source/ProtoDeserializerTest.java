@@ -26,6 +26,7 @@ import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+//TODO dont need mock runner remove
 @RunWith(MockitoJUnitRunner.class)
 public class ProtoDeserializerTest {
 

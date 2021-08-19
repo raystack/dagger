@@ -21,6 +21,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LateRecordDropErrorTest {
 
+    //TODO use static imports
     @Mock
     private RuntimeContext runtimeContext;
 

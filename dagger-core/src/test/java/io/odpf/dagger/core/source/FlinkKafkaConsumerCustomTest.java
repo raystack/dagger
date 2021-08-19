@@ -51,6 +51,7 @@ public class FlinkKafkaConsumerCustomTest {
 
     private FlinkKafkaConsumerCustomStub flinkKafkaConsumer011Custom;
 
+    //TODO remove consumercustom from before
     @Before
     public void setup() {
         initMocks(this);

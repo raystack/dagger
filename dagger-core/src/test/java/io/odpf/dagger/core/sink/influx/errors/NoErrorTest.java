@@ -7,7 +7,9 @@ import org.junit.Test;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NoErrorTest {
+    //TODO no need mock
 
+    //TODO use static imports
     @Before
     public void setUp() {
         initMocks(this);

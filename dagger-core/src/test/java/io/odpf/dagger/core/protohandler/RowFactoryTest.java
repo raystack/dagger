@@ -30,6 +30,7 @@ public class RowFactoryTest {
         inputMap.put("sex", "male");
         inputMap.put("created_at", "2016-01-18T08:55:26.16Z");
         Row row = RowFactory.createRow(inputMap, descriptor);
+        //TODO create an actual row
         assertNotNull(row);
     }
 
@@ -46,6 +47,8 @@ public class RowFactoryTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
+
+        //TODO remove loop, initialize row with field size and assertequals directly
         for (int index = 0; index < row.getArity(); index++) {
             assertEquals(null, row.getField(index));
         }
@@ -70,6 +73,7 @@ public class RowFactoryTest {
     public void shouldReturnEmptyRowIfNullPassedAsMapForInputMap() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Row row = RowFactory.createRow(null, descriptor);
+        //TODO remove loop, initialize row with field size and assertequals directly
         for (int index = 0; index < row.getArity(); index++) {
             assertEquals(null, row.getField(index));
         }
@@ -80,9 +84,11 @@ public class RowFactoryTest {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
+        //TODO create expected row
         assertNotNull(row);
     }
 
+    //TODO merge above testcae
     @Test
     public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptorForDynamicMessage() throws InvalidProtocolBufferException {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
@@ -104,6 +110,7 @@ public class RowFactoryTest {
         assertEquals("https://www.abcd.com/1234", row.getField(6));
     }
 
+    //TODO is this test needed ?
     @Test
     public void shouldBeAbleToCreateAValidCopyOfTheRowCreated() throws InvalidProtocolBufferException {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage

@@ -89,6 +89,7 @@ public class InfluxRowSinkTest {
         influxRowSink.open(null);
     }
 
+    //TODO rreturn the object, it will make tests independent
     private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
         influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, errorHandler, errorReporter);
         influxRowSink.open(null);

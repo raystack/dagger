@@ -17,6 +17,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TelemetryProcessorTest {
 
+    //TODO use static imports
     private TelemetryProcessor telemetryProcessor;
 
     private String[] columnNames = new String[]{"column_a", "column_b"};

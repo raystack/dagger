@@ -16,8 +16,13 @@ import java.util.HashMap;
 
 public class ParentPostProcessorTest {
 
+    //TODO use static imports
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
+
+
+    //TODO remove all these tests, as PostProcessorConfig is already being tested.
+    //TODO add tests process method
 
     @Test
     public void shouldNotBeAbleToProcessWhenConfigIsNull() {

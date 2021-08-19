@@ -22,6 +22,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PreProcessorFactoryTest {
 
+    //TODO use static imports
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

@@ -156,6 +156,7 @@ public class TransformProcessorTest {
         verify(metricsTelemetryExporter, times(1)).updated(transformProcessorMock);
     }
 
+    //TODO verify mock transformer was called twice
     @Test
     public void shouldProcessTwoPostTransformers() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);
@@ -175,6 +176,7 @@ public class TransformProcessorTest {
         verify(mappedDataStream, times(1)).map(any());
     }
 
+    //TODO validate mock transformer was called thrice
     @Test
     public void shouldProcessMultiplePostTransformers() {
         when(streamInfo.getDataStream()).thenReturn(dataStream);

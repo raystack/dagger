@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidErrorTest {
+    //TODO static import
+    //TODO remove mock
     @Mock
     private Iterable<Point> points;
 

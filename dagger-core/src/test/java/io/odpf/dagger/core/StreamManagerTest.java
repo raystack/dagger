@@ -39,6 +39,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 @RunWith(PowerMockRunner.class)
 public class StreamManagerTest {
 
+    //TODO test for register function, check if it is taken care by integration test
     private StreamManager streamManager;
 
     private String jsonArray = "[\n"

@@ -26,6 +26,8 @@ public class StreamsTest {
     private StencilClient stencilClient;
     private Configuration configuration;
 
+    //TODO add tests for enablePerPartitionWatermark true
+    //TODO use static imports
     @Before
     public void setup() {
         initMocks(this);
