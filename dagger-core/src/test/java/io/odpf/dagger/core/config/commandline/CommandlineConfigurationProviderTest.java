@@ -15,7 +15,7 @@ public class CommandlineConfigurationProviderTest {
     public void shouldProvideFromEmptyInput() throws Exception {
         Configuration configurations = new CommandlineConfigurationProvider(new String[]{}).get();
 
-        assertTrue(configurations.keySet().size() == 0);
+        assertTrue(configurations.keySet().isEmpty());
     }
 
     @Test
@@ -26,8 +26,6 @@ public class CommandlineConfigurationProviderTest {
 
         assertTrue(configurations.containsKey("key"));
         assertEquals("value", configurations.getString("key", ""));
-        //TODO convert to assert equals for string comparison
-        assertTrue(configurations.getString("key", "").equals("value"));
     }
 
     @Test
@@ -37,11 +35,9 @@ public class CommandlineConfigurationProviderTest {
         assertEquals(2, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
-        //TODO convert to assert equals for string comparison
-        assertTrue(configurations.getString("key", "").equals("value"));
+        assertEquals("value", configurations.getString("key", ""));
         assertTrue(configurations.containsKey("k"));
-        //TODO convert to assert equals for string comparison
-        assertTrue(configurations.getString("k", "").equals("v"));
+        assertEquals("v", configurations.getString("k", ""));
     }
 
     @Test
@@ -50,7 +46,6 @@ public class CommandlineConfigurationProviderTest {
         Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).get();
 
         assertTrue(configurations.containsKey("key"));
-        //TODO convert to assert equals for string comparison
-        assertTrue(configurations.getString("key", "").equals("value"));
+        assertEquals("value", configurations.getString("key", ""));
     }
 }
