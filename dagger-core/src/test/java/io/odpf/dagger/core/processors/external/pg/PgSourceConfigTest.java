@@ -164,7 +164,7 @@ public class PgSourceConfigTest {
                 .createPgSourceConfig();
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
                 () -> pgSourceConfig.validateFields());
-        assertEquals("Missing required fields: [query_pattern]" , illegalArgumentException.getMessage());
+        assertEquals("Missing required fields: [query_pattern]", illegalArgumentException.getMessage());
     }
 
     @Test
@@ -193,7 +193,7 @@ public class PgSourceConfigTest {
                 .createPgSourceConfig();
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
                 () -> pgSourceConfig.validateFields());
-        assertEquals("Missing required fields: [output_mapping]" , illegalArgumentException.getMessage());
+        assertEquals("Missing required fields: [output_mapping]", illegalArgumentException.getMessage());
     }
 
 }
