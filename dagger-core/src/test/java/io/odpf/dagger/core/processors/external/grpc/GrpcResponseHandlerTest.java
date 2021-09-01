@@ -1,25 +1,28 @@
 package io.odpf.dagger.core.processors.external.grpc;
 
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.jayway.jsonpath.PathNotFoundException;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestGrpcResponse;
 import io.odpf.dagger.consumer.TestLocation;
+import io.odpf.dagger.core.exception.GrpcFailureException;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+import org.apache.hadoop.hbase.shaded.org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -27,9 +30,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.FAILURES_ON_READING_PATH;
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.OTHER_ERRORS;
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.SUCCESS_RESPONSE;
+import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -163,8 +165,9 @@ public class GrpcResponseHandlerTest {
 
 
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
-        //TODO use argument captor to assert exception message
-        verify(errorReporter, times(1)).reportNonFatalException(any());
+        ArgumentCaptor<GrpcFailureException> exceptionCaptor = ArgumentCaptor.forClass(GrpcFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(exceptionCaptor.capture());
+        Assert.assertEquals("io.grpc.StatusRuntimeException: UNKNOWN", exceptionCaptor.getValue().getMessage());
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
@@ -215,8 +218,7 @@ public class GrpcResponseHandlerTest {
 
 
         verify(meterStatsManager, times(1)).markEvent(FAILURES_ON_READING_PATH);
-        //TODO assert exception using arggument captor
-        verify(errorReporter, times(1)).reportFatalException(any());
+        verify(errorReporter, times(1)).reportFatalException(any(PathNotFoundException.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
 
@@ -238,16 +240,15 @@ public class GrpcResponseHandlerTest {
         resultStreamData.setField(1, outputData);
 
         grpcResponseHandler.startTimer();
-        try {
-            //TODO assert exception
-            grpcResponseHandler.onNext(message);
-        } catch (Exception ignored) {
-        } finally {
-            //TODO assert exception message using argument captor
-            verify(errorReporter, times(1)).reportFatalException(any());
-            verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
-        }
+        assertThrows(Exception.class, () -> grpcResponseHandler.onNext(message));
 
+        ArgumentCaptor<IllegalArgumentException> exceptionCaptor = ArgumentCaptor.forClass(IllegalArgumentException.class);
+        verify(errorReporter, times(1)).reportFatalException(exceptionCaptor.capture());
+        assertEquals("Field Descriptor not found for field: value", exceptionCaptor.getValue().getMessage());
+
+        ArgumentCaptor<IllegalArgumentException> exceptionCaptor2 = ArgumentCaptor.forClass(IllegalArgumentException.class);
+        verify(resultFuture, times(1)).completeExceptionally(exceptionCaptor2.capture());
+        assertEquals("Field Descriptor not found for field: value", exceptionCaptor2.getValue().getMessage());
 
     }
 
