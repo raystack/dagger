@@ -199,20 +199,20 @@ public class EsSourceConfigTest {
 
     @Test
     public void getOutputColumnNames() {
-        HashMap<String, OutputMapping> outputMappingHashMap = new HashMap<>();
-        outputMappingHashMap.put("key", new OutputMapping("path"));
+        HashMap<String, OutputMapping> outputMap = new HashMap<String, OutputMapping>();
+        outputMap.put("key", new OutputMapping("path"));
         EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
-                .setOutputMapping(outputMappingHashMap)
+                .setOutputMapping(outputMap)
                 .createEsSourceConfig();
         assertEquals(Arrays.asList("key"), esSourceConfig.getOutputColumns());
     }
 
     @Test
     public void shouldReturnPathForOutputField() {
-        HashMap<String, OutputMapping> outputMappingHashMap = new HashMap<>();
-        outputMappingHashMap.put("outputField", new OutputMapping("path"));
+        HashMap<String, OutputMapping> outputMap = new HashMap<>();
+        outputMap.put("outputField", new OutputMapping("path"));
         EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
-                .setOutputMapping(outputMappingHashMap)
+                .setOutputMapping(outputMap)
                 .createEsSourceConfig();
         assertEquals("path", esSourceConfig.getPath("outputField"));
     }

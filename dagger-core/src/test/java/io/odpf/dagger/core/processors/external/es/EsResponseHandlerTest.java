@@ -115,7 +115,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        EsSourceConfig esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
+        esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
