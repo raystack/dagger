@@ -1,10 +1,12 @@
 package io.odpf.dagger.core.processors.external.es;
 
+import com.google.protobuf.Descriptors;
+import com.jayway.jsonpath.PathNotFoundException;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.consumer.TestProfile;
 import io.odpf.dagger.core.exception.HttpFailureException;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
@@ -12,22 +14,17 @@ import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
 import io.odpf.dagger.core.protohandler.RowFactory;
-import com.google.protobuf.Descriptors;
-import com.jayway.jsonpath.PathNotFoundException;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.ParseException;
-import org.apache.http.RequestLine;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,11 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class EsResponseHandlerTest {
@@ -73,9 +67,7 @@ public class EsResponseHandlerTest {
         outputStreamData.setField(1, outputData);
         rowManager = new RowManager(inputStreamData);
         outputMapping = new HashMap<>();
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "test", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
+        esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
         resultFuture = mock(ResultFuture.class);
         defaultDescriptor = TestEnrichedBookingLogMessage.getDescriptor();
         meterStatsManager = mock(MeterStatsManager.class);
@@ -93,6 +85,26 @@ public class EsResponseHandlerTest {
         when(defaultResponse.getEntity()).thenReturn(httpEntity);
     }
 
+    private EsSourceConfigBuilder getEsSourceConfigBuilder() {
+        return new EsSourceConfigBuilder()
+                .setHost("localhost")
+                .setPort("9200")
+                .setUser("")
+                .setPassword("")
+                .setEndpointPattern("")
+                .setEndpointVariables("driver_id")
+                .setType("test")
+                .setCapacity("30")
+                .setConnectTimeout("5000")
+                .setRetryTimeout("5000")
+                .setSocketTimeout("5000")
+                .setStreamTimeout("5000")
+                .setFailOnErrors(false)
+                .setOutputMapping(outputMapping)
+                .setMetricId("metricId_01")
+                .setRetainResponseType(false);
+    }
+
     @Test
     public void shouldCompleteResultFutureWithInput() {
         MockUp<EntityUtils> mockUp = new MockUp<EntityUtils>() {
@@ -103,9 +115,7 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "test", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
+        EsSourceConfig esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
@@ -134,10 +144,10 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        //TODO not urgent, convert constructor to builder pattern, helps making code easier to read which fields differ between test
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", null, "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", true);
+        esSourceConfig = getEsSourceConfigBuilder()
+                .setType(null)
+                .setRetainResponseType(true)
+                .createEsSourceConfig();
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
@@ -165,9 +175,10 @@ public class EsResponseHandlerTest {
         };
 
         outputMapping.put("driver_profile", new OutputMapping("$._source"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", null, "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
+        esSourceConfig = getEsSourceConfigBuilder()
+                .setType(null)
+                .setRetainResponseType(false)
+                .createEsSourceConfig();
         outputColumnNames.add("driver_profile");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
@@ -197,9 +208,7 @@ public class EsResponseHandlerTest {
 
         defaultDescriptor = TestBookingLogMessage.getDescriptor();
         outputMapping.put("driver_id", new OutputMapping("$._source.driver_id"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "test", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
+        esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
@@ -223,9 +232,7 @@ public class EsResponseHandlerTest {
             }
         };
         outputMapping.put("driver_id", new OutputMapping("$.invalidPath"));
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "test", "30",
-                "5000", "5000", "5000", "5000", false, outputMapping, "metricId_01", false);
+        esSourceConfig = getEsSourceConfigBuilder().createEsSourceConfig();
 
         esResponseHandler.startTimer();
         esResponseHandler.onSuccess(defaultResponse);
@@ -404,16 +411,20 @@ public class EsResponseHandlerTest {
         when(response.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(502);
 
-        esSourceConfig = new EsSourceConfig("localhost", "9200", "", "", "",
-                "driver_id", "test", "30",
-                "5000", "5000", "5000", "5000", true, outputMapping, "metricId_01", false);
+        esSourceConfig = getEsSourceConfigBuilder()
+                .setFailOnErrors(true)
+                .createEsSourceConfig();
 
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         esResponseHandler.startTimer();
-        esResponseHandler.onFailure(new IOException(""));
+        esResponseHandler.onFailure(new IOException("hello-world"));
+        ArgumentCaptor<HttpFailureException> httpFailureExceptionArgumentCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(resultFuture, times(1)).completeExceptionally(httpFailureExceptionArgumentCaptor.capture());
+        assertEquals("EsResponseHandler : Failed with error. hello-world", httpFailureExceptionArgumentCaptor.getValue().getMessage());
 
-        verify(resultFuture, times(1)).completeExceptionally(any(HttpFailureException.class));
-        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> reportFailureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportFailureCaptor.capture());
+        assertEquals("EsResponseHandler : Failed with error. hello-world", reportFailureCaptor.getValue().getMessage());
     }
 }
