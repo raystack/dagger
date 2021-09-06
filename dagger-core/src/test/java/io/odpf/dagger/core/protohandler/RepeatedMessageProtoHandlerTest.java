@@ -1,28 +1,22 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestReason;
+import net.minidev.json.JSONArray;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
-
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import net.minidev.json.JSONArray;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
-import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
-import static org.apache.flink.api.common.typeinfo.Types.STRING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.apache.flink.api.common.typeinfo.Types.*;
+import static org.junit.Assert.*;
 
 public class RepeatedMessageProtoHandlerTest {
 
@@ -294,7 +288,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows[1] = inputRow2;
 
         Object value = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformToJson(inputRows);
-        Assert.assertEquals("[{\"reason_id\":\"reason1\",\"group_id\":\"group1\"}, {\"reason_id\":\"reason2\",\"group_id\":\"group2\"}]", String.valueOf(value));
+        assertEquals("[{\"reason_id\":\"reason1\",\"group_id\":\"group1\"}, {\"reason_id\":\"reason2\",\"group_id\":\"group2\"}]", String.valueOf(value));
     }
 
 }

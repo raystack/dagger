@@ -48,7 +48,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, null);
         List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
-        assertEquals(entries.size(), 0);
+        assertEquals(0, entries.size());
     }
 
     @Test
@@ -111,12 +111,9 @@ public class MapProtoHandlerTest {
 
         Row inputRow = new Row(3);
         inputRows.add(inputRow);
-        try {
-            mapProtoHandler.transformForKafka(builder, inputRows.toArray());
-        } catch (Exception e) {
-            assertEquals(IllegalArgumentException.class, e.getClass());
-            assertEquals("Row: null,null,null of size: 3 cannot be converted to map", e.getMessage());
-        }
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> mapProtoHandler.transformForKafka(builder, inputRows.toArray()));
+        assertEquals("Row: null,null,null of size: 3 cannot be converted to map", exception.getMessage());
     }
 
     @Test
