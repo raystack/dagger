@@ -4,21 +4,21 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.junit.Assert.*;
+
 public class ConstantInternalConfigProcessorTest {
 
-    //TODO use static import
     @Test
     public void shouldBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[0], new ArrayList<>());
         ConstantInternalConfigProcessor constantConfigProcessor = new ConstantInternalConfigProcessor(columnNameManager, getCustomConfig("constant"));
 
-        Assert.assertTrue(constantConfigProcessor.canProcess("constant"));
+        assertTrue(constantConfigProcessor.canProcess("constant"));
     }
 
     @Test
@@ -26,7 +26,7 @@ public class ConstantInternalConfigProcessorTest {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[0], new ArrayList<>());
         ConstantInternalConfigProcessor constantConfigProcessor = new ConstantInternalConfigProcessor(columnNameManager, getCustomConfig("sql"));
 
-        Assert.assertFalse(constantConfigProcessor.canProcess("sql"));
+        assertFalse(constantConfigProcessor.canProcess("sql"));
     }
 
     @Test
@@ -34,7 +34,7 @@ public class ConstantInternalConfigProcessorTest {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[0], new ArrayList<>());
         ConstantInternalConfigProcessor constantConfigProcessor = new ConstantInternalConfigProcessor(columnNameManager, getCustomConfig("function"));
 
-        Assert.assertFalse(constantConfigProcessor.canProcess("function"));
+        assertFalse(constantConfigProcessor.canProcess("function"));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ConstantInternalConfigProcessorTest {
 
         constantConfigProcessor.process(rowManager);
 
-        Assert.assertEquals("testValue", rowManager.getOutputData().getField(2));
+        assertEquals("testValue", rowManager.getOutputData().getField(2));
     }
 
     private InternalSourceConfig getCustomConfig(String type) {
