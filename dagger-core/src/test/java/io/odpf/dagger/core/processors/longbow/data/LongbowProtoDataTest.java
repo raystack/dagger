@@ -6,11 +6,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import static io.odpf.dagger.core.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.LONGBOW_QUALIFIER_DEFAULT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -33,6 +33,10 @@ public class LongbowProtoDataTest {
         byte[] mockResult = Bytes.toBytes("test");
         when(scanResult.getValue(COLUMN_FAMILY_NAME, Bytes.toBytes(LONGBOW_QUALIFIER_DEFAULT))).thenReturn(mockResult);
         LongbowProtoData longbowProtoData = new LongbowProtoData();
-        assertEquals(mockResult, longbowProtoData.parse(results).get("proto_data").get(0));
+        Map<String, List<byte[]>> actualMap = longbowProtoData.parse(results);
+        Map<String, List<byte[]>> expectedMap = new HashMap<String, List<byte[]>>() {{
+            put("proto_data", Arrays.asList(mockResult));
+        }};
+        assertEquals(expectedMap, actualMap);
     }
 }
