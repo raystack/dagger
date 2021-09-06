@@ -1,29 +1,23 @@
 package io.odpf.dagger.core.sink;
 
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
 import io.odpf.dagger.core.sink.influx.InfluxRowSink;
+import io.odpf.dagger.core.utils.Constants;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.types.Row;
-
-import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.utils.Constants;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -33,21 +27,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 
-@RunWith(MockitoJUnitRunner.class)
 public class InfluxRowSinkTest {
 
     private static final int SINK_INFLUX_BATCH_SIZE = 100;
     private static final int INFLUX_FLUSH_DURATION = 1000;
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
+
     private Configuration parameters;
     @Mock
     private InfluxDBFactoryWrapper influxDBFactory;
@@ -67,6 +58,7 @@ public class InfluxRowSinkTest {
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         parameters = new Configuration();
         parameters.setString("SINK_INFLUX_URL", "http://localhost:1111");
         parameters.setString("SINK_INFLUX_USERNAME", "usr");
@@ -84,12 +76,6 @@ public class InfluxRowSinkTest {
         when(metricGroup.counter("value")).thenReturn(counter);
     }
 
-    private void setupInfluxDB(String[] rowColumns) throws Exception {
-        influxRowSink = new InfluxRowSink(influxDBFactory, rowColumns, parameters, errorHandler);
-        influxRowSink.open(null);
-    }
-
-    //TODO rreturn the object, it will make tests independent
     private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
         influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, errorHandler, errorReporter);
         influxRowSink.open(null);
@@ -125,21 +111,21 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldCallInfluxDbFactoryOnOpen() throws Exception {
-        setupStubedInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[] {});
 
         verify(influxDBFactory).connect("http://localhost:1111", "usr", "pwd");
     }
 
     @Test
     public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
-        setupStubedInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[] {});
 
         verify(influxDb).enableBatch(eq(SINK_INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
     }
 
     @Test
     public void shouldCloseInfluxDBWhenCloseCalled() throws Exception {
-        setupStubedInfluxDB(new String[]{});
+        setupStubedInfluxDB(new String[] {});
 
         influxRowSink.close();
 
@@ -148,7 +134,7 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldWriteToConfiguredInfluxDatabase() throws Exception {
-        setupStubedInfluxDB(new String[]{"some_field_name"});
+        setupStubedInfluxDB(new String[] {"some_field_name"});
 
         Row row = new Row(1);
         row.setField(0, "some field");
@@ -288,7 +274,7 @@ public class InfluxRowSinkTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowIfExceptionInWrite() throws Exception {
-        setupStubedInfluxDB(new String[]{"some_field_name"});
+        setupStubedInfluxDB(new String[] {"some_field_name"});
 
         Row row = new Row(1);
         row.setField(0, "some field");
@@ -306,13 +292,10 @@ public class InfluxRowSinkTest {
         setupStubedInfluxDB(rowColumns);
         ArrayList points = new ArrayList<Point>();
         points.add(point);
-        try {
-            errorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
-            influxRowSink.invoke(getRow(), null);
-        } catch (Exception e) {
-            Assert.assertEquals("exception from handler", e.getMessage());
-        }
-
+        errorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
+        Exception exception = assertThrows(Exception.class,
+                () -> influxRowSink.invoke(getRow(), null));
+        assertEquals("exception from handler", exception.getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
@@ -323,14 +306,11 @@ public class InfluxRowSinkTest {
         setupStubedInfluxDB(rowColumns);
         ArrayList points = new ArrayList<Point>();
         points.add(point);
-        try {
-            errorHandler.getExceptionHandler().accept(points, new InfluxDBException("{\"error\":\"partial write:"
-                    + " max-values-per-tag limit exceeded (100453/100000)"));
-            influxRowSink.invoke(getRow(), null);
-        } catch (Exception e) {
-            Assert.assertEquals("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)", e.getMessage());
-        }
-
+        errorHandler.getExceptionHandler().accept(points, new InfluxDBException("{\"error\":\"partial write:"
+                + " max-values-per-tag limit exceeded (100453/100000)"));
+        Exception exception = assertThrows(Exception.class,
+                () -> influxRowSink.invoke(getRow(), null));
+        assertEquals("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)", exception.getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(InfluxDBException.class));
     }
 
@@ -358,9 +338,9 @@ public class InfluxRowSinkTest {
         points.add(point);
         errorHandler.getExceptionHandler().accept(points, new RuntimeException("exception from handler"));
 
-        expectedEx.expect(RuntimeException.class);
-        expectedEx.expectMessage("exception from handler");
-        influxRowSink.invoke(getRow(), null);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> influxRowSink.invoke(getRow(), null));
+        assertEquals("exception from handler", exception.getMessage());
     }
 
     @Test
@@ -370,9 +350,9 @@ public class InfluxRowSinkTest {
 
         errorHandler.getExceptionHandler().accept(new ArrayList<Point>(), new RuntimeException("exception from handler"));
 
-        expectedEx.expect(RuntimeException.class);
-        expectedEx.expectMessage("exception from handler");
-        influxRowSink.snapshotState(null);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> influxRowSink.snapshotState(null));
+        assertEquals("exception from handler", exception.getMessage());
     }
 
     @Test
@@ -382,9 +362,9 @@ public class InfluxRowSinkTest {
 
         Mockito.doThrow(new RuntimeException("exception from flush")).when(influxDb).flush();
 
-        expectedEx.expect(RuntimeException.class);
-        expectedEx.expectMessage("exception from flush");
-        influxRowSink.snapshotState(null);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> influxRowSink.snapshotState(null));
+        assertEquals("exception from flush", exception.getMessage());
     }
 
     public class InfluxRowSinkStub extends InfluxRowSink {
