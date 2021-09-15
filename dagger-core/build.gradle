@@ -85,7 +85,7 @@ dependencies {
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
 
     testImplementation project(':dagger-common').sourceSets.test.output
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
     testImplementation 'org.apache.kafka:kafka-clients:2.5.0'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.0'
