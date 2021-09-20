@@ -1,22 +1,18 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestPaymentOptionMetadata;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
-
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MessageProtoHandlerTest {
 
@@ -192,6 +188,6 @@ public class MessageProtoHandlerTest {
 
         Object value = new MessageProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
-        Assert.assertEquals("{\"masked_card\":\"test1\",\"network\":\"test2\"}", String.valueOf(value));
+        assertEquals("{\"masked_card\":\"test1\",\"network\":\"test2\"}", String.valueOf(value));
     }
 }
