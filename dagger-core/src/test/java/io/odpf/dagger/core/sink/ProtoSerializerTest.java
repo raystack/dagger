@@ -1,5 +1,7 @@
 package io.odpf.dagger.core.sink;
 
+import org.apache.flink.types.Row;
+
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -13,7 +15,6 @@ import io.odpf.dagger.consumer.TestSerDeLogMessage;
 import io.odpf.dagger.consumer.TestServiceType;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
-import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,13 +101,14 @@ public class ProtoSerializerTest {
         element.setField(6, timestamp);
         element.setField(7, "test");
         element.setField(8, true);
-        element.setField(9, new Row(1) {{
-            setField(0, "driver_test");
-        }});
+        Row driverRow = new Row(1);
+        driverRow.setField(0, "driver_test");
+        element.setField(9, driverRow);
+        Row driverIdRow = new Row(1);
+        driverIdRow.setField(0, "driver_id");
+
         element.setField(10, new ArrayList<Row>() {{
-            add(new Row(1) {{
-                setField(0, "driver_id");
-            }});
+            add(driverIdRow);
         }});
         element.setField(11, new HashMap<String, String>() {{
             put("key", "value");
