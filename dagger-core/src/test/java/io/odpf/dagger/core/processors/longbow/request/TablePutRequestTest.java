@@ -9,7 +9,8 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TablePutRequestTest {
@@ -41,8 +42,7 @@ public class TablePutRequestTest {
                 Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
 
         assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
-        //TODO what is this method for, shall we delete it ?
-        tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"));
+        assertEquals(expectedPut.getFamilyCellMap(), tablePutRequest.get().getFamilyCellMap());
     }
 
 
@@ -65,9 +65,6 @@ public class TablePutRequestTest {
                         Bytes.toBytes(longbowData2));
 
         assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
-        assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
-        assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")),
-                tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
+        assertEquals(expectedPut.getFamilyCellMap(), tablePutRequest.get().getFamilyCellMap());
     }
 }
