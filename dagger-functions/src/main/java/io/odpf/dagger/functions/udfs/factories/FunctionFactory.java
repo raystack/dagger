@@ -40,7 +40,7 @@ import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;

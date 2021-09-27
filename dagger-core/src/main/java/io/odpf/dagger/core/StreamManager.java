@@ -1,6 +1,7 @@
 package io.odpf.dagger.core;
 
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -9,7 +10,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.udfs.UdfFactory;
@@ -103,7 +104,8 @@ public class StreamManager {
                     enablePerPartitionWatermark,
                     streamInfo.getDataStream()
             );
-            tableEnvironment.registerTableSource(tableName, tableSource);
+            // TODO : update table environment logic
+//            tableEnvironment.registerTableSource(tableName, tableSource);
         });
         return this;
     }
