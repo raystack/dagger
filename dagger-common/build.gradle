@@ -18,7 +18,7 @@ plugins {
     id "java-test-fixtures"
 }
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 description = """common dependencies for dagger"""

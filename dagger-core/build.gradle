@@ -21,7 +21,7 @@ plugins {
 }
 
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 
 version = rootProject.file('version.txt').text.trim()
 
