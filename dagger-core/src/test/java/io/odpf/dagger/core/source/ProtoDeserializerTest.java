@@ -259,11 +259,10 @@ public class ProtoDeserializerTest {
         assertEquals(new java.sql.Timestamp(0), row.getField(row.getArity() - 1));
     }
 
-    @Test(expected = DescriptorNotFoundException.class)
-    public void shouldThrowDescriptorNotFoundException() {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
+    @Test
+    public void shouldThrowDescriptorNotFoundExceptionForStringClass() {
         assertThrows(DescriptorNotFoundException.class,
-                () -> protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes())));
+                () -> new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator));
     }
 
     private int bookingLogFieldIndex(String propertyName) {
