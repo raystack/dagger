@@ -9,7 +9,7 @@ buildscript {
 
 }
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 
 description = """you know where to add your functions in dagger!"""
 

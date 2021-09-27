@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.udfs;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.HashSet;
 
