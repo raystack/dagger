@@ -5,19 +5,18 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathParser;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SqlInternalFieldImportTest {
 
-    //TODO use static import
     @Mock
     private ColumnNameManager defaultColumnNameManager;
 
@@ -43,7 +42,7 @@ public class SqlInternalFieldImportTest {
 
         sqlInternalFieldImport.processInputColumns(rowManager);
 
-        Assert.assertEquals("inputValue1", rowManager.getOutputData().getField(1));
+        assertEquals("inputValue1", rowManager.getOutputData().getField(1));
     }
 
     @Test
@@ -63,6 +62,6 @@ public class SqlInternalFieldImportTest {
         when(defaultColumnNameManager.getOutputIndex("field")).thenReturn(-1);
         sqlInternalFieldImport.processInputColumns(rowManager);
 
-        Assert.assertNull(rowManager.getOutputData().getField(1));
+        assertNull(rowManager.getOutputData().getField(1));
     }
 }

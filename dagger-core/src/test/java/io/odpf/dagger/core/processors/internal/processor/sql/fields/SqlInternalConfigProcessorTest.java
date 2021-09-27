@@ -5,10 +5,11 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathParser;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 public class SqlInternalConfigProcessorTest {
 
@@ -19,7 +20,7 @@ public class SqlInternalConfigProcessorTest {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
-        Assert.assertTrue(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
+        assertTrue(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
     }
 
     @Test
@@ -29,7 +30,7 @@ public class SqlInternalConfigProcessorTest {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
-        Assert.assertFalse(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
+        assertFalse(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
     }
 
     @Test
@@ -39,10 +40,9 @@ public class SqlInternalConfigProcessorTest {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
-        Assert.assertFalse(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
+        assertFalse(sqlInternalConfigProcessor.canProcess(internalSourceConfig.getType()));
     }
 
-    //TODO check what to  assert
     @Test
     public void processWithRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"field"}, Arrays.asList("field1", "newField", "field2"));
