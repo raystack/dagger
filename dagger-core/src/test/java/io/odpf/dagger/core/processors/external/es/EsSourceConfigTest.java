@@ -1,9 +1,7 @@
 package io.odpf.dagger.core.processors.external.es;
 
 import io.odpf.dagger.core.processors.common.OutputMapping;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,9 +11,6 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class EsSourceConfigTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private final String host = "localhost";
     private final String port = "9200";
@@ -237,25 +232,25 @@ public class EsSourceConfigTest {
 
     @Test
     public void shouldValidateWhenOutputMappingIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [outputMapping]");
 
         EsSourceConfigBuilder validEsSourceConfigBuilder = getValidEsSourceConfigBuilder();
         EsSourceConfig esSourceConfig = validEsSourceConfigBuilder
                 .setOutputMapping(Collections.emptyMap())
                 .createEsSourceConfig();
-        esSourceConfig.validateFields();
+        IllegalArgumentException illegalArgumentException =
+                assertThrows(IllegalArgumentException.class, () -> esSourceConfig.validateFields());
+        assertEquals("Missing required fields: [outputMapping]", illegalArgumentException.getMessage());
     }
 
     @Test
     public void shouldValidateWhenEndpointPatternIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [endpoint_pattern]");
         EsSourceConfigBuilder validEsSourceConfigBuilder = getValidEsSourceConfigBuilder();
         EsSourceConfig esSourceConfig = validEsSourceConfigBuilder
                 .setEndpointPattern("")
                 .createEsSourceConfig();
-        esSourceConfig.validateFields();
+        IllegalArgumentException illegalArgumentException =
+                assertThrows(IllegalArgumentException.class, () -> esSourceConfig.validateFields());
+        assertEquals("Missing required fields: [endpoint_pattern]", illegalArgumentException.getMessage());
     }
 
     private EsSourceConfigBuilder getValidEsSourceConfigBuilder() {
