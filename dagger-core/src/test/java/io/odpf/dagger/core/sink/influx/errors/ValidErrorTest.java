@@ -1,21 +1,13 @@
 package io.odpf.dagger.core.sink.influx.errors;
 
 import org.influxdb.dto.Point;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import static org.junit.Assert.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidErrorTest {
-    private Iterable<Point> points = Collections.emptyList();
-
-    @Before
-    public void setUp() {
-        initMocks(this);
-    }
 
     @Test
     public void shouldHaveError() {
@@ -39,6 +31,7 @@ public class ValidErrorTest {
 
     @Test
     public void shouldWrapErrorsInExceptions() {
+        Iterable<Point> points = Collections.emptyList();
         ValidError validError = new ValidError();
         validError.handle(points, new Error("Test"));
         Exception currentException = validError.getCurrentException();
