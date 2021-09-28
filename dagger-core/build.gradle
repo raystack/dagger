@@ -95,6 +95,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
     testImplementation 'com.google.guava:guava:27.0.1-jre'
     testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
+    testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
 }
 
 test {
