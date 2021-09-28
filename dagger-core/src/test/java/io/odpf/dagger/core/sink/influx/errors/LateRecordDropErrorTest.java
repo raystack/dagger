@@ -1,27 +1,23 @@
 package io.odpf.dagger.core.sink.influx.errors;
 
+import io.odpf.dagger.core.utils.Constants;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
-
-import io.odpf.dagger.core.utils.Constants;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LateRecordDropErrorTest {
 
-    //TODO use static imports
     @Mock
     private RuntimeContext runtimeContext;
 
@@ -50,14 +46,14 @@ public class LateRecordDropErrorTest {
     @Test
     public void shouldFilterLateRecordDrops() {
         LateRecordDropError lateRecordDropError = new LateRecordDropError(runtimeContext);
-        Assert.assertTrue(lateRecordDropError
+        assertTrue(lateRecordDropError
                 .filterError(new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=11\"}")));
     }
 
     @Test
     public void shouldNotFilterAnythingElseExceptRecordDrops() {
         LateRecordDropError lateRecordDropError = new LateRecordDropError(runtimeContext);
-        Assert.assertFalse(lateRecordDropError
+        assertFalse(lateRecordDropError
                 .filterError(new InfluxDBException("{\"error\":\"partial write: max-values-per-tag limit exceeded (100453/100000)")));
     }
 
@@ -92,13 +88,13 @@ public class LateRecordDropErrorTest {
     @Test
     public void shouldNotReturnAnyError() {
         LateRecordDropError lateRecordDropError = new LateRecordDropError(runtimeContext);
-        Assert.assertNull(lateRecordDropError.getCurrentException());
+        assertNull(lateRecordDropError.getCurrentException());
     }
 
     @Test
     public void shouldHaveNoError() {
         LateRecordDropError lateRecordDropError = new LateRecordDropError(runtimeContext);
-        Assert.assertFalse(lateRecordDropError.hasException());
+        assertFalse(lateRecordDropError.hasException());
     }
 
     @Test
@@ -113,6 +109,6 @@ public class LateRecordDropErrorTest {
         lateRecordDropError.handle(points,
                 new InfluxDBException("{\"error\":\"partial write: points beyond retention policy dropped=5\"}"));
 
-        Assert.assertEquals(16, simpleCounter.getCount());
+        assertEquals(16, simpleCounter.getCount());
     }
 }

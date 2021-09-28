@@ -5,7 +5,6 @@ import io.odpf.dagger.core.sink.influx.InfluxRowSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.configuration.Configuration;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +38,6 @@ public class SinkOrchestratorTest {
         when(defaultConfiguration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
 
         stencilClientOrchestrator = new StencilClientOrchestrator(defaultConfiguration);
-        //TODO create sink orchestrator for every tests
         sinkOrchestrator = new SinkOrchestrator();
     }
 
@@ -103,7 +101,7 @@ public class SinkOrchestratorTest {
         when(defaultConfiguration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
 
         sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
-        Assert.assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 
 
@@ -131,6 +129,6 @@ public class SinkOrchestratorTest {
         when(defaultConfiguration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
 
         sinkOrchestrator.getSink(defaultConfiguration, new String[]{}, stencilClientOrchestrator);
-        Assert.assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 }

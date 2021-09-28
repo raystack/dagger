@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class TypeInformationFactoryTest {
 
@@ -17,14 +18,16 @@ public class TypeInformationFactoryTest {
     public void shouldReturnTypeInformationForDescriptor() {
         Descriptors.Descriptor descriptor = TestBookingLogKey.getDescriptor();
         TypeInformation<Row> actualTypeInformation = TypeInformationFactory.getRowType(descriptor);
-        TypeInformation<Row> expectedTypeInformation = ROW_NAMED(new String[]{"service_type", "order_number", "order_url",
-                "status", "event_timestamp"}, STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT));
+        TypeInformation<Row> expectedTypeInformation = ROW_NAMED(new String[] {"service_type", "order_number", "order_url",
+                "status", "event_timestamp"}, STRING, STRING, STRING, STRING, ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT));
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
-    @Test(expected = DescriptorNotFoundException.class)
+    @Test
     public void shouldThrowExceptionIfNullPassed() {
-        TypeInformationFactory.getRowType(null);
+        assertThrows(DescriptorNotFoundException.class,
+                () -> TypeInformationFactory.getRowType(null));
+
     }
 
 }

@@ -1,15 +1,15 @@
 package io.odpf.dagger.core.processors.external.grpc.client;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.core.exception.InvalidGrpcBodyException;
 import io.odpf.dagger.core.processors.common.DescriptorManager;
 import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfig;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,13 +43,12 @@ public class GrpcRequestHandlerTest {
         Descriptors.FieldDescriptor field1 = TestGrpcRequest.getDescriptor().findFieldByName("field1");
         Descriptors.FieldDescriptor field2 = TestGrpcRequest.getDescriptor().findFieldByName("field2");
         //TODO use static imports
-        Assert.assertEquals("val1", message.getField(field1));
-        Assert.assertEquals("val2", message.getField(field2));
+        assertEquals("val1", message.getField(field1));
+        assertEquals("val2", message.getField(field2));
 
     }
 
-    //TODO convert to rule exception
-    @Test(expected = InvalidGrpcBodyException.class)
+    @Test
     public void shouldThrowExceptionInCaseOfWrongBody() throws InvalidProtocolBufferException {
         //TODO use actual object
         grpcSourceConfig = mock(GrpcSourceConfig.class);
@@ -64,11 +63,11 @@ public class GrpcRequestHandlerTest {
 
         GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);
 
-        grpcRequestHandler.create(requestVariablesValues);
+        assertThrows(InvalidGrpcBodyException.class, () -> grpcRequestHandler.create(requestVariablesValues));
 
     }
 
-    @Test(expected = InvalidGrpcBodyException.class)
+    @Test
     public void shouldThrowExceptionInCaseOfEmptyPattern() {
         grpcSourceConfig = mock(GrpcSourceConfig.class);
         descriptorManager = mock(DescriptorManager.class);
@@ -81,6 +80,6 @@ public class GrpcRequestHandlerTest {
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);
-        grpcRequestHandler.create(requestVariablesValues);
+        assertThrows(InvalidGrpcBodyException.class, () -> grpcRequestHandler.create(requestVariablesValues));
     }
 }

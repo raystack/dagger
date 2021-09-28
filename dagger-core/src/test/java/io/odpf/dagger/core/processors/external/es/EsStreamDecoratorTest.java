@@ -2,12 +2,14 @@ package io.odpf.dagger.core.processors.external.es;
 
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.HashMap;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class EsStreamDecoratorTest {
 
@@ -29,14 +31,13 @@ public class EsStreamDecoratorTest {
     @Test
     public void canDecorateStreamWhenConfigIsPresent() {
         EsStreamDecorator esStreamDecorator = new EsStreamDecorator(esSourceConfig, externalMetricConfig, schemaConfig);
-
-        Assert.assertTrue(esStreamDecorator.canDecorate());
+        assertTrue(esStreamDecorator.canDecorate());
     }
 
     @Test
     public void cannotDecorateStreamWhenConfigIsNull() {
         EsStreamDecorator esStreamDecorator = new EsStreamDecorator(null, externalMetricConfig, schemaConfig);
 
-        Assert.assertFalse(esStreamDecorator.canDecorate());
+        assertFalse(esStreamDecorator.canDecorate());
     }
 }

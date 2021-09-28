@@ -6,6 +6,7 @@ import io.odpf.dagger.core.exception.DataTypeNotSupportedException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class PrimitiveTypeHandlerFactoryTest {
 
@@ -60,11 +61,8 @@ public class PrimitiveTypeHandlerFactoryTest {
 
     @Test
     public void shouldThrowExceptionIfTypeNotSupported() {
-        try {
-            PrimitiveTypeHandlerFactory.getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("status"));
-        } catch (Exception e) {
-            assertEquals(DataTypeNotSupportedException.class, e.getClass());
-            assertEquals("Data type ENUM not supported in primitive type handlers", e.getMessage());
-        }
+        DataTypeNotSupportedException exception = assertThrows(DataTypeNotSupportedException.class,
+                () -> PrimitiveTypeHandlerFactory.getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("status")));
+        assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
     }
 }

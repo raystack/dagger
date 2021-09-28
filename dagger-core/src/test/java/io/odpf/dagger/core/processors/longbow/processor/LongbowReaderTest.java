@@ -14,7 +14,6 @@ import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,6 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.*;
 import static io.odpf.dagger.core.utils.Constants.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -57,7 +57,6 @@ public class LongbowReaderTest {
     private LongbowSchema defaultLongBowSchema;
     private Timestamp currentTimestamp;
     private ScanRequestFactory scanRequestFactory;
-    private String tableId = "tableId";
 
 
     @Before
@@ -69,12 +68,13 @@ public class LongbowReaderTest {
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         defaultLongBowSchema = new LongbowSchema(columnNames);
+        String tableId = "tableId";
         scanRequestFactory = new ScanRequestFactory(defaultLongBowSchema, tableId);
     }
 
     @Test
     public void shouldCaptureExceptionWithStatsDManagerOnReadDocumentFailure() throws Exception {
-        Row input = getRow("driver0", "order1", currentTimestamp, "24h");
+        Row input = Row.of("driver0", "order1", currentTimestamp, "24h");
         LongbowReader longBowReader = new LongbowReader(configuration, defaultLongBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
         when(longBowStore.scanAll(any(ScanRequest.class))).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException();
@@ -115,7 +115,7 @@ public class LongbowReaderTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         defaultLongBowSchema = new LongbowSchema(columnNames);
         LongbowReader longBowReader = new LongbowReader(configuration, defaultLongBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
-        Assert.assertEquals(longBowReader.getLongbowRange(), longbowAbsoluteRow);
+        assertEquals(longbowAbsoluteRow, longBowReader.getLongbowRange());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class LongbowReaderTest {
         LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
 
         longBowReader.preProcessBeforeNotifyingSubscriber();
-        Assert.assertEquals(metrics, longBowReader.getTelemetry());
+        assertEquals(metrics, longBowReader.getTelemetry());
     }
 
     @Test
@@ -148,20 +148,12 @@ public class LongbowReaderTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         LongbowReader longBowReader = new LongbowReader(configuration, longBowSchema, longbowAbsoluteRow, longBowStore, meterStatsManager, errorReporter, longbowData, scanRequestFactory, readerOutputRow);
-        Row input = getRow("driver0", "order1", currentTimestamp, "24h");
+        Row input = Row.of("driver0", "order1", currentTimestamp, "24h");
 
         longBowReader.timeout(input, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(TIMEOUTS_ON_READER);
         verify(errorReporter, times(1)).reportFatalException(any(TimeoutException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(TimeoutException.class));
-    }
-
-    private Row getRow(Object... dataList) {
-        Row input = new Row(dataList.length);
-        for (int i = 0; i < dataList.length; i++) {
-            input.setField(i, dataList[i]);
-        }
-        return input;
     }
 }

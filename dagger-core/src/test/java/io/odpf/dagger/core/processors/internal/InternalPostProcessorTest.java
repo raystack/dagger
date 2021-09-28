@@ -5,78 +5,57 @@ import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.external.ExternalSourceConfig;
 import io.odpf.dagger.core.processors.transformers.TransformConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class InternalPostProcessorTest {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void canProcessWhenInternalConfigIsPresent() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("output_field", "value", "sql"));
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
-        //TODO mock, no need to instantiate heavy object
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null);
 
-        Assert.assertTrue(internalPostProcessor.canProcess(postProcessorConfig));
+        PostProcessorConfig mockConfig = mock(PostProcessorConfig.class);
+        when(mockConfig.hasInternalSource()).thenReturn(true);
+        assertTrue(internalPostProcessor.canProcess(mockConfig));
     }
 
     @Test
     public void canNotProcessWhenInternalConfigIsNull() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, null);
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
-        //TODO mock, no need to instantiate heavy object
-        Assert.assertFalse(internalPostProcessor.canProcess(postProcessorConfig));
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null);
+
+        PostProcessorConfig mockConfig = mock(PostProcessorConfig.class);
+        when(mockConfig.hasInternalSource()).thenReturn(false);
+        assertFalse(internalPostProcessor.canProcess(mockConfig));
     }
 
     @Test
-    public void shouldNotBeAbleToProcessWhenOutputFieldIsMissing() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [output_field]");
-
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("", "value", "sql"));
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
+    public void shouldNotBeAbleToProcessWhenInternalConfigIsInvalid() {
+        String exceptionMsg = "Missing required fields: [output_field]";
+        IllegalArgumentException exception = new IllegalArgumentException(exceptionMsg);
+        InternalSourceConfig mockConfig = mock(InternalSourceConfig.class);
+        doThrow(exception)
+                .when(mockConfig).validateFields();
+        List<InternalSourceConfig> internalSource = Arrays.asList(mockConfig);
+        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(null, Collections.emptyList(), internalSource);
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
         StreamInfo streamInfoMock = mock(StreamInfo.class);
-        when(streamInfoMock.getColumnNames()).thenReturn(new String[]{"order_id", "customer_id"});
+        when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
 
-        internalPostProcessor.process(streamInfoMock);
+        IllegalArgumentException actualException = assertThrows(IllegalArgumentException.class,
+                () -> internalPostProcessor.process(streamInfoMock));
+        assertEquals(exceptionMsg, actualException.getMessage());
     }
 
-    @Test
-    public void shouldNotBeAbleToProcessWhenValueIsMissing() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [value]");
-
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("output", "", "sql"));
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
-        StreamInfo streamInfoMock = mock(StreamInfo.class);
-        when(streamInfoMock.getColumnNames()).thenReturn(new String[]{"order_id", "customer_id"});
-
-        internalPostProcessor.process(streamInfoMock);
-    }
-
-    //TODO check  to add asserts
+    /**
+     * TODO check with team on how to add multiple internal source config since it takes a list of internal  sourceconfigs.
+     */
     @Test
     public void processWithRightConfiguration() {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -91,9 +70,12 @@ public class InternalPostProcessorTest {
 
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         DataStream resultStream = mock(DataStream.class);
-        when(streamInfoMock.getColumnNames()).thenReturn(new String[]{"order_id", "customer_id"});
+        when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
         when(streamInfoMock.getDataStream()).thenReturn(resultStream);
 
-        internalPostProcessor.process(streamInfoMock);
+
+        StreamInfo process = internalPostProcessor.process(streamInfoMock);
+        verify(resultStream, times(1)).map(any(InternalDecorator.class));
+        assertArrayEquals(new String[] {"output"}, process.getColumnNames());
     }
 }

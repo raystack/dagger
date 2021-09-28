@@ -1,189 +1,215 @@
 package io.odpf.dagger.core.processors.external.es;
 
 import io.odpf.dagger.core.processors.common.OutputMapping;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EsSourceConfigTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private EsSourceConfig defaultEsSourceConfig;
-    private String host;
-    private String port;
-    private String user;
-    private String password;
-    private String endpointPattern;
-    private String endpointVariables;
-    private String type;
-    private String capacity;
-    private String connectTimeout;
-    private String retryTimeout;
-    private String socketTimeout;
-    private String streamTimeout;
-    private boolean failOnErrors;
-    private HashMap<String, OutputMapping> defaultOutputMapping;
-    private String metricId;
-    private boolean retainResponseType;
-
-    @Before
-    public void setUp() {
-        host = "localhost";
-        port = "9200";
-        user = "test_user";
-        password = "mysecretpassword";
-        endpointPattern = "/drivers/driver/%s";
-        endpointVariables = "driver_id";
-        type = "TestProtoMessage";
-        capacity = "30";
-        connectTimeout = "1000";
-        retryTimeout = "2000";
-        socketTimeout = "3000";
-        streamTimeout = "4000";
-        failOnErrors = false;
-        defaultOutputMapping = new HashMap<>();
-        metricId = "metricId_01";
-        retainResponseType = false;
-
-        defaultEsSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern,
-                endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
-    }
+    private final String host = "localhost";
+    private final String port = "9200";
+    private final String user = "test_user";
+    private final String password = "mysecretpassword";
+    private final String endpointPattern = "/drivers/driver/%s";
+    private final String endpointVariables = "driver_id";
+    private final String type = "TestProtoMessage";
+    private final String capacity = "30";
+    private final String connectTimeout = "1000";
+    private final String retryTimeout = "2000";
+    private final String socketTimeout = "3000";
+    private final String streamTimeout = "4000";
+    private final boolean failOnErrors = false;
+    private final String metricId = "metricId_01";
+    private final boolean retainResponseType = false;
+    private final Map<String, OutputMapping> outputMappingHashMap =  Collections.unmodifiableMap(new HashMap<String, OutputMapping>() {{
+        put("key", new OutputMapping("path"));
+    }});
 
     @Test
     public void getHostShouldGetRightConfig() {
-        assertEquals(host, defaultEsSourceConfig.getHost());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setHost(host)
+                .createEsSourceConfig();
+        assertEquals(host, esSourceConfig.getHost());
     }
 
     @Test
     public void getPortShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(port), defaultEsSourceConfig.getPort());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setPort(port)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(port), esSourceConfig.getPort());
     }
 
     @Test
     public void getUserShouldGetRightConfig() {
-        assertEquals(user, defaultEsSourceConfig.getUser());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setUser(user).
+                createEsSourceConfig();
+        assertEquals(user, esSourceConfig.getUser());
     }
 
     @Test
     public void getPasswordShouldGetRightConfig() {
-        assertEquals(password, defaultEsSourceConfig.getPassword());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setPassword(password)
+                .createEsSourceConfig();
+        assertEquals(password, esSourceConfig.getPassword());
     }
 
     @Test
     public void getUserWhenUserIsNullShouldReturnEmptyString() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, null, password, endpointPattern,
-                endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setUser(null)
+                .createEsSourceConfig();
         assertEquals("", esSourceConfig.getUser());
     }
 
     @Test
     public void getPasswordWhenPasswordIsNullShouldReturnEmptyString() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, null, endpointPattern,
-                endpointVariables, type, capacity,
-                connectTimeout, retryTimeout, socketTimeout, streamTimeout, failOnErrors, defaultOutputMapping, metricId, retainResponseType);
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setPassword(null)
+                .createEsSourceConfig();
         assertEquals("", esSourceConfig.getPassword());
     }
 
     @Test
     public void getEndpointPatternShouldGetRightConfig() {
-        assertEquals(endpointPattern, defaultEsSourceConfig.getPattern());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setEndpointPattern(endpointPattern)
+                .createEsSourceConfig();
+        assertEquals(endpointPattern, esSourceConfig.getPattern());
     }
 
     @Test
     public void getEndpointVariablesShouldGetRightConfig() {
-        assertEquals(endpointVariables, defaultEsSourceConfig.getVariables());
+        EsSourceConfig esSourceConfig = getValidEsSourceConfigBuilder()
+                .setEndpointVariables(endpointVariables)
+                .createEsSourceConfig();
+        assertEquals(endpointVariables, esSourceConfig.getVariables());
     }
 
     @Test
     public void getMetricIdShouldGetRightConfig() {
-        assertEquals(metricId, defaultEsSourceConfig.getMetricId());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setMetricId(metricId)
+                .createEsSourceConfig();
+        assertEquals(metricId, esSourceConfig.getMetricId());
     }
 
     @Test
     public void isRetainResponseTypeShouldGetTheRightConfig() {
-        assertEquals(retainResponseType, defaultEsSourceConfig.isRetainResponseType());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setRetainResponseType(retainResponseType)
+                .createEsSourceConfig();
+        assertEquals(retainResponseType, esSourceConfig.isRetainResponseType());
     }
 
     @Test
     public void isFailOnErrorsShouldGetRightConfig() {
-        assertEquals(failOnErrors, defaultEsSourceConfig.isFailOnErrors());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setFailOnErrors(failOnErrors)
+                .createEsSourceConfig();
+        assertEquals(failOnErrors, esSourceConfig.isFailOnErrors());
     }
 
 
     @Test
     public void getTypeShouldGetRightConfig() {
-        assertEquals(type, defaultEsSourceConfig.getType());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setType(type)
+                .createEsSourceConfig();
+        assertEquals(type, esSourceConfig.getType());
     }
 
     @Test
     public void hasTypeShouldBeTrueWhenTypeIsPresent() {
-        assertTrue(defaultEsSourceConfig.hasType());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setType(type)
+                .createEsSourceConfig();
+        assertTrue(esSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", null, "", "", "", "", "", false, new HashMap<>(), metricId, false);
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setType(null)
+                .createEsSourceConfig();
         assertFalse(esSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        EsSourceConfig esSourceConfig = new EsSourceConfig("", "", "", "", "", "", "", "", "", "", "", "", false, new HashMap<>(), metricId, false);
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setType("")
+                .createEsSourceConfig();
         assertFalse(esSourceConfig.hasType());
     }
 
     @Test
     public void getCapacityShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(capacity), defaultEsSourceConfig.getCapacity());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setCapacity(capacity)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(capacity), esSourceConfig.getCapacity());
     }
 
     @Test
     public void getRetryTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(retryTimeout), defaultEsSourceConfig.getRetryTimeout());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setRetryTimeout(retryTimeout)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(retryTimeout), esSourceConfig.getRetryTimeout());
     }
 
     @Test
     public void getSocketTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(socketTimeout), defaultEsSourceConfig.getSocketTimeout());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setSocketTimeout(socketTimeout)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(socketTimeout), esSourceConfig.getSocketTimeout());
     }
 
     @Test
     public void getStreamTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(streamTimeout), defaultEsSourceConfig.getStreamTimeout());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setStreamTimeout(streamTimeout)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(streamTimeout), esSourceConfig.getStreamTimeout());
     }
 
     @Test
     public void getConnectTimeoutShouldGetRightConfig() {
-        assertEquals(Integer.valueOf(connectTimeout), defaultEsSourceConfig.getConnectTimeout());
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setConnectTimeout(connectTimeout)
+                .createEsSourceConfig();
+        assertEquals(Integer.valueOf(connectTimeout), esSourceConfig.getConnectTimeout());
     }
 
     @Test
     public void getOutputColumnNames() {
-        List<String> keys = new ArrayList<>();
-        keys.add("key");
-        defaultOutputMapping.put("key", new OutputMapping("path"));
-        assertEquals(keys, defaultEsSourceConfig.getOutputColumns());
+        HashMap<String, OutputMapping> outputMap = new HashMap<String, OutputMapping>();
+        outputMap.put("key", new OutputMapping("path"));
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setOutputMapping(outputMap)
+                .createEsSourceConfig();
+        assertEquals(Arrays.asList("key"), esSourceConfig.getOutputColumns());
     }
 
     @Test
     public void shouldReturnPathForOutputField() {
-        defaultOutputMapping.put("outputField", new OutputMapping("path"));
-        assertEquals("path", defaultEsSourceConfig.getPath("outputField"));
+        HashMap<String, OutputMapping> outputMap = new HashMap<>();
+        outputMap.put("outputField", new OutputMapping("path"));
+        EsSourceConfig esSourceConfig = new EsSourceConfigBuilder()
+                .setOutputMapping(outputMap)
+                .createEsSourceConfig();
+        assertEquals("path", esSourceConfig.getPath("outputField"));
     }
 
     @Test
@@ -198,29 +224,53 @@ public class EsSourceConfigTest {
         expectedMandatoryFields.put("socket_timeout", socketTimeout);
         expectedMandatoryFields.put("stream_timeout", streamTimeout);
         expectedMandatoryFields.put("fail_on_errors", failOnErrors);
-        expectedMandatoryFields.put("outputMapping", defaultOutputMapping);
-        HashMap<String, Object> actualMandatoryFields = defaultEsSourceConfig.getMandatoryFields();
-        assertArrayEquals(expectedMandatoryFields.values().toArray(), actualMandatoryFields.values().toArray());
+        expectedMandatoryFields.put("outputMapping", outputMappingHashMap);
+        EsSourceConfig esSourceConfig = getValidEsSourceConfigBuilder().createEsSourceConfig();
+        HashMap<String, Object> actualMandatoryFields = esSourceConfig.getMandatoryFields();
+        assertEquals(expectedMandatoryFields, actualMandatoryFields);
     }
 
     @Test
     public void shouldValidateWhenOutputMappingIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, password, endpointPattern, endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, new HashMap<>(), metricId, retainResponseType);
-
-        esSourceConfig.validateFields();
+        EsSourceConfigBuilder validEsSourceConfigBuilder = getValidEsSourceConfigBuilder();
+        EsSourceConfig esSourceConfig = validEsSourceConfigBuilder
+                .setOutputMapping(Collections.emptyMap())
+                .createEsSourceConfig();
+        IllegalArgumentException illegalArgumentException =
+                assertThrows(IllegalArgumentException.class, () -> esSourceConfig.validateFields());
+        assertEquals("Missing required fields: [outputMapping]", illegalArgumentException.getMessage());
     }
 
     @Test
     public void shouldValidateWhenEndpointPatternIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [endpoint_pattern]");
-        Map<String, OutputMapping> outputMapping = new HashMap<>();
-        outputMapping.put("test", new OutputMapping("test"));
-        EsSourceConfig esSourceConfig = new EsSourceConfig(host, port, user, password, "", endpointVariables, type, capacity, connectTimeout, retryTimeout, socketTimeout, streamTimeout, false, outputMapping, metricId, retainResponseType);
-
-        esSourceConfig.validateFields();
+        EsSourceConfigBuilder validEsSourceConfigBuilder = getValidEsSourceConfigBuilder();
+        EsSourceConfig esSourceConfig = validEsSourceConfigBuilder
+                .setEndpointPattern("")
+                .createEsSourceConfig();
+        IllegalArgumentException illegalArgumentException =
+                assertThrows(IllegalArgumentException.class, () -> esSourceConfig.validateFields());
+        assertEquals("Missing required fields: [endpoint_pattern]", illegalArgumentException.getMessage());
     }
+
+    private EsSourceConfigBuilder getValidEsSourceConfigBuilder() {
+        return new EsSourceConfigBuilder()
+                .setHost(host)
+                .setPort(port)
+                .setUser(user)
+                .setPassword(password)
+                .setEndpointPattern(endpointPattern)
+                .setEndpointVariables(endpointVariables)
+                .setType(type)
+                .setCapacity(capacity)
+                .setConnectTimeout(connectTimeout)
+                .setRetryTimeout(retryTimeout)
+                .setSocketTimeout(socketTimeout)
+                .setStreamTimeout(streamTimeout)
+                .setFailOnErrors(failOnErrors)
+                .setOutputMapping(outputMappingHashMap)
+                .setMetricId(metricId)
+                .setRetainResponseType(retainResponseType);
+    }
+
 }

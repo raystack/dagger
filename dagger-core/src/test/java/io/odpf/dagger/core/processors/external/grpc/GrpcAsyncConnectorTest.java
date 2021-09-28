@@ -1,36 +1,37 @@
 package io.odpf.dagger.core.processors.external.grpc;
 
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestGrpcRequest;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
+import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestGrpcRequest;
+import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.common.DescriptorManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
+import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.external.grpc.client.GrpcClient;
-import org.junit.Assert;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -119,15 +120,14 @@ public class GrpcAsyncConnectorTest {
 
         verify(grpcClient, times(1)).close();
         verify(meterStatsManager, times(1)).markEvent(CLOSE_CONNECTION_ON_EXTERNAL_CLIENT);
-        //TODO use static imports
-        Assert.assertNull(grpcAsyncConnector.getGrpcClient());
+        assertNull(grpcAsyncConnector.getGrpcClient());
     }
 
     @Test
     public void shouldReturnGrpcClient() {
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
         GrpcClient returnedGrpcClient = grpcAsyncConnector.getGrpcClient();
-        Assert.assertEquals(grpcClient, returnedGrpcClient);
+        assertEquals(grpcClient, returnedGrpcClient);
     }
 
     @Test
@@ -142,9 +142,7 @@ public class GrpcAsyncConnectorTest {
     @Test
     public void shouldInitializeDescriptorManagerInOpen() throws Exception {
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
-        //TODO not needed
-        String[] grpcStencils = {grpcStencilUrl};
-        List<String> grpcSpecificStencilURLs = Arrays.asList(grpcStencils);
+        List<String> grpcSpecificStencilURLs = Arrays.asList(grpcStencilUrl);
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, null);
 
         grpcAsyncConnector.open(flinkConfiguration);
@@ -164,18 +162,17 @@ public class GrpcAsyncConnectorTest {
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.open(flinkConfiguration);
-        //TODO assert exception
-        try {
-            grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        verify(errorReporter, times(1)).reportFatalException(any(DescriptorNotFoundException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(DescriptorNotFoundException.class));
+        grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
+        ArgumentCaptor<DescriptorNotFoundException> reportDescriptorNotFoundCaptor = ArgumentCaptor.forClass(DescriptorNotFoundException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportDescriptorNotFoundCaptor.capture());
+        assertEquals("descriptor not found", reportDescriptorNotFoundCaptor.getValue().getMessage());
+        ArgumentCaptor<DescriptorNotFoundException> descriptorNotFoundExceptionArgumentCaptor = ArgumentCaptor.forClass(DescriptorNotFoundException.class);
+        verify(resultFuture, times(1)).completeExceptionally(descriptorNotFoundExceptionArgumentCaptor.capture());
+        assertEquals("descriptor not found", descriptorNotFoundExceptionArgumentCaptor.getValue().getMessage());
     }
 
     @Test
-    public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() {
+    public void shouldCompleteExceptionallyWhenEndpointVariableIsInvalid() throws Exception {
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
@@ -186,18 +183,20 @@ public class GrpcAsyncConnectorTest {
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
-        //TODO assert exception
-        try {
-            grpcAsyncConnector.open(flinkConfiguration);
-            grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        grpcAsyncConnector.open(flinkConfiguration);
+        grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
-        //TODO verify using exception message using argument captor
-        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+        ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportInvalidConfigCaptor.capture());
+        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable",
+                reportInvalidConfigCaptor.getValue().getMessage());
+
+        ArgumentCaptor<InvalidConfigurationException> invalidConfigurationExceptionArgumentCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(resultFuture, times(1)).completeExceptionally(invalidConfigurationExceptionArgumentCaptor.capture());
+        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable",
+                invalidConfigurationExceptionArgumentCaptor.getValue().getMessage());
+
     }
 
     @Test
@@ -218,8 +217,15 @@ public class GrpcAsyncConnectorTest {
         }
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
-        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+        ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportInvalidConfigCaptor.capture());
+        assertEquals("pattern config '{'field1': '%s' , 'field2' : 'val2'}' is incompatible with the variable config ''",
+                reportInvalidConfigCaptor.getValue().getMessage());
+
+        ArgumentCaptor<InvalidConfigurationException> invalidConfigurationExceptionArgumentCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(resultFuture, times(1)).completeExceptionally(invalidConfigurationExceptionArgumentCaptor.capture());
+        assertEquals("pattern config '{'field1': '%s' , 'field2' : 'val2'}' is incompatible with the variable config ''",
+                invalidConfigurationExceptionArgumentCaptor.getValue().getMessage());
     }
 
     @Test
@@ -240,16 +246,22 @@ public class GrpcAsyncConnectorTest {
 
         grpcAsyncConnector.open(flinkConfiguration);
         grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
+        ArgumentCaptor<DynamicMessage> dynamicMessageCaptor = ArgumentCaptor.forClass(DynamicMessage.class);
+        TestGrpcRequest expectedRequest = TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
 
-        verify(grpcClient, times(1)).asyncUnaryCall(any(), any(), any(), any());
+        verify(grpcClient, times(1))
+                .asyncUnaryCall(dynamicMessageCaptor.capture(),
+                        any(),
+                        eq(TestGrpcRequest.getDescriptor()),
+                        any());
+        assertEquals(expectedRequest, dynamicMessageCaptor.getValue());
         verify(meterStatsManager, times(1)).markEvent(TOTAL_EXTERNAL_CALLS);
         verify(meterStatsManager, times(0)).markEvent(INVALID_CONFIGURATION);
-        //TODO verify using exception message using argument captor
-        verify(errorReporter, times(0)).reportFatalException(any(InvalidConfigurationException.class));
+        verify(errorReporter, never()).reportFatalException(any(InvalidConfigurationException.class));
     }
 
     @Test
-    public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() {
+    public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() throws Exception {
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
 
@@ -260,18 +272,17 @@ public class GrpcAsyncConnectorTest {
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
-        try {
-            grpcAsyncConnector.open(flinkConfiguration);
-            grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-            //TODO assert exception
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        grpcAsyncConnector.open(flinkConfiguration);
+        grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
-        //TODO verify using exception message using argument captor
-        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+        ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportInvalidConfigCaptor.capture());
+        assertEquals("pattern config '{'field1': 'val1' , 'field2' : '%'}' is invalid", reportInvalidConfigCaptor.getValue().getMessage());
+
+        ArgumentCaptor<InvalidConfigurationException> invalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(resultFuture, times(1)).completeExceptionally(invalidConfigCaptor.capture());
+        assertEquals("pattern config '{'field1': 'val1' , 'field2' : '%'}' is invalid", invalidConfigCaptor.getValue().getMessage());
     }
 
     @Test
@@ -320,18 +331,19 @@ public class GrpcAsyncConnectorTest {
                 headers, outputMapping, "metricId_02", 30);
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
-        try {
-            grpcAsyncConnector.open(flinkConfiguration);
-            grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-            //TODO assert exception
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        grpcAsyncConnector.open(flinkConfiguration);
+        grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
-        //TODO verify using exception message using argument captor
-        verify(errorReporter, times(1)).reportFatalException(any(InvalidConfigurationException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(InvalidConfigurationException.class));
+        ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(errorReporter, times(1)).reportFatalException(reportInvalidConfigCaptor.capture());
+        assertEquals("pattern config '{'field1': '%d' , 'field2' : 'val2'}' is incompatible with the variable config 'customer_id'",
+                reportInvalidConfigCaptor.getValue().getMessage());
+
+        ArgumentCaptor<InvalidConfigurationException> invalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
+        verify(resultFuture, times(1)).completeExceptionally(invalidConfigCaptor.capture());
+        assertEquals("pattern config '{'field1': '%d' , 'field2' : 'val2'}' is incompatible with the variable config 'customer_id'",
+                invalidConfigCaptor.getValue().getMessage());
     }
 
 
@@ -397,8 +409,7 @@ public class GrpcAsyncConnectorTest {
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
         grpcAsyncConnector.preProcessBeforeNotifyingSubscriber();
-        //TODO static imports
-        Assert.assertEquals(metrics, grpcAsyncConnector.getTelemetry());
+        assertEquals(metrics, grpcAsyncConnector.getTelemetry());
     }
 
     @Test
@@ -409,11 +420,10 @@ public class GrpcAsyncConnectorTest {
         verify(telemetrySubscriber, times(1)).updated(grpcAsyncConnector);
     }
 
-    //TODO make use of rule
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowIfRuntimeContextNotInitialized() throws Exception {
+    @Test
+    public void shouldThrowIfRuntimeContextNotInitialized() {
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, null, meterStatsManager, descriptorManager);
-        grpcAsyncConnector.open(flinkConfiguration);
+        assertThrows(IllegalStateException.class, () -> grpcAsyncConnector.open(flinkConfiguration));
     }
 
 }

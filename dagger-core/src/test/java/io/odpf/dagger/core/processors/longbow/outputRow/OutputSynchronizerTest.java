@@ -25,7 +25,7 @@ public class OutputSynchronizerTest {
     }
 
     @Test
-    public void shouldAppendRowWithStaticMeteadata() {
+    public void shouldAppendRowWithStaticMetadata() {
         String inputProtoClassName = "Test";
         String tableId = "tableId";
         Row inputRow = new Row(2);
@@ -36,11 +36,12 @@ public class OutputSynchronizerTest {
 
         OutputSynchronizer outputSynchronizer = new OutputSynchronizer(longbowSchema, tableId, inputProtoClassName);
         Row synchronizer = outputSynchronizer.get(inputRow);
+        Row expectedRow = Row.of(mockedKey,
+                mockedValue,
+                tableId,
+                inputProtoClassName,
+                mockedKey);
+        assertEquals(expectedRow, synchronizer);
 
-        assertEquals(mockedKey, synchronizer.getField(0));
-        assertEquals(mockedValue, synchronizer.getField(1));
-        assertEquals(tableId, synchronizer.getField(2));
-        assertEquals(inputProtoClassName, synchronizer.getField(3));
-        assertEquals(mockedKey, synchronizer.getField(4));
     }
 }

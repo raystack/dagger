@@ -1,21 +1,23 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
-
-import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -48,8 +50,9 @@ public class LongbowProcessorTest {
         richAsyncFunctions.add(asyncFunction2);
         LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnModifier);
         longbowProcessor.process(new StreamInfo(dataStream, columnNames));
-        //TODO use argument captor to verity it is LongbowReader and LongbowWriter
+        ArgumentCaptor<RichAsyncFunction> functionCaptor = ArgumentCaptor.forClass(RichAsyncFunction.class);
         verify(asyncProcessor, times(2))
-                .orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
+                .orderedWait(any(), functionCaptor.capture(), anyLong(), any(TimeUnit.class), anyInt());
+        assertEquals(Arrays.asList(asyncFunction1, asyncFunction2), functionCaptor.getAllValues());
     }
 }

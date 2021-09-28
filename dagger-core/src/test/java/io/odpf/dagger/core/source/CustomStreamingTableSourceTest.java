@@ -2,32 +2,22 @@ package io.odpf.dagger.core.source;
 
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.sources.wmstrategies.BoundedOutOfOrderTimestamps;
 import org.apache.flink.table.sources.wmstrategies.PreserveWatermarks;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
 public class CustomStreamingTableSourceTest {
 
     @Mock
     private StreamExecutionEnvironment streamEnv;
-
-    @Mock
-    private DataStreamSource dataStreamSource;
-
-    @Mock
-    private FlinkKafkaConsumerCustom flinkConsumer;
 
     @Mock
     private DataStream dataStream;

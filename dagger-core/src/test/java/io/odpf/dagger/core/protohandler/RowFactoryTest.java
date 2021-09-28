@@ -30,28 +30,20 @@ public class RowFactoryTest {
         inputMap.put("sex", "male");
         inputMap.put("created_at", "2016-01-18T08:55:26.16Z");
         Row row = RowFactory.createRow(inputMap, descriptor);
-        //TODO create an actual row
-        assertNotNull(row);
+
+        Row expectedRow = new Row(49);
+        expectedRow.setField(5, "144614");
+        expectedRow.setField(6, "https://www.abcd.com/1234");
+        assertEquals(expectedRow, row);
+
     }
 
     @Test
-    public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptorForInputMap() {
+    public void shouldReturnAEmptyRowOfSizeEqualToNoOfFieldsInDescriptorForInputMap() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Map<String, Object> inputMap = new HashMap<>();
         Row row = RowFactory.createRow(inputMap, descriptor);
-        assertEquals(49, row.getArity());
-    }
-
-    @Test
-    public void shouldReturnEmptyRowIfNoFieldsPassedForInputMap() {
-        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
-        Map<String, Object> inputMap = new HashMap<>();
-        Row row = RowFactory.createRow(inputMap, descriptor);
-
-        //TODO remove loop, initialize row with field size and assertequals directly
-        for (int index = 0; index < row.getArity(); index++) {
-            assertEquals(null, row.getField(index));
-        }
+        assertEquals(new Row(49), row);
     }
 
     @Test
@@ -73,10 +65,7 @@ public class RowFactoryTest {
     public void shouldReturnEmptyRowIfNullPassedAsMapForInputMap() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Row row = RowFactory.createRow(null, descriptor);
-        //TODO remove loop, initialize row with field size and assertequals directly
-        for (int index = 0; index < row.getArity(); index++) {
-            assertEquals(null, row.getField(index));
-        }
+        assertEquals(new Row(49), row);
     }
 
     @Test
@@ -84,16 +73,7 @@ public class RowFactoryTest {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
-        //TODO create expected row
         assertNotNull(row);
-    }
-
-    //TODO merge above testcae
-    @Test
-    public void shouldReturnARowOfSizeEqualToNoOfFieldsInDescriptorForDynamicMessage() throws InvalidProtocolBufferException {
-        TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
-        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
-        Row row = RowFactory.createRow(dynamicMessage);
         assertEquals(49, row.getArity());
     }
 
@@ -110,7 +90,7 @@ public class RowFactoryTest {
         assertEquals("https://www.abcd.com/1234", row.getField(6));
     }
 
-    //TODO is this test needed ?
+
     @Test
     public void shouldBeAbleToCreateAValidCopyOfTheRowCreated() throws InvalidProtocolBufferException {
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage

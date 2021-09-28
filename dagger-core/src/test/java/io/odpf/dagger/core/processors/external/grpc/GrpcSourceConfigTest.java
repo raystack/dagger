@@ -69,7 +69,7 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void shouldReturnConnectTimeout() {
-        Assert.assertEquals(Integer.parseInt(connectTimeout), (int) grpcSourceConfig.getConnectTimeout());
+        assertEquals(Integer.parseInt(connectTimeout), (int) grpcSourceConfig.getConnectTimeout());
     }
 
     @Test
@@ -167,8 +167,8 @@ public class GrpcSourceConfigTest {
     public void shouldCollectStencilURLSFromGRPCSourceConfiguration() {
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
-        Assert.assertEquals(1, grpcStencilUrl.size());
-        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
+        assertEquals(1, grpcStencilUrl.size());
+        assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
     }
 
     @Test
@@ -178,12 +178,11 @@ public class GrpcSourceConfigTest {
 
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
-        //TODO use static imports
-        Assert.assertEquals(4, grpcStencilUrl.size());
-        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
-        Assert.assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));
-        Assert.assertEquals("http://localhost/events/latest", grpcStencilUrl.get(2));
-        Assert.assertEquals("http://localhost/growth/release", grpcStencilUrl.get(3));
+        assertEquals(4, grpcStencilUrl.size());
+        assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
+        assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));
+        assertEquals("http://localhost/events/latest", grpcStencilUrl.get(2));
+        assertEquals("http://localhost/growth/release", grpcStencilUrl.get(3));
     }
 
 

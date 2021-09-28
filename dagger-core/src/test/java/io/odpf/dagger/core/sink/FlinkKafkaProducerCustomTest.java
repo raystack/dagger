@@ -10,12 +10,13 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static io.odpf.dagger.core.utils.Constants.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -53,8 +54,7 @@ public class FlinkKafkaProducerCustomTest {
     public void setUp() {
         initMocks(this);
         flinkKafkaProducerCustomStub = new FlinkKafkaProducerCustomStub(flinkKafkaProducer, configuration);
-        row = new Row(1);
-        row.setField(0, "some field");
+        row = Row.of("some field");
     }
 
     @Test
@@ -119,11 +119,9 @@ public class FlinkKafkaProducerCustomTest {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
 
-        try {
-            flinkKafkaProducerCustomStub.invoke(row, defaultContext);
-        } catch (Exception e) {
-            Assert.assertEquals("test producer exception", e.getMessage());
-        }
+        Exception exception = assertThrows(Exception.class,
+                () -> flinkKafkaProducerCustomStub.invoke(row, defaultContext));
+        assertEquals("test producer exception", exception.getMessage());
         verify(errorStatsReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
@@ -131,11 +129,9 @@ public class FlinkKafkaProducerCustomTest {
     public void shouldNotReportIfTelemetryDisabled() {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
 
-        try {
-            flinkKafkaProducerCustomStub.invoke(row, defaultContext);
-        } catch (Exception e) {
-            Assert.assertEquals("test producer exception", e.getMessage());
-        }
+        Exception exception = assertThrows(Exception.class,
+                () -> flinkKafkaProducerCustomStub.invoke(row, defaultContext));
+        assertEquals("test producer exception", exception.getMessage());
         verify(noOpErrorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
@@ -144,7 +140,7 @@ public class FlinkKafkaProducerCustomTest {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(defaultRuntimeContext).getClass());
+        assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(defaultRuntimeContext).getClass());
     }
 
     public class FlinkKafkaProducerCustomStub extends FlinkKafkaProducerCustom {

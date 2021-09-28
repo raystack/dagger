@@ -1,24 +1,22 @@
 package io.odpf.dagger.core.sink;
 
+import com.gojek.de.stencil.StencilClientFactory;
+import com.gojek.de.stencil.client.StencilClient;
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.consumer.TestProfile;
 import io.odpf.dagger.consumer.TestSerDeLogKey;
 import io.odpf.dagger.consumer.TestSerDeLogMessage;
 import io.odpf.dagger.consumer.TestServiceType;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
-import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.sql.Timestamp;
@@ -30,9 +28,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoSerializerTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -209,9 +204,6 @@ public class ProtoSerializerTest {
 
     @Test
     public void shouldThrowExceptionWhenColumnDoesNotExists() {
-        expectedException.expect(InvalidColumnMappingException.class);
-        expectedException.expectMessage("column invalid doesn't exists in the proto of io.odpf.dagger.consumer.TestLocation");
-
         String[] columnNames = {"order_number", "driver_pickup_location.invalid"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
@@ -220,7 +212,11 @@ public class ProtoSerializerTest {
         element.setField(0, "order_number");
         element.setField(1, 876D);
 
-        protoSerializer.serialize(element, null);
+        InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
+                () -> protoSerializer.serialize(element, null));
+        assertEquals("column invalid doesn't exists in the proto of io.odpf.dagger.consumer.TestLocation",
+                exception.getMessage());
+
     }
 
     @Test
@@ -269,9 +265,6 @@ public class ProtoSerializerTest {
 
     @Test
     public void shouldThrowExceptionWhenTypeDoesNotMatch() {
-        expectedException.expect(InvalidColumnMappingException.class);
-        expectedException.expectMessage("column invalid: type mismatch of column order_number, expecting STRING type. Actual type class java.lang.Integer");
-
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
@@ -279,13 +272,14 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, 1234);
 
-        protoSerializer.serialize(element, null);
+        InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
+                () -> protoSerializer.serialize(element, null));
+        assertEquals("column invalid: type mismatch of column order_number, expecting STRING type. Actual type class java.lang.Integer",
+                exception.getMessage());
     }
 
     @Test
     public void shouldHandleRepeatedTypeWhenTypeDoesNotMatch() {
-        expectedException.expect(InvalidColumnMappingException.class);
-        expectedException.expectMessage("column invalid: type mismatch of column meta_array, expecting REPEATED STRING type. Actual type class java.lang.Integer");
 
         String[] columnNames = {"meta_array"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
@@ -294,7 +288,10 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, 1234);
 
-        protoSerializer.serialize(element, null);
+        InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
+                () -> protoSerializer.serialize(element, null));
+        assertEquals("column invalid: type mismatch of column meta_array, expecting REPEATED STRING type. Actual type class java.lang.Integer",
+                exception.getMessage());
     }
 
     @Test
@@ -317,11 +314,12 @@ public class ProtoSerializerTest {
 
     @Test
     public void shouldThrowExceptionWhenMessageProtoIsNotProvided() {
-        expectedException.expect(DaggerSerializationException.class);
-        expectedException.expectMessage("messageProtoClassName is required");
 
         String[] columnNames = {};
-        new ProtoSerializer(null, null, columnNames, stencilClientOrchestrator, outputTopic);
+        DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
+                () -> new ProtoSerializer(null, null, columnNames, stencilClientOrchestrator, outputTopic));
+        assertEquals("messageProtoClassName is required", exception.getMessage());
+
     }
 
     @Test
@@ -370,24 +368,19 @@ public class ProtoSerializerTest {
 
     @Test
     public void shouldThrowExceptionWhenOutputTopicIsNullForSerializeMethod() {
-        expectedException.expect(DaggerSerializationException.class);
-        expectedException.expectMessage("outputTopic is required");
-
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
         ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, null);
         Row element = new Row(1);
         element.setField(0, "1234");
-
-        protoSerializer.serialize(element, null);
+        DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
+                () -> protoSerializer.serialize(element, null));
+        assertEquals("outputTopic is required", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionWhenOutputTopicIsEmptyForSerializeMethod() {
-        expectedException.expect(DaggerSerializationException.class);
-        expectedException.expectMessage("outputTopic is required");
-
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
@@ -395,6 +388,8 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, "1234");
 
-        protoSerializer.serialize(element, null);
+        DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
+                () -> protoSerializer.serialize(element, null));
+        assertEquals("outputTopic is required", exception.getMessage());
     }
 }

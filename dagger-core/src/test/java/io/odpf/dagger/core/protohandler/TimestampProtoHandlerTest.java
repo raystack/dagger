@@ -1,22 +1,17 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
-
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TimestampProtoHandlerTest {
     @Test
@@ -83,10 +78,7 @@ public class TimestampProtoHandlerTest {
         long seconds = System.currentTimeMillis() / 1000;
         int nanos = (int) (System.currentTimeMillis() * 1000000);
 
-        Row inputRow = new Row(2);
-        inputRow.setField(0, seconds);
-        inputRow.setField(1, nanos);
-
+        Row inputRow = Row.of(seconds, nanos);
         DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputRow).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
@@ -102,12 +94,9 @@ public class TimestampProtoHandlerTest {
 
         Row inputRow = new Row(3);
 
-        try {
-            timestampProtoHandler.transformForKafka(builder, inputRow).build();
-        } catch (Exception e) {
-            assertEquals(IllegalArgumentException.class, e.getClass());
-            assertEquals("Row: null,null,null of size: 3 cannot be converted to timestamp", e.getMessage());
-        }
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> timestampProtoHandler.transformForKafka(builder, inputRow).build());
+        assertEquals("Row: null,null,null of size: 3 cannot be converted to timestamp", exception.getMessage());
     }
 
     @Test
@@ -142,15 +131,15 @@ public class TimestampProtoHandlerTest {
 
     @Test
     public void shouldFetchTimeStampAsStringFromFieldForFieldDescriptorOfTypeTimeStampForTransformForPostProcessor() {
-        String actualValue = "2018-08-30T02:21:39.975107Z";
+        String strValue = "2018-08-30T02:21:39.975107Z";
 
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transformFromPostProcessor(actualValue);
-        assertEquals(actualValue, value);
+        Object value = protoHandler.transformFromPostProcessor(strValue);
+        assertEquals(strValue, value);
     }
 
     @Test
@@ -182,7 +171,7 @@ public class TimestampProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         TypeInformation actualTypeInformation = timestampProtoHandler.getTypeInformation();
-        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"seconds", "nanos"}, Types.LONG, Types.INT);
+        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[] {"seconds", "nanos"}, Types.LONG, Types.INT);
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
@@ -197,9 +186,7 @@ public class TimestampProtoHandlerTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
-        assertEquals(2, row.getArity());
-        assertEquals(10L, row.getField(0));
-        assertEquals(10, row.getField(1));
+        assertEquals(Row.of(10L, 10), row);
     }
 
     @Test
@@ -212,9 +199,7 @@ public class TimestampProtoHandlerTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
-        assertEquals(2, row.getArity());
-        assertEquals(0L, row.getField(0));
-        assertEquals(0, row.getField(1));
+        assertEquals(Row.of(0L, 0), row);
     }
 
     @Test
@@ -227,6 +212,6 @@ public class TimestampProtoHandlerTest {
 
         Object value = new TimestampProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
-        Assert.assertEquals("2020-09-14 11:43:48", String.valueOf(value));
+        assertEquals("2020-09-14 11:43:48", String.valueOf(value));
     }
 }
