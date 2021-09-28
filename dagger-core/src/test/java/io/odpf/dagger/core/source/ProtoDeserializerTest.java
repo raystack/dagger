@@ -3,9 +3,15 @@ package io.odpf.dagger.core.source;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.consumer.*;
-import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.consumer.TestBookingLogKey;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestBookingStatus;
+import io.odpf.dagger.consumer.TestLocation;
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
+import io.odpf.dagger.consumer.TestRoute;
+import io.odpf.dagger.consumer.TestServiceType;
+import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.configuration.Configuration;
@@ -13,8 +19,6 @@ import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,8 +30,6 @@ import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-//TODO dont need mock runner remove
-@RunWith(MockitoJUnitRunner.class)
 public class ProtoDeserializerTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -52,10 +54,10 @@ public class ProtoDeserializerTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
         TypeInformation<Row> producedType = protoDeserializer.getProducedType();
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[] {"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
-                new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
+                new TypeInformation[] {STRING, STRING, STRING, STRING, ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) producedType).getFieldTypes());
     }
 
@@ -242,10 +244,11 @@ public class ProtoDeserializerTest {
         assertEquals(row.getField(2), 5);
     }
 
-    @Test(expected = DaggerDeserializationException.class)
+    @Test
     public void shouldThrowExceptionIfNotAbleToDeserialise() {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
-        protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, null));
+        assertThrows(DaggerDeserializationException.class,
+                () -> protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, null)));
     }
 
     @Test
@@ -256,10 +259,10 @@ public class ProtoDeserializerTest {
         assertEquals(new java.sql.Timestamp(0), row.getField(row.getArity() - 1));
     }
 
-    @Test(expected = DescriptorNotFoundException.class)
-    public void shouldThrowDescriptorNotFoundException() {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
-        protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
+    @Test
+    public void shouldThrowDescriptorNotFoundExceptionForStringClass() {
+        assertThrows(DescriptorNotFoundException.class,
+                () -> new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator));
     }
 
     private int bookingLogFieldIndex(String propertyName) {
