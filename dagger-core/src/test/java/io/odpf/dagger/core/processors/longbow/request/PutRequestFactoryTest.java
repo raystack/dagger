@@ -2,14 +2,13 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.core.sink.ProtoSerializer;
-import org.junit.Assert;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -37,7 +36,7 @@ public class PutRequestFactoryTest {
         when(longbowSchema.isLongbowPlus()).thenReturn(false);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
         PutRequest putRequest = putRequestFactory.create(row);
-        Assert.assertEquals(putRequest.getClass(), TablePutRequest.class);
+        assertEquals(TablePutRequest.class, putRequest.getClass());
     }
 
     @Test
@@ -45,6 +44,6 @@ public class PutRequestFactoryTest {
         when(longbowSchema.isLongbowPlus()).thenReturn(true);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
         PutRequest putRequest = putRequestFactory.create(row);
-        Assert.assertEquals(ProtoBytePutRequest.class, putRequest.getClass());
+        assertEquals(ProtoBytePutRequest.class, putRequest.getClass());
     }
 }

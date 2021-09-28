@@ -2,7 +2,6 @@ package io.odpf.dagger.core.processors.longbow.outputRow;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
-
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +9,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class OutputProtoDataTest {
 
@@ -41,7 +40,8 @@ public class OutputProtoDataTest {
     public void shouldAddProtoDataToRow() {
         ReaderOutputProtoData outputProtoData = new ReaderOutputProtoData(longbowSchema);
         Row row = outputProtoData.get(scanResult, input);
-        assertEquals(returnedProto, row.getField(1));
+        Row expectedRow = Row.of("driver#123", returnedProto);
+        assertEquals(expectedRow, row);
     }
 }
 

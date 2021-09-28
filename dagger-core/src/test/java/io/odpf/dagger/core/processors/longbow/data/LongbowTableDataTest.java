@@ -3,7 +3,6 @@ package io.odpf.dagger.core.processors.longbow.data;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -11,6 +10,7 @@ import org.mockito.Mock;
 import java.util.*;
 
 import static io.odpf.dagger.core.utils.Constants.LONGBOW_COLUMN_FAMILY_DEFAULT;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -41,7 +41,7 @@ public class LongbowTableDataTest {
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
         Map<String, List<String>> actualData = longbowTableData.parse(scanResult);
-        Assert.assertEquals(Collections.emptyList(), actualData.get("longbow_data1"));
+        assertEquals(Collections.emptyList(), actualData.get("longbow_data1"));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class LongbowTableDataTest {
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
         Map<String, List<String>> actualData = longbowTableData.parse(scanResult);
-        Assert.assertEquals(Collections.singletonList("RB-234"), actualData.get("longbow_data1"));
+        assertEquals(Collections.singletonList("RB-234"), actualData.get("longbow_data1"));
     }
 
     @Test
@@ -66,20 +66,10 @@ public class LongbowTableDataTest {
         LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
         Map<String, List<String>> actualData = longbowTableData.parse(scanResult);
-        Assert.assertEquals(Arrays.asList("RB-234", "RB-224"), actualData.get("longbow_data1"));
-        Assert.assertEquals(Arrays.asList("RB-235", "RB-225"), actualData.get("longbow_data2"));
-    }
-
-    @Test
-    public void shouldOnlyReturnLongbowDataColumn() {
-        List<Result> scanResult = new ArrayList<>();
-        scanResult.add(result1);
-        scanResult.add(result2);
-        String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
-
-        LongbowSchema longbowSchema = new LongbowSchema(columnNames);
-        LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
-        Map<String, List<String>> actualData = longbowTableData.parse(scanResult);
-        Assert.assertEquals(2, actualData.size());
+        Map<String, List<String>> expectedMap = new HashMap<String, List<String>>() {{
+            put("longbow_data1", Arrays.asList("RB-234", "RB-224"));
+            put("longbow_data2", Arrays.asList("RB-235", "RB-225"));
+        }};
+        assertEquals(expectedMap, actualData);
     }
 }

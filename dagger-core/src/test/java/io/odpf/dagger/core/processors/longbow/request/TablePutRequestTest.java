@@ -2,15 +2,15 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
-
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TablePutRequestTest {
@@ -41,8 +41,8 @@ public class TablePutRequestTest {
         final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
                 Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
 
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(tablePutRequest.get().getRow()));
-        tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"));
+        assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
+        assertEquals(expectedPut.getFamilyCellMap(), tablePutRequest.get().getFamilyCellMap());
     }
 
 
@@ -64,10 +64,7 @@ public class TablePutRequestTest {
                 .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(),
                         Bytes.toBytes(longbowData2));
 
-        Assert.assertEquals(new String(expectedPut.getRow()), new String(tablePutRequest.get().getRow()));
-        Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")),
-                tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1")));
-        Assert.assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")),
-                tablePutRequest.get().get(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2")));
+        assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
+        assertEquals(expectedPut.getFamilyCellMap(), tablePutRequest.get().getFamilyCellMap());
     }
 }

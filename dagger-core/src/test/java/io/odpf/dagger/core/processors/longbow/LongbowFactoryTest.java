@@ -2,11 +2,12 @@ package io.odpf.dagger.core.processors.longbow;
 
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.processors.longbow.processor.LongbowReader;
+import io.odpf.dagger.core.processors.longbow.processor.LongbowWriter;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import java.util.concurrent.TimeUnit;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -52,9 +54,15 @@ public class LongbowFactoryTest {
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
-        //TODO use argument captor to verity it is LongbowWriter
-        verify(asyncProcessor, times(1)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
-        Assert.assertEquals(inputColumnNames.length + 3, outputStream.getColumnNames().length);
+        verify(asyncProcessor, times(1)).orderedWait(eq(dataStream), any(LongbowWriter.class), anyLong(), any(TimeUnit.class), anyInt());
+        String[] expectedColumnNames = {"longbow_write_key",
+                "longbow_write",
+                "rowtime",
+                "event_timestamp",
+                "bigtable_table_id",
+                "input_class_name",
+                "longbow_read_key"};
+        assertArrayEquals(expectedColumnNames, outputStream.getColumnNames());
     }
 
     @Test
@@ -64,11 +72,10 @@ public class LongbowFactoryTest {
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
-        //TODO no need to call process, check if we can just check object parameters of longbowProcessor
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
-        //TODO use argument captor to verity it is LongbowReader
-        verify(asyncProcessor, times(1)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
-        Assert.assertEquals(inputColumnNames.length + 1, outputStream.getColumnNames().length);
+        verify(asyncProcessor, times(1)).orderedWait(eq(dataStream), any(LongbowReader.class), anyLong(), any(TimeUnit.class), anyInt());
+        String[] expectedStringArr = new String[]{"longbow_read_key", "rowtime", "longbow_duration", "event_timestamp", "proto_data"};
+        assertArrayEquals(expectedStringArr, outputStream.getColumnNames());
     }
 
     @Test
@@ -77,11 +84,10 @@ public class LongbowFactoryTest {
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
-        //TODO no need to call process, check if we can just check object parameters of longbowProcessor
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
-        //TODO use argument captor to verity it is LongbowReader and LongbowWriter
-        verify(asyncProcessor, times(2)).orderedWait(any(), any(), anyLong(), any(TimeUnit.class), anyInt());
-        Assert.assertEquals(inputColumnNames.length, outputStream.getColumnNames().length);
+        verify(asyncProcessor, times(1)).orderedWait(any(), any(LongbowReader.class), anyLong(), any(TimeUnit.class), anyInt());
+        verify(asyncProcessor, times(1)).orderedWait(any(), any(LongbowWriter.class), anyLong(), any(TimeUnit.class), anyInt());
+        assertEquals(inputColumnNames.length, outputStream.getColumnNames().length);
     }
 }

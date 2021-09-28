@@ -2,15 +2,14 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
-
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TableScanRequestTest {
@@ -48,7 +47,7 @@ public class TableScanRequestTest {
         expectedScan.withStartRow(startRow, true);
         expectedScan.withStopRow(endRow, true);
         expectedScan.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"));
-        Assert.assertTrue(expectedScan.getFamilyMap().equals(actualTableScanRequest.get().getFamilyMap()));
+        assertEquals(expectedScan.getFamilyMap(), actualTableScanRequest.get().getFamilyMap());
     }
 
     @Test
@@ -69,6 +68,6 @@ public class TableScanRequestTest {
         expectedScan.withStopRow(endRow, true);
         expectedScan.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data1"));
         expectedScan.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"));
-        Assert.assertTrue(expectedScan.getFamilyMap().equals(actualTableScanRequest.get().getFamilyMap()));
+        assertEquals(expectedScan.getFamilyMap(), actualTableScanRequest.get().getFamilyMap());
     }
 }
