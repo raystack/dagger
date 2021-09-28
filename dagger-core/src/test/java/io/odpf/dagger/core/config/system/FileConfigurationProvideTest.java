@@ -3,15 +3,13 @@ package io.odpf.dagger.core.config.system;
 import io.odpf.dagger.core.config.FileConfigurationProvider;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import org.apache.flink.configuration.Configuration;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class FileConfigurationProvideTest {
-  
+
     @Test
     public void readFromAConfigurationFile() {
 
