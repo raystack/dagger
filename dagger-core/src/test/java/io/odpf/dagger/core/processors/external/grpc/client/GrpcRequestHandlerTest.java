@@ -42,7 +42,6 @@ public class GrpcRequestHandlerTest {
 
         Descriptors.FieldDescriptor field1 = TestGrpcRequest.getDescriptor().findFieldByName("field1");
         Descriptors.FieldDescriptor field2 = TestGrpcRequest.getDescriptor().findFieldByName("field2");
-        //TODO use static imports
         assertEquals("val1", message.getField(field1));
         assertEquals("val2", message.getField(field2));
 
