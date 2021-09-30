@@ -3,7 +3,6 @@ package io.odpf.dagger.core.processors.external.http.request;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -11,6 +10,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -31,19 +31,18 @@ public class HttpGetRequestHandlerTest {
         requestVariablesValues.add(1);
     }
 
-    //TODO use static import
     @Test
     public void shouldReturnTrueForGetVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertTrue(httpGetRequestBuilder.canCreate());
+        assertTrue(httpGetRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldReturnFalseForVerbOtherThanGetOnCanBuild() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertFalse(httpGetRequestBuilder.canCreate());
+        assertFalse(httpGetRequestBuilder.canCreate());
     }
 
     @Test
@@ -51,6 +50,6 @@ public class HttpGetRequestHandlerTest {
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        Assert.assertEquals(request, httpGetRequestBuilder.create());
+        assertEquals(request, httpGetRequestBuilder.create());
     }
 }

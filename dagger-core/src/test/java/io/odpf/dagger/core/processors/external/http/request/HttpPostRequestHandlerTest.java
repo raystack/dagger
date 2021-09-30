@@ -3,7 +3,6 @@ package io.odpf.dagger.core.processors.external.http.request;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -11,6 +10,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -36,16 +36,14 @@ public class HttpPostRequestHandlerTest {
     public void shouldReturnTrueForPostVerbOnCanCreate() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        //TODO use static import
-        Assert.assertTrue(httpPostRequestBuilder.canCreate());
+        assertTrue(httpPostRequestBuilder.canCreate());
     }
 
     @Test
     public void shouldReturnFalseForVerbOtherThanPostOnCanBuild() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        //TODO use static import
-        Assert.assertFalse(httpPostRequestBuilder.canCreate());
+        assertFalse(httpPostRequestBuilder.canCreate());
     }
 
     @Test
@@ -54,8 +52,7 @@ public class HttpPostRequestHandlerTest {
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray());
-        //TODO use static import
-        Assert.assertEquals(request, httpPostRequestBuilder.create());
+        assertEquals(request, httpPostRequestBuilder.create());
     }
 
 }
