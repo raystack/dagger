@@ -37,8 +37,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PgAsyncConnectorTest {
 
     private ResultFuture<Row> resultFuture;
-    //TODO assert exception message using argument captor
-    //TODO assert exception in try catch
     @Mock
     private Configuration configuration;
     @Mock
