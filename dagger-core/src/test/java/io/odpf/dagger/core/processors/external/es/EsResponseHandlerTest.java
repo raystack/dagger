@@ -76,7 +76,6 @@ public class EsResponseHandlerTest {
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
 
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
-        //TODO instead of mock create a normal response object, it will avoid methods like mockUp.tearDown();
         defaultResponse = mock(Response.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(defaultResponse.getStatusLine()).thenReturn(statusLine);
