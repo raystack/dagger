@@ -66,21 +66,30 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
         ],
       },
       footer: {
-        style: 'dark',
+        style: 'light',
         links: [
           {
-            title: 'Docs',
-            items: [{ label: 'Docs', to: '/docs/intro', },],
+            title: 'Products',
+            items: [
+              { label: 'Optimus', href: 'https://github.com/odpf/optimus' },
+              { label: 'Firehose', href: 'https://github.com/odpf/firehose' },
+              { label: 'Raccoon', href: 'https://github.com/odpf/raccoon' },
+              { label: 'Stencil', href: 'https://github.com/odpf/stencil' },
+            ],
+          },
+          {
+            title: 'Resources',
+            items: [
+              { label: 'Docs', to: '/docs/intro' },
+              { label: 'Blog', to: '/blog', },
+
+            ],
           },
           {
             title: 'Community',
-            items: [{ label: 'Slack', href: 'https://bit.ly/2RzPbtn', }],
-          },
-          {
-            title: 'More',
             items: [
-              { label: 'Blog', to: '/blog', },
-              { label: 'GitHub', href: 'https://github.com/odpf/dagger', },
+              { label: 'Slack', href: 'https://bit.ly/2RzPbtn' },
+              { label: 'GitHub', href: 'https://github.com/odpf/dagger' }
             ],
           },
         ],

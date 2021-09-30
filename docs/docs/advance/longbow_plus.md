@@ -1,4 +1,5 @@
-# Introduction
+# Longbow+
+
 Longbow+ is an enhanced version of [longbow](docs/../../advance/longbow.md). It is also used for long windowed aggregations. One of the limitations for longbow was the lack of support for complex data types. Longbow+ lets you select as many complex fields as required and it has its own DSL in place to query these complex fields. This currently works only for Kafka sink.
 
 # Components
@@ -26,7 +27,7 @@ LongbowWrite has two responsibilities, to write an incoming event to BigTable an
 In this example, let's assume we have booking events in a Kafka cluster and we want to get information of all the order numbers, their driver ids and location(complex field) for customers in the last 30 days. Here customer_id will become longbow_write_key.
 
 <p align="center">
-  <img src="../assets/longbowplus-writer.png" width="80%"/>
+  <img src="/img/longbowplus-writer.png" width="80%"/>
 </p>
 
 Sample input schema for booking
@@ -122,7 +123,7 @@ It reads the output of LongbowWrite and fetches the data for a particular key an
 In this example, we are consuming the output from the longbow_writer example mentioned above.
 
 <p align="center">
-  <img src="../assets/longbowplus-reader.png" width="80%"/>
+  <img src="/img/longbowplus-reader.png" width="80%"/>
 </p>
 
 Sample output schema for longbow reader output

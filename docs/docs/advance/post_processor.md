@@ -1,17 +1,4 @@
-# Table of Contents
-* [Introduction](post_processor.md#introduction)
-* [Flow of Execution](post_processor.md#flow-of-execution)
-* [Types of Post Processors](post_processor.md#types-of-post-processors)
-  * [External Post Processor](post_processor.md#external-post-processor)
-    * [Elasticsearch](post_processor.md#elasticsearch)
-    * [HTTP](post_processor.md#http)
-    * [Postgres](post_processor.md#postgres)
-    * [GRPC](post_processor.md#grpc)
-  * [Internal Post Processor](post_processor.md#internal-post-processor)
-  * [Transformers](post_processor.md#transformers)
-* [Post Processor requirements](post_processor.md#post-processor-requirements)
-
-# Introduction
+# Post Processors
 Post Processors give the capability to do custom stream processing after the SQL processing is performed. Complex transformation, enrichment & aggregation use cases are difficult to execute & maintain using SQL. Post Processors solve this problem through code and/or configuration. This can be used to enrich the stream from external sources (HTTP, ElasticSearch, PostgresDB, GRPC), enhance data points using function or query and transform through user-defined code.
 
 All the post processors mentioned in this doc can be applied in a sequential manner, which enables you to get information from multiple different external data sources and apply as many transformers as required. The output of one processor will be the input for the other and the final result will be pushed to the configured sink.
@@ -22,13 +9,13 @@ In the flow of Post Processors, all types of processors viz; External Post Proce
 * Let's assume that you want to find cashback given for a particular order number from an external API endpoint. You can use an [HTTP external post-processor](post_processor.md#http) for this. Here is a basic Data flow diagram.
 
 <p align="center">
-  <img src="../assets/external-http-post-processor.png" width="80%"/>
+  <img src="/img/external-http-post-processor.png" width="80%"/>
 </p>
 
 * In the above example, assume you also want to output the information of customer_id and amount which are fields from input proto. [Internal Post Processor](post_processor.md#internal-post-processor) can be used for selecting these fields from the input stream.
 
 <p align="center">
-  <img src="../assets/external-internal-post-processor.png" width="80%"/>
+  <img src="/img/external-internal-post-processor.png" width="80%"/>
 </p>
 
 * After getting customer_id, amount and cashback amount, you may want to round off the cashback amount. For this, you can write a custom [transformer](docs/../../guides/use_transformer.md) which is a simple Java Flink Map function to calculate the round-off amount.
@@ -36,7 +23,7 @@ In the flow of Post Processors, all types of processors viz; External Post Proce
   **Note:** All the above processors are chained sequentially on the output of the previous processor. The order of execution is determined via the order provided in JSON config.
 
 <p align="center">
-  <img src="../assets/external-internal-transformer-post-processor.png" width="80%"/>
+  <img src="/img/external-internal-transformer-post-processor.png" width="80%"/>
 </p>
 
 # Types of Post Processors

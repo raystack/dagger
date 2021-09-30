@@ -1,4 +1,4 @@
-# Introduction
+# Examples
 Dagger uses Apache Calcite as the querying framework. Find the documentation for the same [here](https://calcite.apache.org/docs/reference.html). Templates of some of the commonly used types of queries are listed down.
 
 ## Sample input schema

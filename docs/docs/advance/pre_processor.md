@@ -1,4 +1,4 @@
-# Introduction
+# Pre Processors
 Pre processors enable the users to add Flink [operators/transformations](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators) before passing on the stream to the SQL query. Each stream registered on dagger can have chained pre processors. They will run and transform the data before SQL processing.
 
 # Type of Preprocessors
@@ -8,7 +8,7 @@ Currently, there is only one type of pre-processor.
 # Data flow in preprocessors
 
 <p align="center">
-  <img src="../assets/pre-processor.png" />
+  <img src="/img/pre-processor.png" />
 </p>
 
 In the above diagram:

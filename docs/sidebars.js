@@ -8,11 +8,11 @@ module.exports = {
       items: [
         "guides/overview",
         "guides/create_dagger",
+        "guides/query_examples",
         "guides/use_transformer",
         "guides/use_udf",
         "guides/deployment",
         "guides/monitoring",
-        "guides/query_examples",
         "guides/troubleshooting"
       ],
     },
@@ -50,16 +50,6 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Contribute",
-      items: [
-        "contribute/contribution",
-        "contribute/development",
-        "contribute/add_transformer",
-        "contribute/add_udf",
-      ],
-    },
-    {
-      type: "category",
       label: "Reference",
       items: [
         "reference/overview",
@@ -69,5 +59,16 @@ module.exports = {
         "reference/udfs"
       ],
     },
+    {
+      type: "category",
+      label: "Contribute",
+      items: [
+        "contribute/contribution",
+        "contribute/development",
+        "contribute/add_transformer",
+        "contribute/add_udf",
+      ],
+    },
+
   ],
 };

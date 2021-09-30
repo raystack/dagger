@@ -1,4 +1,5 @@
-# Introduction
+# Darts
+
 In data streaming pipelines, in certain cases, not entire data is present in the event itself. One scenario for such cases can be where some particular information is present in form of static data that you need in runtime. DARTS(Dagger Refer-Table Service) allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of [UDFs](docs/../../guides/use_udf.md) which can be used in the SQL query. Currently, we only support GCS as a reference data source.
 
 # Types of DARTS
@@ -13,7 +14,7 @@ This UDF can be used in cases where we want to fetch static information from a <
 Let’s assume we need to find out the number of bookings getting completed in a particular District per minute. The input schema only has information regarding service_area_id but not the District. The mapping of service_area_id to District is present in a static key-value map. We can utilize DartGet in order to get this information in our query.
 
 <p align="center">
-  <img src="../assets/dart-get.png" width="80%"/>
+  <img src="/img/dart-get.png" width="80%"/>
 </p>
 
 Sample input schema for booking
@@ -63,7 +64,7 @@ This UDF can be used in cases where we want to verify the presence of a key in a
 Let’s assume we need to count the number of completed bookings per minute but excluding a few blacklisted customers. This static list of blacklisted customers is present remotely. We can utilize DartContains UDF here.
 
 <p align="center">
-  <img src="../assets/dart-contains.png" width="80%"/>
+  <img src="/img/dart-contains.png" width="80%"/>
 </p>
 
 Sample input schema for booking

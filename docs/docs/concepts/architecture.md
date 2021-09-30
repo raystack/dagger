@@ -1,4 +1,4 @@
-# Dagger Architecture
+# Architecture
 
 Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink.
 

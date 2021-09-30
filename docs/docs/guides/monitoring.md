@@ -9,12 +9,12 @@ This section will give a brief overview of Dagger's monitoring stack and explain
 We use Flink's inbuilt metrics reporter to publish application metrics to one of the supported sinks. Other metrics like JMX can be enabled from Flink. Find more details on Flink's metrics reporting and supported sinks [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/monitoring/metrics.html#reporter).
 To register new application metrics from the dagger codebase follow [this](https://ci.apache.org/projects/flink/flink-docs-release-1.9/monitoring/metrics.html#registering-metrics/).
 
-We have also included a [custom grafana dashboard](docs/../../assets/dagger-grafana-dashboard.json) for dagger related [metrics](docs/../../reference/metrics.md).
+We have also included a [custom grafana dashboard](../../assets/dagger-grafana-dashboard.json) for dagger related [metrics](docs/../../reference/metrics.md).
 Follow [this](https://grafana.com/docs/grafana/latest/dashboards/export-import/) to import this dashboard.
 
 ## Dagger Dashboard
 
-This section gives an overview of the important panels/titles in the dagger [dashboard](docs/../../assets/dagger-grafana-dashboard.json).
+This section gives an overview of the important panels/titles in the dagger [dashboard](../../assets/dagger-grafana-dashboard.json).
 Find more about all the panels [here](docs/../../reference/metrics.md).
 
 #### Overview

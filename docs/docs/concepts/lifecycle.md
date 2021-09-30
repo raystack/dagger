@@ -1,9 +1,9 @@
-## Dagger Lifecycle
+# Lifecycle
 
 Architecturally after the creation of Dagger, it goes through several stages before materializing the results to an output stream.
 
 <p align="center">
-  <img src="../assets/dagger-lifecycle.png" />
+  <img src="/img/dagger-lifecycle.png" />
 </p>
 
 - `Stage-1` : Dagger registers all defined configurations. JobManager validates the configurations and the query and creates a job-graph for the same.

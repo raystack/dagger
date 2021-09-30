@@ -173,7 +173,49 @@ export default function Home() {
             ]}
           />
         </Container>
+        <Container className="textSection wrapper" background="light">
+          <h1>Proud Users</h1>
+          <p>
+            Dagger was originally created for the Gojek data processing platform,
+            and it has been used, adapted and improved by other teams internally and externally.
+          </p>
+          <GridBlock className="logos"
+            layout="fourColumn"
+            contents={[
+              {
+                content: (
+                  <img src={useBaseUrl('users/gojek.png')} />
+                ),
+              },
+              {
+                content: (
+                  <img src={useBaseUrl('users/midtrans.png')} />
+                ),
+              },
+              {
+                content: (
+                  <img src={useBaseUrl('users/mapan.png')} />
+                ),
+              },
+              {
+                content: (
+                  <img src={useBaseUrl('users/moka.png')} />
+                ),
+              },
+              // {
+              //   content: (
+              //     <img src={useBaseUrl('users/goto.png')} />
+              //   ),
+              // },
+              // {
+              //   content: (
+              //     <img src={useBaseUrl('users/jago.png')} />
+              //   ),
+              // }
+            ]}>
+          </GridBlock>
+        </Container>
       </main>
-    </Layout>
+    </Layout >
   );
 }

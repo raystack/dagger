@@ -137,7 +137,25 @@ html[data-theme='dark'] .navbar-item-github:before {
   font-size: 1.5rem;
 }
 
+.logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.logos img {
+  height: 30px;
+  margin: 2em;
+}
+
 /* ************** FOOTER ************** */
 .footer {
   margin-top: 3em;
+  border-top: rgba(0,0,0,.05) 1px solid;
+  background-color: var(--dark-bg-color);
+}
+
+.footer .container {
+  box-shadow: none;
+  max-width: var(--ifm-container-width);
 }

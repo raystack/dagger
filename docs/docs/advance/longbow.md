@@ -1,4 +1,4 @@
-# Introduction
+# Longbow
 This is another type of processor which is also applied post SQL query processing in the Dagger workflow. This feature allows users to aggregate data over long windows in real-time. For certain use-cases, you need to know the historical data for an event in a given context. Eg: For a booking event, a risk prevention system would be interested in 1 month pattern of the customer.
 Longbow solves the above problem, the entire historical context gets added in the same event which allows downstream systems to process data without any external dependency. In order to achieve this, we store the historical data in an external data source. After evaluating a lot of data sources we found [Bigtable](https://cloud.google.com/bigtable) to be a good fit primarily because of its low scan queries latencies. This currently works only for Kafka sink.
 
@@ -35,7 +35,7 @@ This component is responsible for reading the historical data from Bigtable and 
 In this example, let's assume we have booking events in a Kafka cluster and we want to get information of all the order numbers and their driver ids for customers in the last 30 days. Here customer_id will become longbow_key.
 
 <p align="center">
-  <img src="../assets/longbow.png" width="80%"/>
+  <img src="/img/longbow.png" width="80%"/>
 </p>
 
 Sample input schema for booking
