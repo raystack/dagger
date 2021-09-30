@@ -3,14 +3,6 @@
 .navigationSlider .slidingNav ul li a {
   font-weight: normal;
 }
-/* 
-html[data-theme="light"] .navbar {
-  background-color: var(--main-bg-color);
-}
-
-html[data-theme="dark"] .navbar {
-  background-color: var(--main-bg-color);
-}  */
 
 .navbar-item-github:hover {
   opacity: 0.6;
@@ -34,155 +26,118 @@ html[data-theme='dark'] .navbar-item-github:before {
   background-position: center;
 }
 
-/* **********INDEX PAGE **************/
-/* Home header */
-
-.homeContainer {
-  text-align: left;
+/* ********** BANNER **************/
+.homeHero{
   overflow: hidden;
   position: relative;
-  background-color: var(--main-bg-color);
-}
-
-.homeContainer .homeWrapper {
-  padding: 10em 1em;
-}
-
-.homeBanner {
-  font-size: 20px;
-  text-align: center;
-}
-
-.homeBanner a {
-  text-decoration: underline;
-}
-
-.wrapper {
-  margin: 0px auto;
-  max-width: 1100px;
-  padding: 0 20px;
-}
-
-.wrapper blockquote > p:first-child {
-  padding-top: 0;
+  background-image: linear-gradient( 113.3deg,  rgba(217,9,27,1) 6.9%, rgba(22,68,150,1) 75% );
 }
 
 .logo {
   position: absolute;
-  opacity: 0.3;
-  top: 50px;
-  right: 150px;
+  opacity: 0.1;
+  right: 0;
+  top:0;
   max-width: 100%;
   margin: auto;
 }
 
 .logo img {
   width: 90%;
+  z-index: 1;
 }
 
-.projectTitle {
-  font-size: 4rem;
+.banner {
   color: white;
-  line-height: 1em;
+  padding: 8em 1em;
+  position: relative;
+  z-index: 10;
 }
 
-.projectTitle > small {
+.homeTitle {
+  margin-top: 50px;
+  max-width: 520px;
+  font-size: 3rem;
+  line-height: 1.3em;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+}
+
+.homeSubTitle {
   display: block;
   font-weight: normal;
-  font-size: 50%;
-  line-height: 1em;
-  margin: 0.7em 0 1.3em;
+  font-size: 1.2em;
+  line-height: 1.3em;
+  margin: 1.3em 0 1.3em;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
 }
 
 
-@media only screen and (max-width: 997px) {
-  .homeContainer .homeWrapper {
-    padding: 4em 1em;
-  }
-
-  .projectTitle > small {
-    font-size: 1.5rem;
-  }
+/* *********** BLOCK CONTAINER *********** */
+.wrapper{
+  padding: 5em 0;
 }
 
-@media only screen and (max-width: 1499px) {
-  .homeContainer .homeWrapper {
-    padding: 6em 1em;
-  }
-
-  .logo {
-    top: -350px;
-  }
-
-  .homeContainer .homeWrapper .projectLogo {
-    padding: 2em 0px 4em;
-  }
+.lightBackground {
+  background-color: var(--light-bg-color);
 }
 
-@media only screen and (max-width: 1100px) {
-  .logo {
-    top: -200px;
-  }
+.darkBackground {
+  background-color: var(--dark-bg-color);
 }
 
-@media only screen and (min-width: 480px) {
-  .projectTitle {
-    margin: 0.3em 0;
-  }
-
-  .projectLogo img {
-    height: 200px;
-    margin-bottom: 10px;
-  }
-
-  .homeContainer .homeWrapper {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
+/* ************** BLOCK GRID ************** */
+.gridBlock {
+  padding-top: 2em;
 }
 
 @media only screen and (min-width: 769px) {
-  .homeContainer .homeWrapper {
-    position: relative;
-  }
-
-  .homeContainer .homeWrapper #inner {
-    max-width: 600px;
-    padding-right: 40px;
-  }
-}
-
-@media only screen and (min-width: 1200px) {
-  .homeContainer .homeWrapper #inner {
-    max-width: 750px;
-  }
-
-  .homeContainer .homeWrapper .projectLogo {
-    align-items: center;
-    bottom: 0;
+  .gridBlock {
     display: flex;
-    justify-content: flex-end;
-    left: 0;
-    padding: 2em 100px 4em;
-    position: absolute;
-    right: 0;
-    top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    grid-gap: 40px;
   }
 
-  .homeContainer .homeWrapper .projectLogo img {
-    height: 100%;
-    max-height: 250px;
+  .gridBlock > * {
+    margin: 0 24px 0 0;
+  }
+
+  .gridBlock .twoByGridBlock {
+    flex: 1 0 40%;
+  }
+
+  .gridBlock .threeByGridBlock {
+    flex: 1 0 26%;
+  }
+
+  .gridBlock .fourByGridBlock {
+    flex: 1 0 20%;
+  }
+
+  h2 + .gridBlock {
+    padding-top: 20px;
   }
 }
 
-@media only screen and (min-width: 1500px) {
-  .homeContainer .homeWrapper #inner {
-    max-width: 1100px;
-    padding-bottom: 40px;
-    padding-top: 40px;
-  }
+/* ************** TEXT SECTION ************** */
+.textSection h1 {
+  margin-top: 0;
+  font-size: 2.5rem;
+}
 
-  .wrapper {
-    max-width: 1400px;
-  }
+.textSection h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+/* ************** FOOTER ************** */
+.footer {
+  margin-top: 3em;
 }

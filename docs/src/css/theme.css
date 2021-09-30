@@ -29,38 +29,13 @@
   
   html[data-theme="light"] {
     --main-bg-color: var(--ifm-color-primary);
+    --light-bg-color: transparent;
+    --dark-bg-color: #F8F6F0;
   }
-  
-  
+
   html[data-theme="dark"] {
-    --main-bg-color: black;
+    --main-bg-color: var(--ifm-color-primary);
+    --light-bg-color: transparent;
+    --dark-bg-color:#131313;
   }
   
-  /* *********** HOME PAGE ************ */
-
-.homeHero{
-  overflow: hidden;
-  /* background-color: var(--ifm-color-primary-lightest); */
-}
-
-.banner {
-  padding: 8em 1em;
-}
-
-.xTitle {
-  margin-top: 50px;
-  max-width: 520px;
-  /* color: var(--ifm-color-primary-dark); */
-  font-size: 3rem;
-  line-height: 1.3em;
-  font-weight: bold;
-  letter-spacing: 0.3px;
-}
-
-.xSubTitle {
-  display: block;
-  font-weight: normal;
-  font-size: 1.2em;
-  line-height: 1.3em;
-  margin: 1.3em 0 1.3em;
-}
