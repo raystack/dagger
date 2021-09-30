@@ -53,9 +53,6 @@ public class InternalPostProcessorTest {
         assertEquals(exceptionMsg, actualException.getMessage());
     }
 
-    /**
-     * TODO check with team on how to add multiple internal source config since it takes a list of internal  sourceconfigs.
-     */
     @Test
     public void processWithRightConfiguration() {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());

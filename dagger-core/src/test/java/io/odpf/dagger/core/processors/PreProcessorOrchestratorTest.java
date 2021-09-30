@@ -9,7 +9,6 @@ import io.odpf.dagger.core.processors.types.Preprocessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,11 +19,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PreProcessorOrchestratorTest {
 
-    //TODO write tests for process method
     @Mock
     private MetricsTelemetryExporter exporter;
 
@@ -53,8 +52,8 @@ public class PreProcessorOrchestratorTest {
 
         List<Preprocessor> processors = ppo.getProcessors();
 
-        Assert.assertEquals(1, processors.size());
-        Assert.assertEquals("test", ((TransformProcessor) processors.get(0)).getTableName());
+        assertEquals(1, processors.size());
+        assertEquals("test", ((TransformProcessor) processors.get(0)).getTableName());
     }
 
     @Test
@@ -67,6 +66,6 @@ public class PreProcessorOrchestratorTest {
 
         List<Preprocessor> processors = ppo.getProcessors();
 
-        Assert.assertEquals(0, processors.size());
+        assertEquals(0, processors.size());
     }
 }
