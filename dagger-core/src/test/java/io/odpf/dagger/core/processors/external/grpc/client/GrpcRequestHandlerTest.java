@@ -7,6 +7,7 @@ import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.core.exception.InvalidGrpcBodyException;
 import io.odpf.dagger.core.processors.common.DescriptorManager;
 import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfig;
+import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfigBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -24,15 +25,15 @@ public class GrpcRequestHandlerTest {
 
     @Test
     public void bodyShouldBeCreatedForProperPayload() throws InvalidProtocolBufferException {
-        //TODOD use non-mock object, convert to builder pattern
-        grpcSourceConfig = mock(GrpcSourceConfig.class);
+        grpcSourceConfig = new GrpcSourceConfigBuilder()
+                .setGrpcRequestProtoSchema("TestGrpcRequest")
+                .setRequestPattern("{'field1': '%s' , 'field2' : '%s'}")
+                .createGrpcSourceConfig();
         descriptorManager = mock(DescriptorManager.class);
         TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
-        when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'}");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);
@@ -49,15 +50,15 @@ public class GrpcRequestHandlerTest {
 
     @Test
     public void shouldThrowExceptionInCaseOfWrongBody() throws InvalidProtocolBufferException {
-        //TODO use actual object
-        grpcSourceConfig = mock(GrpcSourceConfig.class);
+        grpcSourceConfig = new GrpcSourceConfigBuilder()
+                .setGrpcRequestProtoSchema("TestGrpcRequest")
+                .setRequestPattern("{'field1': '%s' , 'field2' : '%s'")
+                .createGrpcSourceConfig();
         descriptorManager = mock(DescriptorManager.class);
         TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
 
         requestVariablesValues = new Object[]{"val1", "val2"};
 
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
-        when(grpcSourceConfig.getPattern()).thenReturn("{'field1': '%s' , 'field2' : '%s'");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);
@@ -68,14 +69,15 @@ public class GrpcRequestHandlerTest {
 
     @Test
     public void shouldThrowExceptionInCaseOfEmptyPattern() {
-        grpcSourceConfig = mock(GrpcSourceConfig.class);
+        grpcSourceConfig = new GrpcSourceConfigBuilder()
+                .setGrpcRequestProtoSchema("TestGrpcRequest")
+                .setRequestPattern("")
+                .createGrpcSourceConfig();
+
         descriptorManager = mock(DescriptorManager.class);
         TestGrpcRequest.newBuilder().setField1("val1").setField2("val2").build();
 
         requestVariablesValues = new Object[]{"val1", "val2"};
-
-        when(grpcSourceConfig.getGrpcRequestProtoSchema()).thenReturn("TestGrpcRequest");
-        when(grpcSourceConfig.getPattern()).thenReturn("");
         when(descriptorManager.getDescriptor(any())).thenReturn(TestGrpcRequest.getDescriptor());
 
         GrpcRequestHandler grpcRequestHandler = new GrpcRequestHandler(grpcSourceConfig, descriptorManager);

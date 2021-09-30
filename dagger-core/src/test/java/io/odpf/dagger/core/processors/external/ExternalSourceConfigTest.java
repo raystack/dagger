@@ -3,6 +3,7 @@ package io.odpf.dagger.core.processors.external;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.es.EsSourceConfig;
 import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfig;
+import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfigBuilder;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import io.odpf.dagger.core.processors.external.pg.PgSourceConfig;
 import org.junit.Assert;
@@ -47,9 +48,7 @@ public class ExternalSourceConfigTest {
         grpc = new ArrayList<>();
         HashMap<String, OutputMapping> grpcOutputMapping = new HashMap<>();
         grpcOutputMapping.put("grpc_field_1", new OutputMapping("data.key"));
-        GrpcSourceConfig grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "TestGrpcRequest", "test.GrpcResponse", "test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                "customer_id", "123", "234", true, "http://localhost/feast-proto/latest", null, true,
-                new HashMap<>(), grpcOutputMapping, "metricId_02", 30);
+        GrpcSourceConfig grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint("localhost").setServicePort(8080).setGrpcRequestProtoSchema("TestGrpcRequest").setGrpcResponseProtoSchema("test.GrpcResponse").setGrpcMethodUrl("test/TestMethod").setRequestPattern("{'field1': '%s' , 'field2' : 'val2'}").setRequestVariables("customer_id").setStreamTimeout("123").setConnectTimeout("234").setFailOnErrors(true).setGrpcStencilUrl("http://localhost/feast-proto/latest").setType(null).setRetainResponseType(true).setHeaders(new HashMap<>()).setOutputMapping(grpcOutputMapping).setMetricId("metricId_02").setCapacity(30).createGrpcSourceConfig();
         grpc.add(grpcSourceConfig);
     }
 

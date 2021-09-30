@@ -69,7 +69,7 @@ public class GrpcAsyncConnectorTest {
     private Row streamData;
     private ExternalMetricConfig externalMetricConfig;
     private String[] inputProtoClasses;
-    private String grpcStencilUrl;
+    private String grpcStencilUrl = "http://localhost/feast-proto/latest";
 
     @Before
     public void setUp() {
@@ -85,19 +85,37 @@ public class GrpcAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
-        grpcStencilUrl = "http://localhost/feast-proto/latest";
         inputProtoClasses = new String[]{"InputProtoMessage"};
-        //TODO use actual object instead of mock
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
         when(schemaConfig.getOutputProtoClassName()).thenReturn("OutputProtoMessage");
         externalMetricConfig = new ExternalMetricConfig("metricId-grpc-01", shutDownPeriod, telemetryEnabled);
 
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .createGrpcSourceConfig();
 
+    }
+
+    private GrpcSourceConfigBuilder getGrpcSourceConfigBuilder() {
+        return new GrpcSourceConfigBuilder()
+                .setEndpoint("localhost")
+                .setServicePort(8080)
+                .setGrpcRequestProtoSchema("test.consumer.TestGrpcRequest")
+                .setGrpcResponseProtoSchema("test.meta.GrpcResponse")
+                .setGrpcMethodUrl("test.test/TestMethod")
+                .setRequestPattern("{'field1': '%s' , 'field2' : 'val2'}")
+                .setRequestVariables("customer_id")
+                .setStreamTimeout("123")
+                .setConnectTimeout("234")
+                .setFailOnErrors(true)
+                .setGrpcStencilUrl(grpcStencilUrl)
+                .setType(grpcConfigType)
+                .setRetainResponseType(true)
+                .setHeaders(headers)
+                .setOutputMapping(new HashMap<>())
+                .setMetricId("metricId_02")
+                .setCapacity(30);
     }
 
     @Test
@@ -178,9 +196,9 @@ public class GrpcAsyncConnectorTest {
         when(descriptorManager.getDescriptor(grpcConfigType)).thenThrow(new DescriptorNotFoundException());
 
         String invalidRequestVariable = "invalid_variable";
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                invalidRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setRequestVariables(invalidRequestVariable)
+                .createGrpcSourceConfig();
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
         grpcAsyncConnector.open(flinkConfiguration);
@@ -200,21 +218,16 @@ public class GrpcAsyncConnectorTest {
     }
 
     @Test
-    public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() {
+    public void shouldCompleteExceptionallyWhenEndpointVariableIsEmptyAndRequiredInPattern() throws Exception {
         String emptyRequestVariable = "";
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%s' , 'field2' : 'val2'}",
-                emptyRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setRequestVariables(emptyRequestVariable)
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
-        try {
-            grpcAsyncConnector.open(flinkConfiguration);
-            grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        grpcAsyncConnector.open(flinkConfiguration);
+        grpcAsyncConnector.asyncInvoke(streamData, resultFuture);
 
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
@@ -233,12 +246,10 @@ public class GrpcAsyncConnectorTest {
         String emptyRequestVariable = "";
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
-
-
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : 'val2'}",
-                emptyRequestVariable, "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setRequestPattern("{'field1': 'val1' , 'field2' : 'val2'}")
+                .setRequestVariables(emptyRequestVariable)
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -264,12 +275,9 @@ public class GrpcAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointPatternIsInvalid() throws Exception {
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
-
-
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setRequestPattern("{'field1': 'val1' , 'field2' : '%'}")
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.open(flinkConfiguration);
@@ -287,10 +295,7 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromOutputProtoIfTypeNotGiven() throws Exception {
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, null, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder().setType(null).createGrpcSourceConfig();
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
 
@@ -304,10 +309,11 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%s'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, "test.booking.TestBookingLogMessage", false,
-                headers, outputMapping, "metricId_02", 30);
-
+            grpcSourceConfig = new GrpcSourceConfigBuilder()
+                    .setRequestPattern("{'field1': 'val1' , 'field2' : '%s'}")
+                    .setRequestVariables("customer_id")
+                    .setType("test.booking.TestBookingLogMessage")
+                    .createGrpcSourceConfig();
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor("InputProtoMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
@@ -324,11 +330,9 @@ public class GrpcAsyncConnectorTest {
     public void shouldCompleteExceptionallyWhenEndpointPatternIsIncompatible() throws Exception {
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor(grpcSourceConfig.getGrpcRequestProtoSchema())).thenReturn(TestGrpcRequest.getDescriptor());
-
-
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': '%d' , 'field2' : 'val2'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, grpcConfigType, true,
-                headers, outputMapping, "metricId_02", 30);
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setRequestPattern("{'field1': '%d' , 'field2' : 'val2'}")
+                .createGrpcSourceConfig();
 
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
         grpcAsyncConnector.open(flinkConfiguration);
@@ -349,13 +353,9 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldThrowExceptionInTimeoutIfFailOnErrorIsTrue() throws Exception {
-
-
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, null, true,
-                headers, outputMapping, "metricId_02", 30);
-
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setFailOnErrors(true)
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.timeout(streamData, resultFuture);
@@ -365,11 +365,9 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldReportFatalInTimeoutIfFailOnErrorIsTrue() {
-
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
-                "customer_id", "123", "234", true, grpcStencilUrl, null, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setFailOnErrors(true)
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.timeout(streamData, resultFuture);
@@ -379,11 +377,9 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldReportNonFatalInTimeoutIfFailOnErrorIsFalse() {
-        //TODO having builder pattern will make this very readable
-        grpcSourceConfig = new GrpcSourceConfig("localhost", 8080, "test.consumer.TestGrpcRequest", "test.meta.GrpcResponse", "test.test/TestMethod", "{'field1': 'val1' , 'field2' : '%'}",
-                "customer_id", "123", "234", false, grpcStencilUrl, null, true,
-                headers, outputMapping, "metricId_02", 30);
-
+        grpcSourceConfig = getGrpcSourceConfigBuilder()
+                .setFailOnErrors(false)
+                .createGrpcSourceConfig();
         GrpcAsyncConnector grpcAsyncConnector = new GrpcAsyncConnector(grpcSourceConfig, externalMetricConfig, schemaConfig, grpcClient, errorReporter, meterStatsManager, descriptorManager);
 
         grpcAsyncConnector.timeout(streamData, resultFuture);
