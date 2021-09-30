@@ -16,9 +16,7 @@ import io.vertx.sqlclient.RowSet;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -28,14 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PgResponseHandlerTest {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ResultFuture<Row> resultFuture;
