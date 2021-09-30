@@ -15,9 +15,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -26,21 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY;
-import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_KEY;
-import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static io.odpf.dagger.core.utils.Constants.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class ExternalPostProcessorTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private Configuration configuration;
@@ -132,7 +123,6 @@ public class ExternalPostProcessorTest {
         assertFalse(externalPostProcessor.canProcess(defaultPostProcessorConfig));
     }
 
-    //TODO check what is being asserted
     @Test
     public void shouldProcessWithRightConfiguration() {
         Map<String, OutputMapping> outputMapping = new HashMap<>();
@@ -156,7 +146,6 @@ public class ExternalPostProcessorTest {
 
         externalPostProcessorMock.process(streamInfoMock);
     }
-    //TODO fix
     @Ignore("Need to fix this test")
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {
@@ -187,9 +176,10 @@ public class ExternalPostProcessorTest {
         StreamInfo streamInfo = new StreamInfo(dataStream, inputColumnNames);
 
         String[] expectedOutputColumnNames = {"request_body", "order_number"};
+
+        assertArrayEquals(expectedOutputColumnNames, postProcessorConfig.getOutputColumnNames().toArray());
     }
 
-    //TODO fix
     @Ignore("Need to fix this test")
     @Test
     public void shouldAddMultipleColumnNamesToExistingColumnNamesOnTheBasisOfConfigGiven() {

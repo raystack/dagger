@@ -5,9 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +15,6 @@ import static org.junit.Assert.*;
 
 public class GrpcSourceConfigTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private HashMap<String, String> headerMap;
     private GrpcSourceConfig grpcSourceConfig;
     private String endpoint;
@@ -157,8 +153,6 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void shouldValidate() {
-        expectedException = ExpectedException.none();
-
         grpcSourceConfig.validateFields();
     }
 
@@ -187,11 +181,10 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void shouldThrowExceptionIfSomeFieldsMissing() {
-        expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
-        expectedException.expect(IllegalArgumentException.class);
 
         grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(null).setConnectTimeout(null).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(null).setMetricId("metricId_01").setCapacity(capacity).createGrpcSourceConfig();
-        grpcSourceConfig.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> grpcSourceConfig.validateFields());
+        assertEquals("Missing required fields: [streamTimeout, connectTimeout, outputMapping]", exception.getMessage());
     }
 
     @Test
@@ -227,11 +220,10 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void shouldValidateWhenOutputMappingIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [outputMapping]");
 
         grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(streamTimeout).setConnectTimeout(connectTimeout).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(new HashMap<>()).setMetricId("metricId_01").setCapacity(capacity).createGrpcSourceConfig();
 
-        grpcSourceConfig.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> grpcSourceConfig.validateFields());
+        assertEquals("Missing required fields: [outputMapping]", exception.getMessage());
     }
 }

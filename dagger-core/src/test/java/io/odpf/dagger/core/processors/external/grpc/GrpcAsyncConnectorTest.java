@@ -21,13 +21,15 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
@@ -37,9 +39,6 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GrpcAsyncConnectorTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private GrpcSourceConfig grpcSourceConfig;
     @Mock
@@ -75,7 +74,7 @@ public class GrpcAsyncConnectorTest {
     public void setUp() {
         initMocks(this);
         List<String> outputColumnNames = Collections.singletonList("value");
-        String[] inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
+        String[] inputColumnNames = new String[] {"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
         grpcConfigType = "type";
         streamData = new Row(2);
@@ -85,7 +84,7 @@ public class GrpcAsyncConnectorTest {
         streamData.setField(1, new Row(1));
         boolean telemetryEnabled = true;
         long shutDownPeriod = 0L;
-        inputProtoClasses = new String[]{"InputProtoMessage"};
+        inputProtoClasses = new String[] {"InputProtoMessage"};
         when(schemaConfig.getInputProtoClasses()).thenReturn(inputProtoClasses);
         when(schemaConfig.getColumnNameManager()).thenReturn(new ColumnNameManager(inputColumnNames, outputColumnNames));
         when(schemaConfig.getStencilClientOrchestrator()).thenReturn(stencilClientOrchestrator);
@@ -309,11 +308,11 @@ public class GrpcAsyncConnectorTest {
 
     @Test
     public void shouldGetDescriptorFromTypeIfGiven() throws Exception {
-            grpcSourceConfig = new GrpcSourceConfigBuilder()
-                    .setRequestPattern("{'field1': 'val1' , 'field2' : '%s'}")
-                    .setRequestVariables("customer_id")
-                    .setType("test.booking.TestBookingLogMessage")
-                    .createGrpcSourceConfig();
+        grpcSourceConfig = new GrpcSourceConfigBuilder()
+                .setRequestPattern("{'field1': 'val1' , 'field2' : '%s'}")
+                .setRequestVariables("customer_id")
+                .setType("test.booking.TestBookingLogMessage")
+                .createGrpcSourceConfig();
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(descriptorManager.getDescriptor(inputProtoClasses[0])).thenReturn(TestBookingLogMessage.getDescriptor());
         when(descriptorManager.getDescriptor("InputProtoMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
