@@ -7,7 +7,7 @@ API Monitoring refers to the practice of monitoring APIs in production to gain v
 If you look closely, API health/uptime/performance is mostly a _real-time streaming aggregation problem_ and hence Dagger can be a tool of choice. The only prerequisite is that you need some sort of structured events to be streamed for each API calls. The events can be streamed by the middleware/API gateway layer with all sort of information.
 
 This is sample Data flow of API monitoring in Dagger.
-![API Monitoring](../assets/api-monitoring.png)
+![API Monitoring](/img/api-monitoring.png)
 
 ### Sample Schema Definition
 
@@ -49,7 +49,7 @@ GROUP BY
 
 This is a Dashboard on a sample API based on the status code powered by Dagger.
 
-![Profile Enrichment](../assets/api-status.png)
+![Profile Enrichment](/img/api-status.png)
 
 ### Impact
 

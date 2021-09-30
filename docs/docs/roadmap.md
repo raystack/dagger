@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Roadmap
 
 In the following section you can learn about what features we're working on, what stage they're in, and when we expect to bring them to you. Have any questions or comments about items on the roadmap? Join the [discussions](https://github.com/odpf/dagger/discussions) on Dagger Github forum.

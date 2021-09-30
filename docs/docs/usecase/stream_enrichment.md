@@ -35,7 +35,7 @@ Dagger can solve this easily using simple SQL and post-processor. For the simpli
 - The enrichment of only customer profile with booking information. However, user can have a chain of enrichments for enriching multiple data points.
 - An ElasticSearch instance has all customer-specific information required which we are using as the external data source here and are indexed by customer ids for easy lookups.
 
-![Profile Enrichment](../assets/enrichment.png)
+![Profile Enrichment](/img/enrichment.png)
 
 This is how the basic data flow of profile enrichment looks like.
 

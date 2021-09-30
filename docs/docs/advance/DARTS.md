@@ -111,7 +111,7 @@ Most of DARTS configurations are via UDF contract, for other glabal configs refe
 
 ### Persistence layer
 We store all data references in GCS. We recommend using GCS where the data reference is not too big and updates are very few. GCS also offers a cost-effective solution.
-We currently support storing data in a specific bucket, with a custom folder for every dart. The data is always kept in a file and you have to pass the relative path <custom-folder>/filename.json. There should not be many reads as every time we read the list from GCS we read the whole selected list and cache it in Dagger.
+We currently support storing data in a specific bucket, with a custom folder for every dart. The data is always kept in a file and you have to pass the relative path `<custom-folder>/filename.json`. There should not be many reads as every time we read the list from GCS we read the whole selected list and cache it in Dagger.
 
 ### Caching mechanism
 Dart fetches the data from GCS after configurable refresh period or when entire data is missing from the cache or is empty. After Dart fetches the data, it stores it in the application state.
