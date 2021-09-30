@@ -1,18 +1,12 @@
 package io.odpf.dagger.core.processors.common;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class OutputMappingTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldReturnPath() {
@@ -21,9 +15,7 @@ public class OutputMappingTest {
         assertEquals("path", path);
     }
 
-    //TODO not neeeded, if exception is thrown junit test will faill and  removing it will keep the convention for
-    // expected exception same
-    @Test(expected = Test.None.class)
+    @Test
     public void shouldValidate() {
         OutputMapping outputMapping = new OutputMapping("path");
         outputMapping.validateFields();
@@ -31,10 +23,9 @@ public class OutputMappingTest {
 
     @Test
     public void shouldThrowExceptionIfValidationFailed() {
-        expectedException.expectMessage("Missing required fields: [path]");
-        expectedException.expect(IllegalArgumentException.class);
         OutputMapping outputMapping = new OutputMapping(null);
-        outputMapping.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> outputMapping.validateFields());
+        assertEquals("Missing required fields: [path]", exception.getMessage());
     }
 
     @Test

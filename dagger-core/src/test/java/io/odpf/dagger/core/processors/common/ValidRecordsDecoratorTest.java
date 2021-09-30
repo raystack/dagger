@@ -10,11 +10,8 @@ import io.odpf.dagger.core.source.ProtoDeserializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.List;
@@ -22,12 +19,10 @@ import java.util.stream.Collectors;
 
 import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValidRecordsDecoratorTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ErrorReporter errorReporter;
@@ -57,15 +52,13 @@ public class ValidRecordsDecoratorTest {
 
     @Test
     public void shouldThrowExceptionWithBadRecord() throws Exception {
-        expectedException.expectMessage("Bad Record Encountered for table `test`");
-        expectedException.expect(InvalidProtocolBufferException.class);
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes());
         Row invalidRow = protoDeserializer.deserialize(consumerRecord);
         ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns());
         filter.errorReporter = this.errorReporter;
-        //TODO assertfalse not needed as exception is thrown
-        Assert.assertFalse(filter.filter(invalidRow));
+        InvalidProtocolBufferException exception = assertThrows(InvalidProtocolBufferException.class, () -> filter.filter(invalidRow));
+        assertEquals("Bad Record Encountered for table `test`", exception.getMessage());
     }
 
     @Test
@@ -74,7 +67,6 @@ public class ValidRecordsDecoratorTest {
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
         Row validRow = protoDeserializer.deserialize(consumerRecord);
         FilterDecorator filter = new ValidRecordsDecorator("test", getColumns());
-        //TODO use static import
-        Assert.assertTrue(filter.filter(validRow));
+        assertTrue(filter.filter(validRow));
     }
 }
