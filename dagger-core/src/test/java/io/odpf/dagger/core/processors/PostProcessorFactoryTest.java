@@ -6,7 +6,6 @@ import io.odpf.dagger.core.processors.telemetry.TelemetryProcessor;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import org.apache.flink.configuration.Configuration;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.core.utils.Constants.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -61,8 +61,8 @@ public class PostProcessorFactoryTest {
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
-        Assert.assertEquals(1, postProcessors.size());
-        Assert.assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
+        assertEquals(1, postProcessors.size());
+        assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
     }
 
     @Test
@@ -72,8 +72,8 @@ public class PostProcessorFactoryTest {
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
-        Assert.assertEquals(1, postProcessors.size());
-        Assert.assertEquals(ParentPostProcessor.class, postProcessors.get(0).getClass());
+        assertEquals(1, postProcessors.size());
+        assertEquals(ParentPostProcessor.class, postProcessors.get(0).getClass());
     }
 
     @Test
@@ -84,8 +84,8 @@ public class PostProcessorFactoryTest {
 
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
-        Assert.assertEquals(1, postProcessors.size());
-        Assert.assertEquals(TelemetryProcessor.class, postProcessors.get(0).getClass());
+        assertEquals(1, postProcessors.size());
+        assertEquals(TelemetryProcessor.class, postProcessors.get(0).getClass());
     }
 
     @Test
@@ -94,6 +94,6 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
-        Assert.assertEquals(0, postProcessors.size());
+        assertEquals(0, postProcessors.size());
     }
 }

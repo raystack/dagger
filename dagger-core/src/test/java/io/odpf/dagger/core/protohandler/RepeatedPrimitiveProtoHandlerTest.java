@@ -1,25 +1,22 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import io.odpf.dagger.core.exception.DataTypeNotSupportedException;
+import io.odpf.dagger.core.exception.InvalidDataTypeException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
-
-import io.odpf.dagger.core.exception.DataTypeNotSupportedException;
-import io.odpf.dagger.core.exception.InvalidDataTypeException;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 
 public class RepeatedPrimitiveProtoHandlerTest {
 
@@ -101,8 +98,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, inputValues);
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
-        assertEquals(inputValues.get(0), outputValues.get(0));
-        assertEquals(inputValues.get(1), outputValues.get(1));
+        assertEquals(asList("test1", "test2"), outputValues);
     }
 
     @Test
@@ -117,8 +113,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, inputValues.toArray());
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
-        assertEquals(inputValues.get(0), outputValues.get(0));
-        assertEquals(inputValues.get(1), outputValues.get(1));
+        assertEquals(asList("test1", "test2"), outputValues);
     }
 
     @Test
@@ -168,38 +163,29 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         List<Object> outputValues = (List<Object>) repeatedPrimitiveProtoHandler.transformFromPostProcessor(inputValues);
 
-        assertEquals(3, outputValues.size());
-        assertEquals("1", outputValues.get(0));
-        assertEquals("2", outputValues.get(1));
-        assertEquals("3", outputValues.get(2));
+        assertEquals(asList("1", "2", "3"), outputValues);
     }
 
     @Test
     public void shouldThrowExceptionIfFieldDesciptorTypeNotSupportedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("routes");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
-        try {
-            ArrayList<String> inputValues = new ArrayList<>();
-            inputValues.add("test");
-            repeatedPrimitiveProtoHandler.transformFromPostProcessor(inputValues);
-        } catch (Exception e) {
-            assertEquals(DataTypeNotSupportedException.class, e.getClass());
-            assertEquals("Data type MESSAGE not supported in primitive type handlers", e.getMessage());
-        }
+        ArrayList<String> inputValues = new ArrayList<>();
+        inputValues.add("test");
+        DataTypeNotSupportedException exception = assertThrows(DataTypeNotSupportedException.class,
+                () -> repeatedPrimitiveProtoHandler.transformFromPostProcessor(inputValues));
+        assertEquals("Data type MESSAGE not supported in primitive type handlers", exception.getMessage());
     }
 
     @Test
     public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedFloatFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("int_array_field");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFloatFieldDescriptor);
-        try {
-            ArrayList<String> inputValues = new ArrayList<>();
-            inputValues.add("test");
-            repeatedPrimitiveProtoHandler.transformFromPostProcessor(inputValues);
-        } catch (Exception e) {
-            assertEquals(InvalidDataTypeException.class, e.getClass());
-            assertEquals("type mismatch of field: int_array_field, expecting INT32 type, actual type class java.lang.String", e.getMessage());
-        }
+        ArrayList<String> inputValues = new ArrayList<>();
+        inputValues.add("test");
+        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+                () -> repeatedPrimitiveProtoHandler.transformFromPostProcessor(inputValues));
+        assertEquals("type mismatch of field: int_array_field, expecting INT32 type, actual type class java.lang.String", exception.getMessage());
     }
 
     @Test
@@ -216,11 +202,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), goLifeBookingLogMessage.toByteArray());
 
         String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformFromKafka(dynamicMessage.getField(repeatedFieldDescriptor));
-
-        assertEquals(3, outputValues.length);
-        assertEquals("1", outputValues[0]);
-        assertEquals("2", outputValues[1]);
-        assertEquals("3", outputValues[2]);
+        assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
     }
 
 
@@ -228,12 +210,9 @@ public class RepeatedPrimitiveProtoHandlerTest {
     public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForKafkaTransform() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
-        try {
-            repeatedPrimitiveProtoHandler.transformFromKafka("CREATED");
-        } catch (Exception e) {
-            assertEquals(DataTypeNotSupportedException.class, e.getClass());
-            assertEquals("Data type ENUM not supported in primitive type handlers", e.getMessage());
-        }
+        DataTypeNotSupportedException exception = assertThrows(DataTypeNotSupportedException.class,
+                () -> repeatedPrimitiveProtoHandler.transformFromKafka("CREATED"));
+        assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
     }
 
     @Test
@@ -253,6 +232,6 @@ public class RepeatedPrimitiveProtoHandlerTest {
         inputValues.add("test2");
 
         Object value = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor).transformToJson(inputValues);
-        Assert.assertEquals("[\"test1\",\"test2\"]", String.valueOf(value));
+        assertEquals("[\"test1\",\"test2\"]", String.valueOf(value));
     }
 }

@@ -5,10 +5,11 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathParser;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+
+import static org.junit.Assert.*;
 
 public class SqlInternalAutoFieldImportTest {
 
@@ -32,7 +33,7 @@ public class SqlInternalAutoFieldImportTest {
 
         sqlInternalConfigProcessor.process(rowManager);
 
-        Assert.assertEquals(rowManager.getInputData(), rowManager.getOutputData());
+        assertEquals(rowManager.getInputData(), rowManager.getOutputData());
     }
 
     @Test
@@ -55,7 +56,12 @@ public class SqlInternalAutoFieldImportTest {
 
         sqlInternalConfigProcessor.process(rowManager);
 
-        Assert.assertEquals(rowManager.getInputData(), rowManager.getOutputData());
+        Row expectedRow = new Row(2);
+        expectedRow.setField(0, "inputValue1");
+        expectedRow.setField(1, "inputValue2");
+        assertEquals(expectedRow, rowManager.getOutputData());
+        assertEquals(expectedRow, rowManager.getInputData());
+
     }
 
     @Test
@@ -78,6 +84,6 @@ public class SqlInternalAutoFieldImportTest {
 
         sqlInternalConfigProcessor.process(rowManager);
 
-        Assert.assertNotEquals(rowManager.getInputData(), rowManager.getOutputData());
+        assertNotEquals(rowManager.getInputData(), rowManager.getOutputData());
     }
 }

@@ -1,23 +1,15 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.InvalidDataTypeException;
 import org.apache.flink.api.common.typeinfo.Types;
-
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PrimitiveProtoHandlerTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldReturnTrueForAnyDataType() {
@@ -85,13 +77,12 @@ public class PrimitiveProtoHandlerTest {
 
     @Test
     public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
-        expectedException.expect(InvalidDataTypeException.class);
-        expectedException.expectMessage("type mismatch of field: total_customer_discount, expecting FLOAT type, actual type class java.lang.String");
-
         Descriptors.FieldDescriptor floatFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_customer_discount");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
 
-        primitiveProtoHandler.transformFromPostProcessor("stringValue");
+        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+                () -> primitiveProtoHandler.transformFromPostProcessor("stringValue"));
+        assertEquals("type mismatch of field: total_customer_discount, expecting FLOAT type, actual type class java.lang.String", exception.getMessage());
     }
 
     @Test
@@ -117,6 +108,6 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         Object value = new PrimitiveProtoHandler(fieldDescriptor).transformToJson("123");
 
-        Assert.assertEquals("123", value);
+        assertEquals("123", value);
     }
 }

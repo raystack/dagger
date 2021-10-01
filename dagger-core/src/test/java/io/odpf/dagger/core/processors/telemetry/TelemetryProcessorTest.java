@@ -1,16 +1,15 @@
 package io.odpf.dagger.core.processors.telemetry;
 
+import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
-
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -47,8 +46,7 @@ public class TelemetryProcessorTest {
 
     @Test
     public void shouldReturnTrueOnCanProcess() {
-        telemetryProcessor.canProcess(postProcessorConfig);
-        Assert.assertTrue(telemetryProcessor.canProcess(postProcessorConfig));
+        assertTrue(telemetryProcessor.canProcess(postProcessorConfig));
     }
 
 }

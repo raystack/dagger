@@ -5,12 +5,13 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 public class FunctionInternalConfigProcessorTest {
 
@@ -19,7 +20,7 @@ public class FunctionInternalConfigProcessorTest {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("function"));
 
-        Assert.assertTrue(functionInternalConfigProcessor.canProcess("function"));
+        assertTrue(functionInternalConfigProcessor.canProcess("function"));
     }
 
     @Test
@@ -27,7 +28,7 @@ public class FunctionInternalConfigProcessorTest {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("constant"));
 
-        Assert.assertFalse(functionInternalConfigProcessor.canProcess("constant"));
+        assertFalse(functionInternalConfigProcessor.canProcess("constant"));
     }
 
     @Test
@@ -35,10 +36,10 @@ public class FunctionInternalConfigProcessorTest {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"));
 
-        Assert.assertFalse(functionInternalConfigProcessor.canProcess("sql"));
+        assertFalse(functionInternalConfigProcessor.canProcess("sql"));
     }
 
-    @Test(expected = InvalidConfigurationException.class)
+    @Test
     public void shouldThrowInvalidConfigurationException() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
@@ -51,7 +52,10 @@ public class FunctionInternalConfigProcessorTest {
         parentRow.setField(1, outputRow);
         RowManager rowManager = new RowManager(parentRow);
 
-        functionInternalConfigProcessor.process(rowManager);
+        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
+                () -> functionInternalConfigProcessor.process(rowManager));
+        assertEquals("The function test is not supported in custom configuration",
+                invalidConfigException.getMessage());
     }
 
     @Test
@@ -70,8 +74,8 @@ public class FunctionInternalConfigProcessorTest {
 
         functionInternalConfigProcessor.process(rowManager);
 
-        Assert.assertNotNull(rowManager.getOutputData().getField(1));
-        Assert.assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
+        assertNotNull(rowManager.getOutputData().getField(1));
+        assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
     }
 
     private InternalSourceConfig getCustomConfig(String type) {

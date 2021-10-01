@@ -6,9 +6,7 @@ import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +32,7 @@ public class OutputLongbowDataTest {
     @Test
     public void shouldCreateRowWithSameArity() {
         ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(defaultLongbowSchema);
-        Row output = outputLongbowData.get(scanResult, input);
+        Row output = outputLongbowData.get(scanResult, new Row(2));
         assertEquals(2, output.getArity());
     }
 
@@ -42,8 +40,8 @@ public class OutputLongbowDataTest {
     public void shouldReplaceLongbowDataWithScanResult() {
         ReaderOutputLongbowData outputLongbowData = new ReaderOutputLongbowData(defaultLongbowSchema);
         Row output = outputLongbowData.get(scanResult, input);
-        assertEquals(orderNumbers, output.getField(0));
-        assertEquals("driver#123", output.getField(1));
+        Row expectedRow = Row.of(orderNumbers, "driver#123");
+        assertEquals(expectedRow, output);
     }
 
     @Test
@@ -59,9 +57,8 @@ public class OutputLongbowDataTest {
         input.setField(1, "123");
         input.setField(2, "driver#123");
         Row output = outputLongbowData.get(scanResult, input);
-        assertEquals(orderNumbers, output.getField(0));
-        assertEquals(customerIds, output.getField(1));
-        assertEquals("driver#123", output.getField(2));
+        Row expectedRow = Row.of(orderNumbers, customerIds, "driver#123");
+        assertEquals(expectedRow, output);
     }
 
     @Test
@@ -76,8 +73,8 @@ public class OutputLongbowDataTest {
         input.setField(1, "123");
         input.setField(2, "driver#123");
         Row output = outputLongbowData.get(scanResult, input);
-        assertEquals(orderNumbers, output.getField(0));
-        assertEquals(new ArrayList<>(), output.getField(1));
-        assertEquals("driver#123", output.getField(2));
+        Row expectedRow = Row.of(orderNumbers, Collections.emptyList(), "driver#123");
+        assertEquals(expectedRow, output);
+
     }
 }

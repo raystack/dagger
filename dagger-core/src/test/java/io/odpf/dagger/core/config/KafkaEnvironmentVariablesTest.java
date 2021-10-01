@@ -3,26 +3,21 @@ package io.odpf.dagger.core.config;
 import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class KafkaEnvironmentVariablesTest {
 
     @Test
     public void shouldReturnKafkaEnvVarsPositive() {
         Configuration configuration = new Configuration();
-        new HashMap<String, String>() {{
-            put("PATH", "/usr/local/bin");
-            put("SHELL", "/usr/local/bin/zsh");
-            put("source_kafka_config_fetch_min_bytes", "1");
-            put("source_kafka_config_ssl_keystore_location", "/home/user/.ssh/keystore");
-            put("source_kafka_config_enable_auto_commit", "false");
-        }}.entrySet()
-                .stream()
-                .forEach(e -> configuration.setString(e.getKey(), e.getValue()));
+        configuration.setString("PATH", "/usr/local/bin");
+        configuration.setString("SHELL", "/usr/local/bin/zsh");
+        configuration.setString("source_kafka_config_fetch_min_bytes", "1");
+        configuration.setString("source_kafka_config_ssl_keystore_location", "/home/user/.ssh/keystore");
+        configuration.setString("source_kafka_config_enable_auto_commit", "false");
 
         Properties expectedEnvVars = new Properties() {{
             put("fetch.min.bytes", "1");
@@ -38,38 +33,29 @@ public class KafkaEnvironmentVariablesTest {
     @Test
     public void shouldReturnKafkaEnvVarsNegative() {
         Configuration configuration = new Configuration();
-        new HashMap<String, String>() {{
-            put("PATH", "/usr/local/bin");
-            put("SHELL", "/usr/local/bin/zsh");
-        }}.entrySet()
-                .stream()
-                .forEach(e -> configuration.setString(e.getKey(), e.getValue()));
-
-        Map<String, String> expectedEnvVars = new HashMap<>();
+        configuration.setString("PATH", "/usr/local/bin");
+        configuration.setString("SHELL", "/usr/local/bin/zsh");
 
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
 
-        assertEquals(expectedEnvVars, actualEnvVars);
+        assertTrue(actualEnvVars.isEmpty());
     }
 
     @Test
     public void shouldReturnEmptyCollectionOnNullConfiguration() {
         Configuration configuration = null;
-        Map<String, String> expectedEnvVars = new HashMap<>();
 
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
 
-        assertEquals(expectedEnvVars, actualEnvVars);
+        assertTrue(actualEnvVars.isEmpty());
     }
 
     @Test
     public void shouldReturnEmptyCollectionOnEmptyConfiguration() {
         Configuration configuration = new Configuration();
 
-        Map<String, String> expectedEnvVars = new HashMap<>();
-
         Properties actualEnvVars = KafkaEnvironmentVariables.parse(configuration);
 
-        assertEquals(expectedEnvVars, actualEnvVars);
+        assertTrue(actualEnvVars.isEmpty());
     }
 }

@@ -16,7 +16,6 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -225,7 +225,7 @@ public class LongbowWriterTest {
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
 
         longBowWriter.preProcessBeforeNotifyingSubscriber();
-        Assert.assertEquals(metrics, longBowWriter.getTelemetry());
+        assertEquals(metrics, longBowWriter.getTelemetry());
     }
 
     @Test

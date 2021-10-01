@@ -10,23 +10,19 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.core.utils.Constants.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FlinkKafkaConsumerCustomTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private SourceFunction.SourceContext defaultSourceContext;
@@ -62,11 +58,9 @@ public class FlinkKafkaConsumerCustomTest {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
 
-        try {
-            flinkKafkaConsumer011Custom.run(defaultSourceContext);
-        } catch (Exception e) {
-            Assert.assertEquals("test exception", e.getMessage());
-        }
+        Exception exception = Assert.assertThrows(Exception.class,
+                () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
+        assertEquals("test exception", exception.getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
@@ -75,22 +69,18 @@ public class FlinkKafkaConsumerCustomTest {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         Throwable throwable = new Throwable();
         flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new ExceptionInChainedOperatorException("chaining exception", throwable));
-        try {
-            flinkKafkaConsumer011Custom.run(defaultSourceContext);
-        } catch (Exception e) {
-            Assert.assertEquals("chaining exception", e.getMessage());
-        }
+        Exception exception = Assert.assertThrows(Exception.class,
+                () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
+        assertEquals("chaining exception", exception.getMessage());
         verify(errorReporter, times(0)).reportFatalException(any(RuntimeException.class));
     }
 
     @Test
     public void shouldNotReportIfTelemetryDisabled() {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
-        try {
-            flinkKafkaConsumer011Custom.run(defaultSourceContext);
-        } catch (Exception e) {
-            Assert.assertEquals("test exception", e.getMessage());
-        }
+        Exception exception = Assert.assertThrows(Exception.class,
+                () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
+        assertEquals("test exception", exception.getMessage());
         verify(noOpErrorReporter, times(1)).reportFatalException(any(RuntimeException.class));
     }
 
@@ -100,7 +90,7 @@ public class FlinkKafkaConsumerCustomTest {
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = new FlinkKafkaConsumerCustom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
-        Assert.assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumerCustom.getErrorReporter(defaultRuntimeContext).getClass());
+        assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumerCustom.getErrorReporter(defaultRuntimeContext).getClass());
     }
 
     public class FlinkKafkaConsumerCustomStub extends FlinkKafkaConsumerCustom {

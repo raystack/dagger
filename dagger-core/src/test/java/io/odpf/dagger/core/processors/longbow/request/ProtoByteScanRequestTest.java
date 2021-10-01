@@ -2,10 +2,10 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoByteScanRequestTest {
@@ -28,6 +28,6 @@ public class ProtoByteScanRequestTest {
         expectedScan.withStartRow(startRow, true);
         expectedScan.withStopRow(endRow, true);
         expectedScan.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("proto"));
-        Assert.assertTrue(expectedScan.getFamilyMap().equals(protoByteScanRequest.get().getFamilyMap()));
+        assertEquals(expectedScan.getFamilyMap(), protoByteScanRequest.get().getFamilyMap());
     }
 }

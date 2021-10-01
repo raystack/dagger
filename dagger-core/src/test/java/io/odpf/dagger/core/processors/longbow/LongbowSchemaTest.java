@@ -1,11 +1,9 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.exception.InvalidLongbowDurationException;
-import org.junit.Assert;
+import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,7 +12,7 @@ import org.junit.rules.ExpectedException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class LongbowSchemaTest {
     @Rule
@@ -30,7 +28,7 @@ public class LongbowSchemaTest {
         longBowSchema = new LongbowSchema(columnNames);
         defaultTimestampInMillis = 433321L;
         defaultTimestamp = new Timestamp(defaultTimestampInMillis);
-        defaultRow = getRow("driver1", "order1", defaultTimestamp, "24h");
+        defaultRow = Row.of("driver1", "order1", defaultTimestamp, "24h");
     }
 
     @Test
@@ -92,21 +90,21 @@ public class LongbowSchemaTest {
     @Test
     public void shouldGetDurationInMillisForMinutes() {
         int minutes = 20;
-        Row rowsForMinutes = getRow("driver1", "order1", defaultTimestamp, minutes + "m");
+        Row rowsForMinutes = Row.of("driver1", "order1", defaultTimestamp, minutes + "m");
         assertEquals(minutes * 60 * 1000, longBowSchema.getDurationInMillis(rowsForMinutes));
     }
 
     @Test
     public void shouldGetDurationInMillisForHours() {
         int hours = 24;
-        Row rowsForHours = getRow("driver1", "order1", defaultTimestamp, hours + "h");
+        Row rowsForHours = Row.of("driver1", "order1", defaultTimestamp, hours + "h");
         assertEquals(hours * 60 * 60 * 1000, longBowSchema.getDurationInMillis(rowsForHours));
     }
 
     @Test
     public void shouldGetDurationInMillisForDays() {
         int days = 15;
-        Row rowForDays = getRow("driver1", "order1", defaultTimestamp, days + "d");
+        Row rowForDays = Row.of("driver1", "order1", defaultTimestamp, days + "d");
         assertEquals(days * 24 * 60 * 60 * 1000, longBowSchema.getDurationInMillis(rowForDays));
     }
 
@@ -116,7 +114,7 @@ public class LongbowSchemaTest {
         expectedException.expectMessage("'15s' is a invalid duration string");
 
         int seconds = 15;
-        Row rowsForMonths = getRow("driver1", "order1", defaultTimestamp, seconds + "s");
+        Row rowsForMonths = Row.of("driver1", "order1", defaultTimestamp, seconds + "s");
         longBowSchema.getDurationInMillis(rowsForMonths);
     }
 
@@ -126,17 +124,15 @@ public class LongbowSchemaTest {
         longBowSchema = new LongbowSchema(columnNames);
         Row input = new Row(5);
         input.setField(0, "driver_id");
-
-        Assert.assertEquals(longBowSchema.getValue(input, "longbow_key"), "driver_id");
+        assertEquals("driver_id", longBowSchema.getValue(input, "longbow_key"));
     }
 
     @Test
     public void shouldReturnIfItContainsTheColumn() {
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration", "longbow_data2"};
         longBowSchema = new LongbowSchema(columnNames);
-
-        Assert.assertEquals(longBowSchema.contains("longbow_key"), true);
-        Assert.assertEquals(longBowSchema.contains("longbow_earliest"), false);
+        assertTrue(longBowSchema.contains("longbow_key"));
+        assertFalse(longBowSchema.contains("longbow_earliest"));
     }
 
     @Test
@@ -149,9 +145,9 @@ public class LongbowSchemaTest {
 
         String[] thirdColumnNames = {"longbow_key"};
         LongbowSchema thirdLongbowSchema = new LongbowSchema(thirdColumnNames);
-        Assert.assertEquals(firstLongBowSchema.getType(), LongbowType.LongbowRead);
-        Assert.assertEquals(secondLongBowSchema.getType(), LongbowType.LongbowWrite);
-        Assert.assertEquals(thirdLongbowSchema.getType(), LongbowType.LongbowProcess);
+        assertEquals(LongbowType.LongbowRead, firstLongBowSchema.getType());
+        assertEquals(LongbowType.LongbowWrite, secondLongBowSchema.getType());
+        assertEquals(LongbowType.LongbowProcess, thirdLongbowSchema.getType());
     }
 
     @Test
@@ -170,14 +166,7 @@ public class LongbowSchemaTest {
         String[] columnNames = {"longbow_key"};
 
         longBowSchema = new LongbowSchema(columnNames);
-        Assert.assertFalse(longBowSchema.isLongbowPlus());
+        assertFalse(longBowSchema.isLongbowPlus());
     }
 
-    private Row getRow(Object... dataList) {
-        Row input = new Row(dataList.length);
-        for (int i = 0; i < dataList.length; i++) {
-            input.setField(i, dataList[i]);
-        }
-        return input;
-    }
 }

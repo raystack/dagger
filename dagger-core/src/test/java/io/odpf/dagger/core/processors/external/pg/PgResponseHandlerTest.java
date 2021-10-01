@@ -1,8 +1,5 @@
 package io.odpf.dagger.core.processors.external.pg;
 
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
@@ -16,10 +13,11 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import io.vertx.core.AsyncResult;
 import io.vertx.sqlclient.RowIterator;
 import io.vertx.sqlclient.RowSet;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -27,19 +25,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.SUCCESS_RESPONSE;
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.TOTAL_FAILED_REQUESTS;
+import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PgResponseHandlerTest {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ResultFuture<Row> resultFuture;
@@ -71,7 +63,7 @@ public class PgResponseHandlerTest {
     private Descriptors.Descriptor descriptor;
     private List<String> outputColumnNames;
     private String[] inputColumnNames;
-    private HashMap<String, String> outputMapping;
+    private HashMap<String, String> outputMapping = new HashMap<>();
     private Row streamData;
     private RowManager rowManager;
     private ColumnNameManager columnNameManager;
@@ -86,7 +78,6 @@ public class PgResponseHandlerTest {
         outputColumnNames = new ArrayList<>();
         outputColumnNames.add("customer_url");
         outputColumnNames.add("activity_source");
-        outputMapping = new HashMap<>();
         streamData = new Row(2);
         inputData = new Row(3);
         inputData.setField(1, "123456");
@@ -94,8 +85,27 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(2));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", false, metricId, false);
+        pgSourceConfig = getPgSourceConfigBuilder().createPgSourceConfig();
+    }
+
+    private PgSourceConfigBuilder getPgSourceConfigBuilder() {
+        return new PgSourceConfigBuilder()
+                .setHost("localhost")
+                .setPort("5432")
+                .setUser("user")
+                .setPassword("password")
+                .setDatabase("db")
+                .setType("ProtoClass")
+                .setCapacity("30")
+                .setStreamTimeout("5000")
+                .setOutputMapping(outputMapping)
+                .setConnectTimeout("5000")
+                .setIdleTimeout("5000")
+                .setQueryVariables("customer_id")
+                .setQueryPattern("select * from public.customers where customer_id = '%s'")
+                .setFailOnErrors(false)
+                .setMetricId(metricId)
+                .setRetainResponseType(false);
     }
 
     @Test
@@ -146,8 +156,9 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
-        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
+        pgSourceConfig = getPgSourceConfigBuilder()
+                .setFailOnErrors(true)
+                .createPgSourceConfig();
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
@@ -178,8 +189,9 @@ public class PgResponseHandlerTest {
 
     @Test
     public void shouldReportFatalExceptionAndCompleteExceptionallyWhenEventComesToFailureHandleAndFailOnErrorsIsTrue() {
-        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", "ProtoClass", "30",
-                "5000", outputMapping, "5000", "5000", "customer_id", "select * from public.customers where customer_id = '%s'", true, metricId, false);
+        pgSourceConfig = getPgSourceConfigBuilder()
+                .setFailOnErrors(true)
+                .createPgSourceConfig();
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(false);
         when(event.cause()).thenReturn(new Exception("failure message!"));
@@ -187,8 +199,16 @@ public class PgResponseHandlerTest {
         pgResponseHandler.startTimer();
         pgResponseHandler.handle(event);
 
-        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
-        verify(resultFuture, times(1)).completeExceptionally(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> fatalExcepCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportFatalException(fatalExcepCaptor.capture());
+        assertEquals("PgResponseHandler : Failed with error. failure message!",
+                fatalExcepCaptor.getValue().getMessage());
+
+        ArgumentCaptor<HttpFailureException> resultFutureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(resultFuture, times(1)).completeExceptionally(resultFutureCaptor.capture());
+        assertEquals("PgResponseHandler : Failed with error. failure message!",
+                resultFutureCaptor.getValue().getMessage());
+
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -202,7 +222,10 @@ public class PgResponseHandlerTest {
         pgResponseHandler.startTimer();
         pgResponseHandler.handle(event);
 
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> nonFatalExcepCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(nonFatalExcepCaptor.capture());
+        assertEquals("PgResponseHandler : Failed with error. failure message!",
+                nonFatalExcepCaptor.getValue().getMessage());
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
@@ -230,8 +253,13 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
-                "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", true);
+        pgSourceConfig = getPgSourceConfigBuilder()
+                .setType(null)
+                .setQueryVariables("s2_id")
+                .setQueryPattern("select surge_factor from public.surge where s2_id = '%s'")
+                .setMetricId("")
+                .setRetainResponseType(true)
+                .createPgSourceConfig();
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);
         Row outputRow = new Row(2);
@@ -268,8 +296,13 @@ public class PgResponseHandlerTest {
         streamData.setField(1, new Row(outputColumnNames.size()));
         rowManager = new RowManager(streamData);
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
-        pgSourceConfig = new PgSourceConfig("localhost", "5432", "user", "password", "db", null, "30",
-                "5000", outputMapping, "5000", "5000", "s2_id", "select surge_factor from public.surge where s2_id = '%s'", false, "", false);
+        pgSourceConfig = getPgSourceConfigBuilder()
+                .setType(null)
+                .setQueryVariables("s2_id")
+                .setQueryPattern("select surge_factor from public.surge where s2_id = '%s'")
+                .setMetricId("")
+                .setRetainResponseType(false)
+                .createPgSourceConfig();
         Row outputStreamRow = new Row(2);
         outputStreamRow.setField(0, inputData);
         Row outputRow = new Row(2);

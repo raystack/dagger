@@ -7,7 +7,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,10 +14,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -63,10 +63,9 @@ public class MetricsTelemetryExporterTest {
 
     @Test
     public void shouldReturnSameInputRowOnMap() throws Exception {
-        Row inputRow = new Row(1);
-        inputRow.setField(0, "test_value");
+        Row inputRow = Row.of("test_value");
         Row outputRow = metricsTelemetryExporter.map(inputRow);
-        Assert.assertEquals(inputRow, outputRow);
+        assertEquals(Row.of("test_value"), outputRow);
     }
 
     @Test
@@ -86,8 +85,8 @@ public class MetricsTelemetryExporterTest {
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
 
-        Assert.assertEquals(Arrays.asList("topic", "topic", "topic"), allKeys);
-        Assert.assertEquals(Arrays.asList("topic1", "topic2", "topic3"), allValues);
+        assertEquals(asList("topic", "topic", "topic"), allKeys);
+        assertEquals(asList("topic1", "topic2", "topic3"), allValues);
     }
 
 
@@ -117,8 +116,8 @@ public class MetricsTelemetryExporterTest {
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
 
-        Assert.assertEquals(Arrays.asList("topic", "topic", "topic", "sink"), allKeys);
-        Assert.assertEquals(Arrays.asList("topic1", "topic2", "topic3", "log"), allValues);
+        assertEquals(asList("topic", "topic", "topic", "sink"), allKeys);
+        assertEquals(asList("topic1", "topic2", "topic3", "log"), allValues);
     }
 
     @Test
@@ -150,8 +149,8 @@ public class MetricsTelemetryExporterTest {
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
 
-        Assert.assertEquals(Arrays.asList("topic", "topic"), allKeys);
-        Assert.assertEquals(Arrays.asList("topic1", "topic2"), allValues);
+        assertEquals(asList("topic", "topic"), allKeys);
+        assertEquals(asList("topic1", "topic2"), allValues);
     }
 
     @Test
@@ -179,8 +178,8 @@ public class MetricsTelemetryExporterTest {
         List<String> allKeys = keyCaptor.getAllValues();
         List<String> allValues = valueCaptor.getAllValues();
 
-        Assert.assertEquals(Arrays.asList("topic", "topic", "topic"), allKeys);
-        Assert.assertEquals(Arrays.asList("topic1", "topic2", "topic3"), allValues);
+        assertEquals(asList("topic", "topic", "topic"), allKeys);
+        assertEquals(asList("topic1", "topic2", "topic3"), allValues);
     }
 
     public class MetricsTelemetryExporterStub extends MetricsTelemetryExporter {

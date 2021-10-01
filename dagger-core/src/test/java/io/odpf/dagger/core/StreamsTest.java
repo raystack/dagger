@@ -5,12 +5,15 @@ import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.apache.flink.configuration.Configuration;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.*;
 import static org.junit.Assert.assertEquals;
@@ -171,6 +174,6 @@ public class StreamsTest {
         configuration.setString("STREAMS", configString);
         Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
 
-        Assert.assertEquals(protoClassForTable, streams.getProtos());
+        assertEquals(protoClassForTable, streams.getProtos());
     }
 }

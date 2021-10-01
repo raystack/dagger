@@ -1,26 +1,17 @@
 package io.odpf.dagger.core.protohandler;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
 import io.odpf.dagger.consumer.TestServiceType;
-import org.apache.flink.api.common.typeinfo.Types;
-
 import io.odpf.dagger.core.exception.EnumFieldNotFoundException;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import org.junit.Assert;
-import org.junit.Rule;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EnumProtoHandlerTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldReturnTrueIfEnumFieldDescriptorIsPassed() {
@@ -76,13 +67,12 @@ public class EnumProtoHandlerTest {
 
     @Test
     public void shouldThrowExceptionIfFieldNotFoundInGivenEnumFieldTypeDescriptor() {
-        expectedException.expect(EnumFieldNotFoundException.class);
-        expectedException.expectMessage("field: test not found in io.odpf.dagger.consumer.TestBookingLogMessage.service_type");
         Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        enumProtoHandler.transformForKafka(builder, "test");
+        EnumFieldNotFoundException exception = assertThrows(EnumFieldNotFoundException.class, () -> enumProtoHandler.transformForKafka(builder, "test"));
+        assertEquals("field: test not found in io.odpf.dagger.consumer.TestBookingLogMessage.service_type", exception.getMessage());
     }
 
     @Test
@@ -168,6 +158,6 @@ public class EnumProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         Object value = new EnumProtoHandler(fieldDescriptor).transformToJson("DRIVER_FOUND");
 
-        Assert.assertEquals("DRIVER_FOUND", value);
+        assertEquals("DRIVER_FOUND", value);
     }
 }

@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -55,10 +56,10 @@ public class HttpRequestFactoryTest {
         verify(httpClient, times(0)).preparePost(any(String.class));
     }
 
-    @Test(expected = InvalidHttpVerbException.class)
+    @Test
     public void shouldThrowExceptionForUnsupportedHttpVerb() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "PATCH", "/key/%s", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
-        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray());
+        assertThrows(InvalidHttpVerbException.class, () -> HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray()));
     }
 
 }

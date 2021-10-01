@@ -1,19 +1,15 @@
 package io.odpf.dagger.core.processors.transformers;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class TransformConfigTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private TransformConfig defaultTransformConfig;
     private String transformationClass;
@@ -36,16 +32,19 @@ public class TransformConfigTest {
 
     @Test
     public void shouldReturnTransformationArguments() {
-        assertEquals(transformationArguments, defaultTransformConfig.getTransformationArguments());
+        HashMap<String, String> expectedMap = new HashMap<String, String>() {{
+            put("keyColumnName", "key");
+            put("valueColumnName", "value");
+        }};
+        assertEquals(expectedMap, defaultTransformConfig.getTransformationArguments());
     }
 
     @Test
     public void shouldThrowExceptionIfMandatoryFieldsAreMissing() {
-        expectedException.expectMessage("Missing required fields: [transformationClass]");
-        expectedException.expect(IllegalArgumentException.class);
 
         TransformConfig transformConfig = new TransformConfig(null, null);
-        transformConfig.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> transformConfig.validateFields());
+        assertEquals("Missing required fields: [transformationClass]", exception.getMessage());
     }
 
     @Test
@@ -58,11 +57,10 @@ public class TransformConfigTest {
 
     @Test
     public void shouldThrowExceptionIfDefaultFieldsAreOverridden() {
-        expectedException.expectMessage("Transformation arguments cannot contain `table_name` as a key");
-        expectedException.expect(IllegalArgumentException.class);
         TransformConfig config = new TransformConfig("io.odpf.TestClass", new HashMap<String, Object>() {{
             put(TransformerUtils.DefaultArgument.INPUT_SCHEMA_TABLE.toString(), "test-value");
         }});
-        config.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> config.validateFields());
+        assertEquals("Transformation arguments cannot contain `table_name` as a key", exception.getMessage());
     }
 }

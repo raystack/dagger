@@ -2,9 +2,9 @@ package io.odpf.dagger.core.processors.external.grpc.client;
 
 import io.grpc.Channel;
 import io.odpf.dagger.core.processors.external.grpc.GrpcSourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,8 +25,7 @@ public class GrpcClientTest {
         grpcClient.addChannel();
 
         Channel decoratedChannel = grpcClient.getDecoratedChannel();
-
-        Assert.assertTrue(decoratedChannel != null);
+        assertNotNull(decoratedChannel);
 
     }
 
@@ -43,10 +42,11 @@ public class GrpcClientTest {
         grpcClient.addChannel();
 
         Channel decoratedChannel = grpcClient.getDecoratedChannel();
-        Assert.assertTrue(decoratedChannel != null);
+        assertNotNull(decoratedChannel);
 
         grpcClient.close();
-        Assert.assertTrue(grpcClient.getDecoratedChannel() == null);
+         decoratedChannel = grpcClient.getDecoratedChannel();
+        assertNull(decoratedChannel);
 
     }
 

@@ -4,12 +4,13 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestGrpcRequest;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static org.junit.Assert.*;
 
 public class DynamicMessageMarshallerTest {
 
@@ -23,11 +24,11 @@ public class DynamicMessageMarshallerTest {
 
         InputStream stream = dynamicMessageMarshaller.stream(message);
 
-        Assert.assertTrue(IOUtils.contentEquals(stream, message.toByteString().newInput()));
+        assertTrue(IOUtils.contentEquals(stream, message.toByteString().newInput()));
 
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void parseShouldFailForWrongStream() throws InvalidProtocolBufferException {
 
         DynamicMessageMarshaller dynamicMessageMarshaller = new DynamicMessageMarshaller(TestGrpcRequest.getDescriptor());
@@ -35,7 +36,9 @@ public class DynamicMessageMarshallerTest {
         String random = "sdaskndkjsankjas";
         InputStream targetStream = new ByteArrayInputStream(random.getBytes());
 
-        dynamicMessageMarshaller.parse(targetStream);
+        RuntimeException runtimeException = assertThrows(RuntimeException.class,
+                () -> dynamicMessageMarshaller.parse(targetStream));
+        assertEquals("Unable to merge from the supplied input stream", runtimeException.getMessage());
 
     }
 }

@@ -2,15 +2,12 @@ package io.odpf.dagger.core.processors.longbow.range;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import org.apache.flink.types.Row;
-
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowAbsoluteRangeTest {
@@ -45,6 +42,6 @@ public class LongbowAbsoluteRangeTest {
     @Test
     public void shouldReturnInvalidFields() {
         LongbowAbsoluteRange longbowAbsoluteRow = new LongbowAbsoluteRange(longbowSchema);
-        Assert.assertArrayEquals(longbowAbsoluteRow.getInvalidFields(), new String[]{"longbow_duration"});
+        assertArrayEquals(new String[]{"longbow_duration"}, longbowAbsoluteRow.getInvalidFields());
     }
 }

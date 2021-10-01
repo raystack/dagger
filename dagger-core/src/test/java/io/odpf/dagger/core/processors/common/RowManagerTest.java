@@ -2,79 +2,73 @@ package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.core.exception.InputOutputMappingException;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class RowManagerTest {
 
-    private Row parentRow;
-    private Row inputRow;
-    private Row outputRow;
-
-    @Before
-    public void setup() {
-        parentRow = new Row(2);
-        inputRow = new Row(3);
-        outputRow = new Row(4);
-        parentRow.setField(0, inputRow);
-        parentRow.setField(1, outputRow);
-    }
 
     @Test
     public void shouldSetInOutputRow() {
+        Row outputRow = new Row(4);
+        Row parentRow = Row.of(new Row(3), outputRow);
         RowManager rowManager = new RowManager(parentRow);
 
         rowManager.setInOutput(0, "one");
 
-        Assert.assertEquals("one", outputRow.getField(0));
+        assertEquals("one", outputRow.getField(0));
     }
 
     @Test
     public void shouldCreateParentRowWithInputDataAndOutputDimension() {
-        inputRow = new Row(3);
+         Row inputRow = new Row(3);
         RowManager rowManager = new RowManager(inputRow, 4);
 
         Row outputData = rowManager.getOutputData();
 
-        Assert.assertEquals(4, outputData.getArity());
-        Assert.assertEquals(inputRow, rowManager.getInputData());
+        assertEquals(4, outputData.getArity());
+        assertEquals(inputRow, rowManager.getInputData());
     }
 
 
     @Test
     public void shouldGetDataFromInputIndex() {
-        inputRow.setField(1, "input_data");
-        inputRow.setField(0, "other_input_data");
+        Row inptRow = Row.of("other_input_data", "input_data");
+        Row parentRow = Row.of(inptRow, new Row(4));
         RowManager rowManager = new RowManager(parentRow);
 
-        Assert.assertEquals("input_data", rowManager.getFromInput(1));
+        assertEquals("input_data", rowManager.getFromInput(1));
     }
 
     @Test
     public void shouldGetParentRow() {
+        Row parentRow = Row.of(new Row(3), new Row(4));
         RowManager rowManager = new RowManager(parentRow);
 
-        Assert.assertEquals(parentRow, rowManager.getAll());
+        Row expected = Row.of(new Row(3), new Row(4));
+        assertEquals(expected, rowManager.getAll());
     }
 
     @Test
     public void shouldGetInputData() {
+        Row parentRow = Row.of(new Row(3), new Row(4));
         RowManager rowManager = new RowManager(parentRow);
 
-        Assert.assertEquals(inputRow, rowManager.getInputData());
+        assertEquals(new Row(3), rowManager.getInputData());
     }
 
     @Test
     public void shouldGetOutputData() {
+        Row parentRow = Row.of(new Row(3), new Row(4));
         RowManager rowManager = new RowManager(parentRow);
 
-        Assert.assertEquals(outputRow, rowManager.getOutputData());
+        assertEquals(new Row(4), rowManager.getOutputData());
     }
 
-    @Test(expected = InputOutputMappingException.class)
+    @Test
     public void shouldThrowExpectionOnGetOutputDataIfParentRowIsOfArityOtherThanTwo() {
         RowManager rowManager = new RowManager(new Row(3));
-        rowManager.getOutputData();
+        assertThrows(InputOutputMappingException.class, () -> rowManager.getOutputData());
     }
 }

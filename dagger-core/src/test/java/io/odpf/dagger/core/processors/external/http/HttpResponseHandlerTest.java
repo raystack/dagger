@@ -1,8 +1,5 @@
 package io.odpf.dagger.core.processors.external.http;
 
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
@@ -14,11 +11,12 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
 import org.asynchttpclient.Response;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -27,16 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class HttpResponseHandlerTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ResultFuture<Row> resultFuture;
@@ -69,7 +62,7 @@ public class HttpResponseHandlerTest {
         initMocks(this);
         descriptor = TestSurgeFactorLogMessage.getDescriptor();
         outputColumnNames = Collections.singletonList("value");
-        inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
+        inputColumnNames = new String[] {"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
         headers = new HashMap<>();
         headers.put("content-type", "application/json");
@@ -95,7 +88,9 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(failureCaptor.capture());
+        assertEquals("Received status code : 404", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
@@ -110,7 +105,9 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_4XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(failureCaptor.capture());
+        assertEquals("Received status code : 402", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
@@ -125,7 +122,10 @@ public class HttpResponseHandlerTest {
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_5XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(failureCaptor.capture());
+        assertEquals("Received status code : 502", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
@@ -140,7 +140,9 @@ public class HttpResponseHandlerTest {
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(failureCaptor.capture());
+        assertEquals("Received status code : 302", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
 
@@ -154,7 +156,10 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onCompleted(response);
 
         verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
-        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> argumentCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1))
+                .reportFatalException(argumentCaptor.capture());
+        assertEquals("Received status code : 404", argumentCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_404);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
@@ -169,7 +174,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(resultFuture, times(1)).completeExceptionally(failureCaptor.capture());
+        assertEquals("Received status code : 400", failureCaptor.getValue().getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_4XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
@@ -185,7 +192,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(resultFuture, times(1)).completeExceptionally(failureCaptor.capture());
+        assertEquals("Received status code : 502", failureCaptor.getValue().getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).markEvent(FAILURE_CODE_5XX);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
@@ -201,7 +210,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.startTimer();
         httpResponseHandler.onCompleted(response);
 
-        verify(resultFuture).completeExceptionally(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(resultFuture, times(1)).completeExceptionally(failureCaptor.capture());
+        assertEquals("Received status code : 302", failureCaptor.getValue().getMessage());
         verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
@@ -217,7 +228,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onThrowable(throwable);
 
         verify(resultFuture, times(1)).complete(Collections.singleton(streamData));
-        verify(errorReporter, times(1)).reportNonFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportNonFatalException(failureCaptor.capture());
+        assertEquals("throwable message", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
     }
@@ -232,7 +245,9 @@ public class HttpResponseHandlerTest {
         httpResponseHandler.onThrowable(throwable);
 
         verify(resultFuture).completeExceptionally(any(RuntimeException.class));
-        verify(errorReporter, times(1)).reportFatalException(any(HttpFailureException.class));
+        ArgumentCaptor<HttpFailureException> failureCaptor = ArgumentCaptor.forClass(HttpFailureException.class);
+        verify(errorReporter, times(1)).reportFatalException(failureCaptor.capture());
+        assertEquals("throwable message", failureCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).markEvent(OTHER_ERRORS);
         verify(meterStatsManager, times(1)).markEvent(TOTAL_FAILED_REQUESTS);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
@@ -306,12 +321,9 @@ public class HttpResponseHandlerTest {
         HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
 
         httpResponseHandler.startTimer();
-        try {
-            httpResponseHandler.onCompleted(response);
-        } catch (Exception ignored) {
-        } finally {
-            verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
-        }
+        assertThrows(NullPointerException.class,
+                () -> httpResponseHandler.onCompleted(response));
+        verify(resultFuture, times(1)).completeExceptionally(any(IllegalArgumentException.class));
     }
 
     @Test

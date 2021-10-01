@@ -1,10 +1,10 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.odpf.dagger.consumer.TestBookingLogMessage;
+import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
-import com.gojek.de.stencil.client.StencilClient;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -12,12 +12,12 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -58,7 +58,7 @@ public class FetchOutputDecoratorTest {
 
     @Test
     public void canDecorateShouldBeFalse() {
-        Assert.assertFalse(new FetchOutputDecorator(schemaConfig, false).canDecorate());
+        assertFalse(new FetchOutputDecorator(schemaConfig, false).canDecorate());
     }
 
     @Test

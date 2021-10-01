@@ -4,12 +4,13 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor;
 import org.apache.flink.types.Row;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class InternalDecoratorTest {
 
@@ -20,7 +21,7 @@ public class InternalDecoratorTest {
         columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalDecorator internalDecorator = new InternalDecorator(mock(InternalSourceConfig.class), null, columnNameManager);
 
-        Assert.assertTrue(internalDecorator.canDecorate());
+        assertTrue(internalDecorator.canDecorate());
     }
 
     @Test
@@ -28,7 +29,7 @@ public class InternalDecoratorTest {
         columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
         InternalDecorator internalDecorator = new InternalDecorator(null, null, null);
 
-        Assert.assertFalse(internalDecorator.canDecorate());
+        assertFalse(internalDecorator.canDecorate());
     }
 
     @Test
@@ -54,7 +55,7 @@ public class InternalDecoratorTest {
         internalDecorator.map(dataStreamRow);
         Row outputRow = (Row) dataStreamRow.getField(1);
 
-        Assert.assertEquals(columnNameManager.getOutputSize(), outputRow.getArity());
+        assertEquals(2, outputRow.getArity());
         verify(processorMock).process(new RowManager(dataStreamRow));
     }
 }

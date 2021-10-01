@@ -1,11 +1,11 @@
 package io.odpf.dagger.core.processors.longbow.data;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -24,7 +24,7 @@ public class LongbowDataFactoryTest {
         when(longbowSchema.isLongbowPlus()).thenReturn(false);
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowData longbowData = longbowDataFactory.getLongbowData();
-        Assert.assertEquals(LongbowTableData.class, longbowData.getClass());
+        assertEquals(LongbowTableData.class, longbowData.getClass());
     }
 
     @Test
@@ -32,6 +32,6 @@ public class LongbowDataFactoryTest {
         when(longbowSchema.isLongbowPlus()).thenReturn(true);
         LongbowDataFactory longbowDataFactory = new LongbowDataFactory(longbowSchema);
         LongbowData longbowData = longbowDataFactory.getLongbowData();
-        Assert.assertEquals(LongbowProtoData.class, longbowData.getClass());
+        assertEquals(LongbowProtoData.class, longbowData.getClass());
     }
 }

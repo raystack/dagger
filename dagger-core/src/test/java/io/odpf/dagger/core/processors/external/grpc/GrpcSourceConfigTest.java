@@ -1,14 +1,11 @@
 package io.odpf.dagger.core.processors.external.grpc;
 
 
+import com.google.gson.annotations.SerializedName;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
-import com.google.gson.annotations.SerializedName;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +15,6 @@ import static org.junit.Assert.*;
 
 public class GrpcSourceConfigTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private HashMap<String, String> headerMap;
     private GrpcSourceConfig grpcSourceConfig;
     private String endpoint;
@@ -64,12 +59,12 @@ public class GrpcSourceConfigTest {
         grpcMethodUrl = "test/TestMethod";
         grpcResponseProtoSchema = "ResponseMessage";
         grpcRequestProtoSchema = "RequestMessage";
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, defaultGrpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
+        grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(streamTimeout).setConnectTimeout(connectTimeout).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(outputMappings).setMetricId(metricId).setCapacity(capacity).createGrpcSourceConfig();
     }
 
     @Test
     public void shouldReturnConnectTimeout() {
-        Assert.assertEquals(Integer.parseInt(connectTimeout), (int) grpcSourceConfig.getConnectTimeout());
+        assertEquals(Integer.parseInt(connectTimeout), (int) grpcSourceConfig.getConnectTimeout());
     }
 
     @Test
@@ -153,13 +148,11 @@ public class GrpcSourceConfigTest {
     public void shouldReturnColumnNames() {
         List<String> actualColumns = grpcSourceConfig.getOutputColumns();
         String[] expectedColumns = {"surge_factor"};
-        Assert.assertArrayEquals(expectedColumns, actualColumns.toArray());
+        assertArrayEquals(expectedColumns, actualColumns.toArray());
     }
 
     @Test
     public void shouldValidate() {
-        expectedException = ExpectedException.none();
-
         grpcSourceConfig.validateFields();
     }
 
@@ -167,32 +160,31 @@ public class GrpcSourceConfigTest {
     public void shouldCollectStencilURLSFromGRPCSourceConfiguration() {
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
-        Assert.assertEquals(1, grpcStencilUrl.size());
-        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
+        assertEquals(1, grpcStencilUrl.size());
+        assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
     }
 
     @Test
     public void shouldCollectMultipleStencilURLSFromGRPCSourceConfiguration() {
         defaultGrpcStencilUrl = "http://localhost/feast-proto/latest,http://localhost/log-entities/latest,http://localhost/events/latest,http://localhost/growth/release";
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, defaultGrpcStencilUrl, type, retainResponseType, headerMap, outputMappings, metricId, capacity);
+        grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(streamTimeout).setConnectTimeout(connectTimeout).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(outputMappings).setMetricId(metricId).setCapacity(capacity).createGrpcSourceConfig();
 
         List<String> grpcStencilUrl = grpcSourceConfig.getGrpcStencilUrl();
 
-        Assert.assertEquals(4, grpcStencilUrl.size());
-        Assert.assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
-        Assert.assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));
-        Assert.assertEquals("http://localhost/events/latest", grpcStencilUrl.get(2));
-        Assert.assertEquals("http://localhost/growth/release", grpcStencilUrl.get(3));
+        assertEquals(4, grpcStencilUrl.size());
+        assertEquals("http://localhost/feast-proto/latest", grpcStencilUrl.get(0));
+        assertEquals("http://localhost/log-entities/latest", grpcStencilUrl.get(1));
+        assertEquals("http://localhost/events/latest", grpcStencilUrl.get(2));
+        assertEquals("http://localhost/growth/release", grpcStencilUrl.get(3));
     }
 
 
     @Test
     public void shouldThrowExceptionIfSomeFieldsMissing() {
-        expectedException.expectMessage("Missing required fields: [streamTimeout, connectTimeout, outputMapping]");
-        expectedException.expect(IllegalArgumentException.class);
 
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, null, null, failOnErrors, defaultGrpcStencilUrl, type, retainResponseType, headerMap, null, "metricId_01", capacity);
-        grpcSourceConfig.validateFields();
+        grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(null).setConnectTimeout(null).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(null).setMetricId("metricId_01").setCapacity(capacity).createGrpcSourceConfig();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> grpcSourceConfig.validateFields());
+        assertEquals("Missing required fields: [streamTimeout, connectTimeout, outputMapping]", exception.getMessage());
     }
 
     @Test
@@ -228,11 +220,10 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void shouldValidateWhenOutputMappingIsEmpty() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Missing required fields: [outputMapping]");
 
-        grpcSourceConfig = new GrpcSourceConfig(endpoint, servicePort, grpcRequestProtoSchema, grpcResponseProtoSchema, grpcMethodUrl, requestPattern, requestVariables, streamTimeout, connectTimeout, failOnErrors, defaultGrpcStencilUrl, type, retainResponseType, headerMap, new HashMap<>(), "metricId_01", capacity);
+        grpcSourceConfig = new GrpcSourceConfigBuilder().setEndpoint(endpoint).setServicePort(servicePort).setGrpcRequestProtoSchema(grpcRequestProtoSchema).setGrpcResponseProtoSchema(grpcResponseProtoSchema).setGrpcMethodUrl(grpcMethodUrl).setRequestPattern(requestPattern).setRequestVariables(requestVariables).setStreamTimeout(streamTimeout).setConnectTimeout(connectTimeout).setFailOnErrors(failOnErrors).setGrpcStencilUrl(defaultGrpcStencilUrl).setType(type).setRetainResponseType(retainResponseType).setHeaders(headerMap).setOutputMapping(new HashMap<>()).setMetricId("metricId_01").setCapacity(capacity).createGrpcSourceConfig();
 
-        grpcSourceConfig.validateFields();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> grpcSourceConfig.validateFields());
+        assertEquals("Missing required fields: [outputMapping]", exception.getMessage());
     }
 }

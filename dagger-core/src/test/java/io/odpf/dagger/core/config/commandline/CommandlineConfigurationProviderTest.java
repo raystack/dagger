@@ -15,7 +15,7 @@ public class CommandlineConfigurationProviderTest {
     public void shouldProvideFromEmptyInput() throws Exception {
         Configuration configurations = new CommandlineConfigurationProvider(new String[]{}).get();
 
-        assertTrue(configurations.keySet().size() == 0);
+        assertTrue(configurations.keySet().isEmpty());
     }
 
     @Test
@@ -25,7 +25,7 @@ public class CommandlineConfigurationProviderTest {
         assertEquals(1, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
-        assertTrue(configurations.getString("key", "").equals("value"));
+        assertEquals("value", configurations.getString("key", ""));
     }
 
     @Test
@@ -35,9 +35,9 @@ public class CommandlineConfigurationProviderTest {
         assertEquals(2, configurations.keySet().size());
 
         assertTrue(configurations.containsKey("key"));
-        assertTrue(configurations.getString("key", "").equals("value"));
+        assertEquals("value", configurations.getString("key", ""));
         assertTrue(configurations.containsKey("k"));
-        assertTrue(configurations.getString("k", "").equals("v"));
+        assertEquals("v", configurations.getString("k", ""));
     }
 
     @Test
@@ -46,6 +46,6 @@ public class CommandlineConfigurationProviderTest {
         Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).get();
 
         assertTrue(configurations.containsKey("key"));
-        assertTrue(configurations.getString("key", "").equals("value"));
+        assertEquals("value", configurations.getString("key", ""));
     }
 }
