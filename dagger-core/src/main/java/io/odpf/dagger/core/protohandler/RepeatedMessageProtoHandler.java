@@ -116,8 +116,9 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     private JsonRowSerializationSchema createJsonRowSchema() {
-        return new JsonRowSerializationSchema
-                .Builder(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()))
+        return JsonRowSerializationSchema
+                .builder()
+                .withTypeInfo(TypeInformationFactory.getRowType(fieldDescriptor.getMessageType()))
                 .build();
     }
 }

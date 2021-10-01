@@ -7,6 +7,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class InvalidRecordFilterTransformerTest {
     private RuntimeContext runtimeContext;
 
     @Mock
-    private MetricGroup metricGroup;
+    private OperatorMetricGroup metricGroup;
     @Mock
     private Counter counter;
 

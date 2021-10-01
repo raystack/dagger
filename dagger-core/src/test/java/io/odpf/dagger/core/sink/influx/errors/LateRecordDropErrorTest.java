@@ -5,6 +5,9 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
+import org.apache.flink.metrics.groups.OperatorMetricGroup;
+
+import io.odpf.dagger.core.utils.Constants;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
 import org.junit.Before;
@@ -22,7 +25,7 @@ public class LateRecordDropErrorTest {
     private RuntimeContext runtimeContext;
 
     @Mock
-    private MetricGroup metricGroup;
+    private OperatorMetricGroup metricGroup;
 
     @Mock
     private MetricGroup metricGroupForLateRecords;

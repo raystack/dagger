@@ -94,9 +94,12 @@ public class TimestampProtoHandlerTest {
 
         Row inputRow = new Row(3);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> timestampProtoHandler.transformForKafka(builder, inputRow).build());
-        assertEquals("Row: null,null,null of size: 3 cannot be converted to timestamp", exception.getMessage());
+        try {
+            timestampProtoHandler.transformForKafka(builder, inputRow).build();
+        } catch (Exception e) {
+            assertEquals(IllegalArgumentException.class, e.getClass());
+            assertEquals("Row: +I[null, null, null] of size: 3 cannot be converted to timestamp", e.getMessage());
+        }
     }
 
     @Test
