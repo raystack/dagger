@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdagger=self.webpackChunkdagger||[]).push([[7167],{2845:function(g){g.exports=JSON.parse('{"allTagsPath":"/dagger/blog/tags","slug":"/dagger/blog/tags/odpf","name":"odpf","count":1,"permalink":"/dagger/blog/tags/odpf"}')}}]);

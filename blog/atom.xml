@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://odpf.github.io/dagger/blog</id>
+    <title>Dagger Blog</title>
+    <updated>2021-08-20T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://odpf.github.io/dagger/blog"/>
+    <subtitle>Dagger Blog</subtitle>
+    <icon>https://odpf.github.io/dagger/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Introducing Dagger]]></title>
+        <id>introducing-dagger</id>
+        <link href="https://odpf.github.io/dagger/blog/introducing-dagger"/>
+        <updated>2021-08-20T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[We are live!]]></summary>
+        <author>
+            <name>Ravi Suhag</name>
+            <uri>https://github.com/ravisuhag</uri>
+        </author>
+    </entry>
+</feed>
