@@ -39,7 +39,7 @@ Dagger supports some SQL functions out of the box to be used in the queries. Mos
 
 ### User Defined Functions(UDF)
 
-If Calcite and Flink do not support your desired function, it is pretty easy to expose new custom functions to Dagger which we call User Defined Functions. [List of supported UDFs](docs/../../reference/udfs.md) in Dagger.
+If Calcite and Flink do not support your desired function, it is pretty easy to expose new custom functions to Dagger which we call User Defined Functions. [List of supported UDFs](../reference/udfs.md) in Dagger.
 
 ### Windowing
 

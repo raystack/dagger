@@ -2,8 +2,8 @@
 
 The following is a set of guidelines for contributing to Dagger. These are mostly guidelines, not hard and first rules. Use your best judgment, and feel free to propose changes to this document over a pull request. Here are some important resources:
 
-- [Concepts](docs/../../concepts/overview) section will explain to you about Dagger architecture.
-- Our [roadmap](docs/../../roadmap.md) is the 10000-foot view of where we're heading in near future.
+- [Concepts](../concepts/overview) section will explain to you about Dagger architecture.
+- Our [roadmap](../roadmap.md) is the 10000-foot view of where we're heading in near future.
 - Github [issues](https://github.com/odpf/dagger/issues) track the ongoing and reported issues.
 
 ## How can I contribute?
@@ -56,7 +56,7 @@ $ git commit -s -m "feat: my first commit"
 - Avoid force-pushing as it makes reviewing difficult.
 
 We follow [semantic versioning](https://semver.org/) for any code change and release. The version is defined in
-the [version.txt](../../version.txt) file and is common across all the submodules.
+the [version.txt](../../../version.txt) file and is common across all the submodules.
 
 - Bump up the patch version for every backward compatible changes like addition of new UDFs/transformers/bug fixes etc.
 - In case of any contract changes bump of minor version.

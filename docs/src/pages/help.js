@@ -8,7 +8,7 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`Help`}
       description="Stream processing framework">
       <main>
         <Container className="textSection wrapper" background="light">

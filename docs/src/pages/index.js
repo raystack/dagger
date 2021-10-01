@@ -16,7 +16,7 @@ const Hero = () => {
           <div className={clsx('col col--5')}>
             <div className="homeTitle">Stream processing made easy</div>
             <small className="homeSubTitle">Configuration over code, cloud-native framework built on top of Apache Flink for stateful processing of real-time streaming data.</small>
-            <a className="" href="/docs/intro">Read the docs</a>
+            <a className="button" href="docs/intro">Documentation</a>
           </div>
           <div className={clsx('col col--1')}></div>
           <div className={clsx('col col--6')}>
@@ -32,7 +32,7 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`Stream processing made easy`}
       description="Stream processing framework">
       <Hero />
       <main>
