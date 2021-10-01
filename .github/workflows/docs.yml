@@ -1,9 +1,10 @@
-name: Docs
+name: docs
 
-on: push
+on:
+  push:
     branches:
       - main
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   documentation:
