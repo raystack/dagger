@@ -60,6 +60,11 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
           { to: '/blog', label: 'Blog', position: 'left' },
           { to: '/help', label: 'Help', position: 'left' },
           {
+            href: 'https://bit.ly/2RzPbtn',
+            position: 'right',
+            className: 'header-slack-link',
+          },
+          {
             href: 'https://github.com/odpf/dagger',
             className: 'navbar-item-github',
             position: 'right',
@@ -98,6 +103,16 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+      },
+      gtag: {
+        trackingID: 'G-KDHSNBDXW8',
+      },
+      announcementBar: {
+        id: 'star-repo',
+        content: '⭐️ If you like Dagger, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/odpf/dagger">GitHub</a>! ⭐',
+        backgroundColor: '#222',
+        textColor: '#eee',
+        isCloseable: true,
       },
     }),
 });
