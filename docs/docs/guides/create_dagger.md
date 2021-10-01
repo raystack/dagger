@@ -1,6 +1,6 @@
-# Create Dagger
+# Create a job
 
-This page contains how-to guides for creating a Dagger and configure it.
+This page contains how-to guides for creating a Dagger job and configure it.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Dagger is a stream processing framework built with Apache Flink to process/aggre
 
 #### `Kafka Cluster`
 
-- Dagger use [Kafka](https://kafka.apache.org/) as the source of Data. So you need to set up Kafka(1.0+) either in a local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in the local machine. If you have a clustered Kafka you configure it to use in dagger directly.
+- Dagger use [Kafka](https://kafka.apache.org/) as the source of Data. So you need to set up Kafka(1.0+) either in a local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in the local machine. If you have a clustered Kafka you can configure it to use in Dagger directly.
 
 #### `Flink [optional]`
 
@@ -29,17 +29,18 @@ $ ./gradlew dagger-core:runFlink
 - Tu run the Flink jobs in the local machine with java jar and local properties run the following commands.
 
 ```sh
-# creating a fat jar
-./gradlew :dagger-core:fatJar
-# running the jvm process
-java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFile=<filepath>
+# Creating a fat jar
+$ ./gradlew :dagger-core:fatJar
+
+# Running the jvm process
+$ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFile=<filepath>
 ```
 
 #### `Protobuf Data`
 
 - Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from Kafka topics, do the processing and produces data in protobuf format to a Kafka topic(when the sink is Kafka).
 - So you need to push proto data to a Kafka topic to run a dagger. This you can do using any of the Kafka client libraries. Follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a Kafka topic.
-- Also you need to define the [java compiled the protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. The stencil is a proprietary library that provides an abstraction layer for schema handling, Schema Caching, dynamic schema updates. [These configurations](docs/../../reference/configuration.md#schema-registry) needs to be set if you are using stencil for proto schema handling.
+- Also you need to define the [java compiled protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [Stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. Stencil is a event schema registry that provides an abstraction layer for schema handling, schema caching, and dynamic schema updates. [These configurations](docs/../../reference/configuration.md#schema-registry) needs to be set if you are using stencil for proto schema handling.
 
 #### `Sinks`
 

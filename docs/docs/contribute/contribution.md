@@ -2,7 +2,7 @@
 
 The following is a set of guidelines for contributing to Dagger. These are mostly guidelines, not hard and first rules. Use your best judgment, and feel free to propose changes to this document over a pull request. Here are some important resources:
 
-- [Concepts](docs/../../concepts) section will explain to you about Dagger architecture.
+- [Concepts](docs/../../concepts/overview) section will explain to you about Dagger architecture.
 - Our [roadmap](docs/../../roadmap.md) is the 10000-foot view of where we're heading in near future.
 - Github [issues](https://github.com/odpf/dagger/issues) track the ongoing and reported issues.
 

@@ -261,7 +261,7 @@ UDFs or User Defined Functions are the way to add functions to be used as SQL in
 
 ## Processors
 
-Processors are the other way of adding plugins to dagger. With the help of them you can talk to external data source or inject custom code to dagger. This section shows all the metrics related to pre and post processors. Find more info about them [here](docs/../../advance).
+Processors are the other way of adding plugins to dagger. With the help of them you can talk to external data source or inject custom code to dagger. This section shows all the metrics related to pre and post processors. Find more info about them [here](docs/../../advance/overview).
 
 ### `Pre Processors Names`
 

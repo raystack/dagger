@@ -6,8 +6,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 (module.exports = {
   title: 'Dagger',
   tagline: 'Stream processing framework',
-  url: 'odpf.github.io/',
-  baseUrl: '/',
+  url: 'https://odpf.github.io/',
+  baseUrl: '/dagger/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -58,6 +58,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
             label: 'Docs',
           },
           { to: '/blog', label: 'Blog', position: 'left' },
+          { to: '/help', label: 'Help', position: 'left' },
           {
             href: 'https://github.com/odpf/dagger',
             className: 'navbar-item-github',
@@ -82,7 +83,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
             items: [
               { label: 'Docs', to: '/docs/intro' },
               { label: 'Blog', to: '/blog', },
-
+              { label: 'Help', to: '/help', },
             ],
           },
           {
