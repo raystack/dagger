@@ -3,6 +3,8 @@ package io.odpf.dagger.core.metrics.reporters;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.groups.OperatorMetricGroup;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,7 +18,7 @@ public class ErrorStatsReporterTest {
     private RuntimeContext runtimeContext;
 
     @Mock
-    private MetricGroup metricGroup;
+    private OperatorMetricGroup metricGroup;
 
     @Mock
     private Counter counter;

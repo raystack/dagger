@@ -81,6 +81,9 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     private JsonRowSerializationSchema createJsonRowSchema() {
-        return new JsonRowSerializationSchema.Builder(getTypeInformation()).build();
+        return JsonRowSerializationSchema
+                .builder()
+                .withTypeInfo(getTypeInformation())
+                .build();
     }
 }

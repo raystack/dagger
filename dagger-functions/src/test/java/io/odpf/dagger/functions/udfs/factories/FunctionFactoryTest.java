@@ -37,7 +37,7 @@ import io.odpf.dagger.functions.udfs.scalar.ByteToString;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

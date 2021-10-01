@@ -20,7 +20,7 @@ public class NullValueTransformerTest {
         NullValueTransformer nullValueTransformer = new NullValueTransformer();
         Row row = nullValueTransformer.transform(null);
         Assert.assertEquals(8, row.getArity());
-        Assert.assertEquals("null,null,null,null,null,null,null,null", row.toString());
+        Assert.assertEquals("+I[null, null, null, null, null, null, null, null]", row.toString());
     }
 
     @Test(expected = NotImplementedException.class)

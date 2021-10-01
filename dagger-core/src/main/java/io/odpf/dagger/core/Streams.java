@@ -5,12 +5,17 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.core.source.ProtoDeserializer;
+
+import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.types.Row;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -97,6 +102,7 @@ public class Streams implements TelemetryPublisher {
         return String.join(".", names);
     }
 
+    // TODO : refactor the watermark related things
     private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
         String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY, "");
         topics.add(topicsForStream);
@@ -119,13 +125,15 @@ public class Streams implements TelemetryPublisher {
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {
-            fc.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Row>(Time.of(watermarkDelay, TimeUnit.MILLISECONDS)) {
-                @Override
-                public long extractTimestamp(Row element) {
-                    int index = element.getArity() - 1;
-                    return ((Timestamp) element.getField(index)).getTime();
-                }
-            });
+            Duration maxOutOfOrderliness = Duration.ofMillis(watermarkDelay);
+            DataTypes.TIMESTAMP(3).bridgedTo(Timestamp.class);
+
+            fc.assignTimestampsAndWatermarks(WatermarkStrategy.
+                    <Row>forBoundedOutOfOrderness(maxOutOfOrderliness)
+                    .withTimestampAssigner((SerializableTimestampAssigner<Row>) (element, recordTimestamp) -> {
+                        int index = element.getArity() - 1;
+                        return ((Timestamp) element.getField(index)).getTime();
+                    }));
         }
 
         return fc;
