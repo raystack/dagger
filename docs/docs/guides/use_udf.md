@@ -28,4 +28,4 @@ Some of the use-cases can not be solved using Flink SQL & the Apache Calcite fun
 
 All the supported udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory. Follow this to find more details about the already supported UDFs in the dagger.
 
-If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow [this](docs/../../contribute/add_udf.md) to add your custom UDFs in the dagger.
+If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow [this](../contribute/add_udf.md) to add your custom UDFs in the dagger.

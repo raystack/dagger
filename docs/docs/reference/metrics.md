@@ -237,7 +237,7 @@ UDFs or User Defined Functions are the way to add functions to be used as SQL in
 
 ### `Names`
 
-- List of UDFs used in the current dagger query. Find more on supported UDFS [here](docs/../../reference/udfs.md).
+- List of UDFs used in the current dagger query. Find more on supported UDFS [here](../reference/udfs.md).
 
 ### `Darts: Metrics`
 
@@ -261,7 +261,7 @@ UDFs or User Defined Functions are the way to add functions to be used as SQL in
 
 ## Processors
 
-Processors are the other way of adding plugins to dagger. With the help of them you can talk to external data source or inject custom code to dagger. This section shows all the metrics related to pre and post processors. Find more info about them [here](docs/../../advance/overview).
+Processors are the other way of adding plugins to dagger. With the help of them you can talk to external data source or inject custom code to dagger. This section shows all the metrics related to pre and post processors. Find more info about them [here](../advance/overview).
 
 ### `Pre Processors Names`
 
@@ -329,7 +329,7 @@ Processors are the other way of adding plugins to dagger. With the help of them 
 
 ## Longbow
 
-These dashboards show the details about Longbow (Long window daggers). They can be either related to Longbow Read or Longbow Writes. Find more details about longbow [here](docs/../../advance/longbow.md).
+These dashboards show the details about Longbow (Long window daggers). They can be either related to Longbow Read or Longbow Writes. Find more details about longbow [here](../advance/longbow.md).
 
 ### `Rate of successful reads`
 

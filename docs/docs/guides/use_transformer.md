@@ -17,9 +17,9 @@ In this section, we will know more about transformers, how to use them and how y
 
 - There are some transformers to solve some generic use cases pre-built in the dagger.
 
-- All the pre-supported transformers present in the `dagger-functions` sub-module in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers) directory. Find more details about each of the existing transformers and some sample examples [here](docs/../../reference/transformers.md).
+- All the pre-supported transformers present in the `dagger-functions` sub-module in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers) directory. Find more details about each of the existing transformers and some sample examples [here](../reference/transformers.md).
 
-- In case any of the predefined transformers do not meet your requirement, you can create your custom Transformers by extending some contract. Follow this [contribution guidelines](docs/../../contribute/add_transformer.md) on how to add a transformer in dagger.
+- In case any of the predefined transformers do not meet your requirement, you can create your custom Transformers by extending some contract. Follow this [contribution guidelines](../contribute/add_transformer.md) on how to add a transformer in dagger.
 
 ## Use a Transformer
 
@@ -48,7 +48,7 @@ In this section, we will know more about transformers, how to use them and how y
     ]
   }
   ```
-- In the example, the internal source just says to select all the fields as selected from the SQL query. Find more about the `internal_source` config parameter [here](docs/../../advance/post_processor.md#internal-post-processor).
+- In the example, the internal source just says to select all the fields as selected from the SQL query. Find more about the `internal_source` config parameter [here](../advance/post_processor.md#internal-post-processor).
 - The transformer essentially need only a couple of config parameters to work. Provide the fully qualified path of the transformer class as part of the `transformation_class` config.
 - The other parameter `transformation_arguments` is a map of string and data types where you can put the parameters to be passed to the transformer class as a key-value pair.
-- For more information about all existing transformers and their functionalities have a look [here](docs/../../reference/transformers.md).
+- For more information about all existing transformers and their functionalities have a look [here](../reference/transformers.md).
