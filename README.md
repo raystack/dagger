@@ -21,12 +21,12 @@ Discover why to use Dagger
 ## What problems Dagger solves?
 * Map reduce -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html)
 * Enrichment -> [Post Processors](https://odpf.github.io/dagger/docs/advance/post_processor)
-* Aggregation -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](docs/guides/use_udf.md)
+* Aggregation -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](https://odpf.github.io/dagger/docs/guides/use_udf)
 * Masking -> [Hash Transformer](https://odpf.github.io/dagger/docs/reference/transformers#HashTransformer)
 * Deduplication -> [Deduplication Transformer](https://odpf.github.io/dagger/docs/reference/transformers#DeDuplicationTransformer)
 * Realtime long window processing -> [Longbow](https://odpf.github.io/dagger/docs/advance/longbow)
 
-To know more, follow the detailed [documentation](https://odpf.gitbook.io/dagger).
+To know more, follow the detailed [documentation](https://odpf.github.io/dagger/).
 
 ## Usage
 
