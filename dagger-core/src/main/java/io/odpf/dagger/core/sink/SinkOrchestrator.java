@@ -4,7 +4,10 @@ import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
 import io.odpf.dagger.core.sink.influx.InfluxRowSink;
 import io.odpf.dagger.core.sink.log.LogSink;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
@@ -41,34 +44,34 @@ public class SinkOrchestrator implements TelemetryPublisher {
     /**
      * Gets sink.
      *
-     * @param configuration             the configuration
+     * @param param             the param
      * @param columnNames               the column names
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @return the sink
      */
-    public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        String sinkType = configuration.getString("SINK_TYPE", "influx");
+    public SinkFunction<Row> getSink(ParameterTool param, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
+        String sinkType = param.get("SINK_TYPE", "influx");
         addMetric(SINK_TYPE.getValue(), sinkType);
         SinkFunction<Row> sink;
         switch (sinkType) {
             case "kafka":
-                String outputTopic = configuration.getString(SINK_KAFKA_TOPIC_KEY, "");
-                String outputProtoKey = configuration.getString(SINK_KAFKA_PROTO_KEY, null);
-                String outputProtoMessage = configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
-                String outputStream = configuration.getString(SINK_KAFKA_STREAM_KEY, "");
+                String outputTopic = param.get(SINK_KAFKA_TOPIC_KEY, "");
+                String outputProtoKey = param.get(SINK_KAFKA_PROTO_KEY, null);
+                String outputProtoMessage = param.get(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
+                String outputStream = param.get(SINK_KAFKA_STREAM_KEY, "");
                 addMetric(OUTPUT_TOPIC.getValue(), outputTopic);
                 addMetric(OUTPUT_PROTO.getValue(), outputProtoMessage);
                 addMetric(OUTPUT_STREAM.getValue(), outputStream);
 
                 ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
-                FlinkKafkaProducer<Row> rowFlinkKafkaProducer = new FlinkKafkaProducer<>(outputTopic, protoSerializer, getProducerProperties(configuration), FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
-                sink = new FlinkKafkaProducerCustom(rowFlinkKafkaProducer, configuration);
+                FlinkKafkaProducer<Row> rowFlinkKafkaProducer = new FlinkKafkaProducer<>(outputTopic, protoSerializer, getProducerProperties(param), FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
+                sink = new FlinkKafkaProducerCustom(rowFlinkKafkaProducer, param);
                 break;
             case "log":
                 sink = new LogSink(columnNames);
                 break;
             default:
-                sink = new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, configuration, new ErrorHandler());
+                sink = new InfluxRowSink(new InfluxDBFactoryWrapper(), columnNames, param, new ErrorHandler());
         }
         notifySubscriber();
         return sink;
@@ -81,13 +84,13 @@ public class SinkOrchestrator implements TelemetryPublisher {
     /**
      * Gets producer properties.
      *
-     * @param configuration the configuration
+     * @param param the configuration
      * @return the producer properties
      */
-    protected Properties getProducerProperties(Configuration configuration) {
-        String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");
+    protected Properties getProducerProperties(ParameterTool param) {
+        String outputBrokerList = param.get(SINK_KAFKA_BROKERS_KEY, "");
         Properties kafkaProducerConfigs = FlinkKafkaProducerBase.getPropertiesFromBrokerList(outputBrokerList);
-        if (configuration.getBoolean(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY, SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+        if (param.getBoolean(SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY, SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT)) {
             kafkaProducerConfigs.setProperty(SINK_KAFKA_COMPRESSION_TYPE_KEY, SINK_KAFKA_COMPRESSION_TYPE_DEFAULT);
             kafkaProducerConfigs.setProperty(SINK_KAFKA_MAX_REQUEST_SIZE_KEY, SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT);
         }

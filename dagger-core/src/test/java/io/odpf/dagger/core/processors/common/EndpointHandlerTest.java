@@ -121,7 +121,7 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        assertArrayEquals(new Object[] {"[\"UNKNOWN\",\"TYPE1\"]"}, endpointOrQueryVariablesValues);
+        assertArrayEquals(new Object[] {"[\"+I[UNKNOWN]\",\"+I[TYPE1]\"]"}, endpointOrQueryVariablesValues);
     }
 
     @Test

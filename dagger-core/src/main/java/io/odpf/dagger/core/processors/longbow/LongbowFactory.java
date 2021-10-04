@@ -22,6 +22,8 @@ import io.odpf.dagger.core.processors.longbow.validator.LongbowValidator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.sink.ProtoSerializer;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
@@ -39,7 +41,7 @@ import static io.odpf.dagger.core.utils.Constants.*;
 public class LongbowFactory {
     private LongbowSchema longbowSchema;
     private AsyncProcessor asyncProcessor;
-    private Configuration configuration;
+    private ParameterTool parameter;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter metricsTelemetryExporter;
     private String[] columnNames;
@@ -49,13 +51,13 @@ public class LongbowFactory {
      * Instantiates a new Longbow factory.
      *
      * @param longbowSchema             the longbow schema
-     * @param configuration             the configuration
+     * @param parameter             the parameter
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param metricsTelemetryExporter  the metrics telemetry exporter
      */
-    public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
+    public LongbowFactory(LongbowSchema longbowSchema, ParameterTool parameter, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
-        this.configuration = configuration;
+        this.parameter = parameter;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.columnNames = longbowSchema.getColumnNames().toArray(new String[0]);
@@ -66,15 +68,15 @@ public class LongbowFactory {
      * Instantiates a new Longbow factory.
      *
      * @param longbowSchema             the longbow schema
-     * @param configuration             the configuration
+     * @param parameter             the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param metricsTelemetryExporter  the metrics telemetry exporter
      * @param asyncProcessor            the async processor
      */
-    public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter, AsyncProcessor asyncProcessor) {
-        this(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
+    public LongbowFactory(LongbowSchema longbowSchema, ParameterTool parameter, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter, AsyncProcessor asyncProcessor) {
+        this(longbowSchema, parameter, stencilClientOrchestrator, metricsTelemetryExporter);
         this.longbowSchema = longbowSchema;
-        this.configuration = configuration;
+        this.parameter = parameter;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.columnNames = longbowSchema.getColumnNames().toArray(new String[0]);
@@ -99,12 +101,12 @@ public class LongbowFactory {
                 longbowWriter = longbowWriterPlus();
                 longbowRichFunctions.add(longbowWriter);
                 longbowWriter.notifySubscriber(metricsTelemetryExporter);
-                return new LongbowProcessor(asyncProcessor, configuration, longbowRichFunctions, new LongbowWriteColumnModifier());
+                return new LongbowProcessor(asyncProcessor, parameter, longbowRichFunctions, new LongbowWriteColumnModifier());
             case LongbowRead:
                 longbowReader = longbowReaderPlus();
                 longbowRichFunctions.add(longbowReader);
                 longbowReader.notifySubscriber(metricsTelemetryExporter);
-                return new LongbowProcessor(asyncProcessor, configuration, longbowRichFunctions, new LongbowReadColumnModifier());
+                return new LongbowProcessor(asyncProcessor, parameter, longbowRichFunctions, new LongbowReadColumnModifier());
             default:
                 longbowWriter = longbowWriter();
                 longbowReader = longbowReader();
@@ -112,47 +114,47 @@ public class LongbowFactory {
                 longbowRichFunctions.add(longbowReader);
                 longbowWriter.notifySubscriber(metricsTelemetryExporter);
                 longbowReader.notifySubscriber(metricsTelemetryExporter);
-                return new LongbowProcessor(asyncProcessor, configuration, longbowRichFunctions, new NoOpColumnModifier());
+                return new LongbowProcessor(asyncProcessor, parameter, longbowRichFunctions, new NoOpColumnModifier());
         }
     }
 
     private LongbowReader longbowReaderPlus() {
         LongbowRange longbowRange = LongbowRangeFactory.getLongbowRange(longbowSchema);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(configuration));
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(parameter));
         ReaderOutputProtoData readerOutputRow = new ReaderOutputProtoData(longbowSchema);
         LongbowProtoData longbowTableData = new LongbowProtoData();
-        return new LongbowReader(configuration, longbowSchema, longbowRange, longbowTableData, scanRequestFactory, readerOutputRow);
+        return new LongbowReader(parameter, longbowSchema, longbowRange, longbowTableData, scanRequestFactory, readerOutputRow);
     }
 
     private LongbowReader longbowReader() {
         LongbowRange longbowRange = LongbowRangeFactory.getLongbowRange(longbowSchema);
-        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(configuration));
+        ScanRequestFactory scanRequestFactory = new ScanRequestFactory(longbowSchema, getTableId(parameter));
         ReaderOutputLongbowData readerOutputRow = new ReaderOutputLongbowData(longbowSchema);
         LongbowTableData longbowTableData = new LongbowTableData(longbowSchema);
-        return new LongbowReader(configuration, longbowSchema, longbowRange, longbowTableData, scanRequestFactory, readerOutputRow);
+        return new LongbowReader(parameter, longbowSchema, longbowRange, longbowTableData, scanRequestFactory, readerOutputRow);
     }
 
     private LongbowWriter longbowWriterPlus() {
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(configuration), columnNames, stencilClientOrchestrator);
-        String tableId = getTableId(configuration);
+        ProtoSerializer protoSerializer = new ProtoSerializer(null, getMessageProtoClassName(parameter), columnNames, stencilClientOrchestrator);
+        String tableId = getTableId(parameter);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
-        OutputSynchronizer outputSynchronizer = new OutputSynchronizer(longbowSchema, tableId, getMessageProtoClassName(configuration));
-        return new LongbowWriter(configuration, longbowSchema, putRequestFactory, tableId, outputSynchronizer);
+        OutputSynchronizer outputSynchronizer = new OutputSynchronizer(longbowSchema, tableId, getMessageProtoClassName(parameter));
+        return new LongbowWriter(parameter, longbowSchema, putRequestFactory, tableId, outputSynchronizer);
     }
 
     private LongbowWriter longbowWriter() {
-        String tableId = getTableId(configuration);
+        String tableId = getTableId(parameter);
         PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, null, tableId);
         OutputIdentity outputIdentity = new OutputIdentity();
-        return new LongbowWriter(configuration, longbowSchema, putRequestFactory, tableId, outputIdentity);
+        return new LongbowWriter(parameter, longbowSchema, putRequestFactory, tableId, outputIdentity);
     }
 
-    private String getTableId(Configuration config) {
-        return config.getString(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, config.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
+    private String getTableId(ParameterTool parameter) {
+        return parameter.get(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, parameter.get(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
     }
 
-    private String getMessageProtoClassName(Configuration config) {
-        String jsonArrayString = config.getString(INPUT_STREAMS, "");
+    private String getMessageProtoClassName(ParameterTool parameter) {
+        String jsonArrayString = parameter.get(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         return (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
     }

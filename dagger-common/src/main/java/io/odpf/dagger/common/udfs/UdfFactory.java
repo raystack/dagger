@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.udfs;
 
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
@@ -10,17 +11,19 @@ import java.util.HashSet;
  */
 public abstract class UdfFactory {
     private final StreamTableEnvironment streamTableEnvironment;
+    private ParameterTool parameter;
     private final Configuration configuration;
 
     /**
      * Instantiates a new Udf factory.
      *
      * @param streamTableEnvironment the stream table environment
-     * @param configuration          the configuration
+     * @param parameter          the configuration
      */
-    public UdfFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
+    public UdfFactory(StreamTableEnvironment streamTableEnvironment, ParameterTool parameter) {
         this.streamTableEnvironment = streamTableEnvironment;
-        this.configuration = configuration;
+        this.parameter = parameter;
+        this.configuration = parameter.getConfiguration();
     }
 
     /**
@@ -30,9 +33,9 @@ public abstract class UdfFactory {
         HashSet<ScalarUdf> scalarFunctions = getScalarUdfs();
         HashSet<TableUdf> tableFunctions = getTableUdfs();
         HashSet<AggregateUdf> aggregateFunctions = getAggregateUdfs();
-        scalarFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
-        tableFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
-        aggregateFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
+        scalarFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
+        tableFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
+        aggregateFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
     }
 
     /**

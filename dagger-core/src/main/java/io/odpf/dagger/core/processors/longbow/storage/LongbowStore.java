@@ -3,6 +3,8 @@ package io.odpf.dagger.core.processors.longbow.storage;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
 import io.odpf.dagger.core.utils.Constants;
@@ -45,13 +47,13 @@ public class LongbowStore {
     /**
      * Create longbow store.
      *
-     * @param configuration the configuration
+     * @param parameter the configuration
      * @return the longbow store
      * @throws IOException the io exception
      */
-    public static LongbowStore create(Configuration configuration) throws IOException {
-        String gcpProjectID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
-        String gcpInstanceID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
+    public static LongbowStore create(ParameterTool parameter) throws IOException {
+        String gcpProjectID = parameter.get(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
+        String gcpInstanceID = parameter.get(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);

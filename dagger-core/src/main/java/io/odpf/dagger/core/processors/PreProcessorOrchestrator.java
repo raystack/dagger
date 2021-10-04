@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.processors;
 
 import io.odpf.dagger.core.processors.types.Preprocessor;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
 import io.odpf.dagger.common.core.StreamInfo;
@@ -18,23 +20,25 @@ import java.util.List;
 public class PreProcessorOrchestrator implements Preprocessor {
 
     private final MetricsTelemetryExporter metricsTelemetryExporter;
+    private ParameterTool parameter;
     private final PreProcessorConfig processorConfig;
     private final String tableName;
-    private final Configuration configuration;
+//    private final Configuration configuration;
 
     /**
      * Instantiates a new Preprocessor orchestrator.
      *
-     * @param configuration            the configuration
+     * @param parameter            the configuration
      * @param processorConfig          the processor config
      * @param metricsTelemetryExporter the metrics telemetry exporter
      * @param tableName                the table name
      */
-    public PreProcessorOrchestrator(Configuration configuration, PreProcessorConfig processorConfig, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
+    public PreProcessorOrchestrator(ParameterTool parameter, PreProcessorConfig processorConfig, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
+        this.parameter = parameter;
         this.processorConfig = processorConfig;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.tableName = tableName;
-        this.configuration = configuration;
+//        this.configuration = configuration;
     }
 
     @Override
@@ -43,7 +47,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
             streamInfo = processor.process(streamInfo);
         }
         return new StreamInfo(
-                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames())
+                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames(), parameter)
                         .decorate(streamInfo.getDataStream()),
                 streamInfo.getColumnNames());
     }
@@ -65,7 +69,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
                                 elem.getTableName(),
                                 TelemetryTypes.PRE_PROCESSOR_TYPE,
                                 elem.getTransformers(),
-                                configuration);
+                                parameter);
                         processor.notifySubscriber(metricsTelemetryExporter);
                         preprocessors.add(processor);
                     });

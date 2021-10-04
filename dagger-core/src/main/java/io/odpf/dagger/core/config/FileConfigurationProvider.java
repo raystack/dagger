@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.config;
 
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
+
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * The class which handle configuration provided from File..
  */
-public class FileConfigurationProvider implements ConfigurationProvider {
+public class FileConfigurationProvider implements UserConfigurationProvider {
 
     /**
      * Instantiates a new File configuration provider.
@@ -40,13 +41,11 @@ public class FileConfigurationProvider implements ConfigurationProvider {
         this.environmentParameters.entrySet().forEach(t -> System.out.println(t.getKey() + t.getValue()));
     }
 
-
     @Override
-    public Configuration get() {
-        return ParameterTool.fromMap(this.environmentParameters).getConfiguration();
+    public ParameterTool get() {
+        return ParameterTool.fromMap(this.environmentParameters);
     }
 
     private Map<String, String> environmentParameters;
-
 
 }

@@ -8,6 +8,7 @@ import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.functions.transformers.hash.PathReader;
 import io.odpf.dagger.functions.transformers.hash.field.RowHasher;
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -27,7 +28,8 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     private static final String SINK_KAFKA_PROTO_MESSAGE = "SINK_KAFKA_PROTO_MESSAGE";
     private static final String ENCRYPTION_FIELD_KEY = "maskColumns";
     private final List<String> fieldsToHash;
-    private final Configuration configuration;
+    private Configuration configuration;
+    private final ParameterTool parameter;
 
     private final String[] columnNames;
     private Map<String, RowHasher> rowHasherMap;
@@ -37,12 +39,13 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param parameter           the configuration
      */
-    public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+    public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, ParameterTool parameter) {
         this.fieldsToHash = getFieldsToHash(transformationArguments);
         this.columnNames = columnNames;
-        this.configuration = configuration;
+        this.parameter = parameter;
+        this.configuration = parameter.getConfiguration();
     }
 
     private ArrayList<String> getFieldsToHash(Map<String, Object> transformationArguments) {
@@ -50,11 +53,11 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
+    public void open(Configuration configuration) throws Exception {
         if (this.rowHasherMap == null) {
             this.rowHasherMap = createRowHasherMap(configuration);
         }
-        super.open(parameters);
+        super.open(configuration);
     }
 
     @Override
@@ -72,7 +75,7 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
      */
     protected Map<String, RowHasher> createRowHasherMap(Configuration daggerConfig) {
         String outputProtoClassName = daggerConfig.getString(SINK_KAFKA_PROTO_MESSAGE, "");
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfig);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(parameter);
         Descriptors.Descriptor outputDescriptor = stencilClientOrchestrator.getStencilClient().get(outputProtoClassName);
         if (outputDescriptor == null) {
             throw new DescriptorNotFoundException("Output Descriptor for class: " + outputProtoClassName

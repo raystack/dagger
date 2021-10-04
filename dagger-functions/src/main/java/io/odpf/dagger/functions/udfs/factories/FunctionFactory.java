@@ -39,6 +39,8 @@ import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
 import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
@@ -63,11 +65,11 @@ public class FunctionFactory extends UdfFactory {
      * Instantiates a new Function factory.
      *
      * @param streamTableEnvironment the stream table environment
-     * @param configuration          the configuration
+     * @param parameter          the configuration
      */
-    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
-        super(streamTableEnvironment, configuration);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, ParameterTool parameter) {
+        super(streamTableEnvironment, parameter);
+        stencilClientOrchestrator = new StencilClientOrchestrator(parameter);
     }
 
     @Override
