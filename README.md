@@ -16,28 +16,28 @@ Discover why to use Dagger
 * **Scale:** Dagger scales in an instant, both vertically and horizontally for high performance streaming sink and zero data drops.
 * **Extensibility:** Add your own sink to dagger with a clearly defined interface or choose from already provided ones.
 * **Pluggability:** Add custom business logic in form of plugins \(UDFs, Transformers, Preprocessors and Post Processors\) independent of the core logic. 
-* **Metrics:** Always know what’s going on with your deployment with built-in [monitoring](docs/reference/metrics.md) of throughput, response times, errors and more.
+* **Metrics:** Always know what’s going on with your deployment with built-in [monitoring](https://odpf.github.io/dagger/docs/reference/metrics) of throughput, response times, errors and more.
 
 ## What problems Dagger solves?
 * Map reduce -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html)
-* Enrichment -> [Post Processors](docs/advance/post_processor.md)
-* Aggregation -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](docs/guides/use_udf.md)
-* Masking -> [Hash Transformer](docs/reference/transformers.md#HashTransformer)
-* Deduplication -> [Deduplication Transformer](docs/reference/transformers.md#DeDuplicationTransformer)
-* Realtime long window processing -> [Longbow](docs/advance/longbow.md)
+* Enrichment -> [Post Processors](https://odpf.github.io/dagger/docs/advance/post_processor)
+* Aggregation -> [SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html), [UDFs](https://odpf.github.io/dagger/docs/guides/use_udf)
+* Masking -> [Hash Transformer](https://odpf.github.io/dagger/docs/reference/transformers#HashTransformer)
+* Deduplication -> [Deduplication Transformer](https://odpf.github.io/dagger/docs/reference/transformers#DeDuplicationTransformer)
+* Realtime long window processing -> [Longbow](https://odpf.github.io/dagger/docs/advance/longbow)
 
-To know more, follow the detailed [documentation](https://odpf.gitbook.io/dagger).
+To know more, follow the detailed [documentation](https://odpf.github.io/dagger/).
 
 ## Usage
 
 Explore the following resources to get started with Dagger:
 
-* [Guides](docs/guides/overview.md) provides guidance on [creating Dagger](docs/guides/overview.md) with different sinks.
-* [Concepts](docs/concepts/overview.md) describes all important Dagger concepts.
-* [Advance](docs/advance/overview.md) contains details regarding advance features of Dagger.
-* [Reference](docs/reference/overview.md) contains details about configurations, metrics and other aspects of Dagger.
-* [Contribute](docs/contribute/contribution.md) contains resources for anyone who wants to contribute to Dagger.
-* [Usecase](docs/usecase/overview.md) describes examples use cases which can be solved via Dagger.
+* [Guides](https://odpf.github.io/dagger/docs/guides/overview) provides guidance on [creating Dagger](https://odpf.github.io/dagger/docs/guides/create_dagger) with different sinks.
+* [Concepts](https://odpf.github.io/dagger/docs/concepts/overview) describes all important Dagger concepts.
+* [Advance](https://odpf.github.io/dagger/docs/advance/overview) contains details regarding advance features of Dagger.
+* [Reference](https://odpf.github.io/dagger/docs/reference/overview) contains details about configurations, metrics and other aspects of Dagger.
+* [Contribute](https://odpf.github.io/dagger/docs/contribute/contribution) contains resources for anyone who wants to contribute to Dagger.
+* [Usecase](https://odpf.github.io/dagger/docs/usecase/overview) describes examples use cases which can be solved via Dagger.
 
 ## Running locally
 Make sure you have Java8 and local kafka-2.4+ setup pre-installed on your local machine.
@@ -54,12 +54,12 @@ $ cat dagger-core/env/local.properties
 # Run a Dagger
 $ ./gradlew dagger-core:runFlink
 ```
-**Note:** Sample configuration for running a basic dagger can be found [here](/docs/guides/create_dagger.md#common-configurations). For detailed configurations, refer [here](docs/reference/configuration.md).
+**Note:** Sample configuration for running a basic dagger can be found [here](https://odpf.github.io/dagger/docs/guides/create_dagger#common-configurations). For detailed configurations, refer [here](https://odpf.github.io/dagger/docs/reference/configuration).
 
-Find more detailed steps on local setup [here](docs/guides/create_dagger.md).
+Find more detailed steps on local setup [here](https://odpf.github.io/dagger/docs/guides/create_dagger).
 
 ## Running on cluster
-Refer [here](docs/guides/deployment.md) for details regarding Dagger deployment.
+Refer [here](https://odpf.github.io/dagger/docs/guides/deployment) for details regarding Dagger deployment.
 
 ## Running tests 
 ```sh
@@ -77,7 +77,7 @@ $ ./gradlew clean
 
 Development of Dagger happens in the open on GitHub, and we are grateful to the community for contributing bug fixes and improvements. Read below to learn how you can take part in improving Dagger.
 
-Read our [contributing guide](docs/contribute/contribution.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Dagger.
+Read our [contributing guide](https://odpf.github.io/dagger/docs/contribute/contribution) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Dagger.
 
 To help you get your feet wet and get you familiar with our contribution process, we have a list of [good first issues](https://github.com/odpf/dagger/labels/good%20first%20issue) that contain bugs which have a relatively limited scope. This is a great place to get started.
 
