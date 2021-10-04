@@ -5,6 +5,7 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 
 import org.apache.flink.api.common.functions.IterationRuntimeContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -25,16 +26,18 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
     private Configuration configuration;
     private ErrorReporter errorReporter;
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
+    private ParameterTool parameter;
 
     /**
      * Instantiates a new Flink kafka producer custom.
      *
      * @param flinkKafkaProducer the flink kafka producer
-     * @param configuration      the configuration
+     * @param parameter      the configuration
      */
-    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
+    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, ParameterTool parameter) {
         this.flinkKafkaProducer = flinkKafkaProducer;
-        this.configuration = configuration;
+        this.parameter = parameter;
+//        this.configuration = configuration;
     }
 
     @Override
@@ -107,6 +110,6 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
      * @return the error reporter
      */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-        return ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, parameter);
     }
 }

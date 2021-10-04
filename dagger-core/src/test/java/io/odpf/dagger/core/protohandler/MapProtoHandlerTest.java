@@ -113,7 +113,7 @@ public class MapProtoHandlerTest {
         inputRows.add(inputRow);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> mapProtoHandler.transformForKafka(builder, inputRows.toArray()));
-        assertEquals("Row: null,null,null of size: 3 cannot be converted to map", exception.getMessage());
+        assertEquals("Row: +I[null, null, null] of size: 3 cannot be converted to map", exception.getMessage());
     }
 
     @Test

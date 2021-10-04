@@ -1,33 +1,28 @@
 package io.odpf.dagger.core;
 
+import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.types.Row;
+
 import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.core.source.ProtoDeserializer;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.types.Row;
-
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.*;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
+import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
 import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
@@ -35,9 +30,10 @@ import static io.odpf.dagger.core.utils.Constants.*;
  */
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
-    private final Configuration configuration;
+//    private final Configuration configuration;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
+    private final ParameterTool paramTool;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private boolean enablePerPartitionWatermark;
     private long watermarkDelay;
@@ -50,18 +46,18 @@ public class Streams implements TelemetryPublisher {
     /**
      * Instantiates a new Streams.
      *
-     * @param configuration               the configuration
+     * @param paramTool               the configuration
      * @param rowTimeAttributeName        the row time attribute name
      * @param stencilClientOrchestrator   the stencil client orchestrator
      * @param enablePerPartitionWatermark the enable per partition watermark
      * @param watermarkDelay              the watermark delay
      */
-    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
+    public Streams(ParameterTool paramTool, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
+        this.paramTool = paramTool;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.watermarkDelay = watermarkDelay;
         this.enablePerPartitionWatermark = enablePerPartitionWatermark;
-        this.configuration = configuration;
-        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
+        String jsonArrayString = paramTool.get(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
@@ -121,7 +117,7 @@ public class Streams implements TelemetryPublisher {
         setAdditionalConfigs(kafkaProps);
 
         FlinkKafkaConsumerCustom fc = new FlinkKafkaConsumerCustom(Pattern.compile(topicsForStream),
-                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
+                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, paramTool);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {
@@ -140,7 +136,7 @@ public class Streams implements TelemetryPublisher {
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
-        if (configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+        if (paramTool.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
             kafkaProps.setProperty(SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY, SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT);
         }
     }

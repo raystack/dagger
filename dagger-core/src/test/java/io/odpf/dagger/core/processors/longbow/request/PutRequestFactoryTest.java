@@ -20,6 +20,7 @@ public class PutRequestFactoryTest {
     @Mock
     private ProtoSerializer protoSerializer;
 
+    // TODO : You can not mock row
     @Mock
     private Row row;
 

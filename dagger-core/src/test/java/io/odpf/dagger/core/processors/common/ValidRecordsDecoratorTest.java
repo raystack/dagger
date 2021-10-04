@@ -55,7 +55,7 @@ public class ValidRecordsDecoratorTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes());
         Row invalidRow = protoDeserializer.deserialize(consumerRecord);
-        ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns());
+        ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns(), parameter);
         filter.errorReporter = this.errorReporter;
         InvalidProtocolBufferException exception = assertThrows(InvalidProtocolBufferException.class, () -> filter.filter(invalidRow));
         assertEquals("Bad Record Encountered for table `test`", exception.getMessage());
@@ -66,7 +66,7 @@ public class ValidRecordsDecoratorTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
         Row validRow = protoDeserializer.deserialize(consumerRecord);
-        FilterDecorator filter = new ValidRecordsDecorator("test", getColumns());
+        FilterDecorator filter = new ValidRecordsDecorator("test", getColumns(), parameter);
         assertTrue(filter.filter(validRow));
     }
 }

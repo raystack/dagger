@@ -4,7 +4,6 @@ import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -119,7 +118,6 @@ public class StreamManagerTest {
 
         streamManager.registerConfigs();
 
-        verify(env, Mockito.times(1)).setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         verify(env, Mockito.times(1)).setParallelism(1);
         verify(env, Mockito.times(1)).enableCheckpointing(30000);
         verify(executionConfig, Mockito.times(1)).setAutoWatermarkInterval(10000);

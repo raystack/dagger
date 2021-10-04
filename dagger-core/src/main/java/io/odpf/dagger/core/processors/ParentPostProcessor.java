@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.processors;
 
 import io.odpf.dagger.core.processors.types.PostProcessor;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
+    private ParameterTool parameter;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
     private Configuration configuration;
@@ -34,13 +37,13 @@ public class ParentPostProcessor implements PostProcessor {
      * Instantiates a new Parent post processor.
      *
      * @param postProcessorConfig       the post processor config
-     * @param configuration             the configuration
+     * @param parameter                 the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param telemetrySubscriber       the telemetry subscriber
      */
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
+    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, ParameterTool parameter, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
-        this.configuration = configuration;
+        this.parameter = parameter;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
     }
@@ -66,7 +69,7 @@ public class ParentPostProcessor implements PostProcessor {
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, postProcessorConfig.hasSQLTransformer());
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
-        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), parameter);
         if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);

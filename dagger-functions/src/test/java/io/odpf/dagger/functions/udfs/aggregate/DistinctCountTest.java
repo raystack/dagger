@@ -35,7 +35,7 @@ public class DistinctCountTest {
         distinctCount.accumulate(distinctCountAccumulator, "1234");
         distinctCount.accumulate(distinctCountAccumulator, "1234");
         distinctCount.accumulate(distinctCountAccumulator, "1233");
-        assertEquals(new Integer(2), distinctCount.getValue(distinctCountAccumulator));
+        assertEquals(Integer.valueOf(2), distinctCount.getValue(distinctCountAccumulator));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class DistinctCountTest {
         DistinctCountAccumulator distinctCountAccumulator = new DistinctCountAccumulator();
         DistinctCount distinctCount = new DistinctCount();
         distinctCount.accumulate(distinctCountAccumulator, null);
-        assertEquals(new Integer(0), distinctCount.getValue(distinctCountAccumulator));
+        assertEquals(Integer.valueOf(0), distinctCount.getValue(distinctCountAccumulator));
     }
 
     @Test
@@ -60,8 +60,8 @@ public class DistinctCountTest {
         distinctCount.accumulate(acc2, "444");
         distinctCount.accumulate(acc2, "555");
 
-        assertEquals(new Integer(3), distinctCount.getValue(acc1));
-        assertEquals(new Integer(2), distinctCount.getValue(acc2));
+        assertEquals(Integer.valueOf(3), distinctCount.getValue(acc1));
+        assertEquals(Integer.valueOf(2), distinctCount.getValue(acc2));
     }
 
     @Test

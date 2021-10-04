@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * The Factory class for configuration provider.
  */
-public class ConfigurationProviderFactory {
+public class UserConfigurationProviderFactory {
 
     private String[] args;
 
@@ -16,7 +16,7 @@ public class ConfigurationProviderFactory {
      *
      * @param args the args
      */
-    public ConfigurationProviderFactory(String[] args) {
+    public UserConfigurationProviderFactory(String[] args) {
 
         this.args = args;
         System.out.println("Arguments are : ");
@@ -35,7 +35,7 @@ public class ConfigurationProviderFactory {
      *
      * @return the configuration provider
      */
-    public ConfigurationProvider provider() {
+    public UserConfigurationProvider provider() {
         if (System.getProperties().containsKey("ConfigSource")) {
             String configSource = System.getProperty("ConfigSource");
             switch (configSource) {

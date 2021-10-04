@@ -3,6 +3,7 @@ package io.odpf.dagger.core.metrics.reporters;
 import io.odpf.dagger.core.utils.Constants;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
 /**
@@ -14,12 +15,12 @@ public class ErrorReporterFactory {
      * Gets error reporter.
      *
      * @param runtimeContext the runtime context
-     * @param configuration  the configuration
+     * @param parameterTool  the configuration
      * @return the error reporter
      */
-    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, Configuration configuration) {
-        long shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        boolean telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, ParameterTool parameterTool) {
+        long shutDownPeriod = parameterTool.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        boolean telemetryEnabled = parameterTool.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
         return getErrorReporter(runtimeContext, telemetryEnabled, shutDownPeriod);
     }
 

@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.sink.influx;
 
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -32,7 +33,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private InfluxDB influxDB;
     private InfluxDBFactoryWrapper influxDBFactory;
     private String[] columnNames;
-    private Configuration parameters;
+    private ParameterTool parameters;
     private String databaseName;
     private String retentionPolicy;
     private String measurementName;
@@ -44,17 +45,17 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
      *
      * @param influxDBFactory the influx db factory
      * @param columnNames     the column names
-     * @param parameters      the parameters
+     * @param parameter      the parameters
      * @param errorHandler    the error handler
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, ParameterTool parameter, ErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.parameters = parameters;
+        this.parameters = parameter;
         this.errorHandler = errorHandler;
-        databaseName = parameters.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = parameter.get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = parameter.get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = parameter.get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     /**
@@ -62,31 +63,31 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
      *
      * @param influxDBFactory the influx db factory
      * @param columnNames     the column names
-     * @param parameters      the parameters
+     * @param parameter      the parameters
      * @param errorHandler    the error handler
      * @param errorReporter   the error reporter
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, ParameterTool parameter, ErrorHandler errorHandler, ErrorReporter errorReporter) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.parameters = parameters;
+        this.parameters = parameter;
         this.errorHandler = errorHandler;
         this.errorReporter = errorReporter;
-        databaseName = parameters.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = parameters.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = parameters.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = parameter.get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = parameter.get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = parameter.get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     @Override
     public void open(Configuration unusedDeprecatedParameters) throws Exception {
         errorHandler.init(getRuntimeContext());
-        influxDB = influxDBFactory.connect(parameters.getString(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
-                parameters.getString(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
-                parameters.getString(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
+        influxDB = influxDBFactory.connect(parameters.get(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
+                parameters.get(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
+                parameters.get(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
         );
 
-        influxDB.enableBatch(parameters.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
-                parameters.getInteger(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
+        influxDB.enableBatch(parameters.getInt(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
+                parameters.getInt(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
                 TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
         );
         if (errorReporter == null) {

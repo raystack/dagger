@@ -7,6 +7,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.core.utils.Constants;
 
 import org.apache.flink.api.common.functions.RichFilterFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
 
@@ -19,6 +20,7 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
 
     private final String tableName;
     private final int validationIndex;
+    private final ParameterTool parameter;
     /**
      * The Error reporter.
      */
@@ -26,18 +28,19 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
 
     /**
      * Instantiates a new Valid records decorator.
-     *
-     * @param tableName the table name
+     *  @param tableName the table name
      * @param columns   the columns
+     * @param parameter
      */
-    public ValidRecordsDecorator(String tableName, String[] columns) {
+    public ValidRecordsDecorator(String tableName, String[] columns, ParameterTool parameter) {
         this.tableName = tableName;
         validationIndex = Arrays.asList(columns).indexOf(Constants.INTERNAL_VALIDATION_FILED_KEY);
+        this.parameter = parameter;
     }
 
     @Override
     public void open(Configuration configuration) throws Exception {
-        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
+        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), parameter);
     }
 
     @Override

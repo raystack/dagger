@@ -11,6 +11,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.StringType;
+//import static org.hamcrest.MatcherAssert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class FeatureAccumulatorTest {
@@ -28,7 +30,9 @@ public class FeatureAccumulatorTest {
 
         FeatureAccumulator deserializedAccumulator = (FeatureAccumulator) deserializedAccStream.readObject();
 
-        assertEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
+        // Todo : remove this
+//        assertEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
+        assertArrayEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
     }
 
     @Test
@@ -96,7 +100,7 @@ public class FeatureAccumulatorTest {
 
         FeatureWithTypeAccumulator deserializedAccumulator = (FeatureWithTypeAccumulator) deserializedAccStream.readObject();
 
-        assertEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
+        assertArrayEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
     }
 
     private Row getTimestampAsRow(int seconds, int nanos) {
