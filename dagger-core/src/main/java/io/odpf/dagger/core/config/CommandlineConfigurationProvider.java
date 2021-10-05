@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.config;
 
 import com.google.gson.Gson;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
@@ -25,19 +26,12 @@ public class CommandlineConfigurationProvider implements UserConfigurationProvid
         this.args = args;
     }
 
-    @Override
-    public ParameterTool get() {
-        System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
-        ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(System.out::println);
-        return constructParamTool();
-    }
-
-    private ParameterTool constructParamTool() {
+    private UserConfiguration constructParamTool() {
         String[] finalArgs = args;
         if (isEncodedArgsPresent()) {
             finalArgs = parseEncodedProgramArgs();
         }
-        return ParameterTool.fromArgs(finalArgs);
+        return new UserConfiguration(ParameterTool.fromArgs(finalArgs));
     }
 
     private boolean isEncodedArgsPresent() {
@@ -50,5 +44,12 @@ public class CommandlineConfigurationProvider implements UserConfigurationProvid
         // TODO : Check if this is required
         byte[] decoded = Base64.getMimeDecoder().decode(encodedArgs);
         return GSON.fromJson(new String(decoded), String[].class);
+    }
+
+    @Override
+    public UserConfiguration getUserConf() {
+        System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
+        ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(System.out::println);
+        return constructParamTool();
     }
 }

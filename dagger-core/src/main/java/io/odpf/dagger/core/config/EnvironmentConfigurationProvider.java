@@ -3,6 +3,8 @@ package io.odpf.dagger.core.config;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
+
 import java.util.Map;
 
 /**
@@ -18,12 +20,11 @@ public class EnvironmentConfigurationProvider implements UserConfigurationProvid
      * @param environmentParameters the environment parameters
      */
     public EnvironmentConfigurationProvider(Map<String, String> environmentParameters) {
-
         this.environmentParameters = environmentParameters;
     }
 
     @Override
-    public ParameterTool get() {
-        return ParameterTool.fromMap(environmentParameters);
+    public UserConfiguration getUserConf() {
+        return new UserConfiguration(ParameterTool.fromMap(environmentParameters));
     }
 }

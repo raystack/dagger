@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.exceptions.LongbowWriterException;
 import io.odpf.dagger.core.processors.longbow.outputRow.WriterOutputRow;
@@ -7,7 +8,6 @@ import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -45,9 +45,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
 
     private MeterStatsManager meterStatsManager;
-    private Configuration configuration;
     private LongbowSchema longbowSchema;
-    private ParameterTool parameter;
+    private UserConfiguration userConfiguration;
     private String longbowDocumentDuration;
     private PutRequestFactory putRequestFactory;
     private String tableId;
@@ -59,27 +58,27 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow writer.
      *
-     * @param parameter         the configuration
+     * @param userConfiguration the configuration
      * @param longbowSchema     the longbow schema
      * @param putRequestFactory the put request factory
      * @param tableId           the table id
      * @param writerOutputRow   the writer output row
      */
-    public LongbowWriter(ParameterTool parameter, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
+    public LongbowWriter(UserConfiguration userConfiguration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
 
         this.longbowSchema = longbowSchema;
-        this.longbowDocumentDuration = parameter.get(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
+        this.longbowDocumentDuration = userConfiguration.getParam().get(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
                 Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
         this.tableId = tableId;
         this.writerOutputRow = writerOutputRow;
-        this.configuration = parameter.getConfiguration();
+        this.userConfiguration = userConfiguration;
     }
 
     /**
      * Instantiates a new Longbow writer with specified longbow store.
      *
-     * @param parameter         the configuration
+     * @param userConfiguration the configuration
      * @param longBowSchema     the longbow schema
      * @param meterStatsManager the meter stats manager
      * @param errorReporter     the error reporter
@@ -88,9 +87,9 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
      * @param tableId           the table id
      * @param writerOutputRow   the writer output row
      */
-    LongbowWriter(ParameterTool parameter, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
+    LongbowWriter(UserConfiguration userConfiguration, LongbowSchema longBowSchema, MeterStatsManager meterStatsManager,
                   ErrorReporter errorReporter, LongbowStore longBowStore, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
-        this(parameter, longBowSchema, putRequestFactory, tableId, writerOutputRow);
+        this(userConfiguration, longBowSchema, putRequestFactory, tableId, writerOutputRow);
         this.meterStatsManager = meterStatsManager;
         this.longBowStore = longBowStore;
         this.errorReporter = errorReporter;
@@ -100,7 +99,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     public void open(Configuration configuration) throws Exception {
         super.open(configuration);
         if (longBowStore == null) {
-            longBowStore = LongbowStore.create(parameter);
+            longBowStore = LongbowStore.create(userConfiguration);
         }
 
         if (meterStatsManager == null) {
@@ -109,7 +108,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), parameter);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), userConfiguration);
         }
 
         if (!longBowStore.tableExists(tableId)) {

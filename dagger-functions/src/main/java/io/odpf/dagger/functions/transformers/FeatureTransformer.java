@@ -1,13 +1,14 @@
 package io.odpf.dagger.functions.transformers;
 
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.common.core.Transformer;
-import io.odpf.dagger.functions.udfs.aggregate.feast.FeatureUtils;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.functions.udfs.aggregate.feast.FeatureUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class FeatureTransformer implements MapFunction<Row, Row>, Transformer {
      * @param columnNames             the column names
      * @param configuration           the configuration
      */
-    public FeatureTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
+    public FeatureTransformer(Map<String, String> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
         this.columnNames = columnNames;
         this.keyColumn = transformationArguments.get(KEY_COLUMN_NAME);
         this.valueColumn = transformationArguments.get(VALUE_COLUMN_NAME);

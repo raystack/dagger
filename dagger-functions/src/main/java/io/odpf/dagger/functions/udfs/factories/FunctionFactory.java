@@ -1,6 +1,9 @@
 package io.odpf.dagger.functions.udfs.factories;
 
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
 import com.google.gson.Gson;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.common.udfs.ScalarUdf;
@@ -11,45 +14,21 @@ import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
 import io.odpf.dagger.functions.udfs.aggregate.FeaturesWithType;
 import io.odpf.dagger.functions.udfs.aggregate.PercentileAggregator;
-import io.odpf.dagger.functions.udfs.scalar.DartContains;
-import io.odpf.dagger.functions.udfs.scalar.DartGet;
-import io.odpf.dagger.functions.udfs.scalar.Distance;
-import io.odpf.dagger.functions.udfs.scalar.ElementAt;
-import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
-import io.odpf.dagger.functions.udfs.scalar.EndOfWeek;
-import io.odpf.dagger.functions.udfs.scalar.ExponentialMovingAverage;
-import io.odpf.dagger.functions.udfs.scalar.FormatTimeInZone;
-import io.odpf.dagger.functions.udfs.scalar.GeoHash;
-import io.odpf.dagger.functions.udfs.scalar.LinearTrend;
-import io.odpf.dagger.functions.udfs.scalar.ListContains;
-import io.odpf.dagger.functions.udfs.scalar.MapGet;
-import io.odpf.dagger.functions.udfs.scalar.S2AreaInKm2;
-import io.odpf.dagger.functions.udfs.scalar.S2Id;
-import io.odpf.dagger.functions.udfs.scalar.SingleFeatureWithType;
-import io.odpf.dagger.functions.udfs.scalar.Split;
-import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
-import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
-import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
-import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
-import io.odpf.dagger.functions.udfs.scalar.CondEq;
-import io.odpf.dagger.functions.udfs.scalar.Filters;
-import io.odpf.dagger.functions.udfs.scalar.SelectFields;
-import io.odpf.dagger.functions.udfs.scalar.ByteToString;
-import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
-import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
+import io.odpf.dagger.functions.udfs.scalar.*;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.functions.common.Constants.*;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
+import static io.odpf.dagger.functions.common.Constants.UDF_DART_GCS_BUCKET_ID_DEFAULT;
+import static io.odpf.dagger.functions.common.Constants.UDF_DART_GCS_BUCKET_ID_KEY;
+import static io.odpf.dagger.functions.common.Constants.UDF_DART_GCS_PROJECT_ID_DEFAULT;
+import static io.odpf.dagger.functions.common.Constants.UDF_DART_GCS_PROJECT_ID_KEY;
 
 /**
  * The factory class for all the udf.
@@ -58,18 +37,18 @@ public class FunctionFactory extends UdfFactory {
 
     private static final Gson GSON = new Gson();
 
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    private final StencilClientOrchestrator stencilClientOrchestrator;
 
 
     /**
      * Instantiates a new Function factory.
      *
      * @param streamTableEnvironment the stream table environment
-     * @param parameter          the configuration
+     * @param userConfiguration          the configuration
      */
-    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, ParameterTool parameter) {
-        super(streamTableEnvironment, parameter);
-        stencilClientOrchestrator = new StencilClientOrchestrator(parameter);
+    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, UserConfiguration userConfiguration) {
+        super(streamTableEnvironment, userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
     }
 
     @Override
@@ -124,16 +103,16 @@ public class FunctionFactory extends UdfFactory {
     }
 
     private String getGcsProjectId() {
-        return getConfiguration().getString(UDF_DART_GCS_PROJECT_ID_KEY, UDF_DART_GCS_PROJECT_ID_DEFAULT);
+        return getConfiguration().getParam().get(UDF_DART_GCS_PROJECT_ID_KEY, UDF_DART_GCS_PROJECT_ID_DEFAULT);
     }
 
     private String getGcsBucketId() {
-        return getConfiguration().getString(UDF_DART_GCS_BUCKET_ID_KEY, UDF_DART_GCS_BUCKET_ID_DEFAULT);
+        return getConfiguration().getParam().get(UDF_DART_GCS_BUCKET_ID_KEY, UDF_DART_GCS_BUCKET_ID_DEFAULT);
     }
 
     private LinkedHashMap<String, String> getProtosInInputStreams() {
         LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
-        String jsonArrayString = getConfiguration().getString(INPUT_STREAMS, "");
+        String jsonArrayString = getConfiguration().getParam().get(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");

@@ -57,7 +57,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -86,7 +86,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -118,7 +118,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, 1L);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -163,7 +163,7 @@ public class HashTransformerTest {
 
         inputRow.setField(0, bookingLogRow);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -188,7 +188,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
 
         verify(configuration, times(1)).getString("SINK_KAFKA_PROTO_MESSAGE", "");
@@ -208,7 +208,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
     }
 
@@ -227,7 +227,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
         hashTransformer.open(configuration);
     }
 
@@ -242,7 +242,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
 
         hashTransformer.transform(new StreamInfo(inputStream, columnNames));
         verify(inputStream, times(1)).map(hashTransformer);

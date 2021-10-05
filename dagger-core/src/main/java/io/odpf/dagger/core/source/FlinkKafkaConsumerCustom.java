@@ -1,18 +1,14 @@
 package io.odpf.dagger.core.source;
 
-import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
-
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
-
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -23,9 +19,8 @@ import java.util.regex.Pattern;
  */
 public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
 
-    //    private Configuration configuration;
     private ErrorReporter errorReporter;
-    private ParameterTool paramTool;
+    private UserConfiguration userConfiguration;
 
     /**
      * Instantiates a new Flink kafka consumer custom.
@@ -33,13 +28,12 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
      * @param subscriptionPattern the subscription pattern
      * @param deserializer        the deserializer
      * @param props               the props
-     * @param parameterTool       the configuration
+     * @param userConfiguration   the configuration
      */
     public FlinkKafkaConsumerCustom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
-                                    Properties props, ParameterTool parameterTool) {
+                                    Properties props, UserConfiguration userConfiguration) {
         super(subscriptionPattern, deserializer, props);
-        paramTool = parameterTool;
-//        this.configuration = configuration;
+        this.userConfiguration = userConfiguration;
     }
 
     @Override
@@ -72,6 +66,6 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
      * @return the error reporter
      */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-        return ErrorReporterFactory.getErrorReporter(runtimeContext, paramTool);
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, userConfiguration);
     }
 }

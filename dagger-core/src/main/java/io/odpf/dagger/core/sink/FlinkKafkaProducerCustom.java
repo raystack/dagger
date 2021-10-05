@@ -5,7 +5,9 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 
 import org.apache.flink.api.common.functions.IterationRuntimeContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -23,26 +25,24 @@ import org.slf4j.LoggerFactory;
  */
 public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements CheckpointedFunction, CheckpointListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducerCustom.class.getName());
-    private Configuration configuration;
     private ErrorReporter errorReporter;
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
-    private ParameterTool parameter;
+    private UserConfiguration userConfiguration;
 
     /**
      * Instantiates a new Flink kafka producer custom.
      *
      * @param flinkKafkaProducer the flink kafka producer
-     * @param parameter      the configuration
+     * @param userConfiguration  the configuration
      */
-    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, ParameterTool parameter) {
+    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, UserConfiguration userConfiguration) {
         this.flinkKafkaProducer = flinkKafkaProducer;
-        this.parameter = parameter;
-//        this.configuration = configuration;
+        this.userConfiguration = userConfiguration;
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        flinkKafkaProducer.open(parameters);
+    public void open(Configuration configuration) throws Exception {
+        flinkKafkaProducer.open(configuration);
     }
 
     @Override
@@ -110,6 +110,6 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
      * @return the error reporter
      */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-        return ErrorReporterFactory.getErrorReporter(runtimeContext, parameter);
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, userConfiguration);
     }
 }

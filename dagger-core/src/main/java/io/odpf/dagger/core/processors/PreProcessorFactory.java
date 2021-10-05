@@ -1,16 +1,14 @@
 package io.odpf.dagger.core.processors;
 
-import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.core.processors.types.Preprocessor;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.jayway.jsonpath.InvalidJsonException;
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,14 +22,14 @@ public class PreProcessorFactory {
     /**
      * Parse config preprocessor config.
      *
-     * @param parameterTool the configuration
+     * @param userConfiguration the configuration
      * @return the preprocessor config
      */
-    public static PreProcessorConfig parseConfig(ParameterTool parameterTool) {
-        if (!parameterTool.getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)) {
+    public static PreProcessorConfig parseConfig(UserConfiguration userConfiguration) {
+        if (!userConfiguration.getParam().getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)) {
             return null;
         }
-        String configJson = parameterTool.get(Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY, "");
+        String configJson = userConfiguration.getParam().get(Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY, "");
         PreProcessorConfig config;
         try {
             config = GSON.fromJson(configJson, PreProcessorConfig.class);
@@ -44,13 +42,13 @@ public class PreProcessorFactory {
     /**
      * Gets preprocessors.
      *
-     * @param parameter            the configuration
+     * @param userConfiguration        the configuration
      * @param processorConfig          the processor config
      * @param tableName                the table name
      * @param metricsTelemetryExporter the metrics telemetry exporter
      * @return the preprocessors
      */
-    public static List<Preprocessor> getPreProcessors(ParameterTool parameter, PreProcessorConfig processorConfig, String tableName, MetricsTelemetryExporter metricsTelemetryExporter) {
-        return Collections.singletonList(new PreProcessorOrchestrator(parameter, processorConfig, metricsTelemetryExporter, tableName));
+    public static List<Preprocessor> getPreProcessors(UserConfiguration userConfiguration, PreProcessorConfig processorConfig, String tableName, MetricsTelemetryExporter metricsTelemetryExporter) {
+        return Collections.singletonList(new PreProcessorOrchestrator(userConfiguration, processorConfig, metricsTelemetryExporter, tableName));
     }
 }
