@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.sink.influx;
 
-import org.apache.flink.api.java.utils.ParameterTool;
+import io.odpf.dagger.common.configuration.UserConfiguration;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -33,7 +34,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private InfluxDB influxDB;
     private InfluxDBFactoryWrapper influxDBFactory;
     private String[] columnNames;
-    private ParameterTool parameters;
+    private UserConfiguration userConfigurations;
     private String databaseName;
     private String retentionPolicy;
     private String measurementName;
@@ -43,55 +44,55 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     /**
      * Instantiates a new Influx row sink.
      *
-     * @param influxDBFactory the influx db factory
-     * @param columnNames     the column names
-     * @param parameter      the parameters
-     * @param errorHandler    the error handler
+     * @param influxDBFactory   the influx db factory
+     * @param columnNames       the column names
+     * @param userConfiguration the userConfiguration
+     * @param errorHandler      the error handler
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, ParameterTool parameter, ErrorHandler errorHandler) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, UserConfiguration userConfiguration, ErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.parameters = parameter;
+        this.userConfigurations = userConfiguration;
         this.errorHandler = errorHandler;
-        databaseName = parameter.get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = parameter.get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = parameter.get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = userConfiguration.getParam().get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = userConfiguration.getParam().get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = userConfiguration.getParam().get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     /**
      * Instantiates a new Influx row sink with specified error reporter.
      *
-     * @param influxDBFactory the influx db factory
-     * @param columnNames     the column names
-     * @param parameter      the parameters
-     * @param errorHandler    the error handler
-     * @param errorReporter   the error reporter
+     * @param influxDBFactory   the influx db factory
+     * @param columnNames       the column names
+     * @param userConfiguration the userConfigurations
+     * @param errorHandler      the error handler
+     * @param errorReporter     the error reporter
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, ParameterTool parameter, ErrorHandler errorHandler, ErrorReporter errorReporter) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, UserConfiguration userConfiguration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.parameters = parameter;
+        this.userConfigurations = userConfiguration;
         this.errorHandler = errorHandler;
         this.errorReporter = errorReporter;
-        databaseName = parameter.get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = parameter.get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = parameter.get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = userConfiguration.getParam().get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = userConfiguration.getParam().get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = userConfiguration.getParam().get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     @Override
     public void open(Configuration unusedDeprecatedParameters) throws Exception {
         errorHandler.init(getRuntimeContext());
-        influxDB = influxDBFactory.connect(parameters.get(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
-                parameters.get(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
-                parameters.get(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
+        influxDB = influxDBFactory.connect(userConfigurations.getParam().get(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
+                userConfigurations.getParam().get(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
+                userConfigurations.getParam().get(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
         );
 
-        influxDB.enableBatch(parameters.getInt(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
-                parameters.getInt(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
+        influxDB.enableBatch(userConfigurations.getParam().getInt(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
+                userConfigurations.getParam().getInt(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
                 TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
         );
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), parameters);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), userConfigurations);
         }
     }
 

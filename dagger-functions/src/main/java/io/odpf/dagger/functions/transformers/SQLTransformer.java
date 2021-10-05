@@ -1,6 +1,5 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -10,8 +9,9 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -35,9 +35,9 @@ public class SQLTransformer implements Serializable, Transformer {
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param userConfiguration           the configuration
      */
-    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
+    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
         this.columnNames = columnNames;
         this.sqlQuery = transformationArguments.get("sqlQuery");
         this.tableName = transformationArguments.getOrDefault("tableName", "data_stream");

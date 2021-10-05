@@ -1,16 +1,15 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.processors.PostProcessorConfig;
-import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
-import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
+import io.odpf.dagger.core.processors.types.PostProcessor;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class LongbowProcessor implements PostProcessor {
 
     private AsyncProcessor asyncProcessor;
-    private ParameterTool parameter;
+    private UserConfiguration userConfiguration;
     private ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions;
     private ColumnModifier modifier;
 
@@ -29,13 +28,13 @@ public class LongbowProcessor implements PostProcessor {
      * Instantiates a new Longbow processor.
      *
      * @param asyncProcessor       the async processor
-     * @param parameter        the configuration
+     * @param userConfiguration        the configuration
      * @param longbowRichFunctions the longbow rich functions
      * @param modifier             the modifier
      */
-    public LongbowProcessor(AsyncProcessor asyncProcessor, ParameterTool parameter, ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions, ColumnModifier modifier) {
+    public LongbowProcessor(AsyncProcessor asyncProcessor, UserConfiguration userConfiguration, ArrayList<RichAsyncFunction<Row, Row>> longbowRichFunctions, ColumnModifier modifier) {
         this.asyncProcessor = asyncProcessor;
-        this.parameter = parameter;
+        this.userConfiguration = userConfiguration;
         this.longbowRichFunctions = longbowRichFunctions;
         this.modifier = modifier;
     }
@@ -43,8 +42,8 @@ public class LongbowProcessor implements PostProcessor {
     @Override
     public StreamInfo process(StreamInfo streamInfo) {
         DataStream<Row> inputStream = streamInfo.getDataStream();
-        long longbowAsyncTimeout = parameter.getLong(Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_KEY, Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_DEFAULT);
-        Integer longbowThreadCapacity = parameter.getInt(Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_KEY, Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_DEFAULT);
+        long longbowAsyncTimeout = userConfiguration.getParam().getLong(Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_KEY, Constants.PROCESSOR_LONGBOW_ASYNC_TIMEOUT_DEFAULT);
+        Integer longbowThreadCapacity = userConfiguration.getParam().getInt(Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_KEY, Constants.PROCESSOR_LONGBOW_THREAD_CAPACITY_DEFAULT);
         DataStream<Row> outputStream = inputStream;
         for (RichAsyncFunction<Row, Row> longbowRichFunction : longbowRichFunctions) {
             outputStream = asyncProcessor.orderedWait(outputStream, longbowRichFunction, longbowAsyncTimeout, TimeUnit.MILLISECONDS, longbowThreadCapacity);

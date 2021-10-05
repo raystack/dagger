@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import org.apache.flink.api.common.functions.RichFilterFunction;
@@ -32,7 +33,7 @@ public class DeDuplicationTransformer extends RichFilterFunction<Row> implements
      * @param columnNames             the column names
      * @param configuration           the configuration
      */
-    public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+    public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
         keyIndex = Arrays.asList(columnNames).indexOf(String.valueOf(transformationArguments.get("key_column")));
         ttlInSeconds = Integer.valueOf(String.valueOf(transformationArguments.get("ttl_in_seconds")));
     }

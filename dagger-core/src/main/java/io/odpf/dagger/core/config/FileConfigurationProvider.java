@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.config;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -42,8 +43,8 @@ public class FileConfigurationProvider implements UserConfigurationProvider {
     }
 
     @Override
-    public ParameterTool get() {
-        return ParameterTool.fromMap(this.environmentParameters);
+    public UserConfiguration getUserConf() {
+        return new UserConfiguration(ParameterTool.fromMap(this.environmentParameters));
     }
 
     private Map<String, String> environmentParameters;

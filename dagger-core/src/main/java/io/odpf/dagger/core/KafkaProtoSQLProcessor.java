@@ -1,13 +1,13 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.core.config.UserConfigurationProvider;
-import io.odpf.dagger.core.config.UserConfigurationProviderFactory;
-
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.core.config.UserConfigurationProvider;
+import io.odpf.dagger.core.config.UserConfigurationProviderFactory;
 
 import java.util.TimeZone;
 
@@ -25,13 +25,13 @@ public class KafkaProtoSQLProcessor {
     public static void main(String[] args) throws ProgramInvocationException {
         try {
             UserConfigurationProvider provider = new UserConfigurationProviderFactory(args).provider();
-            ParameterTool param = provider.get();
+            UserConfiguration userConf = provider.getUserConf();
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
             EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
             StreamTableEnvironment tableEnvironment = StreamTableEnvironment.create(executionEnvironment, environmentSettings);
 
-            StreamManager streamManager = new StreamManager(param, param.getConfiguration(), executionEnvironment, tableEnvironment);
+            StreamManager streamManager = new StreamManager(userConf, executionEnvironment, tableEnvironment);
             streamManager
                     .registerConfigs()
                     .registerSourceWithPreProcessors()

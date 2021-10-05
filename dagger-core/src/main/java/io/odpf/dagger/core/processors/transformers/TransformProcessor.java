@@ -5,7 +5,8 @@ import io.odpf.dagger.core.processors.PreProcessorConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 
-import org.apache.flink.api.java.utils.ParameterTool;
+import io.odpf.dagger.common.configuration.UserConfiguration;
+
 import org.apache.flink.configuration.Configuration;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
@@ -38,35 +39,31 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     }
 
     protected final String tableName;
-//    private final Configuration configuration;
     private final Map<String, List<String>> metrics = new HashMap<>();
     protected final TelemetryTypes type;
-    private ParameterTool parameter;
+    private UserConfiguration userConfiguration;
 
     /**
      * Instantiates a new Transform processor.
      *
-     * @param transformConfigs the transform configs
-     * @param parameter    the configuration
+     * @param userConfiguration the configuration
      */
-    public TransformProcessor(List<TransformConfig> transformConfigs, ParameterTool parameter) {
-        this("NULL", TelemetryTypes.POST_PROCESSOR_TYPE, transformConfigs, parameter);
+    public TransformProcessor(List<TransformConfig> transformConfigs, UserConfiguration userConfiguration) {
+        this("NULL", TelemetryTypes.POST_PROCESSOR_TYPE, transformConfigs, userConfiguration);
     }
 
     /**
      * Instantiates a new Transform processor with specified table name and telemetry types.
      *
-     * @param tableName        the table name
-     * @param type             the type
-     * @param transformConfigs the transform configs
-     * @param parameter    the parameterTool
+     * @param tableName         the table name
+     * @param type              the type
+     * @param userConfiguration the userConfiguration
      */
-    public TransformProcessor(String tableName, TelemetryTypes type, List<TransformConfig> transformConfigs, ParameterTool parameter) {
+    public TransformProcessor(String tableName, TelemetryTypes type, List<TransformConfig> transformConfigs, UserConfiguration userConfiguration) {
         this.transformConfigs = transformConfigs == null ? new ArrayList<>() : transformConfigs;
-//        this.configuration = parameter;
         this.tableName = tableName;
         this.type = type;
-        this.parameter = parameter;
+        this.userConfiguration = userConfiguration;
         TransformerUtils.populateDefaultArguments(this);
     }
 
@@ -134,6 +131,6 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
         Class<?> transformerClass = Class.forName(className);
         // Todo : change transformers contract
         Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, Configuration.class);
-        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, parameter);
+        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, userConfiguration);
     }
 }

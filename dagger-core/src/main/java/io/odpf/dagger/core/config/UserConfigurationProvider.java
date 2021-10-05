@@ -1,16 +1,15 @@
 package io.odpf.dagger.core.config;
 
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 
 /**
  * The interface for all Configuration provider class.
  */
 public interface UserConfigurationProvider {
     /**
-     * Get configuration.
+     * Get userConf
      *
-     * @return the configuration
+     * @return the userConfiguration
      */
-    ParameterTool get();
+    UserConfiguration getUserConf();
 }
