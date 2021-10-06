@@ -1,16 +1,18 @@
 package io.odpf.dagger.core.sink;
 
+import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.groups.OperatorMetricGroup;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
 import io.odpf.dagger.core.sink.influx.InfluxRowSink;
 import io.odpf.dagger.core.utils.Constants;
-import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.metrics.groups.OperatorMetricGroup;
-import org.apache.flink.types.Row;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
@@ -23,6 +25,7 @@ import org.mockito.Mockito;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -31,16 +34,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class InfluxRowSinkTest {
 
-    private static final int SINK_INFLUX_BATCH_SIZE = 100;
-    private static final int INFLUX_FLUSH_DURATION = 1000;
+    private static final String SINK_INFLUX_BATCH_SIZE = "100";
+    private static final String INFLUX_FLUSH_DURATION = "1000";
 
-    private Configuration parameters;
+    private ParameterTool parameters;
     @Mock
     private InfluxDBFactoryWrapper influxDBFactory;
     @Mock
@@ -56,19 +62,23 @@ public class InfluxRowSinkTest {
     @Mock
     private Counter counter;
     private ErrorHandler errorHandler = new ErrorHandler();
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        parameters = new Configuration();
-        parameters.setString("SINK_INFLUX_URL", "http://localhost:1111");
-        parameters.setString("SINK_INFLUX_USERNAME", "usr");
-        parameters.setString("SINK_INFLUX_PASSWORD", "pwd");
-        parameters.setInteger("SINK_INFLUX_BATCH_SIZE", SINK_INFLUX_BATCH_SIZE);
-        parameters.setInteger("SINK_INFLUX_FLUSH_DURATION_MS", INFLUX_FLUSH_DURATION);
-        parameters.setString("SINK_INFLUX_DB_NAME", "dagger_test");
-        parameters.setString("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
-        parameters.setString("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
+
+        HashMap<String, String> configArgs = new HashMap<>();
+        configArgs.put("SINK_INFLUX_URL", "http://localhost:1111");
+        configArgs.put("SINK_INFLUX_USERNAME", "usr");
+        configArgs.put("SINK_INFLUX_PASSWORD", "pwd");
+        configArgs.put("SINK_INFLUX_BATCH_SIZE", SINK_INFLUX_BATCH_SIZE);
+        configArgs.put("SINK_INFLUX_FLUSH_DURATION_MS", INFLUX_FLUSH_DURATION);
+        configArgs.put("SINK_INFLUX_DB_NAME", "dagger_test");
+        configArgs.put("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
+        configArgs.put("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
+        parameters = ParameterTool.fromMap(configArgs);
+        this.userConfiguration = new UserConfiguration(parameters);
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
@@ -78,7 +88,7 @@ public class InfluxRowSinkTest {
     }
 
     private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
-        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, parameters, errorHandler, errorReporter);
+        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, userConfiguration, errorHandler, errorReporter);
         influxRowSink.open(null);
     }
 
@@ -112,21 +122,21 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldCallInfluxDbFactoryOnOpen() throws Exception {
-        setupStubedInfluxDB(new String[] {});
+        setupStubedInfluxDB(new String[]{});
 
         verify(influxDBFactory).connect("http://localhost:1111", "usr", "pwd");
     }
 
     @Test
     public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
-        setupStubedInfluxDB(new String[] {});
+        setupStubedInfluxDB(new String[]{});
 
-        verify(influxDb).enableBatch(eq(SINK_INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
+        verify(influxDb).enableBatch(eq(Integer.valueOf(SINK_INFLUX_BATCH_SIZE)), eq(Integer.valueOf(INFLUX_FLUSH_DURATION)), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
     }
 
     @Test
     public void shouldCloseInfluxDBWhenCloseCalled() throws Exception {
-        setupStubedInfluxDB(new String[] {});
+        setupStubedInfluxDB(new String[]{});
 
         influxRowSink.close();
 
@@ -135,7 +145,7 @@ public class InfluxRowSinkTest {
 
     @Test
     public void shouldWriteToConfiguredInfluxDatabase() throws Exception {
-        setupStubedInfluxDB(new String[] {"some_field_name"});
+        setupStubedInfluxDB(new String[]{"some_field_name"});
 
         Row row = new Row(1);
         row.setField(0, "some field");
@@ -275,7 +285,7 @@ public class InfluxRowSinkTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowIfExceptionInWrite() throws Exception {
-        setupStubedInfluxDB(new String[] {"some_field_name"});
+        setupStubedInfluxDB(new String[]{"some_field_name"});
 
         Row row = new Row(1);
         row.setField(0, "some field");
@@ -370,8 +380,8 @@ public class InfluxRowSinkTest {
 
     public class InfluxRowSinkStub extends InfluxRowSink {
         public InfluxRowSinkStub(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames,
-                                 Configuration parameters, ErrorHandler errorHandler, ErrorReporter errorReporter) {
-            super(influxDBFactory, columnNames, parameters, errorHandler, errorReporter);
+                                 UserConfiguration userConfiguration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
+            super(influxDBFactory, columnNames, userConfiguration, errorHandler, errorReporter);
         }
 
         @Override

@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.config.commandline;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.config.CommandlineConfigurationProvider;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 
 import java.util.Base64;
@@ -13,39 +13,39 @@ public class CommandlineConfigurationProviderTest {
 
     @Test
     public void shouldProvideFromEmptyInput() throws Exception {
-        Configuration configurations = new CommandlineConfigurationProvider(new String[]{}).get();
+        UserConfiguration userConf = new CommandlineConfigurationProvider(new String[]{}).getUserConf();
 
-        assertTrue(configurations.keySet().isEmpty());
+        assertTrue(userConf.getParam().getConfiguration().keySet().isEmpty());
     }
 
     @Test
     public void shouldProvideFromOneValidInput() throws Exception {
-        Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).get();
+        UserConfiguration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).getUserConf();
 
-        assertEquals(1, configurations.keySet().size());
+        assertEquals(1, userConf.getParam().getConfiguration().keySet().size());
 
-        assertTrue(configurations.containsKey("key"));
-        assertEquals("value", configurations.getString("key", ""));
+        assertTrue(userConf.getParam().getConfiguration().containsKey("key"));
+        assertEquals("value", userConf.getParam().get("key", ""));
     }
 
     @Test
     public void shouldProvideFromMultipleValidInputs() throws Exception {
-        Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).get();
+        UserConfiguration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).getUserConf();
 
-        assertEquals(2, configurations.keySet().size());
+        assertEquals(2, userConf.getParam().getConfiguration().keySet().size());
 
-        assertTrue(configurations.containsKey("key"));
-        assertEquals("value", configurations.getString("key", ""));
-        assertTrue(configurations.containsKey("k"));
-        assertEquals("v", configurations.getString("k", ""));
+        assertTrue(userConf.getParam().getConfiguration().containsKey("key"));
+        assertEquals("value", userConf.getParam().get("key", ""));
+        assertTrue(userConf.getParam().getConfiguration().containsKey("k"));
+        assertEquals("v", userConf.getParam().getConfiguration().getString("k", ""));
     }
 
     @Test
     public void shouldUseEncodedArgsIfProvided() {
         String args = Base64.getEncoder().encodeToString("[\"--key\", \"value\"]".getBytes());
-        Configuration configurations = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).get();
+        UserConfiguration userConf = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).getUserConf();
 
-        assertTrue(configurations.containsKey("key"));
-        assertEquals("value", configurations.getString("key", ""));
+        assertTrue(userConf.getParam().getConfiguration().containsKey("key"));
+        assertEquals("value", userConf.getParam().get("key", ""));
     }
 }

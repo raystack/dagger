@@ -28,7 +28,7 @@ public class KafkaProtoSQLProcessor {
             UserConfiguration userConf = provider.getUserConf();
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
-            EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
+            EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().inStreamingMode().build();
             StreamTableEnvironment tableEnvironment = StreamTableEnvironment.create(executionEnvironment, environmentSettings);
 
             StreamManager streamManager = new StreamManager(userConf, executionEnvironment, tableEnvironment);

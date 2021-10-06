@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowWriterAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
@@ -12,10 +13,13 @@ import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.core.sink.ProtoSerializer;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,6 +36,9 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowWriterTest {
+
+    @Mock
+    private ParameterTool parameter;
 
     @Mock
     private Configuration configuration;
@@ -68,21 +75,23 @@ public class LongbowWriterTest {
     private LongbowWriter defaultLongbowWriter;
     private LongbowSchema defaultLongbowSchema;
     private PutRequestFactory putRequestFactory;
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setUp() {
         initMocks(this);
-        when(configuration.getString("PROCESSOR_LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
+        this.userConfiguration = new UserConfiguration(parameter);
+        when(parameter.get("PROCESSOR_LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
                 .thenReturn("test-project");
-        when(configuration.getString("PROCESSOR_LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
-        when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
-        when(configuration.getString("PROCESSOR_LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
+        when(parameter.get("PROCESSOR_LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
+        when(parameter.get("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
+        when(parameter.get("PROCESSOR_LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
         writerOutputRow = new OutputIdentity();
         putRequestFactory = new PutRequestFactory(defaultLongbowSchema, protoSerializer, tableId);
-        defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
+        defaultLongbowWriter = new LongbowWriter(userConfiguration, defaultLongbowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
     }
@@ -221,7 +230,7 @@ public class LongbowWriterTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+        LongbowWriter longBowWriter = new LongbowWriter(userConfiguration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
 
         longBowWriter.preProcessBeforeNotifyingSubscriber();
@@ -233,7 +242,7 @@ public class LongbowWriterTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+        LongbowWriter longBowWriter = new LongbowWriter(userConfiguration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.notifySubscriber(telemetrySubscriber);
 
@@ -245,7 +254,7 @@ public class LongbowWriterTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
         putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
-        LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
+        LongbowWriter longBowWriter = new LongbowWriter(userConfiguration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.close();
         verify(longBowStore, times(1)).close();
