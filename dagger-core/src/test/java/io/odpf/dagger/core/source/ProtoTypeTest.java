@@ -1,14 +1,16 @@
 package io.odpf.dagger.core.source;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.configuration.Configuration;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,24 +18,29 @@ import org.mockito.Mock;
 import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.apache.flink.api.common.typeinfo.Types.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoTypeTest {
 
     @Mock
-    private Configuration configuration;
+    private ParameterTool paramTool;
 
     private StencilClientOrchestrator stencilClientOrchestrator;
+
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setup() {
         initMocks(this);
-        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
-        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
-        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        this.userConfiguration = new UserConfiguration(paramTool);
+        when(paramTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(paramTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(paramTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
     }
 
 
@@ -43,11 +50,11 @@ public class ProtoTypeTest {
         ProtoType bookingKeyProtoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new String[] {"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) feedbackKeyProtoType.getRowType()).getFieldNames());
 
         assertArrayEquals(
-                new String[] {"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) bookingKeyProtoType.getRowType()).getFieldNames());
     }
 
@@ -56,7 +63,7 @@ public class ProtoTypeTest {
         ProtoType protoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new TypeInformation[] {STRING, STRING, STRING, STRING, ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) protoType.getRowType()).getFieldTypes());
     }
 
@@ -92,9 +99,9 @@ public class ProtoTypeTest {
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) participantMessageProtoType.getRowType()).getFieldTypes();
 
-        TypeInformation<Row> expectedTimestampRow = ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT);
+        TypeInformation<Row> expectedTimestampRow = ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT);
 
-        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[] {"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
+        TypeInformation<Row> driverLocationRow = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
                 STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING, FLOAT, STRING);
 
         assertEquals(expectedTimestampRow, fieldTypes[bookingLogFieldIndex("event_timestamp")]);
@@ -106,10 +113,10 @@ public class ProtoTypeTest {
         ProtoType bookingLogMessageProtoType = new ProtoType(TestBookingLogMessage.class.getName(), "rowtime", stencilClientOrchestrator);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) bookingLogMessageProtoType.getRowType()).getFieldTypes();
-        TypeInformation<Row> locationType = ROW_NAMED(new String[] {"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
+        TypeInformation<Row> locationType = ROW_NAMED(new String[]{"name", "address", "latitude", "longitude", "type", "note", "place_id", "accuracy_meter", "gate_id"},
                 STRING, STRING, DOUBLE, DOUBLE, STRING, STRING, STRING, FLOAT, STRING);
-        TypeInformation<?> expectedRoutesRow = OBJECT_ARRAY(ROW_NAMED(new String[] {"startTimer", "end", "distance_in_kms", "estimated_duration", "route_order"},
-                locationType, locationType, FLOAT, ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT), INT));
+        TypeInformation<?> expectedRoutesRow = OBJECT_ARRAY(ROW_NAMED(new String[]{"startTimer", "end", "distance_in_kms", "estimated_duration", "route_order"},
+                locationType, locationType, FLOAT, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), INT));
 
         assertEquals(expectedRoutesRow, fieldTypes[bookingLogFieldIndex("routes")]);
     }

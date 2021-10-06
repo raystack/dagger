@@ -1,8 +1,8 @@
 package io.odpf.dagger.core.config.system;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.config.FileConfigurationProvider;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,15 +14,15 @@ public class FileConfigurationProvideTest {
     public void readFromAConfigurationFile() {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
-        Configuration stringStringMap = new FileConfigurationProvider().get();
-        assertEquals("1", stringStringMap.getString("FLINK_PARALLELISM", "1"));
+        UserConfiguration userConf = new FileConfigurationProvider().getUserConf();
+        assertEquals("1", userConf.getParam().get("FLINK_PARALLELISM", "1"));
     }
 
     @Test
     public void shouldThrowExceptionForFileNotfound() {
         System.setProperty("DAGGER_CONFIG_PATH", "dd");
         DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
-                () -> new FileConfigurationProvider().get());
+                () -> new FileConfigurationProvider().getUserConf());
         assertEquals("Config source not provided", exception.getMessage());
 
     }

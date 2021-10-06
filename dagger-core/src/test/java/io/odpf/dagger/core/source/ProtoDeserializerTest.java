@@ -1,24 +1,21 @@
 package io.odpf.dagger.core.source;
 
-import com.google.protobuf.Struct;
-import com.google.protobuf.Timestamp;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.consumer.TestBookingLogKey;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestBookingStatus;
-import io.odpf.dagger.consumer.TestLocation;
-import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
-import io.odpf.dagger.consumer.TestRoute;
-import io.odpf.dagger.consumer.TestServiceType;
-import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.configuration.Configuration;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
+
+import com.google.protobuf.Struct;
+import com.google.protobuf.Timestamp;
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.consumer.*;
+import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,20 +25,25 @@ import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoDeserializerTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
+    private UserConfiguration userConfiguration;
+
+    @Mock
+    private ParameterTool parameterTool;
 
     @Before
     public void setUp() {
         initMocks(this);
-        Configuration configuration = new Configuration();
-        configuration.setString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
-        configuration.setBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
-        configuration.setString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        this.userConfiguration = new UserConfiguration(parameterTool);
+        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
     }
 
     @Test
@@ -54,10 +56,10 @@ public class ProtoDeserializerTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
         TypeInformation<Row> producedType = protoDeserializer.getProducedType();
         assertArrayEquals(
-                new String[] {"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
         assertArrayEquals(
-                new TypeInformation[] {STRING, STRING, STRING, STRING, ROW_NAMED(new String[] {"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
+                new TypeInformation[]{STRING, STRING, STRING, STRING, ROW_NAMED(new String[]{"seconds", "nanos"}, LONG, INT), BOOLEAN, SQL_TIMESTAMP},
                 ((RowTypeInfo) producedType).getFieldTypes());
     }
 

@@ -31,7 +31,7 @@ public class DeDuplicationTransformer extends RichFilterFunction<Row> implements
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param userConfiguration           the configuration
      */
     public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
         keyIndex = Arrays.asList(columnNames).indexOf(String.valueOf(transformationArguments.get("key_column")));
