@@ -82,7 +82,7 @@ public class TransformProcessorTest {
 
         TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, userConfiguration);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
-        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, org.apache.flink.configuration.Configuration)", exception.getMessage());
+        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.UserConfiguration)", exception.getMessage());
     }
 
     @Test

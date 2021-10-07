@@ -1,19 +1,15 @@
 package io.odpf.dagger.core.processors.transformers;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.core.exception.TransformClassNotDefinedException;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.PreProcessorConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
-
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
-
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.common.core.Transformer;
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.exception.TransformClassNotDefinedException;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.utils.Constants;
 
 import java.lang.reflect.Constructor;
@@ -130,7 +126,7 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
         // Todo : change transformers contract
-        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, Configuration.class);
+        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, UserConfiguration.class);
         return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, userConfiguration);
     }
 }

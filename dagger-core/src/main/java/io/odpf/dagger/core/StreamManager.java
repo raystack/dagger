@@ -3,7 +3,6 @@ package io.odpf.dagger.core;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.time.Time;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -36,6 +35,7 @@ import java.util.List;
 
 import static io.odpf.dagger.core.utils.Constants.*;
 import static org.apache.flink.table.api.Expressions.$;
+import static org.apache.flink.table.api.Expressions.e;
 
 /**
  * The Stream manager.
@@ -123,6 +123,9 @@ public class StreamManager {
     private ApiExpression[] getApiExpressions(StreamInfo streamInfo) {
         String[] columnNames = streamInfo.getColumnNames();
         ApiExpression[] expressions = new ApiExpression[columnNames.length];
+        if (columnNames.length == 0) {
+            return expressions;
+        }
         for (int i = 0; i < columnNames.length - 1; i++) {
             ApiExpression expression = $(columnNames[i]);
             expressions[i] = expression;
