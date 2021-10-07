@@ -37,7 +37,7 @@ dependencies {
     testImplementation project(':dagger-common').sourceSets.test.output
 
     testImplementation 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
-    testImplementation 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
+    testImplementation 'org.apache.flink:flink-table-api-java-bridge_2.11' + flinkVersion
     testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
