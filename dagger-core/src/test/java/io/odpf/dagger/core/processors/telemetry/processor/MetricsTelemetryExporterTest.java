@@ -1,13 +1,13 @@
 package io.odpf.dagger.core.processors.telemetry.processor;
 
-import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,8 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 

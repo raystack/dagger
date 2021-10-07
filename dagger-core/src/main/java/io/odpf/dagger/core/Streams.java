@@ -16,7 +16,14 @@ import io.odpf.dagger.core.source.ProtoDeserializer;
 
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
@@ -25,13 +32,20 @@ import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.INPUT_STREAM_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY;
 
 /**
  * The Streams.
  */
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
+    private static final int DURATION_PRECISION = 3;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private final UserConfiguration userConfiguration;
@@ -123,7 +137,7 @@ public class Streams implements TelemetryPublisher {
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {
             Duration maxOutOfOrderliness = Duration.ofMillis(watermarkDelay);
-            DataTypes.TIMESTAMP(3).bridgedTo(Timestamp.class);
+            DataTypes.TIMESTAMP(DURATION_PRECISION).bridgedTo(Timestamp.class);
 
             fc.assignTimestampsAndWatermarks(WatermarkStrategy.
                     <Row>forBoundedOutOfOrderness(maxOutOfOrderliness)
