@@ -20,7 +20,6 @@ public class ScanRequestFactoryTest {
     @Mock
     private LongbowRange longbowRange;
 
-    @Mock
     private Row input;
 
     private String tableId;
@@ -29,6 +28,7 @@ public class ScanRequestFactoryTest {
     public void setup() {
         initMocks(this);
         tableId = "tableId";
+        input = new Row(1);
     }
 
     @Test

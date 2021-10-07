@@ -1,13 +1,17 @@
 package io.odpf.dagger.core;
 
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
+import org.apache.flink.table.api.ApiExpression;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.TableSchema;
@@ -16,10 +20,12 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -71,6 +77,9 @@ public class StreamManagerTest {
 
     @Mock
     private DataStream<Row> dataStream;
+
+    @Mock
+    private SingleOutputStreamOperator<Row> singleOutputStream;
 
     @Mock
     private DataStreamSource<Row> source;
@@ -133,13 +142,15 @@ public class StreamManagerTest {
     }
 
     @Test
-    public void shouldRegisterSourceWithPreprocessors() {
-        streamManager.registerConfigs();
-        streamManager.registerSourceWithPreProcessors();
+    public void shouldRegisterSourceWithPreprocessorsWithWaterMarks() {
+        when(env.addSource(any(FlinkKafkaConsumerCustom.class))).thenReturn(source);
+        when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
 
-        verify(env, Mockito.times(1)).addSource(any(FlinkKafkaConsumerCustom.class));
-        // TODO : update table source logic here
-//        verify(tableEnvironment, Mockito.times(1)).registerTableSource(eq("data_stream"), any(CustomStreamingTableSource.class));
+        StreamManagerStub streamManagerStub = new StreamManagerStub(userConfiguration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        streamManagerStub.registerConfigs();
+        streamManagerStub.registerSourceWithPreProcessors();
+
+        verify(tableEnvironment, Mockito.times(1)).fromDataStream(any(), new ApiExpression[]{});
     }
 
     @Test

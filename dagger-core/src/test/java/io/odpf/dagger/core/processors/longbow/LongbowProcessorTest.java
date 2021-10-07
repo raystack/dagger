@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
@@ -39,6 +40,9 @@ public class LongbowProcessorTest {
     @Mock
     private UserConfiguration userConfiguration;
 
+    @Mock
+    private ParameterTool param;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -46,6 +50,7 @@ public class LongbowProcessorTest {
 
     @Test
     public void shouldChainRichAsyncFunctions() {
+        when(userConfiguration.getParam()).thenReturn(param);
         String[] columnNames = {"rowtime", "longbow_key", "event_timestamp"};
         RichAsyncFunction asyncFunction1 = mock(RichAsyncFunction.class);
         RichAsyncFunction asyncFunction2 = mock(RichAsyncFunction.class);

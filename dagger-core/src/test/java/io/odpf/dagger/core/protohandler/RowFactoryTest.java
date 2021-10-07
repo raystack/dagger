@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -115,7 +116,7 @@ public class RowFactoryTest {
 
         Row copy = rowSerializer.copy(row);
 
-        assertEquals(copy, row);
+        assertEquals(copy.toString(), row.toString());
     }
 
 }
