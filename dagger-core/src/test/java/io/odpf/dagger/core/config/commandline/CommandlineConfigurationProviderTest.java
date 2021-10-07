@@ -37,7 +37,7 @@ public class CommandlineConfigurationProviderTest {
         assertTrue(userConf.getParam().getConfiguration().containsKey("key"));
         assertEquals("value", userConf.getParam().get("key", ""));
         assertTrue(userConf.getParam().getConfiguration().containsKey("k"));
-        assertEquals("v", userConf.getParam().getConfiguration().getString("k", ""));
+        assertEquals("v", userConf.getParam().get("k", ""));
     }
 
     @Test
