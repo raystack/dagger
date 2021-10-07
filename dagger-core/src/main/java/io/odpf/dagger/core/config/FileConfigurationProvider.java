@@ -1,10 +1,9 @@
 package io.odpf.dagger.core.config;
 
+import org.apache.flink.api.java.utils.ParameterTool;
+
 import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 
 import java.io.FileReader;
 import java.util.HashMap;

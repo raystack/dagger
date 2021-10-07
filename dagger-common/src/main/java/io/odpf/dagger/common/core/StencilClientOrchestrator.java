@@ -21,7 +21,7 @@ public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
     private HashMap<String, String> stencilConfigMap;
     private HashSet<String> stencilUrls;
-    private UserConfiguration userConfiguration;
+    private UserConfiguration configuration;
 
     /**
      * Instantiates a new Stencil client orchestrator.
@@ -29,7 +29,7 @@ public class StencilClientOrchestrator implements Serializable {
      * @param userConfiguration the configuration
      */
     public StencilClientOrchestrator(UserConfiguration userConfiguration) {
-        this.userConfiguration = userConfiguration;
+        this.configuration = userConfiguration;
         this.stencilConfigMap = createStencilConfigMap(userConfiguration);
         this.stencilUrls = getStencilUrls();
     }
@@ -72,14 +72,14 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private StencilClient initStencilClient(List<String> urls) {
-        boolean enableRemoteStencil = userConfiguration.getParam().getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        boolean enableRemoteStencil = configuration.getParam().getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
                 ? StencilClientFactory.getClient(urls, stencilConfigMap)
                 : StencilClientFactory.getClient();
     }
 
     private HashSet<String> getStencilUrls() {
-        stencilUrls = Arrays.stream(userConfiguration.getParam().get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT).split(","))
+        stencilUrls = Arrays.stream(configuration.getParam().get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT).split(","))
                 .map(String::trim)
                 .collect(Collectors.toCollection(HashSet::new));
         return stencilUrls;

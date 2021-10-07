@@ -35,7 +35,6 @@ import java.util.List;
 
 import static io.odpf.dagger.core.utils.Constants.*;
 import static org.apache.flink.table.api.Expressions.$;
-import static org.apache.flink.table.api.Expressions.e;
 
 /**
  * The Stream manager.
@@ -193,7 +192,7 @@ public class StreamManager {
      * @return the stream info
      */
     protected StreamInfo createStreamInfo(Table table) {
-        // TODO: Will fix this after fixing the serializations
+        // TODO : Will fix this after fixing the serializations
         DataStream<Row> stream = tableEnvironment
                 .toRetractStream(table, Row.class)
                 .filter(value -> value.f0)

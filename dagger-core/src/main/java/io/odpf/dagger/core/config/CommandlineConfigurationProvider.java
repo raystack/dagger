@@ -1,10 +1,9 @@
 package io.odpf.dagger.core.config;
 
+import org.apache.flink.api.java.utils.ParameterTool;
+
 import com.google.gson.Gson;
 import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 
 import java.util.Base64;
 

@@ -7,7 +7,7 @@ import io.odpf.dagger.common.configuration.UserConfiguration;
  */
 public interface UserConfigurationProvider {
     /**
-     * Get userConf
+     * Get userConf.
      *
      * @return the userConfiguration
      */
