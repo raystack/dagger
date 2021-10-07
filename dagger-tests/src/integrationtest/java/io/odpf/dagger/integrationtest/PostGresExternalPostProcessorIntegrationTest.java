@@ -1,5 +1,6 @@
 package io.odpf.dagger.integrationtest;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -9,7 +10,8 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.configuration.Configuration;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +49,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                             .setNumberSlotsPerTaskManager(1)
                             .setNumberTaskManagers(1)
                             .build());
-    private static Configuration configuration = new Configuration();
+    private static HashMap<String, String> configurationMap = new HashMap<>();
     private static PgPool pgClient;
     private static String host;
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -62,8 +65,8 @@ public class PostGresExternalPostProcessorIntegrationTest {
         try {
 
             String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
-            configuration.setString(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
-            configuration.setString(INPUT_STREAMS, streams);
+            configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
+            configurationMap.put(INPUT_STREAMS, streams);
 
             pgClient = getPGClient();
 
@@ -150,8 +153,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "  }\n"
                 + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -207,8 +211,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]"
                 + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -281,8 +286,9 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "   ]   \n"
                 + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -309,7 +315,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(new UserConfiguration(ParameterTool.fromMap(configurationMap)), stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);
