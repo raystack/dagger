@@ -1,10 +1,12 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -30,6 +32,9 @@ public class DeDuplicationTransformerTest {
     private RuntimeContext runtimeContext;
 
     @Mock
+    private ParameterTool parameterTool;
+
+    @Mock
     private Configuration configuration;
 
     @Mock
@@ -41,13 +46,13 @@ public class DeDuplicationTransformerTest {
     @Mock
     private KeyedStream<Row, Object> keyedStream;
 
-    @Mock
-    private Configuration daggerConfiguration;
 
     @Before
     public void setup() {
         initMocks(this);
     }
+
+    private UserConfiguration userConfiguration = new UserConfiguration(parameterTool);
 
     @Test
     public void shouldGetMapStateFromRuntimeContext() throws Exception {
@@ -119,7 +124,7 @@ public class DeDuplicationTransformerTest {
         inputRow.setField(0, "123");
         inputRow.setField(1, "TEST_SERVICE_TYPE");
         inputRow.setField(2, "TEST_STATUS");
-        DeDuplicationTransformer deDuplicationTransformer = new DeDuplicationTransformer(transformationArguments, columnNames, daggerConfiguration);
+        DeDuplicationTransformer deDuplicationTransformer = new DeDuplicationTransformer(transformationArguments, columnNames, userConfiguration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         deDuplicationTransformer.transform(inputStreamInfo);
         verify(keyedStream, times(1)).filter(any(DeDuplicationTransformer.class));
@@ -136,7 +141,7 @@ public class DeDuplicationTransformerTest {
         inputRow.setField(0, "123");
         inputRow.setField(1, "TEST_SERVICE_TYPE");
         inputRow.setField(2, "TEST_STATUS");
-        DeDuplicationTransformer deDuplicationTransformer = new DeDuplicationTransformer(transformationArguments, columnNames, daggerConfiguration);
+        DeDuplicationTransformer deDuplicationTransformer = new DeDuplicationTransformer(transformationArguments, columnNames, userConfiguration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         StreamInfo outputStreamInfo = deDuplicationTransformer.transform(inputStreamInfo);
         Assert.assertArrayEquals(columnNames, outputStreamInfo.getColumnNames());
@@ -145,7 +150,7 @@ public class DeDuplicationTransformerTest {
     public class DeDuplicationTransformerStub extends DeDuplicationTransformer {
 
         public DeDuplicationTransformerStub(Map<String, Object> transformationArguments, String[] columnNames) {
-            super(transformationArguments, columnNames, daggerConfiguration);
+            super(transformationArguments, columnNames, userConfiguration);
         }
 
         @Override

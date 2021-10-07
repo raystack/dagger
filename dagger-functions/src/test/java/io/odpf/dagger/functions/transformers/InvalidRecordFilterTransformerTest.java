@@ -2,13 +2,16 @@ package io.odpf.dagger.functions.transformers;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +37,12 @@ public class InvalidRecordFilterTransformerTest {
     private OperatorMetricGroup metricGroup;
     @Mock
     private Counter counter;
+
+    @Mock
+    private UserConfiguration userConfiguration;
+
+    @Mock
+    private Configuration configuration;
 
     @Before
     public void setUp() {
@@ -77,10 +86,9 @@ public class InvalidRecordFilterTransformerTest {
 
     @Test
     public void shouldFilterBadRecords() throws Exception {
-        Configuration configuration = new Configuration();
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), configuration);
+        }}, getColumns(), userConfiguration);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);
@@ -102,7 +110,7 @@ public class InvalidRecordFilterTransformerTest {
         Configuration configuration = new Configuration();
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), configuration);
+        }}, getColumns(), userConfiguration);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);

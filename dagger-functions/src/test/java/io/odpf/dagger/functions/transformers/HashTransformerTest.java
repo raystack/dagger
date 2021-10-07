@@ -1,13 +1,17 @@
 package io.odpf.dagger.functions.transformers;
 
 import com.google.protobuf.Timestamp;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.functions.exceptions.InvalidHashFieldException;
+
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,19 +30,26 @@ public class HashTransformerTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Mock
-    private Configuration configuration;
+    private ParameterTool parameterTool;
 
     @Mock
     private DataStream<Row> inputStream;
 
+    @Mock
+    private Configuration configuration;
+
+    private UserConfiguration userConfiguration;
+
     @Before
     public void setup() {
+
         initMocks(this);
-        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
+        this.userConfiguration = new UserConfiguration(parameterTool);
+        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestBookingLogMessage");
-        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
+        when(parameterTool.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
                 .thenReturn(false);
-        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
+        when(parameterTool.get("SCHEMA_REGISTRY_STENCIL_URLS", ""))
                 .thenReturn("");
     }
 
@@ -57,7 +68,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -86,7 +97,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -118,7 +129,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, 1L);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -135,7 +146,7 @@ public class HashTransformerTest {
 
     @Test
     public void shouldHashNestedFields() throws Exception {
-        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
+        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestEnrichedBookingLogMessage");
         HashMap<String, Object> transformationArguments = new HashMap<>();
 
@@ -163,7 +174,7 @@ public class HashTransformerTest {
 
         inputRow.setField(0, bookingLogRow);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -188,10 +199,10 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
 
-        verify(configuration, times(1)).getString("SINK_KAFKA_PROTO_MESSAGE", "");
+        verify(parameterTool, times(1)).get("SINK_KAFKA_PROTO_MESSAGE", "");
     }
 
 
@@ -208,13 +219,13 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
     }
 
     @Test
     public void shouldThrowErrorIfUnableToFindOpDescriptor() throws Exception {
-        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
+        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.RandomTestMessage");
         thrown.expect(DescriptorNotFoundException.class);
         thrown.expectMessage("Output Descriptor for class: io.odpf.dagger.consumer.RandomTestMessage not found");
@@ -227,7 +238,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
         hashTransformer.open(configuration);
     }
 
@@ -242,7 +253,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, configuration, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, userConfiguration);
 
         hashTransformer.transform(new StreamInfo(inputStream, columnNames));
         verify(inputStream, times(1)).map(hashTransformer);
