@@ -1,9 +1,9 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ClearColumnTransformerTest {
     private DataStream<Row> dataStream;
 
     @Mock
-    private Configuration configuration;
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setup() {
@@ -44,7 +44,7 @@ public class ClearColumnTransformerTest {
         inputRow.setField(0, "NEWDEVICE.FREEZE.CR.UPDATE.PIN");
         inputRow.setField(1, "wallet-id-123");
         inputRow.setField(2, commsData);
-        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, configuration);
+        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, userConfiguration);
         Row outputRow = clearColumnTransformer.map(inputRow);
         assertEquals("", outputRow.getField(1));
     }
@@ -58,7 +58,7 @@ public class ClearColumnTransformerTest {
         inputRow.setField(0, "NEWDEVICE.FREEZE.CR.UPDATE.PIN");
         inputRow.setField(1, "wallet-id-123");
         inputRow.setField(2, "random");
-        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, configuration);
+        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, userConfiguration);
         clearColumnTransformer.map(inputRow);
     }
 
@@ -73,7 +73,7 @@ public class ClearColumnTransformerTest {
         inputRow.setField(0, "NEWDEVICE.FREEZE.CR.UPDATE.PIN");
         inputRow.setField(1, "wallet-id-123");
         inputRow.setField(2, commsData);
-        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, configuration);
+        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, userConfiguration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         clearColumnTransformer.transform(inputStreamInfo);
         verify(dataStream, times(1)).map(any(ClearColumnTransformer.class));
@@ -90,7 +90,7 @@ public class ClearColumnTransformerTest {
         inputRow.setField(0, "NEWDEVICE.FREEZE.CR.UPDATE.PIN");
         inputRow.setField(1, "wallet-id-123");
         inputRow.setField(2, commsData);
-        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, configuration);
+        ClearColumnTransformer clearColumnTransformer = new ClearColumnTransformer(transformationArguments, columnNames, userConfiguration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         StreamInfo outputStreamInfo = clearColumnTransformer.transform(inputStreamInfo);
         assertArrayEquals(columnNames, outputStreamInfo.getColumnNames());

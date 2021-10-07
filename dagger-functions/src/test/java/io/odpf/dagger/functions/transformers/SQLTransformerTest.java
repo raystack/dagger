@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
@@ -53,7 +54,7 @@ public class SQLTransformerTest {
     private SingleOutputStreamOperator watermarkedStream;
 
     @Mock
-    private Configuration configuration;
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setup() {
@@ -190,7 +191,7 @@ public class SQLTransformerTest {
     class SQLTransformerStub extends SQLTransformer {
 
         SQLTransformerStub(Map<String, String> transformationArguments, String[] columnNames) {
-            super(transformationArguments, columnNames, configuration);
+            super(transformationArguments, columnNames, userConfiguration);
         }
 
         @Override
