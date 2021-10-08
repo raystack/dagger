@@ -1,6 +1,10 @@
 package io.odpf.dagger.core.processors.external;
 
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.streaming.api.datastream.DataStream;
+
 import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
@@ -11,8 +15,6 @@ import io.odpf.dagger.core.processors.external.es.EsSourceConfig;
 import io.odpf.dagger.core.processors.external.es.EsStreamDecorator;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import io.odpf.dagger.core.processors.external.http.HttpStreamDecorator;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,17 +26,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.utils.Constants.*;
-import static org.junit.Assert.*;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class ExternalPostProcessorTest {
-
     @Mock
-    private Configuration configuration;
+    private ParameterTool parameterTool;
 
     @Mock
     private StencilClient stencilClient;
@@ -58,11 +64,12 @@ public class ExternalPostProcessorTest {
     private PostProcessorConfig defaultPostProcessorConfig;
     private ExternalPostProcessor externalPostProcessor;
     private ExternalMetricConfig externalMetricConfig;
+    private UserConfiguration userConfiguration;
 
     @Before
     public void setup() {
         initMocks(this);
-
+        this.userConfiguration = new UserConfiguration(parameterTool);
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
@@ -76,8 +83,8 @@ public class ExternalPostProcessorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("TestLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpStreamDecorator.decorate(dataStream)).thenReturn(dataStream);
-        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+        when(parameterTool.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
 
         String postProcessorConfigString = "{\n"
                 + "  \"external_source\": {\n"
@@ -105,7 +112,7 @@ public class ExternalPostProcessorTest {
                 + "  }\n"
                 + "}";
 
-        externalMetricConfig = new ExternalMetricConfig(configuration, telemetrySubscriber);
+        externalMetricConfig = new ExternalMetricConfig(userConfiguration, telemetrySubscriber);
         defaultPostProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
 
         externalPostProcessor = new ExternalPostProcessor(schemaConfig, externalSourceConfig, externalMetricConfig);
@@ -146,6 +153,7 @@ public class ExternalPostProcessorTest {
 
         externalPostProcessorMock.process(streamInfoMock);
     }
+
     @Ignore("Need to fix this test")
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {
