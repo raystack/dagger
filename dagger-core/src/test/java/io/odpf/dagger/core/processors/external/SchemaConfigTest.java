@@ -1,12 +1,10 @@
 package io.odpf.dagger.core.processors.external;
 
+import org.apache.flink.api.java.utils.ParameterTool;
+
 import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

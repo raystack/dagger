@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
-    private UserConfiguration userConfiguration;
+    private UserConfiguration userConfig;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
 
@@ -40,7 +40,7 @@ public class ParentPostProcessor implements PostProcessor {
      */
     public ParentPostProcessor(PostProcessorConfig postProcessorConfig, UserConfiguration userConfiguration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
-        this.userConfiguration = userConfiguration;
+        this.userConfig = userConfiguration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
     }
@@ -56,7 +56,7 @@ public class ParentPostProcessor implements PostProcessor {
         InitializationDecorator initializationDecorator = new InitializationDecorator(columnNameManager);
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
-        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(userConfig, stencilClientOrchestrator, columnNameManager);
 
         List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(telemetrySubscriber, schemaConfig);
         for (PostProcessor postProcessor : enabledPostProcessors) {
@@ -66,7 +66,7 @@ public class ParentPostProcessor implements PostProcessor {
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, postProcessorConfig.hasSQLTransformer());
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
-        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), userConfiguration);
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), userConfig);
         if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
@@ -80,11 +80,11 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!userConfiguration.getParam().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+        if (!userConfig.getParam().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(userConfiguration, subscriber);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(userConfig, subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         processors.add(new InternalPostProcessor(postProcessorConfig));
