@@ -78,6 +78,7 @@ public class SQLTransformer implements Serializable, Transformer {
     }
 
     private SingleOutputStreamOperator<Row> assignTimeAttribute(DataStream<Row> inputStream) {
+        // TODO : handle timestamp and watermark related things
         return inputStream.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Row>(Time.of(allowedLatenessInMs, TimeUnit.MILLISECONDS)) {
             @Override
             public long extractTimestamp(Row row) {

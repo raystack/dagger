@@ -1,16 +1,12 @@
 package io.odpf.dagger.core.processors;
 
-import io.odpf.dagger.core.processors.types.PostProcessor;
-
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
-import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.core.processors.common.FetchOutputDecorator;
 import io.odpf.dagger.core.processors.common.InitializationDecorator;
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
@@ -18,6 +14,7 @@ import io.odpf.dagger.core.processors.external.ExternalPostProcessor;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalPostProcessor;
 import io.odpf.dagger.core.processors.transformers.TransformProcessor;
+import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.utils.Constants;
 
 import java.util.ArrayList;
@@ -32,7 +29,6 @@ public class ParentPostProcessor implements PostProcessor {
     private UserConfiguration userConfiguration;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
-    private Configuration configuration;
 
     /**
      * Instantiates a new Parent post processor.
@@ -60,7 +56,7 @@ public class ParentPostProcessor implements PostProcessor {
         InitializationDecorator initializationDecorator = new InitializationDecorator(columnNameManager);
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
-        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
 
         List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(telemetrySubscriber, schemaConfig);
         for (PostProcessor postProcessor : enabledPostProcessors) {
@@ -84,11 +80,11 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+        if (!userConfiguration.getParam().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, subscriber);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(userConfiguration, subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         processors.add(new InternalPostProcessor(postProcessorConfig));
@@ -98,7 +94,7 @@ public class ParentPostProcessor implements PostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private ExternalMetricConfig getExternalMetricConfig(Configuration config, TelemetrySubscriber subscriber) {
-        return new ExternalMetricConfig(config, subscriber);
+    private ExternalMetricConfig getExternalMetricConfig(UserConfiguration userConfiguration, TelemetrySubscriber subscriber) {
+        return new ExternalMetricConfig(userConfiguration, subscriber);
     }
 }

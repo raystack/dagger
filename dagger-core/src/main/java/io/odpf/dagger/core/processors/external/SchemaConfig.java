@@ -1,9 +1,9 @@
 package io.odpf.dagger.core.processors.external;
 
 import com.google.gson.Gson;
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
  * The Schema config.
  */
 public class SchemaConfig implements Serializable {
-    private final Configuration configuration;
+    private final UserConfiguration userConfiguration;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private ColumnNameManager columnNameManager;
     private String[] inputProtoClasses;
@@ -27,16 +27,16 @@ public class SchemaConfig implements Serializable {
     /**
      * Instantiates a new Schema config.
      *
-     * @param configuration             the configuration
+     * @param userConfiguration         the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param columnNameManager         the column name manager
      */
-    public SchemaConfig(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager) {
-        this.configuration = configuration;
+    public SchemaConfig(UserConfiguration userConfiguration, StencilClientOrchestrator stencilClientOrchestrator, ColumnNameManager columnNameManager) {
+        this.userConfiguration = userConfiguration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.columnNameManager = columnNameManager;
         this.inputProtoClasses = getMessageProtoClasses();
-        this.outputProtoClassName = configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
+        this.outputProtoClassName = userConfiguration.getParam().get(SINK_KAFKA_PROTO_MESSAGE_KEY, "");
     }
 
     /**
@@ -76,7 +76,7 @@ public class SchemaConfig implements Serializable {
     }
 
     private String[] getMessageProtoClasses() {
-        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
+        String jsonArrayString = userConfiguration.getParam().get(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         ArrayList<String> protoClasses = new ArrayList<>();
         for (Map individualStreamConfig : streamsConfig) {

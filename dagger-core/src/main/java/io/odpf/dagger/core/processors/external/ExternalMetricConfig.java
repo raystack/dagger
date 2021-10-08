@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.processors.external;
 
-import org.apache.flink.configuration.Configuration;
-
+import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.core.utils.Constants;
 
@@ -19,12 +18,12 @@ public class ExternalMetricConfig implements Serializable {
     /**
      * Instantiates a new External metric config.
      *
-     * @param configuration       the configuration
+     * @param userConfiguration       the configuration
      * @param telemetrySubscriber the telemetry subscriber
      */
-    public ExternalMetricConfig(Configuration configuration, TelemetrySubscriber telemetrySubscriber) {
-        this.shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        this.telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+    public ExternalMetricConfig(UserConfiguration userConfiguration, TelemetrySubscriber telemetrySubscriber) {
+        this.shutDownPeriod = userConfiguration.getParam().getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        this.telemetryEnabled = userConfiguration.getParam().getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
         this.telemetrySubscriber = telemetrySubscriber;
     }
 
