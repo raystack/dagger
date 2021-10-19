@@ -51,4 +51,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dagger-cache-
       - name: Run test
-        run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew integrationTest
+        run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew clean :dagger-tests:integrationTest
