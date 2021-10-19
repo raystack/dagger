@@ -1,10 +1,7 @@
 package io.odpf.dagger.core;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.ApiExpression;
 import org.apache.flink.table.api.Table;
@@ -16,6 +13,8 @@ import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
+import io.odpf.dagger.common.watermark.LastColumnWatermark;
+import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.PreProcessorConfig;
@@ -28,7 +27,6 @@ import io.odpf.dagger.core.utils.Constants;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.List;
 
@@ -94,17 +92,12 @@ public class StreamManager {
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(userConf);
         kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
             DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
-            // TODO : generifying all watermark delay things
-            SingleOutputStreamOperator<Row> rowSingleOutputStreamOperator = kafkaStream
-                    .assignTimestampsAndWatermarks(WatermarkStrategy.
-                            <Row>forBoundedOutOfOrderness(Duration.ofMillis(watermarkDelay))
-                            .withTimestampAssigner((SerializableTimestampAssigner<Row>) (element, recordTimestamp) -> {
-                                int index = element.getArity() - 1;
-                                return ((Timestamp) element.getField(index)).getTime();
-                            }));
 
+            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+
+            DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
+                    .assignTimeStampAndWatermark(kafkaStream, watermarkDelay);
             TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
-
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
             streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
 

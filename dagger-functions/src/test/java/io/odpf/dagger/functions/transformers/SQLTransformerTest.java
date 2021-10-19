@@ -8,6 +8,7 @@ import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrderness
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.UserConfiguration;
@@ -123,14 +124,14 @@ public class SQLTransformerTest {
         when(streamTableEnvironment.toRetractStream(table, Row.class)).thenReturn(retractStream);
         when(retractStream.filter(any())).thenReturn(filteredRetractStream);
         when(filteredRetractStream.map(any())).thenReturn(outputStream);
-        when(inputStream.assignTimestampsAndWatermarks(any(BoundedOutOfOrdernessTimestampExtractor.class))).thenReturn(watermarkedStream);
+        when(inputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(watermarkedStream);
         SQLTransformer sqlTransformer = new SQLTransformerStub(transformationArguments, columnNames);
         StreamInfo inputStreamInfo = new StreamInfo(inputStream, columnNames);
         StreamInfo outputStreamInfo = sqlTransformer.transform(inputStreamInfo);
 
         verify(streamTableEnvironment, times(1)).registerDataStream("data_stream", watermarkedStream, schema);
         verify(streamTableEnvironment, times(1)).sqlQuery(sqlQuery);
-        verify(inputStream, times(1)).assignTimestampsAndWatermarks(any(BoundedOutOfOrdernessTimestampExtractor.class));
+        verify(inputStream, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
         assertEquals(outputStream, outputStreamInfo.getDataStream());
     }
 

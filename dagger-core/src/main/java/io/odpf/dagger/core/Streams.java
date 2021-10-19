@@ -1,21 +1,18 @@
 package io.odpf.dagger.core;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-
 import io.odpf.dagger.common.configuration.UserConfiguration;
 
 import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.types.Row;
 
 import com.google.gson.Gson;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.watermark.LastColumnWatermark;
+import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.core.source.ProtoDeserializer;
 
 import java.sql.Timestamp;
-import java.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,15 +133,9 @@ public class Streams implements TelemetryPublisher {
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         if (enablePerPartitionWatermark) {
-            Duration maxOutOfOrderliness = Duration.ofMillis(watermarkDelay);
             DataTypes.TIMESTAMP(DURATION_PRECISION).bridgedTo(Timestamp.class);
-
-            fc.assignTimestampsAndWatermarks(WatermarkStrategy.
-                    <Row>forBoundedOutOfOrderness(maxOutOfOrderliness)
-                    .withTimestampAssigner((SerializableTimestampAssigner<Row>) (element, recordTimestamp) -> {
-                        int index = element.getArity() - 1;
-                        return ((Timestamp) element.getField(index)).getTime();
-                    }));
+            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+            streamWatermarkAssigner.assignTimeStampAndWatermark(fc, watermarkDelay);
         }
 
         return fc;
