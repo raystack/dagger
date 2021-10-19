@@ -46,6 +46,7 @@ sourceSets {
 dependencies {
     compileOnly project(':dagger-common')
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    compileOnly 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
     compileOnly group: 'org.apache.flink', name: 'flink-clients_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion

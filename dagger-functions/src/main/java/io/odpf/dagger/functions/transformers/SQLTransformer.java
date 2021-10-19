@@ -1,7 +1,5 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -12,10 +10,10 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.UserConfiguration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.common.watermark.RowtimeFieldWatermark;
+import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -77,10 +75,8 @@ public class SQLTransformer implements Serializable, Transformer {
         return StreamTableEnvironment.create(streamExecutionEnvironment);
     }
 
-    private SingleOutputStreamOperator<Row> assignTimeAttribute(DataStream<Row> inputStream) {
-        return inputStream.assignTimestampsAndWatermarks(WatermarkStrategy.
-                <Row>forBoundedOutOfOrderness(Duration.ofMillis(allowedLatenessInMs))
-                .withTimestampAssigner((SerializableTimestampAssigner<Row>)
-                        (element, recordTimestamp) -> ((Timestamp) element.getField(Arrays.asList(columnNames).indexOf(ROWTIME))).getTime()));
+    private DataStream<Row> assignTimeAttribute(DataStream<Row> inputStream) {
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new RowtimeFieldWatermark(columnNames));
+        return streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, allowedLatenessInMs);
     }
 }
