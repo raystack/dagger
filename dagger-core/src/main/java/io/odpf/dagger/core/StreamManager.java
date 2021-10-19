@@ -78,10 +78,7 @@ public class StreamManager {
         executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(userConf.getParam().getInt(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(userConf.getParam());
 
-        // TODO : change the time duration accordingly
-        tableEnvironment.getConfig().setIdleStateRetentionTime(Time.hours(userConf.getParam().getInt(FLINK_RETENTION_MIN_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_MIN_IDLE_STATE_HOUR_DEFAULT)),
-                Time.hours(userConf.getParam().getInt(FLINK_RETENTION_MAX_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_MAX_IDLE_STATE_HOUR_DEFAULT)));
-
+        tableEnvironment.getConfig().setIdleStateRetention(Duration.ofHours(userConf.getParam().getInt(FLINK_RETENTION_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT)));
         return this;
     }
 
@@ -120,6 +117,7 @@ public class StreamManager {
     }
 
     private ApiExpression[] getApiExpressions(StreamInfo streamInfo) {
+        String rowTimeAttributeName = userConf.getParam().get(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
         String[] columnNames = streamInfo.getColumnNames();
         ApiExpression[] expressions = new ApiExpression[columnNames.length];
         if (columnNames.length == 0) {
@@ -129,8 +127,7 @@ public class StreamManager {
             ApiExpression expression = $(columnNames[i]);
             expressions[i] = expression;
         }
-        // TODO : fix according to the rowtime attribute name
-        expressions[columnNames.length - 1] = $(ROWTIME).rowtime();
+        expressions[columnNames.length - 1] = $(rowTimeAttributeName).rowtime();
         return expressions;
     }
 
