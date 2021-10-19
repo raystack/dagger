@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
  */
 public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
 
-    private ErrorReporter errorReporter;
     private UserConfiguration userConfiguration;
 
     /**
@@ -43,7 +42,7 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
         } catch (ExceptionInChainedOperatorException chainedOperatorException) {
             throw chainedOperatorException;
         } catch (Exception exception) {
-            errorReporter = getErrorReporter(getRuntimeContext());
+            ErrorReporter errorReporter = getErrorReporter(getRuntimeContext());
             errorReporter.reportFatalException(exception);
             throw exception;
         }

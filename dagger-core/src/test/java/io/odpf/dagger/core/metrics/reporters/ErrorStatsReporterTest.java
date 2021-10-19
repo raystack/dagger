@@ -26,12 +26,10 @@ public class ErrorStatsReporterTest {
 
     private ErrorStatsReporter errorStatsReporter;
 
-    private long shutDownPeriod;
-
     @Before
     public void setup() {
         initMocks(this);
-        shutDownPeriod = 0L;
+        long shutDownPeriod = 0L;
         errorStatsReporter = new ErrorStatsReporter(runtimeContext, shutDownPeriod);
     }
 
