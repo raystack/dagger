@@ -17,13 +17,13 @@ tasks.withType(JavaCompile) {
 }
 
 configurations {
-    integrationtestImplementation.extendsFrom testImplementation
-    integrationtestImplementaion.extendsFrom testImplementation
-    integrationtestRuntimeOnly.extendsFrom runtimeOnly
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
+
 }
 
 sourceSets {
-    integrationtest {
+    integrationTest {
         compileClasspath += sourceSets.main.output
         runtimeClasspath += sourceSets.main.output
         compileClasspath += sourceSets.test.output
@@ -33,7 +33,8 @@ sourceSets {
 
 
 dependencies {
-    testImplementation project(path: ':dagger-core')
+    testImplementation project(':dagger-common').sourceSets.main.output
+    testImplementation project(':dagger-core').sourceSets.main.output
     testImplementation project(':dagger-common').sourceSets.test.output
 
     testImplementation 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
@@ -64,8 +65,8 @@ task integrationTest(type: Test) {
     description = 'Runs integration tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.integrationtest.output.classesDirs
-    classpath = sourceSets.integrationtest.runtimeClasspath
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
     testLogging {
         events "passed", "skipped", "failed"
     }
