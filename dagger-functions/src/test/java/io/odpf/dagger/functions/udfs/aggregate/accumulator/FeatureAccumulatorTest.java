@@ -30,8 +30,6 @@ public class FeatureAccumulatorTest {
 
         FeatureAccumulator deserializedAccumulator = (FeatureAccumulator) deserializedAccStream.readObject();
 
-        // Todo : remove this
-//        assertEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
         assertArrayEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
     }
 

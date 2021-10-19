@@ -125,7 +125,6 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
      */
     protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
-        // Todo : change transformers contract
         Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, UserConfiguration.class);
         return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, userConfiguration);
     }
