@@ -1,10 +1,10 @@
 package io.odpf.dagger.functions.transformers;
 
+import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
@@ -15,9 +15,9 @@ import io.odpf.dagger.common.core.Transformer;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -35,7 +35,7 @@ public class SQLTransformer implements Serializable, Transformer {
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param userConfiguration           the configuration
+     * @param userConfiguration       the configuration
      */
     public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
         this.columnNames = columnNames;
@@ -78,12 +78,9 @@ public class SQLTransformer implements Serializable, Transformer {
     }
 
     private SingleOutputStreamOperator<Row> assignTimeAttribute(DataStream<Row> inputStream) {
-        // TODO : handle timestamp and watermark related things
-        return inputStream.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Row>(Time.of(allowedLatenessInMs, TimeUnit.MILLISECONDS)) {
-            @Override
-            public long extractTimestamp(Row row) {
-                return ((Timestamp) row.getField(Arrays.asList(columnNames).indexOf(ROWTIME))).getTime();
-            }
-        });
+        return inputStream.assignTimestampsAndWatermarks(WatermarkStrategy.
+                <Row>forBoundedOutOfOrderness(Duration.ofMillis(allowedLatenessInMs))
+                .withTimestampAssigner((SerializableTimestampAssigner<Row>)
+                        (element, recordTimestamp) -> ((Timestamp) element.getField(Arrays.asList(columnNames).indexOf(ROWTIME))).getTime()));
     }
 }
