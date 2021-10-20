@@ -71,7 +71,6 @@ dependencies {
     dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
 
-    dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
@@ -80,7 +79,6 @@ dependencies {
     dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
     dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
-    dependenciesJar 'com.jayway.jsonpath:json-path:2.4.0'
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
 
@@ -118,7 +116,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.89
+                minimum = 0.88
             }
         }
     }
@@ -201,7 +199,7 @@ task fatJar(type: ShadowJar) {
 
 private Properties loadEnv() {
     Properties properties = new Properties()
-    properties.load(new FileInputStream(file("${projectDir}/env/local.properties")));
+    properties.load(new FileInputStream(file("${projectDir}/env/local.properties")))
     properties
 }
 
