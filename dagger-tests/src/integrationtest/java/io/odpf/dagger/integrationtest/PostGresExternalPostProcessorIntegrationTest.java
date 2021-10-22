@@ -1,6 +1,14 @@
 package io.odpf.dagger.integrationtest;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -10,14 +18,6 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import org.apache.commons.lang3.StringUtils;
-
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -33,7 +33,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY;
 import static io.vertx.pgclient.PgPool.pool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -154,8 +155,8 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -212,8 +213,8 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
-        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -287,8 +288,8 @@ public class PostGresExternalPostProcessorIntegrationTest {
                 + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
-        UserConfiguration userConfiguration = new UserConfiguration(ParameterTool.fromMap(configurationMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -315,7 +316,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(new UserConfiguration(ParameterTool.fromMap(configurationMap)), stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(new Configuration(ParameterTool.fromMap(configurationMap)), stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

@@ -17,7 +17,7 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class StreamManagerTest {
     @Mock
     private TableSchema schema;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -118,9 +118,9 @@ public class StreamManagerTest {
         when(typeInformation.getTypeClass()).thenReturn(Row.class);
         when(schema.getFieldNames()).thenReturn(new String[0]);
         PowerMockito.mockStatic(TableSchema.class);
-        this.userConfiguration = new UserConfiguration(parameter);
+        this.configuration = new Configuration(parameter);
         when(TableSchema.fromTypeInfo(typeInformation)).thenReturn(schema);
-        streamManager = new StreamManager(userConfiguration, env, tableEnvironment);
+        streamManager = new StreamManager(configuration, env, tableEnvironment);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class StreamManagerTest {
         when(env.addSource(any(FlinkKafkaConsumerCustom.class))).thenReturn(source);
         when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
 
-        StreamManagerStub streamManagerStub = new StreamManagerStub(userConfiguration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
         streamManagerStub.registerSourceWithPreProcessors();
 
@@ -152,7 +152,7 @@ public class StreamManagerTest {
 
     @Test
     public void shouldCreateOutputStream() {
-        StreamManagerStub streamManagerStub = new StreamManagerStub(userConfiguration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerOutputStream();
         verify(tableEnvironment, Mockito.times(1)).sqlQuery("");
     }
@@ -168,8 +168,8 @@ public class StreamManagerTest {
 
         private StreamInfo streamInfo;
 
-        private StreamManagerStub(UserConfiguration userConfiguration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment, StreamInfo streamInfo) {
-            super(userConfiguration, executionEnvironment, tableEnvironment);
+        private StreamManagerStub(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment, StreamInfo streamInfo) {
+            super(configuration, executionEnvironment, tableEnvironment);
             this.streamInfo = streamInfo;
         }
 

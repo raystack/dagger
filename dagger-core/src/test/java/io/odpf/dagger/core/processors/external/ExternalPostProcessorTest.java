@@ -4,7 +4,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
@@ -64,12 +64,12 @@ public class ExternalPostProcessorTest {
     private PostProcessorConfig defaultPostProcessorConfig;
     private ExternalPostProcessor externalPostProcessor;
     private ExternalMetricConfig externalMetricConfig;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.configuration = new Configuration(parameterTool);
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
@@ -112,7 +112,7 @@ public class ExternalPostProcessorTest {
                 + "  }\n"
                 + "}";
 
-        externalMetricConfig = new ExternalMetricConfig(userConfiguration, telemetrySubscriber);
+        externalMetricConfig = new ExternalMetricConfig(configuration, telemetrySubscriber);
         defaultPostProcessorConfig = PostProcessorConfig.parse(postProcessorConfigString);
 
         externalPostProcessor = new ExternalPostProcessor(schemaConfig, externalSourceConfig, externalMetricConfig);

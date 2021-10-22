@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.external;
 
 import org.apache.flink.api.java.utils.ParameterTool;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class SchemaConfigTest {
     @Mock
     private ColumnNameManager columnNameManager;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
 
     @Before
@@ -35,30 +35,30 @@ public class SchemaConfigTest {
         HashMap<String, String> configMap = new HashMap<>();
         configMap.put(INPUT_STREAMS, streams);
         configMap.put(SINK_KAFKA_PROTO_MESSAGE_KEY, "OutputProtoMessage");
-        this.userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
+        this.configuration = new Configuration(ParameterTool.fromMap(configMap));
     }
 
     @Test
     public void shouldReturnStencilOrchestrator() {
-        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
         assertEquals(stencilClientOrchestrator, schemaConfig.getStencilClientOrchestrator());
     }
 
     @Test
     public void shouldReturnColumnNameManager() {
-        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
         assertEquals(columnNameManager, schemaConfig.getColumnNameManager());
     }
 
     @Test
     public void shouldReturnInputProtoClasses() {
-        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
         assertArrayEquals(new String[]{"InputProtoMessage"}, schemaConfig.getInputProtoClasses());
     }
 
     @Test
     public void shouldReturnOutputProtoClassName() {
-        SchemaConfig schemaConfig = new SchemaConfig(userConfiguration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
         assertEquals("OutputProtoMessage", schemaConfig.getOutputProtoClassName());
     }
 

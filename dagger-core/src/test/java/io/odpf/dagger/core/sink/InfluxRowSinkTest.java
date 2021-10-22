@@ -6,7 +6,7 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
@@ -61,7 +61,7 @@ public class InfluxRowSinkTest {
     @Mock
     private Counter counter;
     private ErrorHandler errorHandler = new ErrorHandler();
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setUp() throws Exception {
@@ -77,7 +77,7 @@ public class InfluxRowSinkTest {
         configArgs.put("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
         configArgs.put("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
         parameters = ParameterTool.fromMap(configArgs);
-        this.userConfiguration = new UserConfiguration(parameters);
+        this.configuration = new Configuration(parameters);
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
@@ -87,7 +87,7 @@ public class InfluxRowSinkTest {
     }
 
     private void setupStubedInfluxDB(String[] rowColumns) throws Exception {
-        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, userConfiguration, errorHandler, errorReporter);
+        influxRowSink = new InfluxRowSinkStub(influxDBFactory, rowColumns, configuration, errorHandler, errorReporter);
         influxRowSink.open(null);
     }
 
@@ -379,8 +379,8 @@ public class InfluxRowSinkTest {
 
     public class InfluxRowSinkStub extends InfluxRowSink {
         public InfluxRowSinkStub(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames,
-                                 UserConfiguration userConfiguration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
-            super(influxDBFactory, columnNames, userConfiguration, errorHandler, errorReporter);
+                                 Configuration configuration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
+            super(influxDBFactory, columnNames, configuration, errorHandler, errorReporter);
         }
 
         @Override

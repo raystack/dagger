@@ -1,18 +1,18 @@
 package io.odpf.dagger.functions.transformers;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.common.core.Transformer;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -31,9 +31,9 @@ public class DeDuplicationTransformer extends RichFilterFunction<Row> implements
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param userConfiguration           the configuration
+     * @param configuration           the configuration
      */
-    public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
+    public DeDuplicationTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         keyIndex = Arrays.asList(columnNames).indexOf(String.valueOf(transformationArguments.get("key_column")));
         ttlInSeconds = Integer.valueOf(String.valueOf(transformationArguments.get("ttl_in_seconds")));
     }
@@ -48,8 +48,8 @@ public class DeDuplicationTransformer extends RichFilterFunction<Row> implements
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        super.open(internalFlinkConfig);
         MapStateDescriptor<String, Integer> deDupState = new MapStateDescriptor<>(DE_DUP_STATE, String.class, Integer.class);
         StateTtlConfig ttlConfig = StateTtlConfig
                 .newBuilder(Time.seconds(ttlInSeconds))

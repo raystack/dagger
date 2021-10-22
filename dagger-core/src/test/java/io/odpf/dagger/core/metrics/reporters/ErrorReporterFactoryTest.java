@@ -1,11 +1,10 @@
 package io.odpf.dagger.core.metrics.reporters;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
-import io.odpf.dagger.core.utils.Constants;
-
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.utils.ParameterTool;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,19 +23,19 @@ public class ErrorReporterFactoryTest {
     @Mock
     private RuntimeContext runtimeContext;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.configuration = new Configuration(parameterTool);
         when(parameterTool.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
         when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
     }
 
     @Test
     public void shouldReturnErrorTelemetryFormConfigOnly() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, userConfiguration);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 

@@ -1,14 +1,7 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
-
 import org.apache.flink.api.common.functions.IterationRuntimeContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
-
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -17,6 +10,9 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,22 +23,22 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
     private static final Logger LOGGER = LoggerFactory.getLogger(FlinkKafkaProducerCustom.class.getName());
     private ErrorReporter errorReporter;
     private FlinkKafkaProducer<Row> flinkKafkaProducer;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     /**
      * Instantiates a new Flink kafka producer custom.
      *
      * @param flinkKafkaProducer the flink kafka producer
-     * @param userConfiguration  the configuration
+     * @param configuration  the configuration
      */
-    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, UserConfiguration userConfiguration) {
+    public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
         this.flinkKafkaProducer = flinkKafkaProducer;
-        this.userConfiguration = userConfiguration;
+        this.configuration = configuration;
     }
 
     @Override
-    public void open(Configuration configuration) throws Exception {
-        flinkKafkaProducer.open(configuration);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        flinkKafkaProducer.open(internalFlinkConfig);
     }
 
     @Override
@@ -110,6 +106,6 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
      * @return the error reporter
      */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-        return ErrorReporterFactory.getErrorReporter(runtimeContext, userConfiguration);
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
     }
 }

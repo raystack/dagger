@@ -11,7 +11,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class SQLTransformerTest {
     private SingleOutputStreamOperator watermarkedStream;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -195,7 +195,7 @@ public class SQLTransformerTest {
     class SQLTransformerStub extends SQLTransformer {
 
         SQLTransformerStub(Map<String, String> transformationArguments, String[] columnNames) {
-            super(transformationArguments, columnNames, userConfiguration);
+            super(transformationArguments, columnNames, configuration);
         }
 
         @Override

@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.transformers;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.core.exception.TransformClassNotDefinedException;
@@ -37,15 +37,15 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     protected final String tableName;
     private final Map<String, List<String>> metrics = new HashMap<>();
     protected final TelemetryTypes type;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     /**
      * Instantiates a new Transform processor.
      *
-     * @param userConfiguration the configuration
+     * @param configuration the configuration
      */
-    public TransformProcessor(List<TransformConfig> transformConfigs, UserConfiguration userConfiguration) {
-        this("NULL", TelemetryTypes.POST_PROCESSOR_TYPE, transformConfigs, userConfiguration);
+    public TransformProcessor(List<TransformConfig> transformConfigs, Configuration configuration) {
+        this("NULL", TelemetryTypes.POST_PROCESSOR_TYPE, transformConfigs, configuration);
     }
 
     /**
@@ -53,13 +53,13 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
      *
      * @param tableName         the table name
      * @param type              the type
-     * @param userConfiguration the userConfiguration
+     * @param configuration the userConfiguration
      */
-    public TransformProcessor(String tableName, TelemetryTypes type, List<TransformConfig> transformConfigs, UserConfiguration userConfiguration) {
+    public TransformProcessor(String tableName, TelemetryTypes type, List<TransformConfig> transformConfigs, Configuration configuration) {
         this.transformConfigs = transformConfigs == null ? new ArrayList<>() : transformConfigs;
         this.tableName = tableName;
         this.type = type;
-        this.userConfiguration = userConfiguration;
+        this.configuration = configuration;
         TransformerUtils.populateDefaultArguments(this);
     }
 
@@ -125,7 +125,7 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
      */
     protected Transformer getTransformMethod(TransformConfig transformConfig, String className, String[] columnNames) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> transformerClass = Class.forName(className);
-        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, UserConfiguration.class);
-        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, userConfiguration);
+        Constructor transformerClassConstructor = transformerClass.getConstructor(Map.class, String[].class, Configuration.class);
+        return (Transformer) transformerClassConstructor.newInstance(transformConfig.getTransformationArguments(), columnNames, configuration);
     }
 }

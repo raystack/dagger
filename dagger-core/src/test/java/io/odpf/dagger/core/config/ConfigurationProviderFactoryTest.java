@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
-public class UserConfigurationProviderFactoryTest {
+public class ConfigurationProviderFactoryTest {
 
 
     @Rule
@@ -30,7 +30,7 @@ public class UserConfigurationProviderFactoryTest {
 
         UserConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("envValue", provider.getUserConf().getParam().get("key", ""));
+        assertEquals("envValue", provider.getUserConf().getString("key", ""));
         assertThat(provider, instanceOf(EnvironmentConfigurationProvider.class));
 
     }
@@ -41,7 +41,7 @@ public class UserConfigurationProviderFactoryTest {
         UserConfigurationProviderFactory providerFactory = new UserConfigurationProviderFactory(new String[]{"--key", "isargValue"});
         UserConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("isargValue", provider.getUserConf().getParam().get("key", ""));
+        assertEquals("isargValue", provider.getUserConf().getString("key", ""));
         assertThat(provider, instanceOf(CommandlineConfigurationProvider.class));
     }
 

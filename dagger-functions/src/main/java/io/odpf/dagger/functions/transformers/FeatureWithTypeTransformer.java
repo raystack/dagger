@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.functions.transformers.feature.FeatureWithTypeHandler;
@@ -26,9 +26,9 @@ public class FeatureWithTypeTransformer implements MapFunction<Row, Row>, Transf
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param userConfiguration       the configuration
+     * @param configuration       the configuration
      */
-    public FeatureWithTypeTransformer(Map<String, Object> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
+    public FeatureWithTypeTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.featureWithTypeHandler = new FeatureWithTypeHandler(transformationArguments, columnNames);
     }
 

@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.config.system;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.config.FileConfigurationProvider;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import org.junit.Test;
@@ -14,8 +14,8 @@ public class FileConfigurationProvideTest {
     public void readFromAConfigurationFile() {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
-        UserConfiguration userConf = new FileConfigurationProvider().getUserConf();
-        assertEquals("1", userConf.getParam().get("FLINK_PARALLELISM", "1"));
+        Configuration userConf = new FileConfigurationProvider().getUserConf();
+        assertEquals("1", userConf.getString("FLINK_PARALLELISM", "1"));
     }
 
     @Test

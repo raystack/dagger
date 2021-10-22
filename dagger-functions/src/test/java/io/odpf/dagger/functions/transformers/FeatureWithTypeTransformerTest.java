@@ -1,12 +1,10 @@
 package io.odpf.dagger.functions.transformers;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
-import io.odpf.dagger.common.core.StreamInfo;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +25,10 @@ public class FeatureWithTypeTransformerTest {
     private DataStream<Row> dataStream;
 
     @Mock
-    private Configuration configuration;
+    private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -53,7 +51,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "test_order_number");
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transfromationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transfromationArguments, columnNames, configuration);
         Row outputRow = featureWithTypeTransformer.map(inputRow);
         Assert.assertEquals(3, outputRow.getArity());
         Assert.assertEquals(inputRow.getField(0), outputRow.getField(0));
@@ -80,7 +78,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "1.4");
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         Row outputRow = featureWithTypeTransformer.map(inputRow);
         Assert.assertEquals(3, outputRow.getArity());
         Assert.assertEquals(inputRow.getField(0), outputRow.getField(0));
@@ -108,7 +106,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "value".getBytes());
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         featureWithTypeTransformer.map(inputRow);
     }
 
@@ -128,7 +126,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "value".getBytes());
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         featureWithTypeTransformer.map(inputRow);
     }
 
@@ -148,7 +146,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "value".getBytes());
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         featureWithTypeTransformer.map(inputRow);
     }
 
@@ -168,7 +166,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "value".getBytes());
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         featureWithTypeTransformer.map(inputRow);
     }
 
@@ -188,7 +186,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "1.4");
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         featureWithTypeTransformer.transform(inputStreamInfo);
         verify(dataStream, times(1)).map(any(FeatureWithTypeTransformer.class));
@@ -210,7 +208,7 @@ public class FeatureWithTypeTransformerTest {
         inputRow.setField(0, "test_customer_id");
         inputRow.setField(1, "1.4");
         inputRow.setField(2, "test_features");
-        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureWithTypeTransformer featureWithTypeTransformer = new FeatureWithTypeTransformer(transformationArguments, columnNames, configuration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         StreamInfo outputStreamInfo = featureWithTypeTransformer.transform(inputStreamInfo);
         Assert.assertArrayEquals(columnNames, outputStreamInfo.getColumnNames());

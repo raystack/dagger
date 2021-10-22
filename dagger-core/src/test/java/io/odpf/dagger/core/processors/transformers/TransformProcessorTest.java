@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
@@ -50,7 +50,7 @@ public class TransformProcessorTest {
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -66,7 +66,7 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("wrongClassName", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, userConfiguration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
         assertEquals("wrongClassName", exception.getMessage());
     }
@@ -80,9 +80,9 @@ public class TransformProcessorTest {
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("io.odpf.dagger.core.processors.transformers.TransformProcessor", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, userConfiguration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
-        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.UserConfiguration)", exception.getMessage());
+        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.Configuration)", exception.getMessage());
     }
 
     @Test
@@ -169,7 +169,7 @@ public class TransformProcessorTest {
             put("keyField", "keystore");
         }}));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, userConfiguration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
         verify(mappedDataStream, times(1)).map(any());
     }
@@ -191,7 +191,7 @@ public class TransformProcessorTest {
             put("keyField", "keystore");
         }}));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, userConfiguration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         transformProcessor.process(streamInfo);
 
         verify(mappedDataStream, times(2)).map(any());
@@ -202,7 +202,7 @@ public class TransformProcessorTest {
         TransformConfig config = new TransformConfig("io.odpf.TestProcessor", new HashMap<String, Object>() {{
             put("test-key", "test-value");
         }});
-        TransformProcessor processor = new TransformProcessor("test_table", PRE_PROCESSOR_TYPE, Collections.singletonList(config), userConfiguration);
+        TransformProcessor processor = new TransformProcessor("test_table", PRE_PROCESSOR_TYPE, Collections.singletonList(config), configuration);
         assertEquals("test_table", processor.tableName);
         assertEquals(PRE_PROCESSOR_TYPE, processor.type);
         assertEquals(1, processor.transformConfigs.size());
@@ -223,12 +223,12 @@ public class TransformProcessorTest {
         private Transformer mockMapFunction;
 
         private TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
-            super(transformConfigs, userConfiguration);
+            super(transformConfigs, configuration);
             this.mockMapFunction = mockMapFunction;
         }
 
         private TransformProcessorMock(String table, TelemetryTypes type, Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
-            super(table, type, transformConfigs, userConfiguration);
+            super(table, type, transformConfigs, configuration);
             this.mockMapFunction = mockMapFunction;
         }
 

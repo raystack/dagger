@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.longbow;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.longbow.processor.LongbowReader;
@@ -42,12 +42,12 @@ public class LongbowFactoryTest {
     @Mock
     private DataStream dataStream;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameter);
+        this.configuration = new Configuration(parameter);
         when(streamInfo.getDataStream()).thenReturn(dataStream);
     }
 
@@ -57,7 +57,7 @@ public class LongbowFactoryTest {
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
         when(parameter.get(INPUT_STREAMS, "")).thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"InputProtoMessage\"}]");
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
-        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, userConfiguration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
+        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
         verify(asyncProcessor, times(1)).orderedWait(eq(dataStream), any(LongbowWriter.class), anyLong(), any(TimeUnit.class), anyInt());
@@ -76,7 +76,7 @@ public class LongbowFactoryTest {
         String[] inputColumnNames = new String[]{"longbow_read_key", "rowtime", "longbow_duration", "event_timestamp"};
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
-        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, userConfiguration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
+        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
         verify(asyncProcessor, times(1)).orderedWait(eq(dataStream), any(LongbowReader.class), anyLong(), any(TimeUnit.class), anyInt());
@@ -89,7 +89,7 @@ public class LongbowFactoryTest {
         String[] inputColumnNames = new String[]{"longbow_key", "longbow_data", "rowtime", "event_timestamp", "longbow_duration"};
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
-        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, userConfiguration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
+        LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();
         StreamInfo outputStream = longbowProcessor.process(streamInfo);
         verify(asyncProcessor, times(1)).orderedWait(any(), any(LongbowReader.class), anyLong(), any(TimeUnit.class), anyInt());

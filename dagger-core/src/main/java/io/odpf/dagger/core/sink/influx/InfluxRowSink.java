@@ -1,17 +1,15 @@
 package io.odpf.dagger.core.sink.influx;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
 
+import com.google.common.base.Strings;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
-import com.google.common.base.Strings;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
 import org.slf4j.Logger;
@@ -34,7 +32,7 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
     private InfluxDB influxDB;
     private InfluxDBFactoryWrapper influxDBFactory;
     private String[] columnNames;
-    private UserConfiguration userConfigurations;
+    private Configuration configurations;
     private String databaseName;
     private String retentionPolicy;
     private String measurementName;
@@ -46,17 +44,17 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
      *
      * @param influxDBFactory   the influx db factory
      * @param columnNames       the column names
-     * @param userConfiguration the userConfiguration
+     * @param configuration the userConfiguration
      * @param errorHandler      the error handler
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, UserConfiguration userConfiguration, ErrorHandler errorHandler) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration configuration, ErrorHandler errorHandler) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.userConfigurations = userConfiguration;
+        this.configurations = configuration;
         this.errorHandler = errorHandler;
-        databaseName = userConfiguration.getParam().get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = userConfiguration.getParam().get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = userConfiguration.getParam().get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = configuration.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = configuration.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = configuration.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     /**
@@ -64,35 +62,35 @@ public class InfluxRowSink extends RichSinkFunction<Row> implements Checkpointed
      *
      * @param influxDBFactory   the influx db factory
      * @param columnNames       the column names
-     * @param userConfiguration the userConfigurations
+     * @param configuration the userConfigurations
      * @param errorHandler      the error handler
      * @param errorReporter     the error reporter
      */
-    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, UserConfiguration userConfiguration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
+    public InfluxRowSink(InfluxDBFactoryWrapper influxDBFactory, String[] columnNames, Configuration configuration, ErrorHandler errorHandler, ErrorReporter errorReporter) {
         this.influxDBFactory = influxDBFactory;
         this.columnNames = columnNames;
-        this.userConfigurations = userConfiguration;
+        this.configurations = configuration;
         this.errorHandler = errorHandler;
         this.errorReporter = errorReporter;
-        databaseName = userConfiguration.getParam().get(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
-        retentionPolicy = userConfiguration.getParam().get(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
-        measurementName = userConfiguration.getParam().get(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
+        databaseName = configuration.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT);
+        retentionPolicy = configuration.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT);
+        measurementName = configuration.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT);
     }
 
     @Override
-    public void open(Configuration unusedDeprecatedParameters) throws Exception {
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
         errorHandler.init(getRuntimeContext());
-        influxDB = influxDBFactory.connect(userConfigurations.getParam().get(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
-                userConfigurations.getParam().get(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
-                userConfigurations.getParam().get(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
+        influxDB = influxDBFactory.connect(configurations.getString(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT),
+                configurations.getString(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT),
+                configurations.getString(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)
         );
 
-        influxDB.enableBatch(userConfigurations.getParam().getInt(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
-                userConfigurations.getParam().getInt(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
+        influxDB.enableBatch(configurations.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT),
+                configurations.getInteger(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT),
                 TimeUnit.MILLISECONDS, Executors.defaultThreadFactory(), errorHandler.getExceptionHandler()
         );
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), userConfigurations);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configurations);
         }
     }
 
