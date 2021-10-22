@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.config.UserConfigurationProvider;
 import io.odpf.dagger.core.config.UserConfigurationProviderFactory;
 
@@ -25,7 +25,7 @@ public class KafkaProtoSQLProcessor {
     public static void main(String[] args) throws ProgramInvocationException {
         try {
             UserConfigurationProvider provider = new UserConfigurationProviderFactory(args).provider();
-            UserConfiguration userConf = provider.getUserConf();
+            Configuration userConf = provider.getUserConf();
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
             EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().inStreamingMode().build();

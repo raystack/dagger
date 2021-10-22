@@ -6,7 +6,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     /**
      * Instantiates a new Flink kafka consumer custom.
@@ -27,12 +27,12 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
      * @param subscriptionPattern the subscription pattern
      * @param deserializer        the deserializer
      * @param props               the props
-     * @param userConfiguration   the configuration
+     * @param configuration   the configuration
      */
     public FlinkKafkaConsumerCustom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
-                                    Properties props, UserConfiguration userConfiguration) {
+                                    Properties props, Configuration configuration) {
         super(subscriptionPattern, deserializer, props);
-        this.userConfiguration = userConfiguration;
+        this.configuration = configuration;
     }
 
     @Override
@@ -65,6 +65,6 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
      * @return the error reporter
      */
     protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-        return ErrorReporterFactory.getErrorReporter(runtimeContext, userConfiguration);
+        return ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
     }
 }

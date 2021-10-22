@@ -4,7 +4,7 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
@@ -45,13 +45,13 @@ public class LongbowStore {
     /**
      * Create longbow store.
      *
-     * @param userConfiguration the configuration
+     * @param configuration the configuration
      * @return the longbow store
      * @throws IOException the io exception
      */
-    public static LongbowStore create(UserConfiguration userConfiguration) throws IOException {
-        String gcpProjectID = userConfiguration.getParam().get(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
-        String gcpInstanceID = userConfiguration.getParam().get(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
+    public static LongbowStore create(Configuration configuration) throws IOException {
+        String gcpProjectID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT);
+        String gcpInstanceID = configuration.getString(Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT);
         BigtableTableAdminClient bigtableTableAdminClient = BigtableTableAdminClient.create(gcpProjectID, gcpInstanceID);
         org.apache.hadoop.conf.Configuration bigTableConfiguration = BigtableConfiguration.configure(gcpProjectID, gcpInstanceID);
         BigtableAsyncConnection bigtableAsyncConnection = new BigtableAsyncConnection(bigTableConfiguration);

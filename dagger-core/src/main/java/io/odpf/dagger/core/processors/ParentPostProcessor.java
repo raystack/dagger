@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
-    private UserConfiguration userConfig;
+    private Configuration userConfig;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
 
@@ -34,13 +34,13 @@ public class ParentPostProcessor implements PostProcessor {
      * Instantiates a new Parent post processor.
      *
      * @param postProcessorConfig       the post processor config
-     * @param userConfiguration         the configuration
+     * @param configuration         the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param telemetrySubscriber       the telemetry subscriber
      */
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, UserConfiguration userConfiguration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
+    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
-        this.userConfig = userConfiguration;
+        this.userConfig = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
     }
@@ -80,7 +80,7 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!userConfig.getParam().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+        if (!userConfig.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
             return new ArrayList<>();
         }
 
@@ -94,7 +94,7 @@ public class ParentPostProcessor implements PostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private ExternalMetricConfig getExternalMetricConfig(UserConfiguration userConfiguration, TelemetrySubscriber subscriber) {
-        return new ExternalMetricConfig(userConfiguration, subscriber);
+    private ExternalMetricConfig getExternalMetricConfig(Configuration configuration, TelemetrySubscriber subscriber) {
+        return new ExternalMetricConfig(configuration, subscriber);
     }
 }

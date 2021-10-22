@@ -1,7 +1,6 @@
-package io.odpf.dagger.integrationtest;
+ package io.odpf.dagger.integrationtest;
 
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -9,7 +8,7 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -53,10 +52,10 @@ public class EsExternalPostProcessorIntegrationTest {
                             .build());
     private StencilClientOrchestrator stencilClientOrchestrator;
     private final MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
-    private final Configuration configuration = new Configuration();
+    private static org.apache.flink.configuration.Configuration configuration = new org.apache.flink.configuration.Configuration();
     private RestClient esClient;
     private String host;
-    private UserConfiguration userConfiguration;
+    private io.odpf.dagger.common.configuration.Configuration daggerConfiguration;
 
     @Before
     public void setUp() {
@@ -65,7 +64,7 @@ public class EsExternalPostProcessorIntegrationTest {
         configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
         configurationMap.put(INPUT_STREAMS, streams);
         ParameterTool parameterTool = ParameterTool.fromMap(configurationMap);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.daggerConfiguration = new Configuration(parameterTool);
         host = System.getenv("ES_HOST");
         if (StringUtils.isEmpty(host)) {
             host = "localhost";
@@ -143,7 +142,7 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "}";
 
         configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -205,7 +204,7 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "}";
 
         configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -279,7 +278,7 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "}";
 
         configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -316,7 +315,7 @@ public class EsExternalPostProcessorIntegrationTest {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(userConfiguration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerConfiguration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

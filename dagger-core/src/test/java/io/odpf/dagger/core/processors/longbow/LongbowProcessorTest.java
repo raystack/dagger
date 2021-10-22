@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class LongbowProcessorTest {
     private ColumnModifier columnModifier;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Mock
     private ParameterTool param;
@@ -50,14 +50,14 @@ public class LongbowProcessorTest {
 
     @Test
     public void shouldChainRichAsyncFunctions() {
-        when(userConfiguration.getParam()).thenReturn(param);
+        when(configuration.getParam()).thenReturn(param);
         String[] columnNames = {"rowtime", "longbow_key", "event_timestamp"};
         RichAsyncFunction asyncFunction1 = mock(RichAsyncFunction.class);
         RichAsyncFunction asyncFunction2 = mock(RichAsyncFunction.class);
         ArrayList<RichAsyncFunction<Row, Row>> richAsyncFunctions = new ArrayList<>();
         richAsyncFunctions.add(asyncFunction1);
         richAsyncFunctions.add(asyncFunction2);
-        LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, userConfiguration, richAsyncFunctions, columnModifier);
+        LongbowProcessor longbowProcessor = new LongbowProcessor(asyncProcessor, configuration, richAsyncFunctions, columnModifier);
         longbowProcessor.process(new StreamInfo(dataStream, columnNames));
         ArgumentCaptor<RichAsyncFunction> functionCaptor = ArgumentCaptor.forClass(RichAsyncFunction.class);
         verify(asyncProcessor, times(2))

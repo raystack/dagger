@@ -1,17 +1,14 @@
 package io.odpf.dagger.core.processors.common;
 
+import org.apache.flink.api.common.functions.RichFilterFunction;
+import org.apache.flink.types.Row;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 import io.odpf.dagger.core.processors.types.FilterDecorator;
-import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.api.common.functions.RichFilterFunction;
-
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.types.Row;
 
 import java.util.Arrays;
 
@@ -22,7 +19,7 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
 
     private final String tableName;
     private final int validationIndex;
-    private final UserConfiguration userConfiguration;
+    private final Configuration configuration;
     /**
      * The Error reporter.
      */
@@ -33,17 +30,17 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
      *
      * @param tableName         the table name
      * @param columns           the columns
-     * @param userConfiguration
+     * @param config
      */
-    public ValidRecordsDecorator(String tableName, String[] columns, UserConfiguration userConfiguration) {
+    public ValidRecordsDecorator(String tableName, String[] columns, Configuration config) {
         this.tableName = tableName;
         validationIndex = Arrays.asList(columns).indexOf(Constants.INTERNAL_VALIDATION_FILED_KEY);
-        this.userConfiguration = userConfiguration;
+        this.configuration = config;
     }
 
     @Override
-    public void open(Configuration configuration) throws Exception {
-        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), userConfiguration);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), this.configuration);
     }
 
     @Override

@@ -5,7 +5,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import com.gojek.de.stencil.client.ClassLoadStencilClient;
 import com.gojek.de.stencil.client.MultiURLStencilClient;
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,12 +27,12 @@ public class StencilClientOrchestratorTest {
     private ParameterTool parameterTool;
 
     private StencilClient stencilClient;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.configuration = new Configuration(parameterTool);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class StencilClientOrchestratorTest {
         when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
         assertEquals(ClassLoadStencilClient.class, stencilClient.getClass());
@@ -58,7 +58,7 @@ public class StencilClientOrchestratorTest {
                 + "http://localhost/events/latest,"
                 + "http://localhost/entities/release");
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         stencilClient = stencilClientOrchestrator.getStencilClient();
 
         assertEquals(MultiURLStencilClient.class, stencilClient.getClass());
@@ -73,7 +73,7 @@ public class StencilClientOrchestratorTest {
         when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(true);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn("http://localhost/latest,");
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
 
 
@@ -100,7 +100,7 @@ public class StencilClientOrchestratorTest {
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn("true");
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn("http://localhost/latest,");
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         StencilClient oldStencilClient = stencilClientOrchestrator.getStencilClient();
 
 
@@ -126,7 +126,7 @@ public class StencilClientOrchestratorTest {
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         List<String> enrichmentStencilURLs = Collections
                 .singletonList("http://localhost/latest");

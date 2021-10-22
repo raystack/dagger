@@ -3,7 +3,7 @@ package io.odpf.dagger.functions.transformers;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class FeatureTransformerTest {
     private DataStream<Row> dataStream;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     public FeatureTransformerTest() {
     }
@@ -43,7 +43,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2f);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         Row outputRow = featureTransformer.map(inputRow);
         Assert.assertEquals(3, outputRow.getArity());
         Assert.assertEquals(inputRow.getField(0), outputRow.getField(0));
@@ -64,7 +64,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         Row outputRow = featureTransformer.map(inputRow);
         Assert.assertEquals(3, outputRow.getArity());
         Assert.assertEquals(inputRow.getField(0), outputRow.getField(0));
@@ -84,7 +84,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, "value".getBytes());
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         featureTransformer.map(inputRow);
     }
 
@@ -98,7 +98,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2f);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         featureTransformer.map(inputRow);
     }
 
@@ -112,7 +112,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2f);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         featureTransformer.map(inputRow);
     }
 
@@ -126,7 +126,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         featureTransformer.transform(inputStreamInfo);
         verify(dataStream, times(1)).map(any(FeatureTransformer.class));
@@ -142,7 +142,7 @@ public class FeatureTransformerTest {
         inputRow.setField(0, "test");
         inputRow.setField(1, 1L);
         inputRow.setField(2, 2);
-        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, userConfiguration);
+        FeatureTransformer featureTransformer = new FeatureTransformer(transformationArguments, columnNames, configuration);
         StreamInfo inputStreamInfo = new StreamInfo(dataStream, columnNames);
         StreamInfo outputStreamInfo = featureTransformer.transform(inputStreamInfo);
         Assert.assertArrayEquals(columnNames, outputStreamInfo.getColumnNames());

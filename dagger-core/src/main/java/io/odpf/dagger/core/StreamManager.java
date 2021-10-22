@@ -9,7 +9,7 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
@@ -39,7 +39,7 @@ import static org.apache.flink.table.api.Expressions.$;
 public class StreamManager {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private final UserConfiguration userConf;
+    private final Configuration userConf;
     private final StreamExecutionEnvironment executionEnvironment;
     private StreamTableEnvironment tableEnvironment;
     private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
@@ -51,7 +51,7 @@ public class StreamManager {
      * @param executionEnvironment the execution environment
      * @param tableEnvironment     the table environment
      */
-    public StreamManager(UserConfiguration userConf, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
+    public StreamManager(Configuration userConf, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
         this.userConf = userConf;
         this.executionEnvironment = executionEnvironment;
         this.tableEnvironment = tableEnvironment;
@@ -64,18 +64,18 @@ public class StreamManager {
      */
     public StreamManager registerConfigs() {
         stencilClientOrchestrator = new StencilClientOrchestrator(userConf);
-        executionEnvironment.setMaxParallelism(userConf.getParam().getInt(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
-        executionEnvironment.setParallelism(userConf.getParam().getInt(FLINK_PARALLELISM_KEY, FLINK_PARALLELISM_DEFAULT));
-        executionEnvironment.getConfig().setAutoWatermarkInterval(userConf.getParam().getInt(FLINK_WATERMARK_INTERVAL_MS_KEY, FLINK_WATERMARK_INTERVAL_MS_DEFAULT));
+        executionEnvironment.setMaxParallelism(userConf.getInteger(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
+        executionEnvironment.setParallelism(userConf.getInteger(FLINK_PARALLELISM_KEY, FLINK_PARALLELISM_DEFAULT));
+        executionEnvironment.getConfig().setAutoWatermarkInterval(userConf.getInteger(FLINK_WATERMARK_INTERVAL_MS_KEY, FLINK_WATERMARK_INTERVAL_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setTolerableCheckpointFailureNumber(Integer.MAX_VALUE);
-        executionEnvironment.enableCheckpointing(userConf.getParam().getLong(FLINK_CHECKPOINT_INTERVAL_MS_KEY, FLINK_CHECKPOINT_INTERVAL_MS_DEFAULT));
+        executionEnvironment.enableCheckpointing(userConf.getLong(FLINK_CHECKPOINT_INTERVAL_MS_KEY, FLINK_CHECKPOINT_INTERVAL_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(userConf.getParam().getLong(FLINK_CHECKPOINT_TIMEOUT_MS_KEY, FLINK_CHECKPOINT_TIMEOUT_MS_DEFAULT));
-        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(userConf.getParam().getLong(FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY, FLINK_CHECKPOINT_MIN_PAUSE_MS_DEFAULT));
-        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(userConf.getParam().getInt(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setCheckpointTimeout(userConf.getLong(FLINK_CHECKPOINT_TIMEOUT_MS_KEY, FLINK_CHECKPOINT_TIMEOUT_MS_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(userConf.getLong(FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY, FLINK_CHECKPOINT_MIN_PAUSE_MS_DEFAULT));
+        executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(userConf.getInteger(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(userConf.getParam());
 
-        tableEnvironment.getConfig().setIdleStateRetention(Duration.ofHours(userConf.getParam().getInt(FLINK_RETENTION_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT)));
+        tableEnvironment.getConfig().setIdleStateRetention(Duration.ofHours(userConf.getInteger(FLINK_RETENTION_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT)));
         return this;
     }
 
@@ -86,7 +86,7 @@ public class StreamManager {
      * @return the stream manager
      */
     public StreamManager registerSourceWithPreProcessors() {
-        long watermarkDelay = userConf.getParam().getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
+        long watermarkDelay = userConf.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Streams kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(userConf);
@@ -109,7 +109,7 @@ public class StreamManager {
     }
 
     private ApiExpression[] getApiExpressions(StreamInfo streamInfo) {
-        String rowTimeAttributeName = userConf.getParam().get(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
+        String rowTimeAttributeName = userConf.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
         String[] columnNames = streamInfo.getColumnNames();
         ApiExpression[] expressions = new ApiExpression[columnNames.length];
         if (columnNames.length == 0) {
@@ -148,7 +148,7 @@ public class StreamManager {
     private UdfFactory getUdfFactory(String udfFactoryClassName) throws ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> udfFactoryClass = Class.forName(udfFactoryClassName);
-        Constructor<?> udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class, UserConfiguration.class);
+        Constructor<?> udfFactoryClassConstructor = udfFactoryClass.getConstructor(StreamTableEnvironment.class, Configuration.class);
         return (UdfFactory) udfFactoryClassConstructor.newInstance(tableEnvironment, userConf);
     }
 
@@ -158,7 +158,7 @@ public class StreamManager {
      * @return the stream manager
      */
     public StreamManager registerOutputStream() {
-        Table table = tableEnvironment.sqlQuery(userConf.getParam().get(Constants.FLINK_SQL_QUERY_KEY, Constants.FLINK_SQL_QUERY_DEFAULT));
+        Table table = tableEnvironment.sqlQuery(userConf.getString(Constants.FLINK_SQL_QUERY_KEY, Constants.FLINK_SQL_QUERY_DEFAULT));
         StreamInfo streamInfo = createStreamInfo(table);
         streamInfo = addPostProcessor(streamInfo);
         addSink(streamInfo);
@@ -171,7 +171,7 @@ public class StreamManager {
      * @throws Exception the exception
      */
     public void execute() throws Exception {
-        executionEnvironment.execute(userConf.getParam().get(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT));
+        executionEnvironment.execute(userConf.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT));
     }
 
     /**
@@ -213,9 +213,9 @@ public class StreamManager {
     }
 
     private Streams getKafkaStreams() {
-        String rowTimeAttributeName = userConf.getParam().get(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        Boolean enablePerPartitionWatermark = userConf.getParam().getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
-        Long watermarkDelay = userConf.getParam().getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
+        String rowTimeAttributeName = userConf.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
+        Boolean enablePerPartitionWatermark = userConf.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
+        Long watermarkDelay = userConf.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         return new Streams(userConf, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
     }
 }

@@ -3,7 +3,7 @@ package io.odpf.dagger.functions.udfs.factories;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import com.google.gson.Gson;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.common.udfs.ScalarUdf;
@@ -69,11 +69,11 @@ public class FunctionFactory extends UdfFactory {
      * Instantiates a new Function factory.
      *
      * @param streamTableEnvironment the stream table environment
-     * @param userConfiguration          the configuration
+     * @param configuration          the configuration
      */
-    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, UserConfiguration userConfiguration) {
-        super(streamTableEnvironment, userConfiguration);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+    public FunctionFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
+        super(streamTableEnvironment, configuration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
     @Override
@@ -128,16 +128,16 @@ public class FunctionFactory extends UdfFactory {
     }
 
     private String getGcsProjectId() {
-        return getConfiguration().getParam().get(UDF_DART_GCS_PROJECT_ID_KEY, UDF_DART_GCS_PROJECT_ID_DEFAULT);
+        return getConfiguration().getString(UDF_DART_GCS_PROJECT_ID_KEY, UDF_DART_GCS_PROJECT_ID_DEFAULT);
     }
 
     private String getGcsBucketId() {
-        return getConfiguration().getParam().get(UDF_DART_GCS_BUCKET_ID_KEY, UDF_DART_GCS_BUCKET_ID_DEFAULT);
+        return getConfiguration().getString(UDF_DART_GCS_BUCKET_ID_KEY, UDF_DART_GCS_BUCKET_ID_DEFAULT);
     }
 
     private LinkedHashMap<String, String> getProtosInInputStreams() {
         LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
-        String jsonArrayString = getConfiguration().getParam().get(INPUT_STREAMS, "");
+        String jsonArrayString = getConfiguration().getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");

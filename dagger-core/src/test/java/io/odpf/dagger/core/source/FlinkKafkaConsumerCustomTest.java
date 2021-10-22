@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 import io.odpf.dagger.core.metrics.reporters.NoOpErrorReporter;
@@ -52,15 +52,15 @@ public class FlinkKafkaConsumerCustomTest {
     @Mock
     private NoOpErrorReporter noOpErrorReporter;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     private FlinkKafkaConsumerCustomStub flinkKafkaConsumer011Custom;
 
     @Before
     public void setup() {
         initMocks(this);
-        flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, userConfiguration, new RuntimeException("test exception"));
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new RuntimeException("test exception"));
+        this.configuration = new Configuration(parameterTool);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class FlinkKafkaConsumerCustomTest {
     public void shouldNotReportIfChainedOperatorException() {
         when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         Throwable throwable = new Throwable();
-        flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, userConfiguration, new ExceptionInChainedOperatorException("chaining exception", throwable));
+        flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new ExceptionInChainedOperatorException("chaining exception", throwable));
         Exception exception = Assert.assertThrows(Exception.class,
                 () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
         assertEquals("chaining exception", exception.getMessage());
@@ -98,8 +98,8 @@ public class FlinkKafkaConsumerCustomTest {
     public void shouldReturnErrorStatsReporter() {
         when(parameterTool.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
         when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
-        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, userConfiguration);
-        FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = new FlinkKafkaConsumerCustom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, userConfiguration);
+        ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
+        FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = new FlinkKafkaConsumerCustom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
         assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumerCustom.getErrorReporter(defaultRuntimeContext).getClass());
     }
 
@@ -107,8 +107,8 @@ public class FlinkKafkaConsumerCustomTest {
         private Exception exception;
 
         public FlinkKafkaConsumerCustomStub(Pattern subscriptionPattern, KafkaDeserializationSchema deserializer,
-                                            Properties props, UserConfiguration parameterTool, Exception exception) {
-            super(subscriptionPattern, deserializer, props, userConfiguration);
+                                            Properties props, Configuration parameterTool, Exception exception) {
+            super(subscriptionPattern, deserializer, props, configuration);
             this.exception = exception;
         }
 

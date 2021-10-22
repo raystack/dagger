@@ -3,7 +3,7 @@ package io.odpf.dagger.core.config;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 import com.google.gson.Gson;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 
 import java.util.Base64;
 
@@ -25,12 +25,12 @@ public class CommandlineConfigurationProvider implements UserConfigurationProvid
         this.args = args;
     }
 
-    private UserConfiguration constructParamTool() {
+    private Configuration constructParamTool() {
         String[] finalArgs = args;
         if (isEncodedArgsPresent()) {
             finalArgs = parseEncodedProgramArgs();
         }
-        return new UserConfiguration(ParameterTool.fromArgs(finalArgs));
+        return new Configuration(ParameterTool.fromArgs(finalArgs));
     }
 
     private boolean isEncodedArgsPresent() {
@@ -46,7 +46,7 @@ public class CommandlineConfigurationProvider implements UserConfigurationProvid
     }
 
     @Override
-    public UserConfiguration getUserConf() {
+    public Configuration getUserConf() {
         System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
         ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(System.out::println);
         return constructParamTool();

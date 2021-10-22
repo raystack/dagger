@@ -2,7 +2,7 @@ package io.odpf.dagger.core.metrics.reporters;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.utils.Constants;
 
 /**
@@ -14,12 +14,12 @@ public class ErrorReporterFactory {
      * Gets error reporter.
      *
      * @param runtimeContext    the runtime context
-     * @param userConfiguration the configuration
+     * @param configuration the configuration
      * @return the error reporter
      */
-    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, UserConfiguration userConfiguration) {
-        long shutDownPeriod = userConfiguration.getParam().getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        boolean telemetryEnabled = userConfiguration.getParam().getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, Configuration configuration) {
+        long shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        boolean telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
         return getErrorReporter(runtimeContext, telemetryEnabled, shutDownPeriod);
     }
 

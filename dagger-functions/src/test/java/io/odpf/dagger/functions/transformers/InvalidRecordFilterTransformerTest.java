@@ -1,14 +1,13 @@
 package io.odpf.dagger.functions.transformers;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,10 +36,10 @@ public class InvalidRecordFilterTransformerTest {
     private Counter counter;
 
     @Mock
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Mock
-    private Configuration configuration;
+    private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
     @Before
     public void setUp() {
@@ -86,7 +85,7 @@ public class InvalidRecordFilterTransformerTest {
     public void shouldFilterBadRecords() throws Exception {
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), userConfiguration);
+        }}, getColumns(), configuration);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);
@@ -94,7 +93,7 @@ public class InvalidRecordFilterTransformerTest {
         StubCounter ct = new StubCounter();
         doAnswer(ct).when(counter).inc();
         Row invalidRow = createDefaultInvalidRow(DynamicMessage.getDefaultInstance(TestBookingLogMessage.getDescriptor()));
-        filter.open(configuration);
+        filter.open(flinkInternalConfig);
         Assert.assertFalse(filter.filter(invalidRow));
         Assert.assertEquals(1, ct.ct);
         Assert.assertFalse(filter.filter(invalidRow));
@@ -105,10 +104,10 @@ public class InvalidRecordFilterTransformerTest {
 
     @Test
     public void shouldPassValidRecords() throws Exception {
-        Configuration config = new Configuration();
+        org.apache.flink.configuration.Configuration config = new org.apache.flink.configuration.Configuration();
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), userConfiguration);
+        }}, getColumns(), configuration);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);

@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 import com.jayway.jsonpath.InvalidJsonException;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 import org.junit.Before;
@@ -50,21 +50,21 @@ public class PreProcessorFactoryTest {
             + " ]\n"
             + "}";
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(param);
+        this.configuration = new Configuration(param);
     }
 
     @Test
     public void shouldReturnPreProcessors() {
         when(param.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
         when(param.get(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
-        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(userConfiguration);
+        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         assertNotNull(preProcessorConfig);
-        List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(userConfiguration, preProcessorConfig, "booking", metricsTelemetryExporter);
+        List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(configuration, preProcessorConfig, "booking", metricsTelemetryExporter);
         assertEquals(1, preProcessors.size());
     }
 
@@ -72,7 +72,7 @@ public class PreProcessorFactoryTest {
     public void shouldParseConfig() {
         when(param.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
         when(param.get(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
-        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(userConfiguration);
+        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         assertEquals(2, preProcessorConfig.getTableTransformers().size());
         assertEquals(2, preProcessorConfig.getTableTransformers().get(0).getTransformers().size());
         assertEquals("PreProcessorClass", preProcessorConfig.getTableTransformers().get(0).getTransformers().get(0).getTransformationClass());
@@ -82,7 +82,7 @@ public class PreProcessorFactoryTest {
     public void shouldThrowExceptionForInvalidJson() {
         when(param.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
         when(param.get(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn("blah");
-        InvalidJsonException exception = assertThrows(InvalidJsonException.class, () -> PreProcessorFactory.parseConfig(userConfiguration));
+        InvalidJsonException exception = assertThrows(InvalidJsonException.class, () -> PreProcessorFactory.parseConfig(configuration));
         assertEquals("Invalid JSON Given for PROCESSOR_PREPROCESSOR_CONFIG", exception.getMessage());
     }
 
@@ -90,7 +90,7 @@ public class PreProcessorFactoryTest {
     public void shouldNotParseConfigWhenDisabled() {
         when(param.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
         when(param.get(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorConfigJson);
-        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(userConfiguration);
+        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         assertNull(preProcessorConfig);
     }
 }

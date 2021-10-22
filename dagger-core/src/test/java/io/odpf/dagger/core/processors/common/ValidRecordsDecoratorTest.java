@@ -5,7 +5,7 @@ import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
@@ -35,7 +35,7 @@ public class ValidRecordsDecoratorTest {
     @Mock
     private ParameterTool parameterTool;
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
 
     @Before
@@ -44,8 +44,8 @@ public class ValidRecordsDecoratorTest {
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
         when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        userConfiguration = new UserConfiguration(parameterTool);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(parameterTool);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
     private String[] getColumns() {
@@ -63,7 +63,7 @@ public class ValidRecordsDecoratorTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes());
         Row invalidRow = protoDeserializer.deserialize(consumerRecord);
-        ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns(), userConfiguration);
+        ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns(), configuration);
         filter.errorReporter = this.errorReporter;
         InvalidProtocolBufferException exception = assertThrows(InvalidProtocolBufferException.class, () -> filter.filter(invalidRow));
         assertEquals("Bad Record Encountered for table `test`", exception.getMessage());
@@ -74,7 +74,7 @@ public class ValidRecordsDecoratorTest {
         ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
         Row validRow = protoDeserializer.deserialize(consumerRecord);
-        FilterDecorator filter = new ValidRecordsDecorator("test", getColumns(), userConfiguration);
+        FilterDecorator filter = new ValidRecordsDecorator("test", getColumns(), configuration);
         assertTrue(filter.filter(validRow));
     }
 }

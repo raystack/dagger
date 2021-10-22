@@ -6,7 +6,7 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
@@ -31,16 +31,16 @@ public class ProtoTypeTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(paramTool);
+        this.configuration = new Configuration(paramTool);
         when(paramTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
         when(paramTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         when(paramTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
 

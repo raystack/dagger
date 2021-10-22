@@ -3,7 +3,7 @@ package io.odpf.dagger.functions.udfs.factories;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.common.udfs.TableUdf;
@@ -40,7 +40,7 @@ public class FunctionFactoryTest {
     @Mock
     private ParameterTool parameter;
 
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -57,7 +57,7 @@ public class FunctionFactoryTest {
                 + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-log\"\n"
                 + "        }\n"
                 + "]";
-        userConfiguration = new UserConfiguration(parameter);
+        configuration = new Configuration(parameter);
         when(parameter.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, false)).thenReturn(false);
         when(parameter.get(INPUT_STREAMS, "")).thenReturn(jsonArray);
         when(parameter.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, "")).thenReturn("");
@@ -65,14 +65,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnScalarUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<ScalarUdf> scalarUdfs = functionFactory.getScalarUdfs();
         Assert.assertTrue(scalarUdfs.stream().anyMatch(scalarUdf -> scalarUdf.getClass() == EndOfMonth.class));
     }
 
     @Test
     public void shouldRegisterScalarUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DartContains"), any(DartContains.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DartGet"), any(DartGet.class));
@@ -104,14 +104,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnTableUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<TableUdf> tableUdfs = functionFactory.getTableUdfs();
         Assert.assertTrue(tableUdfs.stream().anyMatch(tableUdf -> tableUdf.getClass() == HistogramBucket.class));
     }
 
     @Test
     public void shouldRegisterTableUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("OutlierMad"), any(OutlierMad.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("HistogramBucket"), any(HistogramBucket.class));
@@ -119,14 +119,14 @@ public class FunctionFactoryTest {
 
     @Test
     public void shouldReturnAggregateUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         HashSet<AggregateUdf> aggregateUdfs = functionFactory.getAggregateUdfs();
         Assert.assertTrue(aggregateUdfs.stream().anyMatch(aggregateUdf -> aggregateUdf.getClass() == DistinctCount.class));
     }
 
     @Test
     public void shouldRegisterAggregateUdfs() {
-        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, userConfiguration);
+        FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("CollectArray"), any(CollectArray.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DistinctCount"), any(DistinctCount.class));

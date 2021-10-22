@@ -9,7 +9,7 @@ import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.apache.flink.types.Row;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -40,7 +40,7 @@ public class HttpExternalPostProcessorIntegrationTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
     private HashMap<String, String> configMap;
 
     @ClassRule
@@ -57,7 +57,7 @@ public class HttpExternalPostProcessorIntegrationTest {
         this.configMap = new HashMap<>();
         configMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
         configMap.put(INPUT_STREAMS, streams);
-        this.userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
+        this.configuration = new Configuration(ParameterTool.fromMap(configMap));
     }
 
     @After
@@ -95,8 +95,8 @@ public class HttpExternalPostProcessorIntegrationTest {
                         + "  }\n"
                         + "}";
         configMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(ParameterTool.fromMap(configMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
                 .withHeader("content-type", equalTo("application/json"))
@@ -154,9 +154,9 @@ public class HttpExternalPostProcessorIntegrationTest {
                         + "}";
 
         configMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(ParameterTool.fromMap(configMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
                 .withHeader("content-type", equalTo("application/json"))
@@ -221,9 +221,9 @@ public class HttpExternalPostProcessorIntegrationTest {
                         + "}";
 
         configMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
-        userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(ParameterTool.fromMap(configMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
                 .withHeader("content-type", equalTo("application/json"))
@@ -303,8 +303,8 @@ public class HttpExternalPostProcessorIntegrationTest {
                         + " }";
 
         configMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
-        userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(ParameterTool.fromMap(configMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(get(urlEqualTo("/customer/123"))
                 .withHeader("content-type", equalTo("application/json"))
@@ -367,9 +367,9 @@ public class HttpExternalPostProcessorIntegrationTest {
 
         configMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
         configMap.put(INPUT_STREAMS, streams);
-        userConfiguration = new UserConfiguration(ParameterTool.fromMap(configMap));
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        configuration = new Configuration(ParameterTool.fromMap(configMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         stubFor(post(urlEqualTo("/"))
                 .withRequestBody(equalToJson("{\"test\": [\"meta_0\",\"meta_1\"]}"))
@@ -408,7 +408,7 @@ public class HttpExternalPostProcessorIntegrationTest {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(userConfiguration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

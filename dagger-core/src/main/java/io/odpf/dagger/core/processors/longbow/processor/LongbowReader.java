@@ -1,27 +1,24 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
-import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import io.odpf.dagger.core.processors.longbow.data.LongbowData;
-import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
-import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
-import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
-import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
-
-import io.odpf.dagger.common.configuration.UserConfiguration;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
+import io.odpf.dagger.core.processors.longbow.LongbowSchema;
+import io.odpf.dagger.core.processors.longbow.data.LongbowData;
 import io.odpf.dagger.core.processors.longbow.exceptions.LongbowReaderException;
 import io.odpf.dagger.core.processors.longbow.outputRow.ReaderOutputRow;
+import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
+import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
+import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
+import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
@@ -44,7 +41,7 @@ import static java.time.Duration.between;
 public class LongbowReader extends RichAsyncFunction<Row, Row> implements TelemetryPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongbowReader.class.getName());
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
     private LongbowSchema longBowSchema;
     private LongbowRange longbowRange;
     private LongbowStore longBowStore;
@@ -58,7 +55,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow reader with specified longbow store.
      *
-     * @param userConfiguration  the configuration
+     * @param config  the configuration
      * @param longBowSchema      the longbow schema
      * @param longbowRange       the longbow range
      * @param longBowStore       the longbow store
@@ -68,8 +65,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
      * @param scanRequestFactory the scan request factory
      * @param readerOutputRow    the reader output row
      */
-    LongbowReader(UserConfiguration userConfiguration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
-        this(userConfiguration, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
+    LongbowReader(Configuration config, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
+        this(config, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
@@ -78,15 +75,15 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow reader.
      *
-     * @param userConfiguration  the configuration
+     * @param configuration  the configuration
      * @param longBowSchema      the longbow schema
      * @param longbowRange       the longbow range
      * @param longbowData        the longbow data
      * @param scanRequestFactory the scan request factory
      * @param readerOutputRow    the reader output row
      */
-    public LongbowReader(UserConfiguration userConfiguration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
-        this.userConfiguration = userConfiguration;
+    public LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
+        this.configuration = configuration;
         this.longBowSchema = longBowSchema;
         this.longbowRange = longbowRange;
         this.longbowData = longbowData;
@@ -96,16 +93,16 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
 
     @Override
-    public void open(Configuration configuration) throws Exception {
-        super.open(configuration);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        super.open(internalFlinkConfig);
         if (longBowStore == null) {
-            longBowStore = LongbowStore.create(userConfiguration);
+            longBowStore = LongbowStore.create(this.configuration);
         }
         if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), userConfiguration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), this.configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
     }

@@ -7,7 +7,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.common.watermark.RowtimeFieldWatermark;
@@ -33,9 +33,9 @@ public class SQLTransformer implements Serializable, Transformer {
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param userConfiguration       the configuration
+     * @param configuration       the configuration
      */
-    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
+    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;
         this.sqlQuery = transformationArguments.get("sqlQuery");
         this.tableName = transformationArguments.getOrDefault("tableName", "data_stream");

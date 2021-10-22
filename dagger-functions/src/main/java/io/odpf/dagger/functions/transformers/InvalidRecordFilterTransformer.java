@@ -1,13 +1,13 @@
 package io.odpf.dagger.functions.transformers;
 
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import org.apache.flink.api.common.functions.RichFilterFunction;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.common.metrics.managers.CounterStatsManager;
-import org.apache.flink.api.common.functions.RichFilterFunction;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +34,15 @@ public class InvalidRecordFilterTransformer extends RichFilterFunction<Row> impl
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param userConfiguration           the configuration
+     * @param configuration           the configuration
      */
-    public InvalidRecordFilterTransformer(Map<String, Object> transformationArguments, String[] columnNames, UserConfiguration userConfiguration) {
+    public InvalidRecordFilterTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.tableName = (String) transformationArguments.getOrDefault("table_name", "");
         validationIndex = Arrays.asList(columnNames).indexOf(INTERNAL_VALIDATION_FILED);
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
         MetricGroup metricGroup = getRuntimeContext().getMetricGroup();
         metricsManager = new CounterStatsManager(metricGroup);
         metricsManager.register(FILTERED_INVALID_RECORDS, PER_TABLE, tableName);

@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Timestamp;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.*;
@@ -31,7 +31,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ProtoDeserializerTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Mock
     private ParameterTool parameterTool;
@@ -39,11 +39,11 @@ public class ProtoDeserializerTest {
     @Before
     public void setUp() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.configuration = new Configuration(parameterTool);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
         when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        stencilClientOrchestrator = new StencilClientOrchestrator(userConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
     @Test

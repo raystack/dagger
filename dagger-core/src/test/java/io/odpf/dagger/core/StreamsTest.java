@@ -4,7 +4,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.common.configuration.UserConfiguration;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.junit.Before;
@@ -32,12 +32,12 @@ public class StreamsTest {
     private ParameterTool parameterTool;
 
     private StencilClient stencilClient;
-    private UserConfiguration userConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.userConfiguration = new UserConfiguration(parameterTool);
+        this.configuration = new Configuration(parameterTool);
 
         when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
         when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
@@ -63,7 +63,7 @@ public class StreamsTest {
                 + "]";
 
         when(parameterTool.get("STREAMS", "")).thenReturn(configString);
-        Streams streams = new Streams(userConfiguration, "rowtime", stencilClientOrchestrator, false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
         Map<String, FlinkKafkaConsumerCustom> mapOfStreams = streams.getStreams();
         assertEquals(1, mapOfStreams.size());
         assertEquals("data_stream", mapOfStreams.keySet().toArray()[0]);
@@ -98,7 +98,7 @@ public class StreamsTest {
         System.out.println(metrics);
 
         when(parameterTool.get("STREAMS", "")).thenReturn(configString);
-        Streams streams = new Streams(userConfiguration, "rowtime", stencilClientOrchestrator, false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
         streams.preProcessBeforeNotifyingSubscriber();
         Map<String, List<String>> telemetry = streams.getTelemetry();
 
@@ -149,7 +149,7 @@ public class StreamsTest {
         System.out.println(metrics);
 
         when(parameterTool.get("STREAMS", "")).thenReturn(configString);
-        Streams streams = new Streams(userConfiguration, "rowtime", stencilClientOrchestrator, false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
         streams.preProcessBeforeNotifyingSubscriber();
         Map<String, List<String>> telemetry = streams.getTelemetry();
 
@@ -175,7 +175,7 @@ public class StreamsTest {
         protoClassForTable.put("data_stream", "io.odpf.dagger.consumer.TestBookingLogMessage");
 
         when(parameterTool.get("STREAMS", "")).thenReturn(configString);
-        Streams streams = new Streams(userConfiguration, "rowtime", stencilClientOrchestrator, false, 0);
+        Streams streams = new Streams(configuration, "rowtime", stencilClientOrchestrator, false, 0);
 
         assertEquals(protoClassForTable, streams.getProtos());
     }
