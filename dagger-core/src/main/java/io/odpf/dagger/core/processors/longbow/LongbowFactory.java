@@ -152,8 +152,7 @@ public class LongbowFactory {
 
     private String getTableId(Configuration configuration) {
         return configuration
-                .getParam()
-                .get(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
+                .getString(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
     }
 
     private String getMessageProtoClassName(Configuration configuration) {

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * The class which handle configuration provided from Environment.
  */
-public class EnvironmentConfigurationProvider implements UserConfigurationProvider {
+public class EnvironmentConfigurationProvider implements ConfigurationProvider {
 
     private Map<String, String> environmentParameters;
 
@@ -23,7 +23,7 @@ public class EnvironmentConfigurationProvider implements UserConfigurationProvid
     }
 
     @Override
-    public Configuration getUserConf() {
+    public Configuration getConfiguration() {
         return new Configuration(ParameterTool.fromMap(environmentParameters));
     }
 }

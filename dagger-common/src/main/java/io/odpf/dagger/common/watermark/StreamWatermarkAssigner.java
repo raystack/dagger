@@ -14,13 +14,18 @@ public class StreamWatermarkAssigner implements Serializable {
         this.watermarkStrategyDefinition = watermarkStrategyDefinition;
     }
 
+    public DataStream<Row> sourceAssignTimeStampAndWatermark(DataStream<Row> inputStream, long watermarkDelayMs, boolean enablePerPartitionWatermark) {
+        return !enablePerPartitionWatermark ? inputStream
+                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.defineWaterMarkStrategy(watermarkDelayMs)) : inputStream;
+    }
+
     public DataStream<Row> assignTimeStampAndWatermark(DataStream<Row> inputStream, long watermarkDelayMs) {
         return inputStream
                 .assignTimestampsAndWatermarks(watermarkStrategyDefinition.defineWaterMarkStrategy(watermarkDelayMs));
     }
 
-    public FlinkKafkaConsumerBase assignTimeStampAndWatermark(FlinkKafkaConsumer<Row> flinkKafkaConsumer, long watermarkDelayMs) {
-        return flinkKafkaConsumer
-                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.defineWaterMarkStrategy(watermarkDelayMs));
+    public FlinkKafkaConsumerBase consumerAssignTimeStampAndWatermark(FlinkKafkaConsumer<Row> flinkKafkaConsumer, long watermarkDelayMs, boolean enablePerPartitionWatermark) {
+        return enablePerPartitionWatermark ? flinkKafkaConsumer
+                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.defineWaterMarkStrategy(watermarkDelayMs)) : flinkKafkaConsumer;
     }
 }

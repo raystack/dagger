@@ -14,7 +14,7 @@ public class FileConfigurationProvideTest {
     public void readFromAConfigurationFile() {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
-        Configuration userConf = new FileConfigurationProvider().getUserConf();
+        Configuration userConf = new FileConfigurationProvider().getConfiguration();
         assertEquals("1", userConf.getString("FLINK_PARALLELISM", "1"));
     }
 
@@ -22,7 +22,7 @@ public class FileConfigurationProvideTest {
     public void shouldThrowExceptionForFileNotfound() {
         System.setProperty("DAGGER_CONFIG_PATH", "dd");
         DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
-                () -> new FileConfigurationProvider().getUserConf());
+                () -> new FileConfigurationProvider().getConfiguration());
         assertEquals("Config source not provided", exception.getMessage());
 
     }
