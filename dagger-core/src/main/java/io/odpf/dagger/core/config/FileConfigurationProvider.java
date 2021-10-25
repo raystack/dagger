@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * The class which handle configuration provided from File..
  */
-public class FileConfigurationProvider implements UserConfigurationProvider {
+public class FileConfigurationProvider implements ConfigurationProvider {
 
     /**
      * Instantiates a new File configuration provider.
@@ -42,7 +42,7 @@ public class FileConfigurationProvider implements UserConfigurationProvider {
     }
 
     @Override
-    public Configuration getUserConf() {
+    public Configuration getConfiguration() {
         return new Configuration(ParameterTool.fromMap(this.environmentParameters));
     }
 

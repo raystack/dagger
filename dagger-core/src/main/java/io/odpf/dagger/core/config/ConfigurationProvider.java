@@ -5,11 +5,11 @@ import io.odpf.dagger.common.configuration.Configuration;
 /**
  * The interface for all Configuration provider class.
  */
-public interface UserConfigurationProvider {
+public interface ConfigurationProvider {
     /**
-     * Get userConf.
+     * Get conf.
      *
      * @return the userConfiguration
      */
-    Configuration getUserConf();
+    Configuration getConfiguration();
 }

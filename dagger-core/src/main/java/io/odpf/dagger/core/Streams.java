@@ -1,7 +1,5 @@
 package io.odpf.dagger.core;
 
-import org.apache.flink.table.api.DataTypes;
-
 import com.google.gson.Gson;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
@@ -10,8 +8,6 @@ import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.core.source.ProtoDeserializer;
-
-import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,14 +24,19 @@ import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.INPUT_STREAM_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY;
+import static io.odpf.dagger.core.utils.Constants.STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY;
+import static io.odpf.dagger.core.utils.Constants.STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY;
 
 /**
  * The Streams.
  */
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
-    private static final int DURATION_PRECISION = 3;
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private final Configuration configuration;
@@ -51,7 +52,7 @@ public class Streams implements TelemetryPublisher {
     /**
      * Instantiates a new Streams.
      *
-     * @param configuration           the configuration
+     * @param configuration               the configuration
      * @param rowTimeAttributeName        the row time attribute name
      * @param stencilClientOrchestrator   the stencil client orchestrator
      * @param enablePerPartitionWatermark the enable per partition watermark
@@ -125,12 +126,8 @@ public class Streams implements TelemetryPublisher {
                 new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
-        if (enablePerPartitionWatermark) {
-            DataTypes.TIMESTAMP(DURATION_PRECISION).bridgedTo(Timestamp.class);
-            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
-            streamWatermarkAssigner.assignTimeStampAndWatermark(fc, watermarkDelay);
-        }
-
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(fc, watermarkDelay, enablePerPartitionWatermark);
         return fc;
     }
 

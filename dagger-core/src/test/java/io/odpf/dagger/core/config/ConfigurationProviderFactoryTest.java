@@ -24,13 +24,13 @@ public class ConfigurationProviderFactoryTest {
 
     @Test
     public void shouldProvideFromEnvironmentBasedOnConfigProperty() {
-        UserConfigurationProviderFactory providerFactory = new UserConfigurationProviderFactory(new String[]{"--key", "argValue"});
+        ConfigurationProviderFactory providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
         environmentVariables.set("key", "envValue");
         System.setProperty("ConfigSource", "ENVIRONMENT");
 
-        UserConfigurationProvider provider = providerFactory.provider();
+        ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("envValue", provider.getUserConf().getString("key", ""));
+        assertEquals("envValue", provider.getConfiguration().getString("key", ""));
         assertThat(provider, instanceOf(EnvironmentConfigurationProvider.class));
 
     }
@@ -38,10 +38,10 @@ public class ConfigurationProviderFactoryTest {
     @Test
     public void shouldProvideFromCommandline() {
         System.setProperty("ConfigSource", "ARGS");
-        UserConfigurationProviderFactory providerFactory = new UserConfigurationProviderFactory(new String[]{"--key", "isargValue"});
-        UserConfigurationProvider provider = providerFactory.provider();
+        ConfigurationProviderFactory providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "isargValue"});
+        ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("isargValue", provider.getUserConf().getString("key", ""));
+        assertEquals("isargValue", provider.getConfiguration().getString("key", ""));
         assertThat(provider, instanceOf(CommandlineConfigurationProvider.class));
     }
 
@@ -49,8 +49,8 @@ public class ConfigurationProviderFactoryTest {
     public void shoulDProvideFileBasedConfiguration() {
         System.setProperty("ConfigSource", "FILE");
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
-        UserConfigurationProviderFactory providerFactory = new UserConfigurationProviderFactory(new String[]{"--key", "argValue"});
-        UserConfigurationProvider provider = providerFactory.provider();
+        ConfigurationProviderFactory providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "argValue"});
+        ConfigurationProvider provider = providerFactory.provider();
 
         assertThat(provider, instanceOf(FileConfigurationProvider.class));
     }

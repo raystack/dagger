@@ -13,14 +13,14 @@ public class CommandlineConfigurationProviderTest {
 
     @Test
     public void shouldProvideFromEmptyInput() throws Exception {
-        Configuration userConf = new CommandlineConfigurationProvider(new String[]{}).getUserConf();
+        Configuration userConf = new CommandlineConfigurationProvider(new String[]{}).getConfiguration();
 
         assertTrue(userConf.getParam().getConfiguration().keySet().isEmpty());
     }
 
     @Test
     public void shouldProvideFromOneValidInput() throws Exception {
-        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).getUserConf();
+        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value"}).getConfiguration();
 
         assertEquals(1, userConf.getParam().getConfiguration().keySet().size());
 
@@ -30,7 +30,7 @@ public class CommandlineConfigurationProviderTest {
 
     @Test
     public void shouldProvideFromMultipleValidInputs() throws Exception {
-        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).getUserConf();
+        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--key", "value", "--k", "v"}).getConfiguration();
 
         assertEquals(2, userConf.getParam().getConfiguration().keySet().size());
 
@@ -43,7 +43,7 @@ public class CommandlineConfigurationProviderTest {
     @Test
     public void shouldUseEncodedArgsIfProvided() {
         String args = Base64.getEncoder().encodeToString("[\"--key\", \"value\"]".getBytes());
-        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).getUserConf();
+        Configuration userConf = new CommandlineConfigurationProvider(new String[]{"--encodedArgs", args}).getConfiguration();
 
         assertTrue(userConf.getParam().getConfiguration().containsKey("key"));
         assertEquals("value", userConf.getString("key", ""));

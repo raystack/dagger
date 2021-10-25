@@ -10,7 +10,7 @@ import java.util.Base64;
 /**
  * The class which handle configuration provided from Commandline.
  */
-public class CommandlineConfigurationProvider implements UserConfigurationProvider {
+public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private String[] args;
     private static final Gson GSON = new Gson();
@@ -46,7 +46,7 @@ public class CommandlineConfigurationProvider implements UserConfigurationProvid
     }
 
     @Override
-    public Configuration getUserConf() {
+    public Configuration getConfiguration() {
         System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
         ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(System.out::println);
         return constructParamTool();

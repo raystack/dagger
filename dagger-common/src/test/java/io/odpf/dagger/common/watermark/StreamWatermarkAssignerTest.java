@@ -42,9 +42,36 @@ public class StreamWatermarkAssignerTest {
     public void shouldAssignTimestampAndWatermarksToKafkaConsumer() {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
-        streamWatermarkAssigner.assignTimeStampAndWatermark(consumer, 10L);
+        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(consumer, 10L, true);
 
         verify(consumer, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+    }
+
+    @Test
+    public void shouldNotAssignTimestampAndWatermarksToKafkaConsumerIfPerPartitionWatermarkDisabled() {
+        LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
+        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(consumer, 10L, true);
+
+        verify(consumer, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+    }
+
+    @Test
+    public void shouldAssignTimestampAndWatermarksToSource() {
+        LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
+        streamWatermarkAssigner.sourceAssignTimeStampAndWatermark(inputStream, 10L, false);
+
+        verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+    }
+
+    @Test
+    public void shouldNotAssignTimestampAndWatermarksToSourceIfPerPartitionWatermarkEnabled() {
+        LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
+        streamWatermarkAssigner.sourceAssignTimeStampAndWatermark(inputStream, 10L, true);
+
+        verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
     @Test

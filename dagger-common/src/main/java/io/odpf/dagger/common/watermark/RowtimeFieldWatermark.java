@@ -22,6 +22,5 @@ public class RowtimeFieldWatermark implements WatermarkStrategyDefinition {
                 <Row>forBoundedOutOfOrderness(Duration.ofMillis(waterMarkDelayInMs))
                 .withTimestampAssigner((SerializableTimestampAssigner<Row>)
                         (element, recordTimestamp) -> ((Timestamp) element.getField(Arrays.asList(columnNames).indexOf(ROWTIME))).getTime());
-
     }
 }
