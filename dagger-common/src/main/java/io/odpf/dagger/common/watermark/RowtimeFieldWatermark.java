@@ -17,7 +17,7 @@ public class RowtimeFieldWatermark implements WatermarkStrategyDefinition {
     }
 
     @Override
-    public WatermarkStrategy<Row> getWatermarkStrategy(long waterMarkDelayInMs) {
+    public WatermarkStrategy<Row> getWatermark(long waterMarkDelayInMs) {
         return WatermarkStrategy.
                 <Row>forBoundedOutOfOrderness(Duration.ofMillis(waterMarkDelayInMs))
                 .withTimestampAssigner((SerializableTimestampAssigner<Row>)

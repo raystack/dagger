@@ -12,9 +12,9 @@ public class StreamWatermarkAssigner implements Serializable {
         this.watermarkStrategyDefinition = watermarkStrategyDefinition;
     }
 
-    public DataStream<Row> assignTimeStampAndWatermark(DataStream<Row> inputStream, long watermarkDelayMs, boolean enablePerPartitionWatermark) {
+    public DataStream<Row> tableSourceAssignWatermark(DataStream<Row> inputStream, long watermarkDelayMs, boolean enablePerPartitionWatermark) {
         return !enablePerPartitionWatermark ? inputStream
-                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelayMs)) : inputStream;
+                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermark(watermarkDelayMs)) : inputStream;
     }
 
     public DataStream<Row> assignTimeStampAndWatermark(DataStream<Row> inputStream, long watermarkDelayMs) {
