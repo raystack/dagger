@@ -110,15 +110,21 @@ public class Streams implements TelemetryPublisher {
         setAdditionalConfigs(kafkaProps);
 
 
-        // TODO : OffsetReset Strategy can be more matured
+        // TODO : OffsetReset Strategy can be more matured to support time-based offset-resets
         KafkaSource<Row> source = KafkaSource.<Row>builder()
                 .setTopicPattern(Pattern.compile(topicsForStream))
-                .setStartingOffsets(OffsetsInitializer.committedOffsets(OffsetResetStrategy.LATEST))
+                .setStartingOffsets(OffsetsInitializer.committedOffsets(getOffsetResetStrategy(streamConfig)))
                 .setProperties(kafkaProps)
                 .setDeserializer(KafkaRecordDeserializationSchema.of(new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator)))
                 .build();
 
         return source;
+    }
+
+    private OffsetResetStrategy getOffsetResetStrategy(Map<String, String> streamConfig) {
+        String consumerOffsetResetStrategy = streamConfig.getOrDefault(SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_KEY, SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_DEFAULT);
+        OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.valueOf(consumerOffsetResetStrategy.toUpperCase());
+        return offsetResetStrategy;
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
