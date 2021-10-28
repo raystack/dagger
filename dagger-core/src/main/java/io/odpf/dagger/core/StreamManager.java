@@ -14,6 +14,7 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.watermark.LastColumnWatermark;
+import io.odpf.dagger.common.watermark.SourceWatermark;
 import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -93,11 +94,28 @@ public class StreamManager {
         Streams kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
-            DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
+//        kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
+//            DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
+//
+//            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+//
+//            DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
+//                    .sourceAssignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
+//
+//            TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
+//            StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
+//            streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
+//
+//            // TODO : The schema thing is deprecated in 1.14, handle this deprecation in the serialization story
+//            Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
+//            tableEnvironment.createTemporaryView(tableName, table);
+//        });
 
+
+        kafkaStreams.getKafkaSourceMap().forEach((tableName, kafkaConsumer) -> {
+            SourceWatermark sourceWatermark = new SourceWatermark(enablePerPartitionWatermark);
+            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, sourceWatermark.defineWaterMarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
-
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
                     .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 

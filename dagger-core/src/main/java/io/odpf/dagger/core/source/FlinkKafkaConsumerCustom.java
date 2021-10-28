@@ -42,6 +42,7 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
         } catch (ExceptionInChainedOperatorException chainedOperatorException) {
             throw chainedOperatorException;
         } catch (Exception exception) {
+            // Todo : This extension is only for reporting fatal errors
             ErrorReporter errorReporter = getErrorReporter(getRuntimeContext());
             errorReporter.reportFatalException(exception);
             throw exception;

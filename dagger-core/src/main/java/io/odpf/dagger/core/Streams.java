@@ -1,5 +1,9 @@
 package io.odpf.dagger.core;
 
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
+import org.apache.flink.types.Row;
+
 import com.google.gson.Gson;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
@@ -32,6 +36,8 @@ import static io.odpf.dagger.core.utils.Constants.*;
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
     private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
+
+    private Map<String, KafkaSource> kafkaSourceMap = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private final Configuration configuration;
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -62,7 +68,13 @@ public class Streams implements TelemetryPublisher {
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
             streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
+            kafkaSourceMap.put(tableName, getKafkaSource(rowTimeAttributeName, streamConfig));
         }
+    }
+
+
+    public Map<String, KafkaSource> getKafkaSourceMap() {
+        return kafkaSourceMap;
     }
 
     /**
@@ -119,10 +131,39 @@ public class Streams implements TelemetryPublisher {
         FlinkKafkaConsumerCustom fc = new FlinkKafkaConsumerCustom(Pattern.compile(topicsForStream),
                 new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
+
         // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
         streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(fc, watermarkDelay, enablePerPartitionWatermark);
         return fc;
+    }
+
+
+    private KafkaSource<Row> getKafkaSource(String rowTimeAttributeName, Map<String, String> streamConfig) {
+        String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY, "");
+        topics.add(topicsForStream);
+        String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
+        protoClassNames.add(protoClassName);
+        streamNames.add(streamConfig.getOrDefault(INPUT_STREAM_NAME_KEY, ""));
+        String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
+        protoClassForTable.put(tableName, protoClassName);
+        int timestampFieldIndex = Integer.parseInt(streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY, ""));
+        Properties kafkaProps = new Properties();
+        streamConfig.entrySet()
+                .stream()
+                .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
+                .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
+
+        setAdditionalConfigs(kafkaProps);
+
+
+        KafkaSource<Row> source = KafkaSource.<Row>builder()
+                .setTopicPattern(Pattern.compile(topicsForStream))
+                .setProperties(kafkaProps)
+                .setDeserializer(KafkaRecordDeserializationSchema.of(new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator)))
+                .build();
+
+        return source;
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {
