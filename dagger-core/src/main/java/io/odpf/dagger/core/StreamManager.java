@@ -14,7 +14,11 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.watermark.LastColumnWatermark;
+<<<<<<< HEAD
 import io.odpf.dagger.common.watermark.NoWatermark;
+=======
+import io.odpf.dagger.common.watermark.SourceWatermark;
+>>>>>>> aa420afc ([wip]chore: source consumer level watermark declaration and validate the working of it)
 import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
@@ -100,7 +104,6 @@ public class StreamManager {
             // TODO : Validate why/how should Source-name be defined
             DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaSource, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
-
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
                     .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
