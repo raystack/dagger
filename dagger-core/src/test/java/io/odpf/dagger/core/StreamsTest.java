@@ -4,7 +4,6 @@ import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

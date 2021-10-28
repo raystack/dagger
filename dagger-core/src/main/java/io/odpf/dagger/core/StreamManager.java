@@ -96,6 +96,7 @@ public class StreamManager {
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         kafkaStreams.getKafkaSource().forEach((tableName, kafkaConsumer) -> {
+            // TODO : Check if rowtime should be configured for watermark or be hardcoded
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
             // TODO : Validate why/how should Source-name be defined
             DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermark(watermarkDelay), tableName);
