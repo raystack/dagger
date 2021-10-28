@@ -14,8 +14,9 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.watermark.LastColumnWatermark;
-import io.odpf.dagger.common.watermark.SourceWatermark;
+import io.odpf.dagger.common.watermark.NoWatermark;
 import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
+import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.PreProcessorConfig;
@@ -94,30 +95,13 @@ public class StreamManager {
         Streams kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-//        kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
-//            DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
-//
-//            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
-//
-//            DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-//                    .sourceAssignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
-//
-//            TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
-//            StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
-//            streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
-//
-//            // TODO : The schema thing is deprecated in 1.14, handle this deprecation in the serialization story
-//            Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
-//            tableEnvironment.createTemporaryView(tableName, table);
-//        });
-
-
-        kafkaStreams.getKafkaSourceMap().forEach((tableName, kafkaConsumer) -> {
-            SourceWatermark sourceWatermark = new SourceWatermark(enablePerPartitionWatermark);
-            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, sourceWatermark.defineWaterMarkStrategy(watermarkDelay), tableName);
+        kafkaStreams.getKafkaSource().forEach((tableName, kafkaConsumer) -> {
+            WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
+            // TODO : Validate why/how should Source-name be defined
+            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermark(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-                    .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
+                    .tableSourceAssignWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
             TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
@@ -128,6 +112,10 @@ public class StreamManager {
             tableEnvironment.createTemporaryView(tableName, table);
         });
         return this;
+    }
+
+    private WatermarkStrategyDefinition getSourceWatermarkDefinition(Boolean enablePerPartitionWatermark) {
+        return enablePerPartitionWatermark ? new LastColumnWatermark() : new NoWatermark();
     }
 
     private ApiExpression[] getApiExpressions(StreamInfo streamInfo) {
@@ -236,8 +224,6 @@ public class StreamManager {
 
     private Streams getKafkaStreams() {
         String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
-        Long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
-        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
+        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator);
     }
 }
