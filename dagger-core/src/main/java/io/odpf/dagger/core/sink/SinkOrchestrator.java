@@ -23,7 +23,17 @@ import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_TOPIC;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.SINK_TYPE;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_STREAM_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_TOPIC_KEY;
 
 /**
  * The Sink orchestrator.
@@ -42,9 +52,9 @@ public class SinkOrchestrator implements TelemetryPublisher {
      * Gets sink.
      *
      * @return the sink
-     * @userConfiguration userConfiguration             the userConfiguration
-     * @userConfiguration columnNames               the column names
-     * @userConfiguration stencilClientOrchestrator the stencil client orchestrator
+     * @configuration configuration             the configuration
+     * @columnNames columnNames               the column names
+     * @StencilClientOrchestrator stencilClientOrchestrator the stencil client orchestrator
      */
     public SinkFunction<Row> getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         String sinkType = configuration.getString("SINK_TYPE", "influx");
@@ -82,7 +92,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
      * Gets producer properties.
      *
      * @return the producer properties
-     * @userConfiguration userConfiguration the configuration
+     * @Configuration configuration the configuration
      */
     protected Properties getProducerProperties(Configuration configuration) {
         String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");

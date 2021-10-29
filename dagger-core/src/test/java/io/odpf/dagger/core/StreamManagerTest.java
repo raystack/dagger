@@ -3,7 +3,6 @@ package io.odpf.dagger.core;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -58,9 +57,6 @@ public class StreamManagerTest {
     private StreamExecutionEnvironment env;
 
     @Mock
-    private ParameterTool parameter;
-
-    @Mock
     private ExecutionConfig executionConfig;
 
     @Mock
@@ -87,29 +83,30 @@ public class StreamManagerTest {
     @Mock
     private TableSchema schema;
 
+    @Mock
     private Configuration configuration;
 
     @Before
     public void setup() {
 
         initMocks(this);
-        when(parameter.getInt("FLINK_PARALLELISM", 1)).thenReturn(1);
-        when(parameter.getInt("FLINK_WATERMARK_INTERVAL_MS", 10000)).thenReturn(10000);
-        when(parameter.getLong("FLINK_CHECKPOINT_INTERVAL_MS", 30000)).thenReturn(30000L);
-        when(parameter.getLong("FLINK_CHECKPOINT_TIMEOUT_MS", 900000)).thenReturn(900000L);
-        when(parameter.getLong("FLINK_CHECKPOINT_MIN_PAUSE_MS", 5000)).thenReturn(5000L);
-        when(parameter.getInt("FLINK_CHECKPOINT_MAX_CONCURRENT", 1)).thenReturn(1);
-        when(parameter.get("FLINK_ROWTIME_ATTRIBUTE_NAME", "")).thenReturn("");
-        when(parameter.getBoolean("FLINK_WATERMARK_PER_PARTITION_ENABLE", false)).thenReturn(false);
-        when(parameter.getLong("FLINK_WATERMARK_DELAY_MS", 10000)).thenReturn(10000L);
-        when(parameter.get("STREAMS", "")).thenReturn(jsonArray);
-        when(parameter.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false)).thenReturn(false);
-        when(parameter.get("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");
-        when(parameter.get("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
-        when(parameter.get("SINK_TYPE", "influx")).thenReturn("influx");
-        when(parameter.get("FLINK_SQL_QUERY", "")).thenReturn("");
-        when(parameter.getInt("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
-        when(parameter.getInt("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
+        when(configuration.getInteger("FLINK_PARALLELISM", 1)).thenReturn(1);
+        when(configuration.getInteger("FLINK_WATERMARK_INTERVAL_MS", 10000)).thenReturn(10000);
+        when(configuration.getLong("FLINK_CHECKPOINT_INTERVAL_MS", 30000L)).thenReturn(30000L);
+        when(configuration.getLong("FLINK_CHECKPOINT_TIMEOUT_MS", 900000L)).thenReturn(900000L);
+        when(configuration.getLong("FLINK_CHECKPOINT_MIN_PAUSE_MS", 5000L)).thenReturn(5000L);
+        when(configuration.getInteger("FLINK_CHECKPOINT_MAX_CONCURRENT", 1)).thenReturn(1);
+        when(configuration.getString("FLINK_ROWTIME_ATTRIBUTE_NAME", "")).thenReturn("");
+        when(configuration.getBoolean("FLINK_WATERMARK_PER_PARTITION_ENABLE", false)).thenReturn(false);
+        when(configuration.getLong("FLINK_WATERMARK_DELAY_MS", 10000L)).thenReturn(10000L);
+        when(configuration.getString("STREAMS", "")).thenReturn(jsonArray);
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false)).thenReturn(false);
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");
+        when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
+        when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
+        when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
+        when(configuration.getInteger("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
+        when(configuration.getInteger("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -118,7 +115,6 @@ public class StreamManagerTest {
         when(typeInformation.getTypeClass()).thenReturn(Row.class);
         when(schema.getFieldNames()).thenReturn(new String[0]);
         PowerMockito.mockStatic(TableSchema.class);
-        this.configuration = new Configuration(parameter);
         when(TableSchema.fromTypeInfo(typeInformation)).thenReturn(schema);
         streamManager = new StreamManager(configuration, env, tableEnvironment);
     }
@@ -131,7 +127,7 @@ public class StreamManagerTest {
         verify(env, Mockito.times(1)).setParallelism(1);
         verify(env, Mockito.times(1)).enableCheckpointing(30000);
         verify(executionConfig, Mockito.times(1)).setAutoWatermarkInterval(10000);
-        verify(executionConfig, Mockito.times(1)).setGlobalJobParameters(parameter);
+        verify(executionConfig, Mockito.times(1)).setGlobalJobParameters(configuration.getParam());
         verify(checkpointConfig, Mockito.times(1)).setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
         verify(checkpointConfig, Mockito.times(1)).setCheckpointTimeout(900000L);
         verify(checkpointConfig, Mockito.times(1)).setMinPauseBetweenCheckpoints(5000L);

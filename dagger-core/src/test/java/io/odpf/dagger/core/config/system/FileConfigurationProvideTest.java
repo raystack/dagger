@@ -14,8 +14,8 @@ public class FileConfigurationProvideTest {
     public void readFromAConfigurationFile() {
 
         System.setProperty("DAGGER_CONFIG_PATH", "env/local.properties");
-        Configuration userConf = new FileConfigurationProvider().getConfiguration();
-        assertEquals("1", userConf.getString("FLINK_PARALLELISM", "1"));
+        Configuration configuration = new FileConfigurationProvider().getConfiguration();
+        assertEquals("1", configuration.getString("FLINK_PARALLELISM", "1"));
     }
 
     @Test

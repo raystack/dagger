@@ -10,7 +10,7 @@ import java.time.Duration;
 public class LastColumnWatermark implements WatermarkStrategyDefinition {
 
     @Override
-    public WatermarkStrategy<Row> defineWaterMarkStrategy(long waterMarkDelayInMs) {
+    public WatermarkStrategy<Row> getWatermarkStrategy(long waterMarkDelayInMs) {
         return WatermarkStrategy.
                 <Row>forBoundedOutOfOrderness(Duration.ofMillis(waterMarkDelayInMs))
                 .withTimestampAssigner((SerializableTimestampAssigner<Row>) (element, recordTimestamp) -> {

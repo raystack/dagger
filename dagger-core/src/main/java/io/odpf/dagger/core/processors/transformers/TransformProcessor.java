@@ -51,9 +51,9 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     /**
      * Instantiates a new Transform processor with specified table name and telemetry types.
      *
-     * @param tableName         the table name
-     * @param type              the type
-     * @param configuration the userConfiguration
+     * @param tableName     the table name
+     * @param type          the type
+     * @param configuration the configuration
      */
     public TransformProcessor(String tableName, TelemetryTypes type, List<TransformConfig> transformConfigs, Configuration configuration) {
         this.transformConfigs = transformConfigs == null ? new ArrayList<>() : transformConfigs;

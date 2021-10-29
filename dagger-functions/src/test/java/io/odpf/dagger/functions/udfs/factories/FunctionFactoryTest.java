@@ -1,6 +1,5 @@
 package io.odpf.dagger.functions.udfs.factories;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -12,7 +11,32 @@ import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
 import io.odpf.dagger.functions.udfs.aggregate.FeaturesWithType;
 import io.odpf.dagger.functions.udfs.aggregate.PercentileAggregator;
-import io.odpf.dagger.functions.udfs.scalar.*;
+import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
+import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
+import io.odpf.dagger.functions.udfs.scalar.ByteToString;
+import io.odpf.dagger.functions.udfs.scalar.CondEq;
+import io.odpf.dagger.functions.udfs.scalar.DartContains;
+import io.odpf.dagger.functions.udfs.scalar.DartGet;
+import io.odpf.dagger.functions.udfs.scalar.Distance;
+import io.odpf.dagger.functions.udfs.scalar.ElementAt;
+import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
+import io.odpf.dagger.functions.udfs.scalar.EndOfWeek;
+import io.odpf.dagger.functions.udfs.scalar.ExponentialMovingAverage;
+import io.odpf.dagger.functions.udfs.scalar.Filters;
+import io.odpf.dagger.functions.udfs.scalar.FormatTimeInZone;
+import io.odpf.dagger.functions.udfs.scalar.GeoHash;
+import io.odpf.dagger.functions.udfs.scalar.LinearTrend;
+import io.odpf.dagger.functions.udfs.scalar.ListContains;
+import io.odpf.dagger.functions.udfs.scalar.MapGet;
+import io.odpf.dagger.functions.udfs.scalar.S2AreaInKm2;
+import io.odpf.dagger.functions.udfs.scalar.S2Id;
+import io.odpf.dagger.functions.udfs.scalar.SelectFields;
+import io.odpf.dagger.functions.udfs.scalar.SingleFeatureWithType;
+import io.odpf.dagger.functions.udfs.scalar.Split;
+import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
+import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
+import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
+import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.junit.Assert;
@@ -38,8 +62,6 @@ public class FunctionFactoryTest {
     private StreamTableEnvironment streamTableEnvironment;
 
     @Mock
-    private ParameterTool parameter;
-
     private Configuration configuration;
 
     @Before
@@ -57,10 +79,9 @@ public class FunctionFactoryTest {
                 + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-log\"\n"
                 + "        }\n"
                 + "]";
-        configuration = new Configuration(parameter);
-        when(parameter.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, false)).thenReturn(false);
-        when(parameter.get(INPUT_STREAMS, "")).thenReturn(jsonArray);
-        when(parameter.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, "")).thenReturn("");
+        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, false)).thenReturn(false);
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, "")).thenReturn("");
     }
 
     @Test

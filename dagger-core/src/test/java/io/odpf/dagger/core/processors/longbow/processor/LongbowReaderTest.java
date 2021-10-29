@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -32,7 +31,12 @@ import java.util.concurrent.TimeoutException;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.CLOSE_CONNECTION_ON_READER;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.FAILED_ON_READ_DOCUMENT;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.TIMEOUTS_ON_READER;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -49,8 +53,6 @@ public class LongbowReaderTest {
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
     @Mock
-    private ParameterTool param;
-    @Mock
     private LongbowStore longBowStore;
     @Mock
     private MeterStatsManager meterStatsManager;
@@ -62,19 +64,19 @@ public class LongbowReaderTest {
     private TelemetrySubscriber telemetrySubscriber;
     @Mock
     private ReaderOutputRow readerOutputRow;
+    @Mock
+    private Configuration configuration;
+
     private LongbowSchema defaultLongBowSchema;
     private Timestamp currentTimestamp;
     private ScanRequestFactory scanRequestFactory;
-    private Configuration configuration;
-
 
     @Before
     public void setup() {
         initMocks(this);
-        this.configuration = new Configuration(param);
-        when(param.get(PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
-        when(param.get(PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
-        when(param.get(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT)).thenReturn("test-job");
+        when(configuration.getString(PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY, PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT)).thenReturn("test-project");
+        when(configuration.getString(PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY, PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT)).thenReturn("test-instance");
+        when(configuration.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT)).thenReturn("test-job");
         currentTimestamp = new Timestamp(System.currentTimeMillis());
         String[] columnNames = {"longbow_key", "longbow_data1", "rowtime", "longbow_duration"};
         defaultLongBowSchema = new LongbowSchema(columnNames);

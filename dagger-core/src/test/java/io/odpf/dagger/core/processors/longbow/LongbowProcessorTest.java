@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
@@ -20,7 +19,12 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowProcessorTest {
@@ -40,9 +44,6 @@ public class LongbowProcessorTest {
     @Mock
     private Configuration configuration;
 
-    @Mock
-    private ParameterTool param;
-
     @Before
     public void setup() {
         initMocks(this);
@@ -50,7 +51,6 @@ public class LongbowProcessorTest {
 
     @Test
     public void shouldChainRichAsyncFunctions() {
-        when(configuration.getParam()).thenReturn(param);
         String[] columnNames = {"rowtime", "longbow_key", "event_timestamp"};
         RichAsyncFunction asyncFunction1 = mock(RichAsyncFunction.class);
         RichAsyncFunction asyncFunction2 = mock(RichAsyncFunction.class);

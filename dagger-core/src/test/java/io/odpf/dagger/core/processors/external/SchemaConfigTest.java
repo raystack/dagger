@@ -1,7 +1,5 @@
 package io.odpf.dagger.core.processors.external;
 
-import org.apache.flink.api.java.utils.ParameterTool;
-
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
@@ -9,12 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.HashMap;
-
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SchemaConfigTest {
@@ -25,6 +22,7 @@ public class SchemaConfigTest {
     @Mock
     private ColumnNameManager columnNameManager;
 
+    @Mock
     private Configuration configuration;
 
 
@@ -32,10 +30,8 @@ public class SchemaConfigTest {
     public void setup() {
         initMocks(this);
         String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"topic-name\",\"INPUT_SCHEMA_TABLE\":\"booking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"InputProtoMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"10.1.2.3:9092\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-config\",\"SOURCE_KAFKA_NAME\":\"test\"}]";
-        HashMap<String, String> configMap = new HashMap<>();
-        configMap.put(INPUT_STREAMS, streams);
-        configMap.put(SINK_KAFKA_PROTO_MESSAGE_KEY, "OutputProtoMessage");
-        this.configuration = new Configuration(ParameterTool.fromMap(configMap));
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn(streams);
+        when(configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, "")).thenReturn("OutputProtoMessage");
     }
 
     @Test
