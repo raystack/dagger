@@ -27,7 +27,7 @@ public class SchemaConfig implements Serializable {
     /**
      * Instantiates a new Schema config.
      *
-     * @param configuration         the configuration
+     * @param configuration             the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param columnNameManager         the column name manager
      */

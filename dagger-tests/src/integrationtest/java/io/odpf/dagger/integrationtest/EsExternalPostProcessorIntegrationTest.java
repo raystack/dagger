@@ -1,4 +1,4 @@
- package io.odpf.dagger.integrationtest;
+package io.odpf.dagger.integrationtest;
 
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
@@ -14,7 +14,6 @@ import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.utils.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY;
 import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -52,19 +52,18 @@ public class EsExternalPostProcessorIntegrationTest {
                             .build());
     private StencilClientOrchestrator stencilClientOrchestrator;
     private final MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
-    private static org.apache.flink.configuration.Configuration configuration = new org.apache.flink.configuration.Configuration();
     private RestClient esClient;
     private String host;
-    private io.odpf.dagger.common.configuration.Configuration daggerConfiguration;
+    private Configuration configuration;
+    private HashMap<String, String> configurationMap;
 
     @Before
     public void setUp() {
         String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
-        HashMap<String, String> configurationMap = new HashMap<>();
+        this.configurationMap = new HashMap<>();
         configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
         configurationMap.put(INPUT_STREAMS, streams);
-        ParameterTool parameterTool = ParameterTool.fromMap(configurationMap);
-        this.daggerConfiguration = new Configuration(parameterTool);
+        this.configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         host = System.getenv("ES_HOST");
         if (StringUtils.isEmpty(host)) {
             host = "localhost";
@@ -141,8 +140,9 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "  }\n"
                         + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -203,8 +203,10 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "   ]"
                         + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -277,8 +279,10 @@ public class EsExternalPostProcessorIntegrationTest {
                         + "   ]   \n"
                         + "}";
 
-        configuration.setString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CollectSink.OUTPUT_VALUES.clear();
@@ -315,7 +319,7 @@ public class EsExternalPostProcessorIntegrationTest {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerConfiguration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

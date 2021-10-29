@@ -30,7 +30,7 @@ public class FeatureTransformer implements MapFunction<Row, Row>, Transformer {
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration       the configuration
+     * @param configuration           the configuration
      */
     public FeatureTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;

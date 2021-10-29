@@ -46,7 +46,7 @@ public class CommandlineConfigurationProvider implements ConfigurationProvider {
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Configuration get() {
         System.out.println("params from " + CommandlineConfigurationProvider.class.getName());
         ParameterTool.fromArgs(args).toMap().entrySet().stream().forEach(System.out::println);
         return constructParamTool();

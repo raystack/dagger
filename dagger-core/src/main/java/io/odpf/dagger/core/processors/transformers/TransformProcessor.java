@@ -42,7 +42,8 @@ public class TransformProcessor implements Preprocessor, PostProcessor, Telemetr
     /**
      * Instantiates a new Transform processor.
      *
-     * @param configuration the configuration
+     * @param transformConfigs the transform configs
+     * @param configuration    the configuration
      */
     public TransformProcessor(List<TransformConfig> transformConfigs, Configuration configuration) {
         this("NULL", TelemetryTypes.POST_PROCESSOR_TYPE, transformConfigs, configuration);

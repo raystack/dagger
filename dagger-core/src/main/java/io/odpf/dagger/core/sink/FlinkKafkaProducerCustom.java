@@ -29,7 +29,7 @@ public class FlinkKafkaProducerCustom extends RichSinkFunction<Row> implements C
      * Instantiates a new Flink kafka producer custom.
      *
      * @param flinkKafkaProducer the flink kafka producer
-     * @param configuration  the configuration
+     * @param configuration      the configuration
      */
     public FlinkKafkaProducerCustom(FlinkKafkaProducer<Row> flinkKafkaProducer, Configuration configuration) {
         this.flinkKafkaProducer = flinkKafkaProducer;

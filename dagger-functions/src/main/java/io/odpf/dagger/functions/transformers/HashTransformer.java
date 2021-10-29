@@ -40,7 +40,7 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration       the configuration
+     * @param configuration           the configuration
      */
     public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.fieldsToHash = getFieldsToHash(transformationArguments);

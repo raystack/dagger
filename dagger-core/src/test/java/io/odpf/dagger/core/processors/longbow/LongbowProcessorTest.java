@@ -19,18 +19,16 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowProcessorTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @Mock
+    private Configuration configuration;
 
     @Mock
     private DataStream<Row> dataStream;
@@ -40,9 +38,6 @@ public class LongbowProcessorTest {
 
     @Mock
     private ColumnModifier columnModifier;
-
-    @Mock
-    private Configuration configuration;
 
     @Before
     public void setup() {

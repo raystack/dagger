@@ -7,9 +7,9 @@ import io.odpf.dagger.common.configuration.Configuration;
  */
 public interface ConfigurationProvider {
     /**
-     * Get conf.
+     * Get configuration.
      *
      * @return the configuration
      */
-    Configuration getConfiguration();
+    Configuration get();
 }

@@ -25,7 +25,7 @@ public class KafkaProtoSQLProcessor {
     public static void main(String[] args) throws ProgramInvocationException {
         try {
             ConfigurationProvider provider = new ConfigurationProviderFactory(args).provider();
-            Configuration configuration = provider.getConfiguration();
+            Configuration configuration = provider.get();
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
             EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().inStreamingMode().build();

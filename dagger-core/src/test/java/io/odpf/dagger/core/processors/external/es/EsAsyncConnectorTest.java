@@ -1,5 +1,9 @@
 package io.odpf.dagger.core.processors.external.es;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
@@ -13,11 +17,6 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
-
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.junit.Before;
@@ -33,7 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.*;
+import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.INVALID_CONFIGURATION;
+import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.TIMEOUTS;
+import static io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects.TOTAL_EXTERNAL_CALLS;
 import static io.odpf.dagger.core.utils.Constants.ES_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;

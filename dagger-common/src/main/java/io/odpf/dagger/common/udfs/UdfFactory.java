@@ -17,7 +17,7 @@ public abstract class UdfFactory {
      * Instantiates a new Udf factory.
      *
      * @param streamTableEnvironment the stream table environment
-     * @param configuration      the configuration
+     * @param configuration          the configuration
      */
     public UdfFactory(StreamTableEnvironment streamTableEnvironment, Configuration configuration) {
         this.streamTableEnvironment = streamTableEnvironment;

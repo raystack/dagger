@@ -13,8 +13,8 @@ public class ErrorReporterFactory {
     /**
      * Gets error reporter.
      *
-     * @param runtimeContext    the runtime context
-     * @param configuration the configuration
+     * @param runtimeContext the runtime context
+     * @param configuration  the configuration
      * @return the error reporter
      */
     public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, Configuration configuration) {

@@ -1,7 +1,8 @@
 package io.odpf.dagger.functions.udfs.aggregate.accumulator;
 
-import com.google.protobuf.ByteString;
 import org.apache.flink.types.Row;
+
+import com.google.protobuf.ByteString;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -11,7 +12,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import static io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum.StringType;
-//import static org.hamcrest.MatcherAssert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 

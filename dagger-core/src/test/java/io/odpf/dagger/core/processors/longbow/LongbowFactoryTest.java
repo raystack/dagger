@@ -18,19 +18,16 @@ import java.util.concurrent.TimeUnit;
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowFactoryTest {
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
+
+    @Mock
+    private Configuration configuration;
 
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
@@ -43,9 +40,6 @@ public class LongbowFactoryTest {
 
     @Mock
     private DataStream dataStream;
-
-    @Mock
-    private Configuration configuration;
 
     @Before
     public void setup() {

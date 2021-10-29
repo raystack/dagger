@@ -33,15 +33,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowWriterTest {
+
+    @Mock
+    private Configuration configuration;
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
@@ -66,9 +64,6 @@ public class LongbowWriterTest {
 
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
-
-    @Mock
-    private Configuration configuration;
 
     private WriterOutputRow writerOutputRow;
     private String daggerID = "FR-DR-2116";

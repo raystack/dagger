@@ -42,7 +42,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Configuration get() {
         return new Configuration(ParameterTool.fromMap(this.environmentParameters));
     }
 

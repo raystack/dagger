@@ -33,7 +33,7 @@ public class SQLTransformer implements Serializable, Transformer {
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration       the configuration
+     * @param configuration           the configuration
      */
     public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
         this.columnNames = columnNames;

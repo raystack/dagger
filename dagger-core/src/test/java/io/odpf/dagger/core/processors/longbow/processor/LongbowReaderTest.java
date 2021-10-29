@@ -31,12 +31,7 @@ import java.util.concurrent.TimeoutException;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.CLOSE_CONNECTION_ON_READER;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.FAILED_ON_READ_DOCUMENT;
 import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.TIMEOUTS_ON_READER;
-import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_INSTANCE_ID_KEY;
-import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_PROJECT_ID_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -51,6 +46,8 @@ public class LongbowReaderTest {
     @Mock
     private LongbowData longbowData;
     @Mock
+    private Configuration configuration;
+    @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
     @Mock
     private LongbowStore longBowStore;
@@ -64,8 +61,6 @@ public class LongbowReaderTest {
     private TelemetrySubscriber telemetrySubscriber;
     @Mock
     private ReaderOutputRow readerOutputRow;
-    @Mock
-    private Configuration configuration;
 
     private LongbowSchema defaultLongBowSchema;
     private Timestamp currentTimestamp;

@@ -32,10 +32,10 @@ public class HashTransformerTest {
     private DataStream<Row> inputStream;
 
     @Mock
-    private org.apache.flink.configuration.Configuration flinkInternalConfig;
+    private Configuration configuration;
 
     @Mock
-    private Configuration configuration;
+    private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
     @Before
     public void setup() {

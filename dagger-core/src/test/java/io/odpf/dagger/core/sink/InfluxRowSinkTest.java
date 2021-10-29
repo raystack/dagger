@@ -27,22 +27,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -144,7 +129,7 @@ public class InfluxRowSinkTest {
     public void shouldCallBatchModeOnInfluxWhenBatchSettingsExist() throws Exception {
         setupStubedInfluxDB(new String[]{});
 
-        verify(influxDb).enableBatch(eq(Integer.valueOf(SINK_INFLUX_BATCH_SIZE)), eq(Integer.valueOf(INFLUX_FLUSH_DURATION)), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
+        verify(influxDb).enableBatch(eq(SINK_INFLUX_BATCH_SIZE), eq(INFLUX_FLUSH_DURATION), eq(TimeUnit.MILLISECONDS), any(ThreadFactory.class), any(BiConsumer.class));
     }
 
     @Test
