@@ -146,6 +146,17 @@ public class StreamManagerTest {
     }
 
     @Test
+    public void shouldCreateValidSourceWithWatermarks() {
+        when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+
+        StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        streamManagerStub.registerConfigs();
+        streamManagerStub.registerSourceWithPreProcessors();
+
+        verify(env, Mockito.times(1)).fromSource(any(KafkaSource.class), any(WatermarkStrategy.class), any(String.class));
+    }
+
+    @Test
     public void shouldCreateOutputStream() {
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerOutputStream();
