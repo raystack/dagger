@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
-    private Configuration userConfig;
+    private Configuration configuration;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
 
@@ -34,13 +34,13 @@ public class ParentPostProcessor implements PostProcessor {
      * Instantiates a new Parent post processor.
      *
      * @param postProcessorConfig       the post processor config
-     * @param configuration         the configuration
+     * @param config                    the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param telemetrySubscriber       the telemetry subscriber
      */
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
+    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration config, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
-        this.userConfig = configuration;
+        this.configuration = config;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
     }
@@ -56,7 +56,7 @@ public class ParentPostProcessor implements PostProcessor {
         InitializationDecorator initializationDecorator = new InitializationDecorator(columnNameManager);
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
-        SchemaConfig schemaConfig = new SchemaConfig(userConfig, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
 
         List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(telemetrySubscriber, schemaConfig);
         for (PostProcessor postProcessor : enabledPostProcessors) {
@@ -66,7 +66,7 @@ public class ParentPostProcessor implements PostProcessor {
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, postProcessorConfig.hasSQLTransformer());
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
-        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), userConfig);
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), configuration);
         if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
@@ -80,11 +80,11 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!userConfig.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+        if (!configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(userConfig, subscriber);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         processors.add(new InternalPostProcessor(postProcessorConfig));
@@ -94,7 +94,7 @@ public class ParentPostProcessor implements PostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private ExternalMetricConfig getExternalMetricConfig(Configuration configuration, TelemetrySubscriber subscriber) {
-        return new ExternalMetricConfig(configuration, subscriber);
+    private ExternalMetricConfig getExternalMetricConfig(Configuration config, TelemetrySubscriber subscriber) {
+        return new ExternalMetricConfig(config, subscriber);
     }
 }

@@ -4,7 +4,6 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.types.Row;
@@ -34,7 +33,7 @@ public class DeDuplicationTransformerTest {
     private RuntimeContext runtimeContext;
 
     @Mock
-    private ParameterTool parameterTool;
+    private Configuration configuration;
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
@@ -53,8 +52,6 @@ public class DeDuplicationTransformerTest {
     public void setup() {
         initMocks(this);
     }
-
-    private Configuration configuration = new Configuration(parameterTool);
 
     @Test
     public void shouldGetMapStateFromRuntimeContext() throws Exception {

@@ -6,5 +6,5 @@ import org.apache.flink.types.Row;
 import java.io.Serializable;
 
 public interface WatermarkStrategyDefinition extends Serializable {
-    WatermarkStrategy<Row> defineWaterMarkStrategy(long waterMarkDelayInMs);
+    WatermarkStrategy<Row> getWatermarkStrategy(long waterMarkDelayInMs);
 }

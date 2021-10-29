@@ -2,7 +2,6 @@ package io.odpf.dagger.core.source;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Struct;
@@ -10,7 +9,13 @@ import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.consumer.*;
+import io.odpf.dagger.consumer.TestBookingLogKey;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestBookingStatus;
+import io.odpf.dagger.consumer.TestLocation;
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
+import io.odpf.dagger.consumer.TestRoute;
+import io.odpf.dagger.consumer.TestServiceType;
 import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
@@ -21,28 +26,42 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
-import static org.apache.flink.api.common.typeinfo.Types.*;
-import static org.junit.Assert.*;
+import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
+import static org.apache.flink.api.common.typeinfo.Types.INT;
+import static org.apache.flink.api.common.typeinfo.Types.LONG;
+import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
+import static org.apache.flink.api.common.typeinfo.Types.SQL_TIMESTAMP;
+import static org.apache.flink.api.common.typeinfo.Types.STRING;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoDeserializerTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private Configuration configuration;
+
 
     @Mock
-    private ParameterTool parameterTool;
+    private Configuration configuration;
 
     @Before
     public void setUp() {
         initMocks(this);
-        this.configuration = new Configuration(parameterTool);
-        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
-        when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
-        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 

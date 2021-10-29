@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -34,13 +33,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowWriterTest {
-
-    @Mock
-    private ParameterTool parameter;
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
@@ -66,6 +67,9 @@ public class LongbowWriterTest {
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
 
+    @Mock
+    private Configuration configuration;
+
     private WriterOutputRow writerOutputRow;
     private String daggerID = "FR-DR-2116";
     private String longbowData1 = "RB-9876";
@@ -77,17 +81,16 @@ public class LongbowWriterTest {
     private LongbowWriter defaultLongbowWriter;
     private LongbowSchema defaultLongbowSchema;
     private PutRequestFactory putRequestFactory;
-    private Configuration configuration;
+
 
     @Before
     public void setUp() {
         initMocks(this);
-        this.configuration = new Configuration(parameter);
-        when(parameter.get("PROCESSOR_LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
+        when(configuration.getString("PROCESSOR_LONGBOW_GCP_PROJECT_ID", "the-big-data-production-007"))
                 .thenReturn("test-project");
-        when(parameter.get("PROCESSOR_LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
-        when(parameter.get("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
-        when(parameter.get("PROCESSOR_LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
+        when(configuration.getString("PROCESSOR_LONGBOW_GCP_INSTANCE_ID", "de-prod")).thenReturn("test-instance");
+        when(configuration.getString("FLINK_JOB_ID", "SQL Flink Job")).thenReturn(daggerID);
+        when(configuration.getString("PROCESSOR_LONGBOW_DOCUMENT_DURATION", "90d")).thenReturn("90d");
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);

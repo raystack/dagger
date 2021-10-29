@@ -99,7 +99,7 @@ public class StreamManager {
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-                    .sourceAssignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
+                    .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
             TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());

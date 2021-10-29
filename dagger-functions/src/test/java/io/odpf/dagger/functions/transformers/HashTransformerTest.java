@@ -1,6 +1,5 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -30,26 +29,23 @@ public class HashTransformerTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Mock
-    private ParameterTool parameterTool;
-
-    @Mock
     private DataStream<Row> inputStream;
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
+    @Mock
     private Configuration configuration;
 
     @Before
     public void setup() {
 
         initMocks(this);
-        this.configuration = new Configuration(parameterTool);
-        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestBookingLogMessage");
-        when(parameterTool.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
                 .thenReturn(false);
-        when(parameterTool.get("SCHEMA_REGISTRY_STENCIL_URLS", ""))
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
                 .thenReturn("");
     }
 
@@ -146,7 +142,7 @@ public class HashTransformerTest {
 
     @Test
     public void shouldHashNestedFields() throws Exception {
-        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.TestEnrichedBookingLogMessage");
         HashMap<String, Object> transformationArguments = new HashMap<>();
 
@@ -202,7 +198,7 @@ public class HashTransformerTest {
         HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
         hashTransformer.open(flinkInternalConfig);
 
-        verify(parameterTool, times(1)).get("SINK_KAFKA_PROTO_MESSAGE", "");
+        verify(configuration, times(1)).getString("SINK_KAFKA_PROTO_MESSAGE", "");
     }
 
 
@@ -225,7 +221,7 @@ public class HashTransformerTest {
 
     @Test
     public void shouldThrowErrorIfUnableToFindOpDescriptor() throws Exception {
-        when(parameterTool.get("SINK_KAFKA_PROTO_MESSAGE", ""))
+        when(configuration.getString("SINK_KAFKA_PROTO_MESSAGE", ""))
                 .thenReturn("io.odpf.dagger.consumer.RandomTestMessage");
         thrown.expect(DescriptorNotFoundException.class);
         thrown.expectMessage("Output Descriptor for class: io.odpf.dagger.consumer.RandomTestMessage not found");

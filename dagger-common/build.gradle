@@ -57,8 +57,9 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
-    compileOnly 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
 
+    dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'com.gojek:stencil:2.0.15'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
 
@@ -93,7 +94,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.7
+                minimum = 0.67
             }
         }
     }

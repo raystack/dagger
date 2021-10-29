@@ -9,7 +9,7 @@ public interface ConfigurationProvider {
     /**
      * Get conf.
      *
-     * @return the userConfiguration
+     * @return the configuration
      */
     Configuration getConfiguration();
 }

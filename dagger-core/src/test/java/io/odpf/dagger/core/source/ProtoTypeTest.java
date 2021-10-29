@@ -3,7 +3,6 @@ package io.odpf.dagger.core.source;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -15,9 +14,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
-import static org.apache.flink.api.common.typeinfo.Types.*;
+import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
+import static org.apache.flink.api.common.typeinfo.Types.DOUBLE;
+import static org.apache.flink.api.common.typeinfo.Types.FLOAT;
+import static org.apache.flink.api.common.typeinfo.Types.INT;
+import static org.apache.flink.api.common.typeinfo.Types.LONG;
+import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
+import static org.apache.flink.api.common.typeinfo.Types.PRIMITIVE_ARRAY;
+import static org.apache.flink.api.common.typeinfo.Types.ROW;
+import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
+import static org.apache.flink.api.common.typeinfo.Types.SQL_TIMESTAMP;
+import static org.apache.flink.api.common.typeinfo.Types.STRING;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -26,20 +40,17 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoTypeTest {
 
-    @Mock
-    private ParameterTool paramTool;
-
     private StencilClientOrchestrator stencilClientOrchestrator;
 
+    @Mock
     private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.configuration = new Configuration(paramTool);
-        when(paramTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
-        when(paramTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
-        when(paramTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 

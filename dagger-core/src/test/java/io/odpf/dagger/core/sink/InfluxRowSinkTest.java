@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.sink;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
@@ -24,11 +23,26 @@ import org.mockito.Mockito;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,10 +56,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class InfluxRowSinkTest {
 
-    private static final String SINK_INFLUX_BATCH_SIZE = "100";
-    private static final String INFLUX_FLUSH_DURATION = "1000";
+    private static final int SINK_INFLUX_BATCH_SIZE = 100;
+    private static final int INFLUX_FLUSH_DURATION = 1000;
 
-    private ParameterTool parameters;
+    @Mock
+    private Configuration configuration;
     @Mock
     private InfluxDBFactoryWrapper influxDBFactory;
     @Mock
@@ -61,23 +76,22 @@ public class InfluxRowSinkTest {
     @Mock
     private Counter counter;
     private ErrorHandler errorHandler = new ErrorHandler();
-    private Configuration configuration;
+
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        when(configuration.getString(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT)).thenReturn("http://localhost:1111");
+        when(configuration.getString(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT)).thenReturn("usr");
+        when(configuration.getString(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)).thenReturn("pwd");
+        when(configuration.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT)).thenReturn(100);
 
-        HashMap<String, String> configArgs = new HashMap<>();
-        configArgs.put("SINK_INFLUX_URL", "http://localhost:1111");
-        configArgs.put("SINK_INFLUX_USERNAME", "usr");
-        configArgs.put("SINK_INFLUX_PASSWORD", "pwd");
-        configArgs.put("SINK_INFLUX_BATCH_SIZE", SINK_INFLUX_BATCH_SIZE);
-        configArgs.put("SINK_INFLUX_FLUSH_DURATION_MS", INFLUX_FLUSH_DURATION);
-        configArgs.put("SINK_INFLUX_DB_NAME", "dagger_test");
-        configArgs.put("SINK_INFLUX_RETENTION_POLICY", "two_day_policy");
-        configArgs.put("SINK_INFLUX_MEASUREMENT_NAME", "test_table");
-        parameters = ParameterTool.fromMap(configArgs);
-        this.configuration = new Configuration(parameters);
+        when(configuration.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT)).thenReturn(100);
+        when(configuration.getInteger(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT)).thenReturn(1000);
+
+        when(configuration.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT)).thenReturn("dagger_test");
+        when(configuration.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT)).thenReturn("two_day_policy");
+        when(configuration.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT)).thenReturn("test_table");
         when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);

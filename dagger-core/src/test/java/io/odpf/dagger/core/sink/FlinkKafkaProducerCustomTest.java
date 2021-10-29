@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.sink;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context;
@@ -43,7 +42,7 @@ public class FlinkKafkaProducerCustomTest {
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
     @Mock
-    private ParameterTool param;
+    private Configuration configuration;
 
     @Mock
     private Context defaultContext;
@@ -60,12 +59,9 @@ public class FlinkKafkaProducerCustomTest {
     private FlinkKafkaProducerCustomStub flinkKafkaProducerCustomStub;
     private Row row;
 
-    private Configuration configuration;
-
     @Before
     public void setUp() {
         initMocks(this);
-        this.configuration = new Configuration(param);
         flinkKafkaProducerCustomStub = new FlinkKafkaProducerCustomStub(flinkKafkaProducer, configuration);
         row = Row.of("some field");
     }
@@ -129,8 +125,8 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldReportErrorIfTelemetryEnabled() {
-        when(param.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
-        when(param.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
 
         Exception exception = assertThrows(Exception.class,
                 () -> flinkKafkaProducerCustomStub.invoke(row, defaultContext));
@@ -140,7 +136,7 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldNotReportIfTelemetryDisabled() {
-        when(param.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
 
         Exception exception = assertThrows(Exception.class,
                 () -> flinkKafkaProducerCustomStub.invoke(row, defaultContext));
@@ -150,7 +146,7 @@ public class FlinkKafkaProducerCustomTest {
 
     @Test
     public void shouldReturnErrorStatsReporter() {
-        when(param.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaProducerCustom flinkKafkaProducerCustom = new FlinkKafkaProducerCustom(flinkKafkaProducer, configuration);
         assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaProducerCustom.getErrorReporter(defaultRuntimeContext).getClass());
@@ -167,7 +163,7 @@ public class FlinkKafkaProducerCustomTest {
         }
 
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-            if (param.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
+            if (configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
                 return errorStatsReporter;
             } else {
                 return noOpErrorReporter;

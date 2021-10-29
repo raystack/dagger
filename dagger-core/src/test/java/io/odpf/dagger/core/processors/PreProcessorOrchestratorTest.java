@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -36,7 +35,7 @@ public class PreProcessorOrchestratorTest {
     private DataStream<Row> stream;
 
     @Mock
-    private ParameterTool parameterTool;
+    private Configuration configuration;
 
     @Before
     public void setup() {
@@ -45,7 +44,6 @@ public class PreProcessorOrchestratorTest {
 
     @Test
     public void shouldGetProcessors() {
-        Configuration configuration = new Configuration(parameterTool);
         PreProcessorConfig config = new PreProcessorConfig();
         List<TransformConfig> transformConfigs = new ArrayList<>();
         transformConfigs.add(new TransformConfig("InvalidRecordFilterTransformer", new HashMap<>()));
@@ -63,7 +61,6 @@ public class PreProcessorOrchestratorTest {
 
     @Test
     public void shouldNotGetProcessors() {
-        Configuration configuration = new Configuration(parameterTool);
         PreProcessorConfig config = new PreProcessorConfig();
         PreProcessorOrchestrator ppo = new PreProcessorOrchestrator(configuration, config, exporter, "test");
         Mockito.when(streamInfo.getColumnNames()).thenReturn(new String[0]);

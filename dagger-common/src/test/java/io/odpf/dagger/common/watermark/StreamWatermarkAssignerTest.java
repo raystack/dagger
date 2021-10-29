@@ -60,7 +60,7 @@ public class StreamWatermarkAssignerTest {
     public void shouldAssignTimestampAndWatermarksToSource() {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
-        streamWatermarkAssigner.sourceAssignTimeStampAndWatermark(inputStream, 10L, false);
+        streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L, false);
 
         verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
@@ -69,7 +69,7 @@ public class StreamWatermarkAssignerTest {
     public void shouldNotAssignTimestampAndWatermarksToSourceIfPerPartitionWatermarkEnabled() {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
-        streamWatermarkAssigner.sourceAssignTimeStampAndWatermark(inputStream, 10L, true);
+        streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L, true);
 
         verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }

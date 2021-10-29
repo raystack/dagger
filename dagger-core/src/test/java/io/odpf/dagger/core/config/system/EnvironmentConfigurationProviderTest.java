@@ -20,8 +20,8 @@ public class EnvironmentConfigurationProviderTest {
             put("key2", "value2");
         }};
 
-        Configuration userConf = new EnvironmentConfigurationProvider(environmentParameters).getConfiguration();
-        assertEquals("value", userConf.getString("key", ""));
-        assertEquals("value2", userConf.getString("key2", ""));
+        Configuration configuration = new EnvironmentConfigurationProvider(environmentParameters).getConfiguration();
+        assertEquals("value", configuration.getString("key", ""));
+        assertEquals("value2", configuration.getString("key2", ""));
     }
 }

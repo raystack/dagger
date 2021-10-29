@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.source;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.runtime.tasks.ExceptionInChainedOperatorException;
@@ -35,7 +34,7 @@ public class FlinkKafkaConsumerCustomTest {
     private SourceFunction.SourceContext defaultSourceContext;
 
     @Mock
-    private ParameterTool parameterTool;
+    private Configuration configuration;
 
     @Mock
     private KafkaDeserializationSchema kafkaDeserializationSchema;
@@ -52,7 +51,6 @@ public class FlinkKafkaConsumerCustomTest {
     @Mock
     private NoOpErrorReporter noOpErrorReporter;
 
-    private Configuration configuration;
 
     private FlinkKafkaConsumerCustomStub flinkKafkaConsumer011Custom;
 
@@ -60,13 +58,12 @@ public class FlinkKafkaConsumerCustomTest {
     public void setup() {
         initMocks(this);
         flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new RuntimeException("test exception"));
-        this.configuration = new Configuration(parameterTool);
     }
 
     @Test
     public void shouldReportIfTelemetryEnabled() {
-        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
-        when(parameterTool.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
 
         Exception exception = Assert.assertThrows(Exception.class,
                 () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
@@ -76,7 +73,7 @@ public class FlinkKafkaConsumerCustomTest {
 
     @Test
     public void shouldNotReportIfChainedOperatorException() {
-        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         Throwable throwable = new Throwable();
         flinkKafkaConsumer011Custom = new FlinkKafkaConsumerCustomStub(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration, new ExceptionInChainedOperatorException("chaining exception", throwable));
         Exception exception = Assert.assertThrows(Exception.class,
@@ -87,7 +84,7 @@ public class FlinkKafkaConsumerCustomTest {
 
     @Test
     public void shouldNotReportIfTelemetryDisabled() {
-        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(false);
         Exception exception = Assert.assertThrows(Exception.class,
                 () -> flinkKafkaConsumer011Custom.run(defaultSourceContext));
         assertEquals("test exception", exception.getMessage());
@@ -96,8 +93,8 @@ public class FlinkKafkaConsumerCustomTest {
 
     @Test
     public void shouldReturnErrorStatsReporter() {
-        when(parameterTool.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
-        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(0L);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
         ErrorReporter expectedErrorStatsReporter = ErrorReporterFactory.getErrorReporter(defaultRuntimeContext, configuration);
         FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = new FlinkKafkaConsumerCustom(Pattern.compile("test_topics"), kafkaDeserializationSchema, properties, configuration);
         assertEquals(expectedErrorStatsReporter.getClass(), flinkKafkaConsumerCustom.getErrorReporter(defaultRuntimeContext).getClass());
@@ -122,7 +119,7 @@ public class FlinkKafkaConsumerCustomTest {
         }
 
         protected ErrorReporter getErrorReporter(RuntimeContext runtimeContext) {
-            if (parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
+            if (configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
                 return errorReporter;
             } else {
                 return noOpErrorReporter;

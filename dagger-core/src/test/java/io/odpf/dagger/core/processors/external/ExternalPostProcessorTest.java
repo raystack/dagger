@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.external;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 import com.gojek.de.stencil.client.StencilClient;
@@ -40,7 +39,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ExternalPostProcessorTest {
     @Mock
-    private ParameterTool parameterTool;
+    private Configuration configuration;
 
     @Mock
     private StencilClient stencilClient;
@@ -64,12 +63,11 @@ public class ExternalPostProcessorTest {
     private PostProcessorConfig defaultPostProcessorConfig;
     private ExternalPostProcessor externalPostProcessor;
     private ExternalMetricConfig externalMetricConfig;
-    private Configuration configuration;
+
 
     @Before
     public void setup() {
         initMocks(this);
-        this.configuration = new Configuration(parameterTool);
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
@@ -83,8 +81,8 @@ public class ExternalPostProcessorTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("TestLogMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
         when(httpStreamDecorator.decorate(dataStream)).thenReturn(dataStream);
-        when(parameterTool.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        when(parameterTool.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+        when(configuration.getLong(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT)).thenReturn(METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
 
         String postProcessorConfigString = "{\n"
                 + "  \"external_source\": {\n"

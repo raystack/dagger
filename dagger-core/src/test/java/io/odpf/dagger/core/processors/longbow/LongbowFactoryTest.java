@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -19,16 +18,19 @@ import java.util.concurrent.TimeUnit;
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowFactoryTest {
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
-
-    @Mock
-    private ParameterTool parameter;
 
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
@@ -42,12 +44,12 @@ public class LongbowFactoryTest {
     @Mock
     private DataStream dataStream;
 
+    @Mock
     private Configuration configuration;
 
     @Before
     public void setup() {
         initMocks(this);
-        this.configuration = new Configuration(parameter);
         when(streamInfo.getDataStream()).thenReturn(dataStream);
     }
 
@@ -55,7 +57,7 @@ public class LongbowFactoryTest {
     public void shouldReturnLongbowProcessorWithWriteOnly() {
         String[] inputColumnNames = new String[]{"longbow_write_key", "longbow_write", "rowtime", "event_timestamp"};
         when(streamInfo.getColumnNames()).thenReturn(inputColumnNames);
-        when(parameter.get(INPUT_STREAMS, "")).thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"InputProtoMessage\"}]");
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"InputProtoMessage\"}]");
         LongbowSchema longbowSchema = new LongbowSchema(inputColumnNames);
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter, asyncProcessor);
         PostProcessor longbowProcessor = longbowFactory.getLongbowProcessor();

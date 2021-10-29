@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.common;
 
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
@@ -19,7 +18,12 @@ import org.mockito.Mock;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -33,18 +37,16 @@ public class ValidRecordsDecoratorTest {
     private ErrorReporter errorReporter;
 
     @Mock
-    private ParameterTool parameterTool;
-    private StencilClientOrchestrator stencilClientOrchestrator;
     private Configuration configuration;
 
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
     @Before
     public void setUp() {
         initMocks(this);
-        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
-        when(parameterTool.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
-        when(parameterTool.get(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
-        configuration = new Configuration(parameterTool);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT);
+        when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
     }
 
