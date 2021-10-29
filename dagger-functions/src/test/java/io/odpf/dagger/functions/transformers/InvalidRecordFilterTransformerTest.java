@@ -104,7 +104,6 @@ public class InvalidRecordFilterTransformerTest {
 
     @Test
     public void shouldPassValidRecords() throws Exception {
-        org.apache.flink.configuration.Configuration flinkInternalConfig = new org.apache.flink.configuration.Configuration();
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
         }}, getColumns(), configuration);
