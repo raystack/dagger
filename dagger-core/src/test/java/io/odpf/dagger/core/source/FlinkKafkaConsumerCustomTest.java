@@ -51,7 +51,6 @@ public class FlinkKafkaConsumerCustomTest {
     @Mock
     private NoOpErrorReporter noOpErrorReporter;
 
-
     private FlinkKafkaConsumerCustomStub flinkKafkaConsumer011Custom;
 
     @Before
@@ -104,7 +103,7 @@ public class FlinkKafkaConsumerCustomTest {
         private Exception exception;
 
         public FlinkKafkaConsumerCustomStub(Pattern subscriptionPattern, KafkaDeserializationSchema deserializer,
-                                            Properties props, Configuration parameterTool, Exception exception) {
+                                            Properties props, Configuration configuration, Exception exception) {
             super(subscriptionPattern, deserializer, props, configuration);
             this.exception = exception;
         }

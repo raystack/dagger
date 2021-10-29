@@ -56,27 +56,27 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow writer.
      *
-     * @param config the configuration
+     * @param configuration     the configuration
      * @param longbowSchema     the longbow schema
      * @param putRequestFactory the put request factory
      * @param tableId           the table id
      * @param writerOutputRow   the writer output row
      */
-    public LongbowWriter(Configuration config, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
+    public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
 
         this.longbowSchema = longbowSchema;
-        this.longbowDocumentDuration = config.getString(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
+        this.longbowDocumentDuration = configuration.getString(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
                 Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
         this.tableId = tableId;
         this.writerOutputRow = writerOutputRow;
-        this.configuration = config;
+        this.configuration = configuration;
     }
 
     /**
      * Instantiates a new Longbow writer with specified longbow store.
      *
-     * @param configuration the configuration
+     * @param configuration     the configuration
      * @param longBowSchema     the longbow schema
      * @param meterStatsManager the meter stats manager
      * @param errorReporter     the error reporter
@@ -106,7 +106,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), this.configuration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
 
         if (!longBowStore.tableExists(tableId)) {

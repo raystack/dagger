@@ -26,7 +26,7 @@ public class FeatureWithTypeTransformer implements MapFunction<Row, Row>, Transf
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration       the configuration
+     * @param configuration           the configuration
      */
     public FeatureWithTypeTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
         this.featureWithTypeHandler = new FeatureWithTypeHandler(transformationArguments, columnNames);

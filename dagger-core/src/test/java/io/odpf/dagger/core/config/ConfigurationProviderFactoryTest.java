@@ -30,7 +30,7 @@ public class ConfigurationProviderFactoryTest {
 
         ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("envValue", provider.getConfiguration().getString("key", ""));
+        assertEquals("envValue", provider.get().getString("key", ""));
         assertThat(provider, instanceOf(EnvironmentConfigurationProvider.class));
 
     }
@@ -41,7 +41,7 @@ public class ConfigurationProviderFactoryTest {
         ConfigurationProviderFactory providerFactory = new ConfigurationProviderFactory(new String[]{"--key", "isargValue"});
         ConfigurationProvider provider = providerFactory.provider();
 
-        assertEquals("isargValue", provider.getConfiguration().getString("key", ""));
+        assertEquals("isargValue", provider.get().getString("key", ""));
         assertThat(provider, instanceOf(CommandlineConfigurationProvider.class));
     }
 

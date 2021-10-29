@@ -104,7 +104,7 @@ public class InvalidRecordFilterTransformerTest {
 
     @Test
     public void shouldPassValidRecords() throws Exception {
-        org.apache.flink.configuration.Configuration config = new org.apache.flink.configuration.Configuration();
+        org.apache.flink.configuration.Configuration flinkInternalConfig = new org.apache.flink.configuration.Configuration();
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
         }}, getColumns(), configuration);
@@ -115,7 +115,7 @@ public class InvalidRecordFilterTransformerTest {
         StubCounter ct = new StubCounter();
         doAnswer(ct).when(counter).inc();
         Row validRow = createDefaultValidRow(DynamicMessage.getDefaultInstance(TestBookingLogMessage.getDescriptor()));
-        filter.open(config);
+        filter.open(flinkInternalConfig);
         Assert.assertTrue(filter.filter(validRow));
         Assert.assertEquals(0, ct.ct);
     }

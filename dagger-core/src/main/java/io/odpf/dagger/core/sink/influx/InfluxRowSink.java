@@ -21,22 +21,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_BATCH_SIZE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_DB_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_FLUSH_DURATION_MS_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_MEASUREMENT_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_PASSWORD_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_RETENTION_POLICY_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_URL_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_INFLUX_USERNAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
  * The Influx row sink.

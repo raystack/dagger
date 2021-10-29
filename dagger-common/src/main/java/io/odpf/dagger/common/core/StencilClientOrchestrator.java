@@ -20,8 +20,8 @@ import static io.odpf.dagger.common.core.Constants.*;
 public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
     private HashMap<String, String> stencilConfigMap;
+    private Configuration configuration;
     private HashSet<String> stencilUrls;
-    private Configuration config;
 
     /**
      * Instantiates a new Stencil client orchestrator.
@@ -29,15 +29,15 @@ public class StencilClientOrchestrator implements Serializable {
      * @param configuration the configuration
      */
     public StencilClientOrchestrator(Configuration configuration) {
-        this.config = configuration;
+        this.configuration = configuration;
         this.stencilConfigMap = createStencilConfigMap(configuration);
         this.stencilUrls = getStencilUrls();
     }
 
-    private HashMap<String, String> createStencilConfigMap(Configuration configuration) {
+    private HashMap<String, String> createStencilConfigMap(Configuration config) {
         stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, configuration.getString(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT));
+        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
+        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT));
         return stencilConfigMap;
     }
 
@@ -72,14 +72,14 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private StencilClient initStencilClient(List<String> urls) {
-        boolean enableRemoteStencil = config.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
+        boolean enableRemoteStencil = configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
                 ? StencilClientFactory.getClient(urls, stencilConfigMap)
                 : StencilClientFactory.getClient();
     }
 
     private HashSet<String> getStencilUrls() {
-        stencilUrls = Arrays.stream(config.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT).split(","))
+        stencilUrls = Arrays.stream(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT).split(","))
                 .map(String::trim)
                 .collect(Collectors.toCollection(HashSet::new));
         return stencilUrls;

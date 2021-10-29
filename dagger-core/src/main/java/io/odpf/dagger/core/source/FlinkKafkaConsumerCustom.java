@@ -27,7 +27,7 @@ public class FlinkKafkaConsumerCustom extends FlinkKafkaConsumer<Row> {
      * @param subscriptionPattern the subscription pattern
      * @param deserializer        the deserializer
      * @param props               the props
-     * @param configuration   the configuration
+     * @param configuration       the configuration
      */
     public FlinkKafkaConsumerCustom(Pattern subscriptionPattern, KafkaDeserializationSchema<Row> deserializer,
                                     Properties props, Configuration configuration) {

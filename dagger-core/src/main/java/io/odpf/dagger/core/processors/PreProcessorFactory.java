@@ -42,7 +42,7 @@ public class PreProcessorFactory {
     /**
      * Gets preprocessors.
      *
-     * @param configuration        the configuration
+     * @param configuration            the configuration
      * @param processorConfig          the processor config
      * @param tableName                the table name
      * @param metricsTelemetryExporter the metrics telemetry exporter

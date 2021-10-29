@@ -41,9 +41,9 @@ public class GrpcExternalPostProcessorIntegrationTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
-    private static org.apache.flink.configuration.Configuration configuration = new org.apache.flink.configuration.Configuration();
     private int port;
-    private io.odpf.dagger.common.configuration.Configuration daggerConfiguration;
+    private Configuration configuration;
+    private HashMap<String, String> configurationMap;
 
     @ClassRule
     public static MiniClusterWithClientResource flinkCluster =
@@ -56,12 +56,11 @@ public class GrpcExternalPostProcessorIntegrationTest {
     @Before
     public void setUp() {
         String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
-        HashMap<String, String> configurationMap = new HashMap<>();
+        this.configurationMap = new HashMap<>();
         configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
         configurationMap.put(INPUT_STREAMS, streams);
         configurationMap.put(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, "false");
-        ParameterTool parameterTool = ParameterTool.fromMap(configurationMap);
-        this.daggerConfiguration = new Configuration(parameterTool);
+        this.configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         GrpcMock.configureFor(GrpcMock.grpcMock(0).build().start());
         port = GrpcMock.getGlobalPort();
     }
@@ -98,10 +97,10 @@ public class GrpcExternalPostProcessorIntegrationTest {
                         + "    ]\n"
                         + "  } \n"
                         + "}";
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
 
-
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
                 .setField1("dummy-customer-id")
@@ -180,9 +179,10 @@ public class GrpcExternalPostProcessorIntegrationTest {
                         + "    }\n"
                         + "  ]\n"
                         + "}";
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
                 .setField1("dummy-customer-id")
@@ -272,8 +272,10 @@ public class GrpcExternalPostProcessorIntegrationTest {
                         + "   ] \n"
                         + " }";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        stencilClientOrchestrator = new StencilClientOrchestrator(daggerConfiguration);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+
+        stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         TestGrpcRequest matchRequest = TestGrpcRequest.newBuilder()
                 .setField1("dummy-customer-id")
@@ -319,7 +321,7 @@ public class GrpcExternalPostProcessorIntegrationTest {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerConfiguration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

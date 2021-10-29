@@ -24,13 +24,7 @@ import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
-import static io.odpf.dagger.core.utils.Constants.INPUT_STREAM_NAME_KEY;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY;
-import static io.odpf.dagger.core.utils.Constants.STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY;
-import static io.odpf.dagger.core.utils.Constants.STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
  * The Streams.

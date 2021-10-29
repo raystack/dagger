@@ -23,17 +23,7 @@ import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_PROTO;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_STREAM;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.OUTPUT_TOPIC;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.SINK_TYPE;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_STREAM_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_TOPIC_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
  * The Sink orchestrator.
@@ -91,8 +81,8 @@ public class SinkOrchestrator implements TelemetryPublisher {
     /**
      * Gets producer properties.
      *
+     * @param configuration the configuration
      * @return the producer properties
-     * @Configuration configuration the configuration
      */
     protected Properties getProducerProperties(Configuration configuration) {
         String outputBrokerList = configuration.getString(SINK_KAFKA_BROKERS_KEY, "");

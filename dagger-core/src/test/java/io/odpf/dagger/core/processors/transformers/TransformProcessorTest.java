@@ -47,10 +47,10 @@ public class TransformProcessorTest {
     private Transformer transformer;
 
     @Mock
-    private MetricsTelemetryExporter metricsTelemetryExporter;
+    private Configuration configuration;
 
     @Mock
-    private Configuration configuration;
+    private MetricsTelemetryExporter metricsTelemetryExporter;
 
     @Before
     public void setup() {

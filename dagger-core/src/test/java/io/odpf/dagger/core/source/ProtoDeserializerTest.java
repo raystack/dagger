@@ -26,25 +26,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
+import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.INTERNAL_VALIDATION_FILED_KEY;
-import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
-import static org.apache.flink.api.common.typeinfo.Types.INT;
-import static org.apache.flink.api.common.typeinfo.Types.LONG;
-import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
-import static org.apache.flink.api.common.typeinfo.Types.SQL_TIMESTAMP;
-import static org.apache.flink.api.common.typeinfo.Types.STRING;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.apache.flink.api.common.typeinfo.Types.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 

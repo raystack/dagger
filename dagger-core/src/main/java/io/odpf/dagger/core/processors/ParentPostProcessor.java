@@ -34,13 +34,13 @@ public class ParentPostProcessor implements PostProcessor {
      * Instantiates a new Parent post processor.
      *
      * @param postProcessorConfig       the post processor config
-     * @param config                    the configuration
+     * @param configuration             the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param telemetrySubscriber       the telemetry subscriber
      */
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration config, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
+    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
         this.postProcessorConfig = postProcessorConfig;
-        this.configuration = config;
+        this.configuration = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
     }

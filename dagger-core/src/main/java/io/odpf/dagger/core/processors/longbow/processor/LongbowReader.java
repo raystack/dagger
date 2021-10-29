@@ -55,7 +55,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow reader with specified longbow store.
      *
-     * @param config  the configuration
+     * @param configuration      the configuration
      * @param longBowSchema      the longbow schema
      * @param longbowRange       the longbow range
      * @param longBowStore       the longbow store
@@ -65,8 +65,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
      * @param scanRequestFactory the scan request factory
      * @param readerOutputRow    the reader output row
      */
-    LongbowReader(Configuration config, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
-        this(config, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
+    LongbowReader(Configuration configuration, LongbowSchema longBowSchema, LongbowRange longbowRange, LongbowStore longBowStore, MeterStatsManager meterStatsManager, ErrorReporter errorReporter, LongbowData longbowData, ScanRequestFactory scanRequestFactory, ReaderOutputRow readerOutputRow) {
+        this(configuration, longBowSchema, longbowRange, longbowData, scanRequestFactory, readerOutputRow);
         this.longBowStore = longBowStore;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
@@ -75,7 +75,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     /**
      * Instantiates a new Longbow reader.
      *
-     * @param configuration  the configuration
+     * @param configuration      the configuration
      * @param longBowSchema      the longbow schema
      * @param longbowRange       the longbow range
      * @param longbowData        the longbow data
@@ -96,13 +96,13 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
     public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
         super.open(internalFlinkConfig);
         if (longBowStore == null) {
-            longBowStore = LongbowStore.create(this.configuration);
+            longBowStore = LongbowStore.create(configuration);
         }
         if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), this.configuration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
     }

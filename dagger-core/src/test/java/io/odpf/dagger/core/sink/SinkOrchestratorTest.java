@@ -14,24 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
+import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
 import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SinkOrchestratorTest {

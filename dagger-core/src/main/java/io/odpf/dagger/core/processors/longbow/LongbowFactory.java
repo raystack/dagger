@@ -52,13 +52,13 @@ public class LongbowFactory {
      * Instantiates a new Longbow factory.
      *
      * @param longbowSchema             the longbow schema
-     * @param config                    the configuration
+     * @param configuration                    the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param metricsTelemetryExporter  the metrics telemetry exporter
      */
-    public LongbowFactory(LongbowSchema longbowSchema, Configuration config, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
+    public LongbowFactory(LongbowSchema longbowSchema, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, MetricsTelemetryExporter metricsTelemetryExporter) {
         this.longbowSchema = longbowSchema;
-        this.configuration = config;
+        this.configuration = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.columnNames = longbowSchema.getColumnNames().toArray(new String[0]);

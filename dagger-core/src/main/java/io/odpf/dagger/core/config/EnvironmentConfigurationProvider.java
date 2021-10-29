@@ -23,7 +23,7 @@ public class EnvironmentConfigurationProvider implements ConfigurationProvider {
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Configuration get() {
         return new Configuration(ParameterTool.fromMap(environmentParameters));
     }
 }
