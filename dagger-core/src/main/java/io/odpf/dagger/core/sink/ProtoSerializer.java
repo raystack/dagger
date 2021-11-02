@@ -45,17 +45,14 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
-    /**
-     * Instantiates a new Proto serializer with specified output topic name.
-     *
-     * @param keyProtoClassName         the key proto class name
-     * @param messageProtoClassName     the message proto class name
-     * @param columnNames               the column names
-     * @param stencilClientOrchestrator the stencil client orchestrator
-     * @param outputTopic               the output topic
-     */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
-        this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator);
+        if (Objects.isNull(messageProtoClassName)) {
+            throw new DaggerSerializationException("messageProtoClassName is required");
+        }
+        this.keyProtoClassName = keyProtoClassName;
+        this.messageProtoClassName = messageProtoClassName;
+        this.columnNames = columnNames;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.outputTopic = outputTopic;
     }
 
@@ -75,12 +72,6 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         return new ProducerRecord<>(outputTopic, key, message);
     }
 
-    /**
-     * Serialize key message.
-     *
-     * @param row the row
-     * @return the byte [ ]
-     */
     public byte[] serializeKey(Row row) {
         return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null
                 : parse(row, getDescriptor(keyProtoClassName)).toByteArray();

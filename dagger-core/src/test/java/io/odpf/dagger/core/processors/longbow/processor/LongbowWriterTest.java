@@ -16,7 +16,6 @@ import io.odpf.dagger.core.processors.longbow.outputRow.WriterOutputRow;
 import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.core.sink.ProtoSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
