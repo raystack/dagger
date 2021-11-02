@@ -1,40 +1,49 @@
 package io.odpf.dagger.core.sink.log;
 
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.api.connector.sink.Committer;
+import org.apache.flink.api.connector.sink.GlobalCommitter;
+import org.apache.flink.api.connector.sink.Sink;
+import org.apache.flink.api.connector.sink.SinkWriter;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.types.Row;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
-/**
- * The Log sink.
- */
-public class LogSink extends RichSinkFunction<Row> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogSink.class.getName());
+public class LogSink implements Sink<Row, Void, Void, Void> {
+    private final String[] columnNames;
 
-    private String[] columnNames;
-
-    /**
-     * Instantiates a new Log sink.
-     *
-     * @param columnNames the column names
-     */
     public LogSink(String[] columnNames) {
         this.columnNames = columnNames;
     }
 
     @Override
-    public void invoke(Row row, Context context) throws Exception {
+    public SinkWriter createWriter(InitContext context, List states) {
+        return new LogSinkWriter(columnNames);
+    }
 
-        Map map = new HashMap<String, String>();
-        for (int i = 0; i < columnNames.length; i++) {
-            Object field = row.getField(i);
-            if (field != null) {
-                map.put(columnNames[i], field.toString());
-            }
-        }
-        LOGGER.info(map.toString());
+    @Override
+    public Optional<SimpleVersionedSerializer<Void>> getWriterStateSerializer() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Committer<Void>> createCommitter() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<GlobalCommitter<Void, Void>> createGlobalCommitter() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SimpleVersionedSerializer<Void>> getCommittableSerializer() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SimpleVersionedSerializer<Void>> getGlobalCommittableSerializer() {
+        return Optional.empty();
     }
 }

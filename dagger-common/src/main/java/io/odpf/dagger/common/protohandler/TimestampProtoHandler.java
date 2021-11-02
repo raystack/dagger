@@ -9,6 +9,8 @@ import com.google.protobuf.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 
@@ -44,6 +46,11 @@ public class TimestampProtoHandler implements ProtoHandler {
         if (field instanceof java.sql.Timestamp) {
             timestamp = convertSqlTimestamp((java.sql.Timestamp) field);
         }
+
+        if (field instanceof LocalDateTime) {
+            timestamp = convertLocalDateTime((LocalDateTime) field);
+        }
+
         if (field instanceof Row) {
             Row timeField = (Row) field;
             if (timeField.getArity() == 2) {
@@ -68,6 +75,12 @@ public class TimestampProtoHandler implements ProtoHandler {
             builder.setField(fieldDescriptor, timestamp);
         }
         return builder;
+    }
+
+    private Timestamp convertLocalDateTime(LocalDateTime timeField) {
+        return Timestamp.newBuilder()
+                .setSeconds(timeField.toEpochSecond(ZoneOffset.UTC))
+                .build();
     }
 
     @Override

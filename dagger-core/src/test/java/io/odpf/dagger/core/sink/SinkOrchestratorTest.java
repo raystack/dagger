@@ -5,7 +5,6 @@ import org.apache.flink.api.common.functions.Function;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.sink.influx.InfluxRowSink;
-import io.odpf.dagger.core.sink.log.LogSink;
 import org.junit.Before;
 import org.junit.Test;
 
