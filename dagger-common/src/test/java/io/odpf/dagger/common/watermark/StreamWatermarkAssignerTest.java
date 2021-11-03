@@ -29,7 +29,7 @@ public class StreamWatermarkAssignerTest {
     }
 
     @Test
-    public void shouldAssignTimestampAndWatermarksToDataStream() {
+    public void shouldAssignTimestampAndWatermarksToInputStreamIfEnablePerPartitionWatermarkNotMentioned() {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
         streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L);
@@ -51,9 +51,9 @@ public class StreamWatermarkAssignerTest {
     public void shouldNotAssignTimestampAndWatermarksToKafkaConsumerIfPerPartitionWatermarkDisabled() {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
-        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(consumer, 10L, true);
+        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(consumer, 10L, false);
 
-        verify(consumer, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+        verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class StreamWatermarkAssignerTest {
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
         streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L, false);
 
-        verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+        verify(inputStream, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class StreamWatermarkAssignerTest {
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
         streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L, true);
 
-        verify(consumer, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
+        verify(inputStream, times(0)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
     @Test

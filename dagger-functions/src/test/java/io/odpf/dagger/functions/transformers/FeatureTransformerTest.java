@@ -25,9 +25,6 @@ public class FeatureTransformerTest {
     @Mock
     private Configuration configuration;
 
-    public FeatureTransformerTest() {
-    }
-
     @Before
     public void setup() {
         initMocks(this);
