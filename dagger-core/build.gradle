@@ -26,7 +26,7 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '0.1.0'
+def dependenciesVersion = '0.1.0-upgrade'
 
 description = """dagger to the heart!"""
 
