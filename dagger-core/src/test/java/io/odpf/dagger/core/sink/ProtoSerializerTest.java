@@ -64,7 +64,7 @@ public class ProtoSerializerTest {
         element.setField(3, 3322909458387959808L);
         element.setField(4, TestServiceType.Enum.GO_RIDE);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, seconds);
 
         TestSerDeLogKey actualKey = TestSerDeLogKey.parseFrom(producerRecord.key());
 
@@ -114,7 +114,7 @@ public class ProtoSerializerTest {
             put("key", "value");
         }});
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, seconds);
 
         TestSerDeLogMessage actualMessage = TestSerDeLogMessage.parseFrom(producerRecord.value());
 
@@ -147,7 +147,7 @@ public class ProtoSerializerTest {
 
         element.setField(0, "test-id");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestEnrichedBookingLogMessage actualValue = TestEnrichedBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -167,7 +167,7 @@ public class ProtoSerializerTest {
         element.setField(1, "test_email@go-jek.com");
         element.setField(2, true);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestEnrichedBookingLogMessage actualValue = TestEnrichedBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -192,7 +192,7 @@ public class ProtoSerializerTest {
         element.setField(4, "driver_name");
         element.setField(5, 876D);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestBookingLogMessage actualValue = TestBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -215,7 +215,7 @@ public class ProtoSerializerTest {
         element.setField(1, 876D);
 
         InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
-                () -> protoSerializer.serialize(element, null));
+                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("column invalid doesn't exists in the proto of io.odpf.dagger.consumer.TestLocation",
                 exception.getMessage());
 
@@ -231,7 +231,7 @@ public class ProtoSerializerTest {
         element.setField(0, "order_number");
         element.setField(1, "customer_email@go-jek.com");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals("customer_email@go-jek.com", TestBookingLogMessage.parseFrom(producerRecord.value()).getCustomerEmail());
     }
@@ -245,7 +245,7 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, "order_number");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals(0, producerRecord.value().length);
     }
@@ -260,7 +260,7 @@ public class ProtoSerializerTest {
         element.setField(0, "some_data");
         element.setField(1, "order_number");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals("order_number", TestBookingLogMessage.parseFrom(producerRecord.value()).getOrderNumber());
     }
@@ -275,7 +275,7 @@ public class ProtoSerializerTest {
         element.setField(0, 1234);
 
         InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
-                () -> protoSerializer.serialize(element, null));
+                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("column invalid: type mismatch of column order_number, expecting STRING type. Actual type class java.lang.Integer",
                 exception.getMessage());
     }
@@ -291,7 +291,7 @@ public class ProtoSerializerTest {
         element.setField(0, 1234);
 
         InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
-                () -> protoSerializer.serialize(element, null));
+                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("column invalid: type mismatch of column meta_array, expecting REPEATED STRING type. Actual type class java.lang.Integer",
                 exception.getMessage());
     }
@@ -308,7 +308,7 @@ public class ProtoSerializerTest {
         element.setField(0, orderNumber);
         element.setField(1, "DR-124");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
         TestBookingLogMessage actualMessage = TestBookingLogMessage.parseFrom(producerRecord.value());
 
         assertEquals(orderNumber, actualMessage.getOrderNumber());
@@ -334,7 +334,7 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, 13);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertNull(producerRecord.key());
         assertNotNull(producerRecord.value());
@@ -349,7 +349,7 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, 13);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null);
+        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertNull(producerRecord.key());
         assertNotNull(producerRecord.value());
@@ -365,7 +365,7 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, s2IdLevel);
 
-        protoSerializer.serialize(element, null);
+        protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
     }
 
     @Test
@@ -377,7 +377,7 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, "1234");
         DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
-                () -> protoSerializer.serialize(element, null));
+                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("outputTopic is required", exception.getMessage());
     }
 
@@ -391,7 +391,7 @@ public class ProtoSerializerTest {
         element.setField(0, "1234");
 
         DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
-                () -> protoSerializer.serialize(element, null));
+                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("outputTopic is required", exception.getMessage());
     }
 }

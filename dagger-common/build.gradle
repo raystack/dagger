@@ -62,6 +62,7 @@ dependencies {
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
+    dependenciesCommonJar 'com.gojek:stencil:2.0.15'
 
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.jmockit:jmockit:1.25'
