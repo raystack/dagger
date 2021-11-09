@@ -23,6 +23,12 @@ public class ErrorReporterFactory {
         return getErrorReporter(metricGroup, telemetryEnabled, shutDownPeriod);
     }
 
+    public static ErrorReporter getErrorReporter(MetricGroup metricGroup, Configuration configuration) {
+        long shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+        boolean telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
+        return getErrorReporter(metricGroup, telemetryEnabled, shutDownPeriod);
+    }
+
     /**
      * Gets error reporter.
      *
@@ -34,6 +40,14 @@ public class ErrorReporterFactory {
     public static ErrorReporter getErrorReporter(MetricGroup metricGroup, Boolean telemetryEnable, long shutDownPeriod) {
         if (telemetryEnable) {
             return new ErrorStatsReporter(metricGroup, shutDownPeriod);
+        } else {
+            return new NoOpErrorReporter();
+        }
+    }
+
+    public static ErrorReporter getErrorReporter(MetricGroup metricGroup, Boolean telemetryEnable, long shutDownPeriod) {
+        if (telemetryEnable) {
+            return new MetricGroupErrorReporter(metricGroup, shutDownPeriod);
         } else {
             return new NoOpErrorReporter();
         }

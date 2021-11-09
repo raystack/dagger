@@ -5,6 +5,7 @@ import org.apache.flink.metrics.Counter;
 
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorStatsReporter;
+import io.odpf.dagger.core.metrics.reporters.MetricGroupErrorReporter;
 import io.odpf.dagger.core.utils.Constants;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.Point;
@@ -32,6 +33,13 @@ public class LateRecordDropError implements InfluxError {
         this.counter = initContext.metricGroup()
                 .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
         this.errorStatsReporter = new ErrorStatsReporter(initContext.metricGroup(),
+                Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
+    }
+
+    public LateRecordDropError(InitContext initContext) {
+        this.counter = initContext.metricGroup()
+                .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
+        this.errorStatsReporter = new MetricGroupErrorReporter(initContext.metricGroup(),
                 Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
     }
 
