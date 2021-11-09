@@ -1,17 +1,20 @@
 package io.odpf.dagger.core.sink.influx.errors;
 
-import io.odpf.dagger.core.sink.influx.InfluxRowSink;
+import io.odpf.dagger.core.exception.InfluxWriteException;
+import io.odpf.dagger.core.sink.influx.InfluxDBSink;
 import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * The Valid error.
  */
 public class ValidError implements InfluxError {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxRowSink.class.getName());
-    private Exception error;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxDBSink.class.getName());
+    private IOException error;
 
     @Override
     public boolean hasException() {
@@ -19,7 +22,7 @@ public class ValidError implements InfluxError {
     }
 
     @Override
-    public Exception getCurrentException() {
+    public IOException getCurrentException() {
         return error;
     }
 
@@ -30,7 +33,7 @@ public class ValidError implements InfluxError {
 
     @Override
     public void handle(Iterable<Point> points, Throwable throwable) {
-        error = new Exception(throwable);
+        error = new InfluxWriteException(throwable);
         logFailedPoints(points, LOGGER);
     }
 }

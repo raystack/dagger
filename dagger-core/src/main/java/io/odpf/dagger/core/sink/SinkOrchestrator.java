@@ -9,6 +9,9 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.sink.influx.ErrorHandler;
+import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
+import io.odpf.dagger.core.sink.influx.InfluxDBSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 
 import java.util.ArrayList;
@@ -75,7 +78,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 break;
             default:
                 // TODO : Handle this to Have Influx
-                sink = null;
+                sink = new InfluxDBSink(new InfluxDBFactoryWrapper(), configuration, columnNames, new ErrorHandler());
         }
         notifySubscriber();
         return sink;
