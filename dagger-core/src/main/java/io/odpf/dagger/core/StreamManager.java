@@ -100,6 +100,7 @@ public class StreamManager {
             // TODO : Validate why/how should Source-name be defined
             DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaSource, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
                     .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
