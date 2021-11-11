@@ -98,6 +98,7 @@ dependencies {
 
 test {
     finalizedBy jacocoTestReport
+    jvmArgs '-Djdk.attach.allowAttachSelf=true'
     testLogging {
         events "passed", "skipped", "failed"
     }
