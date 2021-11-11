@@ -102,7 +102,7 @@ public class StreamManager {
             DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-                    .tableSourceAssignWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
+                    .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
             TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
