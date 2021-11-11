@@ -5,7 +5,7 @@ import org.apache.flink.types.Row;
 
 public class NoWatermark implements WatermarkStrategyDefinition {
     @Override
-    public WatermarkStrategy<Row> getWatermark(long waterMarkDelayInMs) {
+    public WatermarkStrategy<Row> getWatermarkStrategy(long waterMarkDelayInMs) {
         return WatermarkStrategy.noWatermarks();
     }
 }

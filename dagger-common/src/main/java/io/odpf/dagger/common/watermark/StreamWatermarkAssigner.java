@@ -14,12 +14,12 @@ public class StreamWatermarkAssigner implements Serializable {
 
     public DataStream<Row> tableSourceAssignWatermark(DataStream<Row> inputStream, long watermarkDelayMs, boolean enablePerPartitionWatermark) {
         return !enablePerPartitionWatermark ? inputStream
-                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermark(watermarkDelayMs)) : inputStream;
+                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelayMs)) : inputStream;
     }
 
     public DataStream<Row> assignTimeStampAndWatermark(DataStream<Row> inputStream, long watermarkDelayMs) {
         return inputStream
-                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermark(watermarkDelayMs));
+                .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelayMs));
     }
 }
 

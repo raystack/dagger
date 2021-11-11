@@ -99,7 +99,7 @@ public class StreamManager {
             // TODO : Check if rowtime should be configured for watermark or be hardcoded
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
             // TODO : Validate why/how should Source-name be defined
-            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermark(watermarkDelay), tableName);
+            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
                     .tableSourceAssignWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
