@@ -63,6 +63,11 @@ public class Streams implements TelemetryPublisher {
         }
     }
 
+    /**
+     * Gets kafkaSource.
+     *
+     * @return the Sources
+     */
     public Map<String, KafkaSource> getKafkaSource() {
         return kafkaSources;
     }

@@ -81,6 +81,12 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         return new ProducerRecord<>(outputTopic, key, message);
     }
 
+    /**
+     * Serialize key message.
+     *
+     * @param row the row
+     * @return the byte [ ]
+     */
     public byte[] serializeKey(Row row) {
         return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null
                 : parse(row, getDescriptor(keyProtoClassName)).toByteArray();

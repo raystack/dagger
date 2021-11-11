@@ -95,12 +95,12 @@ public class StreamManager {
         Streams kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        kafkaStreams.getKafkaSource().forEach((tableName, kafkaConsumer) -> {
-            // TODO : Check if rowtime should be configured for watermark or be hardcoded
+        kafkaStreams.getKafkaSource().forEach((tableName, kafkaSource) -> {
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
             // TODO : Validate why/how should Source-name be defined
-            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaConsumer, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
+            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaSource, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
                     .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
 
