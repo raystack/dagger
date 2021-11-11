@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.metrics.reporters;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.metrics.MetricGroup;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.utils.Constants;
@@ -22,6 +23,9 @@ public class ErrorReporterFactoryTest {
     @Mock
     private Configuration configuration;
 
+    @Mock
+    private MetricGroup metricGroup;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -36,6 +40,12 @@ public class ErrorReporterFactoryTest {
     }
 
     @Test
+    public void shouldReturnErrorTelemetryFormMetricGroup() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, configuration);
+        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
+    }
+
+    @Test
     public void shouldReturnErrorStatsReporterIfTelemetryEnabled() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, true, 0L);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
@@ -44,6 +54,18 @@ public class ErrorReporterFactoryTest {
     @Test
     public void shouldReturnNoOpReporterIfTelemetryDisabled() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, false, 0L);
+        assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
+    }
+
+    @Test
+    public void shouldReturnMetricErrorReporterIfTelemetryEnabled() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, true, 0L);
+        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
+    }
+
+    @Test
+    public void shouldReturnNoOpReporterIfTelemetryDisabledForMetricGroupInitialization() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, false, 0L);
         assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
     }
 }

@@ -63,7 +63,6 @@ public class Streams implements TelemetryPublisher {
         }
     }
 
-
     public Map<String, KafkaSource> getKafkaSource() {
         return kafkaSources;
     }

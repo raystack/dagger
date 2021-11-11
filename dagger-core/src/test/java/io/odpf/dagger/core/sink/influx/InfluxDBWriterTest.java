@@ -328,7 +328,7 @@ public class InfluxDBWriterTest {
         errorHandler.getExceptionHandler().accept(new ArrayList<Point>(), new RuntimeException("exception from handler"));
 
         InfluxWriteException exception = assertThrows(InfluxWriteException.class,
-                () -> influxDBWriter.snapshotState(10l));
+                () -> influxDBWriter.snapshotState(10L));
         assertEquals("java.lang.RuntimeException: exception from handler", exception.getMessage());
     }
 
@@ -339,7 +339,7 @@ public class InfluxDBWriterTest {
         Mockito.doThrow(new RuntimeException("exception from flush")).when(influxDb).flush();
 
         Exception exception = assertThrows(Exception.class,
-                () -> influxDBWriter.snapshotState(10l));
+                () -> influxDBWriter.snapshotState(10L));
         assertEquals("exception from flush", exception.getMessage());
     }
 }
