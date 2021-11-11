@@ -73,7 +73,6 @@ public class SinkOrchestrator implements TelemetryPublisher {
 
                 break;
             case "log":
-                // TODO : Convert this to Builder Pattern
                 sink = new LogSink(columnNames);
                 break;
             default:

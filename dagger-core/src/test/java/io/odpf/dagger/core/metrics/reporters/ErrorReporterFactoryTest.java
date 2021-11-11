@@ -46,6 +46,12 @@ public class ErrorReporterFactoryTest {
     }
 
     @Test
+    public void shouldReturnErrorTelemetryFormMetricGroup() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, configuration);
+        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
+    }
+
+    @Test
     public void shouldReturnErrorStatsReporterIfTelemetryEnabled() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), true, 0L);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
@@ -54,6 +60,18 @@ public class ErrorReporterFactoryTest {
     @Test
     public void shouldReturnNoOpReporterIfTelemetryDisabled() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), false, 0L);
+        assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
+    }
+
+    @Test
+    public void shouldReturnMetricErrorReporterIfTelemetryEnabled() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, true, 0L);
+        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
+    }
+
+    @Test
+    public void shouldReturnNoOpReporterIfTelemetryDisabledForMetricGroupInitialization() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, false, 0L);
         assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
     }
 }
