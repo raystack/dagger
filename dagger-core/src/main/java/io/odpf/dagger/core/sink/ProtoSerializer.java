@@ -13,6 +13,8 @@ import io.odpf.dagger.common.protohandler.ProtoHandlerFactory;
 import io.odpf.dagger.core.exception.DaggerSerializationException;
 import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,6 +25,7 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
     private String keyProtoClassName;
     private String messageProtoClassName;
     private String outputTopic;
+    private static final Logger LOGGER = LoggerFactory.getLogger("KafkaSink");
 
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
@@ -55,6 +58,7 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         if (Objects.isNull(outputTopic) || outputTopic.equals("")) {
             throw new DaggerSerializationException("outputTopic is required");
         }
+        LOGGER.info("row to kafka: " + row);
         byte[] key = serializeKey(row);
         byte[] message = serializeValue(row);
         return new ProducerRecord<>(outputTopic, key, message);
