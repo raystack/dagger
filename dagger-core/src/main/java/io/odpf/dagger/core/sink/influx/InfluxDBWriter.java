@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +55,8 @@ public class InfluxDBWriter implements SinkWriter<Row, Void, Void> {
             String columnName = columnNames[i];
             if (columnName.equals("window_timestamp")) {
                 LocalDateTime timeField = (LocalDateTime) row.getField(i);
-                pointBuilder.time(timeField.toEpochSecond(ZoneOffset.UTC), TimeUnit.SECONDS);
+                ZonedDateTime zonedDateTime = timeField.atZone(ZoneOffset.UTC);
+                pointBuilder.time(zonedDateTime.toInstant().toEpochMilli(), TimeUnit.MILLISECONDS);
             } else if (columnName.startsWith("tag_")) {
                 pointBuilder.tag(columnName, String.valueOf(row.getField(i)));
             } else if (columnName.startsWith("label_")) {
@@ -97,8 +99,15 @@ public class InfluxDBWriter implements SinkWriter<Row, Void, Void> {
     }
 
     @Override
-    public List<Void> snapshotState(long checkpointId) {
-        influxDB.flush();
+    public List<Void> snapshotState(long checkpointId) throws IOException {
+        addErrorMetricsAndThrow();
+        try {
+            influxDB.flush();
+        } catch (Exception exception) {
+            errorReporter.reportFatalException(exception);
+            throw exception;
+        }
+        addErrorMetricsAndThrow();
         return Collections.emptyList();
     }
 }

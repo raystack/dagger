@@ -30,6 +30,8 @@ public class LateRecordDropError implements InfluxError {
      *
      * @param runtimeContext the runtime context
      */
+
+    // TODO : deprecate this -> update tests for this
     public LateRecordDropError(RuntimeContext runtimeContext) {
         this.counter = runtimeContext.getMetricGroup()
                 .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");

@@ -27,6 +27,14 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
     private String outputTopic;
     private static final Logger LOGGER = LoggerFactory.getLogger("KafkaSink");
 
+    /**
+     * Instantiates a new Proto serializer with specified output topic name.
+     *
+     * @param keyProtoClassName         the key proto class name
+     * @param messageProtoClassName     the message proto class name
+     * @param columnNames               the column names
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
@@ -37,6 +45,15 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
+    /**
+     * Instantiates a new Proto serializer with specified output topic name.
+     *
+     * @param keyProtoClassName         the key proto class name
+     * @param messageProtoClassName     the message proto class name
+     * @param columnNames               the column names
+     * @param stencilClientOrchestrator the stencil client orchestrator
+     * @param outputTopic               the output topic
+     */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
         if (Objects.isNull(messageProtoClassName)) {
             throw new DaggerSerializationException("messageProtoClassName is required");
