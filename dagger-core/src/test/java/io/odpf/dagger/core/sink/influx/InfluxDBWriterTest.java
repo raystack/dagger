@@ -39,9 +39,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class InfluxDBWriterTest {
 
-    private static final int SINK_INFLUX_BATCH_SIZE = 100;
-    private static final int INFLUX_FLUSH_DURATION = 1000;
-
     @Mock
     private Configuration configuration;
 
@@ -71,18 +68,9 @@ public class InfluxDBWriterTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(configuration.getString(SINK_INFLUX_URL_KEY, SINK_INFLUX_URL_DEFAULT)).thenReturn("http://localhost:1111");
-        when(configuration.getString(SINK_INFLUX_USERNAME_KEY, SINK_INFLUX_USERNAME_DEFAULT)).thenReturn("usr");
-        when(configuration.getString(SINK_INFLUX_PASSWORD_KEY, SINK_INFLUX_PASSWORD_DEFAULT)).thenReturn("pwd");
-        when(configuration.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT)).thenReturn(100);
-
-        when(configuration.getInteger(SINK_INFLUX_BATCH_SIZE_KEY, SINK_INFLUX_BATCH_SIZE_DEFAULT)).thenReturn(100);
-        when(configuration.getInteger(SINK_INFLUX_FLUSH_DURATION_MS_KEY, SINK_INFLUX_FLUSH_DURATION_MS_DEFAULT)).thenReturn(1000);
-
         when(configuration.getString(SINK_INFLUX_DB_NAME_KEY, SINK_INFLUX_DB_NAME_DEFAULT)).thenReturn("dagger_test");
         when(configuration.getString(SINK_INFLUX_RETENTION_POLICY_KEY, SINK_INFLUX_RETENTION_POLICY_DEFAULT)).thenReturn("two_day_policy");
         when(configuration.getString(SINK_INFLUX_MEASUREMENT_NAME_KEY, SINK_INFLUX_MEASUREMENT_NAME_DEFAULT)).thenReturn("test_table");
-        when(influxDBFactory.connect(any(), any(), any())).thenReturn(influxDb);
         when(initContext.metricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY)).thenReturn(metricGroup);
         when(metricGroup.addGroup(Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY,

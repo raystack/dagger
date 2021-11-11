@@ -1,11 +1,9 @@
 package io.odpf.dagger.core.sink.influx.errors;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.connector.sink.Sink.InitContext;
 import org.apache.flink.metrics.Counter;
 
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.metrics.reporters.ErrorStatsReporter;
 import io.odpf.dagger.core.metrics.reporters.MetricGroupErrorReporter;
 import io.odpf.dagger.core.utils.Constants;
 import org.influxdb.InfluxDBException;
@@ -28,17 +26,8 @@ public class LateRecordDropError implements InfluxError {
     /**
      * Instantiates a new Late record drop error.
      *
-     * @param runtimeContext the runtime context
+     * @param initContext the context available in sink functions
      */
-
-    // TODO : deprecate this -> update tests for this
-    public LateRecordDropError(RuntimeContext runtimeContext) {
-        this.counter = runtimeContext.getMetricGroup()
-                .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
-        this.errorStatsReporter = new ErrorStatsReporter(runtimeContext,
-                Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-    }
-
     public LateRecordDropError(InitContext initContext) {
         this.counter = initContext.metricGroup()
                 .addGroup(Constants.SINK_INFLUX_LATE_RECORDS_DROPPED_KEY).counter("value");
