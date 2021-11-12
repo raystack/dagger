@@ -45,6 +45,7 @@ configurations {
 
     dependenciesJar.exclude group: 'org.apache.flink', module: 'force-shading'
     dependenciesJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    dependenciesJar.exclude group: 'org.apache.commons', module:'commons-math3'
     dependenciesJar.exclude group: 'org.slf4j'
     dependenciesJar.exclude group: 'log4j'
 
