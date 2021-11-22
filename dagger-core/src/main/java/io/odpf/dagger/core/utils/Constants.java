@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.utils;
 
 public class Constants {
-    public static final String INTERNAL_VALIDATION_FILED_KEY = "__internal_validation_field__";
+
     public static final String PROCESSOR_PREPROCESSOR_ENABLE_KEY = "PROCESSOR_PREPROCESSOR_ENABLE";
     public static final boolean PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_PREPROCESSOR_CONFIG_KEY = "PROCESSOR_PREPROCESSOR_CONFIG";
@@ -93,6 +93,10 @@ public class Constants {
     public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
     public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY = "SOURCE_KAFKA_TOPIC_NAMES";
     public static final String INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
+
+    public static final String STREAM_INPUT_DATATYPE = "SOURCE_DATATYPE";
+    public static final String STREAM_ROW_TIME_FIELD_NAME_KEY = "SOURCE_ROW_TIME_FIELD";
+    public static final String STREAM_JSON_SCHEMA_KEY = "SOURCE_JSON_SCHEMA";
 
     public static final String SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_KEY = "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET";
     public static final String SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_DEFAULT = "latest";

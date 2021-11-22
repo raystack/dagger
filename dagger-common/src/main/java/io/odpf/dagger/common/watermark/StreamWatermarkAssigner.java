@@ -21,5 +21,7 @@ public class StreamWatermarkAssigner implements Serializable {
         return inputStream
                 .assignTimestampsAndWatermarks(watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelayMs));
     }
+
+
 }
 

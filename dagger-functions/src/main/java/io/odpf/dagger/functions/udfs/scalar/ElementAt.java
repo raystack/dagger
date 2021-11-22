@@ -1,11 +1,12 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
+import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.types.Row;
+
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.elementAt.MessageReader;
-import org.apache.flink.table.functions.FunctionContext;
-import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,7 +50,7 @@ public class ElementAt extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-    public String eval(Row[] array, String pathOfArray, int index, String path) {
+    public String eval(Row[] array, String pathOfArray, Integer index, String path) {
         try {
             if (array == null || array.length <= index) {
                 return "";

@@ -1,17 +1,17 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.processors.types.MapDecorator;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
-import io.odpf.dagger.common.protohandler.ProtoHandlerFactory;
-import io.odpf.dagger.core.utils.Constants;
-import com.google.protobuf.Descriptors;
-
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
+
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.serde.deserialization.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.types.MapDecorator;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.util.Arrays;
 

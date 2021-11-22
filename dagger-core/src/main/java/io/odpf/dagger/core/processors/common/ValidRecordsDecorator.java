@@ -5,10 +5,10 @@ import org.apache.flink.types.Row;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.Constants;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 import io.odpf.dagger.core.processors.types.FilterDecorator;
-import io.odpf.dagger.core.utils.Constants;
 
 import java.util.Arrays;
 
