@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.metrics.reporters;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.MetricGroup;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -14,16 +13,10 @@ public class ErrorReporterFactory {
     /**
      * Gets error reporter.
      *
-     * @param runtimeContext the runtime context
-     * @param configuration  the configuration
+     * @param metricGroup   the runtime context
+     * @param configuration the configuration
      * @return the error reporter
      */
-    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, Configuration configuration) {
-        long shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
-        boolean telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
-        return getErrorReporter(runtimeContext, telemetryEnabled, shutDownPeriod);
-    }
-
     public static ErrorReporter getErrorReporter(MetricGroup metricGroup, Configuration configuration) {
         long shutDownPeriod = configuration.getLong(Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY, Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT);
         boolean telemetryEnabled = configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT);
@@ -33,22 +26,14 @@ public class ErrorReporterFactory {
     /**
      * Gets error reporter.
      *
-     * @param runtimeContext  the runtime context
+     * @param metricGroup     the metric-group
      * @param telemetryEnable the telemetry enable
      * @param shutDownPeriod  the shut down period
      * @return the error reporter
      */
-    public static ErrorReporter getErrorReporter(RuntimeContext runtimeContext, Boolean telemetryEnable, long shutDownPeriod) {
-        if (telemetryEnable) {
-            return new ErrorStatsReporter(runtimeContext, shutDownPeriod);
-        } else {
-            return new NoOpErrorReporter();
-        }
-    }
-
     public static ErrorReporter getErrorReporter(MetricGroup metricGroup, Boolean telemetryEnable, long shutDownPeriod) {
         if (telemetryEnable) {
-            return new MetricGroupErrorReporter(metricGroup, shutDownPeriod);
+            return new ErrorStatsReporter(metricGroup, shutDownPeriod);
         } else {
             return new NoOpErrorReporter();
         }

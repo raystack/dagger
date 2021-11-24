@@ -1,17 +1,24 @@
 package io.odpf.dagger.common.protohandler;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TimestampProtoHandlerTest {
     @Test
@@ -67,6 +74,23 @@ public class TimestampProtoHandlerTest {
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
         assertEquals(inputTimestamp.getNanos(), bookingLogMessage.getEventTimestamp().getNanos());
+    }
+
+    @Test
+    public void shouldSetTimestampIfInstanceOfLocalDateTimePassed() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
+
+        long milliSeconds = System.currentTimeMillis();
+
+        Timestamp inputTimestamp = new Timestamp(milliSeconds);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliSeconds), ZoneOffset.UTC);
+
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, localDateTime).build();
+
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
     }
 
     @Test

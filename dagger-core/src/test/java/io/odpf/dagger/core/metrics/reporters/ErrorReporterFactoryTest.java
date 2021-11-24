@@ -35,37 +35,25 @@ public class ErrorReporterFactoryTest {
 
     @Test
     public void shouldReturnErrorTelemetryFormConfigOnly() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), configuration);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 
     @Test
     public void shouldReturnErrorTelemetryFormMetricGroup() {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, configuration);
-        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
+        assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 
     @Test
     public void shouldReturnErrorStatsReporterIfTelemetryEnabled() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, true, 0L);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), true, 0L);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 
     @Test
     public void shouldReturnNoOpReporterIfTelemetryDisabled() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, false, 0L);
-        assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
-    }
-
-    @Test
-    public void shouldReturnMetricErrorReporterIfTelemetryEnabled() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, true, 0L);
-        assertEquals(errorReporter.getClass(), MetricGroupErrorReporter.class);
-    }
-
-    @Test
-    public void shouldReturnNoOpReporterIfTelemetryDisabledForMetricGroupInitialization() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, false, 0L);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), false, 0L);
         assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
     }
 }
