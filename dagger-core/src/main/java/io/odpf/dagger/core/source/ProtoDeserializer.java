@@ -3,7 +3,7 @@ package io.odpf.dagger.core.source;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerDeserializationException;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.core.protohandler.RowFactory;
+import io.odpf.dagger.common.protohandler.RowFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;

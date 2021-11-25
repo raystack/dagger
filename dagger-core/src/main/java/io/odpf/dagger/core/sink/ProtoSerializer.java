@@ -1,34 +1,34 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.exception.DaggerSerializationException;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.core.exception.InvalidColumnMappingException;
-import io.odpf.dagger.core.protohandler.ProtoHandler;
-import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
+import org.apache.flink.api.common.serialization.SerializationSchema.InitializationContext;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
-import org.apache.flink.types.Row;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.common.protohandler.ProtoHandler;
+import io.odpf.dagger.common.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.core.exception.DaggerSerializationException;
+import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * Serialize the proto if sink type is kafka.
- */
-public class ProtoSerializer implements KafkaSerializationSchema<Row> {
+public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
     private String[] columnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private String keyProtoClassName;
     private String messageProtoClassName;
     private String outputTopic;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger("KafkaSink");
 
     /**
-     * Instantiates a new Proto serializer.
+     * Instantiates a new Proto serializer with specified output topic name.
      *
      * @param keyProtoClassName         the key proto class name
      * @param messageProtoClassName     the message proto class name
@@ -60,10 +60,16 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
     }
 
     @Override
-    public ProducerRecord<byte[], byte[]> serialize(Row row, @Nullable Long aLong) {
+    public void open(InitializationContext context, KafkaSinkContext sinkContext) throws Exception {
+        KafkaRecordSerializationSchema.super.open(context, sinkContext);
+    }
+
+    @Override
+    public ProducerRecord<byte[], byte[]> serialize(Row row, KafkaSinkContext context, Long timestamp) {
         if (Objects.isNull(outputTopic) || outputTopic.equals("")) {
             throw new DaggerSerializationException("outputTopic is required");
         }
+        LOGGER.info("row to kafka: " + row);
         byte[] key = serializeKey(row);
         byte[] message = serializeValue(row);
         return new ProducerRecord<>(outputTopic, key, message);
@@ -155,5 +161,4 @@ public class ProtoSerializer implements KafkaSerializationSchema<Row> {
         }
         return dsc;
     }
-
 }

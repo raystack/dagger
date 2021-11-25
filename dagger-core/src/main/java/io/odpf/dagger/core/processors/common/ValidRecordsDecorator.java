@@ -40,7 +40,7 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
 
     @Override
     public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
-        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), this.configuration);
+        errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext().getMetricGroup(), this.configuration);
     }
 
     @Override

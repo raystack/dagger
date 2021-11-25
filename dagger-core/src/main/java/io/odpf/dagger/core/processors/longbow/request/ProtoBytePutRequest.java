@@ -1,10 +1,10 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
+import org.apache.flink.types.Row;
+
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.core.sink.ProtoSerializer;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;

@@ -102,7 +102,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext().getMetricGroup(), configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
     }
