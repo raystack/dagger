@@ -2,6 +2,8 @@ package io.odpf.dagger.core.sink.influx.errors;
 
 import org.influxdb.dto.Point;
 
+import java.io.IOException;
+
 /**
  * No error found on Influx sink.
  */
@@ -12,7 +14,7 @@ public class NoError implements InfluxError {
     }
 
     @Override
-    public Exception getCurrentException() {
+    public IOException getCurrentException() {
         return null;
     }
 

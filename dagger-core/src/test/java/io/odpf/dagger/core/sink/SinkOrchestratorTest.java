@@ -1,10 +1,11 @@
 package io.odpf.dagger.core.sink;
 
-import org.apache.flink.api.common.functions.Function;
+import org.apache.flink.api.connector.sink.Sink;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.sink.influx.InfluxRowSink;
+import io.odpf.dagger.core.sink.influx.InfluxDBSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,15 +45,15 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveInfluxSinkWhenConfiguredToUseInflux() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
-        assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
+        assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
 
     @Test
     public void shouldGiveLogSinkWhenConfiguredToUseLog() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("log");
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
         assertThat(sinkFunction, instanceOf(LogSink.class));
     }
@@ -60,9 +61,9 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveInfluxWhenConfiguredToUseNothing() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
-        assertThat(sinkFunction, instanceOf(InfluxRowSink.class));
+        assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
 
 
@@ -83,9 +84,9 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
 
-        Function sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
-        assertThat(sinkFunction, instanceOf(FlinkKafkaProducerCustom.class));
+        assertThat(sinkFunction, instanceOf(KafkaSink.class));
     }
 
     @Test

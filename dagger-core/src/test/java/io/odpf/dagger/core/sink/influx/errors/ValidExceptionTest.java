@@ -36,6 +36,7 @@ public class ValidExceptionTest {
         validException.handle(points, new Exception("Test"));
         Exception currentException = validException.getCurrentException();
         assertTrue(currentException instanceof Exception);
-        assertEquals("Test", currentException.getMessage());
+        System.out.println(currentException.getMessage());
+        assertEquals("java.lang.Exception: Test", currentException.getMessage());
     }
 }

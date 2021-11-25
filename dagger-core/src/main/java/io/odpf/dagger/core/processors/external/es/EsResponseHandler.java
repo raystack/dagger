@@ -6,8 +6,8 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.core.protohandler.ProtoHandler;
-import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.protohandler.ProtoHandler;
+import io.odpf.dagger.common.protohandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.jayway.jsonpath.JsonPath;
@@ -29,7 +29,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
+import static io.odpf.dagger.common.protohandler.RowFactory.createRow;
 import static java.util.Collections.singleton;
 import static org.apache.http.HttpStatus.SC_OK;
 

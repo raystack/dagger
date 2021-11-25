@@ -1,13 +1,16 @@
 package io.odpf.dagger.core;
 
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
+import org.apache.flink.types.Row;
+
 import com.google.gson.Gson;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.watermark.LastColumnWatermark;
-import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.source.FlinkKafkaConsumerCustom;
 import io.odpf.dagger.core.source.ProtoDeserializer;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,12 +34,11 @@ import static io.odpf.dagger.core.utils.Constants.*;
  */
 public class Streams implements TelemetryPublisher {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
-    private Map<String, FlinkKafkaConsumerCustom> streams = new HashMap<>();
+
+    private Map<String, KafkaSource> kafkaSources = new HashMap<>();
     private LinkedHashMap<String, String> protoClassForTable = new LinkedHashMap<>();
     private final Configuration configuration;
     private StencilClientOrchestrator stencilClientOrchestrator;
-    private boolean enablePerPartitionWatermark;
-    private long watermarkDelay;
     private Map<String, List<String>> metrics = new HashMap<>();
     private List<String> topics = new ArrayList<>();
     private List<String> protoClassNames = new ArrayList<>();
@@ -46,32 +48,28 @@ public class Streams implements TelemetryPublisher {
     /**
      * Instantiates a new Streams.
      *
-     * @param configuration               the configuration
-     * @param rowTimeAttributeName        the row time attribute name
-     * @param stencilClientOrchestrator   the stencil client orchestrator
-     * @param enablePerPartitionWatermark the enable per partition watermark
-     * @param watermarkDelay              the watermark delay
+     * @param configuration             the configuration
+     * @param rowTimeAttributeName      the row time attribute name
+     * @param stencilClientOrchestrator the stencil client orchestrator
      */
-    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator, boolean enablePerPartitionWatermark, long watermarkDelay) {
+    public Streams(Configuration configuration, String rowTimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.configuration = configuration;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
-        this.watermarkDelay = watermarkDelay;
-        this.enablePerPartitionWatermark = enablePerPartitionWatermark;
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Map[] streamsConfig = GSON.fromJson(jsonArrayString, Map[].class);
         for (Map<String, String> streamConfig : streamsConfig) {
             String tableName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_TABLE, "");
-            streams.put(tableName, getKafkaConsumer(rowTimeAttributeName, streamConfig));
+            kafkaSources.put(tableName, getKafkaSource(rowTimeAttributeName, streamConfig));
         }
     }
 
     /**
-     * Gets streams.
+     * Gets kafkaSource.
      *
-     * @return the streams
+     * @return the Sources
      */
-    public Map<String, FlinkKafkaConsumerCustom> getStreams() {
-        return streams;
+    public Map<String, KafkaSource> getKafkaSource() {
+        return kafkaSources;
     }
 
     /**
@@ -98,8 +96,7 @@ public class Streams implements TelemetryPublisher {
         return String.join(".", names);
     }
 
-    // TODO : refactor the watermark related things
-    private FlinkKafkaConsumerCustom getKafkaConsumer(String rowTimeAttributeName, Map<String, String> streamConfig) {
+    private KafkaSource<Row> getKafkaSource(String rowTimeAttributeName, Map<String, String> streamConfig) {
         String topicsForStream = streamConfig.getOrDefault(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY, "");
         topics.add(topicsForStream);
         String protoClassName = streamConfig.getOrDefault(STREAM_INPUT_SCHEMA_PROTO_CLASS, "");
@@ -116,13 +113,22 @@ public class Streams implements TelemetryPublisher {
 
         setAdditionalConfigs(kafkaProps);
 
-        FlinkKafkaConsumerCustom fc = new FlinkKafkaConsumerCustom(Pattern.compile(topicsForStream),
-                new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator), kafkaProps, configuration);
 
-        // https://ci.apache.org/projects/flink/flink-docs-stable/dev/event_timestamps_watermarks.html#timestamps-per-kafka-partition
-        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
-        streamWatermarkAssigner.consumerAssignTimeStampAndWatermark(fc, watermarkDelay, enablePerPartitionWatermark);
-        return fc;
+        // TODO : OffsetReset Strategy can be more matured to support time-based offset-resets
+        KafkaSource<Row> source = KafkaSource.<Row>builder()
+                .setTopicPattern(Pattern.compile(topicsForStream))
+                .setStartingOffsets(OffsetsInitializer.committedOffsets(getOffsetResetStrategy(streamConfig)))
+                .setProperties(kafkaProps)
+                .setDeserializer(KafkaRecordDeserializationSchema.of(new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator)))
+                .build();
+
+        return source;
+    }
+
+    private OffsetResetStrategy getOffsetResetStrategy(Map<String, String> streamConfig) {
+        String consumerOffsetResetStrategy = streamConfig.getOrDefault(SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_KEY, SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_DEFAULT);
+        OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.valueOf(consumerOffsetResetStrategy.toUpperCase());
+        return offsetResetStrategy;
     }
 
     private void setAdditionalConfigs(Properties kafkaProps) {

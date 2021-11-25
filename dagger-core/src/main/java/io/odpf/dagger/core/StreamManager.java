@@ -14,7 +14,9 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
 import io.odpf.dagger.common.watermark.LastColumnWatermark;
+import io.odpf.dagger.common.watermark.NoWatermark;
 import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
+import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.PreProcessorConfig;
@@ -93,9 +95,10 @@ public class StreamManager {
         Streams kafkaStreams = getKafkaStreams();
         kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        kafkaStreams.getStreams().forEach((tableName, kafkaConsumer) -> {
-            DataStream<Row> kafkaStream = executionEnvironment.addSource(kafkaConsumer);
-
+        kafkaStreams.getKafkaSource().forEach((tableName, kafkaSource) -> {
+            WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
+            // TODO : Validate why/how should Source-name be defined
+            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaSource, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
@@ -110,6 +113,10 @@ public class StreamManager {
             tableEnvironment.createTemporaryView(tableName, table);
         });
         return this;
+    }
+
+    private WatermarkStrategyDefinition getSourceWatermarkDefinition(Boolean enablePerPartitionWatermark) {
+        return enablePerPartitionWatermark ? new LastColumnWatermark() : new NoWatermark();
     }
 
     private ApiExpression[] getApiExpressions(StreamInfo streamInfo) {
@@ -213,13 +220,11 @@ public class StreamManager {
     private void addSink(StreamInfo streamInfo) {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
         sinkOrchestrator.addSubscriber(telemetryExporter);
-        streamInfo.getDataStream().addSink(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
+        streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
     private Streams getKafkaStreams() {
         String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
-        Long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
-        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator, enablePerPartitionWatermark, watermarkDelay);
+        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator);
     }
 }

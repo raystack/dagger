@@ -1,23 +1,23 @@
 package io.odpf.dagger.core.processors.external;
 
-import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.common.DescriptorManager;
-import io.odpf.dagger.core.processors.common.EndpointHandler;
-import io.odpf.dagger.core.processors.types.SourceConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
+import io.odpf.dagger.core.processors.ColumnNameManager;
+import io.odpf.dagger.core.processors.common.DescriptorManager;
+import io.odpf.dagger.core.processors.common.EndpointHandler;
+import io.odpf.dagger.core.processors.types.SourceConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -154,7 +154,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
 
         if (errorReporter == null) {
             errorReporter = ErrorReporterFactory
-                    .getErrorReporter(getRuntimeContext(), externalMetricConfig.isTelemetryEnabled(), externalMetricConfig.getShutDownPeriod());
+                    .getErrorReporter(getRuntimeContext().getMetricGroup(), externalMetricConfig.isTelemetryEnabled(), externalMetricConfig.getShutDownPeriod());
         }
         if (meterStatsManager == null) {
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);

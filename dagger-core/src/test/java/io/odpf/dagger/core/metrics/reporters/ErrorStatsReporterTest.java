@@ -30,12 +30,12 @@ public class ErrorStatsReporterTest {
     public void setup() {
         initMocks(this);
         long shutDownPeriod = 0L;
-        errorStatsReporter = new ErrorStatsReporter(runtimeContext, shutDownPeriod);
+        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        errorStatsReporter = new ErrorStatsReporter(runtimeContext.getMetricGroup(), shutDownPeriod);
     }
 
     @Test
     public void shouldReportError() {
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("fatal.exception", "java.lang.RuntimeException")).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
         errorStatsReporter.reportFatalException(new RuntimeException());
@@ -45,7 +45,6 @@ public class ErrorStatsReporterTest {
 
     @Test
     public void shouldReportNonFatalError() {
-        when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("non.fatal.exception", "java.lang.RuntimeException")).thenReturn(metricGroup);
         when(metricGroup.counter("value")).thenReturn(counter);
         errorStatsReporter.reportNonFatalException(new RuntimeException());
