@@ -67,4 +67,5 @@ public class EnumProtoHandler implements ProtoHandler {
     public TypeInformation getTypeInformation() {
         return Types.STRING;
     }
+
 }

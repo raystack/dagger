@@ -72,6 +72,8 @@ public class Constants {
     public static final String SINK_KAFKA_PROTO_KEY = "SINK_KAFKA_PROTO_KEY";
     public static final String SINK_KAFKA_PROTO_MESSAGE_KEY = "SINK_KAFKA_PROTO_MESSAGE";
     public static final String SINK_KAFKA_STREAM_KEY = "SINK_KAFKA_STREAM";
+    public static final String SINK_KAFKA_JSON_SCHEMA_KEY = "SINK_KAFKA_JSON_SCHEMA";
+    public static final String SINK_KAFKA_DATA_TYPE = "SINK_KAFKA_DATA_TYPE";
     public static final String SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY = "SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE";
     public static final boolean SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT = false;
     public static final String SINK_KAFKA_COMPRESSION_TYPE_KEY = "compression.type";

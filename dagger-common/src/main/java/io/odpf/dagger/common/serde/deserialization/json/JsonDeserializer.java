@@ -9,6 +9,10 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+
 public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
     private final JsonRowDeserializationSchema jsonRowDeserializationSchema;
     private final int rowtimeIdx;
@@ -48,11 +52,11 @@ public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
             finalRecord.setField(i, row.getField(i));
         }
 
-        Object rowtimeField = row.getField(rowtimeIdx);
+        BigDecimal rowtimeField = (BigDecimal) row.getField(rowtimeIdx);
 
         finalRecord.setField(finalRecord.getArity() - 2, true);
         // TODO : validate Data-types here
-        finalRecord.setField(finalRecord.getArity() - 1, rowtimeField);
+        finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(rowtimeField.longValue())));
         return finalRecord;
     }
 }

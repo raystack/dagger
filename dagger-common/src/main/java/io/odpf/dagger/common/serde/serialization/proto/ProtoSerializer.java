@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.sink;
+package io.odpf.dagger.common.serde.serialization.proto;
 
 import org.apache.flink.api.common.serialization.SerializationSchema.InitializationContext;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
@@ -8,10 +8,10 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
+import io.odpf.dagger.common.exceptions.serde.InvalidColumnMappingException;
 import io.odpf.dagger.common.serde.deserialization.proto.protohandler.ProtoHandler;
 import io.odpf.dagger.common.serde.deserialization.proto.protohandler.ProtoHandlerFactory;
-import io.odpf.dagger.core.exception.DaggerSerializationException;
-import io.odpf.dagger.core.exception.InvalidColumnMappingException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

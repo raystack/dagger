@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.longbow.request;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import io.odpf.dagger.core.sink.ProtoSerializer;
+import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Before;

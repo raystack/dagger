@@ -218,13 +218,10 @@ public class StreamManager {
         return streamInfo;
     }
 
-
     private void addSink(StreamInfo streamInfo) {
-        SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
-        sinkOrchestrator.addSubscriber(telemetryExporter);
+        SinkOrchestrator sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
-
 
     private List<Stream> getStreams() {
         return StreamsFactory.getStreams(configuration, stencilClientOrchestrator);

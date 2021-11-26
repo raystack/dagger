@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.exception;
+package io.odpf.dagger.common.exceptions.serde;
 
 /**
  * The class Exception if failed on Serializing the protobuf message.

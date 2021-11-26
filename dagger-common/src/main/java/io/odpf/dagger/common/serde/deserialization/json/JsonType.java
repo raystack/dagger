@@ -19,6 +19,7 @@ public class JsonType implements Serializable, RowTypeInfoWrapper {
 
     public TypeInformation<Row> getRowType() {
         TypeInformation<Row> rowNamed = JsonRowSchemaConverter.convert(jsonSchema);
+
         return addInternalFields(rowNamed, rowtimeAttributeName);
     }
 }

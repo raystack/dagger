@@ -25,7 +25,7 @@ import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowValidator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.sink.ProtoSerializer;
+import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
 
 import java.util.ArrayList;
 import java.util.Map;
