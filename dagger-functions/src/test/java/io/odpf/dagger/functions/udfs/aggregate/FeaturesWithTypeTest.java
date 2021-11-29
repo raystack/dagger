@@ -73,7 +73,7 @@ public class FeaturesWithTypeTest {
         FeaturesWithType features = new FeaturesWithType();
         features.getValue(featureAccumulator);
 
-        verify(featureAccumulator, times(1)).getFeatures();
+        verify(featureAccumulator, times(1)).getFeaturesAsRows();
     }
 
     @Test(expected = InvalidNumberOfArgumentsException.class)

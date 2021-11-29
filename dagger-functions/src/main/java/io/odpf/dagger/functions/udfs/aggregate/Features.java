@@ -3,11 +3,15 @@ package io.odpf.dagger.functions.udfs.aggregate;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.functions.exceptions.OddNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureAccumulator;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.FunctionHint;
+import org.apache.flink.table.annotation.InputGroup;
 import org.apache.flink.types.Row;
 
 /**
  * User-defined aggregate function to get Features.
  */
+@FunctionHint(output = @DataTypeHint("RAW"))
 public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
 
     @Override
@@ -17,7 +21,7 @@ public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
 
     @Override
     public Row[] getValue(FeatureAccumulator featureAccumulator) {
-        return featureAccumulator.getFeatures();
+        return featureAccumulator.getFeaturesAsRows();
     }
 
     /**
@@ -30,7 +34,7 @@ public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
      * @author zhilingc
      * @team DS
      */
-    public void accumulate(FeatureAccumulator featureAccumulator, Object... objects) {
+    public void accumulate(FeatureAccumulator featureAccumulator, @DataTypeHint(inputGroup = InputGroup.ANY) Object... objects) {
         if (objects.length % 2 != 0) {
             throw new OddNumberOfArgumentsException();
         }

@@ -53,6 +53,6 @@ public class FeaturesTest {
         Features features = new Features();
         features.getValue(featureAccumulator);
 
-        verify(featureAccumulator, times(1)).getFeatures();
+        verify(featureAccumulator, times(1)).getFeaturesAsRows();
     }
 }

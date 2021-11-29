@@ -3,6 +3,7 @@ package io.odpf.dagger.functions.udfs.aggregate;
 
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.PercentileAccumulator;
+import org.apache.flink.table.annotation.DataTypeHint;
 
 import java.math.BigDecimal;
 
@@ -32,7 +33,7 @@ public class PercentileAggregator extends AggregateUdf<Double, PercentileAccumul
      * @param percentile the percentile
      * @param dValue     the d value
      */
-    public void accumulate(PercentileAccumulator acc, BigDecimal percentile, BigDecimal dValue) {
+    public void accumulate(PercentileAccumulator acc, @DataTypeHint("DECIMAL(12, 3)") BigDecimal percentile, @DataTypeHint("DECIMAL(12, 3)") BigDecimal dValue) {
         acc.add(percentile.doubleValue(), dValue.doubleValue());
     }
 }
