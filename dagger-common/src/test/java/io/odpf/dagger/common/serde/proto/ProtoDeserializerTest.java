@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.common.serde.proto;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
