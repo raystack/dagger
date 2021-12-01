@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.utils.Constants.*;
 
-// TODO : pojo parsing of this class directly
+// TODO : Delete this class
 public class StreamMetaData {
     private Map<String, String> streamConfig;
     private Configuration configuration;

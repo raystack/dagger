@@ -13,7 +13,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 
@@ -27,19 +26,19 @@ public class StreamsFactory {
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         JsonReader reader = new JsonReader(new StringReader(jsonArrayString));
         reader.setLenient(true);
-        Map<String, String>[] streamsConfigs = GSON.fromJson(jsonArrayString, Map[].class);
+
+        StreamConfig[] streamsConfigs = GSON.fromJson(jsonArrayString, StreamConfig[].class);
 
         ArrayList<Stream> streams = new ArrayList<>();
-        for (Map<String, String> streamConfig : streamsConfigs) {
-            StreamMetaData streamMetaData = new StreamMetaData(streamConfig, configuration);
 
+        for (StreamConfig streamConfig : streamsConfigs) {
             List<StreamBuilder> dataStreams = Arrays
-                    .asList(new StreamBuilder[]{new JsonDataStreamBuilder(streamConfig, streamMetaData),
-                            new ProtoDataStreamBuilder(streamConfig, streamMetaData, stencilClientOrchestrator, configuration)});
+                    .asList(new StreamBuilder[]{new JsonDataStreamBuilder(streamConfig, configuration),
+                            new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration)});
             Stream stream = dataStreams.stream()
                     .filter(dataStream -> dataStream.canBuild())
                     .findFirst()
-                    .orElse(new ProtoDataStreamBuilder(streamConfig, streamMetaData, stencilClientOrchestrator, configuration))
+                    .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration))
                     .build();
             streams.add(stream);
         }

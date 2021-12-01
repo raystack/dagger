@@ -1,0 +1,143 @@
+package io.odpf.dagger.core.stream;
+
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
+import io.odpf.dagger.common.configuration.Configuration;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Pattern;
+
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY;
+
+public class StreamConfig {
+    private static final Gson GSON = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .setPrettyPrinting()
+            .create();
+
+    private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
+
+    @SerializedName("SOURCE_KAFKA_TOPIC_NAMES")
+    @Setter
+    @Getter
+    private String kafkaTopic;
+
+    @SerializedName("INPUT_SCHEMA_PROTO_CLASS")
+    @Setter
+    @Getter
+    private String protoClass;
+
+    @SerializedName("INPUT_SCHEMA_TABLE")
+    @Setter
+    @Getter
+    private String schemaTable;
+
+    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE")
+    @Setter
+    @Getter
+    private String autoCommitEnabled;
+
+    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET")
+    @Setter
+    @Getter
+    private String autoOffsetReset;
+
+    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID")
+    @Setter
+    @Getter
+    private String consumerGroup;
+
+    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS")
+    @Setter
+    @Getter
+    private String sourceBootstrapServers;
+
+    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
+    @Setter
+    @Getter
+    private String eventTimestampIndex;
+
+    @SerializedName("SOURCE_KAFKA_NAME")
+    @Setter
+    @Getter
+    private String sourceKafkaName;
+
+    private String streamDataType;
+
+    public String getStreamDataType() {
+        if (streamDataType == null) {
+            streamDataType = "PROTO";
+        }
+        return streamDataType;
+    }
+
+    public void setStreamDataType(String streamDataType) {
+        if (streamDataType == null) {
+            this.streamDataType = "PROTO";
+        } else {
+            this.streamDataType = streamDataType;
+        }
+    }
+
+    @SerializedName("SOURCE_JSON_SCHEMA")
+    @Setter
+    @Getter
+    private String jsonSchema;
+
+    @SerializedName("SOURCE_ROW_TIME_FIELD")
+    @Setter
+    @Getter
+    private String rowTimeFieldName;
+
+    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
+    @Setter
+    @Getter
+    private String eventTimestampFieldIndex;
+
+    public Properties getKafkaProps(Configuration configuration) {
+        String jsonString = GSON.toJson(this);
+        Map<String, String> streamConfigMap = GSON.fromJson(jsonString, Map.class);
+        Properties kafkaProps = new Properties();
+        streamConfigMap.entrySet()
+                .stream()
+                .filter(e -> e.getKey().toLowerCase().startsWith(KAFKA_PREFIX))
+                .forEach(e -> kafkaProps.setProperty(parseVarName(e.getKey(), KAFKA_PREFIX), e.getValue()));
+        setAdditionalConfigs(kafkaProps, configuration);
+        return kafkaProps;
+    }
+
+    private String parseVarName(String varName, String kafkaPrefix) {
+        String[] names = varName.toLowerCase().replaceAll(kafkaPrefix, "").split("_");
+        return String.join(".", names);
+    }
+
+    private void setAdditionalConfigs(Properties kafkaProps, Configuration configuration) {
+        if (configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)) {
+            kafkaProps.setProperty(SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY, SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT);
+        }
+    }
+
+    public Pattern getTopicPattern() {
+        return Pattern.compile(kafkaTopic);
+    }
+
+    public OffsetsInitializer getStartingOffset() {
+        return OffsetsInitializer.committedOffsets(getOffsetResetStrategy());
+    }
+
+    private OffsetResetStrategy getOffsetResetStrategy() {
+        String consumerOffsetResetStrategy = autoOffsetReset;
+        OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.valueOf(consumerOffsetResetStrategy.toUpperCase());
+        return offsetResetStrategy;
+    }
+}

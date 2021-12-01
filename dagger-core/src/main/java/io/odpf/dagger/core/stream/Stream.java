@@ -19,10 +19,6 @@ public class Stream {
         return streamName;
     }
 
-    public DataTypes getInputDataType() {
-        return inputDataType;
-    }
-
     public Source getSource() {
         return source;
     }
