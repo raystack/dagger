@@ -50,6 +50,7 @@ public class SinkOrchestrator {
 
                 KafkaSerializerBuilder serializationSchema = KafkaSerializationSchemaFactory
                         .getSerializationSchema(configuration, stencilClientOrchestrator, columnNames);
+
                 reportTelemetry(serializationSchema);
 
                 sink = KafkaSink.<Row>builder()

@@ -10,6 +10,7 @@ import io.odpf.dagger.core.sink.influx.InfluxDBSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class SinkOrchestratorTest {
     private Configuration configuration;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private SinkOrchestrator sinkOrchestrator;
+    @Mock
     private MetricsTelemetryExporter telemetryExporter;
 
     @Before
@@ -85,6 +87,7 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
         when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
 
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
@@ -100,7 +103,8 @@ public class SinkOrchestratorTest {
 
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-//        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+        // TODO : Fix this assertion
+        // assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 
 
@@ -126,8 +130,10 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("SINK_KAFKA_STREAM"), anyString())).thenReturn("test_output_stream");
         when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
+        when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
 
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-//        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+        // TODO : Fix this assertion
+        // assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 }

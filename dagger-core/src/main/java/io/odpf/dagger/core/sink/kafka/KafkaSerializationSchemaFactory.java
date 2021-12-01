@@ -9,7 +9,7 @@ import io.odpf.dagger.core.utils.Constants;
 
 public class KafkaSerializationSchemaFactory {
     public static KafkaSerializerBuilder getSerializationSchema(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, String[] columnNames) {
-        DataTypes dataTypes = DataTypes.valueOf(configuration.getString(Constants.SINK_KAFKA_DATA_TYPE, ""));
+        DataTypes dataTypes = DataTypes.valueOf(configuration.getString(Constants.SINK_KAFKA_DATA_TYPE, "PROTO"));
 
         if (dataTypes == DataTypes.JSON) {
             return new KafkaJsonSerializerBuilder(configuration);
