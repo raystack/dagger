@@ -6,12 +6,13 @@ import org.apache.flink.table.annotation.DataTypeHint;
 import org.apache.flink.table.annotation.FunctionHint;
 import org.apache.flink.table.annotation.InputGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * User-defined aggregate function to get the arraList of the objects.
  */
-@FunctionHint(output = @DataTypeHint("RAW"))
+@FunctionHint(output = @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class))
 public class CollectArray extends AggregateUdf<List<Object>, ArrayAccumulator> {
 
     public ArrayAccumulator createAccumulator() {
@@ -33,5 +34,13 @@ public class CollectArray extends AggregateUdf<List<Object>, ArrayAccumulator> {
 
     public List<Object> getValue(ArrayAccumulator arrayAccumulator) {
         return arrayAccumulator.emit();
+    }
+
+    public void merge(ArrayAccumulator arrayAccumulator, Iterable<ArrayAccumulator> it) {
+        for (ArrayAccumulator accumulatorInstance : it) {
+            List<Object> arrayList = arrayAccumulator.getArrayList();
+            arrayList.addAll(accumulatorInstance.getArrayList());
+            arrayAccumulator.setArrayList(arrayList);
+        }
     }
 }
