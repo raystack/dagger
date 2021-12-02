@@ -5,15 +5,18 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
 import io.odpf.dagger.common.configuration.Configuration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
+import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
@@ -62,16 +65,27 @@ public class StreamConfig {
     @Getter
     private String sourceBootstrapServers;
 
-    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
-    @Setter
-    @Getter
-    private String eventTimestampIndex;
-
     @SerializedName("SOURCE_KAFKA_NAME")
     @Setter
     @Getter
     private String sourceKafkaName;
 
+    @SerializedName("SOURCE_JSON_SCHEMA")
+    @Setter
+    @Getter
+    private String jsonSchema;
+
+    @SerializedName("SOURCE_ROW_TIME_FIELD")
+    @Setter
+    @Getter
+    private String rowTimeFieldName;
+
+    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
+    @Setter
+    @Getter
+    private String eventTimestampFieldIndex;
+
+    @SerializedName("SOURCE_DATATYPE")
     private String streamDataType;
 
     public String getStreamDataType() {
@@ -89,20 +103,13 @@ public class StreamConfig {
         }
     }
 
-    @SerializedName("SOURCE_JSON_SCHEMA")
-    @Setter
-    @Getter
-    private String jsonSchema;
+    public static StreamConfig[] parse(Configuration configuration) {
+        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
+        JsonReader reader = new JsonReader(new StringReader(jsonArrayString));
+        reader.setLenient(true);
 
-    @SerializedName("SOURCE_ROW_TIME_FIELD")
-    @Setter
-    @Getter
-    private String rowTimeFieldName;
-
-    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
-    @Setter
-    @Getter
-    private String eventTimestampFieldIndex;
+        return GSON.fromJson(jsonArrayString, StreamConfig[].class);
+    }
 
     public Properties getKafkaProps(Configuration configuration) {
         String jsonString = GSON.toJson(this);
@@ -136,8 +143,6 @@ public class StreamConfig {
     }
 
     private OffsetResetStrategy getOffsetResetStrategy() {
-        String consumerOffsetResetStrategy = autoOffsetReset;
-        OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.valueOf(consumerOffsetResetStrategy.toUpperCase());
-        return offsetResetStrategy;
+        return OffsetResetStrategy.valueOf(autoOffsetReset.toUpperCase());
     }
 }

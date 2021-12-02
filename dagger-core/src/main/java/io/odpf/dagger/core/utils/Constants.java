@@ -92,6 +92,7 @@ public class Constants {
     public static final String TRANSFORM_PROCESSOR_KEY = "transform_processor";
     public static final String SQL_TRANSFORMER_CLASS = "io.odpf.dagger.functions.transformers.SQLTransformer";
 
+    // TODO : Fix Naming conventions here with the default names
     public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
     public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY = "SOURCE_KAFKA_TOPIC_NAMES";
     public static final String INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
