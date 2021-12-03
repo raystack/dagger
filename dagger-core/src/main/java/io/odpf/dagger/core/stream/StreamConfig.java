@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import io.odpf.dagger.common.configuration.Configuration;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 import java.io.StringReader;
@@ -31,57 +30,46 @@ public class StreamConfig {
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
 
     @SerializedName("SOURCE_KAFKA_TOPIC_NAMES")
-    @Setter
     @Getter
     private String kafkaTopic;
 
     @SerializedName("INPUT_SCHEMA_PROTO_CLASS")
-    @Setter
     @Getter
     private String protoClass;
 
     @SerializedName("INPUT_SCHEMA_TABLE")
-    @Setter
     @Getter
     private String schemaTable;
 
     @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE")
-    @Setter
     @Getter
     private String autoCommitEnabled;
 
     @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET")
-    @Setter
     @Getter
     private String autoOffsetReset;
 
     @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID")
-    @Setter
     @Getter
     private String consumerGroup;
 
     @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS")
-    @Setter
     @Getter
     private String sourceBootstrapServers;
 
     @SerializedName("SOURCE_KAFKA_NAME")
-    @Setter
     @Getter
     private String sourceKafkaName;
 
     @SerializedName("SOURCE_JSON_SCHEMA")
-    @Setter
     @Getter
     private String jsonSchema;
 
     @SerializedName("SOURCE_ROW_TIME_FIELD")
-    @Setter
     @Getter
     private String rowTimeFieldName;
 
     @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
-    @Setter
     @Getter
     private String eventTimestampFieldIndex;
 
@@ -93,14 +81,6 @@ public class StreamConfig {
             streamDataType = "PROTO";
         }
         return streamDataType;
-    }
-
-    public void setStreamDataType(String streamDataType) {
-        if (streamDataType == null) {
-            this.streamDataType = "PROTO";
-        } else {
-            this.streamDataType = streamDataType;
-        }
     }
 
     public static StreamConfig[] parse(Configuration configuration) {
