@@ -70,7 +70,6 @@ public class SinkOrchestratorTest {
         assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
 
-
     @Test
     public void shouldSetKafkaProducerConfigurations() throws Exception {
         when(configuration.getString(eq(SINK_KAFKA_BROKERS_KEY), anyString())).thenReturn("10.200.216.87:6668");
@@ -103,8 +102,6 @@ public class SinkOrchestratorTest {
 
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-        // TODO : Fix this assertion
-        // assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 
 
@@ -133,7 +130,5 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
 
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-        // TODO : Fix this assertion
-        // assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 }

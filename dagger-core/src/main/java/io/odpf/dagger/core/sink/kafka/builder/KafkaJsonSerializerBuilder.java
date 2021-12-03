@@ -7,6 +7,7 @@ import org.apache.flink.formats.json.JsonRowSerializationSchema;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.exceptions.serde.InvalidJSONSchemaException;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.sink.kafka.KafkaSerializerBuilder;
@@ -41,16 +42,20 @@ public class KafkaJsonSerializerBuilder implements KafkaSerializerBuilder, Telem
         //TODO : check if additional things needs to be added here
         notifySubscriber();
 
-        TypeInformation<Row> opTypeInfo = JsonRowSchemaConverter.convert(outputJsonSchema);
-        JsonRowSerializationSchema jsonRowSerializationSchema = JsonRowSerializationSchema
-                .builder()
-                .withTypeInfo(opTypeInfo)
-                .build();
-        return KafkaRecordSerializationSchema
-                .builder()
-                .setValueSerializationSchema(jsonRowSerializationSchema)
-                .setTopic(outputTopic)
-                .build();
+        try {
+            TypeInformation<Row> opTypeInfo = JsonRowSchemaConverter.convert(outputJsonSchema);
+            JsonRowSerializationSchema jsonRowSerializationSchema = JsonRowSerializationSchema
+                    .builder()
+                    .withTypeInfo(opTypeInfo)
+                    .build();
+            return KafkaRecordSerializationSchema
+                    .builder()
+                    .setValueSerializationSchema(jsonRowSerializationSchema)
+                    .setTopic(outputTopic)
+                    .build();
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidJSONSchemaException(exception);
+        }
     }
 
     private void addMetric(String key, String value) {

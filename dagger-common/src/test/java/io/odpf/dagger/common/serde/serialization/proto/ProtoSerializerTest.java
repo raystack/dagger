@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.sink;
+package io.odpf.dagger.common.serde.serialization.proto;
 
 import org.apache.flink.types.Row;
 
@@ -7,15 +7,14 @@ import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
+import io.odpf.dagger.common.exceptions.serde.InvalidColumnMappingException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.consumer.TestProfile;
 import io.odpf.dagger.consumer.TestSerDeLogKey;
 import io.odpf.dagger.consumer.TestSerDeLogMessage;
 import io.odpf.dagger.consumer.TestServiceType;
-import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
-import io.odpf.dagger.common.exceptions.serde.InvalidColumnMappingException;
-import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Before;
 import org.junit.Test;
