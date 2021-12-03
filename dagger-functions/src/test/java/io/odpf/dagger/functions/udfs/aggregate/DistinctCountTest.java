@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Iterator;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -69,5 +71,55 @@ public class DistinctCountTest {
         DistinctCount distinctCount = new DistinctCount();
         distinctCount.open(functionContext);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void shouldMergeAccumulators() {
+        DistinctCount distinctCount = new DistinctCount();
+        DistinctCountAccumulator distinctCountAccumulator1 = new DistinctCountAccumulator();
+        distinctCount.accumulate(distinctCountAccumulator1, "1");
+        distinctCount.accumulate(distinctCountAccumulator1, "2");
+        distinctCount.accumulate(distinctCountAccumulator1, "3");
+
+        DistinctCountAccumulator distinctCountAccumulator2 = new DistinctCountAccumulator();
+        DistinctCountAccumulator distinctCountAccumulator3 = new DistinctCountAccumulator();
+        distinctCountAccumulator2.add("4");
+        distinctCountAccumulator2.add("5");
+        distinctCountAccumulator3.add("6");
+        distinctCountAccumulator3.add("7");
+
+        Iterable<DistinctCountAccumulator> iterable = mock(Iterable.class);
+        Iterator<DistinctCountAccumulator> iterator = mock(Iterator.class);
+        when(iterable.iterator()).thenReturn(iterator);
+        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(iterator.next()).thenReturn(distinctCountAccumulator2, distinctCountAccumulator3);
+
+        distinctCount.merge(distinctCountAccumulator1, iterable);
+
+        int result = distinctCount.getValue(distinctCountAccumulator1);
+        assertEquals(7, result);
+    }
+
+    @Test
+    public void shouldNotChangeAccumulatorIfIterableIsEmptyOnMerge() {
+        DistinctCount distinctCount = new DistinctCount();
+        DistinctCountAccumulator distinctCountAccumulator = new DistinctCountAccumulator();
+        distinctCount.accumulate(distinctCountAccumulator, "1");
+        distinctCount.accumulate(distinctCountAccumulator, "2");
+        distinctCount.accumulate(distinctCountAccumulator, "3");
+
+        DistinctCountAccumulator distinctCountAccumulator2 = new DistinctCountAccumulator();
+        DistinctCountAccumulator distinctCountAccumulator3 = new DistinctCountAccumulator();
+
+        Iterable<DistinctCountAccumulator> iterable = mock(Iterable.class);
+        Iterator<DistinctCountAccumulator> iterator = mock(Iterator.class);
+        when(iterable.iterator()).thenReturn(iterator);
+        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(iterator.next()).thenReturn(distinctCountAccumulator2, distinctCountAccumulator3);
+
+        distinctCount.merge(distinctCountAccumulator, iterable);
+
+        int result = distinctCount.getValue(distinctCountAccumulator);
+        assertEquals(3, result);
     }
 }

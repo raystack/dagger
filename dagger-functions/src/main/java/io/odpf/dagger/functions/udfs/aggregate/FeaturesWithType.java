@@ -57,6 +57,12 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
         }
     }
 
+    public void merge(FeatureWithTypeAccumulator featureWithTypeAccumulator, Iterable<FeatureWithTypeAccumulator> it) {
+        for (FeatureWithTypeAccumulator accumulatorInstance : it) {
+            accumulatorInstance.getFeatures().forEach((s, tuple3) -> featureWithTypeAccumulator.add(tuple3.f0, tuple3.f1, tuple3.f2));
+        }
+    }
+
     private void validate(Object[] objects) {
         if (objects.length % NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR != 0) {
             throw new InvalidNumberOfArgumentsException();

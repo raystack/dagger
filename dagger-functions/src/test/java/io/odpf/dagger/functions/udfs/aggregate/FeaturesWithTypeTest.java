@@ -3,16 +3,19 @@ package io.odpf.dagger.functions.udfs.aggregate;
 import io.odpf.dagger.functions.exceptions.InvalidNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureWithTypeAccumulator;
 import io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum;
+import junit.framework.TestCase;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.Iterator;
 
 import static org.gradle.internal.impldep.org.testng.AssertJUnit.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeaturesWithTypeTest {
@@ -116,6 +119,56 @@ public class FeaturesWithTypeTest {
         FeaturesWithType features = new FeaturesWithType();
 
         features.retract(featureAccumulator, "one", "two", "three", "four");
+    }
+
+    @Test
+    public void shouldMergeAccumulators() {
+        FeaturesWithType featuresWithType = new FeaturesWithType();
+        FeatureWithTypeAccumulator featureWithTypeAccumulator1 = new FeatureWithTypeAccumulator();
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key1", "value1", "StringType");
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key2", "value2", "StringType");
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key3", "value3", "StringType");
+
+        FeatureWithTypeAccumulator featureWithTypeAccumulator2 = new FeatureWithTypeAccumulator();
+        FeatureWithTypeAccumulator featureWithTypeAccumulator3 = new FeatureWithTypeAccumulator();
+        featureWithTypeAccumulator2.add("key4", "value4", ValueEnum.StringType);
+        featureWithTypeAccumulator2.add("key5", "value5", ValueEnum.StringType);
+        featureWithTypeAccumulator3.add("key6", "value6", ValueEnum.StringType);
+        featureWithTypeAccumulator3.add("key7", "value7", ValueEnum.StringType);
+
+        Iterable<FeatureWithTypeAccumulator> iterable = mock(Iterable.class);
+        Iterator<FeatureWithTypeAccumulator> iterator = mock(Iterator.class);
+        when(iterable.iterator()).thenReturn(iterator);
+        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(iterator.next()).thenReturn(featureWithTypeAccumulator2, featureWithTypeAccumulator3);
+
+        featuresWithType.merge(featureWithTypeAccumulator1, iterable);
+
+        Row[] result = featuresWithType.getValue(featureWithTypeAccumulator1);
+        TestCase.assertEquals(7, result.length);
+    }
+
+    @Test
+    public void shouldNotChangeAccumulatorIfIterableIsEmptyOnMerge() {
+        FeaturesWithType featuresWithType = new FeaturesWithType();
+        FeatureWithTypeAccumulator featureWithTypeAccumulator1 = new FeatureWithTypeAccumulator();
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key1", "value1", "StringType");
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key2", "value2", "StringType");
+        featuresWithType.accumulate(featureWithTypeAccumulator1, "key3", "value3", "StringType");
+
+        FeatureWithTypeAccumulator featureWithTypeAccumulator2 = new FeatureWithTypeAccumulator();
+        FeatureWithTypeAccumulator featureWithTypeAccumulator3 = new FeatureWithTypeAccumulator();
+
+        Iterable<FeatureWithTypeAccumulator> iterable = mock(Iterable.class);
+        Iterator<FeatureWithTypeAccumulator> iterator = mock(Iterator.class);
+        when(iterable.iterator()).thenReturn(iterator);
+        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(iterator.next()).thenReturn(featureWithTypeAccumulator2, featureWithTypeAccumulator3);
+
+        featuresWithType.merge(featureWithTypeAccumulator1, iterable);
+
+        Row[] result = featuresWithType.getValue(featureWithTypeAccumulator1);
+        TestCase.assertEquals(3, result.length);
     }
 
 }

@@ -3,6 +3,8 @@ package io.odpf.dagger.functions.udfs.aggregate;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.DistinctCountAccumulator;
 
+import java.util.HashSet;
+
 /**
  * User-defined aggregate function to get Distinct count.
  */
@@ -30,5 +32,13 @@ public class DistinctCount extends AggregateUdf<Integer, DistinctCountAccumulato
             return;
         }
         distinctCountAccumulator.add(item);
+    }
+
+    public void merge(DistinctCountAccumulator distinctCountAccumulator, Iterable<DistinctCountAccumulator> it) {
+        for (DistinctCountAccumulator distinctCountAccumulatorInstance : it) {
+            HashSet<String> distinctItems = distinctCountAccumulator.getDistinctItems();
+            distinctItems.addAll(distinctCountAccumulatorInstance.getDistinctItems());
+            distinctCountAccumulator.setDistinctItems(distinctItems);
+        }
     }
 }
