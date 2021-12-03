@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.common.serde.deserialization.proto;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -8,7 +8,6 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.serde.deserialization.proto.ProtoType;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import org.junit.Before;

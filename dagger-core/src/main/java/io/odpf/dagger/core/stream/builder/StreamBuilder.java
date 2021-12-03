@@ -73,7 +73,6 @@ public abstract class StreamBuilder implements TelemetryPublisher {
         topicsToReport.addAll(Arrays.asList(topicPattern.split("\\|")));
         topicsToReport.forEach(topic -> addMetric(metrics, INPUT_TOPIC.getValue(), topic));
 
-        // TODO : validate streamName
         String streamName = streamConfig.getSourceKafkaName();
         addMetric(metrics, INPUT_STREAM.getValue(), streamName);
         return metrics;
