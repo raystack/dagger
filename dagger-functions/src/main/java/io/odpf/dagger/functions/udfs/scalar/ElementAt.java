@@ -50,7 +50,7 @@ public class ElementAt extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-    public String eval(Row[] array, String pathOfArray, Integer index, String path) {
+    public String eval(Row[] array, String pathOfArray, int index, String path) {
         try {
             if (array == null || array.length <= index) {
                 return "";
