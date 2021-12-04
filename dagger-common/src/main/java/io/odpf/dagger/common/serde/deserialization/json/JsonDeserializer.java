@@ -9,6 +9,7 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -33,11 +34,11 @@ public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
     }
 
     @Override
-    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws Exception {
+    public Row deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) {
         try {
             Row inputRow = jsonRowDeserializationSchema.deserialize(consumerRecord.value());
             return addTimestampFieldToRow(inputRow);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             throw new DaggerDeserializationException(e);
         }
     }
