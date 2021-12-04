@@ -4,11 +4,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.json.JsonRowSchemaConverter;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.serde.RowTypeInfoWrapper;
+import io.odpf.dagger.common.serde.DaggerInternalTypeInformation;
 
 import java.io.Serializable;
 
-public class JsonType implements Serializable, RowTypeInfoWrapper {
+public class JsonType implements Serializable, DaggerInternalTypeInformation {
     private String jsonSchema;
     private String rowtimeAttributeName;
 

@@ -13,13 +13,15 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
+
 public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
     private final JsonRowDeserializationSchema jsonRowDeserializationSchema;
     private final int rowtimeIdx;
     private final TypeInformation<Row> typeInformation;
 
     public JsonDeserializer(String jsonSchema, String rowtimeFieldName) {
-        this.typeInformation = new JsonType(jsonSchema, "rowtime").getRowType();
+        this.typeInformation = new JsonType(jsonSchema, ROWTIME).getRowType();
         this.jsonRowDeserializationSchema = new JsonRowDeserializationSchema.Builder(typeInformation).build();
         RowTypeInfo rowTypeInfo = (RowTypeInfo) typeInformation;
         this.rowtimeIdx = rowTypeInfo.getFieldIndex(rowtimeFieldName);

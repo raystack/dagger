@@ -7,7 +7,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.serde.RowTypeInfoWrapper;
+import io.odpf.dagger.common.serde.DaggerInternalTypeInformation;
 import io.odpf.dagger.common.serde.deserialization.proto.protohandler.TypeInformationFactory;
 
 import java.io.Serializable;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 /**
  * Getting TypeInformation required for Flink from the proto.
  */
-public class ProtoType implements Serializable, RowTypeInfoWrapper {
+public class ProtoType implements Serializable, DaggerInternalTypeInformation {
 
     private transient Descriptor protoFieldDescriptor;
     private String protoClassName;
