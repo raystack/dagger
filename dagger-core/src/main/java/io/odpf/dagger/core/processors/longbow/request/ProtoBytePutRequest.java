@@ -2,14 +2,16 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.sql.Timestamp;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * Create PutRequest in form of proto byte.
@@ -41,7 +43,7 @@ public class ProtoBytePutRequest implements PutRequest {
     @Override
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
-        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, Constants.ROWTIME);
+        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
         putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), protoSerializer.serializeValue(input));
         return putRequest;
     }

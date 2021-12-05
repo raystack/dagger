@@ -11,9 +11,10 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.deserialization.proto.protohandler.ProtoHandlerFactory;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.types.MapDecorator;
-import io.odpf.dagger.core.utils.Constants;
 
 import java.util.Arrays;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * The Fetch output decorator.
@@ -65,7 +66,7 @@ public class FetchOutputDecorator implements MapDecorator {
                 Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(outputColumnName);
                 typeInformations[index] = fieldDescriptor != null
                         ? ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation()
-                        : outputColumnName.equals(Constants.ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
+                        : outputColumnName.equals(ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
             }
         }
         return new RowTypeInfo(typeInformations, outputColumnNames);

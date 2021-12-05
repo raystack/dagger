@@ -58,7 +58,6 @@ public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
         BigDecimal rowtimeField = (BigDecimal) row.getField(rowtimeIdx);
 
         finalRecord.setField(finalRecord.getArity() - 2, true);
-        // TODO : validate Data-types here
         finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(rowtimeField.longValue())));
         return finalRecord;
     }

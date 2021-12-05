@@ -10,7 +10,6 @@ import io.odpf.dagger.common.core.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-// TODO : Fix this class Naming conventions
 public interface DaggerInternalTypeInformation {
     TypeInformation<Row> getRowType();
 

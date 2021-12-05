@@ -22,7 +22,6 @@ import java.util.List;
 /**
  * Deserializer for protobuf messages.
  */
-// TODO : Think on combining ProtoType and this
 public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
     private final String protoClassName;
