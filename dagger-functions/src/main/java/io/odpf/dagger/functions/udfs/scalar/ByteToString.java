@@ -32,29 +32,33 @@ public class ByteToString extends ScalarUdf {
     @Override
     public TypeInference getTypeInference(DataTypeFactory typeFactory) {
         TypeInference build = TypeInference.newBuilder()
-                .inputTypeStrategy(new InputTypeStrategy() {
-                    @Override
-                    public ArgumentCount getArgumentCount() {
-                        return  ConstantArgumentCount.of(1);
-                    }
-
-                    @Override
-                    public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
-                        DataType dataType = callContext.getArgumentDataTypes().get(0);
-                        return Optional.of(Arrays.asList(dataType));
-                    }
-
-                    @Override
-                    public List<Signature> getExpectedSignatures(FunctionDefinition definition) {
-                        return null;
-                    }
-                }).outputTypeStrategy(new TypeStrategy() {
-                    @Override
-                    public Optional<DataType> inferType(CallContext callContext) {
-                        return Optional.of(DataTypes.STRING());
-                    }
-                })
+                .inputTypeStrategy(new ByteStringInputStrategy()).outputTypeStrategy(new ByteStringOutputStrategy())
                 .build();
         return build;
+    }
+
+    static class ByteStringOutputStrategy implements TypeStrategy {
+        @Override
+        public Optional<DataType> inferType(CallContext callContext) {
+            return Optional.of(DataTypes.STRING());
+        }
+    }
+
+    static class ByteStringInputStrategy implements InputTypeStrategy {
+        @Override
+        public ArgumentCount getArgumentCount() {
+            return ConstantArgumentCount.of(1);
+        }
+
+        @Override
+        public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
+            DataType dataType = callContext.getArgumentDataTypes().get(0);
+            return Optional.of(Arrays.asList(dataType));
+        }
+
+        @Override
+        public List<Signature> getExpectedSignatures(FunctionDefinition definition) {
+            return null;
+        }
     }
 }

@@ -43,39 +43,42 @@ public class MapGet extends ScalarUdf {
 
     @Override
     public TypeInference getTypeInference(DataTypeFactory typeFactory) {
-        InputTypeStrategy inputStrategy = new InputTypeStrategy() {
-            @Override
-            public ArgumentCount getArgumentCount() {
-                return ConstantArgumentCount.of(2);
-            }
-
-            @Override
-            public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
-                CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
-                FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
-                List<DataType> children = elementDataType.getChildren();
-                AtomicDataType secondArgumentDataType = (AtomicDataType) callContext.getArgumentDataTypes().get(1);
-                DataType mapDataType = DataTypes.ARRAY(DataTypes.ROW(children.get(0), children.get(1)));
-                return Optional.of(Arrays.asList(mapDataType, secondArgumentDataType));
-            }
-
-            @Override
-            public List<Signature> getExpectedSignatures(FunctionDefinition definition) {
-                return null;
-            }
-        };
         TypeInference typeInference = TypeInference.newBuilder()
-                .inputTypeStrategy(inputStrategy)
-                .outputTypeStrategy(new TypeStrategy() {
-                    @Override
-                    public Optional<DataType> inferType(CallContext callContext) {
-                        CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
-                        FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
-                        List<DataType> children = elementDataType.getChildren();
-                        return Optional.of(children.get(1));
-                    }
-                })
+                .inputTypeStrategy(new MapGetInputTypeStrategy())
+                .outputTypeStrategy(new MapOutputTypeStrategy())
                 .build();
         return typeInference;
+    }
+
+    static class MapOutputTypeStrategy implements TypeStrategy {
+        @Override
+        public Optional<DataType> inferType(CallContext callContext) {
+            CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
+            FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
+            List<DataType> children = elementDataType.getChildren();
+            return Optional.of(children.get(1));
+        }
+    }
+
+    static class MapGetInputTypeStrategy implements InputTypeStrategy {
+        @Override
+        public ArgumentCount getArgumentCount() {
+            return ConstantArgumentCount.of(2);
+        }
+
+        @Override
+        public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
+            CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
+            FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
+            List<DataType> children = elementDataType.getChildren();
+            AtomicDataType secondArgumentDataType = (AtomicDataType) callContext.getArgumentDataTypes().get(1);
+            DataType mapDataType = DataTypes.ARRAY(DataTypes.ROW(children.get(0), children.get(1)));
+            return Optional.of(Arrays.asList(mapDataType, secondArgumentDataType));
+        }
+
+        @Override
+        public List<Signature> getExpectedSignatures(FunctionDefinition definition) {
+            return null;
+        }
     }
 }
