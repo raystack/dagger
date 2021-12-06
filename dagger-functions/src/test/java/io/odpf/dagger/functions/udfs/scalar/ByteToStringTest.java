@@ -51,7 +51,7 @@ public class ByteToStringTest {
         DataType bigint = DataTypes.BIGINT();
         when(mockContext.getArgumentDataTypes()).thenReturn(Arrays.asList(bigint));
         Optional<List<DataType>> dataTypes = inputTypeStrategy.inferInputTypes(mockContext, false);
-        assertEquals( Optional.of(Arrays.asList(bigint)), dataTypes);
+        assertEquals(Optional.of(Arrays.asList(bigint)), dataTypes);
         assertEquals(ConstantArgumentCount.of(1), inputTypeStrategy.getArgumentCount());
     }
 
