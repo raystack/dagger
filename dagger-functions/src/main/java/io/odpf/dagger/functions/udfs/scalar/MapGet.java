@@ -43,11 +43,10 @@ public class MapGet extends ScalarUdf {
 
     @Override
     public TypeInference getTypeInference(DataTypeFactory typeFactory) {
-        TypeInference typeInference = TypeInference.newBuilder()
+        return TypeInference.newBuilder()
                 .inputTypeStrategy(new MapGetInputTypeStrategy())
                 .outputTypeStrategy(new MapOutputTypeStrategy())
                 .build();
-        return typeInference;
     }
 
     static class MapOutputTypeStrategy implements TypeStrategy {
