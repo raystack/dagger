@@ -35,7 +35,7 @@ public class MapGet extends ScalarUdf {
      * @team Fraud
      */
 
-    public  Object eval( Row[] inputMap,  Object key) {
+    public Object eval(Row[] inputMap, Object key) {
         List<Row> rows = Arrays.asList(inputMap);
         Optional<Row> requiredRow = rows.stream().filter(row -> row.getField(0).equals(key)).findFirst();
         return requiredRow.map(row -> row.getField(1)).orElse(null);
@@ -54,8 +54,8 @@ public class MapGet extends ScalarUdf {
                 CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
                 FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
                 List<DataType> children = elementDataType.getChildren();
-                AtomicDataType secondArgumentDataType =(AtomicDataType) callContext.getArgumentDataTypes().get(1);
-                DataType mapDataType = DataTypes.ARRAY(DataTypes.ROW(children.get(0), children.get(1)));;
+                AtomicDataType secondArgumentDataType = (AtomicDataType) callContext.getArgumentDataTypes().get(1);
+                DataType mapDataType = DataTypes.ARRAY(DataTypes.ROW(children.get(0), children.get(1)));
                 return Optional.of(Arrays.asList(mapDataType, secondArgumentDataType));
             }
 
@@ -69,7 +69,7 @@ public class MapGet extends ScalarUdf {
                 .outputTypeStrategy(new TypeStrategy() {
                     @Override
                     public Optional<DataType> inferType(CallContext callContext) {
-                        CollectionDataType firstArgumentDataType = (CollectionDataType)callContext.getArgumentDataTypes().get(0);
+                        CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
                         FieldsDataType elementDataType = (FieldsDataType) firstArgumentDataType.getElementDataType();
                         List<DataType> children = elementDataType.getChildren();
                         return Optional.of(children.get(1));
