@@ -37,14 +37,14 @@ public class ByteToString extends ScalarUdf {
         return build;
     }
 
-    static class ByteStringOutputStrategy implements TypeStrategy {
+    private static class ByteStringOutputStrategy implements TypeStrategy {
         @Override
         public Optional<DataType> inferType(CallContext callContext) {
             return Optional.of(DataTypes.STRING());
         }
     }
 
-    static class ByteStringInputStrategy implements InputTypeStrategy {
+    private static class ByteStringInputStrategy implements InputTypeStrategy {
         @Override
         public ArgumentCount getArgumentCount() {
             return ConstantArgumentCount.of(1);

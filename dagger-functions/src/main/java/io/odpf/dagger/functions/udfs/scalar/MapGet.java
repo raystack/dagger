@@ -49,7 +49,7 @@ public class MapGet extends ScalarUdf {
                 .build();
     }
 
-    static class MapOutputTypeStrategy implements TypeStrategy {
+    private static class MapOutputTypeStrategy implements TypeStrategy {
         @Override
         public Optional<DataType> inferType(CallContext callContext) {
             CollectionDataType firstArgumentDataType = (CollectionDataType) callContext.getArgumentDataTypes().get(0);
@@ -59,7 +59,7 @@ public class MapGet extends ScalarUdf {
         }
     }
 
-    static class MapGetInputTypeStrategy implements InputTypeStrategy {
+    private static class MapGetInputTypeStrategy implements InputTypeStrategy {
         @Override
         public ArgumentCount getArgumentCount() {
             return ConstantArgumentCount.of(2);

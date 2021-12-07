@@ -46,7 +46,7 @@ public class ByteToStringTest {
 
     @Test
     public void inputTypeStrategyTest() {
-        InputTypeStrategy inputTypeStrategy = new ByteToString.ByteStringInputStrategy();
+        InputTypeStrategy inputTypeStrategy = new ByteToString().getTypeInference(null).getInputTypeStrategy();
         CallContext mockContext = mock(CallContext.class);
         DataType bigint = DataTypes.BIGINT();
         when(mockContext.getArgumentDataTypes()).thenReturn(Arrays.asList(bigint));
@@ -57,7 +57,7 @@ public class ByteToStringTest {
 
     @Test
     public void outputTypeStrategy() {
-        TypeStrategy byteStringOutputStrategy = new ByteToString.ByteStringOutputStrategy();
+        TypeStrategy byteStringOutputStrategy = new ByteToString().getTypeInference(null).getOutputTypeStrategy();
         CallContext mockContext = mock(CallContext.class);
         Optional<DataType> dataType = byteStringOutputStrategy.inferType(mockContext);
         assertEquals(Optional.of(DataTypes.STRING()), dataType);

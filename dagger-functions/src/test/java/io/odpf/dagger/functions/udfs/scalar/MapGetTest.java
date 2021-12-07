@@ -112,7 +112,7 @@ public class MapGetTest {
 
     @Test
     public void inputTypeStrategy() {
-        InputTypeStrategy mapGetInputTypeStrategy = new MapGet.MapGetInputTypeStrategy();
+        InputTypeStrategy mapGetInputTypeStrategy = new MapGet().getTypeInference(null).getInputTypeStrategy();
         assertEquals(ConstantArgumentCount.of(2), mapGetInputTypeStrategy.getArgumentCount());
         CallContext mock = mock(CallContext.class);
         DataType firstArgument = DataTypes.ARRAY(DataTypes.ROW(DataTypes.STRING(), DataTypes.STRING()));
@@ -128,7 +128,7 @@ public class MapGetTest {
 
     @Test
     public void outputStrategy() {
-        TypeStrategy typeStrategy = new MapGet.MapOutputTypeStrategy();
+        TypeStrategy typeStrategy = new MapGet().getTypeInference(null).getOutputTypeStrategy();
         CallContext mock = mock(CallContext.class);
         DataType firstArgument = DataTypes.ARRAY(DataTypes.ROW(DataTypes.STRING(), DataTypes.STRING()));
         DataType secondArgument = DataTypes.STRING();
