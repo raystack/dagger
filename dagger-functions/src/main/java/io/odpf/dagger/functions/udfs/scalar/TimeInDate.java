@@ -35,7 +35,7 @@ public class TimeInDate extends ScalarUdf {
      * @author Rasyid
      * @team DE
      */
-    public long eval(long seconds, int hour, int minute, String timeZone) {
+    public long eval(Long seconds, Integer hour, Integer minute, String timeZone) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         cal.setTime(new Date(seconds * SECOND_IN_MILLIS));

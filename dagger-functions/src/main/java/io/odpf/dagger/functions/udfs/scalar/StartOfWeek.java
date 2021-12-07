@@ -23,7 +23,7 @@ public class StartOfWeek extends ScalarUdf {
      * @author Rasyid
      * @team DE
      */
-    public long eval(long milliseconds, String timeZone) {
+    public long eval(Long milliseconds, String timeZone) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         cal.setTime(new Date(milliseconds));
