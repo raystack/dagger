@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.stream.builder;
 
+import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -48,7 +49,7 @@ public abstract class StreamBuilder implements TelemetryPublisher {
         return new Stream(createSource(), streamConfig.getSchemaTable(), getInputDataType());
     }
 
-    private KafkaSource createSource() {
+    private Source createSource() {
         return KafkaSource.<Row>builder()
                 .setTopicPattern(streamConfig.getTopicPattern())
                 .setStartingOffsets(streamConfig.getStartingOffset())

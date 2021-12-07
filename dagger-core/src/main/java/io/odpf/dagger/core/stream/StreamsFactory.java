@@ -18,8 +18,8 @@ public class StreamsFactory {
 
         for (StreamConfig streamConfig : streamConfigs) {
             List<StreamBuilder> dataStreams = Arrays
-                    .asList(new StreamBuilder[]{new JsonDataStreamBuilder(streamConfig, configuration),
-                            new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration)});
+                    .asList(new JsonDataStreamBuilder(streamConfig, configuration),
+                            new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
             Stream stream = dataStreams.stream()
                     .filter(dataStream -> dataStream.canBuild())
                     .findFirst()
