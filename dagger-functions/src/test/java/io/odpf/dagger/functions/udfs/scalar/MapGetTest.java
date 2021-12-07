@@ -2,16 +2,24 @@ package io.odpf.dagger.functions.udfs.scalar;
 
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.ConstantArgumentCount;
+import org.apache.flink.table.types.inference.InputTypeStrategy;
+import org.apache.flink.table.types.inference.TypeStrategy;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -100,5 +108,36 @@ public class MapGetTest {
         MapGet mapGet = new MapGet();
         mapGet.open(functionContext);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void inputTypeStrategy() {
+        InputTypeStrategy mapGetInputTypeStrategy = new MapGet().getTypeInference(null).getInputTypeStrategy();
+        assertEquals(ConstantArgumentCount.of(2), mapGetInputTypeStrategy.getArgumentCount());
+        CallContext mock = mock(CallContext.class);
+        DataType firstArgument = DataTypes.ARRAY(DataTypes.ROW(DataTypes.STRING(), DataTypes.STRING()));
+        DataType secondArgument = DataTypes.STRING();
+        List<DataType> dataTypeList = Arrays.asList(firstArgument, secondArgument);
+        when(mock.getArgumentDataTypes()).thenReturn(dataTypeList);
+
+        Optional<List<DataType>> dataTypes = mapGetInputTypeStrategy.inferInputTypes(mock, false);
+
+        List expectedList = Arrays.asList(firstArgument, secondArgument);
+        assertEquals(Optional.of(expectedList), dataTypes);
+    }
+
+    @Test
+    public void outputStrategy() {
+        TypeStrategy typeStrategy = new MapGet().getTypeInference(null).getOutputTypeStrategy();
+        CallContext mock = mock(CallContext.class);
+        DataType firstArgument = DataTypes.ARRAY(DataTypes.ROW(DataTypes.STRING(), DataTypes.STRING()));
+        DataType secondArgument = DataTypes.STRING();
+        List<DataType> dataTypeList = Arrays.asList(firstArgument, secondArgument);
+        when(mock.getArgumentDataTypes()).thenReturn(dataTypeList);
+
+        Optional<DataType> dataType = typeStrategy.inferType(mock);
+
+        DataType expectedDataType = DataTypes.STRING();
+        assertEquals(Optional.of(expectedDataType), dataType);
     }
 }
