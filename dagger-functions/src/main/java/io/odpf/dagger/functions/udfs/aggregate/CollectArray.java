@@ -38,9 +38,7 @@ public class CollectArray extends AggregateUdf<List<Object>, ArrayAccumulator> {
 
     public void merge(ArrayAccumulator arrayAccumulator, Iterable<ArrayAccumulator> it) {
         for (ArrayAccumulator accumulatorInstance : it) {
-            List<Object> arrayList = arrayAccumulator.getArrayList();
-            arrayList.addAll(accumulatorInstance.getArrayList());
-            arrayAccumulator.setArrayList(arrayList);
+            arrayAccumulator.getArrayList().addAll(accumulatorInstance.getArrayList());
         }
     }
 }

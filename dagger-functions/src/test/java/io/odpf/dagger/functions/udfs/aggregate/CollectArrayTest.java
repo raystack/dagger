@@ -1,17 +1,19 @@
 package io.odpf.dagger.functions.udfs.aggregate;
 
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.ArrayAccumulator;
+import org.aeonbits.owner.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CollectArrayTest {
@@ -66,23 +68,14 @@ public class CollectArrayTest {
         arrayAccumulator3.add("value6");
         arrayAccumulator3.add("value7");
 
-        Iterable<ArrayAccumulator> iterable = mock(Iterable.class);
-        Iterator<ArrayAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(arrayAccumulator2).thenReturn(arrayAccumulator3);
+        ArrayList<ArrayAccumulator> iterable = new ArrayList<>();
+        iterable.add(arrayAccumulator2);
+        iterable.add(arrayAccumulator3);
 
         collectArray.merge(arrayAccumulator1, iterable);
 
         List<Object> result = collectArray.getValue(arrayAccumulator1);
-        assertEquals(7, result.size());
-        assertEquals("value1", result.get(0));
-        assertEquals("value2", result.get(1));
-        assertEquals("value3", result.get(2));
-        assertEquals("value4", result.get(3));
-        assertEquals("value5", result.get(4));
-        assertEquals("value6", result.get(5));
-        assertEquals("value7", result.get(6));
+        assertEquals(Collections.list("value1", "value2", "value3", "value4", "value5", "value6", "value7"), result);
     }
 
     @Test
@@ -94,18 +87,12 @@ public class CollectArrayTest {
         collectArray.accumulate(arrayAccumulator, "value3");
 
 
-        Iterable<ArrayAccumulator> iterable = mock(Iterable.class);
-        Iterator<ArrayAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(new ArrayAccumulator());
+        ArrayList<ArrayAccumulator> iterable = new ArrayList<>();
+        iterable.add(new ArrayAccumulator());
 
         collectArray.merge(arrayAccumulator, iterable);
 
         List<Object> result = collectArray.getValue(arrayAccumulator);
-        assertEquals(3, result.size());
-        assertEquals("value1", result.get(0));
-        assertEquals("value2", result.get(1));
-        assertEquals("value3", result.get(2));
+        assertEquals(Collections.list("value1", "value2", "value3"), result);
     }
 }

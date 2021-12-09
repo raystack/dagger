@@ -6,12 +6,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeaturesTest {
@@ -73,30 +75,59 @@ public class FeaturesTest {
         featureAccumulator3.add("key6", "value6");
         featureAccumulator3.add("key7", "value7");
 
-        Iterable<FeatureAccumulator> iterable = mock(Iterable.class);
-        Iterator<FeatureAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(featureAccumulator2, featureAccumulator3);
+        ArrayList<FeatureAccumulator> iterable = new ArrayList<>();
+        iterable.add(featureAccumulator2);
+        iterable.add(featureAccumulator3);
 
         features.merge(featureAccumulator1, iterable);
 
+        Row row1 = new Row(3);
+        Row row2 = new Row(3);
+        Row row3 = new Row(3);
+        Row row4 = new Row(3);
+        Row row5 = new Row(3);
+        Row row6 = new Row(3);
+        Row row7 = new Row(3);
+
+        Row[] expectedRows = new Row[]{row1, row2, row3, row4, row5, row6, row7};
+        expectedRows[0].setField(0, "key1");
+        expectedRows[0].setField(2, "key1");
+        expectedRows[1].setField(0, "key2");
+        expectedRows[1].setField(2, "key2");
+        expectedRows[2].setField(0, "key3");
+        expectedRows[2].setField(2, "key3");
+        expectedRows[3].setField(0, "key4");
+        expectedRows[3].setField(2, "key4");
+        expectedRows[4].setField(0, "key5");
+        expectedRows[4].setField(2, "key5");
+        expectedRows[5].setField(0, "key6");
+        expectedRows[5].setField(2, "key6");
+        expectedRows[6].setField(0, "key7");
+        expectedRows[6].setField(2, "key7");
+        Row nestedRow1 = new Row(8);
+        Row nestedRow2 = new Row(8);
+        Row nestedRow3 = new Row(8);
+        Row nestedRow4 = new Row(8);
+        Row nestedRow5 = new Row(8);
+        Row nestedRow6 = new Row(8);
+        Row nestedRow7 = new Row(8);
+        nestedRow1.setField(1, "value1");
+        nestedRow2.setField(1, "value2");
+        nestedRow3.setField(1, "value3");
+        nestedRow4.setField(1, "value4");
+        nestedRow5.setField(1, "value5");
+        nestedRow6.setField(1, "value6");
+        nestedRow7.setField(1, "value7");
+        expectedRows[0].setField(1, nestedRow1);
+        expectedRows[1].setField(1, nestedRow2);
+        expectedRows[2].setField(1, nestedRow3);
+        expectedRows[3].setField(1, nestedRow4);
+        expectedRows[4].setField(1, nestedRow5);
+        expectedRows[5].setField(1, nestedRow6);
+        expectedRows[6].setField(1, nestedRow7);
+
         Row[] result = features.getValue(featureAccumulator1);
-        assertEquals(7, result.length);
-        assertEquals("key1", result[0].getField(0));
-        assertEquals("key2", result[1].getField(0));
-        assertEquals("key3", result[2].getField(0));
-        assertEquals("key4", result[3].getField(0));
-        assertEquals("key5", result[4].getField(0));
-        assertEquals("key6", result[5].getField(0));
-        assertEquals("key7", result[6].getField(0));
-        assertEquals("value1", ((Row) result[0].getField(1)).getField(1));
-        assertEquals("value2", ((Row) result[1].getField(1)).getField(1));
-        assertEquals("value3", ((Row) result[2].getField(1)).getField(1));
-        assertEquals("value4", ((Row) result[3].getField(1)).getField(1));
-        assertEquals("value5", ((Row) result[4].getField(1)).getField(1));
-        assertEquals("value6", ((Row) result[5].getField(1)).getField(1));
-        assertEquals("value7", ((Row) result[6].getField(1)).getField(1));
+        assertArrayEquals(expectedRows, result);
     }
 
     @Test
@@ -110,21 +141,34 @@ public class FeaturesTest {
         FeatureAccumulator featureAccumulator2 = new FeatureAccumulator();
         FeatureAccumulator featureAccumulator3 = new FeatureAccumulator();
 
-        Iterable<FeatureAccumulator> iterable = mock(Iterable.class);
-        Iterator<FeatureAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(featureAccumulator2, featureAccumulator3);
+        ArrayList<FeatureAccumulator> iterable = new ArrayList<>();
+        iterable.add(featureAccumulator2);
+        iterable.add(featureAccumulator3);
 
         features.merge(featureAccumulator1, iterable);
 
+        Row row1 = new Row(3);
+        Row row2 = new Row(3);
+        Row row3 = new Row(3);
+
+        Row[] expectedRows = new Row[]{row1, row2, row3};
+        expectedRows[0].setField(0, "key1");
+        expectedRows[0].setField(2, "key1");
+        expectedRows[1].setField(0, "key2");
+        expectedRows[1].setField(2, "key2");
+        expectedRows[2].setField(0, "key3");
+        expectedRows[2].setField(2, "key3");
+        Row nestedRow1 = new Row(8);
+        Row nestedRow2 = new Row(8);
+        Row nestedRow3 = new Row(8);
+        nestedRow1.setField(1, "value1");
+        nestedRow2.setField(1, "value2");
+        nestedRow3.setField(1, "value3");
+        expectedRows[0].setField(1, nestedRow1);
+        expectedRows[1].setField(1, nestedRow2);
+        expectedRows[2].setField(1, nestedRow3);
+
         Row[] result = features.getValue(featureAccumulator1);
-        assertEquals(3, result.length);
-        assertEquals("key1", result[0].getField(0));
-        assertEquals("key2", result[1].getField(0));
-        assertEquals("key3", result[2].getField(0));
-        assertEquals("value1", ((Row) result[0].getField(1)).getField(1));
-        assertEquals("value2", ((Row) result[1].getField(1)).getField(1));
-        assertEquals("value3", ((Row) result[2].getField(1)).getField(1));
+        assertArrayEquals(expectedRows, result);
     }
 }

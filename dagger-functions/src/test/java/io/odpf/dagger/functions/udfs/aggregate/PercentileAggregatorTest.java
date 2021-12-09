@@ -4,12 +4,10 @@ import io.odpf.dagger.functions.udfs.aggregate.accumulator.PercentileAccumulator
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import static java.math.BigDecimal.valueOf;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PercentileAggregatorTest {
 
@@ -39,11 +37,9 @@ public class PercentileAggregatorTest {
         percentileAccumulator3.add(90D, 7D);
 
 
-        Iterable<PercentileAccumulator> iterable = mock(Iterable.class);
-        Iterator<PercentileAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(percentileAccumulator2, percentileAccumulator3);
+        ArrayList<PercentileAccumulator> iterable = new ArrayList<>();
+        iterable.add(percentileAccumulator2);
+        iterable.add(percentileAccumulator3);
 
         percentileAggregator.merge(percentileAccumulator1, iterable);
 
@@ -59,10 +55,7 @@ public class PercentileAggregatorTest {
         percentileAggregator.accumulate(percentileAccumulator, valueOf(90D), valueOf(2D));
         percentileAggregator.accumulate(percentileAccumulator, valueOf(90D), valueOf(3D));
 
-        Iterable<PercentileAccumulator> iterable = mock(Iterable.class);
-        Iterator<PercentileAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(false);
+        ArrayList<PercentileAccumulator> iterable = new ArrayList<>();
 
         percentileAggregator.merge(percentileAccumulator, iterable);
 

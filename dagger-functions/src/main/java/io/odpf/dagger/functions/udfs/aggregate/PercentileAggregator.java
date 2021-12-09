@@ -6,7 +6,6 @@ import io.odpf.dagger.functions.udfs.aggregate.accumulator.PercentileAccumulator
 import org.apache.flink.table.annotation.DataTypeHint;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 
 /**
@@ -40,9 +39,7 @@ public class PercentileAggregator extends AggregateUdf<Double, PercentileAccumul
 
     public void merge(PercentileAccumulator percentileAccumulator, Iterable<PercentileAccumulator> it) {
         for (PercentileAccumulator accumulatorInstance : it) {
-            List<Double> doubleList = percentileAccumulator.getdValueList();
-            doubleList.addAll(accumulatorInstance.getdValueList());
-            percentileAccumulator.setdValueList(doubleList);
+            percentileAccumulator.getdValueList().addAll(accumulatorInstance.getdValueList());
             percentileAccumulator.setPercentile(accumulatorInstance.getPercentile());
         }
     }

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,11 +88,9 @@ public class DistinctCountTest {
         distinctCountAccumulator3.add("6");
         distinctCountAccumulator3.add("7");
 
-        Iterable<DistinctCountAccumulator> iterable = mock(Iterable.class);
-        Iterator<DistinctCountAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(distinctCountAccumulator2, distinctCountAccumulator3);
+        ArrayList<DistinctCountAccumulator> iterable = new ArrayList<>();
+        iterable.add(distinctCountAccumulator2);
+        iterable.add(distinctCountAccumulator3);
 
         distinctCount.merge(distinctCountAccumulator1, iterable);
 
@@ -111,11 +109,9 @@ public class DistinctCountTest {
         DistinctCountAccumulator distinctCountAccumulator2 = new DistinctCountAccumulator();
         DistinctCountAccumulator distinctCountAccumulator3 = new DistinctCountAccumulator();
 
-        Iterable<DistinctCountAccumulator> iterable = mock(Iterable.class);
-        Iterator<DistinctCountAccumulator> iterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(iterator.next()).thenReturn(distinctCountAccumulator2, distinctCountAccumulator3);
+        ArrayList<DistinctCountAccumulator> iterable = new ArrayList<>();
+        iterable.add(distinctCountAccumulator2);
+        iterable.add(distinctCountAccumulator3);
 
         distinctCount.merge(distinctCountAccumulator, iterable);
 

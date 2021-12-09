@@ -3,13 +3,10 @@ package io.odpf.dagger.functions.udfs.aggregate;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.functions.exceptions.OddNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureAccumulator;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.table.annotation.DataTypeHint;
 import org.apache.flink.table.annotation.FunctionHint;
 import org.apache.flink.table.annotation.InputGroup;
 import org.apache.flink.types.Row;
-
-import java.util.List;
 
 /**
  * User-defined aggregate function to get Features.
@@ -48,9 +45,7 @@ public class Features extends AggregateUdf<Row[], FeatureAccumulator> {
 
     public void merge(FeatureAccumulator featureAccumulator, Iterable<FeatureAccumulator> it) {
         for (FeatureAccumulator accumulatorInstance : it) {
-            List<Tuple2<String, Object>> accumulatorFeatures = featureAccumulator.getFeatures();
-            accumulatorFeatures.addAll(accumulatorInstance.getFeatures());
-            featureAccumulator.setFeatures(accumulatorFeatures);
+            featureAccumulator.getFeatures().addAll(accumulatorInstance.getFeatures());
         }
     }
 }
