@@ -1,13 +1,12 @@
-package io.odpf.dagger.core.stream.builder;
+package io.odpf.dagger.core.source.builder;
 
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
-import io.odpf.dagger.core.stream.Stream;
-import io.odpf.dagger.core.stream.StreamConfig;
+import io.odpf.dagger.core.source.Stream;
+import io.odpf.dagger.core.source.StreamConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,18 +65,7 @@ public class JsonDataStreamBuilderTest {
     }
 
     @Test
-    public void shouldCreateDeserializationSchema() {
-        when(streamConfig.getStreamDataType()).thenReturn("JSON");
-        when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
-        JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
-
-        KafkaRecordDeserializationSchema deserializationSchema = jsonDataStreamBuilder.getDeserializationSchema();
-
-        Assert.assertTrue(deserializationSchema instanceof KafkaRecordDeserializationSchema);
-    }
-
-    @Test
-    public void shouldBuildProtoStreamIfConfigured() {
+    public void shouldBuildJSONStreamIfConfigured() {
         HashMap<String, String> kafkaPropMap = new HashMap<>();
         kafkaPropMap.put("group.id", "dummy-consumer-group");
         kafkaPropMap.put("bootstrap.servers", "localhost:9092");
@@ -105,7 +93,6 @@ public class JsonDataStreamBuilderTest {
     @Test
     public void shouldAddMetricsSpecificToKafkaSource() {
         when(streamConfig.getKafkaTopic()).thenReturn("test-topic");
-        when(streamConfig.getProtoClass()).thenReturn("test-class");
         when(streamConfig.getSourceKafkaName()).thenReturn("test-kafka");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
         jsonDataStreamBuilder.addTelemetry();

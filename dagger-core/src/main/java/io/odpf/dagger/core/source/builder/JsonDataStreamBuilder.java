@@ -1,11 +1,11 @@
-package io.odpf.dagger.core.stream.builder;
+package io.odpf.dagger.core.source.builder;
 
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.deserialization.json.JsonDeserializer;
-import io.odpf.dagger.core.stream.StreamConfig;
+import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,10 +40,6 @@ public class JsonDataStreamBuilder extends StreamBuilder {
         return getInputDataType() == DataTypes.JSON;
     }
 
-    @Override
-    DataTypes getInputDataType() {
-        return DataTypes.valueOf(streamConfig.getStreamDataType());
-    }
 
     @Override
     KafkaRecordDeserializationSchema getDeserializationSchema() {

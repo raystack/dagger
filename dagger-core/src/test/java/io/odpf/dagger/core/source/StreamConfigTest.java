@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.stream;
+package io.odpf.dagger.core.source;
 
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
@@ -59,10 +59,30 @@ public class StreamConfigTest {
 
     @Test
     public void shouldParseMultipleStreamsFromStreamConfigJson() {
-        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" }, { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"SOURCE_DATATYPE\": \"JSON\", \"SOURCE_JSON_SCHEMA\": \"{ \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\", \\\"$id\\\": \\\"https://example.com/product.schema.json\\\", \\\"title\\\": \\\"Product\\\", \\\"description\\\": \\\"A product from Acme's catalog\\\", \\\"type\\\": \\\"object\\\", \\\"properties\\\": { \\\"id\\\": { \\\"description\\\": \\\"The unique identifier for a product\\\", \\\"type\\\": \\\"string\\\" }, \\\"time\\\": { \\\"description\\\": \\\"event timestamp of the event\\\", \\\"type\\\": \\\"string\\\", \\\"format\\\" : \\\"date-time\\\" } }, \\\"required\\\": [ \\\"id\\\", \\\"time\\\" ] }\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" }, {\"INPUT_SCHEMA_TABLE\": \"data_stream_1\", \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"SOURCE_DATATYPE\": \"JSON\", \"SOURCE_JSON_SCHEMA\": \"{ \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\", \\\"$id\\\": \\\"https://example.com/product.schema.json\\\", \\\"title\\\": \\\"Product\\\", \\\"description\\\": \\\"A product from Acme's catalog\\\", \\\"type\\\": \\\"object\\\", \\\"properties\\\": { \\\"id\\\": { \\\"description\\\": \\\"The unique identifier for a product\\\", \\\"type\\\": \\\"string\\\" }, \\\"time\\\": { \\\"description\\\": \\\"event timestamp of the event\\\", \\\"type\\\": \\\"string\\\", \\\"format\\\" : \\\"date-time\\\" } }, \\\"required\\\": [ \\\"id\\\", \\\"time\\\" ] }\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"true\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         Assert.assertEquals(2, streamConfigs.length);
+
+        StreamConfig currConfig = streamConfigs[0];
+        Assert.assertEquals("false", currConfig.getAutoCommitEnabled());
+        Assert.assertEquals("latest", currConfig.getAutoOffsetReset());
+        Assert.assertEquals("PROTO", currConfig.getStreamDataType());
+        Assert.assertEquals("dummy-consumer-group", currConfig.getConsumerGroup());
+        Assert.assertEquals("41", currConfig.getEventTimestampFieldIndex());
+        Assert.assertEquals("test-topic", currConfig.getKafkaTopic());
+        Assert.assertEquals("data_stream", currConfig.getSchemaTable());
+        Assert.assertEquals("local-kafka-stream", currConfig.getSourceKafkaName());
+
+        StreamConfig currConfigNext = streamConfigs[1];
+        Assert.assertEquals("true", currConfigNext.getAutoCommitEnabled());
+        Assert.assertEquals("latest", currConfigNext.getAutoOffsetReset());
+        Assert.assertEquals("JSON", currConfigNext.getStreamDataType());
+        Assert.assertEquals("dummy-consumer-group", currConfigNext.getConsumerGroup());
+        Assert.assertEquals("41", currConfigNext.getEventTimestampFieldIndex());
+        Assert.assertEquals("test-topic", currConfigNext.getKafkaTopic());
+        Assert.assertEquals("data_stream_1", currConfigNext.getSchemaTable());
+        Assert.assertEquals("local-kafka-stream", currConfigNext.getSourceKafkaName());
     }
 
 
@@ -110,6 +130,14 @@ public class StreamConfigTest {
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         Assert.assertEquals("PROTO", streamConfigs[0].getStreamDataType());
+    }
+
+    @Test
+    public void shouldSetValidDataTypeIfGiven() {
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ {\"SOURCE_DATATYPE\": \"JSON\", \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        Assert.assertEquals("JSON", streamConfigs[0].getStreamDataType());
     }
 
     @Test

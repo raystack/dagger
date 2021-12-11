@@ -49,7 +49,7 @@ public class ValidRecordsDecoratorTest {
                 .getFields()
                 .stream()
                 .map(Descriptors.FieldDescriptor::getName).collect(Collectors.toList());
-        fields.add(INTERNAL_VALIDATION_FILED_KEY);
+        fields.add(INTERNAL_VALIDATION_FIELD_KEY);
         fields.add("rowtime");
         return fields.toArray(new String[0]);
     }

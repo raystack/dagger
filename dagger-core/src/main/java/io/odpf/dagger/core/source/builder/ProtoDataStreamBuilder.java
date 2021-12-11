@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.stream.builder;
+package io.odpf.dagger.core.source.builder;
 
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
@@ -6,7 +6,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.deserialization.proto.ProtoDeserializer;
-import io.odpf.dagger.core.stream.StreamConfig;
+import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.HashMap;
 import java.util.List;

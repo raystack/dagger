@@ -7,7 +7,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.serde.DaggerInternalTypeInformation;
+import io.odpf.dagger.common.serde.deserialization.DaggerInternalTypeInformation;
 import io.odpf.dagger.common.serde.deserialization.proto.protohandler.TypeInformationFactory;
 
 import java.io.Serializable;

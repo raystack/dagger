@@ -41,7 +41,6 @@ public class KafkaJsonSerializerBuilderTest {
 
     @Test
     public void shouldAddMetrics() {
-        when(configuration.getString(Constants.SINK_KAFKA_JSON_SCHEMA_KEY, "")).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
         KafkaJsonSerializerBuilder kafkaJsonSerializerBuilder = new KafkaJsonSerializerBuilder(configuration);
         kafkaJsonSerializerBuilder.build();
 
@@ -55,6 +54,22 @@ public class KafkaJsonSerializerBuilderTest {
     public void shouldThrowErrorIfOutputJsonSchemaIsInvalid() {
         thrown.expect(InvalidJSONSchemaException.class);
         when(configuration.getString(Constants.SINK_KAFKA_JSON_SCHEMA_KEY, "")).thenReturn("{}");
+        KafkaJsonSerializerBuilder kafkaJsonSerializerBuilder = new KafkaJsonSerializerBuilder(configuration);
+        kafkaJsonSerializerBuilder.build();
+    }
+
+    @Test
+    public void shouldThrowErrorIfOutputJsonSchemaIsEmpty() {
+        thrown.expect(InvalidJSONSchemaException.class);
+        when(configuration.getString(Constants.SINK_KAFKA_JSON_SCHEMA_KEY, "")).thenReturn("");
+        KafkaJsonSerializerBuilder kafkaJsonSerializerBuilder = new KafkaJsonSerializerBuilder(configuration);
+        kafkaJsonSerializerBuilder.build();
+    }
+
+    @Test
+    public void shouldThrowErrorIfOutputJsonSchemaIsNull() {
+        thrown.expect(NullPointerException.class);
+        when(configuration.getString(Constants.SINK_KAFKA_JSON_SCHEMA_KEY, "")).thenReturn(null);
         KafkaJsonSerializerBuilder kafkaJsonSerializerBuilder = new KafkaJsonSerializerBuilder(configuration);
         kafkaJsonSerializerBuilder.build();
     }

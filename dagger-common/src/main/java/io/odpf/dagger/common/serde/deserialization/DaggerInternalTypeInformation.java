@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.serde;
+package io.odpf.dagger.common.serde.deserialization;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -17,7 +17,7 @@ public interface DaggerInternalTypeInformation {
         RowTypeInfo rowTypeInfo = (RowTypeInfo) initialTypeInfo;
         ArrayList<String> fieldNames = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldNames()));
         ArrayList<TypeInformation> fieldTypes = new ArrayList<>(Arrays.asList(rowTypeInfo.getFieldTypes()));
-        fieldNames.add(Constants.INTERNAL_VALIDATION_FILED_KEY);
+        fieldNames.add(Constants.INTERNAL_VALIDATION_FIELD_KEY);
         fieldTypes.add(Types.BOOLEAN);
         fieldNames.add(rowtimeAttributeName);
         fieldTypes.add(Types.SQL_TIMESTAMP);

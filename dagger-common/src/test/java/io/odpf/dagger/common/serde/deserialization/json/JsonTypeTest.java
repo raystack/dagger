@@ -55,7 +55,7 @@ public class JsonTypeTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenClassIsNotProto() {
+    public void shouldThrowIllegalArgumentExceptionWhenClassIsNotJSON() {
         thrown.expect(IllegalArgumentException.class);
         String jsonSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"integer\" }, \"random\": { \"description\": \"one random field\", \"type\": \"random\" } }, \"required\": [ \"id\", \"time\", \"random\" ] }";
         JsonType jsonType = new JsonType(jsonSchema, ROWTIME);
@@ -69,10 +69,15 @@ public class JsonTypeTest {
         JsonType jsonType = new JsonType(jsonSchema, ROWTIME);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) jsonType.getRowType()).getFieldTypes();
+        String[] fieldNames = ((RowTypeInfo) jsonType.getRowType()).getFieldNames();
 
         assertEquals(STRING, fieldTypes[0]);
         assertEquals(BIG_DEC, fieldTypes[1]);
         assertEquals(BIG_DEC, fieldTypes[1]);
+
+        assertEquals("id", fieldNames[0]);
+        assertEquals("time", fieldNames[1]);
+        assertEquals("random", fieldNames[2]);
     }
 
     @Test
@@ -91,12 +96,19 @@ public class JsonTypeTest {
         JsonType jsonType = new JsonType(jsonSchema, ROWTIME);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) jsonType.getRowType()).getFieldTypes();
+        String[] fieldNames = ((RowTypeInfo) jsonType.getRowType()).getFieldNames();
 
         assertEquals(STRING, fieldTypes[0]);
         assertEquals(STRING, fieldTypes[1]);
         assertEquals(ROW_NAMED(new String[]{"street_address", "city"}, STRING, STRING), fieldTypes[2]);
         assertEquals(BOOLEAN, fieldTypes[3]);
         assertEquals(SQL_TIMESTAMP, fieldTypes[4]);
+
+        assertEquals("first_name", fieldNames[0]);
+        assertEquals("last_name", fieldNames[1]);
+        assertEquals("billing_address", fieldNames[2]);
+        assertEquals("__internal_validation_field__", fieldNames[3]);
+        assertEquals("rowtime", fieldNames[4]);
     }
 
     @Test
@@ -105,11 +117,18 @@ public class JsonTypeTest {
         JsonType jsonType = new JsonType(jsonSchema, ROWTIME);
 
         TypeInformation[] fieldTypes = ((RowTypeInfo) jsonType.getRowType()).getFieldTypes();
+        String[] fieldNames = ((RowTypeInfo) jsonType.getRowType()).getFieldNames();
 
         assertEquals(STRING_ARRAY_TYPE_INFO, fieldTypes[0]);
         assertEquals(STRING, fieldTypes[1]);
         assertEquals(ROW_NAMED(new String[]{"street_address", "city"}, STRING, STRING), fieldTypes[2]);
         assertEquals(BOOLEAN, fieldTypes[3]);
         assertEquals(SQL_TIMESTAMP, fieldTypes[4]);
+
+        assertEquals("first_names", fieldNames[0]);
+        assertEquals("last_name", fieldNames[1]);
+        assertEquals("billing_address", fieldNames[2]);
+        assertEquals("__internal_validation_field__", fieldNames[3]);
+        assertEquals("rowtime", fieldNames[4]);
     }
 }

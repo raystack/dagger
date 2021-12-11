@@ -45,11 +45,11 @@ public class ProtoTypeTest {
         ProtoType bookingKeyProtoType = new ProtoType("io.odpf.dagger.consumer.TestBookingLogKey", "rowtime", stencilClientOrchestrator);
 
         assertArrayEquals(
-                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[]{"order_number", "event_timestamp", INTERNAL_VALIDATION_FIELD_KEY, "rowtime"},
                 ((RowTypeInfo) feedbackKeyProtoType.getRowType()).getFieldNames());
 
         assertArrayEquals(
-                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FILED_KEY, "rowtime"},
+                new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FIELD_KEY, "rowtime"},
                 ((RowTypeInfo) bookingKeyProtoType.getRowType()).getFieldNames());
     }
 

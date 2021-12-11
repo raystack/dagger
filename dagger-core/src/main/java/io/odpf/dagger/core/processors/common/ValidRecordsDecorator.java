@@ -34,7 +34,7 @@ public class ValidRecordsDecorator extends RichFilterFunction<Row> implements Fi
      */
     public ValidRecordsDecorator(String tableName, String[] columns, Configuration configuration) {
         this.tableName = tableName;
-        validationIndex = Arrays.asList(columns).indexOf(Constants.INTERNAL_VALIDATION_FILED_KEY);
+        validationIndex = Arrays.asList(columns).indexOf(Constants.INTERNAL_VALIDATION_FIELD_KEY);
         this.configuration = configuration;
     }
 

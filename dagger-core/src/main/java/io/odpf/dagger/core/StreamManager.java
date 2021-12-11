@@ -25,8 +25,8 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.sink.SinkOrchestrator;
-import io.odpf.dagger.core.stream.Stream;
-import io.odpf.dagger.core.stream.StreamsFactory;
+import io.odpf.dagger.core.source.Stream;
+import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
 
 import java.lang.reflect.Constructor;

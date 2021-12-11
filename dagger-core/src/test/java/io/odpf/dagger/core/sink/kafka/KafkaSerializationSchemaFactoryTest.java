@@ -34,7 +34,7 @@ public class KafkaSerializationSchemaFactoryTest {
     }
 
     @Test
-    public void shouldCreateJsonSerializerForProtoSinkDataTypes() {
+    public void shouldCreateProtoSerializerForProtoSinkDataTypes() {
         when(configuration.getString(Constants.SINK_KAFKA_DATA_TYPE, "PROTO")).thenReturn("PROTO");
         KafkaSerializerBuilder serializationSchema = KafkaSerializationSchemaFactory
                 .getSerializationSchema(configuration, stencilClientOrchestrator, new String[]{"test-col"});

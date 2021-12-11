@@ -55,13 +55,7 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
      * @param outputTopic               the output topic
      */
     public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
-        if (Objects.isNull(messageProtoClassName)) {
-            throw new DaggerSerializationException("messageProtoClassName is required");
-        }
-        this.keyProtoClassName = keyProtoClassName;
-        this.messageProtoClassName = messageProtoClassName;
-        this.columnNames = columnNames;
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
+        this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator);
         this.outputTopic = outputTopic;
     }
 

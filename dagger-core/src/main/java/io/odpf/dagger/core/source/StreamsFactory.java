@@ -1,10 +1,10 @@
-package io.odpf.dagger.core.stream;
+package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.stream.builder.JsonDataStreamBuilder;
-import io.odpf.dagger.core.stream.builder.ProtoDataStreamBuilder;
-import io.odpf.dagger.core.stream.builder.StreamBuilder;
+import io.odpf.dagger.core.source.builder.JsonDataStreamBuilder;
+import io.odpf.dagger.core.source.builder.ProtoDataStreamBuilder;
+import io.odpf.dagger.core.source.builder.StreamBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;

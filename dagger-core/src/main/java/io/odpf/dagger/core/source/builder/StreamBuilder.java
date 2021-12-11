@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.stream.builder;
+package io.odpf.dagger.core.source.builder;
 
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -8,8 +8,8 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.stream.Stream;
-import io.odpf.dagger.core.stream.StreamConfig;
+import io.odpf.dagger.core.source.Stream;
+import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.stream;
+package io.odpf.dagger.core.source;
 
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 

@@ -4,7 +4,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.json.JsonRowSchemaConverter;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.serde.DaggerInternalTypeInformation;
+import io.odpf.dagger.common.serde.deserialization.DaggerInternalTypeInformation;
 
 import java.io.Serializable;
 

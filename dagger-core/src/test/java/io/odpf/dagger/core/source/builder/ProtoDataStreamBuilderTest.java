@@ -1,16 +1,15 @@
-package io.odpf.dagger.core.stream.builder;
+package io.odpf.dagger.core.source.builder;
 
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.core.stream.Stream;
-import io.odpf.dagger.core.stream.StreamConfig;
+import io.odpf.dagger.core.source.Stream;
+import io.odpf.dagger.core.source.StreamConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,21 +71,6 @@ public class ProtoDataStreamBuilderTest {
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         Assert.assertFalse(protoDataStreamBuilder.canBuild());
-    }
-
-    @Test
-    public void shouldCreateDeserializationSchema() {
-        when(streamConfig.getStreamDataType()).thenReturn("PROTO");
-        when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
-        when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
-        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
-        when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-
-        ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
-
-        KafkaRecordDeserializationSchema deserializationSchema = protoDataStreamBuilder.getDeserializationSchema();
-
-        Assert.assertTrue(deserializationSchema instanceof KafkaRecordDeserializationSchema);
     }
 
     @Test
