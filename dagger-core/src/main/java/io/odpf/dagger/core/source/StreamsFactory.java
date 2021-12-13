@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.source.builder.JsonDataStreamBuilder;
 import io.odpf.dagger.core.source.builder.ProtoDataStreamBuilder;
 import io.odpf.dagger.core.source.builder.StreamBuilder;
@@ -12,7 +13,9 @@ import java.util.List;
 
 public class StreamsFactory {
 
-    public static List<Stream> getStreams(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
+    public static List<Stream> getStreams(Configuration configuration,
+                                          StencilClientOrchestrator stencilClientOrchestrator,
+                                          MetricsTelemetryExporter telemetryExporter) {
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
         ArrayList<Stream> streams = new ArrayList<>();
 
@@ -20,10 +23,14 @@ public class StreamsFactory {
             List<StreamBuilder> dataStreams = Arrays
                     .asList(new JsonDataStreamBuilder(streamConfig, configuration),
                             new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
-            Stream stream = dataStreams.stream()
+            StreamBuilder streamBuilder = dataStreams.stream()
                     .filter(dataStream -> dataStream.canBuild())
                     .findFirst()
-                    .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration))
+                    .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
+
+            streamBuilder.addSubscriber(telemetryExporter);
+
+            Stream stream = streamBuilder
                     .build();
             streams.add(stream);
         }

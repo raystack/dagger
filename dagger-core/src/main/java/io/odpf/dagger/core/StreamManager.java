@@ -224,6 +224,6 @@ public class StreamManager {
     }
 
     private List<Stream> getStreams() {
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator);
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
     }
 }

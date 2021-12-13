@@ -8,12 +8,12 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.sink.kafka.KafkaSerializationSchemaFactory;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
 import io.odpf.dagger.core.sink.influx.InfluxDBSink;
+import io.odpf.dagger.core.sink.kafka.KafkaSerializationSchemaFactory;
 import io.odpf.dagger.core.sink.kafka.KafkaSerializerBuilder;
 import io.odpf.dagger.core.sink.log.LogSink;
 
