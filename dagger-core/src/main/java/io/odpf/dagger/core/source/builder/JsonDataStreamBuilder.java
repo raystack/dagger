@@ -4,7 +4,7 @@ import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDe
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
-import io.odpf.dagger.common.serde.deserialization.json.JsonDeserializer;
+import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.HashMap;

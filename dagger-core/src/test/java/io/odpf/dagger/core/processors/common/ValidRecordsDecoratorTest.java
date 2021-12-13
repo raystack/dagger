@@ -9,7 +9,7 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.types.FilterDecorator;
-import io.odpf.dagger.common.serde.deserialization.proto.ProtoDeserializer;
+import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
 import org.junit.Test;

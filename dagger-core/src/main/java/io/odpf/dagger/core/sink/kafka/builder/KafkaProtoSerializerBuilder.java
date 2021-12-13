@@ -4,7 +4,7 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.serialization.proto.ProtoSerializer;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.sink.kafka.KafkaSerializerBuilder;

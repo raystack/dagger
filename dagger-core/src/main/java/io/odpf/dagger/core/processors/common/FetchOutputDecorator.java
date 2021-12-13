@@ -8,7 +8,7 @@ import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.deserialization.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.types.MapDecorator;
 
