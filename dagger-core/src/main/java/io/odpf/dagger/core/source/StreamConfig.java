@@ -61,11 +61,11 @@ public class StreamConfig {
     @Getter
     private String sourceKafkaName;
 
-    @SerializedName("SOURCE_JSON_SCHEMA")
+    @SerializedName("INPUT_JSON_SCHEMA")
     @Getter
     private String jsonSchema;
 
-    @SerializedName("SOURCE_ROW_TIME_FIELD")
+    @SerializedName("INPUT_ROW_TIME_FIELD")
     @Getter
     private String rowTimeFieldName;
 
@@ -73,7 +73,7 @@ public class StreamConfig {
     @Getter
     private String eventTimestampFieldIndex;
 
-    @SerializedName("SOURCE_DATATYPE")
+    @SerializedName("INPUT_DATATYPE")
     private String streamDataType;
 
     public String getStreamDataType() {
