@@ -14,6 +14,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,23 +70,23 @@ public class OutlierMadTest {
         values.add(10D);
         values.add(16D);
         values.add(30D);
-        ArrayList<Timestamp> timestampArrayList = new ArrayList<>();
-        timestampArrayList.add(new Timestamp(60000L));
-        timestampArrayList.add(new Timestamp(120000L));
-        timestampArrayList.add(new Timestamp(180000L));
-        timestampArrayList.add(new Timestamp(240000L));
-        timestampArrayList.add(new Timestamp(300000L));
-        timestampArrayList.add(new Timestamp(360000L));
-        timestampArrayList.add(new Timestamp(420000L));
-        timestampArrayList.add(new Timestamp(480000L));
-        timestampArrayList.add(new Timestamp(540000L));
-        timestampArrayList.add(new Timestamp(600000L));
-        timestampArrayList.add(new Timestamp(660000L));
-        timestampArrayList.add(new Timestamp(720000L));
-        timestampArrayList.add(new Timestamp(780000L));
-        timestampArrayList.add(new Timestamp(840000L));
+        ArrayList<LocalDateTime> timestampArrayList = new ArrayList<>();
+        timestampArrayList.add(getLocalDateTimeFromEpoch(60000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(120000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(180000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(240000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(300000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(360000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(420000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(480000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(540000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(600000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(660000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(720000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(780000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(840000L));
         outlierMad.setCollector(collector);
-        outlierMad.eval(values, timestampArrayList, new Timestamp(0L), 15, 3, 3, 5);
+        outlierMad.eval(values, timestampArrayList, getLocalDateTimeFromEpoch(0L), 15, 3, 3, 5);
 
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple1 = new Tuple5<>(new Timestamp(720000L), 10D, 11D, -1D, true);
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple2 = new Tuple5<>(new Timestamp(780000L), 16D, 11D, -1D, true);
@@ -115,23 +118,23 @@ public class OutlierMadTest {
         values.add(10D);
         values.add(11D);
         values.add(11D);
-        ArrayList<Timestamp> timestampArrayList = new ArrayList<>();
-        timestampArrayList.add(new Timestamp(60000L));
-        timestampArrayList.add(new Timestamp(120000L));
-        timestampArrayList.add(new Timestamp(180000L));
-        timestampArrayList.add(new Timestamp(240000L));
-        timestampArrayList.add(new Timestamp(300000L));
-        timestampArrayList.add(new Timestamp(360000L));
-        timestampArrayList.add(new Timestamp(420000L));
-        timestampArrayList.add(new Timestamp(480000L));
-        timestampArrayList.add(new Timestamp(540000L));
-        timestampArrayList.add(new Timestamp(600000L));
-        timestampArrayList.add(new Timestamp(660000L));
-        timestampArrayList.add(new Timestamp(720000L));
-        timestampArrayList.add(new Timestamp(780000L));
-        timestampArrayList.add(new Timestamp(840000L));
+        ArrayList<LocalDateTime> timestampArrayList = new ArrayList<>();
+        timestampArrayList.add(getLocalDateTimeFromEpoch(60000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(120000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(180000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(240000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(300000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(360000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(420000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(480000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(540000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(600000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(660000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(720000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(780000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(840000L));
         outlierMad.setCollector(collector);
-        outlierMad.eval(values, timestampArrayList, new Timestamp(0L), 15, 3, 3, 5);
+        outlierMad.eval(values, timestampArrayList, getLocalDateTimeFromEpoch(0L), 15, 3, 3, 5);
 
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple1 = new Tuple5<>(new Timestamp(720000L), 10D, 11D, -1D, false);
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple2 = new Tuple5<>(new Timestamp(780000L), 11D, 11D, -1D, false);
@@ -163,23 +166,23 @@ public class OutlierMadTest {
         values.add(14D);
         values.add(16D);
         values.add(30D);
-        ArrayList<Timestamp> timestampArrayList = new ArrayList<>();
-        timestampArrayList.add(new Timestamp(60000L));
-        timestampArrayList.add(new Timestamp(120000L));
-        timestampArrayList.add(new Timestamp(180000L));
-        timestampArrayList.add(new Timestamp(240000L));
-        timestampArrayList.add(new Timestamp(300000L));
-        timestampArrayList.add(new Timestamp(360000L));
-        timestampArrayList.add(new Timestamp(420000L));
-        timestampArrayList.add(new Timestamp(480000L));
-        timestampArrayList.add(new Timestamp(540000L));
-        timestampArrayList.add(new Timestamp(600000L));
-        timestampArrayList.add(new Timestamp(660000L));
-        timestampArrayList.add(new Timestamp(720000L));
-        timestampArrayList.add(new Timestamp(780000L));
-        timestampArrayList.add(new Timestamp(840000L));
+        ArrayList<LocalDateTime> timestampArrayList = new ArrayList<>();
+        timestampArrayList.add(getLocalDateTimeFromEpoch(60000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(120000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(180000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(240000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(300000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(360000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(420000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(480000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(540000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(600000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(660000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(720000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(780000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(840000L));
         outlierMad.setCollector(collector);
-        outlierMad.eval(values, timestampArrayList, new Timestamp(0L), 15, 4, 3, 76);
+        outlierMad.eval(values, timestampArrayList, getLocalDateTimeFromEpoch(0L), 15, 4, 3, 76);
 
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple1 = new Tuple5<>(new Timestamp(660000L), 8D, 11D, -1D, false);
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple2 = new Tuple5<>(new Timestamp(720000L), 14D, 11D, -1D, false);
@@ -213,23 +216,23 @@ public class OutlierMadTest {
         values.add(5D);
         values.add(5D);
         values.add(5D);
-        ArrayList<Timestamp> timestampArrayList = new ArrayList<>();
-        timestampArrayList.add(new Timestamp(60000L));
-        timestampArrayList.add(new Timestamp(120000L));
-        timestampArrayList.add(new Timestamp(180000L));
-        timestampArrayList.add(new Timestamp(240000L));
-        timestampArrayList.add(new Timestamp(300000L));
-        timestampArrayList.add(new Timestamp(360000L));
-        timestampArrayList.add(new Timestamp(420000L));
-        timestampArrayList.add(new Timestamp(480000L));
-        timestampArrayList.add(new Timestamp(540000L));
-        timestampArrayList.add(new Timestamp(600000L));
-        timestampArrayList.add(new Timestamp(660000L));
-        timestampArrayList.add(new Timestamp(720000L));
-        timestampArrayList.add(new Timestamp(780000L));
-        timestampArrayList.add(new Timestamp(840000L));
+        ArrayList<LocalDateTime> timestampArrayList = new ArrayList<>();
+        timestampArrayList.add(getLocalDateTimeFromEpoch(60000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(120000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(180000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(240000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(300000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(360000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(420000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(480000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(540000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(600000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(660000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(720000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(780000L));
+        timestampArrayList.add(getLocalDateTimeFromEpoch(840000L));
         outlierMad.setCollector(collector);
-        outlierMad.eval(values, timestampArrayList, new Timestamp(0L), 15, 4, 3, 76);
+        outlierMad.eval(values, timestampArrayList, getLocalDateTimeFromEpoch(0L), 15, 4, 3, 76);
 
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple1 = new Tuple5<>(new Timestamp(660000L), 5D, 5D, 5D, false);
         Tuple5<Timestamp, Double, Double, Double, Boolean> expectedTuple2 = new Tuple5<>(new Timestamp(720000L), 5D, 5D, 5D, false);
@@ -245,4 +248,8 @@ public class OutlierMadTest {
         Assert.assertEquals(expectedTuple4, allTuples.get(3));
     }
 
+
+    private LocalDateTime getLocalDateTimeFromEpoch(long epoch) {
+        return Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
 }

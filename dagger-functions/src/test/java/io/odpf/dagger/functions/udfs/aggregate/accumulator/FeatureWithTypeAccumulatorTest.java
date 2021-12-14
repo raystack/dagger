@@ -28,7 +28,7 @@ public class FeatureWithTypeAccumulatorTest {
         data.put("TimestampKey", new Tuple2<>(getTimestampAsRow(123141, 431231), TimestampType));
         populateFeatureAccumulator(featureAccumulator, data);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         validateFeatures(data, features);
     }
@@ -39,7 +39,7 @@ public class FeatureWithTypeAccumulatorTest {
         FeatureWithTypeAccumulator featureAccumulator = new FeatureWithTypeAccumulator();
         featureAccumulator.add("FloatKey", 1.0F, FloatType);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         assertEquals(1, features.length);
         assertEquals("FloatKey", features[0].getField(0));
@@ -53,7 +53,7 @@ public class FeatureWithTypeAccumulatorTest {
         featureAccumulator.add("keyToRemove", 1.0F, FloatType);
         featureAccumulator.remove("keyToRemove", 1.0F, FloatType);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         assertEquals(1, features.length);
         assertEquals("FloatKey", features[0].getField(0));
@@ -68,7 +68,7 @@ public class FeatureWithTypeAccumulatorTest {
         data.put("duplicateKey", new Tuple2<>(2.0F, FloatType));
         populateFeatureAccumulator(featureAccumulator, data);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         validateFeatures(data, features);
     }
@@ -79,7 +79,7 @@ public class FeatureWithTypeAccumulatorTest {
         featureAccumulator.add("FloatKey", 1.0F, FloatType);
         featureAccumulator.add("FloatKey", 1.0F, FloatType);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         assertEquals(1, features.length);
         assertEquals("FloatKey", features[0].getField(0));
@@ -90,7 +90,7 @@ public class FeatureWithTypeAccumulatorTest {
     public void shouldThrowExceptionForValuesItCannotHandleWithFeatureTypeUdf() {
         FeatureWithTypeAccumulator featureAccumulator = new FeatureWithTypeAccumulator();
         featureAccumulator.add("key1", "value".getBytes(), null);
-        featureAccumulator.getFeatures();
+        featureAccumulator.getFeaturesAsRows();
     }
 
     private void validateFeatures(HashMap<String, Tuple2<Object, ValueEnum>> data, Row[] features) {

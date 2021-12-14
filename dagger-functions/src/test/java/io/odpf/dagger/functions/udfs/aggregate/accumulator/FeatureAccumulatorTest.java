@@ -30,7 +30,7 @@ public class FeatureAccumulatorTest {
 
         FeatureAccumulator deserializedAccumulator = (FeatureAccumulator) deserializedAccStream.readObject();
 
-        assertArrayEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
+        assertArrayEquals(featureAccumulator.getFeaturesAsRows(), deserializedAccumulator.getFeaturesAsRows());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class FeatureAccumulatorTest {
         featureAccumulator.add("BoolKey", true);
         featureAccumulator.add("TimestampKey", getTimestampAsRow(123141, 431231));
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         assertEquals(8, features.length);
         assertEquals("FloatKey", features[0].getField(0));
@@ -71,7 +71,7 @@ public class FeatureAccumulatorTest {
         FeatureAccumulator featureAccumulator = new FeatureAccumulator();
         featureAccumulator.add("FloatKey", 1.0F);
 
-        Row[] features = featureAccumulator.getFeatures();
+        Row[] features = featureAccumulator.getFeaturesAsRows();
 
         assertEquals(1, features.length);
         assertEquals("FloatKey", features[0].getField(0));
@@ -83,7 +83,7 @@ public class FeatureAccumulatorTest {
         FeatureAccumulator featureAccumulator = new FeatureAccumulator();
         featureAccumulator.add("key1", "value".getBytes());
 
-        featureAccumulator.getFeatures();
+        featureAccumulator.getFeaturesAsRows();
     }
 
     @Test
@@ -98,7 +98,7 @@ public class FeatureAccumulatorTest {
 
         FeatureWithTypeAccumulator deserializedAccumulator = (FeatureWithTypeAccumulator) deserializedAccStream.readObject();
 
-        assertArrayEquals(featureAccumulator.getFeatures(), deserializedAccumulator.getFeatures());
+        assertArrayEquals(featureAccumulator.getFeaturesAsRows(), deserializedAccumulator.getFeaturesAsRows());
     }
 
     private Row getTimestampAsRow(int seconds, int nanos) {
