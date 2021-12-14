@@ -8,9 +8,14 @@ import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.OperationExpression;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.processors.ArrayOperateProcessor;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.processors.ArrayProcessor;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.InputGroup;
+import org.apache.flink.table.functions.FunctionContext;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -39,16 +44,17 @@ public class ArrayOperate extends ScalarUdf implements Serializable {
     /**
      * Given an Object Array, this UDF performs basic functions on the Array.
      *
-     * @param arrayElements the array elements
      * @param operationType the operation type
      * @param inputDataType the input data type
+     * @param arrayElements the array elements
      * @return the result of the aggregate
      */
-    public Object[] eval(Object[] arrayElements, String operationType, String inputDataType) {
+    public @DataTypeHint(value = "RAW", bridgedTo = List.class)
+    List<Object> eval(String operationType, String inputDataType, @DataTypeHint(inputGroup = InputGroup.ANY) Object... arrayElements) {
         expression.createExpression(operationType);
         LongbowArrayType dataType = LongbowArrayType.getDataType(inputDataType);
         arrayProcessor.initJexl(dataType, arrayElements);
-        return getCopyArray(arrayProcessor.process());
+        return Arrays.asList(getCopyArray(arrayProcessor.process()));
     }
 
     private Object[] getCopyArray(Object originalArray) {

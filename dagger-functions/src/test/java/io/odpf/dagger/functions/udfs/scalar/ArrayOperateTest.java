@@ -4,15 +4,17 @@ import io.odpf.dagger.functions.exceptions.ArrayOperateException;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.table.functions.FunctionContext;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.lang.reflect.Array;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.hamcrest.collection.IsIterableContainingInRelativeOrder.containsInRelativeOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -44,11 +46,8 @@ public class ArrayOperateTest {
         objects[4] = "a";
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        Object[] result = arrayOperate.eval(objects, "distinct", "other");
-        Assert.assertEquals(3, result.length);
-        Assert.assertEquals("a", Array.get(result, 0));
-        Assert.assertEquals("b", Array.get(result, 1));
-        Assert.assertEquals("v", Array.get(result, 2));
+        List<Object> objectList = arrayOperate.eval("distinct", "other", objects);
+        assertThat(objectList, containsInAnyOrder("a", "b", "v"));
     }
 
     @Test
@@ -61,10 +60,8 @@ public class ArrayOperateTest {
         objects[4] = 1;
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        Object[] result = arrayOperate.eval(objects, "distinct.sorted", "int");
-        Assert.assertEquals(2, result.length);
-        Assert.assertEquals(1, Array.get(result, 0));
-        Assert.assertEquals(2, Array.get(result, 1));
+        List<Object> result = arrayOperate.eval( "distinct.sorted", "int", objects);
+        assertThat(result, containsInRelativeOrder(1, 2));
     }
 
     @Test
@@ -77,10 +74,8 @@ public class ArrayOperateTest {
         objects[4] = 1.3d;
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        Object[] result = arrayOperate.eval(objects, "distinct.sorted", "double");
-        Assert.assertEquals(3, result.length);
-        Assert.assertEquals(0.1d, Array.get(result, 0));
-        Assert.assertEquals(1.3d, Array.get(result, 1));
+        List<Object> result = arrayOperate.eval( "distinct.sorted", "double", objects);
+        assertThat(result, containsInRelativeOrder( 0.1d, 1.3d, 2.1d));
     }
 
     @Test
@@ -95,7 +90,7 @@ public class ArrayOperateTest {
         objects[4] = "a";
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        arrayOperate.eval(objects, "distinct.sort", "other");
+        arrayOperate.eval( "distinct.sort", "other", objects);
     }
 
     @Test
