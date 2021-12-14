@@ -17,6 +17,7 @@ public class ListContains extends ScalarUdf {
      * @author prakhar.m
      * @team DE
      */
+    //no data type change needed
     public boolean eval(String[] inputList, String item) {
         if (inputList == null) {
             return false;
