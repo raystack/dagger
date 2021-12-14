@@ -45,7 +45,7 @@ public class S2IdTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEForInvalidInput() {
-        String actualS2Id = converter.eval(Long.getLong(INVALID_CENTRAL_MONUMENT_JAKARTA_LONGITUDE), CENTRAL_MONUMENT_JAKARTA_LONGITUDE, S2LEVEL);
+        String actualS2Id = converter.eval(null, CENTRAL_MONUMENT_JAKARTA_LONGITUDE, S2LEVEL);
 
         assertEquals(actualS2Id, CENTRAL_MONUMENT_JAKARTA_S2ID_LEVEL_13);
     }
