@@ -4,6 +4,9 @@ import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.functions.exceptions.InvalidNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureWithTypeAccumulator;
 import io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.FunctionHint;
+import org.apache.flink.table.annotation.InputGroup;
 import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR;
@@ -11,6 +14,7 @@ import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_ARGUMENTS_IN_F
 /**
  * User-defined aggregate function to get Features with type.
  */
+@FunctionHint(output = @DataTypeHint("RAW"))
 public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumulator> {
 
     @Override
@@ -20,7 +24,7 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
 
     @Override
     public Row[] getValue(FeatureWithTypeAccumulator featureAccumulator) {
-        return featureAccumulator.getFeatures();
+        return featureAccumulator.getFeaturesAsRows();
     }
 
     /**
@@ -33,7 +37,7 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
      * @author grace.christina
      * @team DS
      */
-    public void accumulate(FeatureWithTypeAccumulator featureAccumulator, Object... objects) {
+    public void accumulate(FeatureWithTypeAccumulator featureAccumulator, @DataTypeHint(inputGroup = InputGroup.ANY) Object... objects) {
         validate(objects);
         for (int elementIndex = 0; elementIndex < objects.length; elementIndex += NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR) {
             featureAccumulator.add(String.valueOf(objects[elementIndex]), objects[elementIndex + 1], ValueEnum.valueOf(String.valueOf(objects[elementIndex + 2])));
@@ -50,6 +54,12 @@ public class FeaturesWithType extends AggregateUdf<Row[], FeatureWithTypeAccumul
         validate(objects);
         for (int elementIndex = 0; elementIndex < objects.length; elementIndex += NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR) {
             featureAccumulator.remove(String.valueOf(objects[elementIndex]), objects[elementIndex + 1], ValueEnum.valueOf(String.valueOf(objects[elementIndex + 2])));
+        }
+    }
+
+    public void merge(FeatureWithTypeAccumulator featureWithTypeAccumulator, Iterable<FeatureWithTypeAccumulator> it) {
+        for (FeatureWithTypeAccumulator accumulatorInstance : it) {
+            accumulatorInstance.getFeatures().forEach((s, tuple3) -> featureWithTypeAccumulator.add(tuple3.f0, tuple3.f1, tuple3.f2));
         }
     }
 

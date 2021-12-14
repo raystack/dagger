@@ -19,7 +19,7 @@ public class HistogramBucket extends TableUdf<Tuple1<String>> {
      * @param buckets Buckets for Cumulative Histograms
      * @author lavkesh.lahngir
      */
-    public void eval(double dValue, String buckets) {
+    public void eval(Double dValue, String buckets) {
         // Always emit the bucket for '+Inf'
         collect(new Tuple1<>("+Inf"));
         Arrays.stream(buckets.split(",")).

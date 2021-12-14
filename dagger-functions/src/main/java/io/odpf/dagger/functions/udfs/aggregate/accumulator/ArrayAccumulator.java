@@ -1,14 +1,17 @@
 package io.odpf.dagger.functions.udfs.aggregate.accumulator;
 
+import org.apache.flink.table.annotation.DataTypeHint;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The accumulator for CollectArray udf.
  */
 public class ArrayAccumulator implements Serializable {
 
-    private ArrayList<Object> arrayList = new ArrayList<>();
+    private @DataTypeHint("RAW") List<Object> arrayList = new ArrayList<>();
 
     /**
      * Add object to array list.
@@ -24,7 +27,15 @@ public class ArrayAccumulator implements Serializable {
      *
      * @return the array list
      */
-    public ArrayList<Object> emit() {
+    public List<Object> emit() {
         return arrayList;
+    }
+
+    public List<Object> getArrayList() {
+        return arrayList;
+    }
+
+    public void setArrayList(List<Object> arrayList) {
+        this.arrayList = arrayList;
     }
 }

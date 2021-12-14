@@ -31,7 +31,7 @@ public class SingleFeatureWithType extends ScalarUdf {
         for (int elementIndex = 0; elementIndex < objects.length; elementIndex += NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR) {
             featureAccumulator.add(String.valueOf(objects[elementIndex]), objects[elementIndex + 1], ValueEnum.valueOf(String.valueOf(objects[elementIndex + 2])));
         }
-        return featureAccumulator.getFeatures();
+        return featureAccumulator.getFeaturesAsRows();
     }
 
 }
