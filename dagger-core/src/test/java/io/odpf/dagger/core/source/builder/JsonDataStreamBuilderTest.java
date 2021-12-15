@@ -42,7 +42,7 @@ public class JsonDataStreamBuilderTest {
 
     @Test
     public void shouldProcessJSONStream() {
-        when(streamConfig.getStreamDataType()).thenReturn("JSON");
+        when(streamConfig.getDataType()).thenReturn("JSON");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
         Assert.assertTrue(jsonDataStreamBuilder.canBuild());
@@ -50,7 +50,7 @@ public class JsonDataStreamBuilderTest {
 
     @Test
     public void shouldParseDataTypeFromStreamConfig() {
-        when(streamConfig.getStreamDataType()).thenReturn("JSON");
+        when(streamConfig.getDataType()).thenReturn("JSON");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
         Assert.assertEquals(DataTypes.JSON, jsonDataStreamBuilder.getInputDataType());
@@ -58,7 +58,7 @@ public class JsonDataStreamBuilderTest {
 
     @Test
     public void shouldIgnoreProtoStream() {
-        when(streamConfig.getStreamDataType()).thenReturn("PROTO");
+        when(streamConfig.getDataType()).thenReturn("PROTO");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
         Assert.assertFalse(jsonDataStreamBuilder.canBuild());
@@ -73,7 +73,7 @@ public class JsonDataStreamBuilderTest {
         Properties properties = new Properties();
         properties.putAll(kafkaPropMap);
 
-        when(streamConfig.getStreamDataType()).thenReturn("JSON");
+        when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
 
@@ -92,8 +92,8 @@ public class JsonDataStreamBuilderTest {
 
     @Test
     public void shouldAddMetricsSpecificToKafkaSource() {
-        when(streamConfig.getKafkaTopic()).thenReturn("test-topic");
-        when(streamConfig.getSourceKafkaName()).thenReturn("test-kafka");
+        when(streamConfig.getKafkaTopicNames()).thenReturn("test-topic");
+        when(streamConfig.getKafkaName()).thenReturn("test-kafka");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
         jsonDataStreamBuilder.addTelemetry();
 

@@ -13,16 +13,12 @@ import java.util.Map;
 
 public class JsonDataStreamBuilder extends StreamBuilder {
     private final StreamConfig streamConfig;
-    private final String streamName;
 
     private Map<String, List<String>> metrics = new HashMap<>();
 
     public JsonDataStreamBuilder(StreamConfig streamConfig, Configuration configuration) {
         super(streamConfig, configuration);
         this.streamConfig = streamConfig;
-
-        // TODO : validate this streamName thing here
-        streamName = streamConfig.getSchemaTable();
     }
 
     @Override
@@ -44,7 +40,7 @@ public class JsonDataStreamBuilder extends StreamBuilder {
     @Override
     KafkaRecordDeserializationSchema getDeserializationSchema() {
         // TODO : update logic for json schema validation and all
-        JsonDeserializer jsonDeserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getRowTimeFieldName());
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getJsonRowTimeFieldName());
 
         return KafkaRecordDeserializationSchema.of(jsonDeserializer);
     }

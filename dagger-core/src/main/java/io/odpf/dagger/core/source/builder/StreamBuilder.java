@@ -61,7 +61,7 @@ public abstract class StreamBuilder implements TelemetryPublisher {
     abstract KafkaRecordDeserializationSchema getDeserializationSchema();
 
     DataTypes getInputDataType() {
-        return DataTypes.valueOf(streamConfig.getStreamDataType());
+        return DataTypes.valueOf(streamConfig.getDataType());
     }
 
     void addMetric(Map<String, List<String>> metrics, String key, String value) {
@@ -69,12 +69,12 @@ public abstract class StreamBuilder implements TelemetryPublisher {
     }
 
     protected Map<String, List<String>> addDefaultMetrics(Map<String, List<String>> metrics) {
-        String topicPattern = streamConfig.getKafkaTopic();
+        String topicPattern = streamConfig.getKafkaTopicNames();
         List<String> topicsToReport = new ArrayList<>();
         topicsToReport.addAll(Arrays.asList(topicPattern.split("\\|")));
         topicsToReport.forEach(topic -> addMetric(metrics, INPUT_TOPIC.getValue(), topic));
 
-        String streamName = streamConfig.getSourceKafkaName();
+        String streamName = streamConfig.getKafkaName();
         addMetric(metrics, INPUT_STREAM.getValue(), streamName);
         return metrics;
     }

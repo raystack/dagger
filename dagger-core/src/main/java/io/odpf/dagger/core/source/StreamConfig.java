@@ -16,10 +16,9 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_MAX_PARTITION_FETCH_BYTES_KEY;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 public class StreamConfig {
     private static final Gson GSON = new GsonBuilder()
@@ -29,58 +28,64 @@ public class StreamConfig {
 
     private static final String KAFKA_PREFIX = "source_kafka_consumer_config_";
 
-    @SerializedName("SOURCE_KAFKA_TOPIC_NAMES")
+    @SerializedName(STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY)
     @Getter
-    private String kafkaTopic;
+    private String kafkaTopicNames;
 
-    @SerializedName("INPUT_SCHEMA_PROTO_CLASS")
+    @SerializedName(STREAM_INPUT_SCHEMA_PROTO_CLASS)
     @Getter
     private String protoClass;
 
-    @SerializedName("INPUT_SCHEMA_TABLE")
+    @SerializedName(STREAM_INPUT_SCHEMA_TABLE)
     @Getter
     private String schemaTable;
 
-    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE")
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE_KEY)
     @Getter
-    private String autoCommitEnabled;
+    private String autoCommitEnable;
 
-    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET")
-    @Getter
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_KEY)
     private String autoOffsetReset;
 
-    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID")
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID_KEY)
     @Getter
-    private String consumerGroup;
+    private String consumerGroupId;
 
-    @SerializedName("SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS")
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS_KEY)
     @Getter
-    private String sourceBootstrapServers;
+    private String bootstrapServers;
 
-    @SerializedName("SOURCE_KAFKA_NAME")
+    @SerializedName(STREAM_INPUT_STREAM_NAME_KEY)
     @Getter
-    private String sourceKafkaName;
+    private String kafkaName;
 
-    @SerializedName("INPUT_JSON_SCHEMA")
+    @SerializedName(STREAM_INPUT_JSON_SCHEMA_KEY)
     @Getter
     private String jsonSchema;
 
-    @SerializedName("INPUT_ROW_TIME_FIELD")
+    @SerializedName(STREAM_INPUT_JSON_ROW_TIME_FIELD_NAME_KEY)
     @Getter
-    private String rowTimeFieldName;
+    private String jsonRowTimeFieldName;
 
-    @SerializedName("INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX")
+    @SerializedName(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY)
     @Getter
     private String eventTimestampFieldIndex;
 
-    @SerializedName("INPUT_DATATYPE")
-    private String streamDataType;
+    @SerializedName(STREAM_INPUT_DATATYPE)
+    private String dataType;
 
-    public String getStreamDataType() {
-        if (streamDataType == null) {
-            streamDataType = "PROTO";
+    public String getDataType() {
+        if (dataType == null) {
+            dataType = "PROTO";
         }
-        return streamDataType;
+        return dataType;
+    }
+
+    public String getAutoOffsetReset() {
+        if (autoOffsetReset == null) {
+            autoOffsetReset = "latest";
+        }
+        return autoOffsetReset;
     }
 
     public static StreamConfig[] parse(Configuration configuration) {
@@ -115,7 +120,7 @@ public class StreamConfig {
     }
 
     public Pattern getTopicPattern() {
-        return Pattern.compile(kafkaTopic);
+        return Pattern.compile(kafkaTopicNames);
     }
 
     public OffsetsInitializer getStartingOffset() {

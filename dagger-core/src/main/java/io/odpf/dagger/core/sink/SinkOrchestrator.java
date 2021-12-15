@@ -9,6 +9,7 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.sink.influx.ErrorHandler;
 import io.odpf.dagger.core.sink.influx.InfluxDBFactoryWrapper;
@@ -17,6 +18,10 @@ import io.odpf.dagger.core.sink.kafka.KafkaSerializationSchemaFactory;
 import io.odpf.dagger.core.sink.kafka.KafkaSerializerBuilder;
 import io.odpf.dagger.core.sink.log.LogSink;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import static io.odpf.dagger.core.utils.Constants.*;
@@ -25,11 +30,13 @@ import static io.odpf.dagger.core.utils.Constants.*;
  * The Sink orchestrator.
  * Responsible for handling the sink type.
  */
-public class SinkOrchestrator {
+public class SinkOrchestrator implements TelemetryPublisher {
     private final MetricsTelemetryExporter telemetryExporter;
+    private Map<String, List<String>> metrics;
 
     public SinkOrchestrator(MetricsTelemetryExporter telemetryExporter) {
         this.telemetryExporter = telemetryExporter;
+        this.metrics = new HashMap<>();
     }
 
     /**
@@ -43,6 +50,7 @@ public class SinkOrchestrator {
     public Sink getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         // TODO : Convert this to enum
         String sinkType = configuration.getString("SINK_TYPE", "influx");
+        addMetric(TelemetryTypes.SINK_TYPE.getValue(), sinkType);
         Sink sink;
         switch (sinkType) {
             case "kafka":
@@ -90,5 +98,14 @@ public class SinkOrchestrator {
             kafkaProducerConfigs.setProperty(SINK_KAFKA_MAX_REQUEST_SIZE_KEY, SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT);
         }
         return kafkaProducerConfigs;
+    }
+
+    @Override
+    public Map<String, List<String>> getTelemetry() {
+        return metrics;
+    }
+
+    private void addMetric(String key, String value) {
+        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 }

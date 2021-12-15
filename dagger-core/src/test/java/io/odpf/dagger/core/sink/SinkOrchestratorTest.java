@@ -12,6 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import static io.odpf.dagger.common.core.Constants.*;
@@ -90,4 +93,16 @@ public class SinkOrchestratorTest {
         assertThat(sinkFunction, instanceOf(KafkaSink.class));
     }
 
+    @Test
+    public void shouldReturnSinkMetrics() {
+        ArrayList<String> sinkType = new ArrayList<>();
+        sinkType.add("influx");
+        HashMap<String, List<String>> expectedMetrics = new HashMap<>();
+        expectedMetrics.put("sink_type", sinkType);
+
+        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
+
+        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+    }
 }

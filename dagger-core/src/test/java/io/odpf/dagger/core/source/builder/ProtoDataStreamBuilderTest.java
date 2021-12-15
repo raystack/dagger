@@ -51,7 +51,7 @@ public class ProtoDataStreamBuilderTest {
 
     @Test
     public void shouldProcessProtoStream() {
-        when(streamConfig.getStreamDataType()).thenReturn("PROTO");
+        when(streamConfig.getDataType()).thenReturn("PROTO");
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         Assert.assertTrue(protoDataStreamBuilder.canBuild());
@@ -59,7 +59,7 @@ public class ProtoDataStreamBuilderTest {
 
     @Test
     public void shouldParseDataTypeFromStreamConfig() {
-        when(streamConfig.getStreamDataType()).thenReturn("PROTO");
+        when(streamConfig.getDataType()).thenReturn("PROTO");
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         Assert.assertEquals(DataTypes.PROTO, protoDataStreamBuilder.getInputDataType());
@@ -67,7 +67,7 @@ public class ProtoDataStreamBuilderTest {
 
     @Test
     public void shouldIgnoreJsonStream() {
-        when(streamConfig.getStreamDataType()).thenReturn("JSON");
+        when(streamConfig.getDataType()).thenReturn("JSON");
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         Assert.assertFalse(protoDataStreamBuilder.canBuild());
@@ -82,7 +82,7 @@ public class ProtoDataStreamBuilderTest {
         Properties properties = new Properties();
         properties.putAll(kafkaPropMap);
 
-        when(streamConfig.getStreamDataType()).thenReturn("PROTO");
+        when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
@@ -102,9 +102,9 @@ public class ProtoDataStreamBuilderTest {
 
     @Test
     public void shouldAddMetricsSpecificToKafkaSource() {
-        when(streamConfig.getKafkaTopic()).thenReturn("test-topic");
+        when(streamConfig.getKafkaTopicNames()).thenReturn("test-topic");
         when(streamConfig.getProtoClass()).thenReturn("test-class");
-        when(streamConfig.getSourceKafkaName()).thenReturn("test-kafka");
+        when(streamConfig.getKafkaName()).thenReturn("test-kafka");
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
         protoDataStreamBuilder.addTelemetry();
 
