@@ -1,6 +1,5 @@
 package io.odpf.dagger.functions.udfs.scalar.dart.types;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Date;
@@ -22,7 +21,7 @@ public class CacheTest {
 
     @Test
     public void shouldExpireContentWhenTimeElapsed() {
-        cache = new Cache(DateUtils.addHours(new Date(), -1)) { };
+        cache = new Cache(new Date(1535546718115L)) { };
 
         assertTrue(cache.hasExpired(1));
     }
