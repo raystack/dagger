@@ -75,6 +75,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
             default:
                 sink = new InfluxDBSink(new InfluxDBFactoryWrapper(), configuration, columnNames, new ErrorHandler());
         }
+        notifySubscriber();
         return sink;
     }
 

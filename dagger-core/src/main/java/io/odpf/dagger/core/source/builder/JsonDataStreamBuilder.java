@@ -40,7 +40,7 @@ public class JsonDataStreamBuilder extends StreamBuilder {
     @Override
     KafkaRecordDeserializationSchema getDeserializationSchema() {
         // TODO : update logic for json schema validation and all
-        JsonDeserializer jsonDeserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getJsonRowTimeFieldName());
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getJsonEventTimestampFieldName());
 
         return KafkaRecordDeserializationSchema.of(jsonDeserializer);
     }

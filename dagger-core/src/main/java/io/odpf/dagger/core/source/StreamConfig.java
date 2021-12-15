@@ -59,13 +59,13 @@ public class StreamConfig {
     @Getter
     private String kafkaName;
 
-    @SerializedName(STREAM_INPUT_JSON_SCHEMA_KEY)
+    @SerializedName(STREAM_INPUT_SCHEMA_JSON_SCHEMA_KEY)
     @Getter
     private String jsonSchema;
 
-    @SerializedName(STREAM_INPUT_JSON_ROW_TIME_FIELD_NAME_KEY)
+    @SerializedName(STREAM_INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME_KEY)
     @Getter
-    private String jsonRowTimeFieldName;
+    private String jsonEventTimestampFieldName;
 
     @SerializedName(STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY)
     @Getter
