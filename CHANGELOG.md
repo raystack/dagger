@@ -2,8 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [v0.1.1](https://github.com/odpf/dagger/releases/tag/v0.1.1) (2021-08-03)
+### [v0.1.3](https://github.com/odpf/dagger/releases/tag/v0.1.3) (2021-12-15)
 
+### Bug Fixes
+
+* darts udf cache refresh ([#82](https://github.com/odpf/dagger/issues/82)) ([674fa1a](https://github.com/odpf/dagger/commit/674fa1abbc1b3a8c5a8f099dcc792b8e1137593b))
+
+### [v0.1.2](https://github.com/odpf/dagger/releases/tag/v0.1.2) (2021-10-01)
+
+### Features
+
+* junit upgrade
+* test cleanup and fixes
+
+
+### [v0.1.1](https://github.com/odpf/dagger/releases/tag/v0.1.1) (2021-08-03)
 
 ### Features
 
