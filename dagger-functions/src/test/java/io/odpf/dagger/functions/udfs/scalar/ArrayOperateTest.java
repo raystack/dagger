@@ -60,7 +60,7 @@ public class ArrayOperateTest {
         objects[4] = 1;
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        List<Object> result = arrayOperate.eval( "distinct.sorted", "int", objects);
+        List<Object> result = arrayOperate.eval("distinct.sorted", "int", objects);
         assertThat(result, containsInRelativeOrder(1, 2));
     }
 
@@ -74,8 +74,8 @@ public class ArrayOperateTest {
         objects[4] = 1.3d;
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        List<Object> result = arrayOperate.eval( "distinct.sorted", "double", objects);
-        assertThat(result, containsInRelativeOrder( 0.1d, 1.3d, 2.1d));
+        List<Object> result = arrayOperate.eval("distinct.sorted", "double", objects);
+        assertThat(result, containsInRelativeOrder(0.1d, 1.3d, 2.1d));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ArrayOperateTest {
         objects[4] = "a";
         ArrayOperate arrayOperate = new ArrayOperate();
         arrayOperate.open(functionContext);
-        arrayOperate.eval( "distinct.sort", "other", objects);
+        arrayOperate.eval("distinct.sort", "other", objects);
     }
 
     @Test
