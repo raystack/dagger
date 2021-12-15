@@ -8,10 +8,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CacheTest {
-    Cache cache;
+    private Cache cache;
     @Before
     public void setUp() {
-        cache = new Cache(new Date()) {};
+        cache = new Cache(new Date()) { };
     }
 
     @Test
@@ -22,7 +22,7 @@ public class CacheTest {
 
     @Test
     public void shouldExpireContentWhenTimeElapsed() {
-        Cache cache = new Cache(DateUtils.addHours(new Date(),-1)) {};
+        cache = new Cache(DateUtils.addHours(new Date(), -1)) { };
 
         assertTrue(cache.hasExpired(1));
     }
