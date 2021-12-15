@@ -32,8 +32,8 @@ public abstract class Cache implements Serializable {
             return true;
         }
         Date currentTime = new Date();
-        Date timeOfExpire = DateUtils.addHours(currentTime, refreshIntervalInHours);
-        return timeOfCaching.after(timeOfExpire);
+        Date timeOfExpire = DateUtils.addHours(timeOfCaching, refreshIntervalInHours);
+        return currentTime.after(timeOfExpire);
     }
 
 }
