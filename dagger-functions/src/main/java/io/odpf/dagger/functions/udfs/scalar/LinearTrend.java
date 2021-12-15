@@ -19,7 +19,7 @@ public class LinearTrend extends ScalarUdf {
     /**
      * returns the gradient of the best fit line of the list of non-null demand values given the defined time window.
      *
-     * @param localDateTimeArray       the timestamps array
+     * @param localDateTimeArray    the timestamps array
      * @param values                the values
      * @param hopStartTime          the hop start time
      * @param windowLengthInMinutes the window length in minutes
@@ -27,7 +27,7 @@ public class LinearTrend extends ScalarUdf {
      */
     public double eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<LocalDateTime> localDateTimeArray, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Double> values, Timestamp hopStartTime, Integer windowLengthInMinutes) {
         ArrayList<Timestamp> timestamps = new ArrayList<Timestamp>();
-        localDateTimeArray.forEach( localDateTime ->  timestamps.add(Timestamp.valueOf(localDateTime)));
+        localDateTimeArray.forEach(localDateTime -> timestamps.add(Timestamp.valueOf(localDateTime)));
         return calculateLinearTrend(timestamps, values, hopStartTime, windowLengthInMinutes);
     }
 
