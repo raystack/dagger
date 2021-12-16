@@ -55,10 +55,17 @@ public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
             finalRecord.setField(i, row.getField(i));
         }
 
-        BigDecimal rowtimeField = (BigDecimal) row.getField(rowtimeIdx);
-
+        Object rowtimeField = row.getField(rowtimeIdx);
+        if (rowtimeField instanceof BigDecimal) {
+            BigDecimal bf = (BigDecimal) row.getField(rowtimeIdx);
+            finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(bf.longValue())));
+        } else if (rowtimeField == null) {
+            throw new DaggerDeserializationException("Rowtime field missing for jsonSchema");
+        } else {
+            finalRecord.setField(finalRecord.getArity() - 1, rowtimeField);
+        }
         finalRecord.setField(finalRecord.getArity() - 2, true);
-        finalRecord.setField(finalRecord.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(rowtimeField.longValue())));
+
         return finalRecord;
     }
 }

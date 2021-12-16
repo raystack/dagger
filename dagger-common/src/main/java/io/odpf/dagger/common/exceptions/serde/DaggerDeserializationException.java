@@ -12,4 +12,8 @@ public class DaggerDeserializationException extends RuntimeException {
     public DaggerDeserializationException(Exception innerException) {
         super(innerException);
     }
+
+    public DaggerDeserializationException(String message) {
+        super(message);
+    }
 }
