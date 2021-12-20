@@ -140,4 +140,39 @@ public class JsonDeserializerTest {
         assertThrows(DaggerDeserializationException.class,
                 () -> jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data)));
     }
+
+    @Test
+    public void shouldPopulateTimeStampRowTimeFieldToRow() {
+        String jsonSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"booking\", \"description\": \"a booking\", \"type\": \"object\", \"properties\": { \"order_number\": { \"type\": \"string\" }, \"order_url\": { \"type\": \"string\" }, \"event_timestamp\": { \"type\": \"string\", \"format\" : \"date-time\" }, \"driver_id\": { \"type\": \"string\" }, \"total_distance_in_kms\": { \"type\": \"number\" }, \"time\": { \"type\": \"integer\" } }, \"required\": [ \"order_number\", \"event_timestamp\", \"driver_id\" ]}";
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonSchema, "event_timestamp");
+
+        byte[] data = "{ \"order_number\": \"test_order_3\", \"driver_id\": \"test_driver_1\", \"event_timestamp\": \"2021-12-16T14:57:00Z\" }".getBytes();
+
+        Row row = jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data));
+
+        assertEquals(1639646820000L, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime());
+    }
+
+    @Test
+    public void shouldPopulateBigDecimalRowTimeFieldToRow() {
+        String jsonSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"integer\" }, \"random\": { \"description\": \"one random field\", \"type\": \"integer\" } }, \"required\": [ \"id\", \"time\", \"random\" ] }";
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonSchema, "time");
+
+        byte[] data = "{ \"time\": 1637829201, \"id\": \"001\", \"random\": 1, \"name\": \"Cake\" }".getBytes();
+
+        Row row = jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data));
+
+        assertEquals(1637829201000L, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime());
+    }
+
+    @Test
+    public void shouldThrowErrorForUnSupportedRowTimeField() {
+        String jsonSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"booking\", \"description\": \"a booking\", \"type\": \"object\", \"properties\": { \"order_number\": { \"type\": \"string\" }, \"order_url\": { \"type\": \"string\" }, \"event_timestamp\": { \"type\": \"string\", \"format\" : \"date-time\" }, \"driver_id\": { \"type\": \"string\" }, \"total_distance_in_kms\": { \"type\": \"number\" }, \"time\": { \"type\": \"integer\" } }, \"required\": [ \"order_number\", \"event_timestamp\", \"driver_id\" ]}";
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonSchema, "driver_id");
+
+        byte[] data = "{ \"order_number\": \"test_order_3\", \"driver_id\": \"test_driver_1\", \"event_timestamp\": \"2021-12-16T14:57:00Z\" }".getBytes();
+
+        assertThrows(DaggerDeserializationException.class,
+                () -> jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data)));
+    }
 }
