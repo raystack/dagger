@@ -28,7 +28,7 @@ public class StreamsFactory {
                     .findFirst()
                     .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
 
-            streamBuilder.addSubscriber(telemetryExporter);
+            streamBuilder.notifySubscriber(telemetryExporter);
 
             Stream stream = streamBuilder
                     .build();
