@@ -1,12 +1,16 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
 import io.odpf.dagger.common.udfs.ScalarUdf;
+import org.apache.flink.table.annotation.DataTypeHint;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * The ExponentialMovingAverage udf.
@@ -24,8 +28,9 @@ public class ExponentialMovingAverage extends ScalarUdf {
      * @param alpha           the alpha
      * @return the double
      */
-    public double eval(ArrayList<Object> timestampsArray, ArrayList<Object> valuesArray, Timestamp hopStartTime, Double window, Double alpha) {
-        SortedMap<Double, Double> positionSortedValues = sortValuesByTime(hopStartTime, window, timestampsArray, valuesArray);
+    public double eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Object> timestampsObjectArray, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Object> valuesArray, LocalDateTime hopStartTime, Double window, Double alpha) {
+        List<Timestamp> timestampsArray = timestampsObjectArray.stream().map(o -> Timestamp.valueOf((LocalDateTime) o)).collect(Collectors.toList());
+        SortedMap<Double, Double> positionSortedValues = sortValuesByTime(Timestamp.valueOf(hopStartTime), window, timestampsArray, valuesArray);
 
         return calculateEMA(positionSortedValues, window, alpha);
     }
@@ -63,12 +68,12 @@ public class ExponentialMovingAverage extends ScalarUdf {
      * @param valuesArray     the values array
      * @return the sorted map
      */
-    public static SortedMap<Double, Double> sortValuesByTime(Timestamp hopStartTime, Double window, ArrayList<Object> timestampsArray, ArrayList<Object> valuesArray) {
+    public static SortedMap<Double, Double> sortValuesByTime(Timestamp hopStartTime, Double window, List<Timestamp> timestampsArray, ArrayList<Object> valuesArray) {
         SortedMap<Double, Double> positionSortedValues = new TreeMap<>();
         int i;
 
         for (i = 0; i < timestampsArray.size(); i++) {
-            Timestamp startTime = (Timestamp) timestampsArray.get(i);
+            Timestamp startTime = timestampsArray.get(i);
             double value = (double) valuesArray.get(i);
 
             double position = getPosition(startTime, hopStartTime, window);
