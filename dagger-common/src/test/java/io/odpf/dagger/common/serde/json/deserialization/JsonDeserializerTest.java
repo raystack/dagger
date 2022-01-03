@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 import static org.apache.flink.api.common.typeinfo.Types.BIG_DEC;
 import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
@@ -140,20 +139,6 @@ public class JsonDeserializerTest {
         byte[] data = "{ \"time\": 1637829201, \"first_names\": [ \"james\", \"arujit\" ], \"id\": \"random_id\", \"billing_address\": { \"street_address\": \"random\", \"city\": \"blr\" } }".getBytes();
         assertThrows(DaggerDeserializationException.class,
                 () -> jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data)));
-    }
-
-    @Test
-    public void shouldPopulateTimeStampRowTimeFieldToRow() {
-        String jsonSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"booking\", \"description\": \"a booking\", \"type\": \"object\", \"properties\": { \"order_number\": { \"type\": \"string\" }, \"order_url\": { \"type\": \"string\" }, \"event_timestamp\": { \"type\": \"string\", \"format\" : \"date-time\" }, \"driver_id\": { \"type\": \"string\" }, \"total_distance_in_kms\": { \"type\": \"number\" }, \"time\": { \"type\": \"integer\" } }, \"required\": [ \"order_number\", \"event_timestamp\", \"driver_id\" ]}";
-        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonSchema, "event_timestamp");
-
-        byte[] data = "{ \"order_number\": \"test_order_3\", \"driver_id\": \"test_driver_1\", \"event_timestamp\": \"2021-12-16T14:57:00Z\" }".getBytes();
-
-        Row row = jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data));
-
-        Instant instant = Instant.parse("2021-12-16T14:57:00Z");
-        long seconds = instant.getEpochSecond();
-        assertEquals(seconds, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime() / 1000);
     }
 
     @Test
