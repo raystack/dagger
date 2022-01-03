@@ -151,7 +151,7 @@ public class JsonDeserializerTest {
 
         Row row = jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data));
 
-        Instant instant = Instant.parse("2021-12-16T14:57:00");
+        Instant instant = Instant.parse("2021-12-16T14:57:00Z");
         long seconds = instant.getEpochSecond();
         assertEquals(seconds, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime() / 1000);
     }
