@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import static org.apache.flink.api.common.typeinfo.Types.BIG_DEC;
 import static org.apache.flink.api.common.typeinfo.Types.BOOLEAN;
@@ -150,7 +151,9 @@ public class JsonDeserializerTest {
 
         Row row = jsonDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, data));
 
-        assertEquals(1639646820000L, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime());
+        Instant instant = Instant.parse("2021-12-16T14:57:00");
+        long seconds = instant.getEpochSecond();
+        assertEquals(seconds, ((java.sql.Timestamp) row.getField(row.getArity() - 1)).getTime() / 1000);
     }
 
     @Test
