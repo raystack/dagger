@@ -44,7 +44,7 @@ public class ProtoBytePutRequest implements PutRequest {
     @Override
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
-        Timestamp rowtime = convertToTimeStamp(longbowSchema.getValue(input, Constants.ROWTIME));
+        Timestamp rowtime = convertToTimeStamp(longbowSchema.getValue(input, ROWTIME));
         putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), protoSerializer.serializeValue(input));
         return putRequest;
     }

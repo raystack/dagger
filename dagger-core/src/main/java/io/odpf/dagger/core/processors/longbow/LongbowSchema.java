@@ -49,7 +49,7 @@ public class LongbowSchema implements Serializable {
      * @return the key in byte array
      */
     public byte[] getKey(Row input, long offset) {
-        Timestamp rowTime = convertToTimeStamp(input.getField(columnIndexMap.get(Constants.ROWTIME)));
+        Timestamp rowTime = convertToTimeStamp(input.getField(columnIndexMap.get(ROWTIME)));
         long requiredTimestamp = rowTime.getTime() - offset;
         return getAbsoluteKey(input, requiredTimestamp);
     }
