@@ -23,7 +23,6 @@ public class FormatTimeInZone extends ScalarUdf {
      * @author oshank
      * @team GoFood
      */
-    //no data type change
     public String eval(Timestamp timestamp, String timeZone, String dateFormat) {
         Date date = new Date(timestamp.getTime());
         DateFormat format = new SimpleDateFormat(dateFormat);
