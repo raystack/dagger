@@ -2,7 +2,6 @@ package io.odpf.dagger.common.watermark;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.types.Row;
 
 import org.junit.Before;
@@ -19,9 +18,6 @@ public class StreamWatermarkAssignerTest {
     @Mock
     private DataStream<Row> inputStream;
 
-
-    @Mock
-    private FlinkKafkaConsumer consumer;
 
     @Before
     public void setup() {

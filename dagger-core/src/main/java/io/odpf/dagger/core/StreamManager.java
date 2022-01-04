@@ -25,6 +25,8 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.sink.SinkOrchestrator;
+import io.odpf.dagger.core.source.Stream;
+import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
 
 import java.lang.reflect.Constructor;
@@ -92,13 +94,12 @@ public class StreamManager {
     public StreamManager registerSourceWithPreProcessors() {
         long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
-        Streams kafkaStreams = getKafkaStreams();
-        kafkaStreams.notifySubscriber(telemetryExporter);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        kafkaStreams.getKafkaSource().forEach((tableName, kafkaSource) -> {
+        getStreams().forEach(stream -> {
+            String tableName = stream.getStreamName();
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
-            // TODO : Validate why/how should Source-name be defined
-            DataStream<Row> kafkaStream = executionEnvironment.fromSource(kafkaSource, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), tableName);
+            DataStream<Row> kafkaStream = executionEnvironment
+                    .fromSource(stream.getSource(), watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), stream.getStreamName());
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
@@ -111,6 +112,7 @@ public class StreamManager {
             // TODO : The schema thing is deprecated in 1.14, handle this deprecation in the serialization story
             Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
             tableEnvironment.createTemporaryView(tableName, table);
+
         });
         return this;
     }
@@ -216,15 +218,13 @@ public class StreamManager {
         return streamInfo;
     }
 
-
     private void addSink(StreamInfo streamInfo) {
-        SinkOrchestrator sinkOrchestrator = new SinkOrchestrator();
+        SinkOrchestrator sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
         sinkOrchestrator.addSubscriber(telemetryExporter);
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
-    private Streams getKafkaStreams() {
-        String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        return new Streams(configuration, rowTimeAttributeName, stencilClientOrchestrator);
+    private List<Stream> getStreams() {
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
     }
 }

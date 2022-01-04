@@ -1,11 +1,12 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
+import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.types.Row;
+
 import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.elementAt.MessageReader;
-import org.apache.flink.table.functions.FunctionContext;
-import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
