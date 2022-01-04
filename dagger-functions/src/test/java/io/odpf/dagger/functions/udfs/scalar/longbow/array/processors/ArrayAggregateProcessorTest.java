@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.scalar.longbow.array.processors;
 
 import io.odpf.dagger.functions.exceptions.ArrayAggregationException;
-import io.odpf.dagger.functions.udfs.scalar.longbow.array.DataType;
+import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.AggregationExpression;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -48,7 +48,7 @@ public class ArrayAggregateProcessorTest {
         arrayAggregateProcessor = new ArrayAggregateProcessor(jexlEngine, jexlContext, jexlScript, aggregationExpression);
         Object[] objects = new Object[1];
         objects[0] = 1L;
-        arrayAggregateProcessor.initJexl(DataType.BIGINT, objects);
+        arrayAggregateProcessor.initJexl(LongbowArrayType.BIGINT, objects);
         arrayAggregateProcessor.process();
         verify(jexlScript, times(1)).execute(jexlContext);
     }
@@ -62,7 +62,7 @@ public class ArrayAggregateProcessorTest {
         arrayAggregateProcessor = new ArrayAggregateProcessor(jexlEngine, jexlContext, jexlScript, aggregationExpression);
         Object[] objects = new Object[1];
         objects[0] = 1L;
-        arrayAggregateProcessor.initJexl(DataType.BIGINT, objects);
+        arrayAggregateProcessor.initJexl(LongbowArrayType.BIGINT, objects);
         Object result = arrayAggregateProcessor.process();
         Assert.assertEquals(result, 0);
     }
@@ -78,7 +78,7 @@ public class ArrayAggregateProcessorTest {
         arrayAggregateProcessor = new ArrayAggregateProcessor(jexlEngine, jexlContext, jexlScript, aggregationExpression);
         Object[] objects = new Object[1];
         objects[0] = 1L;
-        arrayAggregateProcessor.initJexl(DataType.BIGINT, objects);
+        arrayAggregateProcessor.initJexl(LongbowArrayType.BIGINT, objects);
         arrayAggregateProcessor.process();
     }
 }

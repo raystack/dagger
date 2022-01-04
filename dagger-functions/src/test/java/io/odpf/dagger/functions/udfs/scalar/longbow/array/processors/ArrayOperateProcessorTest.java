@@ -2,7 +2,7 @@ package io.odpf.dagger.functions.udfs.scalar.longbow.array.processors;
 
 
 import io.odpf.dagger.functions.exceptions.ArrayOperateException;
-import io.odpf.dagger.functions.udfs.scalar.longbow.array.DataType;
+import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.OperationExpression;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -48,7 +48,7 @@ public class ArrayOperateProcessorTest {
         arrayOperateProcessor = new ArrayOperateProcessor(jexlEngine, jexlContext, jexlScript, operationExpression);
         Object[] objects = new Object[1];
         objects[0] = 1L;
-        arrayOperateProcessor.initJexl(DataType.BIGINT, objects);
+        arrayOperateProcessor.initJexl(LongbowArrayType.BIGINT, objects);
         arrayOperateProcessor.process();
         verify(jexlScript, times(1)).execute(jexlContext);
     }
@@ -65,7 +65,7 @@ public class ArrayOperateProcessorTest {
         arrayOperateProcessor = new ArrayOperateProcessor(jexlEngine, jexlContext, jexlScript, operationExpression);
         Object[] objects = new Object[1];
         objects[0] = 1L;
-        arrayOperateProcessor.initJexl(DataType.BIGINT, objects);
+        arrayOperateProcessor.initJexl(LongbowArrayType.BIGINT, objects);
         arrayOperateProcessor.process();
     }
 }

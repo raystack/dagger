@@ -30,6 +30,7 @@ import java.util.Optional;
  * The ArrayAggregate udf.
  */
 public class ArrayAggregate extends ScalarUdf implements Serializable {
+
     private ArrayProcessor arrayProcessor;
     private AggregationExpression expression;
 
@@ -86,9 +87,11 @@ public class ArrayAggregate extends ScalarUdf implements Serializable {
     }
 
     private static class ArrayAggregateInputStrategy implements InputTypeStrategy {
+        private static final Integer ARRAY_AGGREGATE_UDF_FUNCTION_ARG_COUNT = 3;
+
         @Override
         public ArgumentCount getArgumentCount() {
-            return ConstantArgumentCount.of(3);
+            return ConstantArgumentCount.of(ARRAY_AGGREGATE_UDF_FUNCTION_ARG_COUNT);
         }
 
         @Override

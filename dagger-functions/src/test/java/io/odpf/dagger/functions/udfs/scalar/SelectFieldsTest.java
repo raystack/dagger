@@ -1,16 +1,17 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.functions.FunctionContext;
+
 import com.gojek.de.stencil.StencilClientFactory;
 import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.functions.exceptions.LongbowException;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.table.functions.FunctionContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
