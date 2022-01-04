@@ -1,10 +1,10 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import org.apache.flink.types.Row;
+
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.exception.InvalidLongbowDurationException;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * A class that holds the Longbow schema.
@@ -46,7 +48,7 @@ public class LongbowSchema implements Serializable {
      * @return the key in byte array
      */
     public byte[] getKey(Row input, long offset) {
-        Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(Constants.ROWTIME));
+        Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(ROWTIME));
         long requiredTimestamp = rowTime.getTime() - offset;
         return getAbsoluteKey(input, requiredTimestamp);
     }

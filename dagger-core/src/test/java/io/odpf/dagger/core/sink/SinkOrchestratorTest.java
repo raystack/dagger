@@ -5,10 +5,12 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.sink.influx.InfluxDBSink;
 import io.odpf.dagger.core.sink.log.LogSink;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +31,8 @@ public class SinkOrchestratorTest {
     private Configuration configuration;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private SinkOrchestrator sinkOrchestrator;
+    @Mock
+    private MetricsTelemetryExporter telemetryExporter;
 
     @Before
     public void setup() {
@@ -39,7 +43,7 @@ public class SinkOrchestratorTest {
         when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT)).thenReturn(SCHEMA_REGISTRY_STENCIL_URLS_DEFAULT);
 
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
-        sinkOrchestrator = new SinkOrchestrator();
+        sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
     }
 
     @Test
@@ -66,7 +70,6 @@ public class SinkOrchestratorTest {
         assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
 
-
     @Test
     public void shouldSetKafkaProducerConfigurations() throws Exception {
         when(configuration.getString(eq(SINK_KAFKA_BROKERS_KEY), anyString())).thenReturn("10.200.216.87:6668");
@@ -83,6 +86,7 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
         when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
         when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
+        when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
 
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
 
@@ -97,33 +101,6 @@ public class SinkOrchestratorTest {
         expectedMetrics.put("sink_type", sinkType);
 
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
-        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-        assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
-    }
-
-
-    @Test
-    public void shouldReturnOutputKafkaMetrics() {
-        ArrayList<String> sinkType = new ArrayList<>();
-        sinkType.add("kafka");
-        ArrayList<String> outputTopic = new ArrayList<>();
-        outputTopic.add("test_topic");
-        ArrayList<String> outputStream = new ArrayList<>();
-        outputStream.add("test_output_stream");
-        ArrayList<String> outputProto = new ArrayList<>();
-        outputProto.add("test_output_proto");
-
-        HashMap<String, List<String>> expectedMetrics = new HashMap<>();
-        expectedMetrics.put("sink_type", sinkType);
-        expectedMetrics.put("output_topic", outputTopic);
-        expectedMetrics.put("output_proto", outputProto);
-        expectedMetrics.put("output_stream", outputStream);
-
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(configuration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), any())).thenReturn("test_output_proto");
-        when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
-        when(configuration.getString(eq("SINK_KAFKA_STREAM"), anyString())).thenReturn("test_output_stream");
-        when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("test_topic");
 
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
         assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());

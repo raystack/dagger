@@ -1,19 +1,20 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.processors.types.MapDecorator;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
-import io.odpf.dagger.common.protohandler.ProtoHandlerFactory;
-import io.odpf.dagger.core.utils.Constants;
-import com.google.protobuf.Descriptors;
-
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.types.MapDecorator;
+
 import java.util.Arrays;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * The Fetch output decorator.
@@ -65,7 +66,7 @@ public class FetchOutputDecorator implements MapDecorator {
                 Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(outputColumnName);
                 typeInformations[index] = fieldDescriptor != null
                         ? ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation()
-                        : outputColumnName.equals(Constants.ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
+                        : outputColumnName.equals(ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
             }
         }
         return new RowTypeInfo(typeInformations, outputColumnNames);

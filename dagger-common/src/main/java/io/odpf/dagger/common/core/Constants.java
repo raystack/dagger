@@ -17,4 +17,7 @@ public class Constants {
     public static final String STREAM_INPUT_SCHEMA_PROTO_CLASS = "INPUT_SCHEMA_PROTO_CLASS";
     public static final String STREAM_INPUT_SCHEMA_TABLE = "INPUT_SCHEMA_TABLE";
     public static final String INPUT_STREAMS = "STREAMS";
+
+    public static final String INTERNAL_VALIDATION_FIELD_KEY = "__internal_validation_field__";
+    public static final String ROWTIME = "rowtime";
 }
