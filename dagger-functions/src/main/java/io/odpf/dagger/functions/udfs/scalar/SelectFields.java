@@ -149,7 +149,7 @@ public class SelectFields extends ScalarUdf {
             DataTypeFactory dataTypeFactory = callContext.getDataTypeFactory();
             UnresolvedDataType opUnresolvedType = DataTypes.ARRAY(DataTypes.RAW(new GenericTypeInfo<>(Object.class)));
             DataType opResolvedType = dataTypeFactory.createDataType(opUnresolvedType);
-            return Optional.of(opResolvedType);
+            return Optional.ofNullable(opResolvedType);
         }
     }
 }

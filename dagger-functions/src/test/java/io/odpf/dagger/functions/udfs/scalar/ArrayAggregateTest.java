@@ -2,7 +2,11 @@ package io.odpf.dagger.functions.udfs.scalar;
 
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.catalog.DataTypeFactory;
 import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.types.UnresolvedDataType;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.InputTypeStrategy;
 
 import io.odpf.dagger.functions.exceptions.ArrayAggregationException;
 import org.junit.Assert;
@@ -27,6 +31,12 @@ public class ArrayAggregateTest {
 
     @Mock
     private FunctionContext functionContext;
+
+    @Mock
+    private CallContext callContext;
+
+    @Mock
+    private DataTypeFactory dataTypeFactory;
 
     @Before
     public void setup() {
@@ -134,5 +144,21 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void shouldResolveInPutTypeStrategyForUnresolvedTypes() {
+        when(callContext.getDataTypeFactory()).thenReturn(dataTypeFactory);
+        InputTypeStrategy inputTypeStrategy = new ArrayAggregate().getTypeInference(dataTypeFactory).getInputTypeStrategy();
+        inputTypeStrategy.inferInputTypes(callContext, true);
+        verify(dataTypeFactory, times(1)).createDataType(any(UnresolvedDataType.class));
+    }
+
+    @Test
+    public void shouldRegisterThreeInputArguments() {
+        when(callContext.getDataTypeFactory()).thenReturn(dataTypeFactory);
+        InputTypeStrategy inputTypeStrategy = new ArrayAggregate().getTypeInference(dataTypeFactory).getInputTypeStrategy();
+        inputTypeStrategy.inferInputTypes(callContext, true);
+        Assert.assertEquals(new Integer(3), inputTypeStrategy.getArgumentCount().getMaxCount().get());
     }
 }
