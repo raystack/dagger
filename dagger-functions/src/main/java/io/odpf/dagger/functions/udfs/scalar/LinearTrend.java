@@ -25,10 +25,10 @@ public class LinearTrend extends ScalarUdf {
      * @param windowLengthInMinutes the window length in minutes
      * @return the double
      */
-    public double eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<LocalDateTime> localDateTimeArray, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Double> values, Timestamp hopStartTime, Integer windowLengthInMinutes) {
+    public double eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<LocalDateTime> localDateTimeArray, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Double> values, LocalDateTime hopStartTime, Integer windowLengthInMinutes) {
         ArrayList<Timestamp> timestamps = new ArrayList<Timestamp>();
         localDateTimeArray.forEach(localDateTime -> timestamps.add(Timestamp.valueOf(localDateTime)));
-        return calculateLinearTrend(timestamps, values, hopStartTime, windowLengthInMinutes);
+        return calculateLinearTrend(timestamps, values, Timestamp.valueOf(hopStartTime), windowLengthInMinutes);
     }
 
     private double calculateLinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> valueList, Timestamp hopStartTime, Integer windowLengthInMinutes) {

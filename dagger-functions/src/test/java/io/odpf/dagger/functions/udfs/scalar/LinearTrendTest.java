@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,7 +41,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
@@ -58,7 +56,7 @@ public class LinearTrendTest {
         metricList.add(4.0);
         metricList.add(4.0);
 
-        double beta = linearTrend.eval(localDateTimes, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(localDateTimes, metricList, localDateTime, windowSize);
         assertEquals(1.0, beta, 0);
     }
 
@@ -68,7 +66,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
@@ -79,7 +76,7 @@ public class LinearTrendTest {
         metricList.add(2.0);
         metricList.add(1.0);
         metricList.add(4.0);
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(0.4, beta, 0);
     }
 
@@ -89,7 +86,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
@@ -99,7 +95,7 @@ public class LinearTrendTest {
         metricList.add(2.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.1, beta, 0);
     }
 
@@ -109,7 +105,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 5;
 
@@ -117,7 +112,7 @@ public class LinearTrendTest {
 
         metricList.add(2.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.2, beta, 0);
     }
 
@@ -126,12 +121,10 @@ public class LinearTrendTest {
         ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
-        long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, LocalDateTime.now(), windowSize);
         assertEquals(0.0, beta, 0);
     }
 
@@ -141,7 +134,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 5;
 
@@ -157,7 +149,7 @@ public class LinearTrendTest {
         metricList.add(2.0);
         metricList.add(2.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(0.0, beta, 0);
     }
 
@@ -167,7 +159,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 20;
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
@@ -189,7 +180,7 @@ public class LinearTrendTest {
         metricList.add(1.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.030827067669172932, beta, 0);
     }
 
@@ -199,7 +190,6 @@ public class LinearTrendTest {
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
         LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 20;
 
@@ -223,7 +213,7 @@ public class LinearTrendTest {
         metricList.add(1.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.030827067669172932, beta, 0);
     }
 
