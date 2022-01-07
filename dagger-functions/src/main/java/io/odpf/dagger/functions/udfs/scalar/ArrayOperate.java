@@ -1,12 +1,13 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
 
+import org.apache.flink.table.functions.FunctionContext;
+
 import io.odpf.dagger.common.udfs.ScalarUdf;
-import io.odpf.dagger.functions.udfs.scalar.longbow.array.DataType;
+import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.OperationExpression;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.processors.ArrayOperateProcessor;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.processors.ArrayProcessor;
-import org.apache.flink.table.functions.FunctionContext;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -45,7 +46,7 @@ public class ArrayOperate extends ScalarUdf implements Serializable {
      */
     public Object[] eval(Object[] arrayElements, String operationType, String inputDataType) {
         expression.createExpression(operationType);
-        DataType dataType = DataType.getDataType(inputDataType);
+        LongbowArrayType dataType = LongbowArrayType.getDataType(inputDataType);
         arrayProcessor.initJexl(dataType, arrayElements);
         return getCopyArray(arrayProcessor.process());
     }
