@@ -6,16 +6,17 @@ import org.apache.flink.table.catalog.DataTypeFactory;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.types.UnresolvedDataType;
 import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.ConstantArgumentCount;
 import org.apache.flink.table.types.inference.InputTypeStrategy;
 
 import io.odpf.dagger.functions.exceptions.ArrayAggregationException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,7 +55,7 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         Object result = arrayAggregate.eval(objects, "average", "Integer");
-        Assert.assertEquals(result, 2d);
+        assertEquals(result, 2d);
     }
 
     @Test
@@ -66,7 +67,7 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         Object result = arrayAggregate.eval(objects, "average", "double");
-        Assert.assertEquals(result, 2.3d);
+        assertEquals(result, 2.3d);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         Object result = arrayAggregate.eval(objects, "average", "long");
-        Assert.assertEquals(result, 2d);
+        assertEquals(result, 2d);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         Object result = arrayAggregate.eval(objects, "distinct.average", "long");
-        Assert.assertEquals(result, 2d);
+        assertEquals(result, 2d);
     }
 
     @Test
@@ -106,7 +107,7 @@ public class ArrayAggregateTest {
         ArrayAggregate arrayAggregate = new ArrayAggregate();
         arrayAggregate.open(functionContext);
         Object result = arrayAggregate.eval(objects, "distinct.count", "other");
-        Assert.assertEquals(result, 3L);
+        assertEquals(result, 3L);
     }
 
     @Test
@@ -159,6 +160,6 @@ public class ArrayAggregateTest {
         when(callContext.getDataTypeFactory()).thenReturn(dataTypeFactory);
         InputTypeStrategy inputTypeStrategy = new ArrayAggregate().getTypeInference(dataTypeFactory).getInputTypeStrategy();
         inputTypeStrategy.inferInputTypes(callContext, true);
-        Assert.assertEquals(new Integer(3), inputTypeStrategy.getArgumentCount().getMaxCount().get());
+        assertEquals(ConstantArgumentCount.of(3), inputTypeStrategy.getArgumentCount());
     }
 }
