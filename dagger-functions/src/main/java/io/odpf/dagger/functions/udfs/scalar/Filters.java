@@ -1,5 +1,9 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.InputGroup;
+import org.apache.flink.table.functions.FunctionContext;
+
 import com.gojek.de.stencil.client.StencilClient;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
@@ -7,7 +11,6 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.ScalarUdf;
-import org.apache.flink.table.functions.FunctionContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -59,8 +62,9 @@ public class Filters extends ScalarUdf {
      * @author arujit
      * @team DE
      */
-    public List<DynamicMessage> eval(Object inputProtoBytes, String protoClassName,
-                                     Predicate<DynamicMessage>... predicates) throws ClassNotFoundException, InvalidProtocolBufferException {
+    @DataTypeHint(value = "RAW", bridgedTo = List.class)
+    public List<DynamicMessage> eval(@DataTypeHint(inputGroup = InputGroup.ANY) Object inputProtoBytes, String protoClassName,
+                                     @DataTypeHint(value = "RAW", bridgedTo = Predicate.class) Predicate<DynamicMessage>... predicates) throws ClassNotFoundException, InvalidProtocolBufferException {
         if (!(inputProtoBytes instanceof ByteString[])) {
             return null;
         }

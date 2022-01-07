@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +49,7 @@ public class LongbowSchema implements Serializable {
      * @return the key in byte array
      */
     public byte[] getKey(Row input, long offset) {
-        Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(ROWTIME));
+        Timestamp rowTime = convertToTimeStamp(input.getField(columnIndexMap.get(ROWTIME)));
         long requiredTimestamp = rowTime.getTime() - offset;
         return getAbsoluteKey(input, requiredTimestamp);
     }
@@ -187,5 +188,12 @@ public class LongbowSchema implements Serializable {
      */
     public boolean isLongbowPlus() {
         return getType() != LongbowType.LongbowProcess;
+    }
+
+    private Timestamp convertToTimeStamp(Object timeStampField) {
+        if (timeStampField instanceof LocalDateTime) {
+            return Timestamp.valueOf((LocalDateTime) timeStampField);
+        }
+        return (Timestamp) timeStampField;
     }
 }

@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * The enum Data type.
  */
-public enum DataType implements Serializable {
+public enum LongbowArrayType implements Serializable {
     INTEGER((Stream<Object> stream) -> (stream.mapToInt(Integer.class::cast))),
     INT((Stream<Object> stream) -> (stream.mapToInt(Integer.class::cast))),
     DOUBLE((Stream<Object> stream) -> (stream.mapToDouble(Double.class::cast))),
@@ -20,7 +20,7 @@ public enum DataType implements Serializable {
 
     private Function<Stream<Object>, BaseStream> inputCastingFunction;
 
-    DataType(Function<Stream<Object>, BaseStream> inputCastingFunction) {
+    LongbowArrayType(Function<Stream<Object>, BaseStream> inputCastingFunction) {
         this.inputCastingFunction = inputCastingFunction;
     }
 
@@ -30,10 +30,10 @@ public enum DataType implements Serializable {
      * @param inputDataType the input data type
      * @return the data type
      */
-    public static DataType getDataType(String inputDataType) {
+    public static LongbowArrayType getDataType(String inputDataType) {
         String typeInUpperCaseCase = inputDataType.toUpperCase();
         try {
-            return DataType.valueOf(typeInUpperCaseCase);
+            return LongbowArrayType.valueOf(typeInUpperCaseCase);
         } catch (IllegalArgumentException e) {
             throw new ArrayAggregationException("No support for inputDataType: "
                     + inputDataType

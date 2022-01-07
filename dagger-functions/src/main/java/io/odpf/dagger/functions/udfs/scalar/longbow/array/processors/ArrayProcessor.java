@@ -1,6 +1,6 @@
 package io.odpf.dagger.functions.udfs.scalar.longbow.array.processors;
 
-import io.odpf.dagger.functions.udfs.scalar.longbow.array.DataType;
+import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.Expression;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -70,7 +70,7 @@ public abstract class ArrayProcessor {
      * @param dataType   the data type
      * @param inputArray the input array
      */
-    public void initJexl(DataType dataType, Object[] inputArray) {
+    public void initJexl(LongbowArrayType dataType, Object[] inputArray) {
         this.jexlScript = jexlEngine.createScript(expression.getExpressionString());
         BaseStream baseStream = dataType.getInputCastingFunction().apply(Arrays.stream(inputArray));
         jexlContext.set(Expression.BASE_STRING, baseStream);
