@@ -1,8 +1,6 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
 
-import org.apache.flink.table.functions.FunctionContext;
-
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.LongbowArrayType;
 import io.odpf.dagger.functions.udfs.scalar.longbow.array.expression.OperationExpression;
@@ -13,6 +11,7 @@ import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.DataTypeFactory;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.FunctionDefinition;
+import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.UnresolvedDataType;
 import org.apache.flink.table.types.inference.ArgumentCount;
 import org.apache.flink.table.types.inference.CallContext;
@@ -91,11 +90,11 @@ public class ArrayOperate extends ScalarUdf implements Serializable {
         }
 
         @Override
-        public Optional<List<org.apache.flink.table.types.DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
+        public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
             DataTypeFactory dataTypeFactory = callContext.getDataTypeFactory();
             UnresolvedDataType unresolvedArgOneType = DataTypes.ARRAY(DataTypes.RAW(new GenericTypeInfo<>(Object.class)));
-            org.apache.flink.table.types.DataType resolvedArgOneType = dataTypeFactory.createDataType(unresolvedArgOneType);
-            return Optional.of(Arrays.asList(new org.apache.flink.table.types.DataType[]{resolvedArgOneType, DataTypes.STRING(), DataTypes.STRING()}));
+            DataType resolvedArgOneType = dataTypeFactory.createDataType(unresolvedArgOneType);
+            return Optional.of(Arrays.asList(new DataType[]{resolvedArgOneType, DataTypes.STRING(), DataTypes.STRING()}));
         }
 
         @Override
@@ -107,10 +106,10 @@ public class ArrayOperate extends ScalarUdf implements Serializable {
 
     private static class ArrayOperateOutputStrategy implements TypeStrategy {
             @Override
-            public Optional<org.apache.flink.table.types.DataType> inferType(CallContext callContext) {
+            public Optional<DataType> inferType(CallContext callContext) {
             DataTypeFactory dataTypeFactory = callContext.getDataTypeFactory();
             UnresolvedDataType unresolvedDataType = DataTypes.ARRAY(DataTypes.RAW(new GenericTypeInfo<>(Object.class)));
-            org.apache.flink.table.types.DataType dataType = dataTypeFactory.createDataType(unresolvedDataType);
+            DataType dataType = dataTypeFactory.createDataType(unresolvedDataType);
             return Optional.of(dataType);
         }
     }
