@@ -21,7 +21,7 @@ public class ExponentialMovingAverage extends ScalarUdf {
     /**
      * Calculates exponential moving average (at per minute frequency) using a list of non-null values.
      *
-     * @param timestampsArray the timestamps array
+     * @param timestampsObjectArray the timestamps array
      * @param valuesArray     the values array
      * @param hopStartTime    the hop start time
      * @param window          the window
