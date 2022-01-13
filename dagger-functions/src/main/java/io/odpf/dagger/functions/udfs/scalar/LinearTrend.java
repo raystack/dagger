@@ -1,8 +1,10 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
 import io.odpf.dagger.common.udfs.ScalarUdf;
+import org.apache.flink.table.annotation.DataTypeHint;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -17,14 +19,16 @@ public class LinearTrend extends ScalarUdf {
     /**
      * returns the gradient of the best fit line of the list of non-null demand values given the defined time window.
      *
-     * @param timestampsArray       the timestamps array
+     * @param localDateTimeArray    the timestamps array
      * @param values                the values
      * @param hopStartTime          the hop start time
      * @param windowLengthInMinutes the window length in minutes
      * @return the double
      */
-    public double eval(ArrayList<Timestamp> timestampsArray, ArrayList<Double> values, Timestamp hopStartTime, Integer windowLengthInMinutes) {
-        return calculateLinearTrend(timestampsArray, values, hopStartTime, windowLengthInMinutes);
+    public double eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<LocalDateTime> localDateTimeArray, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Double> values, LocalDateTime hopStartTime, Integer windowLengthInMinutes) {
+        ArrayList<Timestamp> timestamps = new ArrayList<Timestamp>();
+        localDateTimeArray.forEach(localDateTime -> timestamps.add(Timestamp.valueOf(localDateTime)));
+        return calculateLinearTrend(timestamps, values, Timestamp.valueOf(hopStartTime), windowLengthInMinutes);
     }
 
     private double calculateLinearTrend(ArrayList<Timestamp> timestampsArray, ArrayList<Double> valueList, Timestamp hopStartTime, Integer windowLengthInMinutes) {
