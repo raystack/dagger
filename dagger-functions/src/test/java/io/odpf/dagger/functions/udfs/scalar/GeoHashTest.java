@@ -45,7 +45,7 @@ public class GeoHashTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEForInvalidInput() {
-        String actualS2Id = converter.eval(Long.getLong(INVALID_CENTRAL_MONUMENT_JAKARTA_LONGITUDE), CENTRAL_MONUMENT_JAKARTA_LONGITUDE, GEOHASH_LENGTH);
+        String actualS2Id = converter.eval(null, CENTRAL_MONUMENT_JAKARTA_LONGITUDE, GEOHASH_LENGTH);
     }
 
     @Test

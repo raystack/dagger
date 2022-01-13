@@ -21,7 +21,7 @@ public class Distance extends ScalarUdf {
      * @author ashwin
      * @team DE
      */
-    public double eval(double latitude1, double longitude1, double latitude2, double longitude2) {
+    public Double eval(Double latitude1, Double longitude1, Double latitude2, Double longitude2) {
         double latDistance = degreeToRadian(latitude2 - latitude1);
         double lonDistance = degreeToRadian(longitude2 - longitude1);
 

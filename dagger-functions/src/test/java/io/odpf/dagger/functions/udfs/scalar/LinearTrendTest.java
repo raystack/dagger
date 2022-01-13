@@ -7,10 +7,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -35,19 +37,18 @@ public class LinearTrendTest {
 
     @Test
     public void shouldReturnGradientWhenNoMetricValueIsMissingInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
-
-        timestampsList.add(new Timestamp(timeInMillis));
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
-        timestampsList.add(new Timestamp(timeInMillis + 120000));
-        timestampsList.add(new Timestamp(timeInMillis + 180000));
-        timestampsList.add(new Timestamp(timeInMillis + 240000));
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
+        localDateTimes.add(localDateTime);
+        localDateTimes.add(localDateTime.plusSeconds(60));
+        localDateTimes.add(localDateTime.plusSeconds(120));
+        localDateTimes.add(localDateTime.plusSeconds(180));
+        localDateTimes.add(localDateTime.plusSeconds(240));
 
         metricList.add(0.0);
         metricList.add(2.0);
@@ -55,99 +56,92 @@ public class LinearTrendTest {
         metricList.add(4.0);
         metricList.add(4.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(localDateTimes, metricList, localDateTime, windowSize);
         assertEquals(1.0, beta, 0);
     }
 
     @Test
     public void shouldReturnGradientWhenTwoMetricValuesAreMissingInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
-
-        timestampsList.add(new Timestamp(timeInMillis));
-        timestampsList.add(new Timestamp(timeInMillis + 120000));
-        timestampsList.add(new Timestamp(timeInMillis + 240000));
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
+        timestampsList.add(now);
+        timestampsList.add(now.plusSeconds(120));
+        timestampsList.add(now.plusSeconds(240));
 
         metricList.add(2.0);
         metricList.add(1.0);
         metricList.add(4.0);
-
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(0.4, beta, 0);
     }
 
     @Test
     public void shouldReturnGradientWhenThreeMetricValuesAreMissingInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<Double>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
-
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
-        timestampsList.add(new Timestamp(timeInMillis + 180000));
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
+        timestampsList.add(now.plusSeconds(60));
+        timestampsList.add(now.plusSeconds(180));
 
         metricList.add(2.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.1, beta, 0);
     }
 
     @Test
     public void shouldReturnGradientWhenOnlyOneValueInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
-
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 5;
 
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
+        timestampsList.add(now.plusSeconds(60));
 
         metricList.add(2.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.2, beta, 0);
     }
 
     @Test
     public void shouldReturnGradientWhenNoValueInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
-        long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 5;
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, LocalDateTime.now(), windowSize);
         assertEquals(0.0, beta, 0);
     }
 
     @Test
     public void shouldReturnGradientWhenAllMetricValuesAreNonEmptyAndSameInHopWindow() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
-
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 5;
 
-        timestampsList.add(new Timestamp(timeInMillis));
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
-        timestampsList.add(new Timestamp(timeInMillis + 120000));
-        timestampsList.add(new Timestamp(timeInMillis + 180000));
-        timestampsList.add(new Timestamp(timeInMillis + 240000));
+        timestampsList.add(now);
+        timestampsList.add(now.plusSeconds(60));
+        timestampsList.add(now.plusSeconds(120));
+        timestampsList.add(now.plusSeconds(180));
+        timestampsList.add(now.plusSeconds(240));
 
         metricList.add(2.0);
         metricList.add(2.0);
@@ -155,28 +149,27 @@ public class LinearTrendTest {
         metricList.add(2.0);
         metricList.add(2.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(0.0, beta, 0);
     }
 
     @Test
     public void shouldReturnCorrectGradientWithOutOfOrderValues() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
 
         int windowSize = 20;
-
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
-        timestampsList.add(new Timestamp(timeInMillis + 180000));
-        timestampsList.add(new Timestamp(timeInMillis + 300000));
-        timestampsList.add(new Timestamp(timeInMillis + 1140000));
-        timestampsList.add(new Timestamp(timeInMillis + 420000));
-        timestampsList.add(new Timestamp(timeInMillis + 480000));
-        timestampsList.add(new Timestamp(timeInMillis + 600000));
-        timestampsList.add(new Timestamp(timeInMillis + 660000));
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
+        timestampsList.add(now.plusSeconds(60));
+        timestampsList.add(now.plusSeconds(180));
+        timestampsList.add(now.plusSeconds(300));
+        timestampsList.add(now.plusSeconds(1140));
+        timestampsList.add(now.plusSeconds(420));
+        timestampsList.add(now.plusSeconds(480));
+        timestampsList.add(now.plusSeconds(600));
+        timestampsList.add(now.plusSeconds(660));
 
         metricList.add(1.0);
         metricList.add(1.0);
@@ -187,29 +180,28 @@ public class LinearTrendTest {
         metricList.add(1.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.030827067669172932, beta, 0);
     }
 
     @Test
     public void shouldReturnCorrectGradientWithDuplicateValues() {
-        ArrayList<Timestamp> timestampsList = new ArrayList<>();
+        ArrayList<LocalDateTime> timestampsList = new ArrayList<>();
         ArrayList<Double> metricList = new ArrayList<>();
 
         long timeInMillis = System.currentTimeMillis();
-        Timestamp hopStartTime = new Timestamp(timeInMillis);
-
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneId.systemDefault());
         int windowSize = 20;
 
-        timestampsList.add(new Timestamp(timeInMillis + 60000));
-        timestampsList.add(new Timestamp(timeInMillis + 180000));
-        timestampsList.add(new Timestamp(timeInMillis + 300000));
-        timestampsList.add(new Timestamp(timeInMillis + 420000));
-        timestampsList.add(new Timestamp(timeInMillis + 480000));
-        timestampsList.add(new Timestamp(timeInMillis + 600000));
-        timestampsList.add(new Timestamp(timeInMillis + 660000));
-        timestampsList.add(new Timestamp(timeInMillis + 660000));
-        timestampsList.add(new Timestamp(timeInMillis + 1140000));
+        timestampsList.add(now.plusSeconds(60));
+        timestampsList.add(now.plusSeconds(180));
+        timestampsList.add(now.plusSeconds(300));
+        timestampsList.add(now.plusSeconds(420));
+        timestampsList.add(now.plusSeconds(480));
+        timestampsList.add(now.plusSeconds(600));
+        timestampsList.add(now.plusSeconds(660));
+        timestampsList.add(now.plusSeconds(660));
+        timestampsList.add(now.plusSeconds(1140));
 
         metricList.add(1.0);
         metricList.add(1.0);
@@ -221,7 +213,7 @@ public class LinearTrendTest {
         metricList.add(1.0);
         metricList.add(1.0);
 
-        double beta = linearTrend.eval(timestampsList, metricList, hopStartTime, windowSize);
+        double beta = linearTrend.eval(timestampsList, metricList, now, windowSize);
         assertEquals(-0.030827067669172932, beta, 0);
     }
 

@@ -64,6 +64,8 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'
     testImplementation gradleTestKit()
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
 
 test {
