@@ -1,17 +1,18 @@
 package io.odpf.dagger.core.processors.common;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.types.MapDecorator;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
-import com.google.protobuf.Descriptors;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
-import io.odpf.dagger.core.processors.types.MapDecorator;
-
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static io.odpf.dagger.common.core.Constants.ROWTIME;
@@ -48,8 +49,9 @@ public class FetchOutputDecorator implements MapDecorator {
     @Override
     public Row map(Row input) {
         RowManager rowManager = new RowManager(input);
-        return rowManager.getOutputData();
+        return hasSQLTransformer ? convertLocalDateTime(rowManager.getOutputData()) : rowManager.getOutputData();
     }
+
 
     @Override
     public DataStream<Row> decorate(DataStream<Row> inputStream) {
@@ -76,5 +78,18 @@ public class FetchOutputDecorator implements MapDecorator {
         return stencilClientOrchestrator.getStencilClient().get(outputProtoClassName);
     }
 
+    private Row convertLocalDateTime(Row row) {
+        Row outputRow = new Row(row.getArity());
+        for (int index = 0; index < outputColumnNames.length; index++) {
+            outputRow.setField(index, row.getField(index));
+            if (outputColumnNames[index].equals(ROWTIME)) {
+                Object timestampValue = outputRow.getField(index);
+                if (timestampValue != null) {
+                    outputRow.setField(index, Timestamp.valueOf((LocalDateTime) timestampValue));
+                }
+            }
+        }
+        return outputRow;
+    }
 
 }
