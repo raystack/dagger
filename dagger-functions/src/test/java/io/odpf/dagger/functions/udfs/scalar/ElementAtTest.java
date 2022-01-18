@@ -5,7 +5,15 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.catalog.DataTypeFactory;
 import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.inference.ArgumentCount;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.InputTypeStrategy;
+import org.apache.flink.table.types.inference.TypeInference;
+import org.apache.flink.table.types.inference.TypeStrategy;
 import org.apache.flink.types.Row;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,8 +21,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -35,6 +47,12 @@ public class ElementAtTest {
     @Mock
     private FunctionContext functionContext;
 
+    @Mock
+    private DataTypeFactory dataTypeFactory;
+
+    @Mock
+    private CallContext callContext;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -54,9 +72,9 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms");
+        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms");
 
-        Assert.assertEquals(String.valueOf(21.5), actual);
+        assertEquals(String.valueOf(21.5), actual);
     }
 
     @Test
@@ -70,9 +88,9 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms", "booking");
+        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms", "booking");
 
-        Assert.assertEquals(String.valueOf(21.5), actual);
+        assertEquals(String.valueOf(21.5), actual);
     }
 
     @Test
@@ -86,9 +104,9 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms");
+        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms");
 
-        Assert.assertEquals("", actual);
+        assertEquals("", actual);
     }
 
     @Test
@@ -101,11 +119,11 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.latitude");
-        String actualLongitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.longitude");
+        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.latitude");
+        String actualLongitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.longitude");
 
-        Assert.assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LATITUDE), actualLatitude);
-        Assert.assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LONGITUDE), actualLongitude);
+        assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LATITUDE), actualLatitude);
+        assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LONGITUDE), actualLongitude);
     }
 
     @Test
@@ -118,9 +136,9 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.invalid");
+        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.invalid");
 
-        Assert.assertEquals("", actualLatitude);
+        assertEquals("", actualLatitude);
 
     }
 
@@ -134,9 +152,9 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 1, "start.latitude");
+        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 1, "start.latitude");
 
-        Assert.assertEquals("", actualLatitude);
+        assertEquals("", actualLatitude);
     }
 
     @Test
@@ -151,7 +169,7 @@ public class ElementAtTest {
         elementAt.open(functionContext);
         String actualLatitude = elementAt.eval(null, "routes", 1, "start.latitude");
 
-        Assert.assertEquals("", actualLatitude);
+        assertEquals("", actualLatitude);
     }
 
     @Test
@@ -164,9 +182,9 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[]{}, "routes", 1, "start.latitude");
+        String actualLatitude = elementAt.eval(new Row[] {}, "routes", 1, "start.latitude");
 
-        Assert.assertEquals("", actualLatitude);
+        assertEquals("", actualLatitude);
     }
 
     @Test
@@ -181,7 +199,7 @@ public class ElementAtTest {
 
         elementAt.open(functionContext);
         Object element = elementAt.eval(objects, 2);
-        Assert.assertEquals("b", element);
+        assertEquals("b", element);
     }
 
     @Test
@@ -196,7 +214,7 @@ public class ElementAtTest {
 
         elementAt.open(functionContext);
         Object element = elementAt.eval(objects, 2);
-        Assert.assertEquals("c", element);
+        assertEquals("c", element);
     }
 
 
@@ -212,7 +230,7 @@ public class ElementAtTest {
 
         elementAt.open(functionContext);
         Object element = elementAt.eval(objects, -2);
-        Assert.assertEquals("v", element);
+        assertEquals("v", element);
     }
 
     @Test
@@ -227,7 +245,7 @@ public class ElementAtTest {
 
         elementAt.open(functionContext);
         Object element = elementAt.eval(objects, -2);
-        Assert.assertEquals("d", element);
+        assertEquals("d", element);
     }
 
     @Test
@@ -287,5 +305,73 @@ public class ElementAtTest {
         ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
         elementAt.open(functionContext);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void inputStrategyTypeArgumentCount() {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        TypeInference typeInference = elementAt.getTypeInference(dataTypeFactory);
+        InputTypeStrategy inputTypeStrategy = typeInference.getInputTypeStrategy();
+        ArgumentCount argumentCount = inputTypeStrategy.getArgumentCount();
+        assertEquals(Optional.of(2), argumentCount.getMinCount());
+        assertEquals(Optional.of(5), argumentCount.getMaxCount());
+
+        assertTrue(argumentCount.isValidCount(4));
+        assertTrue(argumentCount.isValidCount(2));
+        assertTrue(argumentCount.isValidCount(5));
+        assertFalse(argumentCount.isValidCount(3));
+    }
+
+    @Test
+    public void inputStrategyTypeForTwoArguments() {
+        List<DataType> dataTypeList = new ArrayList<DataType>(5);
+        dataTypeList.add(DataTypes.ARRAY(DataTypes.STRING()));
+        dataTypeList.add(DataTypes.INT());
+        when(callContext.getArgumentDataTypes()).thenReturn(dataTypeList);
+        InputTypeStrategy inputTypeStrategy = new ElementAt(protos, stencilClientOrchestrator)
+                .getTypeInference(dataTypeFactory)
+                .getInputTypeStrategy();
+        Optional<List<DataType>> dataTypes = inputTypeStrategy.inferInputTypes(callContext, false);
+        assertEquals(dataTypeList, dataTypes.get());
+    }
+
+    @Test
+    public void inputStrategyTypeForFourArguments() {
+        List<DataType> dataTypeList = new ArrayList<DataType>(5);
+        dataTypeList.add(DataTypes.ARRAY(DataTypes.STRING()));
+        dataTypeList.add(DataTypes.INT());
+        dataTypeList.add(DataTypes.INT());
+        dataTypeList.add(DataTypes.INT());
+        when(callContext.getArgumentDataTypes()).thenReturn(dataTypeList);
+        InputTypeStrategy inputTypeStrategy = new ElementAt(protos, stencilClientOrchestrator)
+                .getTypeInference(dataTypeFactory)
+                .getInputTypeStrategy();
+        Optional<List<DataType>> dataTypes = inputTypeStrategy.inferInputTypes(callContext, false);
+        assertEquals(Arrays.asList(dataTypeList.get(0), DataTypes.STRING(), DataTypes.INT(), DataTypes.STRING()), dataTypes.get());
+    }
+
+    @Test
+    public void inputStrategyTypeForFiveArguments() {
+        List<DataType> dataTypeList = new ArrayList<DataType>(5);
+        dataTypeList.add(DataTypes.ARRAY(DataTypes.STRING()));
+        dataTypeList.add(DataTypes.INT());
+        dataTypeList.add(DataTypes.INT());
+        dataTypeList.add(DataTypes.INT());
+        dataTypeList.add(DataTypes.INT());
+        when(callContext.getArgumentDataTypes()).thenReturn(dataTypeList);
+        InputTypeStrategy inputTypeStrategy = new ElementAt(protos, stencilClientOrchestrator)
+                .getTypeInference(dataTypeFactory)
+                .getInputTypeStrategy();
+        Optional<List<DataType>> dataTypes = inputTypeStrategy.inferInputTypes(callContext, false);
+        assertEquals(Arrays.asList(dataTypeList.get(0), DataTypes.STRING(), DataTypes.INT(), DataTypes.STRING(), DataTypes.STRING()), dataTypes.get());
+    }
+
+    @Test
+    public void outputTypeStrategy() {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        TypeInference typeInference = elementAt.getTypeInference(dataTypeFactory);
+        TypeStrategy outputTypeStrategy = typeInference.getOutputTypeStrategy();
+        Optional<DataType> dataType = outputTypeStrategy.inferType(callContext);
+        assertEquals(DataTypes.STRING(), dataType.get());
     }
 }
