@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
 import io.odpf.dagger.consumer.TestBookingLogMessage;
-import com.gojek.de.stencil.StencilClientFactory;
+import io.odpf.stencil.StencilClientFactory;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;

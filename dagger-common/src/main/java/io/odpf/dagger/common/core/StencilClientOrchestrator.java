@@ -1,13 +1,13 @@
 package io.odpf.dagger.common.core;
 
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.client.StencilClient;
+import io.odpf.stencil.config.StencilConfig;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,6 @@ import static io.odpf.dagger.common.core.Constants.*;
  */
 public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
-    private HashMap<String, String> stencilConfigMap;
     private Configuration configuration;
     private HashSet<String> stencilUrls;
 
@@ -30,15 +29,12 @@ public class StencilClientOrchestrator implements Serializable {
      */
     public StencilClientOrchestrator(Configuration configuration) {
         this.configuration = configuration;
-        this.stencilConfigMap = createStencilConfigMap(configuration);
         this.stencilUrls = getStencilUrls();
     }
 
-    private HashMap<String, String> createStencilConfigMap(Configuration config) {
-        stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT));
-        return stencilConfigMap;
+    private StencilConfig createStencilConfig(Configuration config) {
+        Integer timeoutMS = config.getInteger(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
+        return StencilConfig.builder().fetchTimeoutMs(timeoutMS).build();
     }
 
     /**
@@ -72,9 +68,10 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private StencilClient initStencilClient(List<String> urls) {
+        StencilConfig stencilConfig = createStencilConfig(configuration);
         boolean enableRemoteStencil = configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
-                ? StencilClientFactory.getClient(urls, stencilConfigMap)
+                ? StencilClientFactory.getClient(urls, stencilConfig)
                 : StencilClientFactory.getClient();
     }
 

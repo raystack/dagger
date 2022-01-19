@@ -1,12 +1,12 @@
 package io.odpf.dagger.functions.udfs.aggregate;
 
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.ArrayAccumulator;
-import org.aeonbits.owner.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -75,7 +75,7 @@ public class CollectArrayTest {
         collectArray.merge(arrayAccumulator1, iterable);
 
         List<Object> result = collectArray.getValue(arrayAccumulator1);
-        assertEquals(Collections.list("value1", "value2", "value3", "value4", "value5", "value6", "value7"), result);
+        assertEquals(Arrays.asList("value1", "value2", "value3", "value4", "value5", "value6", "value7"), result);
     }
 
     @Test
@@ -93,6 +93,6 @@ public class CollectArrayTest {
         collectArray.merge(arrayAccumulator, iterable);
 
         List<Object> result = collectArray.getValue(arrayAccumulator);
-        assertEquals(Collections.list("value1", "value2", "value3"), result);
+        assertEquals(Arrays.asList("value1", "value2", "value3"), result);
     }
 }
