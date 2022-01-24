@@ -33,8 +33,6 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     private final String[] columnNames;
     private Map<String, RowHasher> rowHasherMap;
 
-    // TODO : Validate workings of hashtransformer since the configurations are different now
-
     /**
      * Instantiates a new Hash transformer.
      *

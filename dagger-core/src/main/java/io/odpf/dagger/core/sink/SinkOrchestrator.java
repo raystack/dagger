@@ -48,7 +48,6 @@ public class SinkOrchestrator implements TelemetryPublisher {
      * @StencilClientOrchestrator stencilClientOrchestrator the stencil client orchestrator
      */
     public Sink getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        // TODO : Convert this to enum
         String sinkType = configuration.getString("SINK_TYPE", "influx");
         addMetric(TelemetryTypes.SINK_TYPE.getValue(), sinkType);
         Sink sink;

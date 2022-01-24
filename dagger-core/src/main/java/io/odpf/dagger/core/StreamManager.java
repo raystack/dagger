@@ -109,7 +109,6 @@ public class StreamManager {
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
             streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
 
-            // TODO : The schema thing is deprecated in 1.14, handle this deprecation in the serialization story
             Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
             tableEnvironment.createTemporaryView(tableName, table);
 
@@ -194,7 +193,6 @@ public class StreamManager {
      * @return the stream info
      */
     protected StreamInfo createStreamInfo(Table table) {
-        // TODO : Will fix this after fixing the serializations
         DataStream<Row> stream = tableEnvironment
                 .toRetractStream(table, Row.class)
                 .filter(value -> value.f0)

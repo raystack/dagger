@@ -39,7 +39,6 @@ public class KafkaJsonSerializerBuilder implements KafkaSerializerBuilder, Telem
         String outputJsonSchema = configuration.getString(Constants.SINK_KAFKA_JSON_SCHEMA_KEY, "");
         addMetric(TelemetryTypes.OUTPUT_TOPIC.getValue(), outputTopic);
         addMetric(TelemetryTypes.OUTPUT_STREAM.getValue(), outputStream);
-        //TODO : check if additional things needs to be added here
         notifySubscriber();
 
         try {

@@ -17,7 +17,6 @@ import java.io.IOException;
  * The Late record drop error.
  */
 public class LateRecordDropError implements InfluxError {
-    // TODO : Fix Error Handling part
     private final Counter counter;
     private static final Logger LOGGER = LoggerFactory.getLogger(LateRecordDropError.class.getName());
     private ErrorReporter errorStatsReporter;
