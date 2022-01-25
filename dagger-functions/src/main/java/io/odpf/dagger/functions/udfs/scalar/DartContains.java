@@ -71,7 +71,7 @@ public class DartContains extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-    public boolean eval(String listName, String field, int refreshRateInHours) {
+    public boolean eval(String listName, String field, Integer refreshRateInHours) {
         SetCache listData = getListData(listName, field, refreshRateInHours);
         boolean isPresent = listData.contains(field);
         updateMetrics(isPresent);
@@ -99,7 +99,7 @@ public class DartContains extends ScalarUdf {
      * @param refreshRateInHours the refresh rate in hours
      * @return the boolean
      */
-    public boolean eval(String listName, String field, String regex, int refreshRateInHours) {
+    public boolean eval(String listName, String field, String regex, Integer refreshRateInHours) {
         SetCache listData = getListData(listName, field, refreshRateInHours);
         boolean isPresent = listData.matches(field, regex);
         updateMetrics(isPresent);
