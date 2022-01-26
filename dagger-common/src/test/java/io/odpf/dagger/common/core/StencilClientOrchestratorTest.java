@@ -1,22 +1,20 @@
 package io.odpf.dagger.common.core;
 
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.stencil.client.ClassLoadStencilClient;
 import io.odpf.stencil.client.MultiURLStencilClient;
 import io.odpf.stencil.client.StencilClient;
-import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.stencil.config.StencilConfig;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static io.odpf.dagger.common.core.Constants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -29,6 +27,10 @@ public class StencilClientOrchestratorTest {
     @Before
     public void setup() {
         initMocks(this);
+    }
+
+    private Configuration getConfig(Map<String, String> mapConfig) {
+        return new Configuration(ParameterTool.fromMap(mapConfig));
     }
 
     @Test
@@ -128,5 +130,70 @@ public class StencilClientOrchestratorTest {
         Field stencilClientField = StencilClientOrchestrator.class.getDeclaredField("stencilClient");
         stencilClientField.setAccessible(true);
         stencilClientField.set(null, null);
+    }
+
+    @Test
+    public void shouldReturnDefaultTimeoutIfTimeoutMsConfigNotSet() {
+        Map<String, String> configMap = new HashMap<>();
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT, stencilConfig.getFetchTimeoutMs());
+    }
+
+    @Test
+    public void shouldReturnConfiguredTimeoutIfTimeoutMsConfigIsSet() {
+        Map<String, String> configMap = new HashMap<String, String>() {{
+            put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, "8000");
+        }};
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(Integer.valueOf(8000), stencilConfig.getFetchTimeoutMs());
+    }
+
+    @Test
+    public void shouldReturnEmptyHeadersIfHeadersConfigIsNotSet() {
+        Map<String, String> configMap = new HashMap<>();
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(0, stencilConfig.getFetchHeaders().size());
+    }
+
+    @Test
+    public void shouldReturnEmptyHeadersIfHeadersConfigIsEmpty() {
+        Map<String, String> configMap = new HashMap<String, String>() {{
+            put(SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_KEY, "");
+        }};
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(0, stencilConfig.getFetchHeaders().size());
+    }
+
+    @Test
+    public void shouldReturnEmptyHeadersIfKeyValuePairsNotValid() {
+        Map<String, String> configMap = new HashMap<String, String>() {{
+            put(SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_KEY, " : , : ::: : ,, :: , keyWithoutValue: , : valueWithoutKey, k1 : v1 : v2 ,, ");
+        }};
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(0, stencilConfig.getFetchHeaders().size());
+    }
+
+    @Test
+    public void shouldReturnParsedHeaderIfHeaderStringValid() {
+        Map<String, String> configMap = new HashMap<String, String>() {{
+            put(SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_KEY, " key1:val1 , key2 : val2 ,key3:val3");
+        }};
+        Configuration config = getConfig(configMap);
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(config);
+        StencilConfig stencilConfig = stencilClientOrchestrator.createStencilConfig();
+        assertEquals(3, stencilConfig.getFetchHeaders().size());
+        assertEquals("key1: val1", stencilConfig.getFetchHeaders().get(0).toString());
+        assertEquals("key2: val2", stencilConfig.getFetchHeaders().get(1).toString());
+        assertEquals("key3: val3", stencilConfig.getFetchHeaders().get(2).toString());
     }
 }
