@@ -44,7 +44,8 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly project(':dagger-common')
+    compileOnly project(path: ':dagger-common', configuration: 'minimalCommonJar')
+    compileOnly project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     compileOnly 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
@@ -53,7 +54,6 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
-    compileOnly group: 'com.gojek', name: 'stencil', version: '2.0.15'
 
     dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
     dependenciesFunctionsJar group: 'org.apache.commons', name: 'commons-jexl3', version: '3.1'

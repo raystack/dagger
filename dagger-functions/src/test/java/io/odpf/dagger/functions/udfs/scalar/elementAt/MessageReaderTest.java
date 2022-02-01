@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.scalar.elementAt;
 
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.client.StencilClient;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 

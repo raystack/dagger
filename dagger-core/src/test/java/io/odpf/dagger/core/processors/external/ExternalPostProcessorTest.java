@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.external;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;

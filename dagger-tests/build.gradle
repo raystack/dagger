@@ -51,7 +51,6 @@ dependencies {
     testImplementation 'com.google.protobuf:protobuf-java-util:3.5.0'
     testImplementation 'com.jayway.jsonpath:json-path:2.4.0'
     testImplementation 'org.asynchttpclient:async-http-client:2.10.1'
-    testImplementation 'com.gojek:stencil:2.0.15'
     testImplementation 'io.vertx:vertx-pg-client:3.9.0'
     testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
     testImplementation 'io.grpc:grpc-api:1.37.0'

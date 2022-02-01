@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.source;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
