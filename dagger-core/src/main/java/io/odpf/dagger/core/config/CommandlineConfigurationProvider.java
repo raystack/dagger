@@ -40,7 +40,6 @@ public class CommandlineConfigurationProvider implements ConfigurationProvider {
 
     private String[] parseEncodedProgramArgs() {
         String encodedArgs = ParameterTool.fromArgs(args).get("encodedArgs");
-        // TODO : Check if this is required
         byte[] decoded = Base64.getMimeDecoder().decode(encodedArgs);
         return GSON.fromJson(new String(decoded), String[].class);
     }

@@ -46,7 +46,6 @@ public class InfluxDBWriter implements SinkWriter<Row, Void, Void> {
 
     @Override
     public void write(Row row, Context context) throws IOException, InterruptedException {
-        // TODO : check if check-pointing logs can be skipped
         LOGGER.info("row to influx: " + row);
 
         Builder pointBuilder = Point.measurement(measurementName);
@@ -67,7 +66,6 @@ public class InfluxDBWriter implements SinkWriter<Row, Void, Void> {
                 }
             }
         }
-        //TODO : How to handle other exceptions
 
         addErrorMetricsAndThrow();
 
