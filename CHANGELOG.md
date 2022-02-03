@@ -1,6 +1,19 @@
 # Changelog
 
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+
+### [v0.2.0](https://github.com/odpf/dagger/releases/tag/v0.2.0) (2022-02-03)
+
+### Features
+
+- Flink version bump from 1.9 to 1.14.3.
+- JSON Datatype support in Dagger.
+- refactor codebase and UDFs with new Flink contracts.
+- build and test fixes for the upgrade.
+- updates in watermark preserver logic.
+- stencil upgrade.
 
 ### [v0.1.3](https://github.com/odpf/dagger/releases/tag/v0.1.3) (2021-12-15)
 
