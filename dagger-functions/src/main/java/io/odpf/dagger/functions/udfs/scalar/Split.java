@@ -19,6 +19,7 @@ public class Split extends ScalarUdf {
      * @author jesry.pandawa
      * @team DE
      */
+    //Works fine dont need any type hints
     public String[] eval(String input, String delimiter) {
         if (input == null || delimiter == null) {
             LOGGER.info("Not able to split input string, either input string or delimiter is null");

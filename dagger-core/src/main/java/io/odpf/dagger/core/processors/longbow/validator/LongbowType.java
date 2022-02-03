@@ -2,6 +2,8 @@ package io.odpf.dagger.core.processors.longbow.validator;
 
 import io.odpf.dagger.core.utils.Constants;
 
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
+
 /**
  * The enum Longbow type.
  */
@@ -58,8 +60,8 @@ public enum LongbowType {
     }
 
     private static class MandatoryFields {
-        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_DATA_KEY, Constants.EVENT_TIMESTAMP, Constants.ROWTIME};
-        private static final String[] LONGBOW_WRITE = new String[]{Constants.ROWTIME, Constants.EVENT_TIMESTAMP};
+        private static final String[] LONGBOW_PROCESS = new String[]{Constants.LONGBOW_DATA_KEY, Constants.EVENT_TIMESTAMP, ROWTIME};
+        private static final String[] LONGBOW_WRITE = new String[]{ROWTIME, Constants.EVENT_TIMESTAMP};
         private static final String[] LONGBOW_READ = new String[]{Constants.EVENT_TIMESTAMP};
     }
 

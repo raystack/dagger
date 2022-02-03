@@ -1,15 +1,15 @@
 package io.odpf.dagger.core.processors.longbow;
 
-import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.processors.PostProcessorConfig;
-import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
-import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.longbow.columnmodifier.ColumnModifier;
+import io.odpf.dagger.core.processors.types.PostProcessor;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

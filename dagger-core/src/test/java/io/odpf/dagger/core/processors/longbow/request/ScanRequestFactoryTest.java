@@ -1,14 +1,15 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
+import org.apache.flink.types.Row;
+
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
 import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
-import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -20,7 +21,6 @@ public class ScanRequestFactoryTest {
     @Mock
     private LongbowRange longbowRange;
 
-    @Mock
     private Row input;
 
     private String tableId;
@@ -29,6 +29,7 @@ public class ScanRequestFactoryTest {
     public void setup() {
         initMocks(this);
         tableId = "tableId";
+        input = new Row(1);
     }
 
     @Test

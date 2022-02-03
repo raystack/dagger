@@ -25,7 +25,7 @@ public class EndOfWeek extends ScalarUdf {
      * @author Rasyid
      * @team DE
      */
-    public long eval(long milliSeconds, String timeZone) {
+    public long eval(Long milliSeconds, String timeZone) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         cal.setTime(new Date(milliSeconds));

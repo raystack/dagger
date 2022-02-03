@@ -1,28 +1,32 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.catalog.DataTypeFactory;
+import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.types.UnresolvedDataType;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.TypeStrategy;
+
+import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.client.StencilClient;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Timestamp;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.functions.exceptions.LongbowException;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.table.functions.FunctionContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -36,7 +40,9 @@ public class SelectFieldsTest {
     @Mock
     private FunctionContext functionContext;
     @Mock
-    private StencilClientOrchestrator stencilClientOrchestrator;
+    private CallContext callContext;
+    @Mock
+    private DataTypeFactory dataTypeFactory;
 
     @Before
     public void setup() {
@@ -163,11 +169,10 @@ public class SelectFieldsTest {
     }
 
     @Test
-    public void should() throws IOException {
-        SelectFields selectFields = new SelectFields(stencilClientOrchestrator);
-
-        FileOutputStream fileStream = new FileOutputStream("tmp");
-        new ObjectOutputStream(fileStream).writeObject(selectFields);
+    public void shouldResolveOutPutTypeStrategyForUnresolvedTypes() {
+        when(callContext.getDataTypeFactory()).thenReturn(dataTypeFactory);
+        TypeStrategy outputTypeStrategy = new SelectFields(stencilClient).getTypeInference(dataTypeFactory).getOutputTypeStrategy();
+        outputTypeStrategy.inferType(callContext);
+        verify(dataTypeFactory, times(1)).createDataType(any(UnresolvedDataType.class));
     }
-
 }

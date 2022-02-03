@@ -13,7 +13,7 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     env:
-      flinkVersion: "1.9.0"
+      flinkVersion: "1.14.0"
     services:
       postgres:
         image: postgres
@@ -51,4 +51,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dagger-cache-
       - name: Run test
-        run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew integrationTest
+        run: POSTGRES_HOST=postgres ES_HOST=localhost ./gradlew clean :dagger-tests:integrationTest

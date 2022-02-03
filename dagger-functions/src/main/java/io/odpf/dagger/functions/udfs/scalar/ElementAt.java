@@ -1,14 +1,27 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.elementAt.MessageReader;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.catalog.DataTypeFactory;
 import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.functions.FunctionDefinition;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.inference.ArgumentCount;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.InputTypeStrategy;
+import org.apache.flink.table.types.inference.Signature;
+import org.apache.flink.table.types.inference.TypeInference;
+import org.apache.flink.table.types.inference.TypeStrategy;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The ElementAt udf.
@@ -17,6 +30,9 @@ public class ElementAt extends ScalarUdf {
     private LinkedHashMap<String, String> protos;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private StencilClient stencilClient;
+    private static final int MAX_ARG_COUNT = 5;
+    private static final int MINIMUM_ARG_COUNT = 2;
+    private static final int ARG_COUNT_WHEN_SINGLE_TABLE_QUERY = 4;
 
 
     /**
@@ -135,6 +151,7 @@ public class ElementAt extends ScalarUdf {
         return null;
     }
 
+
     /**
      * Gets stencil client.
      *
@@ -145,5 +162,63 @@ public class ElementAt extends ScalarUdf {
             return stencilClient;
         }
         return stencilClientOrchestrator.getStencilClient();
+    }
+
+    @Override
+    public TypeInference getTypeInference(DataTypeFactory typeFactory) {
+        return TypeInference.newBuilder()
+                .outputTypeStrategy(new ElementAtOutputTypeStrategy())
+                .inputTypeStrategy(new ElementAtInputTypeStrategy())
+                .build();
+    }
+
+    private static class ElementAtOutputTypeStrategy implements TypeStrategy {
+        @Override
+        public Optional<DataType> inferType(CallContext callContext) {
+            return Optional.of(DataTypes.STRING());
+        }
+    }
+
+    private static class ElementAtInputTypeStrategy implements InputTypeStrategy {
+        @Override
+        public ArgumentCount getArgumentCount() {
+            return new ArgumentCount() {
+
+
+                @Override
+                public boolean isValidCount(int count) {
+
+                    return count == MINIMUM_ARG_COUNT || count == ARG_COUNT_WHEN_SINGLE_TABLE_QUERY || count == MAX_ARG_COUNT;
+                }
+
+                @Override
+                public Optional<Integer> getMinCount() {
+                    return Optional.of(MINIMUM_ARG_COUNT);
+                }
+
+                @Override
+                public Optional<Integer> getMaxCount() {
+                    return Optional.of(MAX_ARG_COUNT);
+                }
+            };
+        }
+
+        @Override
+        public Optional<List<DataType>> inferInputTypes(CallContext callContext, boolean throwOnFailure) {
+            List<DataType> argumentDataTypes = callContext.getArgumentDataTypes();
+            int argumentSize = argumentDataTypes.size();
+            if (argumentSize == MINIMUM_ARG_COUNT) {
+                return Optional.of(callContext.getArgumentDataTypes());
+            }
+            if (argumentSize == ARG_COUNT_WHEN_SINGLE_TABLE_QUERY) {
+                return Optional.of(Arrays.asList(argumentDataTypes.get(0), DataTypes.STRING(), DataTypes.INT(), DataTypes.STRING()));
+            }
+            return Optional.of(Arrays.asList(argumentDataTypes.get(0), DataTypes.STRING(), DataTypes.INT(), DataTypes.STRING(), DataTypes.STRING()));
+        }
+
+        @Override
+        public List<Signature> getExpectedSignatures(FunctionDefinition definition) {
+            return null;
+        }
     }
 }

@@ -6,8 +6,8 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.core.protohandler.ProtoHandler;
-import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.vertx.core.AsyncResult;
@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
+import static io.odpf.dagger.common.serde.proto.protohandler.RowFactory.createRow;
 
 /**
  * The Postgre response handler.

@@ -1,22 +1,22 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.core.metrics.aspects.LongbowWriterAspects;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.exceptions.LongbowWriterException;
 import io.odpf.dagger.core.processors.longbow.outputRow.WriterOutputRow;
 import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.types.Row;
-
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
-import io.odpf.dagger.core.metrics.aspects.LongbowWriterAspects;
-import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
-import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -43,8 +43,8 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
 
     private MeterStatsManager meterStatsManager;
-    private Configuration configuration;
     private LongbowSchema longbowSchema;
+    private Configuration configuration;
     private String longbowDocumentDuration;
     private PutRequestFactory putRequestFactory;
     private String tableId;
@@ -63,13 +63,14 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
      * @param writerOutputRow   the writer output row
      */
     public LongbowWriter(Configuration configuration, LongbowSchema longbowSchema, PutRequestFactory putRequestFactory, String tableId, WriterOutputRow writerOutputRow) {
-        this.configuration = configuration;
+
         this.longbowSchema = longbowSchema;
         this.longbowDocumentDuration = configuration.getString(Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_KEY,
                 Constants.PROCESSOR_LONGBOW_DOCUMENT_DURATION_DEFAULT);
         this.putRequestFactory = putRequestFactory;
         this.tableId = tableId;
         this.writerOutputRow = writerOutputRow;
+        this.configuration = configuration;
     }
 
     /**
@@ -93,10 +94,10 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        super.open(internalFlinkConfig);
         if (longBowStore == null) {
-            longBowStore = LongbowStore.create(configuration);
+            longBowStore = LongbowStore.create(this.configuration);
         }
 
         if (meterStatsManager == null) {
@@ -105,7 +106,7 @@ public class LongbowWriter extends RichAsyncFunction<Row, Row> implements Teleme
         meterStatsManager.register("longbow.writer", LongbowWriterAspects.values());
 
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext().getMetricGroup(), configuration);
         }
 
         if (!longBowStore.tableExists(tableId)) {

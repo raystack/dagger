@@ -1,7 +1,6 @@
 package io.odpf.dagger.core.processors.external;
 
-import org.apache.flink.configuration.Configuration;
-
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
 import io.odpf.dagger.core.utils.Constants;
 

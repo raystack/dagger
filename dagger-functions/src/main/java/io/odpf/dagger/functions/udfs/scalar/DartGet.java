@@ -60,7 +60,7 @@ public class DartGet extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-    public String eval(String collectionName, String key, int refreshRateInHours) {
+    public String eval(String collectionName, String key, Integer refreshRateInHours) {
         if (cache.isEmpty() || !cache.containsKey(collectionName) || cache.get(collectionName).hasExpired(refreshRateInHours) || cache.get(collectionName).isEmpty()) {
             cache.put(collectionName, dataStore.getMap(collectionName));
             dataStore.getMeterStatsManager().markEvent(DartAspects.DART_GCS_FETCH_SUCCESS);
@@ -78,7 +78,7 @@ public class DartGet extends ScalarUdf {
      * @param defaultValue       the default value
      * @return the string
      */
-    public String eval(String collectionName, String key, int refreshRateInHours, String defaultValue) {
+    public String eval(String collectionName, String key, Integer refreshRateInHours, String defaultValue) {
         try {
             return eval(collectionName, key, refreshRateInHours);
         } catch (KeyDoesNotExistException e) {

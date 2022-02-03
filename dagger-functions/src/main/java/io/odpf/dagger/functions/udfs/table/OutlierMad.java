@@ -4,10 +4,12 @@ import io.odpf.dagger.common.udfs.TableUdf;
 import io.odpf.dagger.functions.udfs.table.outlier.mad.Mad;
 import io.odpf.dagger.functions.udfs.table.outlier.mad.Point;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.table.annotation.DataTypeHint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,18 +29,19 @@ public class OutlierMad extends TableUdf<Tuple5<Timestamp, Double, Double, Doubl
      * determines outliers for a given time series on the basis of threshold, observation window and tolerance provided.
      *
      * @param values                     list of values
-     * @param timestampsArray            list of timestamps of given data value
+     * @param localDateTimeArray         list of timestamps of given data value
      * @param windowStartTime            start time of the window
      * @param windowLengthInMinutes      length of the window in minutes
      * @param observationPeriodInMinutes time for which the outliers should be looked in minutes
      * @param tolerance                  permitted deviation
      * @param outlierPercentage          the minimum threshold percentage of outliers in the observation window to consider                                   whole window as outlier
      */
-    public void eval(ArrayList<Double> values, ArrayList<Timestamp> timestampsArray, Timestamp windowStartTime, Integer windowLengthInMinutes,
+    public void eval(@DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<Double> values, @DataTypeHint(value = "RAW", bridgedTo = ArrayList.class) ArrayList<LocalDateTime> localDateTimeArray, LocalDateTime windowStartTime, Integer windowLengthInMinutes,
                      Integer observationPeriodInMinutes, Integer tolerance, Integer outlierPercentage) {
+        List<Timestamp> timestampsArray = localDateTimeArray.stream().map(Timestamp::valueOf).collect(Collectors.toList());
         ArrayList<Point> points = new ArrayList<>(Collections.nCopies(values.size(), Point.EMPTY_POINT));
         IntStream.range(0, values.size()).forEach(index -> points.set(index, new Point(timestampsArray.get(index), values.get(index), false)));
-        ArrayList<Point> orderedPoints = getOrderedValues(windowStartTime, points, windowLengthInMinutes, observationPeriodInMinutes);
+        ArrayList<Point> orderedPoints = getOrderedValues(Timestamp.valueOf(windowStartTime), points, windowLengthInMinutes, observationPeriodInMinutes);
         Mad mad = new Mad(orderedPoints, tolerance);
         try {
             List<Point> outliers = mad.getOutliers();

@@ -1,13 +1,14 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import org.apache.flink.streaming.api.datastream.DataStream;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.longbow.processor.LongbowReader;
 import io.odpf.dagger.core.processors.longbow.processor.LongbowWriter;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,7 +16,8 @@ import org.mockito.Mock;
 import java.util.concurrent.TimeUnit;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

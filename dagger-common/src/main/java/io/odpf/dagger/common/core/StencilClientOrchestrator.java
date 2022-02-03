@@ -1,14 +1,17 @@
 package io.odpf.dagger.common.core;
 
-import org.apache.flink.configuration.Configuration;
-
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.client.StencilClient;
+import io.odpf.stencil.config.StencilConfig;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +23,8 @@ import static io.odpf.dagger.common.core.Constants.*;
  */
 public class StencilClientOrchestrator implements Serializable {
     private static StencilClient stencilClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StencilClientOrchestrator.class);
     private Configuration configuration;
-    private HashMap<String, String> stencilConfigMap;
     private HashSet<String> stencilUrls;
 
     /**
@@ -31,15 +34,18 @@ public class StencilClientOrchestrator implements Serializable {
      */
     public StencilClientOrchestrator(Configuration configuration) {
         this.configuration = configuration;
-        this.stencilConfigMap = createStencilConfigMap(configuration);
         this.stencilUrls = getStencilUrls();
     }
 
-    private HashMap<String, String> createStencilConfigMap(Configuration config) {
-        stencilConfigMap = new HashMap<>();
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE_DEFAULT));
-        stencilConfigMap.put(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, config.getString(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT));
-        return stencilConfigMap;
+    StencilConfig createStencilConfig() {
+        Integer timeoutMS = configuration.getInteger(SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_KEY, SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS_DEFAULT);
+        List<Header> headers = this.getHeaders(configuration);
+        return StencilConfig.builder().fetchTimeoutMs(timeoutMS).fetchHeaders(headers).build();
+    }
+
+    private List<Header> getHeaders(Configuration config) {
+        String headerString = config.getString(SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_DEFAULT);
+        return parseHeaders(headerString);
     }
 
     /**
@@ -73,10 +79,33 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private StencilClient initStencilClient(List<String> urls) {
+        StencilConfig stencilConfig = createStencilConfig();
         boolean enableRemoteStencil = configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, SCHEMA_REGISTRY_STENCIL_ENABLE_DEFAULT);
         return enableRemoteStencil
-                ? StencilClientFactory.getClient(urls, stencilConfigMap)
+                ? StencilClientFactory.getClient(urls, stencilConfig)
                 : StencilClientFactory.getClient();
+    }
+
+    private List<Header> parseHeaders(String headersString) {
+        headersString = headersString == null ? "" : headersString;
+        return Arrays.stream(headersString.split(","))
+                .map(String::trim)
+                .filter(this::isValidHeader)
+                .map(this::parseHeader)
+                .collect(Collectors.toList());
+    }
+
+    private Boolean isValidHeader(String headerString) {
+        Boolean isValid = Arrays.stream(headerString.split(":")).map(String::trim).filter(a -> !a.isEmpty()).count() == 2;
+        if (!isValid && !headerString.isEmpty()) {
+            LOGGER.error("Invalid header {}. This will be ignored", headerString);
+        }
+        return isValid;
+    }
+
+    private BasicHeader parseHeader(String headerString) {
+        String[] split = headerString.split(":");
+        return new BasicHeader(split[0].trim(), split[1].trim());
     }
 
     private HashSet<String> getStencilUrls() {

@@ -1,5 +1,8 @@
 package io.odpf.dagger.functions.udfs.factories;
 
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.udfs.AggregateUdf;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.common.udfs.TableUdf;
@@ -8,6 +11,9 @@ import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
 import io.odpf.dagger.functions.udfs.aggregate.FeaturesWithType;
 import io.odpf.dagger.functions.udfs.aggregate.PercentileAggregator;
+import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
+import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
+import io.odpf.dagger.functions.udfs.scalar.ByteToString;
 import io.odpf.dagger.functions.udfs.scalar.CondEq;
 import io.odpf.dagger.functions.udfs.scalar.DartContains;
 import io.odpf.dagger.functions.udfs.scalar.DartGet;
@@ -31,13 +37,8 @@ import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
-import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
-import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
-import io.odpf.dagger.functions.udfs.scalar.ByteToString;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,9 @@ import org.mockito.Mock;
 
 import java.util.HashSet;
 
-import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_ENABLE_KEY;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_URLS_KEY;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -72,8 +75,8 @@ public class FunctionFactoryTest {
                 + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-log\"\n"
                 + "        }\n"
                 + "]";
-        when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
         when(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_ENABLE_KEY, false)).thenReturn(false);
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
         when(configuration.getString(SCHEMA_REGISTRY_STENCIL_URLS_KEY, "")).thenReturn("");
     }
 
@@ -88,32 +91,32 @@ public class FunctionFactoryTest {
     public void shouldRegisterScalarUdfs() {
         FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("DartContains"), any(DartContains.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("DartGet"), any(DartGet.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("Distance"), any(Distance.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ElementAt"), any(ElementAt.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("EndOfMonth"), any(EndOfMonth.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("EndOfWeek"), any(EndOfWeek.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ExponentialMovingAverage"), any(ExponentialMovingAverage.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("FormatTimeInZone"), any(FormatTimeInZone.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("GeoHash"), any(GeoHash.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("LinearTrend"), any(LinearTrend.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ListContains"), any(ListContains.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("MapGet"), any(MapGet.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("S2Id"), any(S2Id.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("SingleFeatureWithType"), any(SingleFeatureWithType.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("Split"), any(Split.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("StartOfMonth"), any(StartOfMonth.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("StartOfWeek"), any(StartOfWeek.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("TimeInDate"), any(TimeInDate.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("CondEq"), any(CondEq.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("Filters"), any(Filters.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("SelectFields"), any(SelectFields.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ArrayOperate"), any(ArrayOperate.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("ByteToString"), any(ByteToString.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DartContains"), any(DartContains.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DartGet"), any(DartGet.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("Distance"), any(Distance.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ElementAt"), any(ElementAt.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("EndOfMonth"), any(EndOfMonth.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("EndOfWeek"), any(EndOfWeek.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ExponentialMovingAverage"), any(ExponentialMovingAverage.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("FormatTimeInZone"), any(FormatTimeInZone.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("GeoHash"), any(GeoHash.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("LinearTrend"), any(LinearTrend.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ListContains"), any(ListContains.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("MapGet"), any(MapGet.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("S2AreaInKm2"), any(S2AreaInKm2.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("S2Id"), any(S2Id.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("SingleFeatureWithType"), any(SingleFeatureWithType.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("Split"), any(Split.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("StartOfMonth"), any(StartOfMonth.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("StartOfWeek"), any(StartOfWeek.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("TimeInDate"), any(TimeInDate.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("TimestampFromUnix"), any(TimestampFromUnix.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("CondEq"), any(CondEq.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("Filters"), any(Filters.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("SelectFields"), any(SelectFields.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayOperate"), any(ArrayOperate.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ByteToString"), any(ByteToString.class));
     }
 
     @Test
@@ -127,8 +130,8 @@ public class FunctionFactoryTest {
     public void shouldRegisterTableUdfs() {
         FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("OutlierMad"), any(OutlierMad.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("HistogramBucket"), any(HistogramBucket.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("OutlierMad"), any(OutlierMad.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("HistogramBucket"), any(HistogramBucket.class));
     }
 
     @Test
@@ -142,10 +145,10 @@ public class FunctionFactoryTest {
     public void shouldRegisterAggregateUdfs() {
         FunctionFactory functionFactory = new FunctionFactory(streamTableEnvironment, configuration);
         functionFactory.registerFunctions();
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("CollectArray"), any(CollectArray.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("DistinctCount"), any(DistinctCount.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("Features"), any(Features.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("FeaturesWithType"), any(FeaturesWithType.class));
-        verify(streamTableEnvironment, times(1)).registerFunction(eq("PercentileAggregator"), any(PercentileAggregator.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("CollectArray"), any(CollectArray.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("DistinctCount"), any(DistinctCount.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("Features"), any(Features.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("FeaturesWithType"), any(FeaturesWithType.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("PercentileAggregator"), any(PercentileAggregator.class));
     }
 }

@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -35,7 +37,7 @@ public class DistinctCountTest {
         distinctCount.accumulate(distinctCountAccumulator, "1234");
         distinctCount.accumulate(distinctCountAccumulator, "1234");
         distinctCount.accumulate(distinctCountAccumulator, "1233");
-        assertEquals(new Integer(2), distinctCount.getValue(distinctCountAccumulator));
+        assertEquals(Integer.valueOf(2), distinctCount.getValue(distinctCountAccumulator));
     }
 
     @Test
@@ -43,7 +45,7 @@ public class DistinctCountTest {
         DistinctCountAccumulator distinctCountAccumulator = new DistinctCountAccumulator();
         DistinctCount distinctCount = new DistinctCount();
         distinctCount.accumulate(distinctCountAccumulator, null);
-        assertEquals(new Integer(0), distinctCount.getValue(distinctCountAccumulator));
+        assertEquals(Integer.valueOf(0), distinctCount.getValue(distinctCountAccumulator));
     }
 
     @Test
@@ -60,8 +62,8 @@ public class DistinctCountTest {
         distinctCount.accumulate(acc2, "444");
         distinctCount.accumulate(acc2, "555");
 
-        assertEquals(new Integer(3), distinctCount.getValue(acc1));
-        assertEquals(new Integer(2), distinctCount.getValue(acc2));
+        assertEquals(Integer.valueOf(3), distinctCount.getValue(acc1));
+        assertEquals(Integer.valueOf(2), distinctCount.getValue(acc2));
     }
 
     @Test
@@ -69,5 +71,51 @@ public class DistinctCountTest {
         DistinctCount distinctCount = new DistinctCount();
         distinctCount.open(functionContext);
         verify(metricGroup, times(1)).gauge(any(String.class), any(Gauge.class));
+    }
+
+    @Test
+    public void shouldMergeAccumulators() {
+        DistinctCount distinctCount = new DistinctCount();
+        DistinctCountAccumulator distinctCountAccumulator1 = new DistinctCountAccumulator();
+        distinctCount.accumulate(distinctCountAccumulator1, "1");
+        distinctCount.accumulate(distinctCountAccumulator1, "2");
+        distinctCount.accumulate(distinctCountAccumulator1, "3");
+
+        DistinctCountAccumulator distinctCountAccumulator2 = new DistinctCountAccumulator();
+        DistinctCountAccumulator distinctCountAccumulator3 = new DistinctCountAccumulator();
+        distinctCountAccumulator2.add("4");
+        distinctCountAccumulator2.add("5");
+        distinctCountAccumulator3.add("6");
+        distinctCountAccumulator3.add("7");
+
+        ArrayList<DistinctCountAccumulator> iterable = new ArrayList<>();
+        iterable.add(distinctCountAccumulator2);
+        iterable.add(distinctCountAccumulator3);
+
+        distinctCount.merge(distinctCountAccumulator1, iterable);
+
+        int result = distinctCount.getValue(distinctCountAccumulator1);
+        assertEquals(7, result);
+    }
+
+    @Test
+    public void shouldNotChangeAccumulatorIfIterableIsEmptyOnMerge() {
+        DistinctCount distinctCount = new DistinctCount();
+        DistinctCountAccumulator distinctCountAccumulator = new DistinctCountAccumulator();
+        distinctCount.accumulate(distinctCountAccumulator, "1");
+        distinctCount.accumulate(distinctCountAccumulator, "2");
+        distinctCount.accumulate(distinctCountAccumulator, "3");
+
+        DistinctCountAccumulator distinctCountAccumulator2 = new DistinctCountAccumulator();
+        DistinctCountAccumulator distinctCountAccumulator3 = new DistinctCountAccumulator();
+
+        ArrayList<DistinctCountAccumulator> iterable = new ArrayList<>();
+        iterable.add(distinctCountAccumulator2);
+        iterable.add(distinctCountAccumulator3);
+
+        distinctCount.merge(distinctCountAccumulator, iterable);
+
+        int result = distinctCount.getValue(distinctCountAccumulator);
+        assertEquals(3, result);
     }
 }

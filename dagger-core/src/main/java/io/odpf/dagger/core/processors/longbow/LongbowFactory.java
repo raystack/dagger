@@ -1,6 +1,10 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.types.Row;
+
 import com.google.gson.Gson;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowReadColumnModifier;
 import io.odpf.dagger.core.processors.longbow.columnmodifier.LongbowWriteColumnModifier;
@@ -21,25 +25,24 @@ import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowValidator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import io.odpf.dagger.core.sink.ProtoSerializer;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.types.Row;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.DAGGER_NAME_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY;
 
 /**
  * The factory class for Longbow.
  */
 public class LongbowFactory {
     private LongbowSchema longbowSchema;
-    private AsyncProcessor asyncProcessor;
     private Configuration configuration;
+    private AsyncProcessor asyncProcessor;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private MetricsTelemetryExporter metricsTelemetryExporter;
     private String[] columnNames;
@@ -49,7 +52,7 @@ public class LongbowFactory {
      * Instantiates a new Longbow factory.
      *
      * @param longbowSchema             the longbow schema
-     * @param configuration             the configuration
+     * @param configuration                    the configuration
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param metricsTelemetryExporter  the metrics telemetry exporter
      */
@@ -148,7 +151,8 @@ public class LongbowFactory {
     }
 
     private String getTableId(Configuration config) {
-        return config.getString(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, config.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
+        return config
+                .getString(PROCESSOR_LONGBOW_GCP_TABLE_ID_KEY, config.getString(DAGGER_NAME_KEY, DAGGER_NAME_DEFAULT));
     }
 
     private String getMessageProtoClassName(Configuration config) {

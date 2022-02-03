@@ -7,7 +7,7 @@ import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 public class ConfigurationProviderFactoryTest {

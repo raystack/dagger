@@ -3,8 +3,8 @@ package io.odpf.dagger.core.processors.longbow.storage;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
-import org.apache.flink.configuration.Configuration;
 
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;

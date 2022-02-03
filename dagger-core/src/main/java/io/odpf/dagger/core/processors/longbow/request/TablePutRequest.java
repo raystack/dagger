@@ -1,14 +1,16 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
-import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import org.apache.flink.types.Row;
 
+import io.odpf.dagger.core.processors.longbow.LongbowSchema;
+import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.sql.Timestamp;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * Create PutRequest in form of table. LONGBOW_KEY as range key,
@@ -38,7 +40,7 @@ public class TablePutRequest implements PutRequest {
     @Override
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
-        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, Constants.ROWTIME);
+        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
         longbowSchema.getColumnNames(c -> c.getKey().contains(Constants.LONGBOW_DATA_KEY))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(),
                         Bytes.toBytes((String) longbowSchema.getValue(input, column))));

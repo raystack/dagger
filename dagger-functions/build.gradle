@@ -9,7 +9,7 @@ buildscript {
 
 }
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 
 description = """you know where to add your functions in dagger!"""
 
@@ -44,15 +44,16 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly project(':dagger-common')
+    compileOnly project(path: ':dagger-common', configuration: 'minimalCommonJar')
+    compileOnly project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
+    compileOnly 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
     compileOnly group: 'org.apache.flink', name: 'flink-clients_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
-    compileOnly group: 'com.gojek', name: 'stencil', version: '2.0.15'
 
     dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
     dependenciesFunctionsJar group: 'org.apache.commons', name: 'commons-jexl3', version: '3.1'
@@ -63,6 +64,8 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'
     testImplementation gradleTestKit()
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
 
 test {
@@ -85,7 +88,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.9
+                minimum = 0.90
             }
         }
     }

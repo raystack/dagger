@@ -1,14 +1,15 @@
 package io.odpf.dagger.core.processors.transformers;
 
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,8 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.PRE_PROCESSOR_TYPE;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TransformProcessorTest {
@@ -77,7 +82,7 @@ public class TransformProcessorTest {
 
         TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
-        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, org.apache.flink.configuration.Configuration)", exception.getMessage());
+        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.Configuration)", exception.getMessage());
     }
 
     @Test

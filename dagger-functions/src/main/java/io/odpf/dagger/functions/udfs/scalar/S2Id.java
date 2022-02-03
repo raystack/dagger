@@ -18,7 +18,7 @@ public class S2Id extends ScalarUdf {
      * @author gaurav.s
      * @team DE
      */
-    public String eval(double latitude, double longitude, int level) {
+    public String eval(Double latitude, Double longitude, Integer level) {
         S2LatLng s2LatLng = S2LatLng.fromDegrees(latitude, longitude);
         return Long.toString(S2CellId.fromLatLng(s2LatLng).parent(level).id());
     }

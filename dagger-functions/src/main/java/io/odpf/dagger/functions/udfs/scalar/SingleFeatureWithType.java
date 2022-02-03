@@ -4,6 +4,8 @@ import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.exceptions.InvalidNumberOfArgumentsException;
 import io.odpf.dagger.functions.udfs.aggregate.accumulator.FeatureWithTypeAccumulator;
 import io.odpf.dagger.functions.udfs.aggregate.feast.handler.ValueEnum;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.InputGroup;
 import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.functions.common.Constants.NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR;
@@ -23,7 +25,7 @@ public class SingleFeatureWithType extends ScalarUdf {
      * @team DE
      */
 
-    public Row[] eval(Object... objects) {
+    public @DataTypeHint("RAW") Row[] eval(@DataTypeHint(inputGroup = InputGroup.ANY) Object... objects) {
         FeatureWithTypeAccumulator featureAccumulator = new FeatureWithTypeAccumulator();
         if (objects.length % NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR != 0) {
             throw new InvalidNumberOfArgumentsException();
@@ -31,7 +33,7 @@ public class SingleFeatureWithType extends ScalarUdf {
         for (int elementIndex = 0; elementIndex < objects.length; elementIndex += NUMBER_OF_ARGUMENTS_IN_FEATURE_ACCUMULATOR) {
             featureAccumulator.add(String.valueOf(objects[elementIndex]), objects[elementIndex + 1], ValueEnum.valueOf(String.valueOf(objects[elementIndex + 2])));
         }
-        return featureAccumulator.getFeatures();
+        return featureAccumulator.getFeaturesAsRows();
     }
 
 }

@@ -1,24 +1,27 @@
 package io.odpf.dagger.core.processors;
 
 import com.jayway.jsonpath.InvalidJsonException;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.Preprocessor;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.List;
 
-import static io.odpf.dagger.core.utils.Constants.*;
-import static org.junit.Assert.*;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PreProcessorFactoryTest {
 
-    @Mock
-    private Configuration configuration;
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
 
@@ -42,6 +45,9 @@ public class PreProcessorFactoryTest {
             + "  }\n"
             + " ]\n"
             + "}";
+
+    @Mock
+    private Configuration configuration;
 
     @Before
     public void setup() {

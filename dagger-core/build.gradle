@@ -21,12 +21,12 @@ plugins {
 }
 
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '0.1.0'
+def dependenciesVersion = '0.1.0-upgrade'
 
 description = """dagger to the heart!"""
 
@@ -45,6 +45,7 @@ configurations {
 
     dependenciesJar.exclude group: 'org.apache.flink', module: 'force-shading'
     dependenciesJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    dependenciesJar.exclude group: 'org.apache.commons', module: 'commons-math3'
     dependenciesJar.exclude group: 'org.slf4j'
     dependenciesJar.exclude group: 'log4j'
 
@@ -61,6 +62,9 @@ dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
 
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
     implementation 'org.slf4j:slf4j-log4j12:1.7.7'
     implementation 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-clients_2.11:' + flinkVersion
@@ -71,16 +75,13 @@ dependencies {
     dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
 
-    dependenciesJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
     dependenciesJar 'org.influxdb:influxdb-java:2.8'
-    dependenciesJar 'com.google.code.gson:gson:2.8.2'
     dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
     dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
-    dependenciesJar 'com.jayway.jsonpath:json-path:2.4.0'
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
 
@@ -100,6 +101,7 @@ dependencies {
 
 test {
     finalizedBy jacocoTestReport
+    jvmArgs '-Djdk.attach.allowAttachSelf=true'
     testLogging {
         events "passed", "skipped", "failed"
     }
@@ -118,7 +120,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.89
+                minimum = 0.88
             }
         }
     }

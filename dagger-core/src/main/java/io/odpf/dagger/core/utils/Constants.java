@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.utils;
 
 public class Constants {
-    public static final String INTERNAL_VALIDATION_FILED_KEY = "__internal_validation_field__";
+
     public static final String PROCESSOR_PREPROCESSOR_ENABLE_KEY = "PROCESSOR_PREPROCESSOR_ENABLE";
     public static final boolean PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT = false;
     public static final String PROCESSOR_PREPROCESSOR_CONFIG_KEY = "PROCESSOR_PREPROCESSOR_CONFIG";
@@ -31,7 +31,6 @@ public class Constants {
     public static final String DAGGER_NAME_KEY = "FLINK_JOB_ID";
     public static final String DAGGER_NAME_DEFAULT = "SQL Flink Job";
     public static final String EVENT_TIMESTAMP = "event_timestamp";
-    public static final String ROWTIME = "rowtime";
     public static final String MINUTE_UNIT = "m";
     public static final String HOUR_UNIT = "h";
     public static final String DAY_UNIT = "d";
@@ -52,10 +51,8 @@ public class Constants {
     public static final String FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY = "FLINK_CHECKPOINT_MIN_PAUSE_MS";
     public static final int FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT = 1;
     public static final String FLINK_CHECKPOINT_MAX_CONCURRENT_KEY = "FLINK_CHECKPOINT_MAX_CONCURRENT";
-    public static final int FLINK_RETENTION_MIN_IDLE_STATE_HOUR_DEFAULT = 8;
-    public static final String FLINK_RETENTION_MIN_IDLE_STATE_HOUR_KEY = "FLINK_RETENTION_MIN_IDLE_STATE_HOUR";
-    public static final int FLINK_RETENTION_MAX_IDLE_STATE_HOUR_DEFAULT = 9;
-    public static final String FLINK_RETENTION_MAX_IDLE_STATE_HOUR_KEY = "FLINK_RETENTION_MAX_IDLE_STATE_HOUR";
+    public static final int FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT = 8;
+    public static final String FLINK_RETENTION_IDLE_STATE_HOUR_KEY = "FLINK_RETENTION_IDLE_STATE_HOUR";
     public static final long FLINK_WATERMARK_DELAY_MS_DEFAULT = 10000;
     public static final String FLINK_WATERMARK_DELAY_MS_KEY = "FLINK_WATERMARK_DELAY_MS";
     public static final String FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT = "";
@@ -74,6 +71,8 @@ public class Constants {
     public static final String SINK_KAFKA_PROTO_KEY = "SINK_KAFKA_PROTO_KEY";
     public static final String SINK_KAFKA_PROTO_MESSAGE_KEY = "SINK_KAFKA_PROTO_MESSAGE";
     public static final String SINK_KAFKA_STREAM_KEY = "SINK_KAFKA_STREAM";
+    public static final String SINK_KAFKA_JSON_SCHEMA_KEY = "SINK_KAFKA_JSON_SCHEMA";
+    public static final String SINK_KAFKA_DATA_TYPE = "SINK_KAFKA_DATA_TYPE";
     public static final String SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY = "SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE";
     public static final boolean SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT = false;
     public static final String SINK_KAFKA_COMPRESSION_TYPE_KEY = "compression.type";
@@ -94,7 +93,19 @@ public class Constants {
 
     public static final String STREAM_INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX_KEY = "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX";
     public static final String STREAM_SOURCE_KAFKA_TOPIC_NAMES_KEY = "SOURCE_KAFKA_TOPIC_NAMES";
-    public static final String INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
+    public static final String STREAM_INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
+
+    public static final String STREAM_INPUT_DATATYPE = "INPUT_DATATYPE";
+    public static final String STREAM_INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME_KEY = "INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME";
+    public static final String STREAM_INPUT_SCHEMA_JSON_SCHEMA_KEY = "INPUT_SCHEMA_JSON_SCHEMA";
+
+    public static final String SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_KEY = "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET";
+    public static final String SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET_DEFAULT = "latest";
+
+    public static final String SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE_KEY = "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE";
+    public static final String SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID_KEY = "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID";
+    public static final String SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS_KEY = "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS";
+
 
     public static final String METRIC_TELEMETRY_ENABLE_KEY = "METRIC_TELEMETRY_ENABLE";
     public static final boolean METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT = true;

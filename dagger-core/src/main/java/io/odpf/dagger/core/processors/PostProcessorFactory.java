@@ -1,14 +1,13 @@
 package io.odpf.dagger.core.processors;
 
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.longbow.LongbowFactory;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.telemetry.TelemetryProcessor;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.configuration.Configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;

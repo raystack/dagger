@@ -1,9 +1,9 @@
 package io.odpf.dagger.core.sink.influx;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.connector.sink.Sink.InitContext;
 
-import io.odpf.dagger.core.sink.influx.errors.LateRecordDropError;
 import io.odpf.dagger.core.sink.influx.errors.InfluxError;
+import io.odpf.dagger.core.sink.influx.errors.LateRecordDropError;
 import io.odpf.dagger.core.sink.influx.errors.NoError;
 import io.odpf.dagger.core.sink.influx.errors.ValidError;
 import io.odpf.dagger.core.sink.influx.errors.ValidException;
@@ -26,11 +26,11 @@ public class ErrorHandler implements Serializable {
     /**
      * Init runtime context.
      *
-     * @param runtimeContext the runtime context
+     * @param initContext the runtime context
      */
-    public void init(RuntimeContext runtimeContext) {
+    public void init(InitContext initContext) {
         List<InfluxError> influxErrors = Arrays.asList(
-                new LateRecordDropError(runtimeContext),
+                new LateRecordDropError(initContext),
                 new ValidError(),
                 new ValidException());
 
@@ -42,7 +42,6 @@ public class ErrorHandler implements Serializable {
             error.handle(points, throwable);
         };
     }
-
     /**
      * Gets exception handler.
      *

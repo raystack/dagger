@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.external.grpc;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;

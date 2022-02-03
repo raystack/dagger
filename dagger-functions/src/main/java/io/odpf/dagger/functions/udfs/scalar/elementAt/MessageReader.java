@@ -1,6 +1,6 @@
 package io.odpf.dagger.functions.udfs.scalar.elementAt;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.functions.udfs.scalar.elementAt.descriptor.CustomDescriptor;
 import io.odpf.dagger.functions.udfs.scalar.elementAt.row.Element;
 import org.apache.flink.types.Row;

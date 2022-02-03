@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.config;
 
-import org.apache.flink.configuration.Configuration;
+import io.odpf.dagger.common.configuration.Configuration;
 
 /**
  * The interface for all Configuration provider class.

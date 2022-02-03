@@ -1,9 +1,10 @@
 package io.odpf.dagger.functions.transformers;
 
-import io.odpf.dagger.common.core.StreamInfo;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

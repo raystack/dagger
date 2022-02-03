@@ -1,21 +1,21 @@
 package io.odpf.dagger.core.processors.external.es;
 
-import io.odpf.dagger.core.exception.HttpFailureException;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
-import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
-import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.core.protohandler.ProtoHandler;
-import io.odpf.dagger.core.protohandler.ProtoHandlerFactory;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
-
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
+import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.core.exception.HttpFailureException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
+import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
+import io.odpf.dagger.core.processors.ColumnNameManager;
+import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
+import io.odpf.dagger.core.processors.common.RowManager;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
@@ -29,7 +29,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.protohandler.RowFactory.createRow;
+import static io.odpf.dagger.common.serde.proto.protohandler.RowFactory.createRow;
 import static java.util.Collections.singleton;
 import static org.apache.http.HttpStatus.SC_OK;
 

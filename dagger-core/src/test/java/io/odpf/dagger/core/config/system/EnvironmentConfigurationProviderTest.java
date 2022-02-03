@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.config.system;
 
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.config.EnvironmentConfigurationProvider;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -20,8 +20,8 @@ public class EnvironmentConfigurationProviderTest {
             put("key2", "value2");
         }};
 
-        Configuration stringStringMap = new EnvironmentConfigurationProvider(environmentParameters).get();
-        assertEquals("value", stringStringMap.getString("key", ""));
-        assertEquals("value2", stringStringMap.getString("key2", ""));
+        Configuration configuration = new EnvironmentConfigurationProvider(environmentParameters).get();
+        assertEquals("value", configuration.getString("key", ""));
+        assertEquals("value2", configuration.getString("key2", ""));
     }
 }

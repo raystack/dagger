@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.common;
 
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.processors.ColumnNameManager;
@@ -15,6 +15,11 @@ import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -146,5 +151,80 @@ public class FetchOutputDecoratorTest {
         verify(inputDataStream, times(1)).map(fetchOutputDecorator);
         RowTypeInfo rowTypeInfo = new RowTypeInfo(new TypeInformation[]{Types.STRING, Types.STRING, Types.SQL_TIMESTAMP}, outputColumnNames);
         verify(outputDataStream, times(1)).returns(rowTypeInfo);
+    }
+
+    @Test
+    public void shouldConvertLocalDataTimeToTimestampIfSQLProcessorEnabled() {
+        outputColumnNames = new String[]{"order_number", "service_area_id", "rowtime", "price"};
+        when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
+        Row parentRow = new Row(2);
+        Row inputRow = new Row(3);
+        Row outputRow = new Row(4);
+        Row expectedRow = new Row(4);
+
+        outputRow.setField(0, "0");
+        expectedRow.setField(0, "0");
+        outputRow.setField(1, 1);
+        expectedRow.setField(1, 1);
+        outputRow.setField(2, LocalDateTime.ofInstant(Instant.ofEpochMilli(1642402372L), ZoneId.of("UTC")));
+        expectedRow.setField(2, Timestamp.valueOf(LocalDateTime.ofInstant(Instant.ofEpochMilli(1642402372L), ZoneId.of("UTC"))));
+        outputRow.setField(3, 2.0F);
+        expectedRow.setField(3, 2.0F);
+
+        parentRow.setField(0, inputRow);
+        parentRow.setField(1, outputRow);
+
+        assertEquals(expectedRow, fetchOutputDecorator.map(parentRow));
+    }
+
+    @Test
+    public void shouldNotConvertLocalDataTimeToTimestampIfSQLProcessorEnabledIfNull() {
+        outputColumnNames = new String[]{"order_number", "service_area_id", "rowtime", "price"};
+        when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, true);
+        Row parentRow = new Row(2);
+        Row inputRow = new Row(3);
+        Row outputRow = new Row(4);
+        Row expectedRow = new Row(4);
+
+        outputRow.setField(0, "0");
+        expectedRow.setField(0, "0");
+        outputRow.setField(1, 1);
+        expectedRow.setField(1, 1);
+        outputRow.setField(2, null);
+        expectedRow.setField(2, null);
+        outputRow.setField(3, 2.0F);
+        expectedRow.setField(3, 2.0F);
+
+        parentRow.setField(0, inputRow);
+        parentRow.setField(1, outputRow);
+
+        assertEquals(expectedRow, fetchOutputDecorator.map(parentRow));
+    }
+
+    @Test
+    public void shouldNotConvertLocalDataTimeToTimestampIfSQLProcessorIsNotEnabled() {
+        outputColumnNames = new String[]{"order_number", "service_area_id", "rowtime", "price"};
+        when(columnNameManager.getOutputColumnNames()).thenReturn(outputColumnNames);
+        FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, false);
+        Row parentRow = new Row(2);
+        Row inputRow = new Row(3);
+        Row outputRow = new Row(4);
+        Row expectedRow = new Row(4);
+
+        outputRow.setField(0, "0");
+        expectedRow.setField(0, "0");
+        outputRow.setField(1, 1);
+        expectedRow.setField(1, 1);
+        outputRow.setField(2, LocalDateTime.ofInstant(Instant.ofEpochMilli(1642402372L), ZoneId.of("UTC")));
+        expectedRow.setField(2, LocalDateTime.ofInstant(Instant.ofEpochMilli(1642402372L), ZoneId.of("UTC")));
+        outputRow.setField(3, 2.0F);
+        expectedRow.setField(3, 2.0F);
+
+        parentRow.setField(0, inputRow);
+        parentRow.setField(1, outputRow);
+
+        assertEquals(expectedRow, fetchOutputDecorator.map(parentRow));
     }
 }

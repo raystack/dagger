@@ -1,5 +1,10 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowWriterAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
@@ -11,23 +16,23 @@ import io.odpf.dagger.core.processors.longbow.outputRow.WriterOutputRow;
 import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.core.sink.ProtoSerializer;
-import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.threeten.bp.Duration;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -35,6 +40,9 @@ public class LongbowWriterTest {
 
     @Mock
     private Configuration configuration;
+
+    @Mock
+    private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
     @Mock
     private ResultFuture<Row> resultFuture;
@@ -69,6 +77,7 @@ public class LongbowWriterTest {
     private LongbowSchema defaultLongbowSchema;
     private PutRequestFactory putRequestFactory;
 
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -91,7 +100,7 @@ public class LongbowWriterTest {
     public void shouldCreateTableWhenTableDoesNotExist() throws Exception {
         when(longBowStore.tableExists(tableId)).thenReturn(false);
 
-        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.open(flinkInternalConfig);
 
         long nintyDays = (long) 90 * 24 * 60 * 60 * 1000;
         verify(longBowStore, times(1)).tableExists(tableId);
@@ -105,7 +114,7 @@ public class LongbowWriterTest {
     public void shouldNotCreateTableWhenTableExist() throws Exception {
         when(longBowStore.tableExists(tableId)).thenReturn(true);
 
-        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.open(flinkInternalConfig);
 
         long nintyDays = (long) 90 * 24 * 60 * 60 * 1000;
         verify(longBowStore, times(1)).tableExists(tableId);
@@ -126,7 +135,7 @@ public class LongbowWriterTest {
         when(longBowStore.tableExists(tableId)).thenReturn(true);
         when(longBowStore.put(any(PutRequest.class))).thenReturn(CompletableFuture.completedFuture(null));
 
-        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.open(flinkInternalConfig);
         defaultLongbowWriter.asyncInvoke(input, resultFuture);
 
         verify(resultFuture, times(1)).complete(Collections.singletonList(input));
@@ -142,7 +151,7 @@ public class LongbowWriterTest {
         when(longBowStore.tableExists(tableId)).thenReturn(false);
         doThrow(new RuntimeException()).when(longBowStore).createTable(Duration.ofMillis(nintyDays), "ts", tableId);
 
-        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.open(flinkInternalConfig);
 
         verify(meterStatsManager, times(1)).markEvent(LongbowWriterAspects.FAILURES_ON_CREATE_BIGTABLE);
         verify(meterStatsManager, times(1))
@@ -178,7 +187,7 @@ public class LongbowWriterTest {
             public void completeExceptionally(Throwable error) {
             }
         };
-        defaultLongbowWriter.open(configuration);
+        defaultLongbowWriter.open(flinkInternalConfig);
         defaultLongbowWriter.asyncInvoke(input, callback);
         countDownLatch.await();
         verify(errorReporter, times(1)).reportNonFatalException(any(LongbowWriterException.class));

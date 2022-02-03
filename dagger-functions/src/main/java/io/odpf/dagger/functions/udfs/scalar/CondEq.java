@@ -1,5 +1,8 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.InputGroup;
+
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.longbow.MessageParser;
@@ -23,7 +26,8 @@ public class CondEq extends ScalarUdf {
      * @author : Rasyid
      * @team : DE
      */
-    public Predicate<DynamicMessage> eval(String fieldName, Object comparison) {
+    @DataTypeHint(value = "RAW", bridgedTo = Predicate.class)
+    public Predicate<DynamicMessage> eval(String fieldName, @DataTypeHint(inputGroup = InputGroup.ANY) Object comparison) {
         return new Predicate<DynamicMessage>() {
             @Override
             public boolean test(DynamicMessage message) {
@@ -32,6 +36,5 @@ public class CondEq extends ScalarUdf {
                 return comparison.equals(messageParser.read(message, fieldNames));
             }
         };
-
     }
 }

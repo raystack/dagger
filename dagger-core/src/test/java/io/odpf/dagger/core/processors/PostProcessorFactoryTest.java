@@ -1,11 +1,11 @@
 package io.odpf.dagger.core.processors;
 
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.longbow.LongbowProcessor;
 import io.odpf.dagger.core.processors.telemetry.TelemetryProcessor;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
-import org.apache.flink.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -14,13 +14,12 @@ import java.util.List;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.core.utils.Constants.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class PostProcessorFactoryTest {
-
     @Mock
     private Configuration configuration;
 

@@ -1,5 +1,9 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
@@ -11,9 +15,6 @@ import io.odpf.dagger.core.processors.longbow.range.LongbowAbsoluteRange;
 import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
-import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,11 +28,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
-import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.*;
+import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.CLOSE_CONNECTION_ON_READER;
+import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.FAILED_ON_READ_DOCUMENT;
+import static io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects.TIMEOUTS_ON_READER;
 import static io.odpf.dagger.core.utils.Constants.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class LongbowReaderTest {
@@ -42,6 +47,8 @@ public class LongbowReaderTest {
     private LongbowData longbowData;
     @Mock
     private Configuration configuration;
+    @Mock
+    private org.apache.flink.configuration.Configuration flinkInternalConfig;
     @Mock
     private LongbowStore longBowStore;
     @Mock
@@ -54,10 +61,10 @@ public class LongbowReaderTest {
     private TelemetrySubscriber telemetrySubscriber;
     @Mock
     private ReaderOutputRow readerOutputRow;
+
     private LongbowSchema defaultLongBowSchema;
     private Timestamp currentTimestamp;
     private ScanRequestFactory scanRequestFactory;
-
 
     @Before
     public void setup() {
@@ -91,7 +98,7 @@ public class LongbowReaderTest {
             public void completeExceptionally(Throwable error) {
             }
         };
-        longBowReader.open(configuration);
+        longBowReader.open(flinkInternalConfig);
         longBowReader.asyncInvoke(input, callback);
         countDownLatch.await();
         verify(meterStatsManager, times(1)).markEvent(FAILED_ON_READ_DOCUMENT);

@@ -1,23 +1,21 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.common.core.Transformer;
+import io.odpf.dagger.common.watermark.RowtimeFieldWatermark;
+import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -77,12 +75,8 @@ public class SQLTransformer implements Serializable, Transformer {
         return StreamTableEnvironment.create(streamExecutionEnvironment);
     }
 
-    private SingleOutputStreamOperator<Row> assignTimeAttribute(DataStream<Row> inputStream) {
-        return inputStream.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Row>(Time.of(allowedLatenessInMs, TimeUnit.MILLISECONDS)) {
-            @Override
-            public long extractTimestamp(Row row) {
-                return ((Timestamp) row.getField(Arrays.asList(columnNames).indexOf(ROWTIME))).getTime();
-            }
-        });
+    private DataStream<Row> assignTimeAttribute(DataStream<Row> inputStream) {
+        StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new RowtimeFieldWatermark(columnNames));
+        return streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, allowedLatenessInMs);
     }
 }

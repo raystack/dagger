@@ -8,7 +8,7 @@ buildscript {
     }
 }
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 
 description = """end to end tests for dagger!"""
 
@@ -17,13 +17,13 @@ tasks.withType(JavaCompile) {
 }
 
 configurations {
-    integrationtestImplementation.extendsFrom testImplementation
-    integrationtestImplementaion.extendsFrom testImplementation
-    integrationtestRuntimeOnly.extendsFrom runtimeOnly
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
+
 }
 
 sourceSets {
-    integrationtest {
+    integrationTest {
         compileClasspath += sourceSets.main.output
         runtimeClasspath += sourceSets.main.output
         compileClasspath += sourceSets.test.output
@@ -33,13 +33,15 @@ sourceSets {
 
 
 dependencies {
-    testImplementation project(path: ':dagger-core')
+    testImplementation project(':dagger-common').sourceSets.main.output
+    testImplementation project(':dagger-core').sourceSets.main.output
     testImplementation project(':dagger-common').sourceSets.test.output
 
     testImplementation 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
+    testImplementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
+    testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-    testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
     testImplementation 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
@@ -49,7 +51,6 @@ dependencies {
     testImplementation 'com.google.protobuf:protobuf-java-util:3.5.0'
     testImplementation 'com.jayway.jsonpath:json-path:2.4.0'
     testImplementation 'org.asynchttpclient:async-http-client:2.10.1'
-    testImplementation 'com.gojek:stencil:2.0.15'
     testImplementation 'io.vertx:vertx-pg-client:3.9.0'
     testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
     testImplementation 'io.grpc:grpc-api:1.37.0'
@@ -63,8 +64,8 @@ task integrationTest(type: Test) {
     description = 'Runs integration tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.integrationtest.output.classesDirs
-    classpath = sourceSets.integrationtest.runtimeClasspath
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
     testLogging {
         events "passed", "skipped", "failed"
     }

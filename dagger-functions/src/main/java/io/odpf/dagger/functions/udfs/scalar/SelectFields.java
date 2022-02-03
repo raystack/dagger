@@ -1,6 +1,18 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
-import com.gojek.de.stencil.client.StencilClient;
+import org.apache.flink.api.java.typeutils.GenericTypeInfo;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.annotation.InputGroup;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.catalog.DataTypeFactory;
+import org.apache.flink.table.functions.FunctionContext;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.UnresolvedDataType;
+import org.apache.flink.table.types.inference.CallContext;
+import org.apache.flink.table.types.inference.TypeInference;
+import org.apache.flink.table.types.inference.TypeStrategy;
+
+import io.odpf.stencil.client.StencilClient;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
@@ -8,14 +20,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.longbow.MessageParser;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.table.functions.FunctionContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -68,7 +78,7 @@ public class SelectFields extends ScalarUdf {
      * @author : arujit
      * @team : DE
      */
-    public Object[] eval(Object inputProtoBytes, String protoClassName, String fieldPath) throws InvalidProtocolBufferException, ClassNotFoundException {
+    public Object[] eval(@DataTypeHint(inputGroup = InputGroup.ANY) Object inputProtoBytes, String protoClassName, String fieldPath) throws InvalidProtocolBufferException, ClassNotFoundException {
         if (!(inputProtoBytes instanceof ByteString[])) {
             return null;
         }
@@ -85,6 +95,7 @@ public class SelectFields extends ScalarUdf {
         return output.toArray(new Object[0]);
     }
 
+
     /**
      * Can select a single field from the list of filtered DynamicMessage output from LongbowRead phase.
      *
@@ -92,7 +103,7 @@ public class SelectFields extends ScalarUdf {
      * @param fieldPath    the field path
      * @return the corresponding values for the fieldPath of filteredDara as a list
      */
-    public Object[] eval(List<DynamicMessage> filteredData, String fieldPath) {
+    public Object[] eval(@DataTypeHint(value = "RAW", bridgedTo = List.class) List<DynamicMessage> filteredData, String fieldPath) {
         ArrayList<Object> output = new ArrayList<>(filteredData.size());
         List<String> keys = new LinkedList<>(Arrays.asList(fieldPath.split("\\.")));
 
@@ -122,8 +133,23 @@ public class SelectFields extends ScalarUdf {
         return stencilClientOrchestrator.getStencilClient();
     }
 
-    public TypeInformation<Object[]> getResultType(Class<?>[] signature) {
-        return TypeInformation.of(new TypeHint<Object[]>() {
-        });
+
+    @Override
+    public TypeInference getTypeInference(DataTypeFactory typeFactory) {
+        TypeInference build = TypeInference.newBuilder()
+                .outputTypeStrategy(new SelectFieldsOutputStrategy())
+                .build();
+        return build;
+    }
+
+
+    private static class SelectFieldsOutputStrategy implements TypeStrategy {
+        @Override
+        public Optional<DataType> inferType(CallContext callContext) {
+            DataTypeFactory dataTypeFactory = callContext.getDataTypeFactory();
+            UnresolvedDataType opUnresolvedType = DataTypes.ARRAY(DataTypes.RAW(new GenericTypeInfo<>(Object.class)));
+            DataType opResolvedType = dataTypeFactory.createDataType(opUnresolvedType);
+            return Optional.ofNullable(opResolvedType);
+        }
     }
 }

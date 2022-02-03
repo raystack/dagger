@@ -25,7 +25,7 @@ public class EndOfMonth extends ScalarUdf {
      * @author Rasyid
      * @team DE
      */
-    public long eval(long seconds, String timeZone) {
+    public long eval(Long seconds, String timeZone) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         cal.setTime(new Date(seconds * SECOND_IN_MILLIS));

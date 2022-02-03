@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.common;
 
-import com.gojek.de.stencil.StencilClientFactory;
-import com.gojek.de.stencil.client.StencilClient;
+import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
@@ -121,7 +121,7 @@ public class EndpointHandlerTest {
         Object[] endpointOrQueryVariablesValues = endpointHandler
                 .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
 
-        assertArrayEquals(new Object[] {"[\"UNKNOWN\",\"TYPE1\"]"}, endpointOrQueryVariablesValues);
+        assertArrayEquals(new Object[] {"[\"+I[UNKNOWN]\",\"+I[TYPE1]\"]"}, endpointOrQueryVariablesValues);
     }
 
     @Test

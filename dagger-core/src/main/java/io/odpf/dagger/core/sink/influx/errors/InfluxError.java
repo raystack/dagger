@@ -4,6 +4,8 @@ import org.influxdb.dto.Point;
 
 import org.slf4j.Logger;
 
+import java.io.IOException;
+
 /**
  * The interface Influx error.
  */
@@ -21,7 +23,7 @@ public interface InfluxError {
      *
      * @return the current exception
      */
-    Exception getCurrentException();
+    IOException getCurrentException();
 
     /**
      * Filter the error.

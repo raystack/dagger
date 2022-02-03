@@ -19,7 +19,7 @@ public class GeoHash extends ScalarUdf {
      * @author Sumanth
      * @team DE
      */
-    public String eval(double latitude, double longitude, int length) {
+    public String eval(Double latitude, Double longitude, Integer length) {
         return encodeHash(latitude, longitude, length);
     }
 }

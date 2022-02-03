@@ -28,7 +28,7 @@ public class ExponentialMovingAverageTest {
 
     @Test
     public void shouldReturnCorrectSortedValues() {
-        ArrayList<Object> timestampsArray = new ArrayList<Object>();
+        ArrayList<Timestamp> timestampsArray = new ArrayList<>();
         ArrayList<Object> valuesArray = new ArrayList<Object>();
 
         long timeInMillis = System.currentTimeMillis();

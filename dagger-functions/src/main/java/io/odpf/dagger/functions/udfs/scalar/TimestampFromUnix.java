@@ -20,7 +20,7 @@ public class TimestampFromUnix extends ScalarUdf {
      * @author asfarudin
      * @team Fraud
      */
-    public Timestamp eval(long seconds) {
+    public Timestamp eval(Long seconds) {
         return new Timestamp(Math.abs(seconds) * SECONDS_TO_MILISECONDS);
     }
 }

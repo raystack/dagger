@@ -1,15 +1,16 @@
 package io.odpf.dagger.core.processors.longbow;
 
+import org.apache.flink.types.Row;
+
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.exception.InvalidLongbowDurationException;
 import io.odpf.dagger.core.processors.longbow.validator.LongbowType;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
 /**
  * A class that holds the Longbow schema.
@@ -46,7 +49,7 @@ public class LongbowSchema implements Serializable {
      * @return the key in byte array
      */
     public byte[] getKey(Row input, long offset) {
-        Timestamp rowTime = (Timestamp) input.getField(columnIndexMap.get(Constants.ROWTIME));
+        Timestamp rowTime = convertToTimeStamp(input.getField(columnIndexMap.get(ROWTIME)));
         long requiredTimestamp = rowTime.getTime() - offset;
         return getAbsoluteKey(input, requiredTimestamp);
     }
@@ -185,5 +188,12 @@ public class LongbowSchema implements Serializable {
      */
     public boolean isLongbowPlus() {
         return getType() != LongbowType.LongbowProcess;
+    }
+
+    private Timestamp convertToTimeStamp(Object timeStampField) {
+        if (timeStampField instanceof LocalDateTime) {
+            return Timestamp.valueOf((LocalDateTime) timeStampField);
+        }
+        return (Timestamp) timeStampField;
     }
 }

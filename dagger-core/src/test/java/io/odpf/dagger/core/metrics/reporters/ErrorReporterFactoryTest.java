@@ -1,8 +1,10 @@
 package io.odpf.dagger.core.metrics.reporters;
 
-import io.odpf.dagger.core.utils.Constants;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.MetricGroup;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,10 +18,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ErrorReporterFactoryTest {
 
     @Mock
+    private RuntimeContext runtimeContext;
+
+    @Mock
     private Configuration configuration;
 
     @Mock
-    private RuntimeContext runtimeContext;
+    private MetricGroup metricGroup;
 
     @Before
     public void setup() {
@@ -30,19 +35,25 @@ public class ErrorReporterFactoryTest {
 
     @Test
     public void shouldReturnErrorTelemetryFormConfigOnly() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, configuration);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), configuration);
+        assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
+    }
+
+    @Test
+    public void shouldReturnErrorTelemetryFormMetricGroup() {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(metricGroup, configuration);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 
     @Test
     public void shouldReturnErrorStatsReporterIfTelemetryEnabled() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, true, 0L);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), true, 0L);
         assertEquals(errorReporter.getClass(), ErrorStatsReporter.class);
     }
 
     @Test
     public void shouldReturnNoOpReporterIfTelemetryDisabled() {
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext, false, 0L);
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(runtimeContext.getMetricGroup(), false, 0L);
         assertEquals(errorReporter.getClass(), NoOpErrorReporter.class);
     }
 }

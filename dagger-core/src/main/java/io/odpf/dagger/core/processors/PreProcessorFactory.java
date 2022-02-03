@@ -1,15 +1,14 @@
 package io.odpf.dagger.core.processors;
 
-import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.core.processors.types.Preprocessor;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.jayway.jsonpath.InvalidJsonException;
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.utils.Constants;
-
-import org.apache.flink.configuration.Configuration;
 
 import java.util.Collections;
 import java.util.List;

@@ -18,7 +18,7 @@ plugins {
     id "java-test-fixtures"
 }
 
-def flinkVersion = System.getenv('flinkVersion') ?: '1.9.0'
+def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 description = """common dependencies for dagger"""
@@ -57,11 +57,15 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
-    
-    dependenciesCommonJar 'com.gojek:stencil:2.0.15'
-    dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
+    compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
 
-    testImplementation 'junit:junit:4.12'
+    dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
+    dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
+    dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
+    dependenciesCommonJar 'io.odpf:stencil:0.1.6'
+    dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
+
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.jmockit:jmockit:1.25'
     testImplementation 'org.mockito:mockito-core:2.25.1'
     testImplementation 'io.grpc:grpc-protobuf:1.18.0'
@@ -92,7 +96,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.7
+                minimum = 0.91
             }
         }
     }

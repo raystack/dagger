@@ -1,9 +1,9 @@
 package io.odpf.dagger.core.processors.external;
 
 import com.google.gson.Gson;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
 import java.util.ArrayList;

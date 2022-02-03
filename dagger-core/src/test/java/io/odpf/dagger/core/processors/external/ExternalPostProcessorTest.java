@@ -1,6 +1,9 @@
 package io.odpf.dagger.core.processors.external;
 
-import com.gojek.de.stencil.client.StencilClient;
+import org.apache.flink.streaming.api.datastream.DataStream;
+
+import io.odpf.stencil.client.StencilClient;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
@@ -11,8 +14,6 @@ import io.odpf.dagger.core.processors.external.es.EsSourceConfig;
 import io.odpf.dagger.core.processors.external.es.EsStreamDecorator;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import io.odpf.dagger.core.processors.external.http.HttpStreamDecorator;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,15 +25,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.odpf.dagger.core.utils.Constants.*;
-import static org.junit.Assert.*;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.METRIC_TELEMETRY_SHUTDOWN_PERIOD_MS_KEY;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class ExternalPostProcessorTest {
-
     @Mock
     private Configuration configuration;
 
@@ -59,10 +64,10 @@ public class ExternalPostProcessorTest {
     private ExternalPostProcessor externalPostProcessor;
     private ExternalMetricConfig externalMetricConfig;
 
+
     @Before
     public void setup() {
         initMocks(this);
-
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
@@ -146,6 +151,7 @@ public class ExternalPostProcessorTest {
 
         externalPostProcessorMock.process(streamInfoMock);
     }
+
     @Ignore("Need to fix this test")
     @Test
     public void shouldPassExistingColumnNamesIfNoColumnNameSpecifiedInConfig() {

@@ -1,5 +1,14 @@
 package io.odpf.dagger.integrationtest;
 
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.types.Row;
+
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
@@ -9,13 +18,6 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.test.util.MiniClusterWithClientResource;
-import org.apache.flink.types.Row;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -25,12 +27,14 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY;
+import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY;
 import static io.vertx.pgclient.PgPool.pool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,7 +50,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                             .setNumberSlotsPerTaskManager(1)
                             .setNumberTaskManagers(1)
                             .build());
-    private static Configuration configuration = new Configuration();
+    private static HashMap<String, String> configurationMap = new HashMap<>();
     private static PgPool pgClient;
     private static String host;
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -62,8 +66,8 @@ public class PostGresExternalPostProcessorIntegrationTest {
         try {
 
             String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
-            configuration.setString(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
-            configuration.setString(INPUT_STREAMS, streams);
+            configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
+            configurationMap.put(INPUT_STREAMS, streams);
 
             pgClient = getPGClient();
 
@@ -126,31 +130,32 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
         String postProcessorConfigString =
                 "{\n"
-                + "  \"external_source\": {\n"
-                + "    \"pg\": [\n"
-                + "      {\n"
-                + "        \"host\": \"" + host + "\",\n"
-                + "        \"port\": \"5432\",\n"
-                + "        \"user\": \"postgres\",\n"
-                + "        \"password\": \"postgres\",\n"
-                + "        \"database\": \"postgres\",\n"
-                + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
-                + "        \"query_variables\": \"customer_id\",\n"
-                + "        \"stream_timeout\": \"5000\",\n"
-                + "        \"connect_timeout\": \"5000\",\n"
-                + "        \"idle_timeout\": \"5000\",\n"
-                + "        \"fail_on_errors\": \"false\", \n"
-                + "        \"capacity\": \"30\",\n"
-                + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
-                + "        \"output_mapping\": {\n"
-                + "          \"surge_factor\": \"surge_factor\"   \n"
-                + "        }\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  }\n"
-                + "}";
+                        + "  \"external_source\": {\n"
+                        + "    \"pg\": [\n"
+                        + "      {\n"
+                        + "        \"host\": \"" + host + "\",\n"
+                        + "        \"port\": \"5432\",\n"
+                        + "        \"user\": \"postgres\",\n"
+                        + "        \"password\": \"postgres\",\n"
+                        + "        \"database\": \"postgres\",\n"
+                        + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
+                        + "        \"query_variables\": \"customer_id\",\n"
+                        + "        \"stream_timeout\": \"5000\",\n"
+                        + "        \"connect_timeout\": \"5000\",\n"
+                        + "        \"idle_timeout\": \"5000\",\n"
+                        + "        \"fail_on_errors\": \"false\", \n"
+                        + "        \"capacity\": \"30\",\n"
+                        + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
+                        + "        \"output_mapping\": {\n"
+                        + "          \"surge_factor\": \"surge_factor\"   \n"
+                        + "        }\n"
+                        + "      }\n"
+                        + "    ]\n"
+                        + "  }\n"
+                        + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -176,38 +181,39 @@ public class PostGresExternalPostProcessorIntegrationTest {
     public void shouldPopulateFieldFromPostgresWithSuccessResponseWithExternalAndInternalSource() throws Exception {
         String postProcessorConfigWithInternalSourceString =
                 "{\n"
-                + "  \"external_source\": {\n"
-                + "    \"pg\": [\n"
-                + "      {\n"
-                + "        \"host\": \"" + host + "\",\n"
-                + "        \"port\": \"5432\",\n"
-                + "        \"user\": \"postgres\",\n"
-                + "        \"password\": \"postgres\",\n"
-                + "        \"database\": \"postgres\",\n"
-                + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
-                + "        \"query_variables\": \"customer_id\",\n"
-                + "        \"stream_timeout\": \"5000\",\n"
-                + "        \"connect_timeout\": \"5000\",\n"
-                + "        \"idle_timeout\": \"5000\",\n"
-                + "        \"fail_on_errors\": \"false\", \n"
-                + "        \"capacity\": \"30\",\n"
-                + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
-                + "        \"output_mapping\": {\n"
-                + "          \"surge_factor\": \"surge_factor\"   \n"
-                + "        }\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  },\n"
-                + "    \"internal_source\": [\n"
-                + "       {"
-                + "       \"output_field\": \"event_timestamp\", \n"
-                + "       \"type\": \"function\",\n"
-                + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
-                + "       }"
-                + "   ]"
-                + "}";
+                        + "  \"external_source\": {\n"
+                        + "    \"pg\": [\n"
+                        + "      {\n"
+                        + "        \"host\": \"" + host + "\",\n"
+                        + "        \"port\": \"5432\",\n"
+                        + "        \"user\": \"postgres\",\n"
+                        + "        \"password\": \"postgres\",\n"
+                        + "        \"database\": \"postgres\",\n"
+                        + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
+                        + "        \"query_variables\": \"customer_id\",\n"
+                        + "        \"stream_timeout\": \"5000\",\n"
+                        + "        \"connect_timeout\": \"5000\",\n"
+                        + "        \"idle_timeout\": \"5000\",\n"
+                        + "        \"fail_on_errors\": \"false\", \n"
+                        + "        \"capacity\": \"30\",\n"
+                        + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
+                        + "        \"output_mapping\": {\n"
+                        + "          \"surge_factor\": \"surge_factor\"   \n"
+                        + "        }\n"
+                        + "      }\n"
+                        + "    ]\n"
+                        + "  },\n"
+                        + "    \"internal_source\": [\n"
+                        + "       {"
+                        + "       \"output_field\": \"event_timestamp\", \n"
+                        + "       \"type\": \"function\",\n"
+                        + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
+                        + "       }"
+                        + "   ]"
+                        + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -236,52 +242,53 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
         String postProcessorConfigWithTransformerString =
                 "{\n"
-                + "  \"external_source\": {\n"
-                + "    \"pg\": [\n"
-                + "      {\n"
-                + "        \"host\": \"" + host + "\",\n"
-                + "        \"port\": \"5432\",\n"
-                + "        \"user\": \"postgres\",\n"
-                + "        \"password\": \"postgres\",\n"
-                + "        \"database\": \"postgres\",\n"
-                + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
-                + "        \"query_variables\": \"customer_id\",\n"
-                + "        \"stream_timeout\": \"5000\",\n"
-                + "        \"connect_timeout\": \"5000\",\n"
-                + "        \"idle_timeout\": \"5000\",\n"
-                + "        \"fail_on_errors\": \"false\", \n"
-                + "        \"capacity\": \"30\",\n"
-                + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
-                + "        \"output_mapping\": {\n"
-                + "          \"surge_factor\": \"surge_factor\"   \n"
-                + "        }\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  },\n"
-                + "    \"internal_source\": [\n"
-                + "       {"
-                + "       \"output_field\": \"event_timestamp\", \n"
-                + "       \"type\": \"function\",\n"
-                + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
-                + "       },"
-                + "       {"
-                + "       \"output_field\": \"customer_id\", \n"
-                + "       \"type\": \"sql\",\n"
-                + "       \"value\": \"customer_id\"\n"
-                + "       }"
-                + "   ]"
-                + ",\n"
-                + " \"transformers\": ["
-                + "{\n"
-                + "  \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n"
-                + "  \"transformation_arguments\": {\n"
-                + "    \"targetColumnName\": \"customer_id\"\n"
-                + "  }\n"
-                + "}\n"
-                + "   ]   \n"
-                + "}";
+                        + "  \"external_source\": {\n"
+                        + "    \"pg\": [\n"
+                        + "      {\n"
+                        + "        \"host\": \"" + host + "\",\n"
+                        + "        \"port\": \"5432\",\n"
+                        + "        \"user\": \"postgres\",\n"
+                        + "        \"password\": \"postgres\",\n"
+                        + "        \"database\": \"postgres\",\n"
+                        + "        \"query_pattern\": \"select surge_factor from customer where customer_id = %s;\",\n"
+                        + "        \"query_variables\": \"customer_id\",\n"
+                        + "        \"stream_timeout\": \"5000\",\n"
+                        + "        \"connect_timeout\": \"5000\",\n"
+                        + "        \"idle_timeout\": \"5000\",\n"
+                        + "        \"fail_on_errors\": \"false\", \n"
+                        + "        \"capacity\": \"30\",\n"
+                        + "        \"type\": \"io.odpf.dagger.consumer.TestSurgeFactorLogMessage\", \n"
+                        + "        \"output_mapping\": {\n"
+                        + "          \"surge_factor\": \"surge_factor\"   \n"
+                        + "        }\n"
+                        + "      }\n"
+                        + "    ]\n"
+                        + "  },\n"
+                        + "    \"internal_source\": [\n"
+                        + "       {"
+                        + "       \"output_field\": \"event_timestamp\", \n"
+                        + "       \"type\": \"function\",\n"
+                        + "       \"value\": \"CURRENT_TIMESTAMP\"\n"
+                        + "       },"
+                        + "       {"
+                        + "       \"output_field\": \"customer_id\", \n"
+                        + "       \"type\": \"sql\",\n"
+                        + "       \"value\": \"customer_id\"\n"
+                        + "       }"
+                        + "   ]"
+                        + ",\n"
+                        + " \"transformers\": ["
+                        + "{\n"
+                        + "  \"transformation_class\": \"io.odpf.dagger.functions.transformers.ClearColumnTransformer\",\n"
+                        + "  \"transformation_arguments\": {\n"
+                        + "    \"targetColumnName\": \"customer_id\"\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "   ]   \n"
+                        + "}";
 
-        configuration.setString(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
+        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -309,7 +316,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(new Configuration(ParameterTool.fromMap(configurationMap)), stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);

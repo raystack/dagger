@@ -1,7 +1,8 @@
 package io.odpf.dagger.common.udfs;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
+import io.odpf.dagger.common.configuration.Configuration;
 
 import java.util.HashSet;
 
@@ -30,9 +31,9 @@ public abstract class UdfFactory {
         HashSet<ScalarUdf> scalarFunctions = getScalarUdfs();
         HashSet<TableUdf> tableFunctions = getTableUdfs();
         HashSet<AggregateUdf> aggregateFunctions = getAggregateUdfs();
-        scalarFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
-        tableFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
-        aggregateFunctions.forEach((function) -> streamTableEnvironment.registerFunction(function.getName(), function));
+        scalarFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
+        tableFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
+        aggregateFunctions.forEach((function) -> streamTableEnvironment.createTemporaryFunction(function.getName(), function));
     }
 
     /**

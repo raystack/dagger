@@ -1,24 +1,24 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
-import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import io.odpf.dagger.core.processors.longbow.data.LongbowData;
-import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
-import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
-import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
-import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.LongbowReaderAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
+import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
+import io.odpf.dagger.core.processors.longbow.LongbowSchema;
+import io.odpf.dagger.core.processors.longbow.data.LongbowData;
 import io.odpf.dagger.core.processors.longbow.exceptions.LongbowReaderException;
 import io.odpf.dagger.core.processors.longbow.outputRow.ReaderOutputRow;
+import io.odpf.dagger.core.processors.longbow.range.LongbowRange;
+import io.odpf.dagger.core.processors.longbow.request.ScanRequestFactory;
+import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
+import io.odpf.dagger.core.processors.longbow.storage.ScanRequest;
 import io.odpf.dagger.core.utils.Constants;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
@@ -93,8 +93,8 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
 
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        super.open(internalFlinkConfig);
         if (longBowStore == null) {
             longBowStore = LongbowStore.create(configuration);
         }
@@ -102,7 +102,7 @@ public class LongbowReader extends RichAsyncFunction<Row, Row> implements Teleme
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (errorReporter == null) {
-            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext(), configuration);
+            errorReporter = ErrorReporterFactory.getErrorReporter(getRuntimeContext().getMetricGroup(), configuration);
         }
         meterStatsManager.register("longbow.reader", LongbowReaderAspects.values());
     }

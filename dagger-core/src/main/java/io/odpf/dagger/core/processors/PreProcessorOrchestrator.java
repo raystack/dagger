@@ -1,13 +1,12 @@
 package io.odpf.dagger.core.processors;
 
-import io.odpf.dagger.core.processors.types.Preprocessor;
-import org.apache.flink.configuration.Configuration;
-
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.common.ValidRecordsDecorator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.transformers.TransformProcessor;
+import io.odpf.dagger.core.processors.types.Preprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +17,9 @@ import java.util.List;
 public class PreProcessorOrchestrator implements Preprocessor {
 
     private final MetricsTelemetryExporter metricsTelemetryExporter;
+    private Configuration configuration;
     private final PreProcessorConfig processorConfig;
     private final String tableName;
-    private final Configuration configuration;
 
     /**
      * Instantiates a new Preprocessor orchestrator.
@@ -31,10 +30,10 @@ public class PreProcessorOrchestrator implements Preprocessor {
      * @param tableName                the table name
      */
     public PreProcessorOrchestrator(Configuration configuration, PreProcessorConfig processorConfig, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
+        this.configuration = configuration;
         this.processorConfig = processorConfig;
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.tableName = tableName;
-        this.configuration = configuration;
     }
 
     @Override
@@ -43,7 +42,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
             streamInfo = processor.process(streamInfo);
         }
         return new StreamInfo(
-                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames())
+                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames(), configuration)
                         .decorate(streamInfo.getDataStream()),
                 streamInfo.getColumnNames());
     }
