@@ -19,7 +19,7 @@ public class ConfigurationProviderFactory {
     public ConfigurationProviderFactory(String[] args) {
 
         this.args = args;
-        System.out.println("Arguments are : ");
+        System.out.println("Arguments are: ");
         Arrays.asList(args).stream().forEach(s -> {
             System.out.println(s);
             if (s.contains("ConfigFile")) {

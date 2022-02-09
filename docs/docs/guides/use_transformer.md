@@ -24,9 +24,10 @@ In this section, we will know more about transformers, how to use them and how y
 ## Use a Transformer
 
 - Below is a sample query and post-processor configuration for a dagger that uses transformers. As you can see transformers need to be a part of the processor (more specifically Postprocessor in this example).
+
   ```properties
   SQL_QUERY = "SELECT data_1, data_2, event_timestamp from data_stream"
-  POST_PROCESSOR_ENABLED = true.
+  POST_PROCESSOR_ENABLED = true
   POST_PROCESSOR_CONFIG = {
     "internal_source": [
         {
