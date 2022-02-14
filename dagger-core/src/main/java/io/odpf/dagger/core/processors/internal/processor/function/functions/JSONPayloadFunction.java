@@ -48,7 +48,7 @@ public class JSONPayloadFunction implements FunctionProcessor, Serializable {
      *
      * @return the incoming message as JSON
      */
-    protected String getJSONPayload(RowManager rowManager) {
+    private String getJSONPayload(RowManager rowManager) {
         Row inputRow = rowManager.getInputData();
         return new String(jsonRowSerializationSchema.serialize(inputRow));
     }
