@@ -1,8 +1,17 @@
 package io.odpf.dagger.core.processors.internal;
 
+import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.external.ExternalSourceConfig;
+import io.odpf.dagger.core.processors.transformers.TransformConfig;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Test;
 import org.junit.Ignore;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

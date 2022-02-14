@@ -1,14 +1,15 @@
 package io.odpf.dagger.core.processors.internal.processor.function.functions;
 
-import io.odpf.dagger.core.exception.InvalidFunctionException;
+import io.odpf.dagger.core.exception.InvalidConfigurationException;
 
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.common.RowManager;
-
-public class InvalidFunction implements FunctionProcessor {
+import java.io.Serializable;
+public class InvalidFunction implements FunctionProcessor, Serializable {
     private InternalSourceConfig internalSourceConfig;
+    private Configuration configuration;
 
     /**
      * Instantiates a new Invalid internal function processor.
@@ -16,7 +17,7 @@ public class InvalidFunction implements FunctionProcessor {
      * @param internalSourceConfig the internal source config
      * @param configuration the dagger config
      */
-    public InvalidInternalConfigProcessor(InternalSourceConfig internalSourceConfig, Config configuration) {
+    public InvalidFunction(InternalSourceConfig internalSourceConfig, Configuration configuration) {
         this.internalSourceConfig = internalSourceConfig;
         this.configuration = configuration;
     }
@@ -26,9 +27,8 @@ public class InvalidFunction implements FunctionProcessor {
         return false;
     }
 
-    public void process(RowManager rowManager) {
+    public Object getResult(RowManager rowManager) {
         String type = "";
-        throw new InvalidFunctionException(String.format("Invalid configuration, function '%s' for internal postprocessor does not exist", type));
+        throw new InvalidConfigurationException(String.format("The function %s is not supported in custom configuration", internalSourceConfig.getValue()));
     }
-    
 }

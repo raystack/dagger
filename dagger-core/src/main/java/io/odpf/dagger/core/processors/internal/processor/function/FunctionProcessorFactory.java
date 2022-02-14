@@ -23,7 +23,7 @@ public class FunctionProcessorFactory {
      *
      * @param internalSourceConfig the internal source config
      * @param configuration        the dagger configuration
-     * 
+     *
      * @return the function processor
      */
     public static FunctionProcessor getFunctionProcessor(InternalSourceConfig internalSourceConfig, Configuration configuration) {

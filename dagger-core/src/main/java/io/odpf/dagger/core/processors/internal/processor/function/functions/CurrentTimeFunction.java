@@ -6,9 +6,9 @@ import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.common.RowManager;
 
 import java.sql.Timestamp;
+import java.io.Serializable;
 
-
-public class CurrentTimeFunction implements FunctionProcessor{
+public class CurrentTimeFunction implements FunctionProcessor, Serializable{
     public static final String CURRENT_TIMESTAMP_FUNCTION_KEY = "CURRENT_TIMESTAMP";
 
     private InternalSourceConfig internalSourceConfig;

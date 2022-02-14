@@ -4,6 +4,9 @@ import io.odpf.dagger.core.processors.internal.processor.function.FunctionProces
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.common.RowManager;
+import io.odpf.dagger.common.serde.proto.protohandler.TypeInformationFactory;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
@@ -13,9 +16,10 @@ import com.google.gson.Gson;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
 import org.apache.flink.types.Row;
 
-import java.sql.Timestamp;
+import java.util.Map;
+import java.io.Serializable;
 
-public class JSONPayloadFunction implements FunctionProcessor{
+public class JSONPayloadFunction implements FunctionProcessor, Serializable {
     public static final String JSON_PAYLOAD_FUNCTION_KEY = "JSON_PAYLOAD";
 
     private InternalSourceConfig internalSourceConfig;
