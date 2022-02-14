@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 import java.util.Objects;
 
 /**
- * A class that responsible for manage input and output Row.
+ * A class that responsible for managing input and output Row.
  */
 public class RowManager {
     public static final int INPUT_ROW_INDEX = 0;

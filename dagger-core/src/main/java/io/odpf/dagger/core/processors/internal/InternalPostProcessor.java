@@ -4,6 +4,7 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.StreamDecorator;
+import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.types.Validator;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
@@ -19,14 +20,16 @@ import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathPa
 public class InternalPostProcessor implements PostProcessor {
 
     private PostProcessorConfig postProcessorConfig;
+    private Configuration configuration;
 
     /**
      * Instantiates a new Internal post processor.
      *
      * @param postProcessorConfig the post processor config
      */
-    public InternalPostProcessor(PostProcessorConfig postProcessorConfig) {
+    public InternalPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration) {
         this.postProcessorConfig = postProcessorConfig;
+        this.configuration = configuration;
     }
 
     @Override
@@ -60,7 +63,7 @@ public class InternalPostProcessor implements PostProcessor {
     protected StreamDecorator getInternalDecorator(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager) {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         InternalConfigProcessor processor = InternalConfigHandlerFactory
-                .getProcessor(internalSourceConfig, columnNameManager, sqlPathParser);
+                .getProcessor(internalSourceConfig, columnNameManager, sqlPathParser, configuration);
         return new InternalDecorator(internalSourceConfig, processor, columnNameManager);
     }
 }
