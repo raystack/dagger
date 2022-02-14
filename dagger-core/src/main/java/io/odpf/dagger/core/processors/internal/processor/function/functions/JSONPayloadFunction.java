@@ -59,12 +59,17 @@ public class JSONPayloadFunction implements FunctionProcessor, Serializable {
      * @return the JSON row serialization schema for input row
      */
     private JsonRowSerializationSchema createJsonRowSerializationSchema() {
+        if (configuration == null) {
+            throw new InvalidConfigurationException("Invalid configuration: null");
+        }
+
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Gson gsonObj = new Gson();
         Map[] streamsConfig = gsonObj.fromJson(jsonArrayString, Map[].class);
         if (streamsConfig == null || streamsConfig.length == 0) {
             throw new InvalidConfigurationException(String.format("Invalid configuration: %s not provided", INPUT_STREAMS));
         }
+
         String inputProtoClassName = (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
 
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
