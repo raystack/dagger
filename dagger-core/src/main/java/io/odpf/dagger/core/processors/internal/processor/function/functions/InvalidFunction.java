@@ -28,7 +28,10 @@ public class InvalidFunction implements FunctionProcessor, Serializable {
     }
 
     public Object getResult(RowManager rowManager) {
-        String type = "";
-        throw new InvalidConfigurationException(String.format("The function %s is not supported in custom configuration", internalSourceConfig.getValue()));
+        String functionName = "";
+        if (internalSourceConfig != null) {
+            functionName = internalSourceConfig.getValue();
+        }
+        throw new InvalidConfigurationException(String.format("The function \"%s\" is not supported in custom configuration", functionName));
     }
 }
