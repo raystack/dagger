@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.internal.processor.function.functions;
 
+import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
@@ -61,9 +62,11 @@ public class JSONPayloadFunction implements FunctionProcessor, Serializable {
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
         Gson gsonObj = new Gson();
         Map[] streamsConfig = gsonObj.fromJson(jsonArrayString, Map[].class);
+        if (streamsConfig == null || streamsConfig.length == 0) {
+            throw new InvalidConfigurationException(String.format("Invalid configuration: %s not provided", INPUT_STREAMS));
+        }
         String inputProtoClassName = (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
 
-        System.out.println("inputProtoClassName: " + inputProtoClassName);
         StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
         Descriptors.Descriptor inputDescriptor = stencilClientOrchestrator.getStencilClient().get(inputProtoClassName);
 

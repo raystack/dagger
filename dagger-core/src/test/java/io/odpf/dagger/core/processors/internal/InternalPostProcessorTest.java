@@ -55,7 +55,7 @@ public class InternalPostProcessorTest {
         assertEquals(exceptionMsg, actualException.getMessage());
     }
 
-    @Ignore("temp ignore")
+    //@Ignore("temp ignore")
     @Test
     public void processWithRightConfiguration() {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());

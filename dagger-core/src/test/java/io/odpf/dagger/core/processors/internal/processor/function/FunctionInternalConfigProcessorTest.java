@@ -1,53 +1,76 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
 
 // import java.sql.Timestamp;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FunctionInternalConfigProcessorTest {
-    @Ignore("temp ignore")
+    @Mock
+    private Configuration configuration;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        when(configuration.getString("STREAMS", ""))
+                .thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\"}]");
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
+                .thenReturn(false);
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
+                .thenReturn("");
+    }
+
     @Test
     public void shouldBeAbleToProcessFunctionCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("function"), null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("function"), configuration);
 
         assertTrue(functionInternalConfigProcessor.canProcess("function"));
     }
 
-    @Ignore("temp ignore")
     @Test
     public void shouldNotBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("constant"), null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("constant"), configuration);
 
         assertFalse(functionInternalConfigProcessor.canProcess("constant"));
     }
 
-    @Ignore("temp ignore")
     @Test
     public void shouldNotBeAbleToProcessSqlCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"), null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"), configuration);
 
         assertFalse(functionInternalConfigProcessor.canProcess("sql"));
     }
 
-    @Ignore("temp ignore")
     @Test
     public void shouldThrowInvalidConfigurationException() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, configuration);
 
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -62,43 +85,62 @@ public class FunctionInternalConfigProcessorTest {
                 invalidConfigException.getMessage());
     }
 
-    // @Ignore("temp ignore")
-    // @Test
-    // public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
-    //     Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-    //     ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-    //     InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function");
-    //     FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, currentTimestamp);
+    @Test
+    public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
+        Configuration testConfiguration = mock(Configuration.class);
+        thrown.expect(InvalidConfigurationException.class);
+        thrown.expectMessage("STREAMS not provided");
+        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
+        new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);
+    }
 
-    //     Row inputRow = new Row(2);
-    //     Row outputRow = new Row(3);
-    //     Row parentRow = new Row(2);
-    //     parentRow.setField(0, inputRow);
-    //     parentRow.setField(1, outputRow);
-    //     RowManager rowManager = new RowManager(parentRow);
+    @Test
+    public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function");
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, currentTimestamp);
 
-    //     functionInternalConfigProcessor.process(rowManager);
+        Row inputRow = new Row(2);
+        Row outputRow = new Row(3);
+        Row parentRow = new Row(2);
+        parentRow.setField(0, inputRow);
+        parentRow.setField(1, outputRow);
+        RowManager rowManager = new RowManager(parentRow);
 
-    //     assertNotNull(rowManager.getOutputData().getField(1));
-    //     assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
-    // }
+        functionInternalConfigProcessor.process(rowManager);
+
+        assertNotNull(rowManager.getOutputData().getField(1));
+        assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
+    }
 
     private InternalSourceConfig getCustomConfig(String type) {
         return new InternalSourceConfig("field", "value", type);
     }
 
-    // @Ignore("temp ignore")
-    // final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
-    //     private Timestamp currentTimestamp;
+    final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
+        private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
+            super(columnNameManager, internalSourceConfig, configuration);
+            this.functionProcessor = new FunctionProcessor(currentTimestamp);
+        }
+    }
 
-    //     private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
-    //         super(columnNameManager, internalSourceConfig, null);
-    //         this.currentTimestamp = currentTimestamp;
-    //     }
+    final class FunctionProcessor implements io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor {
+        private Timestamp currentTimestamp;
 
-    //     @Override
-    //     protected Timestamp getCurrentTime() {
-    //         return currentTimestamp;
-    //     }
-    // }
+        private FunctionProcessor(Timestamp currentTimestamp) {
+            this.currentTimestamp = currentTimestamp;
+        }
+
+        @Override
+        public boolean canProcess(String functionName) {
+            return true;
+        }
+
+        @Override
+        public Object getResult(RowManager rowManager) {
+            return currentTimestamp;
+        }
+    }
 }

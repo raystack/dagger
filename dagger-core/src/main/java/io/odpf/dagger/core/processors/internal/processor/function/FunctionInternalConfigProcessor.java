@@ -17,7 +17,7 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
     private ColumnNameManager columnNameManager;
     private InternalSourceConfig internalSourceConfig;
     private Configuration configuration;
-    private FunctionProcessor functionProcessor;
+    protected FunctionProcessor functionProcessor;
 
     /**
      * Instantiates a new Function internal config processor.
