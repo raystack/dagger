@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.internal.processor.function;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
-import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimeFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JSONPayloadFunction;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class FunctionProcessorFactoryTest {
 
         FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
 
-        assertEquals(CurrentTimeFunction.class, functionProcessor.getClass());
+        assertEquals(CurrentTimestampFunction.class, functionProcessor.getClass());
     }
 
     @Test

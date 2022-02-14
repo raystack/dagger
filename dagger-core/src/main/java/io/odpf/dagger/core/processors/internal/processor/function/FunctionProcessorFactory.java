@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.internal.processor.function;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
-import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimeFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JSONPayloadFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class FunctionProcessorFactory {
     private static List<FunctionProcessor> getFunctions(InternalSourceConfig internalSourceConfig, Configuration configuration) {
-        return Arrays.asList(new CurrentTimeFunction(internalSourceConfig, configuration),
+        return Arrays.asList(new CurrentTimestampFunction(internalSourceConfig, configuration),
                 new JSONPayloadFunction(internalSourceConfig, configuration));
     }
 
