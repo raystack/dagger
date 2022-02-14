@@ -93,7 +93,6 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
      */
     protected String getJSONPayload(RowManager rowManager) {
         Row inputRow = rowManager.getInputData();
-        System.out.println("input data ^");
         return new String(jsonRowSerializationSchema.serialize(inputRow));
     }
 
