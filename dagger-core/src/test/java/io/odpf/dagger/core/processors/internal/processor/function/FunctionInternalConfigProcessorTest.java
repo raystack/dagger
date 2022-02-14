@@ -6,6 +6,7 @@ import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
+import io.odpf.dagger.core.processors.internal.processor.InternalConfigHandlerFactory;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,9 +28,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class FunctionInternalConfigProcessorTest {
     @Mock
     private Configuration configuration;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -88,11 +86,12 @@ public class FunctionInternalConfigProcessorTest {
     @Test
     public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
         Configuration testConfiguration = mock(Configuration.class);
-        thrown.expect(InvalidConfigurationException.class);
-        thrown.expectMessage("STREAMS not provided");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
-        new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);
+
+        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> { new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);});
+        assertEquals("Invalid configuration: STREAMS not provided",
+                invalidConfigException.getMessage());
     }
 
     @Test
