@@ -9,7 +9,6 @@ import io.odpf.dagger.core.processors.internal.processor.invalid.InvalidInternal
 import io.odpf.dagger.core.processors.internal.processor.sql.fields.SqlInternalConfigProcessor;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.mockito.Mock;
 
 import static org.junit.Assert.*;

@@ -19,7 +19,7 @@ public class FunctionProcessorFactory {
     }
 
     /**
-     * Gets function for post processing.
+     * Gets function for post-processing.
      *
      * @param internalSourceConfig the internal source config
      * @param configuration        the dagger configuration
