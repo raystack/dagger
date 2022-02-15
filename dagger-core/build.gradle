@@ -203,7 +203,7 @@ task fatJar(type: ShadowJar) {
 
 private Properties loadEnv() {
     Properties properties = new Properties()
-    properties.load(new FileInputStream(file("/Users/schedutron/dagger/dagger-core/env/local.properties")));
+    properties.load(new FileInputStream(file("${projectDir}/env/local.properties")));
     properties
 }
 
