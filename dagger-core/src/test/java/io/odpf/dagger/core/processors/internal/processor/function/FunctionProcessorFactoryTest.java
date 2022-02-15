@@ -5,7 +5,7 @@ import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
-import io.odpf.dagger.core.processors.internal.processor.function.functions.JSONPayloadFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,7 +47,7 @@ public class FunctionProcessorFactoryTest {
 
         FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
 
-        assertEquals(JSONPayloadFunction.class, functionProcessor.getClass());
+        assertEquals(JsonPayloadFunction.class, functionProcessor.getClass());
     }
 
     @Test

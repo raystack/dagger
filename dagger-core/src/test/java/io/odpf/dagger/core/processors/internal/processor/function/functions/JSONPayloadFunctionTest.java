@@ -38,7 +38,7 @@ public class JSONPayloadFunctionTest {
     public void shouldThrowExceptionWhenNullDaggerConfig() {
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> {
-                        new JSONPayloadFunction(null, null);
+                        new JsonPayloadFunction(null);
                 });
         assertEquals("Invalid configuration: null",
                 invalidConfigException.getMessage());
@@ -51,7 +51,7 @@ public class JSONPayloadFunctionTest {
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> {
-                        new JSONPayloadFunction(null, invalidConfiguration);
+                        new JsonPayloadFunction(invalidConfiguration);
                 });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
@@ -68,7 +68,7 @@ public class JSONPayloadFunctionTest {
 
         DescriptorNotFoundException descriptorNotFoundException = assertThrows(DescriptorNotFoundException.class,
                 () -> {
-                        new JSONPayloadFunction(null, invalidConfiguration);
+                        new JsonPayloadFunction(invalidConfiguration);
                 });
         assertEquals("descriptor not found",
                 descriptorNotFoundException.getMessage());
@@ -76,25 +76,25 @@ public class JSONPayloadFunctionTest {
 
     @Test
     public void canNotProcessWhenFunctionNameIsNull() {
-        JSONPayloadFunction jsonPayloadFunction = new JSONPayloadFunction(null, configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
         assertFalse(jsonPayloadFunction.canProcess(null));
     }
 
     @Test
     public void canNotProcessWhenFunctionNameIsDifferent() {
-        JSONPayloadFunction jsonPayloadFunction = new JSONPayloadFunction(null, configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
         assertFalse(jsonPayloadFunction.canProcess("CURRENT_TIMESTAMP"));
     }
 
     @Test
     public void canProcessWhenFunctionNameIsCorrect() {
-        JSONPayloadFunction jsonPayloadFunction = new JSONPayloadFunction(null, configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
         assertTrue(jsonPayloadFunction.canProcess("JSON_PAYLOAD"));
     }
 
     @Test
     public void shouldGetJSONPayloadAsResult() throws InvalidProtocolBufferException {
-        JSONPayloadFunction jsonPayloadFunction = new JSONPayloadFunction(null, configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
 
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());

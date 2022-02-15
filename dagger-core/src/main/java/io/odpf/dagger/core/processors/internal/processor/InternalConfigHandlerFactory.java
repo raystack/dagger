@@ -17,6 +17,10 @@ import java.util.List;
  * The factory class for Internal config handler.
  */
 public class InternalConfigHandlerFactory {
+    private InternalConfigHandlerFactory() {
+        throw new IllegalStateException("Factory class");
+    }
+
     private static List<InternalConfigProcessor> getHandlers(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig, Configuration configuration) {
         return Arrays.asList(new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig),
                 new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, configuration),
@@ -29,6 +33,7 @@ public class InternalConfigHandlerFactory {
      * @param internalSourceConfig the internal source config
      * @param columnNameManager    the column name manager
      * @param sqlPathParser        the sql path parser
+     * @param configuration        the Dagger configuration
      * @return the processor
      */
     public static InternalConfigProcessor getProcessor(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, Configuration configuration) {

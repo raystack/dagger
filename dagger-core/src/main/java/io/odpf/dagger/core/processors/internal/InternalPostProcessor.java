@@ -26,6 +26,7 @@ public class InternalPostProcessor implements PostProcessor {
      * Instantiates a new Internal post processor.
      *
      * @param postProcessorConfig the post processor config
+     * @param configuration       the Dagger config
      */
     public InternalPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration) {
         this.postProcessorConfig = postProcessorConfig;

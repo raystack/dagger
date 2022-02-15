@@ -3,7 +3,6 @@ package io.odpf.dagger.core.processors.internal.processor.function.functions;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.common.serde.proto.protohandler.TypeInformationFactory;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
@@ -20,15 +19,14 @@ import org.apache.flink.types.Row;
 import java.util.Map;
 import java.io.Serializable;
 
-public class JSONPayloadFunction implements FunctionProcessor, Serializable {
+public class JsonPayloadFunction implements FunctionProcessor, Serializable {
     public static final String JSON_PAYLOAD_FUNCTION_KEY = "JSON_PAYLOAD";
+    private static final Gson gson = new Gson();
 
-    private InternalSourceConfig internalSourceConfig;
     private Configuration configuration;
     private JsonRowSerializationSchema jsonRowSerializationSchema;
 
-    public JSONPayloadFunction(InternalSourceConfig internalSourceConfig, Configuration configuration) {
-        this.internalSourceConfig = internalSourceConfig;
+    public JsonPayloadFunction(Configuration configuration) {
         this.configuration = configuration;
         this.jsonRowSerializationSchema = createJsonRowSerializationSchema();
     }
@@ -38,17 +36,13 @@ public class JSONPayloadFunction implements FunctionProcessor, Serializable {
         return JSON_PAYLOAD_FUNCTION_KEY.equals(functionName);
     }
 
-    @Override
-    public Object getResult(RowManager rowManager) {
-        return getJSONPayload(rowManager);
-    }
-
     /**
      * Gets payload in JSON.
      *
      * @return the incoming message as JSON
      */
-    private String getJSONPayload(RowManager rowManager) {
+    @Override
+    public Object getResult(RowManager rowManager) {
         Row inputRow = rowManager.getInputData();
         return new String(jsonRowSerializationSchema.serialize(inputRow));
     }
@@ -64,8 +58,7 @@ public class JSONPayloadFunction implements FunctionProcessor, Serializable {
         }
 
         String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
-        Gson gsonObj = new Gson();
-        Map[] streamsConfig = gsonObj.fromJson(jsonArrayString, Map[].class);
+        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
         if (streamsConfig == null || streamsConfig.length == 0) {
             throw new InvalidConfigurationException(String.format("Invalid configuration: %s not provided", INPUT_STREAMS));
         }

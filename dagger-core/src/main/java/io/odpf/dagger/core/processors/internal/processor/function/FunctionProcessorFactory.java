@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.internal.processor.function;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
-import io.odpf.dagger.core.processors.internal.processor.function.functions.JSONPayloadFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
 
 import java.util.Arrays;
@@ -13,9 +13,13 @@ import java.util.List;
  * The factory class for internal function post processors.
  */
 public class FunctionProcessorFactory {
-    private static List<FunctionProcessor> getFunctions(InternalSourceConfig internalSourceConfig, Configuration configuration) {
-        return Arrays.asList(new CurrentTimestampFunction(internalSourceConfig, configuration),
-                new JSONPayloadFunction(internalSourceConfig, configuration));
+    private FunctionProcessorFactory() {
+        throw new IllegalStateException("Factory class");
+    }
+
+    private static List<FunctionProcessor> getFunctions(Configuration configuration) {
+        return Arrays.asList(new CurrentTimestampFunction(),
+                new JsonPayloadFunction(configuration));
     }
 
     /**
@@ -27,7 +31,7 @@ public class FunctionProcessorFactory {
      * @return the function processor
      */
     public static FunctionProcessor getFunctionProcessor(InternalSourceConfig internalSourceConfig, Configuration configuration) {
-        return getFunctions(internalSourceConfig, configuration)
+        return getFunctions(configuration)
                 .stream()
                 .filter(functionProcessor -> functionProcessor.canProcess(internalSourceConfig.getValue()))
                 .findFirst()

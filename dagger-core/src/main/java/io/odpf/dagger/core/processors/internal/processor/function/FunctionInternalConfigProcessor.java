@@ -16,7 +16,6 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
 
     private ColumnNameManager columnNameManager;
     private InternalSourceConfig internalSourceConfig;
-    private Configuration configuration;
     protected FunctionProcessor functionProcessor;
 
     /**
@@ -28,7 +27,6 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
     public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Configuration configuration) {
         this.columnNameManager = columnNameManager;
         this.internalSourceConfig = internalSourceConfig;
-        this.configuration = configuration;
         this.functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
     }
 
