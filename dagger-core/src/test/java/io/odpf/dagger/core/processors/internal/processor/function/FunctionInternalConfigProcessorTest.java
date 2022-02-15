@@ -1,21 +1,15 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
-import io.odpf.dagger.core.processors.internal.processor.InternalConfigHandlerFactory;
 import org.apache.flink.types.Row;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-// import java.sql.Timestamp;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +73,7 @@ public class FunctionInternalConfigProcessorTest {
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> functionInternalConfigProcessor.process(rowManager));
-        assertEquals("The function test is not supported in custom configuration",
+        assertEquals("The function \"test\" is not supported in custom configuration",
                 invalidConfigException.getMessage());
     }
 
@@ -89,7 +83,9 @@ public class FunctionInternalConfigProcessorTest {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
 
-        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> { new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);});
+        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
+            new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);
+        });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
     }

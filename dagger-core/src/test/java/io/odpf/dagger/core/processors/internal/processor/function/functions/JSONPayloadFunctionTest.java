@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.sql.Timestamp;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,7 +37,9 @@ public class JSONPayloadFunctionTest {
     @Test
     public void shouldThrowExceptionWhenNullDaggerConfig() {
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
-                () -> { new JSONPayloadFunction(null, null); });
+                () -> {
+                        new JSONPayloadFunction(null, null);
+                });
         assertEquals("Invalid configuration: null",
                 invalidConfigException.getMessage());
     }
@@ -49,7 +50,9 @@ public class JSONPayloadFunctionTest {
         when(invalidConfiguration.getString("STREAMS", "")).thenReturn("[]");
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
-                () -> { new JSONPayloadFunction(null, invalidConfiguration); });
+                () -> {
+                        new JSONPayloadFunction(null, invalidConfiguration);
+                });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
     }
@@ -64,7 +67,9 @@ public class JSONPayloadFunctionTest {
                 .thenReturn("");
 
         DescriptorNotFoundException descriptorNotFoundException = assertThrows(DescriptorNotFoundException.class,
-                () -> { new JSONPayloadFunction(null, invalidConfiguration); });
+                () -> {
+                        new JSONPayloadFunction(null, invalidConfiguration);
+                });
         assertEquals("descriptor not found",
                 descriptorNotFoundException.getMessage());
     }

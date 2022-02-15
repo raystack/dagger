@@ -66,7 +66,9 @@ public class FunctionProcessorFactoryTest {
         when(internalSourceConfig.getValue()).thenReturn("JSON_PAYLOAD");
         Configuration invalidConfiguration = mock(Configuration.class);
 
-        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> { FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, invalidConfiguration); });
+        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
+            FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, invalidConfiguration);
+        });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
     }

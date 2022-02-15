@@ -9,7 +9,6 @@ import io.odpf.dagger.core.processors.transformers.TransformConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -86,7 +85,9 @@ public class InternalPostProcessorTest {
         when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
 
         InvalidConfigurationException actualException = assertThrows(InvalidConfigurationException.class,
-                () -> {internalPostProcessor.process(streamInfoMock);});
+                () -> {
+                    internalPostProcessor.process(streamInfoMock);
+                });
         assertEquals("Invalid configuration: null", actualException.getMessage());
     }
 
