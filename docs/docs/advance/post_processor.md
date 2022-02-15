@@ -727,7 +727,9 @@ In order to enhance output with data that doesn’t need an external data store,
 
 - **SQL**: Data fields from the SQL query output. You could either use a specific field or `*` for all the fields. In case of selecting `*` you have the option to either map all fields to single output field or multiple output fields with the same name. Check the example in [sample configuration](post_processor.md#sample-configurations).
 - **Constant**: Constant value without any transformation.
-- **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
+- **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only the following 2 functions:
+  1. `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
+  2. `JSON_PAYLOAD`, which can be used to get the entire incoming proto message as a JSON string. **Note**: For this function to work, it is required that the Dagger SQL outputs rows in the same schema as the source protobuf message, e.g, queries like `SELECT * FROM data_stream` will work, but queries like `SELECT name from data_stream` will **not** work if the source data stream had more columns.
 
 ### Workflow
 
@@ -824,7 +826,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
 
 **Function**
 
-This configuration will populate field `event_timestamp` with a timestamp of when the event is processed
+This configuration will populate field `event_timestamp` with a timestamp of when the event is processed, and the `json_payload` field with the body of incoming proto message in JSON format.
 
 ```properties
 PROCESSOR_POSTPROCESSOR_ENABLE = true
@@ -834,6 +836,11 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
       "output_field": "event_timestamp",
       "type": "function",
       "value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "output_field": "json_payload",
+      "type": "function",
+      "value": "JSON_PAYLOAD"
     }
   ]
 }
