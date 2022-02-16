@@ -74,6 +74,64 @@ public class StreamConfig {
     @SerializedName(STREAM_INPUT_DATATYPE)
     private String dataType;
 
+    @SerializedName(STREAM_SOURCE_DETAILS_KEY)
+    @Getter
+    private SourceDetails[] sourceDetails;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_BILLING_PROJECT_KEY)
+    @Getter
+    private String parquetBillingProject;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_FILE_PATHS_KEY)
+    @Getter
+    private String[] parquetFilePaths;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_READ_ORDER_STRATEGY_KEY)
+    @Getter
+    private SourceParquetReadOrderStrategy parquetFilesReadOrderStrategy;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY_KEY)
+    @Getter
+    private SourceParquetSchemaMatchStrategy parquetSchemaMatchStrategy;
+
+    public enum SourceParquetReadOrderStrategy {
+        @SerializedName(STREAM_SOURCE_PARQUET_READ_ORDER_STRATEGY_EARLIEST_TIME_URL_FIRST)
+        EARLIEST_TIME_URL_FIRST,
+        @SerializedName(STREAM_SOURCE_PARQUET_READ_ORDER_STRATEGY_EARLIEST_INDEX_FIRST)
+        EARLIEST_INDEX_FIRST
+    }
+
+    public enum SourceParquetSchemaMatchStrategy {
+        @SerializedName(STREAM_SOURCE_PARQUET_SAME_SCHEMA_MATCH_STRATEGY)
+        SAME_SCHEMA_WITH_FAIL_ON_MISMATCH,
+        @SerializedName(STREAM_SOURCE_PARQUET_BACKWARD_COMPATIBLE_SCHEMA_MATCH_STRATEGY)
+        BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH
+    }
+
+    public static class SourceDetails {
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_KEY)
+        @Getter
+        private SourceName sourceName;
+
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_TYPE_KEY)
+        @Getter
+        private SourceType sourceType;
+    }
+
+    public enum SourceName {
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_KAFKA)
+        KAFKA,
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_PARQUET)
+        PARQUET
+    }
+
+    public enum SourceType {
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_TYPE_BOUNDED)
+        BOUNDED,
+        @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_TYPE_UNBOUNDED)
+        UNBOUNDED
+    }
+
     public String getDataType() {
         if (dataType == null) {
             dataType = "PROTO";
