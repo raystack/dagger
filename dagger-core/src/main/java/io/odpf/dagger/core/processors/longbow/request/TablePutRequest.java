@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
@@ -40,11 +41,18 @@ public class TablePutRequest implements PutRequest {
     @Override
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
-        Timestamp rowtime = (Timestamp) longbowSchema.getValue(input, ROWTIME);
+        Timestamp rowtime = convertToTimeStamp(longbowSchema.getValue(input, ROWTIME));
         longbowSchema.getColumnNames(c -> c.getKey().contains(Constants.LONGBOW_DATA_KEY))
                 .forEach(column -> putRequest.addColumn(COLUMN_FAMILY_NAME, Bytes.toBytes(column), rowtime.getTime(),
                         Bytes.toBytes((String) longbowSchema.getValue(input, column))));
         return putRequest;
+    }
+
+    private Timestamp convertToTimeStamp(Object timeStampField) {
+        if (timeStampField instanceof LocalDateTime) {
+            return Timestamp.valueOf((LocalDateTime) timeStampField);
+        }
+        return (Timestamp) timeStampField;
     }
 
     @Override

@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -18,7 +20,7 @@ public class TablePutRequestTest {
     private final String longbowData1 = "RB-9876";
     private final String longbowDuration = "1d";
     private final String longbowKey = "rule123#driver444";
-    private final Timestamp longbowRowtime = new Timestamp(1558498933);
+    private final LocalDateTime longbowRowtime = LocalDateTime.ofEpochSecond(1558498933, 0, ZoneOffset.UTC);
     private String tableId;
 
     @Before
@@ -38,8 +40,8 @@ public class TablePutRequestTest {
 
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input, tableId);
-        final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
-                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1));
+        final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223370478375642807")).addColumn(Bytes.toBytes("ts"),
+                Bytes.toBytes("longbow_data1"), Timestamp.valueOf(longbowRowtime).getTime(), Bytes.toBytes(longbowData1));
 
         assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
         assertEquals(expectedPut.getFamilyCellMap(), tablePutRequest.get().getFamilyCellMap());
@@ -59,9 +61,9 @@ public class TablePutRequestTest {
 
         final LongbowSchema longbowSchema = new LongbowSchema(columnNames);
         final TablePutRequest tablePutRequest = new TablePutRequest(longbowSchema, input, tableId);
-        final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223372035296276874")).addColumn(Bytes.toBytes("ts"),
-                Bytes.toBytes("longbow_data1"), longbowRowtime.getTime(), Bytes.toBytes(longbowData1))
-                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), longbowRowtime.getTime(),
+        final Put expectedPut = new Put(Bytes.toBytes(longbowKey + "#9223370478375642807")).addColumn(Bytes.toBytes("ts"),
+                Bytes.toBytes("longbow_data1"), Timestamp.valueOf(longbowRowtime).getTime(), Bytes.toBytes(longbowData1))
+                .addColumn(Bytes.toBytes("ts"), Bytes.toBytes("longbow_data2"), Timestamp.valueOf(longbowRowtime).getTime(),
                         Bytes.toBytes(longbowData2));
 
         assertArrayEquals(expectedPut.getRow(), tablePutRequest.get().getRow());
