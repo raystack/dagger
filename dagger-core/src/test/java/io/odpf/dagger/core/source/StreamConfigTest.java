@@ -2,6 +2,8 @@ package io.odpf.dagger.core.source;
 
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
+import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -174,11 +176,11 @@ public class StreamConfigTest {
                         "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
-        StreamConfig.SourceDetails[] sourceDetails = streamConfigs[0].getSourceDetails();
-        Assert.assertEquals(StreamConfig.SourceType.valueOf("BOUNDED"), sourceDetails[0].getSourceType());
-        Assert.assertEquals(StreamConfig.SourceName.valueOf("PARQUET"), sourceDetails[0].getSourceName());
-        Assert.assertEquals(StreamConfig.SourceType.valueOf("UNBOUNDED"), sourceDetails[1].getSourceType());
-        Assert.assertEquals(StreamConfig.SourceName.valueOf("KAFKA"), sourceDetails[1].getSourceName());
+        SourceDetails[] sourceDetails = streamConfigs[0].getSourceDetails();
+        Assert.assertEquals(SourceType.valueOf("BOUNDED"), sourceDetails[0].getSourceType());
+        Assert.assertEquals(SourceName.valueOf("PARQUET"), sourceDetails[0].getSourceName());
+        Assert.assertEquals(SourceType.valueOf("UNBOUNDED"), sourceDetails[1].getSourceType());
+        Assert.assertEquals(SourceName.valueOf("KAFKA"), sourceDetails[1].getSourceName());
     }
 
     @Test
@@ -193,7 +195,7 @@ public class StreamConfigTest {
 
         Assert.assertArrayEquals(new String[]{"gs://some-parquet-path", "gs://another-parquet-path"}, streamConfigs[0].getParquetFilePaths());
         Assert.assertEquals("data-project", streamConfigs[0].getParquetBillingProject());
-        Assert.assertEquals(StreamConfig.SourceParquetReadOrderStrategy.valueOf("EARLIEST_TIME_URL_FIRST"), streamConfigs[0].getParquetFilesReadOrderStrategy());
-        Assert.assertEquals(StreamConfig.SourceParquetSchemaMatchStrategy.valueOf("BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH"), streamConfigs[0].getParquetSchemaMatchStrategy());
+        Assert.assertEquals(SourceParquetReadOrderStrategy.valueOf("EARLIEST_TIME_URL_FIRST"), streamConfigs[0].getParquetFilesReadOrderStrategy());
+        Assert.assertEquals(SourceParquetSchemaMatchStrategy.valueOf("BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH"), streamConfigs[0].getParquetSchemaMatchStrategy());
     }
 }
