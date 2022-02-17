@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +19,7 @@ public class TablePutRequestTest {
     private final String longbowData1 = "RB-9876";
     private final String longbowDuration = "1d";
     private final String longbowKey = "rule123#driver444";
-    private final LocalDateTime longbowRowtime = LocalDateTime.of(2022,02,03,01,01);
+    private final LocalDateTime longbowRowtime = LocalDateTime.of(2022, 02, 03, 01, 01);
     private String tableId;
 
     @Before
