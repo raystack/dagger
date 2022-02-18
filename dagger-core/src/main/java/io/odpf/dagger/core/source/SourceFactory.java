@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.source.kafka.KafkaSourceFactory;
 import io.odpf.dagger.core.source.parquet.ParquetFileSourceFactory;
@@ -12,21 +13,39 @@ import java.util.Arrays;
 
 public class SourceFactory {
 
-    public static Source[] getSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
+    public static Source[] getSource(StreamConfig streamConfig,
+                                     Configuration configuration,
+                                     StencilClientOrchestrator stencilClientOrchestrator,
+                                     DaggerDeserializer<Row> deserializer) {
         return Arrays.stream(streamConfig.getSourceDetails())
-                .map(sourceDetails -> create(sourceDetails, streamConfig, configuration, deserializer))
+                .map(sourceDetails -> create(sourceDetails,
+                        streamConfig,
+                        configuration,
+                        stencilClientOrchestrator,
+                        deserializer))
                 .toArray(Source[]::new);
     }
 
-    private static Source create(SourceDetails sourceDetails, StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
+    private static Source create(SourceDetails sourceDetails,
+                                 StreamConfig streamConfig,
+                                 Configuration configuration,
+                                 StencilClientOrchestrator stencilClientOrchestrator,
+                                 DaggerDeserializer<Row> deserializer) {
         SourceType sourceType = sourceDetails.getSourceType();
         SourceName sourceName = sourceDetails.getSourceName();
         switch (sourceName) {
             case PARQUET:
-                return ParquetFileSourceFactory.getFileSource(sourceType, streamConfig, configuration, deserializer);
+                return ParquetFileSourceFactory.getFileSource(sourceType,
+                        streamConfig,
+                        configuration,
+                        stencilClientOrchestrator,
+                        deserializer);
             case KAFKA:
             default:
-                return KafkaSourceFactory.getSource(sourceType, streamConfig, configuration, (KafkaRecordDeserializationSchema<Row>) deserializer);
+                return KafkaSourceFactory.getSource(sourceType,
+                        streamConfig,
+                        configuration,
+                        (KafkaRecordDeserializationSchema<Row>) deserializer);
         }
     }
 }
