@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 public class JsonPayloadFunction implements FunctionProcessor, Serializable {
     public static final String JSON_PAYLOAD_FUNCTION_KEY = "JSON_PAYLOAD";
+    public static final String SCHEMA_PROTO_CLASS_KEY = "schema_proto_class";
     private static final Gson gson = new Gson();
 
     private Configuration configuration;

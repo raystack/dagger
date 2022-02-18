@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.odpf.dagger.core.processors.internal.InternalSourceConfig.FUNCTION_PROCESSOR_CONFIG_KEY;
 import static org.junit.Assert.*;
 
 public class InternalSourceConfigTest {
@@ -37,5 +38,14 @@ public class InternalSourceConfigTest {
     public void getValueTest() {
         InternalSourceConfig config = new InternalSourceConfig("outputField1", "value1", "eurekatype", null);
         assertEquals("value1", config.getValue());
+    }
+
+    @Test
+    public void getFunctionProcessorConfigTest() {
+        Map<String, String> functionProcessorConfig = new HashMap<String, String>();
+        functionProcessorConfig.put("foo", "bar");
+
+        InternalSourceConfig config = new InternalSourceConfig("outputField1", "value1", "eurekatype", functionProcessorConfig);
+        assertEquals(functionProcessorConfig, config.getFunctionProcessorConfig());
     }
 }

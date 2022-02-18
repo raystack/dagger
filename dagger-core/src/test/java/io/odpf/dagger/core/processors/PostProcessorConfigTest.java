@@ -284,4 +284,10 @@ public class PostProcessorConfigTest {
         assertTrue(defaultPostProcessorConfig.hasSQLTransformer());
     }
 
+    @Test
+    public void shouldParseFunctionProcessorConfigForInternalSourceConfig() {
+        String configuration = "{\"internal_source\":[{\"output_field\":\"payload\",\"value\":\"JSON_PAYLOAD\",\"type\":\"function\",\"function_processor_config\":{\"schema_proto_class\":\"com.foo.bar.RestaurantMessage\"}}]}";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertNotNull(postProcessorConfig.getInternalSource().get(0).getFunctionProcessorConfig());
+    }
 }

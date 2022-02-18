@@ -10,6 +10,7 @@ import java.util.Map;
  * A class that holds internal post processor configuration.
  */
 public class InternalSourceConfig implements Validator, Serializable {
+    public static final String FUNCTION_PROCESSOR_CONFIG_KEY = "function_processor_config";
 
     private String outputField;
     private String value;
@@ -66,5 +67,14 @@ public class InternalSourceConfig implements Validator, Serializable {
      */
     public String getOutputField() {
         return outputField;
+    }
+
+    /**
+     * Gets function processor config.
+     *
+     * @return the function processor config
+     */
+    public Map<String, String> getFunctionProcessorConfig() {
+        return functionProcessorConfig;
     }
 }
