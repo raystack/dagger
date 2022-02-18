@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.proto.serialization;
 
+import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import org.apache.flink.types.Row;
 
 import io.odpf.stencil.StencilClientFactory;
@@ -266,7 +267,7 @@ public class ProtoSerializerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenTypeDoesNotMatch() {
+    public void shouldNotThrowExceptionWhenPrimitiveTypeCanBeCasted() throws InvalidProtocolBufferException {
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
@@ -274,9 +275,22 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, 1234);
 
-        InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
+        ProducerRecord<byte[], byte[]> testBookingLogMessage = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        assertEquals("1234", TestBookingLogMessage.parseFrom(testBookingLogMessage.value()).getOrderNumber());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPrimitiveTypeCanNotBeCasted() {
+        String[] columnNames = {"customer_price"};
+        String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
+        String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
+        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        Row element = new Row(1);
+        element.setField(0, "invalid_number");
+
+        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
                 () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
-        assertEquals("column invalid: type mismatch of column order_number, expecting STRING type. Actual type class java.lang.Integer",
+        assertEquals("type mismatch of field: customer_price, expecting DOUBLE type, actual type class java.lang.String",
                 exception.getMessage());
     }
 

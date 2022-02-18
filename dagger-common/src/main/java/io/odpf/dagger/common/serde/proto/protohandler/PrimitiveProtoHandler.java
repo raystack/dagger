@@ -30,11 +30,15 @@ public class PrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
-        return field != null ? builder.setField(fieldDescriptor, field) : builder;
+        return field != null ? builder.setField(fieldDescriptor, transform(field)) : builder;
     }
 
     @Override
     public Object transformFromPostProcessor(Object field) {
+        return transform(field);
+    }
+
+    private Object transform(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         try {
             return primitiveTypeHandler.getValue(field);
