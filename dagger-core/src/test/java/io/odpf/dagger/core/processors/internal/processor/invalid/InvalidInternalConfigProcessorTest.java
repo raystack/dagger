@@ -49,7 +49,7 @@ public class InvalidInternalConfigProcessorTest {
 
     @Test
     public void shouldThrowExceptionWhenProcessNonNullConfig() {
-        InvalidInternalConfigProcessor invalidInternalConfigProcessor = new InvalidInternalConfigProcessor(new InternalSourceConfig("output", "value", "invalid"));
+        InvalidInternalConfigProcessor invalidInternalConfigProcessor = new InvalidInternalConfigProcessor(new InternalSourceConfig("output", "value", "invalid", null));
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> invalidInternalConfigProcessor.process(null));

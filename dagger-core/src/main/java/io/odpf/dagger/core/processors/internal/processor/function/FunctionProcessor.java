@@ -3,9 +3,9 @@ import io.odpf.dagger.core.processors.common.RowManager;
 
 public interface FunctionProcessor {
     /**
-     * Check if can process internal post processor.
+     * Check if function can be processed.
      *
-     * @param type the type
+     * @param functionName the function name
      * @return the boolean
      */
     boolean canProcess(String functionName);

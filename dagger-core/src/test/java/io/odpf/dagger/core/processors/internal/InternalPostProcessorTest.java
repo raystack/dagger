@@ -76,7 +76,7 @@ public class InternalPostProcessorTest {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql"));
+        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql", null));
 
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
 
@@ -96,7 +96,7 @@ public class InternalPostProcessorTest {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql"));
+        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql", null));
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
         InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig, configuration);
 

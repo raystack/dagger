@@ -61,7 +61,7 @@ public class FunctionInternalConfigProcessorTest {
     @Test
     public void shouldThrowInvalidConfigurationException() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function", null);
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, configuration);
 
         Row inputRow = new Row(2);
@@ -81,7 +81,7 @@ public class FunctionInternalConfigProcessorTest {
     public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
         Configuration testConfiguration = mock(Configuration.class);
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function", null);
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
             new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);
@@ -94,7 +94,7 @@ public class FunctionInternalConfigProcessorTest {
     public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function", null);
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, currentTimestamp);
 
         Row inputRow = new Row(2);
@@ -111,7 +111,7 @@ public class FunctionInternalConfigProcessorTest {
     }
 
     private InternalSourceConfig getCustomConfig(String type) {
-        return new InternalSourceConfig("field", "value", type);
+        return new InternalSourceConfig("field", "value", type, null);
     }
 
     final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {

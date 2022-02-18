@@ -111,7 +111,6 @@ public class StreamManager {
 
             Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
             tableEnvironment.createTemporaryView(tableName, table);
-
         });
         return this;
     }

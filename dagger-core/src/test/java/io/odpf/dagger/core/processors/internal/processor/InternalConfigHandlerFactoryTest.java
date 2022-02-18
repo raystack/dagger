@@ -33,28 +33,28 @@ public class InternalConfigHandlerFactoryTest {
 
     @Test
     public void shouldGetConstantInternalProcessor() {
-        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "value", "constant"), null, null, configuration);
+        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "value", "constant", null), null, null, configuration);
 
         assertEquals(ConstantInternalConfigProcessor.class, processor.getClass());
     }
 
     @Test
     public void shouldGetFunctionInternalProcessor() {
-        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "function"), null, null, configuration);
+        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "function", null), null, null, configuration);
 
         assertEquals(FunctionInternalConfigProcessor.class, processor.getClass());
     }
 
     @Test
     public void shouldGetSqlInternalProcessor() {
-        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "sql"), null, null, configuration);
+        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "sql", null), null, null, configuration);
 
         assertEquals(SqlInternalConfigProcessor.class, processor.getClass());
     }
 
     @Test
     public void shouldGetInvalidInternalProcessor() {
-        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "invalid"), null, null, configuration);
+        InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "functionValue", "invalid", null), null, null, configuration);
 
         assertEquals(InvalidInternalConfigProcessor.class, processor.getClass());
     }
@@ -62,7 +62,7 @@ public class InternalConfigHandlerFactoryTest {
     @Test
     public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
         Configuration invalidConfiguration = mock(Configuration.class);
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "functionValue", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "functionValue", "sql", null);
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> InternalConfigHandlerFactory.getProcessor(internalSourceConfig, null, null, invalidConfiguration));
         assertEquals("Invalid configuration: STREAMS not provided",
