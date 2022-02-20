@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
+import io.grpc.Internal;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
@@ -18,9 +19,9 @@ public class FunctionProcessorFactory {
         throw new IllegalStateException("Factory class");
     }
 
-    private static List<FunctionProcessor> getFunctions(SchemaConfig schemaConfig) {
+    private static List<FunctionProcessor> getFunctions(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         return Arrays.asList(new CurrentTimestampFunction(),
-                new JsonPayloadFunction(schemaConfig));
+                new JsonPayloadFunction(internalSourceConfig, schemaConfig));
     }
 
     /**
@@ -32,7 +33,7 @@ public class FunctionProcessorFactory {
      * @return the function processor
      */
     public static FunctionProcessor getFunctionProcessor(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
-        return getFunctions(schemaConfig)
+        return getFunctions(internalSourceConfig, schemaConfig)
                 .stream()
                 .filter(functionProcessor -> functionProcessor.canProcess(internalSourceConfig.getValue()))
                 .findFirst()
