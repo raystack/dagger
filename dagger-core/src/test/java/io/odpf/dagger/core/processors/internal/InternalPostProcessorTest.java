@@ -1,17 +1,11 @@
 package io.odpf.dagger.core.processors.internal;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.external.ExternalSourceConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.transformers.TransformConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +14,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class InternalPostProcessorTest {
     @Test

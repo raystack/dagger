@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.odpf.dagger.core.processors.internal.InternalSourceConfig.FUNCTION_PROCESSOR_CONFIG_KEY;
 import static org.junit.Assert.*;
 
 public class InternalSourceConfigTest {

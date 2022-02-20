@@ -4,20 +4,12 @@ import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.common.serde.proto.protohandler.TypeInformationFactory;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-
-
-import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
 
 import com.google.protobuf.Descriptors;
-import com.google.gson.Gson;
 import io.odpf.stencil.client.StencilClient;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
-import org.apache.flink.types.Row;
 
 import java.util.Map;
 import java.io.Serializable;
@@ -25,7 +17,6 @@ import java.io.Serializable;
 public class JsonPayloadFunction implements FunctionProcessor, Serializable {
     public static final String JSON_PAYLOAD_FUNCTION_KEY = "JSON_PAYLOAD";
     public static final String SCHEMA_PROTO_CLASS_KEY = "schema_proto_class";
-    private static final Gson gson = new Gson();
 
     private InternalSourceConfig internalSourceConfig;
     private SchemaConfig schemaConfig;
