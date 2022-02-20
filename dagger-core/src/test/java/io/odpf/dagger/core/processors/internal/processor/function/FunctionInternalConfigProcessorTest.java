@@ -1,24 +1,17 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FunctionInternalConfigProcessorTest {
     @Test
@@ -61,20 +54,6 @@ public class FunctionInternalConfigProcessorTest {
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> functionInternalConfigProcessor.process(rowManager));
         assertEquals("The function \"test\" is not supported in custom configuration",
-                invalidConfigException.getMessage());
-    }
-
-    @Ignore("again, should be moved to JsonPayloadFunction tests")
-    @Test
-    public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
-        Configuration testConfiguration = mock(Configuration.class);
-        ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function", null);
-
-        InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
-            new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null);
-        });
-        assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
     }
 

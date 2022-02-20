@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.external.SchemaConfig;

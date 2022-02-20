@@ -59,26 +59,6 @@ public class InternalPostProcessorTest {
         assertEquals(exceptionMsg, actualException.getMessage());
     }
 
-    @Ignore("This test should be moved to JsonPayloadFunction tests")
-    @Test
-    public void shouldNotBeAbleToProcessWhenDaggerConfigIsInvalid() {
-        ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        ArrayList<TransformConfig> transformers = new ArrayList<>();
-        ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql", null));
-
-        PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
-
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig, null);
-        StreamInfo streamInfoMock = mock(StreamInfo.class);
-        when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
-
-        InvalidConfigurationException actualException = assertThrows(InvalidConfigurationException.class,
-                () -> {
-                    internalPostProcessor.process(streamInfoMock);
-                });
-        assertEquals("Invalid configuration: null", actualException.getMessage());
-    }
 
     @Test
     public void processWithRightConfiguration() {

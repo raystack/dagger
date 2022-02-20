@@ -5,7 +5,6 @@ import io.odpf.dagger.core.processors.PostProcessorConfig;
 import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.StreamDecorator;
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.types.Validator;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
