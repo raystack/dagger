@@ -87,7 +87,7 @@ public class ParentPostProcessor implements PostProcessor {
         ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
-        processors.add(new InternalPostProcessor(postProcessorConfig, configuration));
+        processors.add(new InternalPostProcessor(postProcessorConfig, null));
         return processors
                 .stream()
                 .filter(p -> p.canProcess(postProcessorConfig))

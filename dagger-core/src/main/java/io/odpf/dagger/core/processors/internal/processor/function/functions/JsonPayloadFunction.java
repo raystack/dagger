@@ -54,24 +54,25 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
      * @return the JSON row serialization schema for input row
      */
     private JsonRowSerializationSchema createJsonRowSerializationSchema() {
-        if (configuration == null) {
-            throw new InvalidConfigurationException("Invalid configuration: null");
-        }
-
-        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
-        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
-        if (streamsConfig == null || streamsConfig.length == 0) {
-            throw new InvalidConfigurationException(String.format("Invalid configuration: %s not provided", INPUT_STREAMS));
-        }
-
-        String inputProtoClassName = (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
-
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
-        Descriptors.Descriptor inputDescriptor = stencilClientOrchestrator.getStencilClient().get(inputProtoClassName);
-
-        return JsonRowSerializationSchema
-                .builder()
-                .withTypeInfo(TypeInformationFactory.getRowType(inputDescriptor))
-                .build();
+//        if (configuration == null) {
+//            throw new InvalidConfigurationException("Invalid configuration: null");
+//        }
+//
+//        String jsonArrayString = configuration.getString(INPUT_STREAMS, "");
+//        Map[] streamsConfig = gson.fromJson(jsonArrayString, Map[].class);
+//        if (streamsConfig == null || streamsConfig.length == 0) {
+//            throw new InvalidConfigurationException(String.format("Invalid configuration: %s not provided", INPUT_STREAMS));
+//        }
+//
+//        String inputProtoClassName = (String) streamsConfig[0].get(STREAM_INPUT_SCHEMA_PROTO_CLASS);
+//
+//        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+//        Descriptors.Descriptor inputDescriptor = stencilClientOrchestrator.getStencilClient().get(inputProtoClassName);
+//
+//        return JsonRowSerializationSchema
+//                .builder()
+//                .withTypeInfo(TypeInformationFactory.getRowType(inputDescriptor))
+//                .build();
+        return null;
     }
 }

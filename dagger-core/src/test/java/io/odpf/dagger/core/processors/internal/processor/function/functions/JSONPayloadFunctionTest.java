@@ -8,6 +8,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.common.RowManager;
+import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;

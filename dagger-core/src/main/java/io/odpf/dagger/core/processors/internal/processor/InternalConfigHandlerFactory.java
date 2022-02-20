@@ -3,6 +3,7 @@ package io.odpf.dagger.core.processors.internal.processor;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.ColumnNameManager;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathParser;
 import io.odpf.dagger.core.processors.internal.processor.constant.ConstantInternalConfigProcessor;
@@ -21,9 +22,9 @@ public class InternalConfigHandlerFactory {
         throw new IllegalStateException("Factory class");
     }
 
-    private static List<InternalConfigProcessor> getHandlers(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig, Configuration configuration) {
+    private static List<InternalConfigProcessor> getHandlers(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         return Arrays.asList(new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig),
-                new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, configuration),
+                new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null),
                 new ConstantInternalConfigProcessor(columnNameManager, internalSourceConfig));
     }
 
@@ -33,11 +34,11 @@ public class InternalConfigHandlerFactory {
      * @param internalSourceConfig the internal source config
      * @param columnNameManager    the column name manager
      * @param sqlPathParser        the sql path parser
-     * @param configuration        the Dagger configuration
+     * @param schemaConfig         the schema configuration
      * @return the processor
      */
-    public static InternalConfigProcessor getProcessor(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, Configuration configuration) {
-        return getHandlers(columnNameManager, sqlPathParser, internalSourceConfig, configuration)
+    public static InternalConfigProcessor getProcessor(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, SchemaConfig schemaConfig) {
+        return getHandlers(columnNameManager, sqlPathParser, internalSourceConfig, schemaConfig)
                 .stream()
                 .filter(customConfigProcessor -> customConfigProcessor.canProcess(internalSourceConfig.getType()))
                 .findFirst()
