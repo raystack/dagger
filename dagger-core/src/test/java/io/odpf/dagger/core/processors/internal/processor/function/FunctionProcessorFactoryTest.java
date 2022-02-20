@@ -7,6 +7,7 @@ import io.odpf.dagger.core.processors.internal.processor.function.functions.Curr
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -16,20 +17,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FunctionProcessorFactoryTest {
-    @Mock
-    private Configuration configuration;
-
-    @Before
-    public void setup() {
-        initMocks(this);
-        when(configuration.getString("STREAMS", ""))
-                .thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\"}]");
-        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
-                .thenReturn(false);
-        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
-                .thenReturn("");
-    }
-
     @Test
     public void shouldGetCurrentTimeFunctionProcessor() {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
@@ -60,6 +47,8 @@ public class FunctionProcessorFactoryTest {
         assertEquals(InvalidFunction.class, functionProcessor.getClass());
     }
 
+
+    @Ignore("move to JsonPayloadFunction tests")
     @Test
     public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
