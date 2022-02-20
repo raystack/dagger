@@ -24,7 +24,7 @@ public class InternalConfigHandlerFactory {
 
     private static List<InternalConfigProcessor> getHandlers(ColumnNameManager columnNameManager, SqlConfigTypePathParser sqlPathParser, InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         return Arrays.asList(new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig),
-                new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null),
+                new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, schemaConfig),
                 new ConstantInternalConfigProcessor(columnNameManager, internalSourceConfig));
     }
 

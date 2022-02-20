@@ -40,7 +40,6 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
     public JsonPayloadFunction(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         this.internalSourceConfig = internalSourceConfig;
         this.schemaConfig = schemaConfig;
-        this.jsonRowSerializationSchema = createJsonRowSerializationSchema();
     }
 
     @Override
@@ -55,8 +54,10 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
      */
     @Override
     public Object getResult(RowManager rowManager) {
-        Row inputRow = rowManager.getInputData();
-        return new String(jsonRowSerializationSchema.serialize(inputRow));
+        if (jsonRowSerializationSchema == null) {
+            jsonRowSerializationSchema = createJsonRowSerializationSchema();
+        }
+        return new String(jsonRowSerializationSchema.serialize(rowManager.getInputData()));
     }
 
     /**
