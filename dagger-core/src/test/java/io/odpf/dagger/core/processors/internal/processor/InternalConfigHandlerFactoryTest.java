@@ -8,6 +8,7 @@ import io.odpf.dagger.core.processors.internal.processor.function.FunctionIntern
 import io.odpf.dagger.core.processors.internal.processor.invalid.InvalidInternalConfigProcessor;
 import io.odpf.dagger.core.processors.internal.processor.sql.fields.SqlInternalConfigProcessor;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -17,20 +18,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class InternalConfigHandlerFactoryTest {
-    @Mock
-    private Configuration configuration;
-
-    @Before
-    public void setup() {
-        initMocks(this);
-        when(configuration.getString("STREAMS", ""))
-                .thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\"}]");
-        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
-                .thenReturn(false);
-        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
-                .thenReturn("");
-    }
-
     @Test
     public void shouldGetConstantInternalProcessor() {
         InternalConfigProcessor processor = InternalConfigHandlerFactory.getProcessor(new InternalSourceConfig("output_field", "value", "constant", null), null, null, null);
@@ -59,8 +46,9 @@ public class InternalConfigHandlerFactoryTest {
         assertEquals(InvalidInternalConfigProcessor.class, processor.getClass());
     }
 
+    @Ignore("Move this test to JsonPayload function tests?")
     @Test
-    public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
+    public void shouldThrowInvalidConfigurationExceptionWhenInvalidSchemaConfigProvided() {
         Configuration invalidConfiguration = mock(Configuration.class);
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "functionValue", "sql", null);
 
