@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
@@ -17,24 +18,24 @@ public class FunctionProcessorFactory {
         throw new IllegalStateException("Factory class");
     }
 
-    private static List<FunctionProcessor> getFunctions(Configuration configuration) {
+    private static List<FunctionProcessor> getFunctions(SchemaConfig schemaConfig) {
         return Arrays.asList(new CurrentTimestampFunction(),
-                new JsonPayloadFunction(configuration));
+                new JsonPayloadFunction(schemaConfig));
     }
 
     /**
      * Gets function for post-processing.
      *
      * @param internalSourceConfig the internal source config
-     * @param configuration        the dagger configuration
+     * @param schemaConfig         the schema config
      *
      * @return the function processor
      */
-    public static FunctionProcessor getFunctionProcessor(InternalSourceConfig internalSourceConfig, Configuration configuration) {
-        return getFunctions(configuration)
+    public static FunctionProcessor getFunctionProcessor(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
+        return getFunctions(schemaConfig)
                 .stream()
                 .filter(functionProcessor -> functionProcessor.canProcess(internalSourceConfig.getValue()))
                 .findFirst()
-                .orElse(new InvalidFunction(internalSourceConfig, configuration));
+                .orElse(new InvalidFunction(internalSourceConfig));
     }
 }

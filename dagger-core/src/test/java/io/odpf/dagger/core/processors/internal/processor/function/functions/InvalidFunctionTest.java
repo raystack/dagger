@@ -13,25 +13,25 @@ import static org.mockito.Mockito.when;
 public class InvalidFunctionTest {
     @Test
     public void canNotProcessWhenFunctionNameIsNull() {
-        InvalidFunction invalidFunction = new InvalidFunction(null, null);
+        InvalidFunction invalidFunction = new InvalidFunction(null);
         assertFalse(invalidFunction.canProcess(null));
     }
 
     @Test
     public void canNotProcessWhenFunctionNameIsEmpty() {
-        InvalidFunction invalidFunction = new InvalidFunction(null, null);
+        InvalidFunction invalidFunction = new InvalidFunction(null);
         assertFalse(invalidFunction.canProcess(""));
     }
 
     @Test
     public void canNotProcessForAnyFunctionName() {
-        InvalidFunction invalidFunction = new InvalidFunction(null, null);
+        InvalidFunction invalidFunction = new InvalidFunction(null);
         assertFalse(invalidFunction.canProcess("ANY_RANDOM_FUNCTION"));
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingResultForInvalidInternalSourceConfig() {
-        InvalidFunction invalidFunction = new InvalidFunction(null, null);
+        InvalidFunction invalidFunction = new InvalidFunction(null);
 
         Row row = new Row(2);
         RowManager rowManager = new RowManager(row);
@@ -47,7 +47,7 @@ public class InvalidFunctionTest {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
         when(internalSourceConfig.getValue()).thenReturn("UNNEST");
 
-        InvalidFunction invalidFunction = new InvalidFunction(internalSourceConfig, null);
+        InvalidFunction invalidFunction = new InvalidFunction(internalSourceConfig);
 
         Row row = new Row(2);
         RowManager rowManager = new RowManager(row);

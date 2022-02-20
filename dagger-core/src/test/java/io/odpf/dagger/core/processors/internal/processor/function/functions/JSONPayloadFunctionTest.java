@@ -52,7 +52,7 @@ public class JSONPayloadFunctionTest {
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class,
                 () -> {
-                        new JsonPayloadFunction(invalidConfiguration);
+                        new JsonPayloadFunction(null);
                 });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
@@ -69,7 +69,7 @@ public class JSONPayloadFunctionTest {
 
         DescriptorNotFoundException descriptorNotFoundException = assertThrows(DescriptorNotFoundException.class,
                 () -> {
-                        new JsonPayloadFunction(invalidConfiguration);
+                        new JsonPayloadFunction(null);
                 });
         assertEquals("descriptor not found",
                 descriptorNotFoundException.getMessage());
@@ -77,25 +77,25 @@ public class JSONPayloadFunctionTest {
 
     @Test
     public void canNotProcessWhenFunctionNameIsNull() {
-        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(null);
         assertFalse(jsonPayloadFunction.canProcess(null));
     }
 
     @Test
     public void canNotProcessWhenFunctionNameIsDifferent() {
-        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(null);
         assertFalse(jsonPayloadFunction.canProcess("CURRENT_TIMESTAMP"));
     }
 
     @Test
     public void canProcessWhenFunctionNameIsCorrect() {
-        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(null);
         assertTrue(jsonPayloadFunction.canProcess("JSON_PAYLOAD"));
     }
 
     @Test
     public void shouldGetJSONPayloadAsResult() throws InvalidProtocolBufferException {
-        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(configuration);
+        JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(null);
 
         TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());

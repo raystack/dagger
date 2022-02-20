@@ -7,6 +7,7 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import org.apache.flink.types.Row;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -20,24 +21,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FunctionInternalConfigProcessorTest {
-    @Mock
-    private Configuration configuration;
-
-    @Before
-    public void setup() {
-        initMocks(this);
-        when(configuration.getString("STREAMS", ""))
-                .thenReturn("[{\"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\"}]");
-        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false))
-                .thenReturn(false);
-        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
-                .thenReturn("");
-    }
-
     @Test
     public void shouldBeAbleToProcessFunctionCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("function"), configuration);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("function"), null);
 
         assertTrue(functionInternalConfigProcessor.canProcess("function"));
     }
@@ -45,7 +32,7 @@ public class FunctionInternalConfigProcessorTest {
     @Test
     public void shouldNotBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("constant"), configuration);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("constant"), null);
 
         assertFalse(functionInternalConfigProcessor.canProcess("constant"));
     }
@@ -53,7 +40,7 @@ public class FunctionInternalConfigProcessorTest {
     @Test
     public void shouldNotBeAbleToProcessSqlCustomType() {
         ColumnNameManager columnManager = new ColumnNameManager(new String[0], new ArrayList<>());
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"), configuration);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"), null);
 
         assertFalse(functionInternalConfigProcessor.canProcess("sql"));
     }
@@ -62,7 +49,7 @@ public class FunctionInternalConfigProcessorTest {
     public void shouldThrowInvalidConfigurationException() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function", null);
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, configuration);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null);
 
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -77,6 +64,7 @@ public class FunctionInternalConfigProcessorTest {
                 invalidConfigException.getMessage());
     }
 
+    @Ignore("again, should be moved to JsonPayloadFunction tests")
     @Test
     public void shouldThrowInvalidConfigurationExceptionWhenInvalidDaggerConfigProvided() {
         Configuration testConfiguration = mock(Configuration.class);
@@ -84,7 +72,7 @@ public class FunctionInternalConfigProcessorTest {
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "test", "function", null);
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
-            new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, testConfiguration);
+            new FunctionInternalConfigProcessor(columnNameManager, internalSourceConfig, null);
         });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
@@ -116,7 +104,7 @@ public class FunctionInternalConfigProcessorTest {
 
     final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
         private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
-            super(columnNameManager, internalSourceConfig, configuration);
+            super(columnNameManager, internalSourceConfig, null);
             this.functionProcessor = new FunctionProcessor(currentTimestamp);
         }
     }

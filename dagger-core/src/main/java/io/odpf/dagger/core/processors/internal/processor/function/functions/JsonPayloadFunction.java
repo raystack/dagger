@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.processors.internal.processor.function.functions;
 
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.common.RowManager;
@@ -24,11 +25,16 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
     public static final String SCHEMA_PROTO_CLASS_KEY = "schema_proto_class";
     private static final Gson gson = new Gson();
 
-    private Configuration configuration;
+    private SchemaConfig schemaConfig;
     private JsonRowSerializationSchema jsonRowSerializationSchema;
 
-    public JsonPayloadFunction(Configuration configuration) {
-        this.configuration = configuration;
+    /**
+     * Instantiates a new JsonPayloadFunction processor.
+     *
+     * @param schemaConfig         the schema config
+     */
+    public JsonPayloadFunction(SchemaConfig schemaConfig) {
+        this.schemaConfig = schemaConfig;
         this.jsonRowSerializationSchema = createJsonRowSerializationSchema();
     }
 

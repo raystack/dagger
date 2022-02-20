@@ -3,6 +3,7 @@ package io.odpf.dagger.core.processors.internal.processor.function;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
+import io.odpf.dagger.core.processors.external.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor;
 
@@ -23,11 +24,12 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
      *
      * @param columnNameManager    the column name manager
      * @param internalSourceConfig the internal source config
+     * @param schemaConfig         the schema config
      */
-    public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Configuration configuration) {
+    public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         this.columnNameManager = columnNameManager;
         this.internalSourceConfig = internalSourceConfig;
-        this.functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
+        this.functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, schemaConfig);
     }
 
     @Override

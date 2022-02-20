@@ -35,7 +35,7 @@ public class FunctionProcessorFactoryTest {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
         when(internalSourceConfig.getValue()).thenReturn("CURRENT_TIMESTAMP");
 
-        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
+        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, null);
 
         assertEquals(CurrentTimestampFunction.class, functionProcessor.getClass());
     }
@@ -45,7 +45,7 @@ public class FunctionProcessorFactoryTest {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
         when(internalSourceConfig.getValue()).thenReturn("JSON_PAYLOAD");
 
-        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
+        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, null);
 
         assertEquals(JsonPayloadFunction.class, functionProcessor.getClass());
     }
@@ -55,7 +55,7 @@ public class FunctionProcessorFactoryTest {
         InternalSourceConfig internalSourceConfig = mock(InternalSourceConfig.class);
         when(internalSourceConfig.getValue()).thenReturn("UNNEST");
 
-        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, configuration);
+        FunctionProcessor functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, null);
 
         assertEquals(InvalidFunction.class, functionProcessor.getClass());
     }
@@ -67,7 +67,7 @@ public class FunctionProcessorFactoryTest {
         Configuration invalidConfiguration = mock(Configuration.class);
 
         InvalidConfigurationException invalidConfigException = assertThrows(InvalidConfigurationException.class, () -> {
-            FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, invalidConfiguration);
+            FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, null);
         });
         assertEquals("Invalid configuration: STREAMS not provided",
                 invalidConfigException.getMessage());
