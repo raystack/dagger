@@ -729,7 +729,7 @@ In order to enhance output with data that doesn’t need an external data store,
 - **Constant**: Constant value without any transformation.
 - **Function**: Predefined functions (in Dagger) which will be evaluated at the time of event processing. At present, we support only the following 2 functions:
   1. `CURRENT_TIMESTAMP`, which can be used to populate the latest timestamp.
-  2. `JSON_PAYLOAD`, which can be used to get the entire incoming proto message as a JSON string. **Note**: For this function to work, it is required that the Dagger SQL outputs rows in the same schema as the source protobuf message, e.g, queries like `SELECT * FROM data_stream` will work, but queries like `SELECT name from data_stream` will **not** work if the source data stream had more columns.
+  2. `JSON_PAYLOAD`, which can be used to get the entire incoming proto message as a JSON string. For this function to work correctly, ensure that the Dagger SQL outputs rows in the same format as the proto class specified in `function_processor_config` field (check the function example in [sample configuration](post_processor.md#sample-configurations)).
 
 ### Workflow
 
@@ -764,6 +764,13 @@ The type of internal post processor. This could be ‘SQL’, ‘constant’ or 
 
 - Example value: `function`
 - Type: `required`
+
+#### `function_processor_config`
+
+The configuration argument needed to specify inputs for certain function type internal post processors. As of now, this is only required for `JSON_PAYLOAD` internal post processor.
+
+- Example value: `function`
+- Type: `optional`
 
 ### Sample Query
 
@@ -826,9 +833,10 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
 
 **Function**
 
-This configuration will populate field `event_timestamp` with a timestamp of when the event is processed, and the `json_payload` field with the body of incoming proto message in JSON format.
+This configuration will populate field `event_timestamp` with a timestamp of when the event is processed, and the `json_payload` field with the complete output of SQL query, in JSON format.
 
 ```properties
+FLINK_SQL_QUERY=SELECT * from data_stream
 PROCESSOR_POSTPROCESSOR_ENABLE = true
 PROCESSOR_POSTPROCESSOR_CONFIG = {
   "internal_source": [
@@ -840,7 +848,10 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
     {
       "output_field": "json_payload",
       "type": "function",
-      "value": "JSON_PAYLOAD"
+      "value": "JSON_PAYLOAD",
+      "function_processor_config": {
+        "schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"
+      }
     }
   ]
 }

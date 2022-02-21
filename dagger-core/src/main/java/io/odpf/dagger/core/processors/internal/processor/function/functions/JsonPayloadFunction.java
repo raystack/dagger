@@ -51,11 +51,6 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
         return new String(jsonRowSerializationSchema.serialize(rowManager.getInputData()));
     }
 
-    /**
-     * Creates JSON schema for input row.
-     *
-     * @return the JSON row serialization schema for input row
-     */
     private JsonRowSerializationSchema createJsonRowSerializationSchema() {
         StencilClient stencilClient = schemaConfig.getStencilClientOrchestrator().getStencilClient();
         if (stencilClient == null) {
