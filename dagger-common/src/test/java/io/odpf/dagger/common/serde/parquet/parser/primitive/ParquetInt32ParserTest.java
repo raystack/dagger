@@ -40,9 +40,11 @@ public class ParquetInt32ParserTest {
         int32Parser.deserialize(simpleGroup, "column-with-max-long-value");
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void serializeShouldThrowUnsupportedOperationExceptionWhenInvoked() {
-        ParquetInt32Parser int32Parser = new ParquetInt32Parser();
-        int32Parser.serialize(32);
+    @Test
+    public void deserializeShouldReturnDefaultValueZeroWhenSimpleGroupArgumentIsNull() {
+        ParquetInt32Parser parquetInt32Parser = new ParquetInt32Parser();
+        Object actualValue = parquetInt32Parser.deserialize(null, "some-random-field");
+
+        assertEquals(0, actualValue);
     }
 }

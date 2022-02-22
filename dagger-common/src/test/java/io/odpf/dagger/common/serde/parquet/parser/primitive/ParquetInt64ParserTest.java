@@ -27,9 +27,11 @@ public class ParquetInt64ParserTest {
         assertEquals(Long.MIN_VALUE, actualValueForMinLongColumn);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void serializeShouldThrowUnsupportedOperationExceptionWhenInvoked() {
-        ParquetInt64Parser int64Parser = new ParquetInt64Parser();
-        int64Parser.serialize(7364723643274623233L);
+    @Test
+    public void deserializeShouldReturnDefaultValueZeroWhenSimpleGroupArgumentIsNull() {
+        ParquetInt64Parser parquetInt64Parser = new ParquetInt64Parser();
+        Object actualValue = parquetInt64Parser.deserialize(null, "some-random-field");
+
+        assertEquals(0L, actualValue);
     }
 }

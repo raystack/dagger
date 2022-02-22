@@ -28,10 +28,11 @@ public class ParquetBooleanParserTest {
         assertEquals(false, actualValueForBooleanFalseColumn);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void serializeShouldThrowUnsupportedOperationExceptionWhenInvoked() {
-        ParquetBooleanParser parquetBooleanParser = new ParquetBooleanParser();
-        parquetBooleanParser.serialize(true);
-    }
+    @Test
+    public void deserializeShouldReturnDefaultFalseWhenSimpleGroupArgumentIsNull() {
+        ParquetBooleanParser booleanParser = new ParquetBooleanParser();
+        Object actualValue = booleanParser.deserialize(null, "some-random-field");
 
+        assertEquals(false, actualValue);
+    }
 }
