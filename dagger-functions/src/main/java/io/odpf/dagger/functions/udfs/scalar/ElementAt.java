@@ -142,15 +142,14 @@ public class ElementAt extends ScalarUdf {
                 if (absoluteIndex < 0) {
                     return null;
                 }
-                return array[arrayLength + index];
+                return getString(array[arrayLength + index]);
             }
-            return array[index];
+            return getString(array[index]);
         } catch (Exception ignored) {
 
         }
         return null;
     }
-
 
     /**
      * Gets stencil client.
@@ -177,6 +176,10 @@ public class ElementAt extends ScalarUdf {
         public Optional<DataType> inferType(CallContext callContext) {
             return Optional.of(DataTypes.STRING());
         }
+    }
+
+    private String getString(Object value) {
+        return value == null ? null : String.valueOf(value);
     }
 
     private static class ElementAtInputTypeStrategy implements InputTypeStrategy {

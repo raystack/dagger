@@ -72,7 +72,7 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms");
+        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms");
 
         assertEquals(String.valueOf(21.5), actual);
     }
@@ -88,7 +88,7 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms", "booking");
+        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms", "booking");
 
         assertEquals(String.valueOf(21.5), actual);
     }
@@ -104,7 +104,7 @@ public class ElementAtTest {
         routeRow.setField(2, 21.5F);
 
         elementAt.open(functionContext);
-        String actual = elementAt.eval(new Row[] {routeRow}, "routes", 0, "distance_in_kms");
+        String actual = elementAt.eval(new Row[]{routeRow}, "routes", 0, "distance_in_kms");
 
         assertEquals("", actual);
     }
@@ -119,8 +119,8 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.latitude");
-        String actualLongitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.longitude");
+        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.latitude");
+        String actualLongitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.longitude");
 
         assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LATITUDE), actualLatitude);
         assertEquals(String.valueOf(CENTRAL_MONUMENT_JAKARTA_LONGITUDE), actualLongitude);
@@ -136,7 +136,7 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 0, "start.invalid");
+        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 0, "start.invalid");
 
         assertEquals("", actualLatitude);
 
@@ -152,7 +152,7 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[] {routeRow}, "routes", 1, "start.latitude");
+        String actualLatitude = elementAt.eval(new Row[]{routeRow}, "routes", 1, "start.latitude");
 
         assertEquals("", actualLatitude);
     }
@@ -182,7 +182,7 @@ public class ElementAtTest {
         routeRow.setField(0, locationRow);
 
         elementAt.open(functionContext);
-        String actualLatitude = elementAt.eval(new Row[] {}, "routes", 1, "start.latitude");
+        String actualLatitude = elementAt.eval(new Row[]{}, "routes", 1, "start.latitude");
 
         assertEquals("", actualLatitude);
     }
@@ -200,6 +200,66 @@ public class ElementAtTest {
         elementAt.open(functionContext);
         Object element = elementAt.eval(objects, 2);
         assertEquals("b", element);
+    }
+
+    @Test
+    public void shouldReturnNullIfValueAtGivenIndexForObjectArrayIsNull() throws Exception {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        Object[] objects = new Object[5];
+        objects[0] = "a";
+        objects[1] = "a";
+        objects[2] = "b";
+        objects[3] = null;
+        objects[4] = "a";
+
+        elementAt.open(functionContext);
+        Object element = elementAt.eval(objects, 3);
+        assertEquals(null, element);
+    }
+
+    @Test
+    public void shouldReturnValueAsStringForDoubleDataTypesAtGivenIndexForObjectArray() throws Exception {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        Object[] objects = new Object[5];
+        objects[0] = "a";
+        objects[1] = "a";
+        objects[2] = "b";
+        objects[3] = 3.0D;
+        objects[4] = "a";
+
+        elementAt.open(functionContext);
+        Object element = elementAt.eval(objects, 3);
+        assertEquals("3.0", element);
+    }
+
+    @Test
+    public void shouldReturnNullIfValueAtGivenIndexForObjectArrayListIsNull() throws Exception {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        ArrayList<Object> objects = new ArrayList<>();
+        objects.add("a");
+        objects.add("a");
+        objects.add(null);
+        objects.add("d");
+        objects.add("e");
+
+        elementAt.open(functionContext);
+        Object element = elementAt.eval(objects, 2);
+        assertEquals(null, element);
+    }
+
+    @Test
+    public void shouldReturnValueAsStringForDoubleDataTypesAtGivenIndexForObjectArrayList() throws Exception {
+        ElementAt elementAt = new ElementAt(protos, stencilClientOrchestrator);
+        ArrayList<Object> objects = new ArrayList<>();
+        objects.add("a");
+        objects.add("a");
+        objects.add(3.0D);
+        objects.add("d");
+        objects.add("e");
+
+        elementAt.open(functionContext);
+        Object element = elementAt.eval(objects, 2);
+        assertEquals("3.0", element);
     }
 
     @Test
