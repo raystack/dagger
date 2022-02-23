@@ -40,11 +40,11 @@ public class InternalSourceConfigTest {
     }
 
     @Test
-    public void getFunctionProcessorConfigTest() {
-        Map<String, String> functionProcessorConfig = new HashMap<String, String>();
-        functionProcessorConfig.put("foo", "bar");
+    public void getInternalProcessorConfigTest() {
+        Map<String, String> internalProcessorConfig = new HashMap<String, String>();
+        internalProcessorConfig.put("foo", "bar");
 
-        InternalSourceConfig config = new InternalSourceConfig("outputField1", "value1", "eurekatype", functionProcessorConfig);
-        assertEquals(functionProcessorConfig, config.getFunctionProcessorConfig());
+        InternalSourceConfig config = new InternalSourceConfig("outputField1", "value1", "eurekatype", internalProcessorConfig);
+        assertEquals(internalProcessorConfig, config.getInternalProcessorConfig());
     }
 }

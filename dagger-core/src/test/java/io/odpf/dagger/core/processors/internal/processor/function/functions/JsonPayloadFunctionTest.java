@@ -35,10 +35,10 @@ public class JsonPayloadFunctionTest {
     @Before
     public void setup() throws InvalidProtocolBufferException {
         initMocks(this);
-        Map<String, String> functionProcessorConfig = new HashMap<>();
-        functionProcessorConfig.put("schema_proto_class", "io.odpf.dagger.consumer.TestBookingLogMessage");
-        when(internalSourceConfig.getFunctionProcessorConfig())
-                .thenReturn(functionProcessorConfig);
+        Map<String, String> internalProcessorConfig = new HashMap<>();
+        internalProcessorConfig.put("schema_proto_class", "io.odpf.dagger.consumer.TestBookingLogMessage");
+        when(internalSourceConfig.getInternalProcessorConfig())
+                .thenReturn(internalProcessorConfig);
 
         StencilClient stencilClient = mock(StencilClient.class);
         when(stencilClient.get("io.odpf.dagger.consumer.TestBookingLogMessage"))
@@ -61,9 +61,9 @@ public class JsonPayloadFunctionTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenFunctionProcessorConfigIsNull() {
+    public void shouldThrowExceptionWhenInternalProcessorConfigIsNull() {
         InternalSourceConfig invalidInternalSourceConfig = mock(InternalSourceConfig.class);
-        when(invalidInternalSourceConfig.getFunctionProcessorConfig())
+        when(invalidInternalSourceConfig.getInternalProcessorConfig())
                 .thenReturn(null);
         JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(invalidInternalSourceConfig, schemaConfig);
 
@@ -71,14 +71,14 @@ public class JsonPayloadFunctionTest {
                 () -> {
                    jsonPayloadFunction.getResult(rowManager);
                 });
-        assertEquals("Invalid internal source configuration: missing function processor config",
+        assertEquals("Invalid internal source configuration: missing internal processor config",
                 invalidConfigException.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenSchemaProtoClassNotFoundInFunctionProcessorConfig() {
+    public void shouldThrowExceptionWhenSchemaProtoClassNotFoundInInternalProcessorConfig() {
         InternalSourceConfig invalidInternalSourceConfig = mock(InternalSourceConfig.class);
-        when(invalidInternalSourceConfig.getFunctionProcessorConfig())
+        when(invalidInternalSourceConfig.getInternalProcessorConfig())
                 .thenReturn(new HashMap<>());
         JsonPayloadFunction jsonPayloadFunction = new JsonPayloadFunction(invalidInternalSourceConfig, schemaConfig);
 
@@ -86,7 +86,7 @@ public class JsonPayloadFunctionTest {
                 () -> {
                     jsonPayloadFunction.getResult(rowManager);
                 });
-        assertEquals("Invalid internal source configuration: missing \"schema_proto_class\" key in function processor config",
+        assertEquals("Invalid internal source configuration: missing \"schema_proto_class\" key in internal processor config",
                 invalidConfigException.getMessage());
     }
 

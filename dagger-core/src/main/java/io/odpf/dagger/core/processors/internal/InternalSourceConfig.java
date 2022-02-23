@@ -10,12 +10,12 @@ import java.util.Map;
  * A class that holds internal post processor configuration.
  */
 public class InternalSourceConfig implements Validator, Serializable {
-    public static final String FUNCTION_PROCESSOR_CONFIG_KEY = "function_processor_config";
+    public static final String INTERNAL_PROCESSOR_CONFIG_KEY = "internal_processor_config";
 
     private String outputField;
     private String value;
     private String type;
-    private Map<String, String> functionProcessorConfig;
+    private Map<String, String> internalProcessorConfig;
 
     /**
      * Instantiates a new Internal source config.
@@ -23,13 +23,13 @@ public class InternalSourceConfig implements Validator, Serializable {
      * @param outputField             the output field
      * @param value                   the value
      * @param type                    the type
-     * @param functionProcessorConfig the function processor config
+     * @param internalProcessorConfig the internal processor config
      */
-    public InternalSourceConfig(String outputField, String value, String type, Map<String, String> functionProcessorConfig) {
+    public InternalSourceConfig(String outputField, String value, String type, Map<String, String> internalProcessorConfig) {
         this.outputField = outputField;
         this.value = value;
         this.type = type;
-        this.functionProcessorConfig = functionProcessorConfig;
+        this.internalProcessorConfig = internalProcessorConfig;
     }
 
     @Override
@@ -70,11 +70,11 @@ public class InternalSourceConfig implements Validator, Serializable {
     }
 
     /**
-     * Gets function processor config.
+     * Gets internal processor config.
      *
-     * @return the function processor config
+     * @return the internal processor config
      */
-    public Map<String, String> getFunctionProcessorConfig() {
-        return functionProcessorConfig;
+    public Map<String, String> getInternalProcessorConfig() {
+        return internalProcessorConfig;
     }
 }

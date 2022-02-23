@@ -57,16 +57,16 @@ public class JsonPayloadFunction implements FunctionProcessor, Serializable {
             throw new InvalidConfigurationException("Invalid configuration: stencil client is null");
         }
 
-        Map<String, String> functionProcessorConfig = internalSourceConfig.getFunctionProcessorConfig();
-        if (functionProcessorConfig == null) {
-            throw new InvalidConfigurationException("Invalid internal source configuration: missing function processor config");
+        Map<String, String> internalProcessorConfig = internalSourceConfig.getInternalProcessorConfig();
+        if (internalProcessorConfig == null) {
+            throw new InvalidConfigurationException("Invalid internal source configuration: missing internal processor config");
         }
 
-        if (!functionProcessorConfig.containsKey(SCHEMA_PROTO_CLASS_KEY)) {
-            throw new InvalidConfigurationException(String.format("Invalid internal source configuration: missing \"%s\" key in function processor config", SCHEMA_PROTO_CLASS_KEY));
+        if (!internalProcessorConfig.containsKey(SCHEMA_PROTO_CLASS_KEY)) {
+            throw new InvalidConfigurationException(String.format("Invalid internal source configuration: missing \"%s\" key in internal processor config", SCHEMA_PROTO_CLASS_KEY));
         }
 
-        String schemaProtoClassKey = functionProcessorConfig.get(SCHEMA_PROTO_CLASS_KEY);
+        String schemaProtoClassKey = internalProcessorConfig.get(SCHEMA_PROTO_CLASS_KEY);
         Descriptors.Descriptor inputDescriptor = stencilClient.get(schemaProtoClassKey);
 
         return JsonRowSerializationSchema
