@@ -47,6 +47,10 @@ public class TimestampProtoHandler implements ProtoHandler {
             timestamp = convertSqlTimestamp((java.sql.Timestamp) field);
         }
 
+        if (field instanceof Instant) {
+            timestamp = Timestamp.newBuilder().setSeconds(((Instant) field).getEpochSecond()).build();
+        }
+
         if (field instanceof LocalDateTime) {
             timestamp = convertLocalDateTime((LocalDateTime) field);
         }
