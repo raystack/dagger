@@ -6,6 +6,7 @@ import io.odpf.dagger.core.processors.internal.processor.function.functions.Curr
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +19,8 @@ public class FunctionProcessorFactory {
     }
 
     private static List<FunctionProcessor> getFunctions(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
-        return Arrays.asList(new CurrentTimestampFunction(),
+        Clock clock = Clock.systemUTC();
+        return Arrays.asList(new CurrentTimestampFunction(clock),
                 new JsonPayloadFunction(internalSourceConfig, schemaConfig));
     }
 
