@@ -769,7 +769,7 @@ The type of internal post processor. This could be ‘SQL’, ‘constant’ or 
 
 The configuration argument needed to specify inputs for certain function type internal post processors. As of now, this is only required for `JSON_PAYLOAD` internal post processor.
 
-- Example value: `function`
+- Example value: `{"schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"}`
 - Type: `optional`
 
 ### Sample Query
@@ -833,8 +833,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
 
 **Function**
 
-This configuration will populate field `event_timestamp` with a timestamp of when the event is processed, and the `json_payload` field with the complete output of SQL query, in JSON format.
-
+This configuration will populate field `event_timestamp` with a timestamp of when the event is processed.
 ```properties
 FLINK_SQL_QUERY=SELECT * from data_stream
 PROCESSOR_POSTPROCESSOR_ENABLE = true
@@ -844,7 +843,18 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
       "output_field": "event_timestamp",
       "type": "function",
       "value": "CURRENT_TIMESTAMP"
-    },
+    }
+  ]
+}
+```
+
+Similarly, the following configuration will fill the `json_payload` field with the complete output of SQL query, in JSON format.
+
+```properties
+FLINK_SQL_QUERY=SELECT * from data_stream
+PROCESSOR_POSTPROCESSOR_ENABLE = true
+PROCESSOR_POSTPROCESSOR_CONFIG = {
+  "internal_source": [
     {
       "output_field": "json_payload",
       "type": "function",
