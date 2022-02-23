@@ -2,6 +2,7 @@ package io.odpf.dagger.core.processors.external;
 
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.SourceConfig;
 import io.odpf.dagger.core.processors.types.StreamDecorator;

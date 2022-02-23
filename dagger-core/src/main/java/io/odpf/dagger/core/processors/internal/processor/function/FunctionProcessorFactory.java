@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
 import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;

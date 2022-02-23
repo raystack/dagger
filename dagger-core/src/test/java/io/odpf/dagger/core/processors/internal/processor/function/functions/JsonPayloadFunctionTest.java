@@ -7,7 +7,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.stencil.client.StencilClient;
 import org.apache.flink.types.Row;

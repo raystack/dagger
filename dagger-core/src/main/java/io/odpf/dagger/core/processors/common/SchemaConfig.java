@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.processors.external;
+package io.odpf.dagger.core.processors.common;
 
 import com.google.gson.Gson;
 import io.odpf.dagger.common.configuration.Configuration;

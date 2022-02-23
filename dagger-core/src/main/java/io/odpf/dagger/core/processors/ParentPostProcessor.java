@@ -11,7 +11,7 @@ import io.odpf.dagger.core.processors.common.FetchOutputDecorator;
 import io.odpf.dagger.core.processors.common.InitializationDecorator;
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
 import io.odpf.dagger.core.processors.external.ExternalPostProcessor;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalPostProcessor;
 import io.odpf.dagger.core.processors.transformers.TransformProcessor;
 import io.odpf.dagger.core.processors.types.PostProcessor;

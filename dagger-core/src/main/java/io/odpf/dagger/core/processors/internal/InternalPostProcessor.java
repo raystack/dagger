@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.internal;
 
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.StreamDecorator;
 import io.odpf.dagger.core.processors.types.Validator;

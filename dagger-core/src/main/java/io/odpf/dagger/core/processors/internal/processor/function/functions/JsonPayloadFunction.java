@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.internal.processor.function.functions;
 
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.core.processors.common.RowManager;

@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.external.pg;
 
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.types.StreamDecorator;
 
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;

@@ -1,8 +1,9 @@
-package io.odpf.dagger.core.processors.external;
+package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.ColumnNameManager;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
