@@ -9,7 +9,6 @@ import io.odpf.dagger.core.processors.common.RowManager;
 import java.io.Serializable;
 public class InvalidFunction implements FunctionProcessor, Serializable {
     private InternalSourceConfig internalSourceConfig;
-    private SchemaConfig schemaConfig;
 
     /**
      * Instantiates a new Invalid internal function processor.

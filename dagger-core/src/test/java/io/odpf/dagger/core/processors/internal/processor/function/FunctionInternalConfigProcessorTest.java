@@ -4,6 +4,9 @@ import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.CurrentTimestampFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.InvalidFunction;
+import io.odpf.dagger.core.processors.internal.processor.function.functions.JsonPayloadFunction;
 import org.apache.flink.types.Row;
 import org.junit.Test;
 
@@ -36,6 +39,30 @@ public class FunctionInternalConfigProcessorTest {
         FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(columnManager, getCustomConfig("sql"), null);
 
         assertFalse(functionInternalConfigProcessor.canProcess("sql"));
+    }
+
+    @Test
+    public void shouldGetCurrentTimestampFunctionProcessor() {
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function", null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(null, internalSourceConfig, null);
+
+        assertEquals(CurrentTimestampFunction.class, functionInternalConfigProcessor.functionProcessor.getClass());
+    }
+
+    @Test
+    public void shouldGetJsonPayloadFunctionProcessor() {
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "JSON_PAYLOAD", "function", null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(null, internalSourceConfig, null);
+
+        assertEquals(JsonPayloadFunction.class, functionInternalConfigProcessor.functionProcessor.getClass());
+    }
+
+    @Test
+    public void shouldGetInvalidFunctionProcessor() {
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "SOME_INVALID_FUNCTION", "function", null);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessor(null, internalSourceConfig, null);
+
+        assertEquals(InvalidFunction.class, functionInternalConfigProcessor.functionProcessor.getClass());
     }
 
     @Test
@@ -84,14 +111,14 @@ public class FunctionInternalConfigProcessorTest {
     final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
         private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
             super(columnNameManager, internalSourceConfig, null);
-            this.functionProcessor = new FunctionProcessor(currentTimestamp);
+            this.functionProcessor = new CurrentTimestampFunctionProcessor(currentTimestamp);
         }
     }
 
-    final class FunctionProcessor implements io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor {
+    final class CurrentTimestampFunctionProcessor implements io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor {
         private Timestamp currentTimestamp;
 
-        private FunctionProcessor(Timestamp currentTimestamp) {
+        private CurrentTimestampFunctionProcessor(Timestamp currentTimestamp) {
             this.currentTimestamp = currentTimestamp;
         }
 
