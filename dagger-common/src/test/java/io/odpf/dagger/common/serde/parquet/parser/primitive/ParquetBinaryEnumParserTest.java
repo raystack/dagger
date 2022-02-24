@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.parquet.parser.primitive;
 
+import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -32,7 +33,20 @@ public class ParquetBinaryEnumParserTest {
         assertEquals(DayOfWeek.FRIDAY.toString(), actualValue);
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test(expected = DaggerDeserializationException.class)
+    public void deserializeShouldThrowExceptionWhenLogicalTypeAnnotationIsMissing() {
+        GroupType parquetSchema = Types.requiredGroup()
+                .required(BINARY)
+                .named("column-with-binary-enum-type")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("column-with-binary-enum-type", DayOfWeek.SUNDAY.toString());
+
+        ParquetBinaryEnumParser binaryEnumParser = new ParquetBinaryEnumParser();
+        binaryEnumParser.deserialize(simpleGroup, "column-with-binary-enum-type");
+    }
+
+    @Test(expected = DaggerDeserializationException.class)
     public void deserializeShouldThrowExceptionWhenLogicalTypeAnnotationIsNotEnum() {
         GroupType parquetSchema = Types.requiredGroup()
                 .required(BINARY)

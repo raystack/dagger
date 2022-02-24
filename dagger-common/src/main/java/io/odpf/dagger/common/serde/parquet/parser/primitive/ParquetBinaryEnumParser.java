@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.parquet.parser.primitive;
 
+import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import io.odpf.dagger.common.serde.parquet.parser.ParquetDataTypeParser;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -14,16 +15,19 @@ public class ParquetBinaryEnumParser implements ParquetDataTypeParser {
     public Object deserialize(SimpleGroup simpleGroup, String fieldName) {
         Supplier<Object> valueSupplier = () -> {
             int columnIndex = simpleGroup.getType().getFieldIndex(fieldName);
-            LogicalTypeAnnotation logicalTypeAnnotation = simpleGroup.getType().getType(columnIndex).getLogicalTypeAnnotation();
-            checkLogicalTypeAnnotation(logicalTypeAnnotation);
+            checkLogicalTypeAnnotation(simpleGroup, columnIndex);
             return simpleGroup.getString(columnIndex, 0);
         };
         return ParquetDataTypeParser.getValueOrDefault(simpleGroup, valueSupplier, DEFAULT_DESERIALIZED_VALUE);
     }
 
-    private void checkLogicalTypeAnnotation(LogicalTypeAnnotation logicalTypeAnnotation) {
-        if (logicalTypeAnnotation != SUPPORTED_LOGICAL_TYPE_ANNOTATION) {
-            throw new ClassCastException("Error: Expected logical type as ENUM but found " + logicalTypeAnnotation.toString());
+    private void checkLogicalTypeAnnotation(SimpleGroup simpleGroup, int columnIndex) {
+        LogicalTypeAnnotation logicalTypeAnnotation = simpleGroup.getType().getType(columnIndex).getLogicalTypeAnnotation();
+        if(logicalTypeAnnotation == null) {
+            throw new DaggerDeserializationException("Error: Expected logical type as " + SUPPORTED_LOGICAL_TYPE_ANNOTATION + " but no annotation was found.");
+        }
+        else if (!logicalTypeAnnotation.equals(SUPPORTED_LOGICAL_TYPE_ANNOTATION)) {
+            throw new DaggerDeserializationException("Error: Expected logical type as " + SUPPORTED_LOGICAL_TYPE_ANNOTATION + " but found " + logicalTypeAnnotation);
         }
     }
 }
