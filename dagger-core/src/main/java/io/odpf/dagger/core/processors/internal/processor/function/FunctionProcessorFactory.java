@@ -19,7 +19,7 @@ public class FunctionProcessorFactory {
     }
 
     private static List<FunctionProcessor> getFunctions(InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
-        Clock clock = Clock.systemUTC();
+        Clock clock = Clock.systemDefaultZone();
         return Arrays.asList(new CurrentTimestampFunction(clock),
                 new JsonPayloadFunction(internalSourceConfig, schemaConfig));
     }

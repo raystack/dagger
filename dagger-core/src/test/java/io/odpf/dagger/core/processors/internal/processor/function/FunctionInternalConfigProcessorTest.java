@@ -11,10 +11,13 @@ import org.apache.flink.types.Row;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FunctionInternalConfigProcessorTest {
     @Test
@@ -86,10 +89,13 @@ public class FunctionInternalConfigProcessorTest {
 
     @Test
     public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        long currentTimestampMs = System.currentTimeMillis();
+        Clock clock = mock(Clock.class);
+        when(clock.millis()).thenReturn(currentTimestampMs);
+
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
         InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output2", "CURRENT_TIMESTAMP", "function", null);
-        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, currentTimestamp);
+        FunctionInternalConfigProcessor functionInternalConfigProcessor = new FunctionInternalConfigProcessorMock(columnNameManager, internalSourceConfig, clock);
 
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -99,9 +105,10 @@ public class FunctionInternalConfigProcessorTest {
         RowManager rowManager = new RowManager(parentRow);
 
         functionInternalConfigProcessor.process(rowManager);
+        Timestamp expectedCurrentTimestamp = new Timestamp(currentTimestampMs);
 
         assertNotNull(rowManager.getOutputData().getField(1));
-        assertEquals(currentTimestamp, rowManager.getOutputData().getField(1));
+        assertEquals(expectedCurrentTimestamp, rowManager.getOutputData().getField(1));
     }
 
     private InternalSourceConfig getCustomConfig(String type) {
@@ -109,27 +116,9 @@ public class FunctionInternalConfigProcessorTest {
     }
 
     final class FunctionInternalConfigProcessorMock extends FunctionInternalConfigProcessor {
-        private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Timestamp currentTimestamp) {
+        private FunctionInternalConfigProcessorMock(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, Clock clock) {
             super(columnNameManager, internalSourceConfig, null);
-            this.functionProcessor = new CurrentTimestampFunctionProcessor(currentTimestamp);
-        }
-    }
-
-    final class CurrentTimestampFunctionProcessor implements io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor {
-        private Timestamp currentTimestamp;
-
-        private CurrentTimestampFunctionProcessor(Timestamp currentTimestamp) {
-            this.currentTimestamp = currentTimestamp;
-        }
-
-        @Override
-        public boolean canProcess(String functionName) {
-            return true;
-        }
-
-        @Override
-        public Object getResult(RowManager rowManager) {
-            return currentTimestamp;
+            this.functionProcessor = new CurrentTimestampFunction(clock);
         }
     }
 }
