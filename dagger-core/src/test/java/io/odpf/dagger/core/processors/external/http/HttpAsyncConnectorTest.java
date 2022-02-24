@@ -15,7 +15,7 @@ import io.odpf.dagger.core.processors.common.DescriptorManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.external.AsyncConnector;
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;

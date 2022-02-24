@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.processors.external;
+package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SchemaConfigTest {
-
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
 

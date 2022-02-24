@@ -16,7 +16,7 @@ public class SqlInternalConfigProcessorTest {
     @Test
     public void shouldBeAbleToProcessSqlCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -26,7 +26,7 @@ public class SqlInternalConfigProcessorTest {
     @Test
     public void shouldNotBeAbleToProcessFunctionCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "function");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "function", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -36,7 +36,7 @@ public class SqlInternalConfigProcessorTest {
     @Test
     public void shouldNotBeAbleToProcessConstantCustomType() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "constant");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "constant", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -46,7 +46,7 @@ public class SqlInternalConfigProcessorTest {
     @Test
     public void processWithRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"field"}, Arrays.asList("field1", "newField", "field2"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("newField", "field", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("newField", "field", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 

@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.config;
 
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -8,8 +10,9 @@ import java.util.Arrays;
  * The Factory class for configuration provider.
  */
 public class ConfigurationProviderFactory {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationProviderFactory.class);
     private String[] args;
+    public static final String CONFIG_SOURCE = "ConfigSource";
 
     /**
      * Instantiates a new Configuration provider factory.
@@ -19,11 +22,11 @@ public class ConfigurationProviderFactory {
     public ConfigurationProviderFactory(String[] args) {
 
         this.args = args;
-        System.out.println("Arguments are : ");
+        LOGGER.info("Arguments are: ");
         Arrays.asList(args).stream().forEach(s -> {
-            System.out.println(s);
+            LOGGER.info(s);
             if (s.contains("ConfigFile")) {
-                System.setProperty("ConfigSource", "FILE");
+                System.setProperty(CONFIG_SOURCE, "FILE");
                 System.setProperty("DAGGER_CONFIG_PATH", s.split("=")[1]);
             }
         });
@@ -36,8 +39,8 @@ public class ConfigurationProviderFactory {
      * @return the configuration provider
      */
     public ConfigurationProvider provider() {
-        if (System.getProperties().containsKey("ConfigSource")) {
-            String configSource = System.getProperty("ConfigSource");
+        if (System.getProperties().containsKey(CONFIG_SOURCE)) {
+            String configSource = System.getProperty(CONFIG_SOURCE);
             switch (configSource) {
                 case "ENVIRONMENT":
                     return new EnvironmentConfigurationProvider(System.getenv());
@@ -47,7 +50,6 @@ public class ConfigurationProviderFactory {
                     return new FileConfigurationProvider();
                 default:
                     throw new DaggerConfigurationException("Config source not provided");
-
             }
         }
         return new CommandlineConfigurationProvider(args);

@@ -128,13 +128,13 @@ This page contains references for all the custom transformers available on Dagge
         }
       ],
       "transformers": [
-    	{
-      	"transformation_arguments": {
-        	"keyColumnName": "data1",
-        	"valueColumnName": "features"
-      	},
-      	"transformation_class": "io.odpf.dagger.functions.transformers.FeatureTransformer"
-    	}
+        {
+          "transformation_arguments": {
+            "keyColumnName": "data1",
+            "valueColumnName": "features"
+          },
+          "transformation_class": "io.odpf.dagger.functions.transformers.FeatureTransformer"
+        }
       ]
     }
     ```

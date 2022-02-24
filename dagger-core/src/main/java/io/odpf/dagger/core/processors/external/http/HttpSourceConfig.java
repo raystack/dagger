@@ -201,7 +201,6 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
 
     @Override
     public boolean equals(Object o) {
-        System.out.println("testing");
         if (this == o) {
             return true;
         }

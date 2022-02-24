@@ -168,7 +168,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldNotBeEmptyWhenInternalSourceExist() {
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-        internalSourceConfigs.add(new InternalSourceConfig("outputField", "value", "type"));
+        internalSourceConfigs.add(new InternalSourceConfig("outputField", "value", "type", null));
         defaultPostProcessorConfig = new PostProcessorConfig(null, null, internalSourceConfigs);
 
         assertFalse(defaultPostProcessorConfig.isEmpty());
@@ -230,7 +230,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldHaveInternalSourceWhenInternalSourceIsNotEmpty() {
         ArrayList<InternalSourceConfig> internalSource = new ArrayList<>();
-        internalSource.add(new InternalSourceConfig("outputField", "value", "type"));
+        internalSource.add(new InternalSourceConfig("outputField", "value", "type", null));
         defaultPostProcessorConfig = new PostProcessorConfig(defaultExternalSourceConfig, null, this.defaultInternalSource);
         assertFalse(defaultPostProcessorConfig.hasInternalSource());
     }
@@ -284,4 +284,10 @@ public class PostProcessorConfigTest {
         assertTrue(defaultPostProcessorConfig.hasSQLTransformer());
     }
 
+    @Test
+    public void shouldParseInternalProcessorConfigForInternalSourceConfig() {
+        String configuration = "{\"internal_source\":[{\"output_field\":\"payload\",\"value\":\"JSON_PAYLOAD\",\"type\":\"function\",\"internal_processor_config\":{\"schema_proto_class\":\"com.foo.bar.RestaurantMessage\"}}]}";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertNotNull(postProcessorConfig.getInternalSource().get(0).getInternalProcessorConfig());
+    }
 }

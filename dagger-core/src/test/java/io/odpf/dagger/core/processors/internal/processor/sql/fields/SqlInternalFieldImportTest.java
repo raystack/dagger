@@ -28,7 +28,7 @@ public class SqlInternalFieldImportTest {
     @Test
     public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField"}, Arrays.asList("output1", "outputField", "output2"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("outputField", "inputField", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("outputField", "inputField", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalFieldImport sqlInternalFieldImport = new SqlInternalFieldImport(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -47,7 +47,7 @@ public class SqlInternalFieldImportTest {
 
     @Test
     public void shouldReturnNullIfOutputIndexIsNotFoundInOutputColumnManager() {
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("outputField", "inputField", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("outputField", "inputField", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, defaultColumnNameManager);
         SqlInternalFieldImport sqlInternalFieldImport = new SqlInternalFieldImport(defaultColumnNameManager, sqlPathParser, internalSourceConfig);
 

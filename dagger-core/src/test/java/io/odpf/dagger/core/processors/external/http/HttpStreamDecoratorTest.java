@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.external.http;
 
 import io.odpf.dagger.core.processors.external.ExternalMetricConfig;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

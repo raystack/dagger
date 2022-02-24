@@ -15,7 +15,7 @@ public class SqlInternalFieldFactoryTest {
     @Test
     public void shouldReturnSqlInternalAutoFieldImportClass() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
 
         SqlInternalFieldFactory sqlInternalFieldFactory = new SqlInternalFieldFactory(columnNameManager, sqlPathParser, internalSourceConfig);
@@ -27,7 +27,7 @@ public class SqlInternalFieldFactoryTest {
     @Test
     public void shouldReturnSqlInternalFieldImportClass() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "value", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output_field", "value", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
 
         SqlInternalFieldFactory sqlInternalFieldFactory = new SqlInternalFieldFactory(columnNameManager, sqlPathParser, internalSourceConfig);

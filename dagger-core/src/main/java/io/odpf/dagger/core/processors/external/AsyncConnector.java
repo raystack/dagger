@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.external;
 
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;

@@ -18,7 +18,7 @@ public class SqlInternalAutoFieldImportTest {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add("*");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "*", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -41,7 +41,7 @@ public class SqlInternalAutoFieldImportTest {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add("*");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "anyString", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("*", "anyString", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 
@@ -69,7 +69,7 @@ public class SqlInternalAutoFieldImportTest {
         ArrayList<String> outputColumnNames = new ArrayList<>();
         outputColumnNames.add(".");
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"inputField1", "inputField2"}, outputColumnNames);
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig(".", "*", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig(".", "*", "sql", null);
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         SqlInternalConfigProcessor sqlInternalConfigProcessor = new SqlInternalConfigProcessor(columnNameManager, sqlPathParser, internalSourceConfig);
 

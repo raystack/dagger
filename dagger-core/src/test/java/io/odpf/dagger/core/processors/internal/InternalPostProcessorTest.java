@@ -16,10 +16,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class InternalPostProcessorTest {
-
     @Test
     public void canProcessWhenInternalConfigIsPresent() {
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null);
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null, null);
 
         PostProcessorConfig mockConfig = mock(PostProcessorConfig.class);
         when(mockConfig.hasInternalSource()).thenReturn(true);
@@ -28,7 +27,7 @@ public class InternalPostProcessorTest {
 
     @Test
     public void canNotProcessWhenInternalConfigIsNull() {
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null);
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(null, null);
 
         PostProcessorConfig mockConfig = mock(PostProcessorConfig.class);
         when(mockConfig.hasInternalSource()).thenReturn(false);
@@ -44,7 +43,7 @@ public class InternalPostProcessorTest {
                 .when(mockConfig).validateFields();
         List<InternalSourceConfig> internalSource = Arrays.asList(mockConfig);
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(null, Collections.emptyList(), internalSource);
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig, null);
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
 
@@ -53,23 +52,20 @@ public class InternalPostProcessorTest {
         assertEquals(exceptionMsg, actualException.getMessage());
     }
 
+
     @Test
     public void processWithRightConfiguration() {
         ExternalSourceConfig externalSource = new ExternalSourceConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         ArrayList<TransformConfig> transformers = new ArrayList<>();
         ArrayList<InternalSourceConfig> internalSourceConfigs = new ArrayList<>();
-
-        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql"));
-
+        internalSourceConfigs.add(new InternalSourceConfig("output", "order_id", "sql", null));
         PostProcessorConfig postProcessorConfig = new PostProcessorConfig(externalSource, transformers, internalSourceConfigs);
-
-        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig);
+        InternalPostProcessor internalPostProcessor = new InternalPostProcessor(postProcessorConfig, null);
 
         StreamInfo streamInfoMock = mock(StreamInfo.class);
         DataStream resultStream = mock(DataStream.class);
         when(streamInfoMock.getColumnNames()).thenReturn(new String[] {"order_id", "customer_id"});
         when(streamInfoMock.getDataStream()).thenReturn(resultStream);
-
 
         StreamInfo process = internalPostProcessor.process(streamInfoMock);
         verify(resultStream, times(1)).map(any(InternalDecorator.class));

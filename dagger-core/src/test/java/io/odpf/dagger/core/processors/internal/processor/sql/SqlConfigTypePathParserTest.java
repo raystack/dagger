@@ -16,7 +16,7 @@ public class SqlConfigTypePathParserTest {
     @Test
     public void shouldReturnAllOfTheInputData() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{}, Arrays.asList());
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("all", "*", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("all", "*", "sql", null);
         SqlConfigTypePathParser sqlConfigTypePathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
 
         Row inputRow = new Row(2);
@@ -35,7 +35,7 @@ public class SqlConfigTypePathParserTest {
     @Test
     public void shouldThrowExceptionWhenTheColumnNameIsNotFoundInInputColumns() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "value", "sql", null);
         SqlConfigTypePathParser sqlConfigTypePathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
 
         Row inputRow = new Row(2);
@@ -53,7 +53,7 @@ public class SqlConfigTypePathParserTest {
     @Test
     public void shouldReturnTheInputDataAsPerTheConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "input2", "sql");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("field", "input2", "sql", null);
         SqlConfigTypePathParser sqlConfigTypePathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
 
         Row inputRow = new Row(2);

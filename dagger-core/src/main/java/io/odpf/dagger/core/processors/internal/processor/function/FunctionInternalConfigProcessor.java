@@ -1,34 +1,34 @@
 package io.odpf.dagger.core.processors.internal.processor.function;
 
-import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.RowManager;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.InternalConfigProcessor;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 /**
  * The Function internal config processor.
  */
 public class FunctionInternalConfigProcessor implements InternalConfigProcessor, Serializable {
-
     public static final String FUNCTION_CONFIG_HANDLER_TYPE = "function";
-    public static final String CURRENT_TIMESTAMP_FUNCTION_KEY = "CURRENT_TIMESTAMP";
 
     private ColumnNameManager columnNameManager;
     private InternalSourceConfig internalSourceConfig;
+    protected FunctionProcessor functionProcessor;
 
     /**
      * Instantiates a new Function internal config processor.
      *
      * @param columnNameManager    the column name manager
      * @param internalSourceConfig the internal source config
+     * @param schemaConfig         the schema config
      */
-    public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig) {
+    public FunctionInternalConfigProcessor(ColumnNameManager columnNameManager, InternalSourceConfig internalSourceConfig, SchemaConfig schemaConfig) {
         this.columnNameManager = columnNameManager;
         this.internalSourceConfig = internalSourceConfig;
+        this.functionProcessor = FunctionProcessorFactory.getFunctionProcessor(internalSourceConfig, schemaConfig);
     }
 
     @Override
@@ -40,19 +40,7 @@ public class FunctionInternalConfigProcessor implements InternalConfigProcessor,
     public void process(RowManager rowManager) {
         int outputFieldIndex = columnNameManager.getOutputIndex(internalSourceConfig.getOutputField());
         if (outputFieldIndex != -1) {
-            if (!CURRENT_TIMESTAMP_FUNCTION_KEY.equals(internalSourceConfig.getValue())) {
-                throw new InvalidConfigurationException(String.format("The function %s is not supported in custom configuration", internalSourceConfig.getValue()));
-            }
-            rowManager.setInOutput(outputFieldIndex, getCurrentTime());
+            rowManager.setInOutput(outputFieldIndex, functionProcessor.getResult(rowManager));
         }
-    }
-
-    /**
-     * Gets current time.
-     *
-     * @return the current time
-     */
-    protected Timestamp getCurrentTime() {
-        return new Timestamp(System.currentTimeMillis());
     }
 }

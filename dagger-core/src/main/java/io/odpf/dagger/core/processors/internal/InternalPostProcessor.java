@@ -2,6 +2,7 @@ package io.odpf.dagger.core.processors.internal;
 
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.PostProcessorConfig;
+import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.StreamDecorator;
 import io.odpf.dagger.core.processors.types.Validator;
@@ -19,14 +20,17 @@ import io.odpf.dagger.core.processors.internal.processor.sql.SqlConfigTypePathPa
 public class InternalPostProcessor implements PostProcessor {
 
     private PostProcessorConfig postProcessorConfig;
+    private SchemaConfig schemaConfig;
 
     /**
      * Instantiates a new Internal post processor.
      *
      * @param postProcessorConfig the post processor config
+     * @param schemaConfig        the schema config
      */
-    public InternalPostProcessor(PostProcessorConfig postProcessorConfig) {
+    public InternalPostProcessor(PostProcessorConfig postProcessorConfig, SchemaConfig schemaConfig) {
         this.postProcessorConfig = postProcessorConfig;
+        this.schemaConfig = schemaConfig;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class InternalPostProcessor implements PostProcessor {
     protected StreamDecorator getInternalDecorator(InternalSourceConfig internalSourceConfig, ColumnNameManager columnNameManager) {
         SqlConfigTypePathParser sqlPathParser = new SqlConfigTypePathParser(internalSourceConfig, columnNameManager);
         InternalConfigProcessor processor = InternalConfigHandlerFactory
-                .getProcessor(internalSourceConfig, columnNameManager, sqlPathParser);
+                .getProcessor(internalSourceConfig, columnNameManager, sqlPathParser, schemaConfig);
         return new InternalDecorator(internalSourceConfig, processor, columnNameManager);
     }
 }
