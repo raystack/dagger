@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.parquet.parser.primitive;
 
+import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -28,7 +29,20 @@ public class ParquetBinaryStringParserTest {
         assertEquals("some-random-string", actualValue);
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test(expected = DaggerDeserializationException.class)
+    public void deserializeShouldThrowExceptionWhenLogicalTypeAnnotationIsMissing() {
+        GroupType parquetSchema = Types.requiredGroup()
+                .required(BINARY)
+                .named("column-with-binary-string-type")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("column-with-binary-string-type", "some string value");
+
+        ParquetBinaryStringParser binaryParser = new ParquetBinaryStringParser();
+        binaryParser.deserialize(simpleGroup, "column-with-binary-string-type");
+    }
+
+    @Test(expected = DaggerDeserializationException.class)
     public void deserializeShouldThrowExceptionWhenLogicalTypeAnnotationIsNotString() {
         GroupType parquetSchema = Types.requiredGroup()
                 .required(BINARY)
