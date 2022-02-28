@@ -20,20 +20,18 @@ public class SimpleGroupValidation {
     }
 
     public boolean checkLogicalTypeIsSupported(SimpleGroup simpleGroup, String fieldName, LogicalTypeAnnotation supportedLogicalTypeAnnotation) {
-        int columnIndex = simpleGroup.getType().getFieldIndex(fieldName);
         LogicalTypeAnnotation fieldLogicalTypeAnnotation = simpleGroup.getType()
-                .getType(columnIndex)
+                .getType(fieldName)
                 .getLogicalTypeAnnotation();
         return Objects.equals(supportedLogicalTypeAnnotation, fieldLogicalTypeAnnotation);
     }
 
     public boolean checkParserCanParsePrimitive(SimpleGroup simpleGroup, String fieldName, PrimitiveType.PrimitiveTypeName supportedPrimitiveTypeName) {
-        int columnIndex = simpleGroup.getType().getFieldIndex(fieldName);
-        return simpleGroup.getType()
-                .getType(columnIndex)
+        PrimitiveType.PrimitiveTypeName fieldPrimitiveType = simpleGroup.getType()
+                .getType(fieldName)
                 .asPrimitiveType()
-                .getPrimitiveTypeName()
-                .equals(supportedPrimitiveTypeName);
+                .getPrimitiveTypeName();
+        return Objects.equals(supportedPrimitiveTypeName, fieldPrimitiveType);
     }
 
     public boolean applyValidations(SimpleGroup simpleGroup,
