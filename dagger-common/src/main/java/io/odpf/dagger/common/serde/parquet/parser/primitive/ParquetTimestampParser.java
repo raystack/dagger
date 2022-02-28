@@ -39,6 +39,6 @@ public class ParquetTimestampParser implements ParquetDataTypeParser {
                 return Timestamp.from(Instant.ofEpochMilli(millis));
             }
         };
-        return ParquetDataTypeParser.getValueOrDefault(simpleGroup, valueSupplier, DEFAULT_DESERIALIZED_VALUE);
+        return ParquetDataTypeParser.getValueOrDefault(valueSupplier, DEFAULT_DESERIALIZED_VALUE);
     }
 }

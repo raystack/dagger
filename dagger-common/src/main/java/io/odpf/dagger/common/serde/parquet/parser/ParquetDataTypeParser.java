@@ -9,7 +9,7 @@ public interface ParquetDataTypeParser {
 
     boolean canHandle(SimpleGroup simpleGroup, String fieldName);
 
-    static Object getValueOrDefault(SimpleGroup simpleGroup, Supplier<Object> valueSupplier, Object defaultValue) {
+    static Object getValueOrDefault(Supplier<Object> valueSupplier, Object defaultValue) {
         Object deserializedValue = valueSupplier.get();
         return (deserializedValue == null) ? defaultValue : deserializedValue;
     }

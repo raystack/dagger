@@ -34,6 +34,6 @@ public class ParquetDoubleParser implements ParquetDataTypeParser {
                 return simpleGroup.getDouble(columnIndex, 0);
             }
         };
-        return ParquetDataTypeParser.getValueOrDefault(simpleGroup, valueSupplier, DEFAULT_DESERIALIZED_VALUE);
+        return ParquetDataTypeParser.getValueOrDefault(valueSupplier, DEFAULT_DESERIALIZED_VALUE);
     }
 }

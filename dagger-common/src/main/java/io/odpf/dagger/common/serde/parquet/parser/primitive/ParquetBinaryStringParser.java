@@ -36,6 +36,6 @@ public class ParquetBinaryStringParser implements ParquetDataTypeParser {
                 return simpleGroup.getString(columnIndex, 0);
             }
         };
-        return ParquetDataTypeParser.getValueOrDefault(simpleGroup, valueSupplier, DEFAULT_DESERIALIZED_VALUE);
+        return ParquetDataTypeParser.getValueOrDefault(valueSupplier, DEFAULT_DESERIALIZED_VALUE);
     }
 }

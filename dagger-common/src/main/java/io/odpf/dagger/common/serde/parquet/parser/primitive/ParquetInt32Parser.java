@@ -34,6 +34,6 @@ public class ParquetInt32Parser implements ParquetDataTypeParser {
                 return simpleGroup.getInteger(columnIndex, 0);
             }
         };
-        return ParquetDataTypeParser.getValueOrDefault(simpleGroup, valueSupplier, DEFAULT_DESERIALIZED_VALUE);
+        return ParquetDataTypeParser.getValueOrDefault(valueSupplier, DEFAULT_DESERIALIZED_VALUE);
     }
 }
