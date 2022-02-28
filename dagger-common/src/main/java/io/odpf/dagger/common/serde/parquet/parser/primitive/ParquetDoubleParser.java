@@ -18,6 +18,7 @@ public class ParquetDoubleParser implements ParquetDataTypeParser {
         this.simpleGroupValidation = simpleGroupValidation;
     }
 
+    @Override
     public boolean canHandle(SimpleGroup simpleGroup, String fieldName) {
         return simpleGroupValidation.applyValidations(simpleGroup, fieldName, SUPPORTED_PRIMITIVE_TYPE, null);
     }

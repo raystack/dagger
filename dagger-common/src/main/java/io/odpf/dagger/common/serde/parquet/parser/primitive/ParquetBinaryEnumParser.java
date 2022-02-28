@@ -20,6 +20,7 @@ public class ParquetBinaryEnumParser implements ParquetDataTypeParser {
         this.simpleGroupValidation = simpleGroupValidation;
     }
 
+    @Override
     public boolean canHandle(SimpleGroup simpleGroup, String fieldName) {
         return simpleGroupValidation.applyValidations(simpleGroup, fieldName, SUPPORTED_PRIMITIVE_TYPE, SUPPORTED_LOGICAL_TYPE_ANNOTATION);
     }
@@ -29,7 +30,7 @@ public class ParquetBinaryEnumParser implements ParquetDataTypeParser {
         Supplier<Object> valueSupplier = () -> {
             int columnIndex = simpleGroup.getType().getFieldIndex(fieldName);
             /* this checks if the field value is missing */
-            if(simpleGroup.getFieldRepetitionCount(columnIndex) == 0) {
+            if (simpleGroup.getFieldRepetitionCount(columnIndex) == 0) {
                 return null;
             } else {
                 return simpleGroup.getString(columnIndex, 0);

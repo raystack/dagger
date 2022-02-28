@@ -20,6 +20,7 @@ public class ParquetBinaryStringParser implements ParquetDataTypeParser {
         this.simpleGroupValidation = simpleGroupValidation;
     }
 
+    @Override
     public boolean canHandle(SimpleGroup simpleGroup, String fieldName) {
         return simpleGroupValidation.applyValidations(simpleGroup, fieldName, SUPPORTED_PRIMITIVE_TYPE, SUPPORTED_LOGICAL_TYPE_ANNOTATION);
     }
