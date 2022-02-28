@@ -24,7 +24,7 @@ public class SimpleGroupValidation {
         LogicalTypeAnnotation fieldLogicalTypeAnnotation = simpleGroup.getType()
                 .getType(columnIndex)
                 .getLogicalTypeAnnotation();
-        return supportedLogicalTypeAnnotation == fieldLogicalTypeAnnotation;
+        return Objects.equals(supportedLogicalTypeAnnotation, fieldLogicalTypeAnnotation);
     }
 
     public boolean checkParserCanParsePrimitive(SimpleGroup simpleGroup, String fieldName, PrimitiveType.PrimitiveTypeName supportedPrimitiveTypeName) {

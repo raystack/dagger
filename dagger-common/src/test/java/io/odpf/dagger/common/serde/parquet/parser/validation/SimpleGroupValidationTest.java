@@ -32,7 +32,7 @@ public class SimpleGroupValidationTest {
         GroupType parquetSchema = Types.requiredGroup()
                 .required(INT32).named("primitive-type-column")
                 .optionalGroup()
-                    .required(BOOLEAN).named("boolean-nested-column")
+                .required(BOOLEAN).named("boolean-nested-column")
                 .named("complex-type-column")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
@@ -78,13 +78,19 @@ public class SimpleGroupValidationTest {
     @Test
     public void checkLogicalTypeIsSupportedReturnsTrueIfLogicalTypeOfFieldNameIsSameAsProvidedArgumentElseFalse() {
         GroupType parquetSchema = Types.requiredGroup()
-                .required(BINARY).as(LogicalTypeAnnotation.enumType()).named("column-with-binary-enum-type")
+                .required(INT64)
+                .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
+                .named("column-with-timestamp-type")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         SimpleGroupValidation simpleGroupValidation = new SimpleGroupValidation();
 
-        boolean actualResultForSupportedField = simpleGroupValidation.checkLogicalTypeIsSupported(simpleGroup, "column-with-binary-enum-type", LogicalTypeAnnotation.enumType());
-        boolean actualResultForNonSupportedField = simpleGroupValidation.checkLogicalTypeIsSupported(simpleGroup, "column-with-binary-enum-type", LogicalTypeAnnotation.stringType());
+        boolean actualResultForSupportedField = simpleGroupValidation.checkLogicalTypeIsSupported(
+                simpleGroup, "column-with-timestamp-type",
+                LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS));
+        boolean actualResultForNonSupportedField = simpleGroupValidation.checkLogicalTypeIsSupported(
+                simpleGroup, "column-with-timestamp-type",
+                LogicalTypeAnnotation.timestampType(false, LogicalTypeAnnotation.TimeUnit.MILLIS));
 
         assertTrue(actualResultForSupportedField);
         assertFalse(actualResultForNonSupportedField);
