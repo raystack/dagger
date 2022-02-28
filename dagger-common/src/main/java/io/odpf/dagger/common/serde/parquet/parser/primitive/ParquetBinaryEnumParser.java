@@ -28,7 +28,7 @@ public class ParquetBinaryEnumParser implements ParquetDataTypeParser {
     public Object deserialize(SimpleGroup simpleGroup, String fieldName) {
         Supplier<Object> valueSupplier = () -> {
             int columnIndex = simpleGroup.getType().getFieldIndex(fieldName);
-            /* this checks if the field value is set to null or unset */
+            /* this checks if the field value is missing */
             if(simpleGroup.getFieldRepetitionCount(columnIndex) == 0) {
                 return null;
             } else {
