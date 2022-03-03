@@ -9,7 +9,7 @@ public class ParquetDataTypeID {
     private final PrimitiveType.PrimitiveTypeName primitiveTypeName;
     private final LogicalTypeAnnotation logicalType;
 
-    ParquetDataTypeID(PrimitiveType.PrimitiveTypeName primitiveTypeName, LogicalTypeAnnotation logicalType) {
+    public ParquetDataTypeID(PrimitiveType.PrimitiveTypeName primitiveTypeName, LogicalTypeAnnotation logicalType) {
         this.primitiveTypeName = primitiveTypeName;
         this.logicalType = logicalType;
     }
