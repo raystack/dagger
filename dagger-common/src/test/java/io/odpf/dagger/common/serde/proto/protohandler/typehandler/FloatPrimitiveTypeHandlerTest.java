@@ -4,11 +4,15 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.FLOAT;
+import static org.apache.parquet.schema.Types.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -90,6 +94,51 @@ public class FloatPrimitiveTypeHandlerTest {
         Object actualValues = floatPrimitiveTypeHandler.getArray(null);
 
         assertEquals(0, ((float[]) actualValues).length);
+    }
+
+    @Test
+    public void shouldFetchParsedValueForFieldOfTypeFloatInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
+        GroupType parquetSchema = requiredGroup()
+                .required(FLOAT).named("amount_paid_by_cash")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("amount_paid_by_cash", Float.MIN_VALUE);
+        FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = floatHandler.getValue(simpleGroup);
+
+        assertEquals(Float.MIN_VALUE, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotPresentInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
+        GroupType parquetSchema = requiredGroup()
+                .required(FLOAT).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = floatHandler.getValue(simpleGroup);
+
+        assertEquals(0.0F, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotInitializedWithAValueInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
+
+        /* The field is added to the schema but not assigned a value */
+        GroupType parquetSchema = requiredGroup()
+                .required(FLOAT).named("amount_paid_by_cash")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = floatHandler.getValue(simpleGroup);
+
+        assertEquals(0.0F, actualValue);
     }
 
 }
