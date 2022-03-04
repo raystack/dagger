@@ -3,11 +3,14 @@ package io.odpf.dagger.common.serde.proto.protohandler.typehandler;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.DOUBLE;
 import static org.junit.Assert.*;
 
 public class DoublePrimitiveTypeHandlerTest {
@@ -88,6 +91,52 @@ public class DoublePrimitiveTypeHandlerTest {
         Object actualValues = doublePrimitiveTypeHandler.getArray(null);
 
         assertEquals(0, ((double[]) actualValues).length);
+    }
+
+    @Test
+    public void shouldFetchParsedValueForFieldOfTypeDoubleInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(DOUBLE).named("cash_amount")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("cash_amount", Double.MAX_VALUE);
+
+        DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
+        Object actualValue = doubleHandler.getValue(simpleGroup);
+
+        assertEquals(Double.MAX_VALUE, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotPresentInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
+
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(DOUBLE).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = doubleHandler.getValue(simpleGroup);
+
+        assertEquals(0.0D, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotInitializedWithAValueInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
+
+        /* The field is added to the schema but not assigned a value */
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(DOUBLE).named("cash_amount")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = doubleHandler.getValue(simpleGroup);
+
+        assertEquals(0.0D, actualValue);
     }
 
 }
