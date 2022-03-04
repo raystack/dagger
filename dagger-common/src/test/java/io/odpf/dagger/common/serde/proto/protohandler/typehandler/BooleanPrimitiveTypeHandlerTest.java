@@ -4,17 +4,26 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BooleanPrimitiveTypeHandlerTest {
+    @Before
+    public void setup() {
+        initMocks(this);
+    }
 
     @Test
     public void shouldHandleBooleanTypes() {
@@ -97,5 +106,49 @@ public class BooleanPrimitiveTypeHandlerTest {
         Object actualValues = booleanPrimitiveTypeHandler.getArray(null);
 
         assertEquals(0, ((boolean[]) actualValues).length);
+    }
+
+    @Test
+    public void shouldFetchParsedValueForFieldOfTypeBoolInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BOOLEAN).named("customer_dynamic_surge_enabled")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("customer_dynamic_surge_enabled", true);
+
+        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        Object actualValue = booleanHandler.getValue(simpleGroup);
+
+        assertEquals(true, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotPresentInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BOOLEAN).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = booleanHandler.getValue(simpleGroup);
+
+        assertEquals(false, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotInitializedWithAValueInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
+        /* The field is added to the schema but not assigned a value */
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BOOLEAN).named("customer_dynamic_surge_enabled")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = booleanHandler.getValue(simpleGroup);
+
+        assertEquals(false, actualValue);
     }
 }
