@@ -38,7 +38,7 @@ public interface ProtoHandler {
      * @param field the field
      * @return the object
      */
-    Object transformFromKafka(Object field);
+    Object transformFromSource(Object field);
 
     /**
      * Transform to json object.

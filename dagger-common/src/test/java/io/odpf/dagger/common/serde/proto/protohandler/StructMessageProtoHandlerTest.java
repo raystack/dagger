@@ -58,7 +58,7 @@ public class StructMessageProtoHandlerTest {
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        assertNull(structMessageProtoHandler.transformFromKafka("test"));
+        assertNull(structMessageProtoHandler.transformFromSource("test"));
     }
 
     @Test

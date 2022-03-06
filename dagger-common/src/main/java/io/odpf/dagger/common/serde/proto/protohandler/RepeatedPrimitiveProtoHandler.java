@@ -61,7 +61,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromSource(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveTypeHandler.getArray(field);
     }

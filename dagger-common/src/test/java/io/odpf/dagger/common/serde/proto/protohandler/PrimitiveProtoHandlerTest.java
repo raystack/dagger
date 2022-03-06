@@ -94,8 +94,8 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals(123, primitiveProtoHandler.transformFromKafka(123));
-        assertEquals("123", primitiveProtoHandler.transformFromKafka("123"));
+        assertEquals(123, primitiveProtoHandler.transformFromSource(123));
+        assertEquals("123", primitiveProtoHandler.transformFromSource("123"));
     }
 
     @Test

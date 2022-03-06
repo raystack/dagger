@@ -206,7 +206,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), goLifeBookingLogMessage.toByteArray());
 
-        String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformFromKafka(dynamicMessage.getField(repeatedFieldDescriptor));
+        String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformFromSource(dynamicMessage.getField(repeatedFieldDescriptor));
         assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
     }
 
@@ -216,7 +216,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
         DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
-                () -> repeatedPrimitiveProtoHandler.transformFromKafka("CREATED"));
+                () -> repeatedPrimitiveProtoHandler.transformFromSource("CREATED"));
         assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
     }
 

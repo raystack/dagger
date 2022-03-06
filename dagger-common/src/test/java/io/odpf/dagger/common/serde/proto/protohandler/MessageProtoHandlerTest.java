@@ -147,7 +147,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromSource(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -165,7 +165,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromSource(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("", value.getField(1));

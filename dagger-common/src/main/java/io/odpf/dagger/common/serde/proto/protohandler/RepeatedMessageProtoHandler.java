@@ -74,7 +74,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromSource(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             List<DynamicMessage> protos = (List<DynamicMessage>) field;

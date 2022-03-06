@@ -54,7 +54,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromSource(Object field) {
         return String.valueOf(field).trim();
     }
 

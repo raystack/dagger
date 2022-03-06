@@ -212,7 +212,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromSource(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(10L, 10), row);
     }
 
@@ -225,7 +225,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromSource(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(0L, 0), row);
     }
 

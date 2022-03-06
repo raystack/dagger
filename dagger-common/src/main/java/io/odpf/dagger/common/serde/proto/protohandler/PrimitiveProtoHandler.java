@@ -49,7 +49,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromSource(Object field) {
         return field;
     }
 

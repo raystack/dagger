@@ -63,7 +63,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromSource(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
     }
 

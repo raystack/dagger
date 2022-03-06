@@ -152,7 +152,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
-        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromKafka("DRIVER_FOUND"));
+        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromSource("DRIVER_FOUND"));
     }
 
     @Test
