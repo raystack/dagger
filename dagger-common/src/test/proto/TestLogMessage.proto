@@ -292,3 +292,16 @@ message TestApiLogMessage {
   google.protobuf.Timestamp event_timestamp = 1;
   repeated string request_headers_extra = 2;
 }
+
+message TestPrimitiveMessage {
+  bool is_valid = 1;
+  string order_number = 2;
+  bytes order_hash = 3;
+  double latitude = 4;
+  double longitude = 5;
+  float price = 6;
+  int32 packet_count = 7;
+  int64 phone = 8;
+  google.protobuf.Timestamp event_timestamp = 9;
+  TestServiceType.Enum service_type = 10;
+}
