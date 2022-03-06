@@ -2,15 +2,16 @@ package io.odpf.dagger.common.serde.proto.protohandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
-import io.odpf.dagger.consumer.TestServiceType;
+import io.odpf.dagger.consumer.*;
 import io.odpf.dagger.common.exceptions.serde.EnumFieldNotFoundException;
 import org.apache.flink.api.common.typeinfo.Types;
 
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.junit.Assert.*;
 
 public class EnumProtoHandlerTest {
@@ -161,5 +162,46 @@ public class EnumProtoHandlerTest {
         Object value = new EnumProtoHandler(fieldDescriptor).transformToJson("DRIVER_FOUND");
 
         assertEquals("DRIVER_FOUND", value);
+    }
+
+    @Test
+    public void shouldReturnStringEnumValueWhenSimpleGroupIsPassed() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        String expectedEnum = fieldDescriptor.getEnumType().getValues().get(1).getName();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("status")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("status", expectedEnum);
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnum = enumProtoHandler.transformFromSource(simpleGroup);
+
+        assertEquals(expectedEnum, actualEnum);
+    }
+
+    @Test
+    public void shouldReturnNullStringWhenInputIsNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnum = enumProtoHandler.transformFromSource(null);
+
+        assertEquals("null", actualEnum);
+    }
+
+    @Test
+    public void transformFromParquetShouldReturnDefaultValueWhenEnumInsideSimpleGroupIsNotPresentInProtoDefinition() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("status")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("status", "NON_EXISTENT_ENUM");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnum = enumProtoHandler.transformFromSource(simpleGroup);
+
+        assertEquals("UNKNOWN", actualEnum);
     }
 }

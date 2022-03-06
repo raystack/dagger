@@ -1,11 +1,13 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
+import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.exceptions.serde.EnumFieldNotFoundException;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The type Enum proto handler.
@@ -55,7 +57,22 @@ public class EnumProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromSource(Object field) {
+        if (field instanceof SimpleGroup) {
+            return transformFromSource((SimpleGroup) field);
+        }
         return String.valueOf(field).trim();
+    }
+
+    private Object transformFromSource(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        String defaultEnumValue = fieldDescriptor.getEnumType().findValueByNumber(0).getName();
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            String parquetEnumValue = simpleGroup.getString(fieldName, 0);
+            Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(parquetEnumValue);
+            return enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
+        } else {
+            return defaultEnumValue;
+        }
     }
 
     @Override
