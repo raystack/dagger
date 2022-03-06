@@ -190,4 +190,36 @@ public class SimpleGroupValidationTest {
 
         assertFalse(actualResult);
     }
+
+    @Test
+    public void checkFieldExistsAndIsInitializedReturnsTrueOnlyIfSimpleGroupContainsTheFieldInItsSchemaAndIsInitialized() {
+        GroupType parquetSchema = Types.requiredGroup()
+                .required(INT32).named("primitive-type-column")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("primitive-type-column", 45);
+
+        assertTrue(SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, "primitive-type-column"));
+    }
+
+    @Test
+    public void checkFieldExistsAndIsInitializedReturnsFalseIfSimpleGroupDoesNotContainTheField() {
+        GroupType parquetSchema = Types.requiredGroup()
+                .required(INT32).named("primitive-type-column")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("primitive-type-column", 45);
+
+        assertFalse(SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, "random-column"));
+    }
+
+    @Test
+    public void checkFieldExistsAndIsInitializedReturnsFalseIfFieldIsNotInitializedInSimpleGroup() {
+        GroupType parquetSchema = Types.requiredGroup()
+                .required(INT32).named("primitive-type-column")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertFalse(SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, "primitive-type-column"));
+    }
 }

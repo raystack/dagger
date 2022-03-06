@@ -44,4 +44,8 @@ public class SimpleGroupValidation {
                 && this.checkParserCanParsePrimitive(simpleGroup, fieldName, supportedPrimitiveTypeName)
                 && this.checkLogicalTypeIsSupported(simpleGroup, fieldName, supportedLogicalTypeAnnotation);
     }
+
+    public static boolean checkFieldExistsAndIsInitialized(SimpleGroup simpleGroup, String fieldName) {
+        return simpleGroup.getType().containsField(fieldName) && simpleGroup.getFieldRepetitionCount(fieldName) != 0;
+    }
 }
