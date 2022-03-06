@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
+import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -8,13 +9,15 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -240,5 +243,58 @@ public class TimestampProtoHandlerTest {
         Object value = new TimestampProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
         assertEquals("2020-09-14 11:43:48", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldTransformEpochInMillisFromSimpleGroup() {
+        long sampleTimeInMillis = Instant.now().toEpochMilli();
+        Instant instant = Instant.ofEpochMilli(sampleTimeInMillis);
+        Row expectedRow = Row.of(instant.getEpochSecond(), instant.getNano());
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("event_timestamp")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("event_timestamp", sampleTimeInMillis);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromSource(simpleGroup);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionDuringTransformIfSimpleGroupIsNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+
+        timestampProtoHandler.transformFromSource(null);
+    }
+
+    @Test(expected = InvalidDataTypeException.class)
+    public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainField() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+
+        timestampProtoHandler.transformFromSource(simpleGroup);
+    }
+
+    @Test(expected = InvalidDataTypeException.class)
+    public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainValueForField() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("event_timestamp")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+
+        timestampProtoHandler.transformFromSource(simpleGroup);
     }
 }
