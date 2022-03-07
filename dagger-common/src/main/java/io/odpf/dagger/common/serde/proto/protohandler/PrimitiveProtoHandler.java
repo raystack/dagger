@@ -7,6 +7,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeH
 import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The type Primitive proto handler.
@@ -50,6 +51,11 @@ public class PrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromSource(Object field) {
+        if(field instanceof SimpleGroup) {
+            SimpleGroup simpleGroup = (SimpleGroup) field;
+            PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
+            return primitiveTypeHandler.getValue(simpleGroup);
+        }
         return field;
     }
 

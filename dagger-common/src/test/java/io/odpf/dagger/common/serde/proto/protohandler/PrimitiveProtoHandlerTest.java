@@ -1,14 +1,20 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
+import com.google.protobuf.ByteString;
+import io.odpf.dagger.consumer.TestMessageEnvelope;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -89,7 +95,7 @@ public class PrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameValueForTransformForKafka() {
+    public void shouldReturnSameValueForTransformFromSourceForKafka() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
@@ -112,5 +118,22 @@ public class PrimitiveProtoHandlerTest {
         Object value = new PrimitiveProtoHandler(fieldDescriptor).transformToJson("123");
 
         assertEquals("123", value);
+    }
+
+    @Test
+    public void shouldReturnParsedValueForTransformFromSourceForParquetSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
+        String testString = "test-string";
+        ByteString expectedByteString = ByteString.copyFrom(testString.getBytes());
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("log_key")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
+        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+
+        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromSource(simpleGroup);
+
+        assertEquals(expectedByteString, actualByteString);
     }
 }
