@@ -95,13 +95,13 @@ public class PrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameValueForTransformFromSourceForKafka() {
+    public void shouldReturnSameValueForTransformFromKafka() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals(123, primitiveProtoHandler.transformFromSource(123));
-        assertEquals("123", primitiveProtoHandler.transformFromSource("123"));
+        assertEquals(123, primitiveProtoHandler.transformFromKafka(123));
+        assertEquals("123", primitiveProtoHandler.transformFromKafka("123"));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class PrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnParsedValueForTransformFromSourceForParquetSimpleGroup() {
+    public void shouldReturnParsedValueForTransformFromKafkaForParquetSimpleGroup() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         String testString = "test-string";
         ByteString expectedByteString = ByteString.copyFrom(testString.getBytes());
@@ -132,7 +132,7 @@ public class PrimitiveProtoHandlerTest {
         simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromSource(simpleGroup);
+        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromKafka(simpleGroup);
 
         assertEquals(expectedByteString, actualByteString);
     }

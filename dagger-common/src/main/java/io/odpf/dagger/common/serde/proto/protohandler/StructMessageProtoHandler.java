@@ -38,7 +38,7 @@ public class StructMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromSource(Object field) {
+    public Object transformFromKafka(Object field) {
         return null;
     }
 

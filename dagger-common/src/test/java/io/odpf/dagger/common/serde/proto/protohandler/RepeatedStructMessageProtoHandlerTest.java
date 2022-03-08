@@ -59,7 +59,7 @@ public class RepeatedStructMessageProtoHandlerTest {
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
-        assertNull(repeatedStructMessageProtoHandler.transformFromSource("test"));
+        assertNull(repeatedStructMessageProtoHandler.transformFromKafka("test"));
     }
 
     @Test

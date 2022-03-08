@@ -153,7 +153,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
-        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromSource("DRIVER_FOUND"));
+        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromKafka("DRIVER_FOUND"));
     }
 
     @Test
@@ -175,7 +175,7 @@ public class EnumProtoHandlerTest {
         simpleGroup.add("status", expectedEnum);
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromSource(simpleGroup);
+        Object actualEnum = enumProtoHandler.transformFromKafka(simpleGroup);
 
         assertEquals(expectedEnum, actualEnum);
     }
@@ -185,7 +185,7 @@ public class EnumProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromSource(null);
+        Object actualEnum = enumProtoHandler.transformFromKafka(null);
 
         assertEquals("null", actualEnum);
     }
@@ -200,7 +200,7 @@ public class EnumProtoHandlerTest {
         simpleGroup.add("status", "NON_EXISTENT_ENUM");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromSource(simpleGroup);
+        Object actualEnum = enumProtoHandler.transformFromKafka(simpleGroup);
 
         assertEquals("UNKNOWN", actualEnum);
     }

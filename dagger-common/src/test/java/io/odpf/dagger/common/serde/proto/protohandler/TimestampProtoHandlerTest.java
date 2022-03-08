@@ -215,7 +215,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromSource(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(10L, 10), row);
     }
 
@@ -228,7 +228,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromSource(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(0L, 0), row);
     }
 
@@ -259,7 +259,7 @@ public class TimestampProtoHandlerTest {
         simpleGroup.add("event_timestamp", sampleTimeInMillis);
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row actualRow = (Row) timestampProtoHandler.transformFromSource(simpleGroup);
+        Row actualRow = (Row) timestampProtoHandler.transformFromKafka(simpleGroup);
 
         assertEquals(expectedRow, actualRow);
     }
@@ -269,7 +269,7 @@ public class TimestampProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromSource(null);
+        timestampProtoHandler.transformFromKafka(null);
     }
 
     @Test(expected = InvalidDataTypeException.class)
@@ -282,7 +282,7 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromSource(simpleGroup);
+        timestampProtoHandler.transformFromKafka(simpleGroup);
     }
 
     @Test(expected = InvalidDataTypeException.class)
@@ -295,6 +295,6 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromSource(simpleGroup);
+        timestampProtoHandler.transformFromKafka(simpleGroup);
     }
 }

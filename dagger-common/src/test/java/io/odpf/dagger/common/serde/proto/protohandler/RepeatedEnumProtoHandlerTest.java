@@ -95,7 +95,7 @@ public class RepeatedEnumProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromSource(dynamicMessage.getField(repeatedEnumFieldDescriptor));
+        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromKafka(dynamicMessage.getField(repeatedEnumFieldDescriptor));
 
         assertEquals("UNKNOWN", outputValues[0]);
     }
@@ -105,7 +105,7 @@ public class RepeatedEnumProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromSource(null);
+        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromKafka(null);
 
         assertEquals(0, outputValues.length);
     }

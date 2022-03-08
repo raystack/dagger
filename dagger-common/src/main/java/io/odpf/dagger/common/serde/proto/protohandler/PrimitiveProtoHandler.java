@@ -50,7 +50,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromSource(Object field) {
+    public Object transformFromKafka(Object field) {
         if(field instanceof SimpleGroup) {
             SimpleGroup simpleGroup = (SimpleGroup) field;
             PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);

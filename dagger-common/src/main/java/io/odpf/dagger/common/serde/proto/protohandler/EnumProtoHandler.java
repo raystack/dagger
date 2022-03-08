@@ -56,7 +56,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromSource(Object field) {
+    public Object transformFromKafka(Object field) {
         if (field instanceof SimpleGroup) {
             return transformFromSource((SimpleGroup) field);
         }

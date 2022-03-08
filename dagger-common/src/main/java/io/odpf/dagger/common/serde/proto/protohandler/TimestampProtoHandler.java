@@ -94,7 +94,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromSource(Object field) {
+    public Object transformFromKafka(Object field) {
         if (field == null) {
             throw new IllegalArgumentException("Error: Cannot parse timestamp from null");
         } else if (field instanceof SimpleGroup) {
