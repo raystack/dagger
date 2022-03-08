@@ -6,7 +6,7 @@ import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
-import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoType;
 import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.serde.parquet.parser.validation;
+package io.odpf.dagger.common.serde.parquet;
 
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.LogicalTypeAnnotation;

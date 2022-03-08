@@ -4,7 +4,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
-import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 

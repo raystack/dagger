@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.serde.parquet.parser.primitive;
 
 import io.odpf.dagger.common.serde.parquet.parser.ParquetDataTypeParser;
-import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.PrimitiveType;
 

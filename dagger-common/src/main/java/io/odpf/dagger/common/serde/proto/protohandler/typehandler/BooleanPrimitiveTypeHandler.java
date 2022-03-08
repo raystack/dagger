@@ -6,7 +6,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.parquet.example.data.simple.SimpleGroup;
-import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 
 import java.util.List;
 

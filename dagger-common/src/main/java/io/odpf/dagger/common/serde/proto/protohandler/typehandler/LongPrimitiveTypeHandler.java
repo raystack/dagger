@@ -2,7 +2,7 @@ package io.odpf.dagger.common.serde.proto.protohandler.typehandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
-import io.odpf.dagger.common.serde.parquet.parser.validation.SimpleGroupValidation;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.parquet.example.data.simple.SimpleGroup;
