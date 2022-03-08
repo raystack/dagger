@@ -15,8 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PrimitiveProtoHandlerTest {
 
@@ -121,7 +120,7 @@ public class PrimitiveProtoHandlerTest {
     }
 
     @Test
-    public void shouldReturnParsedValueForTransformFromKafkaForParquetSimpleGroup() {
+    public void shouldReturnParsedValueForTransformFromParquet() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         String testString = "test-string";
         ByteString expectedByteString = ByteString.copyFrom(testString.getBytes());
@@ -132,7 +131,7 @@ public class PrimitiveProtoHandlerTest {
         simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
 
-        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromKafka(simpleGroup);
+        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromParquet(simpleGroup);
 
         assertEquals(expectedByteString, actualByteString);
     }

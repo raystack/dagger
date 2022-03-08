@@ -57,22 +57,22 @@ public class EnumProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromKafka(Object field) {
-        if (field instanceof SimpleGroup) {
-            return transformFromSource((SimpleGroup) field);
-        }
         return String.valueOf(field).trim();
     }
 
-    private Object transformFromSource(SimpleGroup simpleGroup) {
-        String fieldName = fieldDescriptor.getName();
+    @Override
+    public Object transformFromParquet(Object field) {
         String defaultEnumValue = fieldDescriptor.getEnumType().findValueByNumber(0).getName();
-        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            String parquetEnumValue = simpleGroup.getString(fieldName, 0);
-            Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(parquetEnumValue);
-            return enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
-        } else {
-            return defaultEnumValue;
+        String fieldName = fieldDescriptor.getName();
+        if (field instanceof SimpleGroup) {
+            SimpleGroup simpleGroup = (SimpleGroup) field;
+            if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+                String parquetEnumValue = simpleGroup.getString(fieldName, 0);
+                Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(parquetEnumValue);
+                return enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
+            }
         }
+        return defaultEnumValue;
     }
 
     @Override

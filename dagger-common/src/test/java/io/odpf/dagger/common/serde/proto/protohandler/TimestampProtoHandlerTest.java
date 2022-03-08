@@ -17,11 +17,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TimestampProtoHandlerTest {
     @Test
@@ -201,7 +199,7 @@ public class TimestampProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
         TypeInformation actualTypeInformation = timestampProtoHandler.getTypeInformation();
-        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[] {"seconds", "nanos"}, Types.LONG, Types.INT);
+        TypeInformation<Row> expectedTypeInformation = Types.ROW_NAMED(new String[]{"seconds", "nanos"}, Types.LONG, Types.INT);
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
@@ -259,20 +257,32 @@ public class TimestampProtoHandlerTest {
         simpleGroup.add("event_timestamp", sampleTimeInMillis);
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row actualRow = (Row) timestampProtoHandler.transformFromKafka(simpleGroup);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
 
         assertEquals(expectedRow, actualRow);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionDuringTransformIfSimpleGroupIsNull() {
+    @Test
+    public void shouldThrowExceptionIfNullIsPassedToTransformFromParquet() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromKafka(null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> timestampProtoHandler.transformFromParquet(null));
+        assertEquals("Could not extract timestamp with descriptor name event_timestamp from null", exception.getMessage());
     }
 
-    @Test(expected = InvalidDataTypeException.class)
+    @Test
+    public void shouldThrowExceptionIfAnyArgumentOtherThanSimpleGroupIsPassedToTransformFromParquet() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> timestampProtoHandler.transformFromParquet("some object"));
+        assertEquals("Could not extract timestamp with descriptor name event_timestamp from some object", exception.getMessage());
+    }
+
+    @Test
     public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainField() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
@@ -282,10 +292,16 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromKafka(simpleGroup);
+        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+                () -> timestampProtoHandler.transformFromParquet(simpleGroup));
+        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from simple " +
+                "group of type: required group TestGroupType {\n" +
+                "  required int64 some-other-field;\n" +
+                "}";
+        assertEquals(expectedErrorMessage, exception.getMessage());
     }
 
-    @Test(expected = InvalidDataTypeException.class)
+    @Test
     public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainValueForField() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
@@ -295,6 +311,12 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        timestampProtoHandler.transformFromKafka(simpleGroup);
+        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+                () -> timestampProtoHandler.transformFromParquet(simpleGroup));
+        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from " +
+                "simple group of type: required group TestGroupType {\n" +
+                "  required int64 event_timestamp;\n" +
+                "}";
+        assertEquals(expectedErrorMessage, exception.getMessage());
     }
 }

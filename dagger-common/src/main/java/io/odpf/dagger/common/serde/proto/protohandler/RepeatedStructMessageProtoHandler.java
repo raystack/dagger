@@ -43,6 +43,11 @@ public class RepeatedStructMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
+    public Object transformFromParquet(Object field) {
+        return null;
+    }
+
+    @Override
     public Object transformToJson(Object field) {
         return null;
     }

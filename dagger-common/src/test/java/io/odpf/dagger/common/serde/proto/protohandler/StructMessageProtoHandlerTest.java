@@ -70,4 +70,12 @@ public class StructMessageProtoHandlerTest {
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
+        StructMessageProtoHandler protoHandler = new StructMessageProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
+    }
 }

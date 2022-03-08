@@ -68,6 +68,11 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
+    public Object transformFromParquet(Object field) {
+        return null;
+    }
+
+    @Override
     public Object transformToJson(Object field) {
         if (jsonRowSerializationSchema == null) {
             jsonRowSerializationSchema = createJsonRowSchema();

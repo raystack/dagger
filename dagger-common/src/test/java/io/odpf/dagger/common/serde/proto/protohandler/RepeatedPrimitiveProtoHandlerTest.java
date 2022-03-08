@@ -18,10 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedPrimitiveProtoHandlerTest {
 
@@ -238,5 +235,14 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         Object value = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor).transformToJson(inputValues);
         assertEquals("[\"test1\",\"test2\"]", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+        RepeatedPrimitiveProtoHandler protoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
     }
 }

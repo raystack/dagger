@@ -95,31 +95,39 @@ public class TimestampProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromKafka(Object field) {
-        if (field == null) {
-            throw new IllegalArgumentException("Error: Cannot parse timestamp from null");
-        } else if (field instanceof SimpleGroup) {
-            return transformFromSource((SimpleGroup) field);
-        }
         return RowFactory.createRow((DynamicMessage) field);
     }
 
-    private Object transformFromSource(SimpleGroup simpleGroup) {
-        String fieldName = fieldDescriptor.getName();
-       /* Handling only for latest parquet files in which timestamps are encoded as int64 with logical type annotation
-       of TIMESTAMP(true, MILLIS) */
-        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            long timeInMillis = simpleGroup.getLong(fieldName, 0);
-            Timestamp protoTimestamp = createProtoTimestampFromMillis(timeInMillis);
-            DynamicMessage message = createDynamicMessageFromProtoTimestamp(protoTimestamp);
-            return RowFactory.createRow(message);
-        } else {
-            String errMessage = String.format("Could not extract timestamp with field name %s from simple group of type %s",
-                    fieldDescriptor.getName(), simpleGroup.getType().toString());
-            throw new InvalidDataTypeException(errMessage);
+    @Override
+    public Object transformFromParquet(Object field) {
+        if (!(field instanceof SimpleGroup)) {
+            String errMessage = String.format("Could not extract timestamp with descriptor name %s from %s",
+                    fieldDescriptor.getName(), field);
+            throw new IllegalArgumentException(errMessage);
         }
+        return transformFromSimpleGroup((SimpleGroup)field);
     }
 
-    private Timestamp createProtoTimestampFromMillis(long millis) {
+    private Object transformFromSimpleGroup(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            DynamicMessage dynamicMessage =  transformParquetInt64MillisToDynamicMessage(fieldName, simpleGroup);
+            return RowFactory.createRow(dynamicMessage);
+        }
+        String errMessage = String.format("Could not extract timestamp with descriptor name %s from simple group of type: %s",
+                fieldDescriptor.getName(), simpleGroup.getType().toString());
+        throw new InvalidDataTypeException(errMessage);
+    }
+
+    /* Handling for latest parquet files in which timestamps are encoded as int64 epoch milliseconds with logical type
+    annotation of TIMESTAMP(true, MILLIS) */
+    private DynamicMessage transformParquetInt64MillisToDynamicMessage(String fieldName, SimpleGroup simpleGroup) {
+        long timeInMillis = simpleGroup.getLong(fieldName, 0);
+        Timestamp protoTimestamp = transformParquetInt64MillisToProtoTimestamp(timeInMillis);
+        return transformProtoTimestampToDynamicMessage(protoTimestamp);
+    }
+
+    private Timestamp transformParquetInt64MillisToProtoTimestamp(long millis) {
         Instant instant = Instant.ofEpochMilli(millis);
         return Timestamp.newBuilder()
                 .setSeconds(instant.getEpochSecond())
@@ -127,7 +135,7 @@ public class TimestampProtoHandler implements ProtoHandler {
                 .build();
     }
 
-    private DynamicMessage createDynamicMessageFromProtoTimestamp(Timestamp protoTimestamp) {
+    private DynamicMessage transformProtoTimestampToDynamicMessage(Timestamp protoTimestamp) {
         try {
             /* getting the descriptor from fieldDescriptor to create the timestamp message. This will ensure that the
             nested row for timestamp is created with the same position numbers as the fieldDescriptor indices of

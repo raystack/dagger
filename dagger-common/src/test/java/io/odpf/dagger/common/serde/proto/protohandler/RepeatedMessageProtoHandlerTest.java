@@ -19,9 +19,7 @@ import java.util.List;
 import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
 import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
 import static org.apache.flink.api.common.typeinfo.Types.STRING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedMessageProtoHandlerTest {
 
@@ -296,4 +294,12 @@ public class RepeatedMessageProtoHandlerTest {
         assertEquals("[{\"reason_id\":\"reason1\",\"group_id\":\"group1\"}, {\"reason_id\":\"reason2\",\"group_id\":\"group2\"}]", String.valueOf(value));
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("reason");
+        RepeatedMessageProtoHandler protoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
+    }
 }

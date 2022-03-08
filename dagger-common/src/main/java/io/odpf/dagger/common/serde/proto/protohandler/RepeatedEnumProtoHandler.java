@@ -51,6 +51,11 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
     }
 
     @Override
+    public Object transformFromParquet(Object field) {
+        return null;
+    }
+
+    @Override
     public Object transformToJson(Object field) {
         return GSON.toJson(getValue(field));
     }

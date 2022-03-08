@@ -13,9 +13,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MessageProtoHandlerTest {
 
@@ -192,5 +190,14 @@ public class MessageProtoHandlerTest {
         Object value = new MessageProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
         assertEquals("{\"masked_card\":\"test1\",\"network\":\"test2\"}", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
+        MessageProtoHandler protoHandler = new MessageProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
     }
 }

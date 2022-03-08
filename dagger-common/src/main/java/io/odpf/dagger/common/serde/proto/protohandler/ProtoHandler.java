@@ -41,6 +41,14 @@ public interface ProtoHandler {
     Object transformFromKafka(Object field);
 
     /**
+     * Transform from parquet object.
+     *
+     * @param field the field
+     * @return the object
+     */
+    Object transformFromParquet(Object field);
+
+    /**
      * Transform to json object.
      *
      * @param field the field

@@ -71,4 +71,13 @@ public class RepeatedStructMessageProtoHandlerTest {
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        RepeatedStructMessageProtoHandler protoHandler = new RepeatedStructMessageProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
+    }
+
 }

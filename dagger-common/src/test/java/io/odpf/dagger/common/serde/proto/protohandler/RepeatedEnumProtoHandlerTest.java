@@ -15,9 +15,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedEnumProtoHandlerTest {
     @Test
@@ -108,5 +106,14 @@ public class RepeatedEnumProtoHandlerTest {
         String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromKafka(null);
 
         assertEquals(0, outputValues.length);
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumProtoHandler protoHandler = new RepeatedEnumProtoHandler(fieldDescriptor);
+        Object obj = new Object();
+
+        assertNull(protoHandler.transformFromParquet(obj));
     }
 }

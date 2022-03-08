@@ -175,23 +175,23 @@ public class EnumProtoHandlerTest {
         simpleGroup.add("status", expectedEnum);
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromKafka(simpleGroup);
+        Object actualEnum = enumProtoHandler.transformFromParquet(simpleGroup);
 
         assertEquals(expectedEnum, actualEnum);
     }
 
     @Test
-    public void shouldReturnNullStringWhenInputIsNull() {
+    public void shouldReturnDefaultEnumStringWhenNullIsPassedToTransformFromParquet() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromKafka(null);
+        Object actualEnumValue = enumProtoHandler.transformFromParquet(null);
 
-        assertEquals("null", actualEnum);
+        assertEquals("UNKNOWN", actualEnumValue);
     }
 
     @Test
-    public void transformFromParquetShouldReturnDefaultValueWhenEnumInsideSimpleGroupIsNotPresentInProtoDefinition() {
+    public void shouldReturnDefaultEnumStringWhenEnumValueInsideSimpleGroupIsNotPresentInProtoDefinition() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .required(BINARY).named("status")
@@ -200,7 +200,7 @@ public class EnumProtoHandlerTest {
         simpleGroup.add("status", "NON_EXISTENT_ENUM");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
 
-        Object actualEnum = enumProtoHandler.transformFromKafka(simpleGroup);
+        Object actualEnum = enumProtoHandler.transformFromParquet(simpleGroup);
 
         assertEquals("UNKNOWN", actualEnum);
     }
