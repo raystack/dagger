@@ -58,7 +58,7 @@ public class RowFactory {
         Row row = new Row(descriptorFields.size() + extraColumns);
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromKafka(simpleGroup));
+            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromParquet(simpleGroup));
         }
         return row;
     }
