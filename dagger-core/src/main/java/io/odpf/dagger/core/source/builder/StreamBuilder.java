@@ -1,6 +1,10 @@
 package io.odpf.dagger.core.source.builder;
 
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.serde.DaggerDeserializer;
+import io.odpf.dagger.core.source.*;
 import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -8,8 +12,6 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
-import io.odpf.dagger.core.source.Stream;
-import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,10 +25,12 @@ public abstract class StreamBuilder implements TelemetryPublisher {
 
     private StreamConfig streamConfig;
     private Configuration configuration;
+    private StencilClientOrchestrator stencilClientOrchestrator;
 
-    public StreamBuilder(StreamConfig streamConfig, Configuration configuration) {
+    public StreamBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
         this.streamConfig = streamConfig;
         this.configuration = configuration;
+        this.stencilClientOrchestrator = stencilClientOrchestrator;
     }
 
     @Override
@@ -49,6 +53,10 @@ public abstract class StreamBuilder implements TelemetryPublisher {
         return new Stream(createSource(), streamConfig.getSchemaTable(), getInputDataType());
     }
 
+    public Stream buildStream() {
+        return new Stream(createDataSource(), streamConfig.getSourceDetails(), streamConfig.getSchemaTable(), getInputDataType());
+    }
+
     private Source createSource() {
         return KafkaSource.<Row>builder()
                 .setTopicPattern(streamConfig.getTopicPattern())
@@ -56,6 +64,22 @@ public abstract class StreamBuilder implements TelemetryPublisher {
                 .setProperties(streamConfig.getKafkaProps(configuration))
                 .setDeserializer(getDeserializationSchema())
                 .build();
+    }
+
+    private Source createDataSource() {
+        SourceDetails[] sourceDetailsArray = streamConfig.getSourceDetails();
+        ArrayList<Source> sourceList = new ArrayList<>();
+        for (SourceDetails sourceDetails : sourceDetailsArray) {
+            SourceName sourceName = sourceDetails.getSourceName();
+            DataTypes inputDataType = getInputDataType();
+            DaggerDeserializer<Row> deserializer = DeserializerFactory.create(sourceName, inputDataType, streamConfig, configuration, stencilClientOrchestrator);
+            Source source = SourceFactory.create(sourceDetails, streamConfig, configuration, deserializer);
+            sourceList.add(source);
+        }
+        if(sourceList.size() > 1) {
+            throw new IllegalConfigurationException("Invalid stream configuration: Multiple back to back data sources is not supported yet.");
+        }
+        return sourceList.get(0);
     }
 
     abstract KafkaRecordDeserializationSchema getDeserializationSchema();
