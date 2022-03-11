@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.proto.deserialization;
 
+import io.odpf.dagger.common.serde.DaggerDeserializer;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * Deserializer for protobuf messages.
  */
-public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
+public class ProtoDeserializer implements KafkaDeserializationSchema<Row>, DaggerDeserializer<Row> {
 
     private final String protoClassName;
     private final int timestampFieldIndex;
