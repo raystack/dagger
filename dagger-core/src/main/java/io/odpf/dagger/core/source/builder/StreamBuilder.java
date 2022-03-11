@@ -27,6 +27,12 @@ public abstract class StreamBuilder implements TelemetryPublisher {
     private Configuration configuration;
     private StencilClientOrchestrator stencilClientOrchestrator;
 
+    public StreamBuilder(StreamConfig streamConfig, Configuration configuration) {
+        this.streamConfig = streamConfig;
+        this.configuration = configuration;
+        this.stencilClientOrchestrator = null;
+    }
+
     public StreamBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
         this.streamConfig = streamConfig;
         this.configuration = configuration;
