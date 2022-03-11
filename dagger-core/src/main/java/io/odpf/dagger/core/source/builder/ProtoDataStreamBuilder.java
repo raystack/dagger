@@ -24,7 +24,7 @@ public class ProtoDataStreamBuilder extends StreamBuilder {
     private Map<String, List<String>> metrics = new HashMap<>();
 
     public ProtoDataStreamBuilder(StreamConfig streamConfig, StencilClientOrchestrator stencilClientOrchestrator, Configuration configuration) {
-        super(streamConfig, configuration);
+        super(streamConfig, configuration, stencilClientOrchestrator);
         this.streamConfig = streamConfig;
         this.protoClassName = streamConfig.getProtoClass();
         this.stencilClientOrchestrator = stencilClientOrchestrator;
