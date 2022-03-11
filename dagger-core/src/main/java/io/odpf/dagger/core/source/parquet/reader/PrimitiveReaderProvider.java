@@ -1,27 +1,16 @@
 package io.odpf.dagger.core.source.parquet.reader;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.DaggerDeserializer;
-import io.odpf.dagger.core.source.StreamConfig;
-import org.apache.flink.types.Row;
+import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 
 public class PrimitiveReaderProvider implements ReaderProvider {
+    private final SimpleGroupDeserializer simpleGroupDeserializer;
 
-    private final StreamConfig streamConfig;
-    private final StencilClientOrchestrator stencilClientOrchestrator;
-    private final DaggerDeserializer<Row> daggerDeserializer;
-
-    public PrimitiveReaderProvider(StreamConfig streamConfig,
-                                   StencilClientOrchestrator stencilClientOrchestrator,
-                                   DaggerDeserializer<Row> daggerDeserializer) {
-
-        this.streamConfig = streamConfig;
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
-        this.daggerDeserializer = daggerDeserializer;
+    public PrimitiveReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer) {
+        this.simpleGroupDeserializer = simpleGroupDeserializer;
     }
 
     @Override
-    public PrimitiveReader getReader() {
-        return new PrimitiveReader(streamConfig, stencilClientOrchestrator, daggerDeserializer);
+    public PrimitiveReader getReader(String filePath) {
+        return new PrimitiveReader(filePath, simpleGroupDeserializer);
     }
 }

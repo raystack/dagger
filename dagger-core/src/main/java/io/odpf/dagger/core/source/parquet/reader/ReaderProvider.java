@@ -5,5 +5,5 @@ import org.apache.flink.types.Row;
 
 @FunctionalInterface
 public interface ReaderProvider {
-    FileRecordFormat.Reader<Row> getReader();
+    FileRecordFormat.Reader<Row> getReader(String filePath);
 }

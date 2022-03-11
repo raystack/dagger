@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.source.parquet;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -9,28 +8,28 @@ import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
-import java.io.IOException;
+import java.util.function.Supplier;
 
 /* TODO */
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
-    private final StencilClientOrchestrator stencilClientOrchestrator;
     private final StreamConfig streamConfig;
     private final ReaderProvider parquetFileReaderProvider;
+    private final Supplier<TypeInformation<Row>> typeInformationProvider;
 
-    public ParquetFileRecordFormat(StreamConfig streamConfig, ReaderProvider parquetFileReaderProvider, StencilClientOrchestrator stencilClientOrchestrator) {
-        this.stencilClientOrchestrator = stencilClientOrchestrator;
+    public ParquetFileRecordFormat(StreamConfig streamConfig, ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
         this.streamConfig = streamConfig;
+        this.typeInformationProvider = typeInformationProvider;
     }
 
     @Override
-    public Reader<Row> createReader(Configuration config, Path filePath, long splitOffset, long splitLength) throws IOException {
-        return parquetFileReaderProvider.getReader();
+    public Reader<Row> createReader(Configuration config, Path filePath, long splitOffset, long splitLength) {
+        return parquetFileReaderProvider.getReader(filePath.toString());
     }
 
     @Override
-    public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) throws IOException {
-        return parquetFileReaderProvider.getReader();
+    public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) {
+        return parquetFileReaderProvider.getReader(filePath.toString());
     }
 
     @Override
@@ -40,6 +39,6 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
 
     @Override
     public TypeInformation<Row> getProducedType() {
-        return null;
+        return typeInformationProvider.get();
     }
 }
