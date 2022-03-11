@@ -14,4 +14,9 @@ public class SourceDetails {
     @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_TYPE_KEY)
     @Getter
     private SourceType sourceType;
+
+    public SourceDetails(SourceName sourceName, SourceType sourceType) {
+        this.sourceName = sourceName;
+        this.sourceType = sourceType;
+    }
 }
