@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source.builder;
 
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
+import io.odpf.dagger.core.deserializer.DeserializerFactory;
 import io.odpf.dagger.core.source.*;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.configuration.IllegalConfigurationException;
