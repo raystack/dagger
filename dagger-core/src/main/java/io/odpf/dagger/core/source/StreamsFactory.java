@@ -24,7 +24,7 @@ public class StreamsFactory {
                     .asList(new JsonDataStreamBuilder(streamConfig, configuration),
                             new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
             StreamBuilder streamBuilder = dataStreams.stream()
-                    .filter(dataStream -> dataStream.canBuild())
+                    .filter(StreamBuilder::canBuild)
                     .findFirst()
                     .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
 
