@@ -23,7 +23,7 @@ public class StreamMetrics {
                     break;
                 }
                 default: {
-                    String message = String.format("Error: Cannot add default metrics for unknown source %s", sourceName);
+                    String message = String.format("Error: Cannot add default metrics for unknown source %s", sourceName.name());
                     throw new IllegalArgumentException(message);
                 }
             }
