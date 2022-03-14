@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.odpf.dagger.core.source.StreamMetrics.addDefaultMetrics;
+
 public class JsonDataStreamBuilder extends StreamBuilder {
     private final StreamConfig streamConfig;
 
@@ -23,7 +25,7 @@ public class JsonDataStreamBuilder extends StreamBuilder {
 
     @Override
     void addTelemetry() {
-        addDefaultMetrics(metrics);
+        addDefaultMetrics(streamConfig, metrics);
     }
 
     @Override

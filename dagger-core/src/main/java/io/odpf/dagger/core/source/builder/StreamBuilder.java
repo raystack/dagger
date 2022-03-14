@@ -15,12 +15,8 @@ import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_STREAM;
-import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_TOPIC;
 
 public abstract class StreamBuilder implements TelemetryPublisher {
 
@@ -93,20 +89,5 @@ public abstract class StreamBuilder implements TelemetryPublisher {
 
     DataTypes getInputDataType() {
         return DataTypes.valueOf(streamConfig.getDataType());
-    }
-
-    void addMetric(Map<String, List<String>> metrics, String key, String value) {
-        metrics.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
-    }
-
-    protected Map<String, List<String>> addDefaultMetrics(Map<String, List<String>> metrics) {
-        String topicPattern = streamConfig.getKafkaTopicNames();
-        List<String> topicsToReport = new ArrayList<>();
-        topicsToReport.addAll(Arrays.asList(topicPattern.split("\\|")));
-        topicsToReport.forEach(topic -> addMetric(metrics, INPUT_TOPIC.getValue(), topic));
-
-        String streamName = streamConfig.getKafkaName();
-        addMetric(metrics, INPUT_STREAM.getValue(), streamName);
-        return metrics;
     }
 }

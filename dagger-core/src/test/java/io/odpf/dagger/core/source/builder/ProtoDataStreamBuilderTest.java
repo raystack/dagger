@@ -109,6 +109,7 @@ public class ProtoDataStreamBuilderTest {
 
     @Test
     public void shouldAddMetricsSpecificToKafkaSource() {
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getKafkaTopicNames()).thenReturn("test-topic");
         when(streamConfig.getProtoClass()).thenReturn("test-class");
         when(streamConfig.getKafkaName()).thenReturn("test-kafka");
@@ -120,6 +121,19 @@ public class ProtoDataStreamBuilderTest {
         assertEquals(Arrays.asList(new String[]{"test-topic"}), metrics.get("input_topic"));
         assertEquals(Arrays.asList(new String[]{"test-class"}), metrics.get("input_proto"));
         assertEquals(Arrays.asList(new String[]{"test-kafka"}), metrics.get("input_stream"));
+    }
+
+    @Test
+    public void shouldAddMetricsSpecificToParquetSource() {
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED)});
+        when(streamConfig.getProtoClass()).thenReturn("test-class");
+        ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
+        protoDataStreamBuilder.addTelemetry();
+
+        Map<String, List<String>> expectedMetrics = protoDataStreamBuilder.getMetrics();
+
+        assertEquals(1, expectedMetrics.size());
+        assertEquals(Arrays.asList(new String[]{"test-class"}), expectedMetrics.get("input_proto"));
     }
 
     @Test

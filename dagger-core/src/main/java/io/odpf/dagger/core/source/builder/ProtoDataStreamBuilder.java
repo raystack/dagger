@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
+import static io.odpf.dagger.core.source.StreamMetrics.addDefaultMetrics;
+import static io.odpf.dagger.core.source.StreamMetrics.addMetric;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
@@ -33,7 +35,7 @@ public class ProtoDataStreamBuilder extends StreamBuilder {
 
     @Override
     void addTelemetry() {
-        addDefaultMetrics(metrics);
+        addDefaultMetrics(streamConfig, metrics);
         addMetric(metrics, INPUT_PROTO.getValue(), protoClassName);
     }
 

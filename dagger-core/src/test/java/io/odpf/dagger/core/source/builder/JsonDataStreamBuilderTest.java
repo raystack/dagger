@@ -97,6 +97,7 @@ public class JsonDataStreamBuilderTest {
 
     @Test
     public void shouldAddMetricsSpecificToKafkaSource() {
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getKafkaTopicNames()).thenReturn("test-topic");
         when(streamConfig.getKafkaName()).thenReturn("test-kafka");
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
