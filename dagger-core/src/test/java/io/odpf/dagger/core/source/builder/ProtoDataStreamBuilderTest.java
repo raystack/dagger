@@ -101,7 +101,7 @@ public class ProtoDataStreamBuilderTest {
 
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        Stream build = protoDataStreamBuilder.buildStream();
+        Stream build = protoDataStreamBuilder.build();
 
         assertEquals(DataTypes.PROTO, build.getInputDataType());
         assertTrue(build.getSource() instanceof KafkaSource);
@@ -142,7 +142,7 @@ public class ProtoDataStreamBuilderTest {
         thrown.expect(NullPointerException.class);
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        protoDataStreamBuilder.buildStream();
+        protoDataStreamBuilder.build();
     }
 
     @Test
@@ -166,7 +166,7 @@ public class ProtoDataStreamBuilderTest {
 
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        Stream build = protoDataStreamBuilder.buildStream();
+        Stream build = protoDataStreamBuilder.build();
         SourceDetails[] sourceDetails = build.getSourceDetails();
         Source source = build.getSource();
 
@@ -203,7 +203,7 @@ public class ProtoDataStreamBuilderTest {
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
-                protoDataStreamBuilder::buildStream);
+                protoDataStreamBuilder::build);
         assertEquals("Invalid stream configuration: Multiple back to back data sources is not supported yet.", exception.getMessage());
     }
 }

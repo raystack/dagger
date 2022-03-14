@@ -89,7 +89,7 @@ public class JsonDataStreamBuilderTest {
 
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
-        Stream build = jsonDataStreamBuilder.buildStream();
+        Stream build = jsonDataStreamBuilder.build();
 
         Assert.assertEquals(DataTypes.JSON, build.getInputDataType());
         Assert.assertTrue(build.getSource() instanceof KafkaSource);
@@ -115,7 +115,7 @@ public class JsonDataStreamBuilderTest {
         thrown.expect(NullPointerException.class);
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
-        jsonDataStreamBuilder.buildStream();
+        jsonDataStreamBuilder.build();
     }
 
     @Test
@@ -137,7 +137,7 @@ public class JsonDataStreamBuilderTest {
 
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
-        Stream build = jsonDataStreamBuilder.buildStream();
+        Stream build = jsonDataStreamBuilder.build();
         SourceDetails[] sourceDetails = build.getSourceDetails();
         Source source = build.getSource();
 

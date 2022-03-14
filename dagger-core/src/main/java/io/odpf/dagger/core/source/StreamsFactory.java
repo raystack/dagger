@@ -31,7 +31,7 @@ public class StreamsFactory {
             streamBuilder.notifySubscriber(telemetryExporter);
 
             Stream stream = streamBuilder
-                    .buildStream();
+                    .build();
             streams.add(stream);
         }
         return streams;

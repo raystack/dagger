@@ -50,7 +50,7 @@ public abstract class StreamBuilder implements TelemetryPublisher {
 
     public abstract boolean canBuild();
 
-    public Stream buildStream() {
+    public Stream build() {
         return new Stream(createDataSource(), streamConfig.getSourceDetails(), streamConfig.getSchemaTable(), getInputDataType());
     }
 
