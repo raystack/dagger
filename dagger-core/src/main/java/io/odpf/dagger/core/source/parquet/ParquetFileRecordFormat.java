@@ -12,13 +12,11 @@ import java.util.function.Supplier;
 
 /* TODO */
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
-    private final StreamConfig streamConfig;
     private final ReaderProvider parquetFileReaderProvider;
     private final Supplier<TypeInformation<Row>> typeInformationProvider;
 
-    public ParquetFileRecordFormat(StreamConfig streamConfig, ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
+    public ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
-        this.streamConfig = streamConfig;
         this.typeInformationProvider = typeInformationProvider;
     }
 

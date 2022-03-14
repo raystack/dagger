@@ -31,7 +31,7 @@ public class ParquetFileSourceFactory {
                 .map(Path::new)
                 .toArray(Path[]::new);
         ParquetFileSourceBuilder parquetFileSourceBuilder = new ParquetFileSourceBuilder();
-        FileRecordFormat<Row> fileRecordFormat = getParquetFileRecordFormat(streamConfig, simpleGroupDeserializer);
+        FileRecordFormat<Row> fileRecordFormat = getParquetFileRecordFormat(simpleGroupDeserializer);
         FileSplitAssigner.Provider splitAssignerProvider = getSplitAssignerProvider(streamConfig);
 
         return parquetFileSourceBuilder.setFilePaths(filePaths)
@@ -42,10 +42,10 @@ public class ParquetFileSourceFactory {
                 .build();
     }
 
-    private static FileRecordFormat<Row> getParquetFileRecordFormat(StreamConfig streamConfig, SimpleGroupDeserializer simpleGroupDeserializer) {
+    private static FileRecordFormat<Row> getParquetFileRecordFormat(SimpleGroupDeserializer simpleGroupDeserializer) {
         ReaderProvider parquetFileReaderProvider = new PrimitiveReaderProvider(simpleGroupDeserializer);
         Supplier<TypeInformation<Row>> typeInformationProvider = simpleGroupDeserializer::getProducedType;
-        return new ParquetFileRecordFormat(streamConfig, parquetFileReaderProvider, typeInformationProvider);
+        return new ParquetFileRecordFormat(parquetFileReaderProvider, typeInformationProvider);
     }
 
     private static FileSplitAssigner.Provider getSplitAssignerProvider(StreamConfig streamConfig) {
