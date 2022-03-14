@@ -23,7 +23,7 @@ public class DeserializerFactory {
             case PARQUET:
                 return createParquetDeserializer(inputDataType, streamConfig, configuration, stencilClientOrchestrator);
             default: {
-                String message = String.format("Invalid stream configuration: No suitable deserializer could be constructed for source of type %s", sourceName.name());
+                String message = String.format("Invalid stream configuration: No suitable deserializer could be constructed for source %s", sourceName.name());
                 throw new IllegalConfigurationException(message);
             }
         }

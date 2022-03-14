@@ -49,9 +49,6 @@ public class DeserializerFactoryTest {
     private SourceName invalidSourceName;
 
     @Mock
-    private ProtoDeserializer protoDeserializer;
-
-    @Mock
     private StencilClient stencilClient;
 
     @Before
@@ -73,16 +70,10 @@ public class DeserializerFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenSourceNameIsNotSupported() {
-        SourceName sourceName = mock(SourceName.class);
-        given(sourceName.name()).willReturn("INVALID_SOURCE");
-        given(sourceName.ordinal()).willReturn(2);
-        PowerMockito.mockStatic(SourceName.class);
-        PowerMockito.when(SourceName.values()).thenReturn(new SourceName[]{KAFKA, PARQUET, sourceName});
-
         IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
-                () -> DeserializerFactory.create(sourceName, PROTO, streamConfig, configuration, stencilClientOrchestrator));
+                () -> DeserializerFactory.create(invalidSourceName, PROTO, streamConfig, configuration, stencilClientOrchestrator));
 
-        assertEquals("Invalid stream configuration: No suitable deserializer could be constructed for source of type INVALID_SOURCE",
+        assertEquals("Invalid stream configuration: No suitable deserializer could be constructed for source INVALID_SOURCE_NAME",
                 exception.getMessage());
     }
 
