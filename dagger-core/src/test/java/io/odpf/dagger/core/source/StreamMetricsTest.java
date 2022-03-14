@@ -67,7 +67,6 @@ public class StreamMetricsTest {
 
     @Test
     public void shouldThrowExceptionIfSourceNotFound() {
-        PowerMockito.when(SourceName.values()).thenReturn(new SourceName[]{KAFKA, PARQUET, invalidSourceName});
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(invalidSourceName, BOUNDED)});
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
