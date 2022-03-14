@@ -78,6 +78,7 @@ public class JsonDataStreamBuilderTest {
         Properties properties = new Properties();
         properties.putAll(kafkaPropMap);
 
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
@@ -88,7 +89,7 @@ public class JsonDataStreamBuilderTest {
 
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
-        Stream build = jsonDataStreamBuilder.build();
+        Stream build = jsonDataStreamBuilder.buildStream();
 
         Assert.assertEquals(DataTypes.JSON, build.getInputDataType());
         Assert.assertTrue(build.getSource() instanceof KafkaSource);
@@ -114,7 +115,7 @@ public class JsonDataStreamBuilderTest {
         thrown.expect(NullPointerException.class);
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
-        jsonDataStreamBuilder.build();
+        jsonDataStreamBuilder.buildStream();
     }
 
     @Test

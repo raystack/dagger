@@ -89,6 +89,7 @@ public class ProtoDataStreamBuilderTest {
         Properties properties = new Properties();
         properties.putAll(kafkaPropMap);
 
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
@@ -100,7 +101,7 @@ public class ProtoDataStreamBuilderTest {
 
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        Stream build = protoDataStreamBuilder.build();
+        Stream build = protoDataStreamBuilder.buildStream();
 
         assertEquals(DataTypes.PROTO, build.getInputDataType());
         assertTrue(build.getSource() instanceof KafkaSource);
@@ -141,7 +142,7 @@ public class ProtoDataStreamBuilderTest {
         thrown.expect(NullPointerException.class);
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        protoDataStreamBuilder.build();
+        protoDataStreamBuilder.buildStream();
     }
 
     @Test

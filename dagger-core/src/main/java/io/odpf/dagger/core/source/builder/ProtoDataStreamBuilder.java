@@ -1,11 +1,9 @@
 package io.odpf.dagger.core.source.builder;
 
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DataTypes;
-import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.HashMap;
@@ -15,8 +13,6 @@ import java.util.Map;
 import static io.odpf.dagger.core.metrics.telemetry.TelemetryTypes.INPUT_PROTO;
 import static io.odpf.dagger.core.source.StreamMetrics.addDefaultMetrics;
 import static io.odpf.dagger.core.source.StreamMetrics.addMetric;
-import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
 public class ProtoDataStreamBuilder extends StreamBuilder {
     private final String protoClassName;
@@ -47,13 +43,5 @@ public class ProtoDataStreamBuilder extends StreamBuilder {
     @Override
     public boolean canBuild() {
         return getInputDataType() == DataTypes.PROTO;
-    }
-
-    @Override
-    KafkaRecordDeserializationSchema getDeserializationSchema() {
-        int timestampFieldIndex = Integer.parseInt(streamConfig.getEventTimestampFieldIndex());
-        String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator);
-        return KafkaRecordDeserializationSchema.of(protoDeserializer);
     }
 }

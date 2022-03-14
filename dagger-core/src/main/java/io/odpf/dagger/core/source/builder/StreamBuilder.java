@@ -6,8 +6,6 @@ import io.odpf.dagger.core.deserializer.DeserializerFactory;
 import io.odpf.dagger.core.source.*;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.configuration.IllegalConfigurationException;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -52,21 +50,8 @@ public abstract class StreamBuilder implements TelemetryPublisher {
 
     public abstract boolean canBuild();
 
-    public Stream build() {
-        return new Stream(createSource(), streamConfig.getSchemaTable(), getInputDataType());
-    }
-
     public Stream buildStream() {
         return new Stream(createDataSource(), streamConfig.getSourceDetails(), streamConfig.getSchemaTable(), getInputDataType());
-    }
-
-    private Source createSource() {
-        return KafkaSource.<Row>builder()
-                .setTopicPattern(streamConfig.getTopicPattern())
-                .setStartingOffsets(streamConfig.getStartingOffset())
-                .setProperties(streamConfig.getKafkaProps(configuration))
-                .setDeserializer(getDeserializationSchema())
-                .build();
     }
 
     private Source createDataSource() {
@@ -84,8 +69,6 @@ public abstract class StreamBuilder implements TelemetryPublisher {
         }
         return sourceList.get(0);
     }
-
-    abstract KafkaRecordDeserializationSchema getDeserializationSchema();
 
     DataTypes getInputDataType() {
         return DataTypes.valueOf(streamConfig.getDataType());
