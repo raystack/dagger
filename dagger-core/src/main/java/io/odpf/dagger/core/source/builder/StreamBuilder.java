@@ -3,9 +3,9 @@ package io.odpf.dagger.core.source.builder;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.deserializer.DeserializerFactory;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.*;
 import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -65,7 +65,7 @@ public abstract class StreamBuilder implements TelemetryPublisher {
             sourceList.add(source);
         }
         if(sourceList.size() > 1) {
-            throw new IllegalConfigurationException("Invalid stream configuration: Multiple back to back data sources is not supported yet.");
+            throw new DaggerConfigurationException("Invalid stream configuration: Multiple back to back data sources is not supported yet.");
         }
         return sourceList.get(0);
     }

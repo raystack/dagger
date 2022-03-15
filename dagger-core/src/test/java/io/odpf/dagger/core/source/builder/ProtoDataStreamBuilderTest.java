@@ -1,8 +1,8 @@
 package io.odpf.dagger.core.source.builder;
 
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.*;
 import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 
@@ -202,7 +202,7 @@ public class ProtoDataStreamBuilderTest {
 
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
-        IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
+        DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
                 protoDataStreamBuilder::build);
         assertEquals("Invalid stream configuration: Multiple back to back data sources is not supported yet.", exception.getMessage());
     }
