@@ -7,9 +7,9 @@ import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.SourceName;
 import io.odpf.dagger.core.source.StreamConfig;
-import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
@@ -24,7 +24,7 @@ public class DeserializerFactory {
                 return createParquetDeserializer(inputDataType, streamConfig, configuration, stencilClientOrchestrator);
             default: {
                 String message = String.format("Invalid stream configuration: No suitable deserializer could be constructed for source %s", sourceName.name());
-                throw new IllegalConfigurationException(message);
+                throw new DaggerConfigurationException(message);
             }
         }
     }
@@ -37,7 +37,7 @@ public class DeserializerFactory {
             return new SimpleGroupDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator);
         }
         String message = String.format("Invalid stream configuration: No suitable Parquet deserializer could be constructed for STREAM_INPUT_DATATYPE with value %s", inputDataType);
-        throw new IllegalConfigurationException(message);
+        throw new DaggerConfigurationException(message);
     }
 
     private static DaggerDeserializer<Row> createKafkaDeserializer(DataTypes inputDataType, StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
@@ -53,7 +53,7 @@ public class DeserializerFactory {
             }
             default: {
                 String message = String.format("Invalid stream configuration: No suitable Kafka deserializer could be constructed for STREAM_INPUT_DATATYPE with value %s", inputDataType.name());
-                throw new IllegalConfigurationException(message);
+                throw new DaggerConfigurationException(message);
             }
         }
     }

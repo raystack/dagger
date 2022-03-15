@@ -8,10 +8,10 @@ import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.SourceName;
 import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.stencil.client.StencilClient;
-import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class DeserializerFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenSourceNameIsNotSupported() {
-        IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
+        DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
                 () -> DeserializerFactory.create(invalidSourceName, PROTO, streamConfig, configuration, stencilClientOrchestrator));
 
         assertEquals("Invalid stream configuration: No suitable deserializer could be constructed for source INVALID_SOURCE_NAME",
@@ -79,7 +79,7 @@ public class DeserializerFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenParquetSourceConfiguredWithJSONSchema() {
-        IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
+        DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
                 () -> DeserializerFactory.create(PARQUET, JSON, streamConfig, configuration, stencilClientOrchestrator));
 
         assertEquals("Invalid stream configuration: No suitable Parquet deserializer could be constructed for STREAM_INPUT_DATATYPE with value JSON",
@@ -93,7 +93,6 @@ public class DeserializerFactoryTest {
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-
         DaggerDeserializer<Row> deserializer = DeserializerFactory.create(PARQUET, PROTO, streamConfig, configuration, stencilClientOrchestrator);
 
         assertTrue(deserializer instanceof SimpleGroupDeserializer);
@@ -105,7 +104,6 @@ public class DeserializerFactoryTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-
 
         DaggerDeserializer<Row> deserializer = DeserializerFactory.create(KAFKA, PROTO, streamConfig, configuration, stencilClientOrchestrator);
 
@@ -124,7 +122,7 @@ public class DeserializerFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenKafkaSourceIsConfiguredWithInvalidSchemaDataType() {
-        IllegalConfigurationException exception = assertThrows(IllegalConfigurationException.class,
+        DaggerConfigurationException exception = assertThrows(DaggerConfigurationException.class,
                 () -> DeserializerFactory.create(KAFKA, invalidInputSchemaDataType, streamConfig, configuration, stencilClientOrchestrator));
 
         assertEquals("Invalid stream configuration: No suitable Kafka deserializer could be constructed for STREAM_INPUT_DATATYPE with value INVALID_INPUT_SCHEMA_DATA_TYPE",
