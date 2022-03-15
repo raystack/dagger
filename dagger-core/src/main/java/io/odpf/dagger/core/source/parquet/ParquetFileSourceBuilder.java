@@ -8,8 +8,7 @@ import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.flink.util.Preconditions.checkState;
+import static com.google.api.client.util.Preconditions.checkArgument;
 
 public class ParquetFileSourceBuilder {
     private SourceType sourceType;
@@ -57,8 +56,8 @@ public class ParquetFileSourceBuilder {
 
     /* other validations if required before creating the file source can be put here */
     private void sanityCheck() {
-        checkNotNull(fileRecordFormat, "FileRecordFormat is required but not provided");
-        checkState(filePaths.length!=0, "At least one file path is required but is empty");
+        checkArgument(fileRecordFormat != null, "FileRecordFormat is required but is set as null");
+        checkArgument(filePaths.length!=0, "ReaderProvider is required but is set as null");
     }
 
     public ParquetFileSource build() {
