@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
-import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
+import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -292,7 +292,7 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+        SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
                 () -> timestampProtoHandler.transformFromParquet(simpleGroup));
         String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from simple " +
                 "group of type: required group TestGroupType {\n" +
@@ -311,7 +311,7 @@ public class TimestampProtoHandlerTest {
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+        SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
                 () -> timestampProtoHandler.transformFromParquet(simpleGroup));
         String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from " +
                 "simple group of type: required group TestGroupType {\n" +
