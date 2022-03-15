@@ -5,9 +5,6 @@ import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.source.kafka.KafkaSourceFactory;
-import io.odpf.dagger.core.source.parquet.ParquetFileSource;
-import io.odpf.dagger.core.source.parquet.ParquetFileSourceFactory;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -25,13 +22,14 @@ import static io.odpf.dagger.core.source.SourceName.KAFKA;
 import static io.odpf.dagger.core.source.SourceName.PARQUET;
 import static io.odpf.dagger.core.source.SourceType.BOUNDED;
 import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_TIME_URL_FIRST;
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SourceName.class, ParquetFileSourceFactory.class, KafkaSourceFactory.class, KafkaRecordDeserializationSchema.class})
+@PrepareForTest({SourceName.class, KafkaRecordDeserializationSchema.class})
 public class SourceFactoryTest {
     @Mock
     private StreamConfig streamConfig;
@@ -51,24 +49,10 @@ public class SourceFactoryTest {
     @Mock
     ProtoDeserializer protoDeserializer;
 
-    @Mock
-    private ParquetFileSource parquetFileSource;
-
-    @Mock
-    private FileSource<Row> fileSource;
-
-    @Mock
-    private KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema;
-
-    @Mock
-    private KafkaSource kafkaSource;
-
     @Before
     public void setup() {
         initMocks(this);
 
-        mockStatic(KafkaSourceFactory.class);
-        mockStatic(ParquetFileSourceFactory.class);
         mockStatic(KafkaRecordDeserializationSchema.class);
 
         invalidSourceName = PowerMockito.mock(SourceName.class);
@@ -89,11 +73,10 @@ public class SourceFactoryTest {
     }
 
     @Test
-    public void shouldReturnInstanceOfFileSourceWhenSourceNameIsConfiguredAsParquet() throws Exception {
+    public void shouldReturnInstanceOfFileSourceWhenSourceNameIsConfiguredAsParquet() {
         SourceDetails sourceDetails = new SourceDetails(PARQUET, BOUNDED);
-        doReturn(parquetFileSource).when(ParquetFileSourceFactory.class,
-                "getFileSource", BOUNDED, streamConfig, configuration, simpleGroupDeserializer);
-        when(parquetFileSource.getFileSource()).thenReturn(fileSource);
+        when(streamConfig.getParquetFilesReadOrderStrategy()).thenReturn(EARLIEST_TIME_URL_FIRST);
+        when(streamConfig.getParquetFilePaths()).thenReturn(new String[]{"gs://anything", "gs://something"});
 
         Source expectedSource = SourceFactory.create(sourceDetails, streamConfig, configuration, simpleGroupDeserializer);
 
@@ -103,10 +86,7 @@ public class SourceFactoryTest {
     @Test
     public void shouldReturnInstanceOfKafkaSourceWhenSourceNameIsConfiguredAsKafka() throws Exception {
         SourceDetails sourceDetails = new SourceDetails(KAFKA, UNBOUNDED);
-        doReturn(kafkaRecordDeserializationSchema).when(KafkaRecordDeserializationSchema.class,
-                "of", protoDeserializer);
-        doReturn(kafkaSource).when(KafkaSourceFactory.class,
-                "getSource", UNBOUNDED, streamConfig, configuration, kafkaRecordDeserializationSchema);
+
 
         Source expectedSource = SourceFactory.create(sourceDetails, streamConfig, configuration, protoDeserializer);
 
