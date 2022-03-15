@@ -176,30 +176,16 @@ public class SimpleGroupDeserializerTest {
 
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        DaggerDeserializationException exception = Assert.assertThrows(DaggerDeserializationException.class,
+        Assert.assertThrows(DaggerDeserializationException.class,
                 () -> simpleGroupDeserializer.deserialize(simpleGroup));
-        assertEquals("io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException: Could not extract " +
-                "timestamp with field name event_timestamp from simple group of type required group TestGroupType {\n" +
-                "  required boolean is_valid;\n" +
-                "  required binary order_number;\n" +
-                "  required binary order_hash;\n" +
-                "  required double latitude;\n" +
-                "  required double longitude;\n" +
-                "  required float price;\n" +
-                "  required int32 packet_count;\n" +
-                "  required int64 phone;\n" +
-                "  required int64 event_timestamp;\n" +
-                "  required binary service_type;\n" +
-                "}", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionIfSimpleGroupIsNull() {
         SimpleGroupDeserializer simpleGroupDeserializer = new SimpleGroupDeserializer(TestPrimitiveMessage.class.getTypeName(), 9, "rowtime", stencilClientOrchestrator);
 
-        DaggerDeserializationException exception = Assert.assertThrows(DaggerDeserializationException.class,
+        Assert.assertThrows(DaggerDeserializationException.class,
                 () -> simpleGroupDeserializer.deserialize(null));
-        assertEquals("java.lang.IllegalArgumentException: Error: Cannot parse timestamp from null", exception.getMessage());
     }
 
     @Test

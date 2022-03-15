@@ -4,7 +4,7 @@ import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
-import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
+import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoType;
@@ -60,7 +60,7 @@ public class SimpleGroupDeserializer implements DaggerDeserializer<Row> {
         } else {
             String errMessage = String.format("Could not extract timestamp with field name %s from simple group of type %s",
                     fieldDescriptor.getName(), simpleGroup.getType().toString());
-            throw new InvalidDataTypeException(errMessage);
+            throw new SimpleGroupParsingException(errMessage);
         }
     }
 
