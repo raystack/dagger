@@ -6,6 +6,7 @@ import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializ
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.kafka.KafkaSourceFactory;
+import io.odpf.dagger.core.source.parquet.ParquetFileSource;
 import io.odpf.dagger.core.source.parquet.ParquetFileSourceFactory;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.file.src.FileSource;
@@ -51,7 +52,10 @@ public class SourceFactoryTest {
     ProtoDeserializer protoDeserializer;
 
     @Mock
-    private FileSource parquetFileSource;
+    private ParquetFileSource parquetFileSource;
+
+    @Mock
+    private FileSource<Row> fileSource;
 
     @Mock
     private KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema;
@@ -89,6 +93,7 @@ public class SourceFactoryTest {
         SourceDetails sourceDetails = new SourceDetails(PARQUET, BOUNDED);
         doReturn(parquetFileSource).when(ParquetFileSourceFactory.class,
                 "getFileSource", BOUNDED, streamConfig, configuration, simpleGroupDeserializer);
+        when(parquetFileSource.getFileSource()).thenReturn(fileSource);
 
         Source expectedSource = SourceFactory.create(sourceDetails, streamConfig, configuration, simpleGroupDeserializer);
 

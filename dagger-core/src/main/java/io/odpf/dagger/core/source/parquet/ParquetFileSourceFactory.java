@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class ParquetFileSourceFactory {
-    public static FileSource<Row> getFileSource(SourceType sourceType,
+    public static ParquetFileSource getFileSource(SourceType sourceType,
                                                 StreamConfig streamConfig,
                                                 Configuration configuration,
                                                 SimpleGroupDeserializer simpleGroupDeserializer) {
         Path[] filePaths = Arrays.stream(streamConfig.getParquetFilePaths())
                 .map(Path::new)
                 .toArray(Path[]::new);
-        ParquetFileSourceBuilder parquetFileSourceBuilder = new ParquetFileSourceBuilder();
+        ParquetFileSourceBuilder parquetFileSourceBuilder = ParquetFileSourceBuilder.getInstance();
         FileRecordFormat<Row> fileRecordFormat = getParquetFileRecordFormat(simpleGroupDeserializer);
         FileSplitAssigner.Provider splitAssignerProvider = getSplitAssignerProvider(streamConfig);
 

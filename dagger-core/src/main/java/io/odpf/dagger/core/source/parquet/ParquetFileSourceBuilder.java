@@ -2,7 +2,6 @@ package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.source.SourceType;
-import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
 import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
@@ -19,7 +18,11 @@ public class ParquetFileSourceBuilder {
     private Configuration configuration;
     private FileSplitAssigner.Provider fileSplitAssigner;
 
-    ParquetFileSourceBuilder() {
+    public static ParquetFileSourceBuilder getInstance() {
+        return new ParquetFileSourceBuilder();
+    }
+
+    private ParquetFileSourceBuilder() {
         this.sourceType = SourceType.BOUNDED;
         this.configuration = null;
         this.fileRecordFormat = null;
@@ -58,13 +61,12 @@ public class ParquetFileSourceBuilder {
         checkState(filePaths.length!=0, "At least one file path is required but is empty");
     }
 
-    public FileSource<Row> build() {
+    public ParquetFileSource build() {
         sanityCheck();
-        ParquetFileSource parquetFileSource = new ParquetFileSource(sourceType,
+        return new ParquetFileSource(sourceType,
                 configuration,
                 fileRecordFormat,
                 filePaths,
                 fileSplitAssigner);
-        return parquetFileSource.getFileSource();
     }
 }

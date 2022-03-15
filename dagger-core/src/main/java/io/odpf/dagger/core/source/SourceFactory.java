@@ -5,6 +5,7 @@ import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.kafka.KafkaSourceFactory;
+import io.odpf.dagger.core.source.parquet.ParquetFileSource;
 import io.odpf.dagger.core.source.parquet.ParquetFileSourceFactory;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
@@ -22,10 +23,11 @@ public class SourceFactory {
         switch (sourceName) {
             case PARQUET:{
                 SimpleGroupDeserializer simpleGroupDeserializer = (SimpleGroupDeserializer) deserializer;
-                return ParquetFileSourceFactory.getFileSource(sourceType,
+                ParquetFileSource parquetFileSource = ParquetFileSourceFactory.getFileSource(sourceType,
                         streamConfig,
                         configuration,
                         simpleGroupDeserializer);
+                return parquetFileSource.getFileSource();
             }
             case KAFKA: {
                 KafkaDeserializationSchema<Row> deserializationSchema = (KafkaDeserializationSchema<Row>) deserializer;
