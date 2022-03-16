@@ -1,12 +1,11 @@
-package io.odpf.dagger.core.source.builder;
-
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+package io.odpf.dagger.core.source.kafka.builder;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.kafka.DaggerOldKafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,11 +14,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -80,13 +76,15 @@ public class JsonDataStreamBuilderTest {
         when(streamConfig.getKafkaProps(any())).thenReturn(properties);
         when(streamConfig.getStartingOffset()).thenReturn(OffsetsInitializer.committedOffsets(OffsetResetStrategy.valueOf("LATEST")));
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
+        when(streamConfig.getTopicPattern()).thenReturn(Pattern.compile("test"));
+        when(streamConfig.getSourceType()).thenReturn("OLD_KAFKA_SOURCE");
 
         JsonDataStreamBuilder jsonDataStreamBuilder = new JsonDataStreamBuilder(streamConfig, configuration);
 
         Stream build = jsonDataStreamBuilder.build();
 
         Assert.assertEquals(DataTypes.JSON, build.getInputDataType());
-        Assert.assertTrue(build.getSource() instanceof KafkaSource);
+        Assert.assertTrue(build.getDaggerSource() instanceof DaggerOldKafkaSource);
         Assert.assertEquals("test-table", build.getStreamName());
     }
 
