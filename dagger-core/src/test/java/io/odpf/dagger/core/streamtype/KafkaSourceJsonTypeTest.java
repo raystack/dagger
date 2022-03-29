@@ -7,6 +7,7 @@ import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.streamtype.KafkaSourceJsonType.KafkaSourceJsonTypeBuilder;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,11 +108,11 @@ public class KafkaSourceJsonTypeTest {
         when(streamConfig.getStartingOffset()).thenReturn(OffsetsInitializer.committedOffsets(OffsetResetStrategy.valueOf("LATEST")));
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
 
-        KafkaSourceJsonType kafkaSourceJsonType = kafkaSourceJsonTypeBuilder.build();
+        StreamType<Row> streamType = kafkaSourceJsonTypeBuilder.build();
 
-        assertTrue(kafkaSourceJsonType.getSource() instanceof KafkaSource);
-        assertEquals("test-table", kafkaSourceJsonType.getStreamName());
-        assertTrue(kafkaSourceJsonType.getDeserializer() instanceof JsonDeserializer);
-        assertEquals(JSON, kafkaSourceJsonType.getInputDataType());
+        assertTrue(streamType.getSource() instanceof KafkaSource);
+        assertEquals("test-table", streamType.getStreamName());
+        assertTrue(streamType.getDeserializer() instanceof JsonDeserializer);
+        assertEquals(JSON, streamType.getInputDataType());
     }
 }
