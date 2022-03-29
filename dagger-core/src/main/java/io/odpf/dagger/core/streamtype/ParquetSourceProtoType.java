@@ -66,7 +66,7 @@ public class ParquetSourceProtoType extends StreamType<Row> {
             SimpleGroupDeserializer deserializer = buildSimpleGroupDeserializer();
             Source source = buildFileSource(deserializer);
             String streamName = streamConfig.getSchemaTable();
-            return new StreamType<>(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
+            return new ParquetSourceProtoType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private SimpleGroupDeserializer buildSimpleGroupDeserializer() {
@@ -92,8 +92,8 @@ public class ParquetSourceProtoType extends StreamType<Row> {
         }
 
         private Path[] buildFlinkFilePaths(StreamConfig streamConfig) {
-            String[] gcsParquetFilePaths = streamConfig.getParquetFilePaths();
-            return Arrays.stream(gcsParquetFilePaths)
+            String[] parquetFilePaths = streamConfig.getParquetFilePaths();
+            return Arrays.stream(parquetFilePaths)
                     .map(Path::new)
                     .toArray(Path[]::new);
         }

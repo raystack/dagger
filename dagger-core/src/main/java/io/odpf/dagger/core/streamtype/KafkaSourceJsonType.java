@@ -44,7 +44,7 @@ public class KafkaSourceJsonType extends StreamType<Row> {
         }
 
         @Override
-        public KafkaSourceJsonType build() {
+        public StreamType<Row> build() {
             JsonDeserializer deserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getJsonEventTimestampFieldName());
             KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema.of(deserializer);
             Source source = buildKafkaSource(kafkaRecordDeserializationSchema);

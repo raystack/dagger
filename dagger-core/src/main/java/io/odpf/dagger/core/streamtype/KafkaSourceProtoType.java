@@ -45,7 +45,7 @@ public class KafkaSourceProtoType extends StreamType<Row> {
         }
 
         @Override
-        public KafkaSourceProtoType build() {
+        public StreamType<Row> build() {
             ProtoDeserializer deserializer = buildProtoDeserializer();
             KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema.of(deserializer);
             Source source = buildKafkaSource(kafkaRecordDeserializationSchema);
