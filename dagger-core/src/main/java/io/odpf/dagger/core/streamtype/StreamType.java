@@ -42,8 +42,8 @@ public class StreamType<T> {
             this.stencilClientOrchestrator = null;
         }
 
-        abstract StreamType<T> build();
+        public abstract StreamType<T> build();
 
-        abstract boolean canBuild();
+        public abstract boolean canBuild();
     }
 }

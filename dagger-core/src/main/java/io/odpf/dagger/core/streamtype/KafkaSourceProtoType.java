@@ -30,7 +30,7 @@ public class KafkaSourceProtoType extends StreamType<Row> {
         }
 
         @Override
-        boolean canBuild() {
+        public boolean canBuild() {
             SourceDetails[] sourceDetailsArray = streamConfig.getSourceDetails();
             if (sourceDetailsArray.length != 1) {
                 return false;

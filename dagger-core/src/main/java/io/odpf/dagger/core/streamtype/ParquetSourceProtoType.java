@@ -47,7 +47,7 @@ public class ParquetSourceProtoType extends StreamType<Row> {
         }
 
         @Override
-        boolean canBuild() {
+        public boolean canBuild() {
             SourceDetails[] sourceDetailsArray = streamConfig.getSourceDetails();
             if (sourceDetailsArray.length != 1) {
                 return false;
@@ -62,7 +62,7 @@ public class ParquetSourceProtoType extends StreamType<Row> {
         }
 
         @Override
-        StreamType<Row> build() {
+        public StreamType<Row> build() {
             SimpleGroupDeserializer deserializer = buildSimpleGroupDeserializer();
             Source source = buildFileSource(deserializer);
             String streamName = streamConfig.getSchemaTable();
