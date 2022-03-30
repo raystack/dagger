@@ -2,7 +2,7 @@ package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.source.SourceType;
-import org.apache.flink.configuration.IllegalConfigurationException;
+import lombok.Getter;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
 import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
@@ -11,15 +11,19 @@ import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
 import static com.google.api.client.util.Preconditions.checkArgument;
-import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.SourceType.BOUNDED;
 
 public class ParquetFileSource {
+    @Getter
     private final SourceType sourceType;
+    @Getter
     private final Path[] filePaths;
+    @Getter
     private final Configuration configuration;
+    @Getter
     private final FileRecordFormat<Row> fileRecordFormat;
+    @Getter
     private final FileSplitAssigner.Provider fileSplitAssigner;
-
 
     private ParquetFileSource(SourceType sourceType,
                              Configuration configuration,
@@ -33,10 +37,7 @@ public class ParquetFileSource {
         this.fileSplitAssigner = fileSplitAssigner;
     }
 
-    public FileSource<Row> getFileSource() {
-        if (sourceType == UNBOUNDED) {
-            throw new IllegalConfigurationException("Running Parquet FileSource in UNBOUNDED mode is not supported yet");
-        }
+    public FileSource<Row> buildFileSource() {
         return FileSource.forRecordFileFormat(fileRecordFormat, filePaths)
                 .setSplitAssigner(fileSplitAssigner)
                 .build();
@@ -90,7 +91,8 @@ public class ParquetFileSource {
         /* for example, checking that all the file paths conform to just one partitioning strategy */
         private void sanityCheck() {
             checkArgument(fileRecordFormat != null, "FileRecordFormat is required but is set as null");
-            checkArgument(filePaths.length != 0, "At least one file path is required but is not provided");
+            checkArgument(filePaths.length != 0, "At least one file path is required but none are provided");
+            checkArgument(sourceType == BOUNDED, "Running Parquet FileSource in UNBOUNDED mode is not supported yet");
         }
 
         public ParquetFileSource build() {

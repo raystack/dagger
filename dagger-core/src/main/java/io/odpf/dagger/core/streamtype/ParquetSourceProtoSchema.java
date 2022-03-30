@@ -87,7 +87,7 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
                     .setSourceType(SUPPORTED_SOURCE_TYPE)
                     .setFileSplitAssigner(splitAssignerProvider)
                     .build();
-            return parquetFileSource.getFileSource();
+            return parquetFileSource.buildFileSource();
         }
 
         private Path[] buildFlinkFilePaths(StreamConfig streamConfig) {

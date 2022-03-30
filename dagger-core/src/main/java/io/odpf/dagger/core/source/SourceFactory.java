@@ -39,7 +39,7 @@ public class SourceFactory {
                         streamConfig,
                         configuration,
                         simpleGroupDeserializer);
-                return parquetFileSource.getFileSource();
+                return parquetFileSource.buildFileSource();
             }
             case KAFKA: {
                 KafkaDeserializationSchema<Row> deserializationSchema = (KafkaDeserializationSchema<Row>) deserializer;
