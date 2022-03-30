@@ -29,7 +29,9 @@ public class PrimitiveReader implements FileRecordFormat.Reader<Row>, Serializab
 
     @Override
     public void close() throws IOException {
+
     }
+
 
     public static class PrimitiveReaderProvider implements ReaderProvider {
         private final SimpleGroupDeserializer simpleGroupDeserializer;
