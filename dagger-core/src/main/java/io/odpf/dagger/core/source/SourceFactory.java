@@ -71,7 +71,7 @@ public class SourceFactory {
                                                     Configuration configuration,
                                                     SimpleGroupDeserializer simpleGroupDeserializer) {
 
-        ParquetFileSourceBuilder parquetFileSourceBuilder = ParquetFileSourceBuilder.getInstance();
+        ParquetFileSource.Builder parquetFileSourceBuilder = ParquetFileSource.Builder.getInstance();
         ParquetFileRecordFormat parquetFileRecordFormat = buildParquetFileRecordFormat(simpleGroupDeserializer);
         FileSplitAssigner.Provider splitAssignerProvider = buildParquetFileSplitAssignerProvider(streamConfig);
         Path[] filePaths = buildFlinkFilePaths(streamConfig);

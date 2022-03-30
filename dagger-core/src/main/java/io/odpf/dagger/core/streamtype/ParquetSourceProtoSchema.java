@@ -11,7 +11,6 @@ import io.odpf.dagger.core.source.SourceType;
 import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.source.parquet.ParquetFileRecordFormat;
 import io.odpf.dagger.core.source.parquet.ParquetFileSource;
-import io.odpf.dagger.core.source.parquet.ParquetFileSourceBuilder;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.reader.PrimitiveReaderProvider;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
@@ -77,7 +76,7 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
         }
 
         private FileSource<Row> buildFileSource(SimpleGroupDeserializer simpleGroupDeserializer) {
-            ParquetFileSourceBuilder parquetFileSourceBuilder = ParquetFileSourceBuilder.getInstance();
+            ParquetFileSource.Builder parquetFileSourceBuilder = ParquetFileSource.Builder.getInstance();
             ParquetFileRecordFormat parquetFileRecordFormat = buildParquetFileRecordFormat(simpleGroupDeserializer);
             FileSplitAssigner.Provider splitAssignerProvider = buildParquetFileSplitAssignerProvider(streamConfig);
             Path[] filePaths = buildFlinkFilePaths(streamConfig);
