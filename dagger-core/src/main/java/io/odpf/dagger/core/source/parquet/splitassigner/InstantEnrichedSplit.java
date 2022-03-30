@@ -3,9 +3,10 @@ package io.odpf.dagger.core.source.parquet.splitassigner;
 import lombok.Getter;
 import org.apache.flink.connector.file.src.FileSourceSplit;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-public class InstantEnrichedSplit {
+public class InstantEnrichedSplit implements Serializable {
     @Getter
     private final FileSourceSplit fileSourceSplit;
     @Getter
