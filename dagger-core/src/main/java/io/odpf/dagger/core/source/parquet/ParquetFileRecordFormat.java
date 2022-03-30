@@ -11,12 +11,11 @@ import org.apache.flink.types.Row;
 
 import java.util.function.Supplier;
 
-/* TODO */
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
     private final ReaderProvider parquetFileReaderProvider;
     private final Supplier<TypeInformation<Row>> typeInformationProvider;
 
-    public ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
+    private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
         this.typeInformationProvider = typeInformationProvider;
     }
@@ -26,9 +25,10 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
         return parquetFileReaderProvider.getReader(filePath.toString());
     }
 
+    /* TODO: Need to implement a way on how to re-create the reader from saved state or from checkpoint */
     @Override
     public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) {
-        return parquetFileReaderProvider.getReader(filePath.toString());
+        throw new UnsupportedOperationException("Error: Restoring a reader from saved state is not implemented yet");
     }
 
     @Override
