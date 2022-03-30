@@ -1,32 +1,31 @@
 package io.odpf.dagger.core.streamtype;
 
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.DataTypes;
-import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
-import io.odpf.dagger.core.source.*;
+import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
+import io.odpf.dagger.core.source.SourceDetails;
+import io.odpf.dagger.core.source.SourceName;
+import io.odpf.dagger.core.source.SourceType;
+import io.odpf.dagger.core.source.StreamConfig;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.types.Row;
 
-import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
-
-public class KafkaSourceProtoType extends StreamType<Row> {
-
-    public KafkaSourceProtoType(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
+public class KafkaSourceJsonSchema extends StreamType<Row> {
+    private KafkaSourceJsonSchema(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
         super(source, streamName, inputDataType, deserializer);
     }
 
-    public static class KafkaSourceProtoTypeBuilder extends StreamType.Builder<Row> {
-        protected final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
+    public static class KafkaSourceJsonTypeBuilder extends StreamType.Builder<Row> {
+
+        protected final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.JSON;
         protected final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
         protected final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
 
-        public KafkaSourceProtoTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
-            super(streamConfig, configuration, stencilClientOrchestrator);
+        public KafkaSourceJsonTypeBuilder(StreamConfig streamConfig, Configuration configuration) {
+            super(streamConfig, configuration);
         }
 
         @Override
@@ -46,18 +45,11 @@ public class KafkaSourceProtoType extends StreamType<Row> {
 
         @Override
         public StreamType<Row> build() {
-            ProtoDeserializer deserializer = buildProtoDeserializer();
+            JsonDeserializer deserializer = new JsonDeserializer(streamConfig.getJsonSchema(), streamConfig.getJsonEventTimestampFieldName());
             KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema.of(deserializer);
             Source source = buildKafkaSource(kafkaRecordDeserializationSchema);
             String streamName = streamConfig.getSchemaTable();
-            return new KafkaSourceProtoType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
-        }
-
-        private ProtoDeserializer buildProtoDeserializer() {
-            int timestampFieldIndex = Integer.parseInt(streamConfig.getEventTimestampFieldIndex());
-            String protoClassName = streamConfig.getProtoClass();
-            String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-            return new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator);
+            return new KafkaSourceJsonSchema(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private KafkaSource<Row> buildKafkaSource(KafkaRecordDeserializationSchema<Row> deserializer) {

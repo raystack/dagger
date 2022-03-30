@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ParquetSourceProtoTypeTest {
+public class ParquetSourceProtoSchemaTest {
     @Mock
     private StreamConfig streamConfig;
 
@@ -43,7 +43,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldReturnFalseIfTheSourceNameIsNotSupported() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
@@ -54,7 +54,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldReturnFalseIfMultipleBackToBackSourcesAreConfigured() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED), new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
@@ -65,7 +65,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldReturnFalseIfTheSourceTypeIsNotSupported() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
@@ -76,7 +76,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldReturnFalseIfTheSchemaTypeIsNotSupported() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
@@ -87,7 +87,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldReturnTrueIfTheStreamTypeCanBeBuiltFromConfigs() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
@@ -98,7 +98,7 @@ public class ParquetSourceProtoTypeTest {
 
     @Test
     public void shouldBuildAStreamTypeWithParquetSourceAndProtoSchemaType() {
-        ParquetSourceProtoType.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoType.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
 
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");

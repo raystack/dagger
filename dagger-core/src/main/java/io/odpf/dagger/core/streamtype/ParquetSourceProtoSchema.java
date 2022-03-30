@@ -31,9 +31,9 @@ import java.util.function.Supplier;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
-public class ParquetSourceProtoType extends StreamType<Row> {
+public class ParquetSourceProtoSchema extends StreamType<Row> {
 
-    public ParquetSourceProtoType(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
+    public ParquetSourceProtoSchema(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
         super(source, streamName, inputDataType, deserializer);
     }
 
@@ -66,7 +66,7 @@ public class ParquetSourceProtoType extends StreamType<Row> {
             SimpleGroupDeserializer deserializer = buildSimpleGroupDeserializer();
             Source source = buildFileSource(deserializer);
             String streamName = streamConfig.getSchemaTable();
-            return new ParquetSourceProtoType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
+            return new ParquetSourceProtoSchema(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private SimpleGroupDeserializer buildSimpleGroupDeserializer() {
