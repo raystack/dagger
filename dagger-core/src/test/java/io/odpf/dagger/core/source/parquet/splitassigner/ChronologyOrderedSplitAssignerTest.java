@@ -72,11 +72,6 @@ public class ChronologyOrderedSplitAssignerTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionDuringConstructionItselfWhenEmptyListOfFileSplitsProvided() {
-        assertThrows(IllegalArgumentException.class, () -> new ChronologyOrderedSplitAssigner(Collections.emptyList()));
-    }
-
-    @Test
     public void shouldAddNewFileSourceSplitsWithOldestDateFilePathsReturnedFirstWhenFilePathURLHasOnlyDate() {
         FileSourceSplit firstSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2019-10-12/asdghsdhasd"), 0, 1024);
         FileSourceSplit secondSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2020-02-29/ga6agad6ad"), 0, 1024);

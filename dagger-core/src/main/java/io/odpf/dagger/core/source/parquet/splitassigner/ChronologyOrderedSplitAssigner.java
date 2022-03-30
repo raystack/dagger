@@ -21,7 +21,7 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final Pattern filePathPattern = Pattern.compile("^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$");
 
     public ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits) {
-        this.unassignedSplits = new PriorityBlockingQueue<>(fileSourceSplits.size(), getFileSourceSplitComparator());
+        this.unassignedSplits = new PriorityBlockingQueue<>(11, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
         }
