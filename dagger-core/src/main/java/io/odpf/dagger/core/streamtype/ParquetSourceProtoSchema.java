@@ -12,7 +12,7 @@ import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.source.parquet.ParquetFileRecordFormat;
 import io.odpf.dagger.core.source.parquet.ParquetFileSource;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
-import io.odpf.dagger.core.source.parquet.reader.PrimitiveReaderProvider;
+import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
 import io.odpf.dagger.core.source.parquet.splitassigner.IndexOrderedSplitAssigner;
@@ -110,7 +110,7 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
         }
 
         private ParquetFileRecordFormat buildParquetFileRecordFormat(SimpleGroupDeserializer simpleGroupDeserializer) {
-            ReaderProvider parquetFileReaderProvider = new PrimitiveReaderProvider(simpleGroupDeserializer);
+            ReaderProvider parquetFileReaderProvider = new PrimitiveReader.PrimitiveReaderProvider(simpleGroupDeserializer);
             ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
             Supplier<TypeInformation<Row>> typeInformationProvider = simpleGroupDeserializer::getProducedType;
             return parquetFileRecordFormatBuilder

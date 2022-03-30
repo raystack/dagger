@@ -5,7 +5,7 @@ import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.parquet.*;
-import io.odpf.dagger.core.source.parquet.reader.PrimitiveReaderProvider;
+import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
 import io.odpf.dagger.core.source.parquet.splitassigner.IndexOrderedSplitAssigner;
@@ -104,7 +104,7 @@ public class SourceFactory {
     }
 
     private static ParquetFileRecordFormat buildParquetFileRecordFormat(SimpleGroupDeserializer simpleGroupDeserializer) {
-        ReaderProvider parquetFileReaderProvider = new PrimitiveReaderProvider(simpleGroupDeserializer);
+        ReaderProvider parquetFileReaderProvider = new PrimitiveReader.PrimitiveReaderProvider(simpleGroupDeserializer);
         ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
         Supplier<TypeInformation<Row>> typeInformationProvider = simpleGroupDeserializer::getProducedType;
         return parquetFileRecordFormatBuilder
