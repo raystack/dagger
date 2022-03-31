@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.source.parquet.reader;
 
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
+import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import lombok.Getter;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.types.Row;
@@ -88,8 +89,8 @@ public class PrimitiveReader implements FileRecordFormat.Reader<Row>, Serializab
         public PrimitiveReader getReader(String filePath) {
             try {
                 return new PrimitiveReader(filePath, simpleGroupDeserializer);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+            } catch (IOException | RuntimeException ex) {
+                throw new ParquetFileSourceReaderInitializationException(ex);
             }
         }
     }

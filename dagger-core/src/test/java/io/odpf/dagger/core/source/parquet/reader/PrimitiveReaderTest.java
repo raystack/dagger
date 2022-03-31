@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source.parquet.reader;
 
 
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
+import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.fs.Path;
@@ -9,10 +10,13 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,6 +33,9 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class PrimitiveReaderTest {
     @Mock
     private SimpleGroupDeserializer deserializer;
+
+    @Rule
+    public TemporaryFolder tempFolder = TemporaryFolder.builder().assureDeletion().build();
 
     @Before
     public void setup() {
@@ -88,7 +95,7 @@ public class PrimitiveReaderTest {
         reader.read();
         reader.read();
 
-        SimpleGroup[] allExpectedSimpleGroups = ArrayUtils.addAll(getSimpleGroups(),getSimpleGroups());
+        SimpleGroup[] allExpectedSimpleGroups = ArrayUtils.addAll(getSimpleGroups(), getSimpleGroups());
         ArgumentCaptor<SimpleGroup> simpleGroupCaptor = ArgumentCaptor.forClass(SimpleGroup.class);
         verify(deserializer, times(6)).deserialize(simpleGroupCaptor.capture());
         List<SimpleGroup> allActualSimpleGroups = simpleGroupCaptor.getAllValues();
@@ -125,6 +132,14 @@ public class PrimitiveReaderTest {
         reader.close();
 
         assertThrows(NullPointerException.class, reader::read);
+    }
+
+    @Test
+    public void shouldThrowParquetFileSourceReaderInitializationExceptionIfCannotConstructReaderForTheFile() throws IOException {
+        final File tempFile = tempFolder.newFile("test_file.parquet");
+        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+
+        assertThrows(ParquetFileSourceReaderInitializationException.class, () -> provider.getReader(tempFile.getPath()));
     }
 
     private SimpleGroup[] getSimpleGroups() {
