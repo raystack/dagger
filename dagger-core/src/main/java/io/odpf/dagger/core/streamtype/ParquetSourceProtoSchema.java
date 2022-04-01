@@ -24,6 +24,7 @@ import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -112,7 +113,7 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
         private ParquetFileRecordFormat buildParquetFileRecordFormat(SimpleGroupDeserializer simpleGroupDeserializer) {
             ReaderProvider parquetFileReaderProvider = new PrimitiveReader.PrimitiveReaderProvider(simpleGroupDeserializer);
             ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
-            Supplier<TypeInformation<Row>> typeInformationProvider = simpleGroupDeserializer::getProducedType;
+            Supplier<TypeInformation<Row>> typeInformationProvider = (Supplier<TypeInformation<Row>> & Serializable) simpleGroupDeserializer::getProducedType;
             return parquetFileRecordFormatBuilder
                     .setParquetFileReaderProvider(parquetFileReaderProvider)
                     .setTypeInformationProvider(typeInformationProvider)
