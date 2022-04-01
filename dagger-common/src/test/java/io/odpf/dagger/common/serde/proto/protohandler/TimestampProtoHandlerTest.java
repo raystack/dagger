@@ -143,6 +143,21 @@ public class TimestampProtoHandlerTest {
     }
 
     @Test
+    public void shouldSetTimestampIfInstanceOfInstantPassed() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
+
+        Instant instant = Instant.now();
+
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, instant).build();
+
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
+        assertEquals(instant.getEpochSecond(), bookingLogMessage.getEventTimestamp().getSeconds());
+        assertEquals(0, bookingLogMessage.getEventTimestamp().getNanos());
+    }
+
+    @Test
     public void shouldSetTimestampIfInstanceOfStringPassed() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);

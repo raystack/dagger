@@ -1,6 +1,6 @@
 # ADD UDF
 
-Want a function to use in SQL which is not supported both by Flink and one of the pre-supported udfs. You can simply write your User-Defined function and contribute to the dagger. Read more on how to use UDFs [here](../guides/use_udf.md).
+Want a function to use in SQL which is not supported both by Flink and one of the pre-supported udfs? You can simply write your User-Defined function and contribute to the dagger. Read more on how to use UDFs [here](../guides/use_udf.md).
 
 `Note`: _Please go through the [Contribution guide](../contribute/contribution.md) to know about all the conventions and practices we tend to follow and to know about the contribution process to the dagger._
 

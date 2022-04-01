@@ -33,12 +33,12 @@ public class PercentileAggregator extends AggregateUdf<Double, PercentileAccumul
      * @param percentile the percentile
      * @param dValue     the d value
      */
-    public void accumulate(PercentileAccumulator acc, @DataTypeHint("DECIMAL(12, 3)") BigDecimal percentile, @DataTypeHint("DECIMAL(12, 3)") BigDecimal dValue) {
+    public void accumulate(PercentileAccumulator acc, @DataTypeHint("DECIMAL(30, 3)") BigDecimal percentile, @DataTypeHint("DECIMAL(30, 3)") BigDecimal dValue) {
         acc.add(percentile.doubleValue(), dValue.doubleValue());
     }
 
-    public void merge(PercentileAccumulator percentileAccumulator, Iterable<PercentileAccumulator> it) {
-        for (PercentileAccumulator accumulatorInstance : it) {
+    public void merge(PercentileAccumulator percentileAccumulator, Iterable<PercentileAccumulator> otherAccumulators) {
+        for (PercentileAccumulator accumulatorInstance : otherAccumulators) {
             percentileAccumulator.getdValueList().addAll(accumulatorInstance.getdValueList());
             percentileAccumulator.setPercentile(accumulatorInstance.getPercentile());
         }

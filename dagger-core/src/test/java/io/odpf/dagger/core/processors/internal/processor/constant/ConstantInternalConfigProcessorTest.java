@@ -40,7 +40,7 @@ public class ConstantInternalConfigProcessorTest {
     @Test
     public void shouldProcessToPopulateDataAtRightIndexForRightConfiguration() {
         ColumnNameManager columnNameManager = new ColumnNameManager(new String[]{"input1", "input2"}, Arrays.asList("output1", "output2", "output3"));
-        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "testValue", "constant");
+        InternalSourceConfig internalSourceConfig = new InternalSourceConfig("output3", "testValue", "constant", null);
         ConstantInternalConfigProcessor constantConfigProcessor = new ConstantInternalConfigProcessor(columnNameManager, internalSourceConfig);
         Row inputRow = new Row(2);
         Row outputRow = new Row(3);
@@ -55,6 +55,6 @@ public class ConstantInternalConfigProcessorTest {
     }
 
     private InternalSourceConfig getCustomConfig(String type) {
-        return new InternalSourceConfig("field", "value", type);
+        return new InternalSourceConfig("field", "value", type, null);
     }
 }

@@ -4,7 +4,6 @@ import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.external.SchemaConfig;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
