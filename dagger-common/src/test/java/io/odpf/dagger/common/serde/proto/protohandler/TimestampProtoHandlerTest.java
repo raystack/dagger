@@ -309,10 +309,10 @@ public class TimestampProtoHandlerTest {
 
         SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
                 () -> timestampProtoHandler.transformFromParquet(simpleGroup));
-        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from simple " +
-                "group of type: required group TestGroupType {\n" +
-                "  required int64 some-other-field;\n" +
-                "}";
+        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from simple "
+                + "group of type: required group TestGroupType {\n"
+                + "  required int64 some-other-field;\n"
+                + "}";
         assertEquals(expectedErrorMessage, exception.getMessage());
     }
 
@@ -328,10 +328,10 @@ public class TimestampProtoHandlerTest {
 
         SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
                 () -> timestampProtoHandler.transformFromParquet(simpleGroup));
-        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from " +
-                "simple group of type: required group TestGroupType {\n" +
-                "  required int64 event_timestamp;\n" +
-                "}";
+        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from "
+                + "simple group of type: required group TestGroupType {\n"
+                + "  required int64 event_timestamp;\n"
+                + "}";
         assertEquals(expectedErrorMessage, exception.getMessage());
     }
 }

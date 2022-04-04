@@ -109,13 +109,13 @@ public class TimestampProtoHandler implements ProtoHandler {
                     fieldDescriptor.getName(), field);
             throw new IllegalArgumentException(errMessage);
         }
-        return transformFromSimpleGroup((SimpleGroup)field);
+        return transformFromSimpleGroup((SimpleGroup) field);
     }
 
     private Object transformFromSimpleGroup(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            DynamicMessage dynamicMessage =  transformParquetInt64MillisToDynamicMessage(fieldName, simpleGroup);
+            DynamicMessage dynamicMessage = transformParquetInt64MillisToDynamicMessage(fieldName, simpleGroup);
             return RowFactory.createRow(dynamicMessage);
         }
         String errMessage = String.format("Could not extract timestamp with descriptor name %s from simple group of type: %s",
