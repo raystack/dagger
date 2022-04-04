@@ -169,11 +169,11 @@ public class StreamConfigTest {
     @Test
     public void shouldGetSourceDetails() {
         when(configuration.getString(INPUT_STREAMS, ""))
-                .thenReturn("[{" +
-                        "\"SOURCE_DETAILS\": " +
-                        "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"}," +
-                        "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA\"}]" +
-                        "}]");
+                .thenReturn("[{"
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"},"
+                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA\"}]"
+                        + "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         SourceDetails[] sourceDetails = streamConfigs[0].getSourceDetails();
@@ -186,11 +186,11 @@ public class StreamConfigTest {
     @Test
     public void shouldGetParquetSourceProperties() {
         when(configuration.getString(INPUT_STREAMS, ""))
-                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"]," +
-                        "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\"," +
-                        "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\"," +
-                        "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"" +
-                        "}]");
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\""
+                        + "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         Assert.assertArrayEquals(new String[]{"gs://some-parquet-path", "gs://another-parquet-path"}, streamConfigs[0].getParquetFilePaths());
