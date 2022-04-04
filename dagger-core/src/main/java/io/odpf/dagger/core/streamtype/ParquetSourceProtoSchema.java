@@ -38,9 +38,9 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
     }
 
     public static class ParquetSourceProtoTypeBuilder extends StreamType.Builder<Row> {
-        protected final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
-        protected final SourceName SUPPORTED_SOURCE_NAME = SourceName.PARQUET;
-        protected final SourceType SUPPORTED_SOURCE_TYPE = SourceType.BOUNDED;
+        protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
+        protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.PARQUET;
+        protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.BOUNDED;
 
         public ParquetSourceProtoTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
             super(streamConfig, configuration, stencilClientOrchestrator);
@@ -55,9 +55,9 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
                 SourceName sourceName = sourceDetailsArray[0].getSourceName();
                 SourceType sourceType = sourceDetailsArray[0].getSourceType();
                 DataTypes inputDataType = DataTypes.valueOf(streamConfig.getDataType());
-                return sourceName.equals(SUPPORTED_SOURCE_NAME) &&
-                        sourceType.equals(SUPPORTED_SOURCE_TYPE) &&
-                        inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
+                return sourceName.equals(SUPPORTED_SOURCE_NAME)
+                        && sourceType.equals(SUPPORTED_SOURCE_TYPE)
+                        && inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
             }
         }
 

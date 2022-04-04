@@ -20,9 +20,9 @@ public class KafkaSourceJsonSchema extends StreamType<Row> {
 
     public static class KafkaSourceJsonTypeBuilder extends StreamType.Builder<Row> {
 
-        protected final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.JSON;
-        protected final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
-        protected final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
+        protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.JSON;
+        protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
+        protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
 
         public KafkaSourceJsonTypeBuilder(StreamConfig streamConfig, Configuration configuration) {
             super(streamConfig, configuration);
@@ -37,9 +37,9 @@ public class KafkaSourceJsonSchema extends StreamType<Row> {
                 SourceName sourceName = sourceDetailsArray[0].getSourceName();
                 SourceType sourceType = sourceDetailsArray[0].getSourceType();
                 DataTypes inputDataType = DataTypes.valueOf(streamConfig.getDataType());
-                return sourceName.equals(SUPPORTED_SOURCE_NAME) &&
-                        sourceType.equals(SUPPORTED_SOURCE_TYPE) &&
-                        inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
+                return sourceName.equals(SUPPORTED_SOURCE_NAME)
+                        && sourceType.equals(SUPPORTED_SOURCE_TYPE)
+                        && inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
             }
         }
 

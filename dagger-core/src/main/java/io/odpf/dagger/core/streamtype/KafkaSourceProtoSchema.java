@@ -5,7 +5,10 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
-import io.odpf.dagger.core.source.*;
+import io.odpf.dagger.core.source.SourceDetails;
+import io.odpf.dagger.core.source.SourceName;
+import io.odpf.dagger.core.source.SourceType;
+import io.odpf.dagger.core.source.StreamConfig;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
@@ -21,9 +24,9 @@ public class KafkaSourceProtoSchema extends StreamType<Row> {
     }
 
     public static class KafkaSourceProtoTypeBuilder extends StreamType.Builder<Row> {
-        protected final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
-        protected final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
-        protected final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
+        protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
+        protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
+        protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
 
         public KafkaSourceProtoTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
             super(streamConfig, configuration, stencilClientOrchestrator);
@@ -38,9 +41,9 @@ public class KafkaSourceProtoSchema extends StreamType<Row> {
                 SourceName sourceName = sourceDetailsArray[0].getSourceName();
                 SourceType sourceType = sourceDetailsArray[0].getSourceType();
                 DataTypes inputDataType = DataTypes.valueOf(streamConfig.getDataType());
-                return sourceName.equals(SUPPORTED_SOURCE_NAME) &&
-                        sourceType.equals(SUPPORTED_SOURCE_TYPE) &&
-                        inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
+                return sourceName.equals(SUPPORTED_SOURCE_NAME)
+                        && sourceType.equals(SUPPORTED_SOURCE_TYPE)
+                        && inputDataType.equals(SUPPORTED_INPUT_DATA_TYPE);
             }
         }
 
