@@ -8,7 +8,9 @@ import io.odpf.dagger.core.source.StreamConfig;
 import lombok.Getter;
 import org.apache.flink.api.connector.source.Source;
 
-public class StreamType<T> {
+import java.io.Serializable;
+
+public class StreamType<T> implements Serializable {
     @Getter
     private final Source source;
     @Getter
@@ -25,7 +27,7 @@ public class StreamType<T> {
         this.deserializer = deserializer;
     }
 
-    public static abstract class Builder<T> {
+    public abstract static class Builder<T> {
         protected final StreamConfig streamConfig;
         protected final Configuration configuration;
         protected final StencilClientOrchestrator stencilClientOrchestrator;
