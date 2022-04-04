@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final PriorityBlockingQueue<InstantEnrichedSplit> unassignedSplits;
     private final Pattern filePathPattern = Pattern.compile("^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$");
+    private static final int INITIAL_DEFAULT_CAPACITY = 11;
 
     public ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits) {
-        this.unassignedSplits = new PriorityBlockingQueue<>(11, getFileSourceSplitComparator());
+        this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
         }
@@ -76,14 +77,16 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
 
     private Instant parseInstantFromFilePath(Path path) throws ParseException {
         Matcher matcher = filePathPattern.matcher(path.toString());
+        final int hourMatcherGroupNumber = 3;
+        final int dateMatcherGroupNumber = 1;
         boolean matchFound = matcher.find();
-        if (matchFound && matcher.group(3) != null && matcher.group(1) != null) {
-            return convertToInstant(matcher.group(1), matcher.group(3));
-        } else if (matchFound && matcher.group(3) == null && matcher.group(1) != null) {
-            return convertToInstant(matcher.group(1));
+        if (matchFound && matcher.group(hourMatcherGroupNumber) != null && matcher.group(dateMatcherGroupNumber) != null) {
+            return convertToInstant(matcher.group(dateMatcherGroupNumber), matcher.group(hourMatcherGroupNumber));
+        } else if (matchFound && matcher.group(hourMatcherGroupNumber) == null && matcher.group(dateMatcherGroupNumber) != null) {
+            return convertToInstant(matcher.group(dateMatcherGroupNumber));
         } else {
-            String message = String.format("Cannot extract timestamp from filepath for deciding order of processing.\n" +
-                    "File path doesn't abide with any partitioning strategy: %s", path);
+            String message = String.format("Cannot extract timestamp from filepath for deciding order of processing.\n"
+                    + "File path doesn't abide with any partitioning strategy: %s", path);
             throw new ParseException(message, 0);
         }
     }

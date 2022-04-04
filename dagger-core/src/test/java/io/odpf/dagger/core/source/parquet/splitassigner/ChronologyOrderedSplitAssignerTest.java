@@ -67,8 +67,8 @@ public class ChronologyOrderedSplitAssignerTest {
 
         IllegalArgumentException ex = Assert.assertThrows(IllegalArgumentException.class, () -> new ChronologyOrderedSplitAssigner(Collections.singleton(split)));
 
-        assertEquals("java.text.ParseException: Cannot extract timestamp from filepath for deciding order of processing.\n" +
-                "File path doesn't abide with any partitioning strategy: gs://my-bucket/bid-log/dt=2019-130-12/shs6s5sdg", ex.getMessage());
+        assertEquals("java.text.ParseException: Cannot extract timestamp from filepath for deciding order of processing.\n"
+                + "File path doesn't abide with any partitioning strategy: gs://my-bucket/bid-log/dt=2019-130-12/shs6s5sdg", ex.getMessage());
     }
 
     @Test
