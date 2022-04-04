@@ -14,11 +14,13 @@ import org.apache.flink.types.Row;
 
 public class DaggerKafkaSource implements DaggerSource {
     private StreamConfig streamConfig;
-    private KafkaSource kafkaSource;
+    private final KafkaDeserializationSchema deserializationSchema;
+    private final Configuration configuration;
 
     public DaggerKafkaSource(StreamConfig streamConfig, KafkaDeserializationSchema deserializationSchema, Configuration configuration) {
         this.streamConfig = streamConfig;
-        this.kafkaSource = getKafkaSource(streamConfig, deserializationSchema, configuration);
+        this.deserializationSchema = deserializationSchema;
+        this.configuration = configuration;
     }
 
     @Override
@@ -28,14 +30,15 @@ public class DaggerKafkaSource implements DaggerSource {
 
     @Override
     public DataStreamSource register(StreamExecutionEnvironment executionEnvironment, WatermarkStrategy<Row> watermarkStrategy, String streamName) {
+        KafkaSource kafkaSource = getKafkaSource();
         return executionEnvironment.fromSource(kafkaSource, watermarkStrategy, streamName);
     }
 
-    KafkaSource getKafkaSource(StreamConfig config, KafkaDeserializationSchema deserializationSchema, Configuration configuration) {
+    KafkaSource getKafkaSource() {
         return KafkaSource.<Row>builder()
-                .setTopicPattern(config.getTopicPattern())
-                .setStartingOffsets(config.getStartingOffset())
-                .setProperties(config.getKafkaProps(configuration))
+                .setTopicPattern(streamConfig.getTopicPattern())
+                .setStartingOffsets(streamConfig.getStartingOffset())
+                .setProperties(streamConfig.getKafkaProps(configuration))
                 .setDeserializer(KafkaRecordDeserializationSchema.of(deserializationSchema))
                 .build();
     }

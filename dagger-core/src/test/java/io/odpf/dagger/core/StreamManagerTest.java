@@ -28,6 +28,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -115,8 +116,7 @@ public class StreamManagerTest {
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
         when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
-        when(configuration.getInteger("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
-        when(configuration.getInteger("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
+        when(configuration.getInteger("FLINK_RETENTION_IDLE_STATE_MINUTE", 10)).thenReturn(10);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -131,7 +131,6 @@ public class StreamManagerTest {
 
     @Test
     public void shouldRegisterRequiredConfigsOnExecutionEnvironment() {
-
         streamManager.registerConfigs();
 
         verify(env, Mockito.times(1)).setParallelism(1);
@@ -142,6 +141,7 @@ public class StreamManagerTest {
         verify(checkpointConfig, Mockito.times(1)).setCheckpointTimeout(900000L);
         verify(checkpointConfig, Mockito.times(1)).setMinPauseBetweenCheckpoints(5000L);
         verify(checkpointConfig, Mockito.times(1)).setMaxConcurrentCheckpoints(1);
+        verify(tableConfig, Mockito.times(1)).setIdleStateRetention(Duration.ofMinutes(10));
     }
 
     @Test

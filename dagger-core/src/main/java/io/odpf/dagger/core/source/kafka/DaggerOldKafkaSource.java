@@ -12,11 +12,13 @@ import org.apache.flink.types.Row;
 
 public class DaggerOldKafkaSource implements DaggerSource {
     private StreamConfig streamConfig;
-    private FlinkKafkaConsumerCustom flinkKafkaConsumerCustom;
+    private final KafkaDeserializationSchema deserializationSchema;
+    private final Configuration configuration;
 
     public DaggerOldKafkaSource(StreamConfig streamConfig, KafkaDeserializationSchema deserializationSchema, Configuration configuration) {
         this.streamConfig = streamConfig;
-        this.flinkKafkaConsumerCustom = getFlinkKafkaConsumerCustom(streamConfig, deserializationSchema, configuration);
+        this.deserializationSchema = deserializationSchema;
+        this.configuration = configuration;
     }
 
     @Override
@@ -26,10 +28,11 @@ public class DaggerOldKafkaSource implements DaggerSource {
 
     @Override
     public DataStreamSource register(StreamExecutionEnvironment executionEnvironment, WatermarkStrategy<Row> watermarkStrategy, String streamName) {
+        FlinkKafkaConsumerCustom flinkKafkaConsumerCustom = getFlinkKafkaConsumerCustom();
         return executionEnvironment.addSource(flinkKafkaConsumerCustom.assignTimestampsAndWatermarks(watermarkStrategy));
     }
 
-    FlinkKafkaConsumerCustom getFlinkKafkaConsumerCustom(StreamConfig config, KafkaDeserializationSchema deserializationSchema, Configuration configuration) {
-        return new FlinkKafkaConsumerCustom(config.getTopicPattern(), deserializationSchema, config.getKafkaProps(configuration), configuration);
+    FlinkKafkaConsumerCustom getFlinkKafkaConsumerCustom() {
+        return new FlinkKafkaConsumerCustom(streamConfig.getTopicPattern(), deserializationSchema, streamConfig.getKafkaProps(configuration), configuration);
     }
 }

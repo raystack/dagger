@@ -87,7 +87,7 @@ public class DaggerOldKafkaSourceTest {
         }
 
         @Override
-        FlinkKafkaConsumerCustom getFlinkKafkaConsumerCustom(StreamConfig config, KafkaDeserializationSchema kafkaDeserializationSchema, Configuration conf) {
+        FlinkKafkaConsumerCustom getFlinkKafkaConsumerCustom() {
             return flinkKafkaConsumerCustom;
         }
     }

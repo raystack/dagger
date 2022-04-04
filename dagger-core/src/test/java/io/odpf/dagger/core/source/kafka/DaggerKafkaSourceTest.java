@@ -84,7 +84,7 @@ public class DaggerKafkaSourceTest {
         }
 
         @Override
-        KafkaSource getKafkaSource(StreamConfig config, KafkaDeserializationSchema kafkaDeserializationSchema, Configuration conf) {
+        KafkaSource getKafkaSource() {
             return kafkaSource;
         }
     }
