@@ -22,9 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class PrimitiveReader implements FileRecordFormat.Reader<Row>, Serializable {
+public class PrimitiveReader implements FileRecordFormat.Reader<Row> {
     @Getter
     private final Path hadoopFilePath;
     @Getter
