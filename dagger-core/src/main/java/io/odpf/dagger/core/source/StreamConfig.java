@@ -77,7 +77,6 @@ public class StreamConfig {
     private String dataType;
 
     @SerializedName(STREAM_SOURCE_DETAILS_KEY)
-    @Getter
     private SourceDetails[] sourceDetails;
 
     @SerializedName(STREAM_SOURCE_PARQUET_BILLING_PROJECT_KEY)
@@ -101,6 +100,14 @@ public class StreamConfig {
             dataType = "PROTO";
         }
         return dataType;
+    }
+
+    public SourceDetails[] getSourceDetails() {
+        if (sourceDetails == null) {
+            return new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)};
+        } else {
+            return sourceDetails;
+        }
     }
 
     public String getAutoOffsetReset() {
