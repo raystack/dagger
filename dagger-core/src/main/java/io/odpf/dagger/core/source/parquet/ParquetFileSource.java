@@ -10,10 +10,12 @@ import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
+import java.io.Serializable;
+
 import static com.google.api.client.util.Preconditions.checkArgument;
 import static io.odpf.dagger.core.source.SourceType.BOUNDED;
 
-public class ParquetFileSource {
+public class ParquetFileSource implements Serializable {
     @Getter
     private final SourceType sourceType;
     @Getter
