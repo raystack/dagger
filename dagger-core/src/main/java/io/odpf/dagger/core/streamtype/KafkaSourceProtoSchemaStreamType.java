@@ -17,18 +17,18 @@ import org.apache.flink.types.Row;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
-public class KafkaSourceProtoSchema extends StreamType<Row> {
+public class KafkaSourceProtoSchemaStreamType extends StreamType<Row> {
 
-    public KafkaSourceProtoSchema(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
+    public KafkaSourceProtoSchemaStreamType(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
         super(source, streamName, inputDataType, deserializer);
     }
 
-    public static class KafkaSourceProtoTypeBuilder extends StreamType.Builder<Row> {
+    public static class KafkaSourceProtoSchemaStreamTypeBuilder extends StreamType.Builder<Row> {
         protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
         protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
         protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
 
-        public KafkaSourceProtoTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
+        public KafkaSourceProtoSchemaStreamTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
             super(streamConfig, configuration, stencilClientOrchestrator);
         }
 
@@ -53,7 +53,7 @@ public class KafkaSourceProtoSchema extends StreamType<Row> {
             KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema.of(deserializer);
             Source source = buildKafkaSource(kafkaRecordDeserializationSchema);
             String streamName = streamConfig.getSchemaTable();
-            return new KafkaSourceProtoSchema(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
+            return new KafkaSourceProtoSchemaStreamType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private ProtoDeserializer buildProtoDeserializer() {

@@ -5,7 +5,7 @@ import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializ
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType;
-import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchema;
+import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchemaStreamType;
 import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
 import io.odpf.dagger.core.streamtype.StreamType;
 import io.odpf.stencil.client.StencilClient;
@@ -87,7 +87,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof KafkaSourceProtoSchema);
+        assertTrue(actualStreamType instanceof KafkaSourceProtoSchemaStreamType);
         assertEquals(PROTO, actualStreamType.getInputDataType());
         assertTrue(actualStreamType.getSource() instanceof KafkaSource);
         assertTrue(actualStreamType.getDeserializer() instanceof ProtoDeserializer);
@@ -113,7 +113,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof KafkaSourceProtoSchema);
+        assertTrue(actualStreamType instanceof KafkaSourceProtoSchemaStreamType);
         assertEquals(PROTO, actualStreamType.getInputDataType());
     }
 
@@ -136,7 +136,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof KafkaSourceProtoSchema);
+        assertTrue(actualStreamType instanceof KafkaSourceProtoSchemaStreamType);
         assertEquals(PROTO, actualStreamType.getInputDataType());
         assertTrue(actualStreamType.getSource() instanceof KafkaSource);
         assertTrue(actualStreamType.getDeserializer() instanceof ProtoDeserializer);
@@ -249,7 +249,7 @@ public class StreamsFactoryTest {
 
         assertEquals(2, streamTypes.size());
 
-        assertTrue(streamTypes.get(0) instanceof KafkaSourceProtoSchema);
+        assertTrue(streamTypes.get(0) instanceof KafkaSourceProtoSchemaStreamType);
         assertEquals(PROTO, streamTypes.get(0).getInputDataType());
         assertTrue(streamTypes.get(0).getSource() instanceof KafkaSource);
         assertTrue(streamTypes.get(0).getDeserializer() instanceof ProtoDeserializer);

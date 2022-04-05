@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class KafkaSourceProtoSchemaTest {
+public class KafkaSourceProtoSchemaStreamTypeTest {
     @Mock
     private StreamConfig streamConfig;
 
@@ -48,62 +48,62 @@ public class KafkaSourceProtoSchemaTest {
 
     @Test
     public void shouldReturnTrueIfTheStreamTypeCanBeBuiltFromConfigs() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = kafkaSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertTrue(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSourceNameIsNotSupported() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = kafkaSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfMultipleBackToBackSourcesAreConfigured() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED), new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = kafkaSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSourceTypeIsNotSupported() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = kafkaSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSchemaTypeIsNotSupported() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = kafkaSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldBuildAStreamTypeWithKafkaSourceAndProtoSchemaType() {
-        KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         HashMap<String, String> kafkaPropMap = new HashMap<>();
         kafkaPropMap.put("group.id", "dummy-consumer-group");
         kafkaPropMap.put("bootstrap.servers", "localhost:9092");
@@ -120,7 +120,7 @@ public class KafkaSourceProtoSchemaTest {
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
 
-        StreamType<Row> streamType = kafkaSourceProtoTypeBuilder.build();
+        StreamType<Row> streamType = kafkaSourceProtoSchemaStreamTypeBuilder.build();
 
         assertTrue(streamType.getSource() instanceof KafkaSource);
         assertEquals("test-table", streamType.getStreamName());
