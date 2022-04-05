@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
-import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -284,7 +283,8 @@ public class TimestampProtoHandlerTest {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> timestampProtoHandler.transformFromParquet(null));
-        assertEquals("Could not extract timestamp with descriptor name event_timestamp from null", exception.getMessage());
+        assertEquals("Error: object to be deserialized is not of type SimpleGroup. Cannot extract timestamp "
+                + "with descriptor name event_timestamp from object null", exception.getMessage());
     }
 
     @Test
@@ -294,11 +294,12 @@ public class TimestampProtoHandlerTest {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> timestampProtoHandler.transformFromParquet("some object"));
-        assertEquals("Could not extract timestamp with descriptor name event_timestamp from some object", exception.getMessage());
+        assertEquals("Error: object to be deserialized is not of type SimpleGroup. Cannot extract timestamp "
+                + "with descriptor name event_timestamp from object some object", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainField() {
+    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainField() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .required(INT64).named("some-other-field")
@@ -306,18 +307,14 @@ public class TimestampProtoHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
 
-        SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
-                () -> timestampProtoHandler.transformFromParquet(simpleGroup));
-        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from simple "
-                + "group of type: required group TestGroupType {\n"
-                + "  required int64 some-other-field;\n"
-                + "}";
-        assertEquals(expectedErrorMessage, exception.getMessage());
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
     }
 
     @Test
-    public void shouldThrowExceptionDuringTransformIfSimpleGroupDoesNotContainValueForField() {
+    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainValueForField() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .required(INT64).named("event_timestamp")
@@ -325,13 +322,9 @@ public class TimestampProtoHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
 
-        SimpleGroupParsingException exception = assertThrows(SimpleGroupParsingException.class,
-                () -> timestampProtoHandler.transformFromParquet(simpleGroup));
-        String expectedErrorMessage = "Could not extract timestamp with descriptor name event_timestamp from "
-                + "simple group of type: required group TestGroupType {\n"
-                + "  required int64 event_timestamp;\n"
-                + "}";
-        assertEquals(expectedErrorMessage, exception.getMessage());
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
     }
 }

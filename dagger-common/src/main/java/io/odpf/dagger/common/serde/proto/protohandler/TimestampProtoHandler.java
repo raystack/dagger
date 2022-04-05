@@ -3,7 +3,6 @@ package io.odpf.dagger.common.serde.proto.protohandler;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
-import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
@@ -105,8 +104,8 @@ public class TimestampProtoHandler implements ProtoHandler {
     @Override
     public Object transformFromParquet(Object field) {
         if (!(field instanceof SimpleGroup)) {
-            String errMessage = String.format("Could not extract timestamp with descriptor name %s from %s",
-                    fieldDescriptor.getName(), field);
+            String errMessage = String.format("Error: object to be deserialized is not of type SimpleGroup. Cannot "
+                    + "extract timestamp with descriptor name %s from object %s", fieldDescriptor.getName(), field);
             throw new IllegalArgumentException(errMessage);
         }
         return transformFromSimpleGroup((SimpleGroup) field);
@@ -117,10 +116,10 @@ public class TimestampProtoHandler implements ProtoHandler {
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
             DynamicMessage dynamicMessage = transformParquetInt64MillisToDynamicMessage(fieldName, simpleGroup);
             return RowFactory.createRow(dynamicMessage);
+        } else {
+            DynamicMessage defaultTimestampMessage = transformProtoTimestampToDynamicMessage(Timestamp.getDefaultInstance());
+            return RowFactory.createRow(defaultTimestampMessage);
         }
-        String errMessage = String.format("Could not extract timestamp with descriptor name %s from simple group of type: %s",
-                fieldDescriptor.getName(), simpleGroup.getType().toString());
-        throw new SimpleGroupParsingException(errMessage);
     }
 
     /* Handling for latest parquet files in which timestamps are encoded as int64 epoch milliseconds with logical type
