@@ -76,8 +76,7 @@ public class ChronologyOrderedSplitAssignerTest {
         });
 
         assertEquals("java.text.ParseException: Cannot extract timestamp from filepath for deciding order of processing.\n"
-                + "File path gs://my-bucket/bid-log/dt=2019-130-12/shs6s5sdg doesn't match with configured "
-                + "SOURCE_PARQUET_CHRONOLOGICAL_FILE_PATH_REGEX of ^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$", ex.getMessage());
+                + "File path doesn't abide with any partitioning strategy: gs://my-bucket/bid-log/dt=2019-130-12/shs6s5sdg", ex.getMessage());
     }
 
     @Test

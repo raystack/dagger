@@ -87,7 +87,7 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
             return convertToInstant(matcher.group(dateMatcherGroupNumber));
         } else {
             String message = String.format("Cannot extract timestamp from filepath for deciding order of processing.\n"
-                    + "File path %s doesn't match with configured SOURCE_PARQUET_CHRONOLOGICAL_FILE_PATH_REGEX of %s", path, filePathPattern.pattern());
+                    + "File path doesn't abide with any partitioning strategy: %s", path);
             throw new ParseException(message, 0);
         }
     }
