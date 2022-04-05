@@ -1,5 +1,6 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.core.streamtype.StreamType;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -25,7 +26,6 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.sink.SinkOrchestrator;
-import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
 
@@ -95,11 +95,11 @@ public class StreamManager {
         long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        getStreams().forEach(stream -> {
-            String tableName = stream.getStreamName();
+        getStreamTypes().forEach(streamType -> {
+            String tableName = streamType.getStreamName();
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
             DataStream<Row> kafkaStream = executionEnvironment
-                    .fromSource(stream.getSource(), watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), stream.getStreamName());
+                    .fromSource(streamType.getSource(), watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), streamType.getStreamName());
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
@@ -221,7 +221,7 @@ public class StreamManager {
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
-    private List<Stream> getStreams() {
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
+    private List<StreamType<Row>> getStreamTypes() {
+        return StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
     }
 }

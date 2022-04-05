@@ -2,39 +2,41 @@ package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.core.source.builder.JsonDataStreamBuilder;
-import io.odpf.dagger.core.source.builder.ProtoDataStreamBuilder;
-import io.odpf.dagger.core.source.builder.StreamBuilder;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
+import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchema;
+import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchema;
+import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
+import io.odpf.dagger.core.streamtype.StreamType;
+import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class StreamsFactory {
-
-    public static List<Stream> getStreams(Configuration configuration,
-                                          StencilClientOrchestrator stencilClientOrchestrator,
-                                          MetricsTelemetryExporter telemetryExporter) {
+    public static List<StreamType<Row>> getStreamTypes(Configuration configuration,
+                                                       StencilClientOrchestrator stencilClientOrchestrator) {
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
-        ArrayList<Stream> streams = new ArrayList<>();
+        ArrayList<StreamType<Row>> streamTypes = new ArrayList<>();
 
         for (StreamConfig streamConfig : streamConfigs) {
-            List<StreamBuilder> dataStreams = Arrays
-                    .asList(new JsonDataStreamBuilder(streamConfig, configuration),
-                            new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
-            StreamBuilder streamBuilder = dataStreams.stream()
-                    .filter(StreamBuilder::canBuild)
+            KafkaSourceJsonSchema.KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonSchema.KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+            KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+            ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+
+
+            List<StreamType.Builder<Row>> availableStreamTypeBuilders = Arrays
+                    .asList(kafkaSourceJsonTypeBuilder, kafkaSourceProtoTypeBuilder, parquetSourceProtoTypeBuilder);
+            StreamType<Row> streamType = availableStreamTypeBuilders
+                    .stream()
+                    .filter(StreamType.Builder::canBuild)
                     .findFirst()
-                    .orElse(new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration));
-
-            streamBuilder.notifySubscriber(telemetryExporter);
-
-            Stream stream = streamBuilder
+                    .orElseThrow(() -> new DaggerConfigurationException("Invalid stream config: no suitable stream type can be constructed"))
                     .build();
-            streams.add(stream);
+
+            streamTypes.add(streamType);
         }
-        return streams;
+        return streamTypes;
     }
 }
 
