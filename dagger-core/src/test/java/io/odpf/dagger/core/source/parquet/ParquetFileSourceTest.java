@@ -4,7 +4,6 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.source.SourceType;
 import io.odpf.dagger.core.source.parquet.ParquetFileSource.Builder;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
-import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerProvider;
 import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
@@ -23,8 +22,6 @@ public class ParquetFileSourceTest {
     @Mock
     private FileRecordFormat<Row> fileRecordFormat;
 
-    private final ChronologyOrderedSplitAssignerProvider chronologyOrderedSplitAssignerProvider = new ChronologyOrderedSplitAssignerProvider(".*");
-
     @Before
     public void setup() {
         initMocks(this);
@@ -34,11 +31,10 @@ public class ParquetFileSourceTest {
     public void shouldBuildParquetFileSourceAsPerArguments() {
         Builder builder = Builder.getInstance();
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
-
         ParquetFileSource parquetFileSource = builder.setConfiguration(configuration)
                 .setFileRecordFormat(fileRecordFormat)
                 .setSourceType(SourceType.BOUNDED)
-                .setFileSplitAssigner(chronologyOrderedSplitAssignerProvider)
+                .setFileSplitAssigner(ChronologyOrderedSplitAssigner::new)
                 .setFilePaths(filePaths)
                 .build();
 
@@ -58,7 +54,7 @@ public class ParquetFileSourceTest {
                 () -> builder.setConfiguration(configuration)
                         .setFileRecordFormat(fileRecordFormat)
                         .setSourceType(SourceType.UNBOUNDED)
-                        .setFileSplitAssigner(chronologyOrderedSplitAssignerProvider)
+                        .setFileSplitAssigner(ChronologyOrderedSplitAssigner::new)
                         .setFilePaths(filePaths)
                         .build());
 
@@ -73,7 +69,7 @@ public class ParquetFileSourceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> builder.setConfiguration(configuration)
                         .setSourceType(SourceType.UNBOUNDED)
-                        .setFileSplitAssigner(chronologyOrderedSplitAssignerProvider)
+                        .setFileSplitAssigner(ChronologyOrderedSplitAssigner::new)
                         .setFilePaths(filePaths)
                         .build());
 
@@ -88,7 +84,7 @@ public class ParquetFileSourceTest {
                 () -> builder.setConfiguration(configuration)
                         .setFileRecordFormat(fileRecordFormat)
                         .setSourceType(SourceType.BOUNDED)
-                        .setFileSplitAssigner(chronologyOrderedSplitAssignerProvider)
+                        .setFileSplitAssigner(ChronologyOrderedSplitAssigner::new)
                         .build());
 
         assertEquals("At least one file path is required but none are provided", ex.getMessage());
@@ -117,7 +113,7 @@ public class ParquetFileSourceTest {
         ParquetFileSource parquetFileSource = builder.setConfiguration(configuration)
                 .setFileRecordFormat(fileRecordFormat)
                 .setSourceType(SourceType.BOUNDED)
-                .setFileSplitAssigner(chronologyOrderedSplitAssignerProvider)
+                .setFileSplitAssigner(ChronologyOrderedSplitAssigner::new)
                 .setFilePaths(filePaths)
                 .build();
 
