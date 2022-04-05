@@ -4,6 +4,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.SourceDetails;
 import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.stencil.client.StencilClient;
@@ -18,6 +19,7 @@ import static io.odpf.dagger.core.source.SourceName.KAFKA;
 import static io.odpf.dagger.core.source.SourceName.PARQUET;
 import static io.odpf.dagger.core.source.SourceType.BOUNDED;
 import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_INDEX_FIRST;
 import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_TIME_URL_FIRST;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -114,5 +116,20 @@ public class ParquetSourceProtoSchemaStreamTypeTest {
         assertEquals("test-table", streamType.getStreamName());
         assertTrue(streamType.getDeserializer() instanceof SimpleGroupDeserializer);
         assertEquals(PROTO, streamType.getInputDataType());
+    }
+
+    @Test
+    public void shouldThrowDaggerConfigurationExceptionIfAnyNonSupportedSplitAssignmentStrategyIsConfigured() {
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+
+        when(streamConfig.getSchemaTable()).thenReturn("test-table");
+        when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
+        when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
+        when(streamConfig.getParquetFilesReadOrderStrategy()).thenReturn(EARLIEST_INDEX_FIRST);
+        when(streamConfig.getParquetFilePaths()).thenReturn(new String[]{"gs://something", "gs://anything"});
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
+
+        assertThrows(DaggerConfigurationException.class, parquetSourceProtoSchemaStreamTypeBuilder::build);
     }
 }

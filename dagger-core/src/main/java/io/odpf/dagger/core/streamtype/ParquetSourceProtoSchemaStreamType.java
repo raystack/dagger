@@ -5,6 +5,7 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
+import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.source.SourceDetails;
 import io.odpf.dagger.core.source.SourceName;
 import io.odpf.dagger.core.source.SourceType;
@@ -15,12 +16,10 @@ import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
-import io.odpf.dagger.core.source.parquet.splitassigner.IndexOrderedSplitAssigner;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
-import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
@@ -104,9 +103,8 @@ public class ParquetSourceProtoSchemaStreamType extends StreamType<Row> {
                 case EARLIEST_TIME_URL_FIRST:
                     return ChronologyOrderedSplitAssigner::new;
                 case EARLIEST_INDEX_FIRST:
-                    return IndexOrderedSplitAssigner::new;
                 default:
-                    return LocalityAwareSplitAssigner::new;
+                    throw new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");
             }
         }
 
