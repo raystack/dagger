@@ -15,7 +15,7 @@ import io.odpf.dagger.core.source.parquet.ParquetFileSource;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
-import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
+import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.connector.file.src.FileSource;
@@ -99,9 +99,11 @@ public class ParquetSourceProtoSchemaStreamType extends StreamType<Row> {
 
         private FileSplitAssigner.Provider buildParquetFileSplitAssignerProvider(StreamConfig streamConfig) {
             SourceParquetReadOrderStrategy readOrderStrategy = streamConfig.getParquetFilesReadOrderStrategy();
+            String parquetChronologicalFilePathRegex = streamConfig.getParquetChronologicalFilePathRegex();
+            ChronologyOrderedSplitAssignerProvider chronologyOrderedSplitAssignerProvider = new ChronologyOrderedSplitAssignerProvider(parquetChronologicalFilePathRegex);
             switch (readOrderStrategy) {
                 case EARLIEST_TIME_URL_FIRST:
-                    return ChronologyOrderedSplitAssigner::new;
+                    return chronologyOrderedSplitAssignerProvider;
                 case EARLIEST_INDEX_FIRST:
                 default:
                     throw new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");

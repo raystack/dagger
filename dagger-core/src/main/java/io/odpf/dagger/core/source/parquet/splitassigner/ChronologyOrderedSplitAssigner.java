@@ -18,11 +18,12 @@ import java.util.stream.Collectors;
 
 public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final PriorityBlockingQueue<InstantEnrichedSplit> unassignedSplits;
-    private final Pattern filePathPattern = Pattern.compile("^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$");
+    private final Pattern filePathPattern;
     private static final int INITIAL_DEFAULT_CAPACITY = 11;
 
-    public ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits) {
+    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, String chronologicalFilePathRegex) {
         this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
+        this.filePathPattern = Pattern.compile(chronologicalFilePathRegex);
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
         }
@@ -100,5 +101,18 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH");
         String dateHourString = String.join(" ", dateSegment, hourSegment);
         return formatter.parse(dateHourString).toInstant();
+    }
+
+    public static class ChronologyOrderedSplitAssignerProvider implements FileSplitAssigner.Provider {
+        private final String chronologicalFilePathRegex;
+
+        public ChronologyOrderedSplitAssignerProvider(String chronologicalFilePathRegex) {
+            this.chronologicalFilePathRegex = chronologicalFilePathRegex;
+        }
+
+        @Override
+        public FileSplitAssigner create(Collection<FileSourceSplit> initialSplits) {
+            return new ChronologyOrderedSplitAssigner(initialSplits, chronologicalFilePathRegex);
+        }
     }
 }

@@ -144,6 +144,37 @@ public class StreamConfigTest {
     }
 
     @Test
+    public void shouldGetDefaultParquetFileChronologicalFilePathPatternWhenNotSet() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream\","
+                        + "\"INPUT_DATATYPE\": \"PROTO\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-05/hr=09/\",  \"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-03/hr=14/\"],"
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"}],"
+                        + "\"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\","
+                        + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        assertEquals("^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$", streamConfigs[0].getParquetChronologicalFilePathRegex());
+    }
+
+    @Test
+    public void shouldGetParquetFileChronologicalFilePathPatternWhenSet() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream\","
+                        + "\"INPUT_DATATYPE\": \"PROTO\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_CHRONOLOGICAL_FILE_PATH_REGEX\": \".*\","
+                        + "\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-05/hr=09/\",  \"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-03/hr=14/\"],"
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"}],"
+                        + "\"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\","
+                        + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        assertEquals(".*", streamConfigs[0].getParquetChronologicalFilePathRegex());
+    }
+
+    @Test
     public void shouldGetTopicPattern() {
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
@@ -168,7 +199,7 @@ public class StreamConfigTest {
     }
 
     @Test
-    public void shouldGetSourceDetails() {
+    public void shouldGetSourceDetailsWhenProvided() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{"
                         + "\"SOURCE_DETAILS\": "

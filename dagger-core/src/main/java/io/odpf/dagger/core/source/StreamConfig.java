@@ -95,11 +95,21 @@ public class StreamConfig {
     @Getter
     private SourceParquetSchemaMatchStrategy parquetSchemaMatchStrategy;
 
+    @SerializedName(STREAM_SOURCE_PARQUET_CHRONOLOGICAL_FILE_PATH_REGEX)
+    private String parquetChronologicalFilePathRegex;
+
     public String getDataType() {
         if (dataType == null) {
             dataType = "PROTO";
         }
         return dataType;
+    }
+
+    public String getParquetChronologicalFilePathRegex() {
+        if (parquetChronologicalFilePathRegex == null) {
+            return "^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$";
+        }
+        return parquetChronologicalFilePathRegex;
     }
 
     public SourceDetails[] getSourceDetails() {
