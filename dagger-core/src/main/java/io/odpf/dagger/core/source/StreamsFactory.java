@@ -5,7 +5,7 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType;
 import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchemaStreamType;
-import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
+import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchemaStreamType;
 import io.odpf.dagger.core.streamtype.StreamType;
 import org.apache.flink.types.Row;
 
@@ -22,11 +22,11 @@ public class StreamsFactory {
         for (StreamConfig streamConfig : streamConfigs) {
             KafkaSourceJsonSchemaStreamType.KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamType.KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
             KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder kafkaSourceProtoSchemaStreamTypeBuilder = new KafkaSourceProtoSchemaStreamType.KafkaSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
-            ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+            ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
 
 
             List<StreamType.Builder<Row>> availableStreamTypeBuilders = Arrays
-                    .asList(kafkaSourceJsonSchemaStreamTypeBuilder, kafkaSourceProtoSchemaStreamTypeBuilder, parquetSourceProtoTypeBuilder);
+                    .asList(kafkaSourceJsonSchemaStreamTypeBuilder, kafkaSourceProtoSchemaStreamTypeBuilder, parquetSourceProtoSchemaStreamTypeBuilder);
             StreamType<Row> streamType = availableStreamTypeBuilders
                     .stream()
                     .filter(StreamType.Builder::canBuild)

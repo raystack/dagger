@@ -6,7 +6,7 @@ import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
 import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType;
 import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchemaStreamType;
-import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
+import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchemaStreamType;
 import io.odpf.dagger.core.streamtype.StreamType;
 import io.odpf.stencil.client.StencilClient;
 import com.google.gson.JsonSyntaxException;
@@ -209,7 +209,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof ParquetSourceProtoSchema);
+        assertTrue(actualStreamType instanceof ParquetSourceProtoSchemaStreamType);
         assertEquals(PROTO, actualStreamType.getInputDataType());
         assertTrue(actualStreamType.getSource() instanceof FileSource);
         assertTrue(actualStreamType.getDeserializer() instanceof SimpleGroupDeserializer);

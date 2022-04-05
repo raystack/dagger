@@ -31,18 +31,18 @@ import java.util.function.Supplier;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
-public class ParquetSourceProtoSchema extends StreamType<Row> {
+public class ParquetSourceProtoSchemaStreamType extends StreamType<Row> {
 
-    public ParquetSourceProtoSchema(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
+    public ParquetSourceProtoSchemaStreamType(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
         super(source, streamName, inputDataType, deserializer);
     }
 
-    public static class ParquetSourceProtoTypeBuilder extends StreamType.Builder<Row> {
+    public static class ParquetSourceProtoSchemaStreamTypeBuilder extends StreamType.Builder<Row> {
         protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.PROTO;
         protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.PARQUET;
         protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.BOUNDED;
 
-        public ParquetSourceProtoTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
+        public ParquetSourceProtoSchemaStreamTypeBuilder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
             super(streamConfig, configuration, stencilClientOrchestrator);
         }
 
@@ -66,7 +66,7 @@ public class ParquetSourceProtoSchema extends StreamType<Row> {
             SimpleGroupDeserializer deserializer = buildSimpleGroupDeserializer();
             Source source = buildFileSource(deserializer);
             String streamName = streamConfig.getSchemaTable();
-            return new ParquetSourceProtoSchema(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
+            return new ParquetSourceProtoSchemaStreamType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private SimpleGroupDeserializer buildSimpleGroupDeserializer() {

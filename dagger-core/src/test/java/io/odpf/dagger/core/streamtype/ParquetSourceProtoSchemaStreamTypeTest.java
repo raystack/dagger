@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ParquetSourceProtoSchemaTest {
+public class ParquetSourceProtoSchemaStreamTypeTest {
     @Mock
     private StreamConfig streamConfig;
 
@@ -43,62 +43,62 @@ public class ParquetSourceProtoSchemaTest {
 
     @Test
     public void shouldReturnFalseIfTheSourceNameIsNotSupported() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = parquetSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = parquetSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfMultipleBackToBackSourcesAreConfigured() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED), new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = parquetSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = parquetSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSourceTypeIsNotSupported() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = parquetSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = parquetSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSchemaTypeIsNotSupported() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = parquetSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = parquetSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnTrueIfTheStreamTypeCanBeBuiltFromConfigs() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = parquetSourceProtoTypeBuilder.canBuild();
+        boolean canBuild = parquetSourceProtoSchemaStreamTypeBuilder.canBuild();
 
         assertTrue(canBuild);
     }
 
     @Test
     public void shouldBuildAStreamTypeWithParquetSourceAndProtoSchemaType() {
-        ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
+        ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder parquetSourceProtoSchemaStreamTypeBuilder = new ParquetSourceProtoSchemaStreamType.ParquetSourceProtoSchemaStreamTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
 
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
@@ -108,7 +108,7 @@ public class ParquetSourceProtoSchemaTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        StreamType<Row> streamType = parquetSourceProtoTypeBuilder.build();
+        StreamType<Row> streamType = parquetSourceProtoSchemaStreamTypeBuilder.build();
 
         assertTrue(streamType.getSource() instanceof FileSource);
         assertEquals("test-table", streamType.getStreamName());
