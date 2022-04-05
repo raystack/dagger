@@ -23,6 +23,9 @@ import java.util.TimeZone;
  */
 public class TimestampProtoHandler implements ProtoHandler {
     private static final int SECOND_TO_MS_FACTOR = 1000;
+    private static final long DEFAULT_SECONDS_VALUE = 0L;
+    private static final int DEFAULT_NANOS_VALUE = 0;
+    private static final int MS_TO_NANOS_FACTOR = 1000_000;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
@@ -111,41 +114,17 @@ public class TimestampProtoHandler implements ProtoHandler {
         return transformFromSimpleGroup((SimpleGroup) field);
     }
 
+    /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
     private Object transformFromSimpleGroup(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            DynamicMessage dynamicMessage = transformParquetInt64MillisToDynamicMessage(fieldName, simpleGroup);
-            return RowFactory.createRow(dynamicMessage);
+            long timeInMillis = simpleGroup.getLong(fieldName, 0);
+            long seconds = Math.floorDiv(timeInMillis, SECOND_TO_MS_FACTOR);
+            int mos = (int) Math.floorMod(timeInMillis, SECOND_TO_MS_FACTOR);
+            int nanos = mos * MS_TO_NANOS_FACTOR;
+            return Row.of(seconds, nanos);
         } else {
-            DynamicMessage defaultTimestampMessage = transformProtoTimestampToDynamicMessage(Timestamp.getDefaultInstance());
-            return RowFactory.createRow(defaultTimestampMessage);
-        }
-    }
-
-    /* Handling for latest parquet files in which timestamps are encoded as int64 epoch milliseconds with logical type
-    annotation of TIMESTAMP(true, MILLIS) */
-    private DynamicMessage transformParquetInt64MillisToDynamicMessage(String fieldName, SimpleGroup simpleGroup) {
-        long timeInMillis = simpleGroup.getLong(fieldName, 0);
-        Timestamp protoTimestamp = transformParquetInt64MillisToProtoTimestamp(timeInMillis);
-        return transformProtoTimestampToDynamicMessage(protoTimestamp);
-    }
-
-    private Timestamp transformParquetInt64MillisToProtoTimestamp(long millis) {
-        Instant instant = Instant.ofEpochMilli(millis);
-        return Timestamp.newBuilder()
-                .setSeconds(instant.getEpochSecond())
-                .setNanos(instant.getNano())
-                .build();
-    }
-
-    private DynamicMessage transformProtoTimestampToDynamicMessage(Timestamp protoTimestamp) {
-        try {
-            /* getting the descriptor from fieldDescriptor to create the timestamp message. This will ensure that the
-            nested row for timestamp is created with the same position numbers as the fieldDescriptor indices of
-            the seconds+nanos fields when RowFactory.createRow() is called above */
-            return DynamicMessage.parseFrom(fieldDescriptor.getMessageType(), protoTimestamp.toByteArray());
-        } catch (InvalidProtocolBufferException ex) {
-            throw new DaggerDeserializationException("Error encountered while creating dynamic message from timestamp");
+            return Row.of(DEFAULT_SECONDS_VALUE, DEFAULT_NANOS_VALUE);
         }
     }
 
