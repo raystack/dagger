@@ -39,7 +39,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder transformForKafka(Builder builder, Object field) {
+    public Builder transformToProtoBuilder(Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -74,7 +74,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             List<DynamicMessage> protos = (List<DynamicMessage>) field;
@@ -115,7 +115,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
 
             if (index < row.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
-                protoHandler.transformForKafka(elementBuilder, row.getField(index));
+                protoHandler.transformToProtoBuilder(elementBuilder, row.getField(index));
             }
         }
     }

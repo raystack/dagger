@@ -35,7 +35,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -64,7 +64,7 @@ public class MapProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         ArrayList<Row> rows = new ArrayList<>();
         if (field != null) {
             List<DynamicMessage> protos = (List<DynamicMessage>) field;

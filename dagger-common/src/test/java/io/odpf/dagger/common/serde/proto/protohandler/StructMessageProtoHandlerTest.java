@@ -44,7 +44,7 @@ public class StructMessageProtoHandlerTest {
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
         assertEquals(DynamicMessage.getDefaultInstance(fieldDescriptor.getContainingType()).getAllFields().size(),
-                ((DynamicMessage) structMessageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor)).getAllFields().size());
+                ((DynamicMessage) structMessageProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor)).getAllFields().size());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class StructMessageProtoHandlerTest {
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        assertNull(structMessageProtoHandler.transformFromKafka("test"));
+        assertNull(structMessageProtoHandler.transformFromProto("test"));
     }
 
     @Test

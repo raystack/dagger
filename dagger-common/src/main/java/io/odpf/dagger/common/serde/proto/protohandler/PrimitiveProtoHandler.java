@@ -29,7 +29,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         return field != null ? builder.setField(fieldDescriptor, transform(field)) : builder;
     }
 
@@ -49,7 +49,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         return field;
     }
 

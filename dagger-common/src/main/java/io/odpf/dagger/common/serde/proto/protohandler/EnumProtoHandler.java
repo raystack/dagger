@@ -30,7 +30,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -56,7 +56,7 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         return String.valueOf(field).trim();
     }
 

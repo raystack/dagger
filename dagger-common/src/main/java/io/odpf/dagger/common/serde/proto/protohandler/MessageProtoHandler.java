@@ -35,7 +35,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Builder transformForKafka(Builder builder, Object field) {
+    public Builder transformToProtoBuilder(Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -49,7 +49,7 @@ public class MessageProtoHandler implements ProtoHandler {
             if (index < rowElement.getArity()) {
                 ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
-                    protoHandler.transformForKafka(elementBuilder, rowElement.getField(index));
+                    protoHandler.transformToProtoBuilder(elementBuilder, rowElement.getField(index));
                 }
             }
         }
@@ -63,7 +63,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
     }
 

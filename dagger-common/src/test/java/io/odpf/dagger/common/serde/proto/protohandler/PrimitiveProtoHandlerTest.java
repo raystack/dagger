@@ -33,7 +33,7 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformToProtoBuilder(builder, null);
         assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -43,7 +43,7 @@ public class PrimitiveProtoHandlerTest {
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformForKafka(builder, "123");
+        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformToProtoBuilder(builder, "123");
         assertEquals("123", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -99,8 +99,8 @@ public class PrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
 
-        assertEquals(123, primitiveProtoHandler.transformFromKafka(123));
-        assertEquals("123", primitiveProtoHandler.transformFromKafka("123"));
+        assertEquals(123, primitiveProtoHandler.transformFromProto(123));
+        assertEquals("123", primitiveProtoHandler.transformFromProto("123"));
     }
 
     @Test

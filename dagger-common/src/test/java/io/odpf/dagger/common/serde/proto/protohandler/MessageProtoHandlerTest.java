@@ -39,8 +39,8 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, messsageProtoHandler.transformForKafka(builder, 123));
-        assertEquals("", messsageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, messsageProtoHandler.transformToProtoBuilder(builder, 123));
+        assertEquals("", messsageProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder outputBuilder = messsageProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder outputBuilder = messsageProtoHandler.transformToProtoBuilder(builder, null);
         assertEquals(builder, outputBuilder);
         assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
@@ -63,7 +63,7 @@ public class MessageProtoHandlerTest {
         Row inputRow = new Row(2);
         inputRow.setField(0, "test1");
         inputRow.setField(1, "test2");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformToProtoBuilder(builder, inputRow);
 
         TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -80,7 +80,7 @@ public class MessageProtoHandlerTest {
 
         Row inputRow = new Row(1);
         inputRow.setField(0, "test1");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformToProtoBuilder(builder, inputRow);
 
         TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -145,7 +145,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromProto(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -163,7 +163,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromProto(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("", value.getField(1));

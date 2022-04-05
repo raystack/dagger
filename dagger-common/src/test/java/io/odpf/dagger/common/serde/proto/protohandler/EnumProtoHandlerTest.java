@@ -46,7 +46,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals("", enumProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
+        assertEquals("", enumProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals("", enumProtoHandler.transformForKafka(builder, null).getField(fieldDescriptor));
+        assertEquals("", enumProtoHandler.transformToProtoBuilder(builder, null).getField(fieldDescriptor));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformForKafka(builder, "GO_RIDE");
+        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformToProtoBuilder(builder, "GO_RIDE");
         assertEquals(TestServiceType.Enum.GO_RIDE.getValueDescriptor(), returnedBuilder.getField(enumFieldDescriptor));
     }
 
@@ -74,7 +74,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        EnumFieldNotFoundException exception = Assert.assertThrows(EnumFieldNotFoundException.class, () -> enumProtoHandler.transformForKafka(builder, "test"));
+        EnumFieldNotFoundException exception = Assert.assertThrows(EnumFieldNotFoundException.class, () -> enumProtoHandler.transformToProtoBuilder(builder, "test"));
         assertEquals("field: test not found in io.odpf.dagger.consumer.TestBookingLogMessage.service_type", exception.getMessage());
     }
 
@@ -153,7 +153,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
-        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromKafka("DRIVER_FOUND"));
+        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromProto("DRIVER_FOUND"));
     }
 
     @Test

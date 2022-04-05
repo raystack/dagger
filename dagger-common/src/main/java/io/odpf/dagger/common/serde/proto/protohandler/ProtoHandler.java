@@ -16,13 +16,13 @@ public interface ProtoHandler {
     boolean canHandle();
 
     /**
-     * Transform for kafka dynamic message . builder.
+     * Transform to protobuf message builder.
      *
      * @param builder the builder
      * @param field   the field
      * @return the dynamic message . builder
      */
-    DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field);
+    DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field);
 
     /**
      * Transform from post processor object.
@@ -33,12 +33,12 @@ public interface ProtoHandler {
     Object transformFromPostProcessor(Object field);
 
     /**
-     * Transform from kafka object.
+     * Transform from protobuf message.
      *
      * @param field the field
      * @return the object
      */
-    Object transformFromKafka(Object field);
+    Object transformFromProto(Object field);
 
     /**
      * Transform from parquet object.
