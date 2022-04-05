@@ -4,7 +4,7 @@ import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchema;
+import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType;
 import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchema;
 import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
 import io.odpf.dagger.core.streamtype.StreamType;
@@ -161,7 +161,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof KafkaSourceJsonSchema);
+        assertTrue(actualStreamType instanceof KafkaSourceJsonSchemaStreamType);
         assertEquals(JSON, actualStreamType.getInputDataType());
         assertTrue(actualStreamType.getSource() instanceof KafkaSource);
         assertTrue(actualStreamType.getDeserializer() instanceof JsonDeserializer);
@@ -186,7 +186,7 @@ public class StreamsFactoryTest {
         List<StreamType<Row>> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
         StreamType<Row> actualStreamType = streamTypes.get(0);
 
-        assertTrue(actualStreamType instanceof KafkaSourceJsonSchema);
+        assertTrue(actualStreamType instanceof KafkaSourceJsonSchemaStreamType);
         assertEquals(JSON, actualStreamType.getInputDataType());
         assertTrue(actualStreamType.getSource() instanceof KafkaSource);
         assertTrue(actualStreamType.getDeserializer() instanceof JsonDeserializer);
@@ -255,7 +255,7 @@ public class StreamsFactoryTest {
         assertTrue(streamTypes.get(0).getDeserializer() instanceof ProtoDeserializer);
         assertEquals("data_stream_1", streamTypes.get(0).getStreamName());
 
-        assertTrue(streamTypes.get(1) instanceof KafkaSourceJsonSchema);
+        assertTrue(streamTypes.get(1) instanceof KafkaSourceJsonSchemaStreamType);
         assertEquals(JSON, streamTypes.get(1).getInputDataType());
         assertTrue(streamTypes.get(1).getSource() instanceof KafkaSource);
         assertTrue(streamTypes.get(1).getDeserializer() instanceof JsonDeserializer);

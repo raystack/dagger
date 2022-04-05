@@ -3,7 +3,7 @@ package io.odpf.dagger.core.source;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchema;
+import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType;
 import io.odpf.dagger.core.streamtype.KafkaSourceProtoSchema;
 import io.odpf.dagger.core.streamtype.ParquetSourceProtoSchema;
 import io.odpf.dagger.core.streamtype.StreamType;
@@ -20,13 +20,13 @@ public class StreamsFactory {
         ArrayList<StreamType<Row>> streamTypes = new ArrayList<>();
 
         for (StreamConfig streamConfig : streamConfigs) {
-            KafkaSourceJsonSchema.KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonSchema.KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+            KafkaSourceJsonSchemaStreamType.KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamType.KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
             KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder kafkaSourceProtoTypeBuilder = new KafkaSourceProtoSchema.KafkaSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
             ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder parquetSourceProtoTypeBuilder = new ParquetSourceProtoSchema.ParquetSourceProtoTypeBuilder(streamConfig, configuration, stencilClientOrchestrator);
 
 
             List<StreamType.Builder<Row>> availableStreamTypeBuilders = Arrays
-                    .asList(kafkaSourceJsonTypeBuilder, kafkaSourceProtoTypeBuilder, parquetSourceProtoTypeBuilder);
+                    .asList(kafkaSourceJsonSchemaStreamTypeBuilder, kafkaSourceProtoTypeBuilder, parquetSourceProtoTypeBuilder);
             StreamType<Row> streamType = availableStreamTypeBuilders
                     .stream()
                     .filter(StreamType.Builder::canBuild)

@@ -4,7 +4,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.core.source.SourceDetails;
 import io.odpf.dagger.core.source.StreamConfig;
-import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchema.KafkaSourceJsonTypeBuilder;
+import io.odpf.dagger.core.streamtype.KafkaSourceJsonSchemaStreamType.KafkaSourceJsonSchemaStreamTypeBuilder;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.types.Row;
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class KafkaSourceJsonSchemaTest {
+public class KafkaSourceJsonSchemaStreamTypeTest {
     @Mock
     private StreamConfig streamConfig;
 
@@ -40,62 +40,62 @@ public class KafkaSourceJsonSchemaTest {
 
     @Test
     public void shouldReturnTrueIfTheStreamTypeCanBeBuiltFromConfigs() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = kafkaSourceJsonTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceJsonSchemaStreamTypeBuilder.canBuild();
 
         assertTrue(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSourceNameIsNotSupported() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(PARQUET, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = kafkaSourceJsonTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceJsonSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfMultipleBackToBackSourcesAreConfigured() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED), new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = kafkaSourceJsonTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceJsonSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSourceTypeIsNotSupported() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        boolean canBuild = kafkaSourceJsonTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceJsonSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldReturnFalseIfTheSchemaTypeIsNotSupported() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(KAFKA, UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
-        boolean canBuild = kafkaSourceJsonTypeBuilder.canBuild();
+        boolean canBuild = kafkaSourceJsonSchemaStreamTypeBuilder.canBuild();
 
         assertFalse(canBuild);
     }
 
     @Test
     public void shouldBuildAStreamTypeWithKafkaSourceAndJsonSchemaType() {
-        KafkaSourceJsonTypeBuilder kafkaSourceJsonTypeBuilder = new KafkaSourceJsonTypeBuilder(streamConfig, configuration);
+        KafkaSourceJsonSchemaStreamTypeBuilder kafkaSourceJsonSchemaStreamTypeBuilder = new KafkaSourceJsonSchemaStreamTypeBuilder(streamConfig, configuration);
         HashMap<String, String> kafkaPropMap = new HashMap<>();
         kafkaPropMap.put("group.id", "dummy-consumer-group");
         kafkaPropMap.put("bootstrap.servers", "localhost:9092");
@@ -108,7 +108,7 @@ public class KafkaSourceJsonSchemaTest {
         when(streamConfig.getStartingOffset()).thenReturn(OffsetsInitializer.committedOffsets(OffsetResetStrategy.valueOf("LATEST")));
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
 
-        StreamType<Row> streamType = kafkaSourceJsonTypeBuilder.build();
+        StreamType<Row> streamType = kafkaSourceJsonSchemaStreamTypeBuilder.build();
 
         assertTrue(streamType.getSource() instanceof KafkaSource);
         assertEquals("test-table", streamType.getStreamName());

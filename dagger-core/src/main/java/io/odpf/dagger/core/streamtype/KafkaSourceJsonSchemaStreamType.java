@@ -13,18 +13,18 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.types.Row;
 
-public class KafkaSourceJsonSchema extends StreamType<Row> {
-    private KafkaSourceJsonSchema(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
+public class KafkaSourceJsonSchemaStreamType extends StreamType<Row> {
+    private KafkaSourceJsonSchemaStreamType(Source source, String streamName, DataTypes inputDataType, DaggerDeserializer<Row> deserializer) {
         super(source, streamName, inputDataType, deserializer);
     }
 
-    public static class KafkaSourceJsonTypeBuilder extends StreamType.Builder<Row> {
+    public static class KafkaSourceJsonSchemaStreamTypeBuilder extends StreamType.Builder<Row> {
 
         protected static final DataTypes SUPPORTED_INPUT_DATA_TYPE = DataTypes.JSON;
         protected static final SourceName SUPPORTED_SOURCE_NAME = SourceName.KAFKA;
         protected static final SourceType SUPPORTED_SOURCE_TYPE = SourceType.UNBOUNDED;
 
-        public KafkaSourceJsonTypeBuilder(StreamConfig streamConfig, Configuration configuration) {
+        public KafkaSourceJsonSchemaStreamTypeBuilder(StreamConfig streamConfig, Configuration configuration) {
             super(streamConfig, configuration);
         }
 
@@ -49,7 +49,7 @@ public class KafkaSourceJsonSchema extends StreamType<Row> {
             KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema.of(deserializer);
             Source source = buildKafkaSource(kafkaRecordDeserializationSchema);
             String streamName = streamConfig.getSchemaTable();
-            return new KafkaSourceJsonSchema(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
+            return new KafkaSourceJsonSchemaStreamType(source, streamName, SUPPORTED_INPUT_DATA_TYPE, deserializer);
         }
 
         private KafkaSource<Row> buildKafkaSource(KafkaRecordDeserializationSchema<Row> deserializer) {
