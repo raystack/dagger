@@ -1,15 +1,14 @@
-package io.odpf.dagger.core.source.builder;
+package io.odpf.dagger.core.source.kafka.builder;
 
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-
-import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.kafka.DaggerOldKafkaSource;
+import io.odpf.stencil.client.StencilClient;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,11 +17,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -90,13 +86,15 @@ public class ProtoDataStreamBuilderTest {
         when(streamConfig.getKafkaProps(any())).thenReturn(properties);
         when(streamConfig.getStartingOffset()).thenReturn(OffsetsInitializer.committedOffsets(OffsetResetStrategy.valueOf("LATEST")));
         when(streamConfig.getSchemaTable()).thenReturn("test-table");
+        when(streamConfig.getTopicPattern()).thenReturn(Pattern.compile("test"));
+        when(streamConfig.getSourceType()).thenReturn("OLD_KAFKA_SOURCE");
 
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         Stream build = protoDataStreamBuilder.build();
 
         Assert.assertEquals(DataTypes.PROTO, build.getInputDataType());
-        Assert.assertTrue(build.getSource() instanceof KafkaSource);
+        Assert.assertTrue(build.getDaggerSource() instanceof DaggerOldKafkaSource);
         Assert.assertEquals("test-table", build.getStreamName());
     }
 
@@ -118,6 +116,7 @@ public class ProtoDataStreamBuilderTest {
     @Test
     public void shouldFailToCreateStreamIfSomeConfigsAreMissing() {
         thrown.expect(NullPointerException.class);
+        when(streamConfig.getEventTimestampFieldIndex()).thenReturn("1");
         ProtoDataStreamBuilder protoDataStreamBuilder = new ProtoDataStreamBuilder(streamConfig, stencilClientOrchestrator, configuration);
 
         protoDataStreamBuilder.build();

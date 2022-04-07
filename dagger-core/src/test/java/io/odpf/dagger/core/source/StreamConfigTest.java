@@ -163,4 +163,38 @@ public class StreamConfigTest {
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \\\"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
         StreamConfig.parse(configuration);
     }
+
+    @Test
+    public void shouldReturnConfiguredSourceType() {
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"INPUT_SOURCE_TYPE\": \"KAFKA_SOURCE\",\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        StreamConfig currConfig = streamConfigs[0];
+        Assert.assertEquals("false", currConfig.getAutoCommitEnable());
+        Assert.assertEquals("latest", currConfig.getAutoOffsetReset());
+        Assert.assertEquals("PROTO", currConfig.getDataType());
+        Assert.assertEquals("dummy-consumer-group", currConfig.getConsumerGroupId());
+        Assert.assertEquals("41", currConfig.getEventTimestampFieldIndex());
+        Assert.assertEquals("test-topic", currConfig.getKafkaTopicNames());
+        Assert.assertEquals("data_stream", currConfig.getSchemaTable());
+        Assert.assertEquals("local-kafka-stream", currConfig.getKafkaName());
+        Assert.assertEquals("KAFKA_SOURCE", currConfig.getSourceType());
+    }
+
+    @Test
+    public void shouldReturnDefaultSourceTypeAsOldKafkaSource() {
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        StreamConfig currConfig = streamConfigs[0];
+        Assert.assertEquals("false", currConfig.getAutoCommitEnable());
+        Assert.assertEquals("latest", currConfig.getAutoOffsetReset());
+        Assert.assertEquals("PROTO", currConfig.getDataType());
+        Assert.assertEquals("dummy-consumer-group", currConfig.getConsumerGroupId());
+        Assert.assertEquals("41", currConfig.getEventTimestampFieldIndex());
+        Assert.assertEquals("test-topic", currConfig.getKafkaTopicNames());
+        Assert.assertEquals("data_stream", currConfig.getSchemaTable());
+        Assert.assertEquals("local-kafka-stream", currConfig.getKafkaName());
+        Assert.assertEquals("OLD_KAFKA_SOURCE", currConfig.getSourceType());
+    }
 }

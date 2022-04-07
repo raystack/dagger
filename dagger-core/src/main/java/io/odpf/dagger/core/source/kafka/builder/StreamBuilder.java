@@ -1,15 +1,13 @@
-package io.odpf.dagger.core.source.builder;
-
-import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
-import org.apache.flink.types.Row;
+package io.odpf.dagger.core.source.kafka.builder;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
+import io.odpf.dagger.core.source.DaggerSource;
+import io.odpf.dagger.core.source.DaggerSourceFactory;
 import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamConfig;
+import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,16 +47,11 @@ public abstract class StreamBuilder implements TelemetryPublisher {
         return new Stream(createSource(), streamConfig.getSchemaTable(), getInputDataType());
     }
 
-    private Source createSource() {
-        return KafkaSource.<Row>builder()
-                .setTopicPattern(streamConfig.getTopicPattern())
-                .setStartingOffsets(streamConfig.getStartingOffset())
-                .setProperties(streamConfig.getKafkaProps(configuration))
-                .setDeserializer(getDeserializationSchema())
-                .build();
+    private DaggerSource createSource() {
+        return DaggerSourceFactory.createDaggerSource(streamConfig, getDeserializationSchema(), configuration);
     }
 
-    abstract KafkaRecordDeserializationSchema getDeserializationSchema();
+    abstract KafkaDeserializationSchema getDeserializationSchema();
 
     DataTypes getInputDataType() {
         return DataTypes.valueOf(streamConfig.getDataType());
