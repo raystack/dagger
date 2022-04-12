@@ -8,7 +8,7 @@ import org.mockito.Mock;
 
 import java.util.*;
 
-import static io.odpf.dagger.functions.common.Constants.PYTHON_UDF_CONFIG;
+import static io.odpf.dagger.functions.common.Constants.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -55,28 +55,28 @@ public class PythonUdfConfigTest {
     }
 
     @Test
-    public void shouldParsePythonUdfConfig() {
+    public void shouldMapJsonConfig() {
         when(configuration.getString(PYTHON_UDF_CONFIG, "")).thenReturn(pythonJsonConfig);
         PythonUdfConfig pythonUdfConfig = PythonUdfConfig.parse(configuration);
 
-        Map<String, String> pythonUdfConfigMap = new LinkedHashMap<>();
-        pythonUdfConfigMap.put("python.files", "/path/to/function.zip");
-        pythonUdfConfigMap.put("python.requirements", "requirements.txt");
-        pythonUdfConfigMap.put("python.archives", "/path/to/file.txt");
-        pythonUdfConfigMap.put("python.client.executable", "python");
-        pythonUdfConfigMap.put("python.executable", "python");
-        pythonUdfConfigMap.put("python.fn-execution.arrow.batch.size", "1000");
-        pythonUdfConfigMap.put("python.fn-execution.bundle.size", "10000");
-        pythonUdfConfigMap.put("python.fn-execution.bundle.time", "1000");
-        pythonUdfConfigMap.put("python.fn-execution.memory.managed", "true");
-        pythonUdfConfigMap.put("python.map-state.iterate-response-batch-size", "1000");
-        pythonUdfConfigMap.put("python.map-state.read-cache-size", "1000");
-        pythonUdfConfigMap.put("python.map-state.write-cache-size", "1000");
-        pythonUdfConfigMap.put("python.state-cache-size", "1000");
-        pythonUdfConfigMap.put("python.metric.enabled", "true");
-        pythonUdfConfigMap.put("python.profile.enabled", "false");
+        Map<String, String> pythonUdfConfigMap = new HashMap<>();
+        pythonUdfConfigMap.put(PYTHON_FILES_KEY, "/path/to/function.zip");
+        pythonUdfConfigMap.put(PYTHON_REQUIREMENTS_KEY, "requirements.txt");
+        pythonUdfConfigMap.put(PYTHON_ARCHIVES_KEY, "/path/to/file.txt");
+        pythonUdfConfigMap.put(PYTHON_CLIENT_EXECUTABLE_KEY, "python");
+        pythonUdfConfigMap.put(PYTHON_EXECUTABLE_KEY, "python");
+        pythonUdfConfigMap.put(PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_FN_EXECUTION_BUNDLE_SIZE_KEY, "10000");
+        pythonUdfConfigMap.put(PYTHON_FN_EXECUTION_BUNDLE_TIME_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_FN_EXECUTION_MEMORY_MANAGED_KEY, "true");
+        pythonUdfConfigMap.put(PYTHON_MAP_STATE_ITERATE_RESPONSE_BATCH_SIZE_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_MAP_STATE_READ_CACHE_SIZE_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_MAP_STATE_WRITE_CACHE_SIZE_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_STATE_CACHE_SIZE_KEY, "1000");
+        pythonUdfConfigMap.put(PYTHON_METRIC_ENABLED_KEY, "true");
+        pythonUdfConfigMap.put(PYTHON_PROFILE_ENABLED_KEY, "false");
 
-        assertMapEquals(pythonUdfConfigMap, pythonUdfConfig.getPythonParsedConfig());
+        assertMapEquals(pythonUdfConfigMap, pythonUdfConfig.jsonToConfigMap());
     }
 
     private void assertMapEquals(Map<String, String> firstMap, Map<String, String> secondMap) {

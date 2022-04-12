@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName;
 import io.odpf.dagger.common.configuration.Configuration;
 import lombok.Getter;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.odpf.dagger.functions.common.Constants.*;
@@ -84,21 +83,9 @@ public class PythonUdfConfig {
         return GSON.fromJson(jsonString, PythonUdfConfig.class);
     }
 
-    public Map<String, String> getPythonParsedConfig() {
+    public Map<String, String> jsonToConfigMap() {
         String jsonString = GSON.toJson(this);
-        Map<String, String> pythonUdfConfigMap = GSON.fromJson(jsonString, Map.class);
-        Map<String, String> pythonParsedConfig = new LinkedHashMap<>();
-        pythonUdfConfigMap.forEach((key, value) -> pythonParsedConfig.put(parseVarName(key), value));
-        return pythonParsedConfig;
-    }
 
-    private String parseVarName(String varName) {
-        String[] names = varName.toLowerCase()
-                .replace("_fn_", "_fn-")
-                .replace("_cache_size", "-cache-size")
-                .replace("map_state", "map-state")
-                .replace("_response_batch_size", "-response-batch-size")
-                .split("_");
-        return String.join(".", names);
+        return GSON.fromJson(jsonString, Map.class);
     }
 }

@@ -9,38 +9,47 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class PythonUdfManager {
+    private static final String PYTHON_FILES = "python.files";
 
     private StreamTableEnvironment tableEnvironment;
-    private PythonUdfConfig pythonUdfConfig;
+    private PythonUdfConfigMapper pythonUdfConfigMapper;
 
-    public PythonUdfManager(StreamTableEnvironment tableEnvironment, PythonUdfConfig pythonUdfConfig) {
+    public PythonUdfManager(StreamTableEnvironment tableEnvironment, PythonUdfConfigMapper pythonUdfConfigMapper) {
         this.tableEnvironment = tableEnvironment;
-        this.pythonUdfConfig = pythonUdfConfig;
+        this.pythonUdfConfigMapper = pythonUdfConfigMapper;
     }
 
-    private void registerPythonUdfConfig() {
-        org.apache.flink.configuration.Configuration config = new org.apache.flink.configuration.Configuration();
-
-        Map<String, String> pythonParsedConfig = pythonUdfConfig.getPythonParsedConfig();
-        for (Map.Entry<String, String> entry : pythonParsedConfig.entrySet()) {
-            if (entry.getKey().contains("size")) {
-                config.setInteger(entry.getKey(), Integer.parseInt(entry.getValue()));
-            } else if (entry.getKey().contains("enabled") | entry.getKey().contains("managed")) {
-                config.setBoolean(entry.getKey(), Boolean.parseBoolean(entry.getValue()));
-            } else if (entry.getKey().contains("time")) {
-                config.setLong(entry.getKey(), Long.parseLong(entry.getValue()));
+    private void registerPythonConfig(Map<String, Object> configMap) {
+        for (Map.Entry<String, Object> entry : configMap.entrySet()) {
+            if (entry.getValue() instanceof Long) {
+                tableEnvironment
+                        .getConfig()
+                        .getConfiguration()
+                        .setLong(entry.getKey(), (Long) entry.getValue());
+            } else if (entry.getValue() instanceof Boolean) {
+                tableEnvironment
+                        .getConfig()
+                        .getConfiguration()
+                        .setBoolean(entry.getKey(), (Boolean) entry.getValue());
+            } else if (entry.getValue() instanceof Integer) {
+                tableEnvironment
+                        .getConfig()
+                        .getConfiguration()
+                        .setInteger(entry.getKey(), (Integer) entry.getValue());
             } else {
-                config.setString(entry.getKey(), entry.getValue());
+                tableEnvironment
+                        .getConfig()
+                        .getConfiguration()
+                        .setString(entry.getKey(), (String) entry.getValue());
             }
         }
-        tableEnvironment.getConfig().addConfiguration(config);
     }
 
     public void registerPythonFunctions() throws IOException {
-        registerPythonUdfConfig();
-        String[] pythonFilesSource = pythonUdfConfig
-                .getPythonFiles()
-                .split(",");
+
+        Map<String, Object> configMap = pythonUdfConfigMapper.getConfig();
+        registerPythonConfig(configMap);
+        String[] pythonFilesSource = ((String) configMap.get(PYTHON_FILES)).split(",");
 
         for (String pythonFile : pythonFilesSource) {
             if (pythonFile.contains(".zip")) {

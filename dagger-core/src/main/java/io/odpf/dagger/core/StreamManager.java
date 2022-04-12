@@ -20,6 +20,7 @@ import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
 import io.odpf.dagger.functions.udfs.python.PythonUdfConfig;
+import io.odpf.dagger.functions.udfs.python.PythonUdfConfigMapper;
 import io.odpf.dagger.functions.udfs.python.PythonUdfManager;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -146,7 +147,8 @@ public class StreamManager {
     public StreamManager registerFunctions() throws IOException {
         if (configuration.getBoolean(PYTHON_UDF_ENABLE_KEY, PYTHON_UDF_ENABLE_DEFAULT)) {
             PythonUdfConfig pythonUdfConfig = PythonUdfConfig.parse(configuration);
-            PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+            PythonUdfConfigMapper pythonUdfConfigMapper = new PythonUdfConfigMapper(pythonUdfConfig);
+            PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfigMapper);
             pythonUdfManager.registerPythonFunctions();
         }
 
