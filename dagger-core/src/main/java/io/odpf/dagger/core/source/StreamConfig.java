@@ -104,7 +104,7 @@ public class StreamConfig {
 
     public SourceDetails[] getSourceDetails() {
         if (sourceDetails == null) {
-            return new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)};
+            return new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.UNBOUNDED)};
         } else {
             return sourceDetails;
         }
