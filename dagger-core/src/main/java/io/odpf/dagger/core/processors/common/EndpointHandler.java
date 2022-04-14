@@ -63,19 +63,19 @@ public class EndpointHandler {
     }
 
     /**
-     * Get endpoint or query variables values.
+     * Get dynamic header variables values.
      *
      * @param rowManager   the row manager
+     * @parm variables     the variable list
      * @param resultFuture the result future
      * @return the array object
      */
-    public Object[] getEndpointOrQueryVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
-        String queryVariables = sourceConfig.getVariables();
-        if (StringUtils.isEmpty(queryVariables)) {
+    public Object[] getVariablesValue(RowManager rowManager, String variables, ResultFuture<Row> resultFuture) {
+        if (StringUtils.isEmpty(variables)) {
             return new Object[0];
         }
 
-        String[] requiredInputColumns = queryVariables.split(",");
+        String[] requiredInputColumns = variables.split(",");
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         if (descriptorMap == null) {
             descriptorMap = createDescriptorMap(requiredInputColumns, inputProtoClasses, resultFuture);
@@ -105,11 +105,12 @@ public class EndpointHandler {
      *
      * @param resultFuture            the result future
      * @param rowManager              the row manager
-     * @param endpointVariablesValues the endpoint variables values
+     * @param variables               the request/header variables
+     * @param variablesValue          the variables value
      * @return the boolean
      */
-    public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
-        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.stream(endpointVariablesValues).allMatch(""::equals))) {
+    public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, String variables, Object[] variablesValue) {
+        if (!StringUtils.isEmpty(variables) && (Arrays.asList(variablesValue).isEmpty() || Arrays.stream(variablesValue).allMatch(""::equals))) {
             LOGGER.warn("Could not populate any request variable. Skipping external calls");
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));
