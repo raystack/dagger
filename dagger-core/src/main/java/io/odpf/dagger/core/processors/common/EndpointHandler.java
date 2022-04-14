@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.common;
 
+import io.netty.util.internal.StringUtil;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.types.SourceConfig;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;

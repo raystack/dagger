@@ -94,12 +94,14 @@ public class HttpAsyncConnector extends AsyncConnector {
             RowManager rowManager = new RowManager(input);
 
             Object[] requestVariablesValues = getEndpointHandler()
-                    .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-            if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, requestVariablesValues)) {
+                    .getVariablesValue(rowManager, httpSourceConfig.getRequestVariables(), resultFuture);
+            Object[] dynamicHeaderVariablesValues = getEndpointHandler()
+                    .getVariablesValue(rowManager, httpSourceConfig.getHeaderVariables(), resultFuture);
+            if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getRequestVariables(), requestVariablesValues) || getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getHeaderVariables(), dynamicHeaderVariablesValues)) {
                 return;
             }
 
-            BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues);
+            BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues, dynamicHeaderVariablesValues);
             HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, getMeterStatsManager(),
                     rowManager, getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
             httpResponseHandler.startTimer();
