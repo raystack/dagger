@@ -1,5 +1,7 @@
 package io.odpf.dagger.core.source;
 
+import io.odpf.dagger.core.source.flinkkafkaconsumer.FlinkKafkaConsumerDaggerSource;
+import io.odpf.dagger.core.source.kafka.KafkaDaggerSource;
 import io.odpf.stencil.client.StencilClient;
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
@@ -10,8 +12,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 
+import java.util.List;
+
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -28,6 +34,44 @@ public class StreamsFactoryTest {
     @Before
     public void setup() {
         initMocks(this);
+    }
+
+    @Test
+    public void shouldReturnListOfStreamTypesCreatedFromConfiguration() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream_1\","
+                        + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic-1\","
+                        + "\"INPUT_DATATYPE\": \"PROTO\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"true\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"test-group-13\","
+                        + "\"SOURCE_KAFKA_NAME\": \"local-kafka-stream-1\","
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_CONSUMER\"}],"
+                        + "\"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\","
+                        + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"},"
+                        + "{\"INPUT_SCHEMA_TABLE\": \"data_stream_2\","
+                        + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic-2\","
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA\"}],"
+                        + "\"INPUT_DATATYPE\": \"JSON\","
+                        + "\"INPUT_SCHEMA_JSON_SCHEMA\" : \"{ \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\", \\\"$id\\\": \\\"https://example.com/product.schema.json\\\", \\\"title\\\": \\\"Product\\\", \\\"description\\\": \\\"A product from Acme's catalog\\\", \\\"type\\\": \\\"object\\\", \\\"properties\\\": { \\\"id\\\": { \\\"description\\\": \\\"The unique identifier for a product\\\", \\\"type\\\": \\\"string\\\" }, \\\"time\\\": { \\\"description\\\": \\\"event timestamp of the event\\\", \\\"type\\\": \\\"string\\\", \\\"format\\\" : \\\"date-time\\\" } }, \\\"required\\\": [ \\\"id\\\", \\\"time\\\" ] }\","
+                        + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\","
+                        + "\"SOURCE_KAFKA_NAME\": \"local-kafka-stream-2\" }]");
+
+        when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
+
+        List<StreamType> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
+
+        assertEquals(2, streamTypes.size());
+        assertTrue(streamTypes.get(0).getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
+        assertEquals("data_stream_1", streamTypes.get(0).getStreamName());
+        assertTrue(streamTypes.get(1).getDaggerSource() instanceof KafkaDaggerSource);
+        assertEquals("data_stream_2", streamTypes.get(1).getStreamName());
     }
 
     @Test
