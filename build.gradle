@@ -17,6 +17,9 @@ ext {
     flinkVersion = System.getenv('flinkVersion') ?: '1.14.3'
 }
 
+def pyZipVersion = '0.0.1'
+group 'io.odpf'
+
 subprojects {
     repositories {
         mavenLocal()
@@ -30,29 +33,26 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: 'checkstyle'
 
-    group 'io.odpf'
-
     checkstyle {
         toolVersion '7.6.1'
         configFile rootProject.file("config/checkstyle/checkstyle.xml")
     }
 }
 
-task makeZip(type: Zip) {
-    from fileTree(dir: 'dagger')
+task makePyZip(type: Zip) {
+    from fileTree(dir: 'dagger-py-functions')
     include '**/*'
     archiveName "dagger-py-functions.zip"
     destinationDir file("$rootDir/")
-    description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
 }
 
 publishing {
     publications {
-        myZip(MavenPublication) {
-            artifact makeZip
-            groupId 'io.odpf'
+        pyZip(MavenPublication) {
+            artifact source: makePyZip, extension: 'zip'
+            groupId group
             artifactId 'dagger-py-functions'
-            version 'v-0'
+            version pyZipVersion
         }
     }
 
