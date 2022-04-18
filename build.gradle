@@ -1,3 +1,18 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+}
+
+plugins {
+    id 'maven-publish'
+}
+
 ext {
     flinkVersion = System.getenv('flinkVersion') ?: '1.14.3'
 }
@@ -20,5 +35,35 @@ subprojects {
     checkstyle {
         toolVersion '7.6.1'
         configFile rootProject.file("config/checkstyle/checkstyle.xml")
+    }
+}
+
+task makeZip(type: Zip) {
+    from fileTree(dir: 'dagger')
+    include '**/*'
+    archiveName "dagger-py-functions.zip"
+    destinationDir file("$rootDir/")
+    description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
+}
+
+publishing {
+    publications {
+        myZip(MavenPublication) {
+            artifact makeZip
+            groupId 'io.odpf'
+            artifactId 'dagger-py-functions'
+            version 'v-0'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/odpf/dagger"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
