@@ -31,7 +31,7 @@ public class KafkaDaggerSource implements DaggerSource<Row> {
         this.deserializer = deserializer;
     }
 
-    private KafkaSource<Row> buildSource() {
+    KafkaSource<Row> buildSource() {
         KafkaRecordDeserializationSchema<Row> kafkaRecordDeserializationSchema = KafkaRecordDeserializationSchema
                 .of((KafkaDeserializationSchema<Row>) deserializer);
         return KafkaSource.<Row>builder()
