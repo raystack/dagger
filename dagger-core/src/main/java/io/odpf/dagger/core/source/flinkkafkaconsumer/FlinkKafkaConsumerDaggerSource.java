@@ -30,7 +30,7 @@ public class FlinkKafkaConsumerDaggerSource implements DaggerSource<Row> {
         this.deserializer = deserializer;
     }
 
-    private FlinkKafkaConsumerCustom buildSource() {
+    FlinkKafkaConsumerCustom buildSource() {
         KafkaDeserializationSchema kafkaDeserializationSchema = (KafkaDeserializationSchema<Row>) deserializer;
         return new FlinkKafkaConsumerCustom(streamConfig.getTopicPattern(),
                 kafkaDeserializationSchema, streamConfig.getKafkaProps(configuration), configuration);
