@@ -114,6 +114,7 @@ public class Constants {
 
 
     public static final String STREAM_INPUT_DATATYPE = "INPUT_DATATYPE";
+    public static final String STREAM_INPUT_SOURCE_TYPE = "INPUT_SOURCE_TYPE";
     public static final String STREAM_INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME_KEY = "INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME";
     public static final String STREAM_INPUT_SCHEMA_JSON_SCHEMA_KEY = "INPUT_SCHEMA_JSON_SCHEMA";
 
