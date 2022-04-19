@@ -59,7 +59,7 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
         }
     }
 
-    private FileSource<Row> buildFileSource() {
+    FileSource<Row> buildFileSource() {
         ParquetFileSource.Builder parquetFileSourceBuilder = ParquetFileSource.Builder.getInstance();
         ParquetFileRecordFormat parquetFileRecordFormat = buildParquetFileRecordFormat();
         FileSplitAssigner.Provider splitAssignerProvider = buildParquetFileSplitAssignerProvider();
