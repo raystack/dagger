@@ -84,9 +84,9 @@ public class FlinkKafkaConsumerDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfDeserializerTypeIsUnsupported() {
-        DaggerDeserializer<Row> daggerDeserializer = Mockito.mock(SimpleGroupDeserializer.class);
+        DaggerDeserializer<Row> unsupportedDeserializer = Mockito.mock(SimpleGroupDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.UNBOUNDED)});
-        FlinkKafkaConsumerDaggerSource daggerSource = new FlinkKafkaConsumerDaggerSource(streamConfig, configuration, daggerDeserializer);
+        FlinkKafkaConsumerDaggerSource daggerSource = new FlinkKafkaConsumerDaggerSource(streamConfig, configuration, unsupportedDeserializer);
 
         assertFalse(daggerSource.canBuild());
     }

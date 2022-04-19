@@ -86,9 +86,9 @@ public class KafkaDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfDeserializerTypeIsUnsupported() {
-        DaggerDeserializer<Row> daggerDeserializer = Mockito.mock(SimpleGroupDeserializer.class);
+        DaggerDeserializer<Row> unsupportedDeserializer = Mockito.mock(SimpleGroupDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
-        KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, daggerDeserializer);
+        KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, unsupportedDeserializer);
 
         assertFalse(daggerSource.canBuild());
     }
