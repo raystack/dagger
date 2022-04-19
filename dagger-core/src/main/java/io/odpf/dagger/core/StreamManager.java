@@ -219,7 +219,7 @@ public class StreamManager {
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
-    private List<StreamType> getStreamTypes() {
+    List<StreamType> getStreamTypes() {
         return StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
     }
 }

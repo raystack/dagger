@@ -1,5 +1,8 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StreamInfo;
+import io.odpf.dagger.core.source.StreamType;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -16,9 +19,6 @@ import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
-
-import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +27,10 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -86,6 +90,9 @@ public class StreamManagerTest {
     @Mock
     private Configuration configuration;
 
+    @Mock
+    private StreamType streamType;
+
     @Before
     public void setup() {
 
@@ -105,8 +112,7 @@ public class StreamManagerTest {
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
         when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
-        when(configuration.getInteger("FLINK_RETENTION_MIN_IDLE_STATE_HOUR", 8)).thenReturn(8);
-        when(configuration.getInteger("FLINK_RETENTION_MAX_IDLE_STATE_HOUR", 9)).thenReturn(9);
+        when(configuration.getInteger("FLINK_RETENTION_IDLE_STATE_MINUTE", 10)).thenReturn(10);
         when(env.getConfig()).thenReturn(executionConfig);
         when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -121,7 +127,6 @@ public class StreamManagerTest {
 
     @Test
     public void shouldRegisterRequiredConfigsOnExecutionEnvironment() {
-
         streamManager.registerConfigs();
 
         verify(env, Mockito.times(1)).setParallelism(1);
@@ -132,12 +137,15 @@ public class StreamManagerTest {
         verify(checkpointConfig, Mockito.times(1)).setCheckpointTimeout(900000L);
         verify(checkpointConfig, Mockito.times(1)).setMinPauseBetweenCheckpoints(5000L);
         verify(checkpointConfig, Mockito.times(1)).setMaxConcurrentCheckpoints(1);
+        verify(tableConfig, Mockito.times(1)).setIdleStateRetention(Duration.ofMinutes(10));
     }
 
     @Test
     public void shouldRegisterSourceWithPreprocessorsWithWaterMarks() {
-        when(env.fromSource(any(KafkaSource.class), any(WatermarkStrategy.class), any(String.class))).thenReturn(source);
-        when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(streamType.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(singleOutputStream.getType()).thenReturn(typeInformation);
+        when(streamType.getStreamName()).thenReturn("data_stream");
 
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
@@ -148,13 +156,16 @@ public class StreamManagerTest {
 
     @Test
     public void shouldCreateValidSourceWithWatermarks() {
-        when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(streamType.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(singleOutputStream.getType()).thenReturn(typeInformation);
+        when(streamType.getStreamName()).thenReturn("data_stream");
 
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
         streamManagerStub.registerSourceWithPreProcessors();
 
-        verify(env, Mockito.times(1)).fromSource(any(KafkaSource.class), any(WatermarkStrategy.class), any(String.class));
+        verify(streamType, Mockito.times(1)).registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class));
     }
 
     @Test
@@ -183,6 +194,11 @@ public class StreamManagerTest {
         @Override
         protected StreamInfo createStreamInfo(Table table) {
             return streamInfo;
+        }
+
+        @Override
+        List<StreamType> getStreamTypes() {
+            return Collections.singletonList(streamType);
         }
     }
 }
