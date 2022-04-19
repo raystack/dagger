@@ -1,5 +1,7 @@
 package io.odpf.dagger.functions.udfs.python;
 
+import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
+import io.odpf.dagger.functions.exceptions.PythonFilesNotFoundException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -13,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,6 +105,21 @@ public class PythonUdfManagerTest {
     }
 
     @Test
+    public void shouldOnlyExecutePyFormatInsideZipFile() throws IOException {
+        String pathFile = getPath("python_udf.zip");
+
+        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
+        when(tableConfig.getConfiguration()).thenReturn(configuration);
+        when(pythonUdfConfig.getPythonFiles()).thenReturn(pathFile);
+
+        PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+        pythonUdfManager.registerPythonFunctions();
+
+        verify(configuration, times(1)).setString("python.files", pathFile);
+        verify(tableEnvironment, times(2)).executeSql(anyString());
+    }
+
+    @Test
     public void shouldRegisterPythonUdfFromPyAndZipFile() throws IOException {
         String zipPathFile = getPath("python_udf.zip");
         String pyPathFile = getPath("test_udf.py");
@@ -124,8 +142,8 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowIOExceptionIfPythonFilesNotInZipOrPyFormat() throws IOException {
-        expectedEx.expect(IOException.class);
+    public void shouldThrowExceptionIfPythonFilesNotInZipOrPyFormat() throws IOException {
+        expectedEx.expect(PythonFilesFormatException.class);
         expectedEx.expectMessage("Python files should be in .py or .zip format");
 
         File file = File.createTempFile("test_file", ".txt");
@@ -140,14 +158,12 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowNullPointerExceptionIfPythonFilesNotExist() throws IOException {
-        expectedEx.expect(NullPointerException.class);
-
-        String pathFile = getPath("test_file.py");
+    public void shouldThrowExceptionIfPythonFilesNotExist() throws IOException {
+        expectedEx.expect(PythonFilesNotFoundException.class);
+        expectedEx.expectMessage("Python files not found");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);
-        when(pythonUdfConfig.getPythonFiles()).thenReturn(pathFile);
 
         PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
         pythonUdfManager.registerPythonFunctions();

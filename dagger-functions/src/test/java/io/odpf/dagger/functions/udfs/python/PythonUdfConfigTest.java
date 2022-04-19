@@ -28,6 +28,12 @@ public class PythonUdfConfigTest {
         PythonUdfConfig pythonUdfConfig = PythonUdfConfig.parse(configuration);
 
         Assert.assertNotNull(pythonUdfConfig);
+        Assert.assertEquals(pythonUdfConfig.getPythonFiles(), "/path/to/function.zip");
+        Assert.assertEquals(pythonUdfConfig.getPythonArchives(), "/path/to/file.txt");
+        Assert.assertEquals(pythonUdfConfig.getPythonRequirements(), "requirements.txt");
+        Assert.assertEquals(pythonUdfConfig.getPythonArrowBatchSize(), 10000);
+        Assert.assertEquals(pythonUdfConfig.getPythonBundleSize(), 100000);
+        Assert.assertEquals(pythonUdfConfig.getPythonBundleTime(), 1000);
     }
 
     @Test

@@ -1,5 +1,7 @@
 package io.odpf.dagger.functions.udfs.python;
 
+import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
+import io.odpf.dagger.functions.exceptions.PythonFilesNotFoundException;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.io.IOException;
@@ -20,7 +22,13 @@ public class PythonUdfManager {
     public void registerPythonFunctions() throws IOException {
 
         registerPythonConfig();
-        String[] pythonFilesSource = pythonUdfConfig.getPythonFiles().split(",");
+        String inputFiles = pythonUdfConfig.getPythonFiles();
+        String[] pythonFilesSource;
+        if (inputFiles != null) {
+            pythonFilesSource = inputFiles.split(",");
+        } else {
+            throw new PythonFilesNotFoundException("Python files not found");
+        }
 
         for (String pythonFile : pythonFilesSource) {
             if (pythonFile.contains(".zip")) {
@@ -40,7 +48,7 @@ public class PythonUdfManager {
                 String query = "CREATE TEMPORARY FUNCTION " + name.toUpperCase() + " AS '" + name + "." + name + "' LANGUAGE PYTHON";
                 tableEnvironment.executeSql(query);
             } else {
-                throw new IOException("Python files should be in .py or .zip format");
+                throw new PythonFilesFormatException("Python files should be in .py or .zip format");
             }
         }
     }
