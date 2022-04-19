@@ -17,6 +17,8 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.core.source.SourceName.KAFKA_CONSUMER;
+import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
 import static org.junit.Assert.assertEquals;
@@ -185,7 +187,7 @@ public class StreamConfigTest {
     }
 
     @Test
-    public void shouldGetUnBoundedKafkaAsSourceDetailsWhenNotGiven() {
+    public void shouldGetUnboundedKafkaConsumerAsSourceDetailsWhenNotGiven() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream\","
                         + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\","
@@ -201,8 +203,8 @@ public class StreamConfigTest {
         SourceDetails[] sourceDetails = streamConfigs[0].getSourceDetails();
 
         assertEquals(1, sourceDetails.length);
-        assertEquals(SourceType.valueOf("UNBOUNDED"), sourceDetails[0].getSourceType());
-        assertEquals(SourceName.valueOf("KAFKA"), sourceDetails[0].getSourceName());
+        assertEquals(UNBOUNDED, sourceDetails[0].getSourceType());
+        assertEquals(KAFKA_CONSUMER, sourceDetails[0].getSourceName());
     }
 
     @Test
