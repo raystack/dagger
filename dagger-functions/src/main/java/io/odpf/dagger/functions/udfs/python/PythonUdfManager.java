@@ -4,52 +4,23 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class PythonUdfManager {
-    private static final String PYTHON_FILES = "python.files";
 
     private StreamTableEnvironment tableEnvironment;
-    private PythonUdfConfigMapper pythonUdfConfigMapper;
+    private PythonUdfConfig pythonUdfConfig;
 
-    public PythonUdfManager(StreamTableEnvironment tableEnvironment, PythonUdfConfigMapper pythonUdfConfigMapper) {
+    public PythonUdfManager(StreamTableEnvironment tableEnvironment, PythonUdfConfig pythonUdfConfig) {
         this.tableEnvironment = tableEnvironment;
-        this.pythonUdfConfigMapper = pythonUdfConfigMapper;
-    }
-
-    private void registerPythonConfig(Map<String, Object> configMap) {
-        for (Map.Entry<String, Object> entry : configMap.entrySet()) {
-            if (entry.getValue() instanceof Long) {
-                tableEnvironment
-                        .getConfig()
-                        .getConfiguration()
-                        .setLong(entry.getKey(), (Long) entry.getValue());
-            } else if (entry.getValue() instanceof Boolean) {
-                tableEnvironment
-                        .getConfig()
-                        .getConfiguration()
-                        .setBoolean(entry.getKey(), (Boolean) entry.getValue());
-            } else if (entry.getValue() instanceof Integer) {
-                tableEnvironment
-                        .getConfig()
-                        .getConfiguration()
-                        .setInteger(entry.getKey(), (Integer) entry.getValue());
-            } else {
-                tableEnvironment
-                        .getConfig()
-                        .getConfiguration()
-                        .setString(entry.getKey(), (String) entry.getValue());
-            }
-        }
+        this.pythonUdfConfig = pythonUdfConfig;
     }
 
     public void registerPythonFunctions() throws IOException {
 
-        Map<String, Object> configMap = pythonUdfConfigMapper.getConfig();
-        registerPythonConfig(configMap);
-        String[] pythonFilesSource = ((String) configMap.get(PYTHON_FILES)).split(",");
+        registerPythonConfig();
+        String[] pythonFilesSource = pythonUdfConfig.getPythonFiles().split(",");
 
         for (String pythonFile : pythonFilesSource) {
             if (pythonFile.contains(".zip")) {
@@ -72,5 +43,18 @@ public class PythonUdfManager {
                 throw new IOException("Python files should be in .py or .zip format");
             }
         }
+    }
+
+    private void registerPythonConfig() {
+        if (pythonUdfConfig.getPythonRequirements() != null) {
+            tableEnvironment.getConfig().getConfiguration().setString("python.requirements", pythonUdfConfig.getPythonRequirements());
+        }
+        if (pythonUdfConfig.getPythonArchives() != null) {
+            tableEnvironment.getConfig().getConfiguration().setString("python.archives", pythonUdfConfig.getPythonArchives());
+        }
+        tableEnvironment.getConfig().getConfiguration().setString("python.files", pythonUdfConfig.getPythonFiles());
+        tableEnvironment.getConfig().getConfiguration().setInteger("python.fn-execution.arrow.batch.size", pythonUdfConfig.getPythonArrowBatchSize());
+        tableEnvironment.getConfig().getConfiguration().setInteger("python.fn-execution.bundle.size", pythonUdfConfig.getPythonBundleSize());
+        tableEnvironment.getConfig().getConfiguration().setLong("python.fn-execution.bundle.time", pythonUdfConfig.getPythonBundleTime());
     }
 }
