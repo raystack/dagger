@@ -102,12 +102,12 @@ public class LongPrimitiveTypeHandlerTest {
                 .required(INT64).named("s2_id")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        simpleGroup.add("s2_id", Long.MIN_VALUE);
+        simpleGroup.add("s2_id", 101828L);
         LongPrimitiveTypeHandler longHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
 
         Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
 
-        assertEquals(Long.MIN_VALUE, actualValue);
+        assertEquals(101828L, actualValue);
     }
 
     @Test
