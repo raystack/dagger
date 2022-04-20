@@ -27,30 +27,30 @@ public class PythonUdfConfig {
     private String pythonArchives;
 
     @SerializedName(PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE_KEY)
-    private int pythonArrowBatchSize;
+    private Integer pythonArrowBatchSize;
 
     @SerializedName(PYTHON_FN_EXECUTION_BUNDLE_SIZE_KEY)
-    private int pythonBundleSize;
+    private Integer pythonBundleSize;
 
     @SerializedName(PYTHON_FN_EXECUTION_BUNDLE_TIME_KEY)
-    private long pythonBundleTime;
+    private Long pythonBundleTime;
 
     public int getPythonArrowBatchSize() {
-        if (pythonArrowBatchSize == 0) {
+        if (pythonArrowBatchSize == null) {
             return PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE_DEFAULT;
         }
         return pythonArrowBatchSize;
     }
 
     public int getPythonBundleSize() {
-        if (pythonBundleSize == 0) {
+        if (pythonBundleSize == null) {
             return PYTHON_FN_EXECUTION_BUNDLE_SIZE_DEFAULT;
         }
         return pythonBundleSize;
     }
 
     public long getPythonBundleTime() {
-        if (pythonBundleTime == 0) {
+        if (pythonBundleTime == null) {
             return PYTHON_FN_EXECUTION_BUNDLE_TIME_DEFAULT;
         }
         return pythonBundleTime;
