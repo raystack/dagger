@@ -38,9 +38,8 @@ public class PrimitiveReader implements FileRecordFormat.Reader<Row> {
     public PrimitiveReader(String filePath, SimpleGroupDeserializer simpleGroupDeserializer) throws IOException {
         this.hadoopFilePath = new Path(filePath);
         this.simpleGroupDeserializer = simpleGroupDeserializer;
-        Path path = new Path(filePath);
         Configuration conf = new Configuration();
-        reader = ParquetFileReader.open(HadoopInputFile.fromPath(path, conf));
+        reader = ParquetFileReader.open(HadoopInputFile.fromPath(hadoopFilePath, conf));
         schema = reader.getFileMetaData().getSchema();
         changeReaderPosition(reader.readNextRowGroup());
         String logMessage = String.format("Successfully created the ParquetFileReader and RecordReader for file %s", hadoopFilePath.getName());
