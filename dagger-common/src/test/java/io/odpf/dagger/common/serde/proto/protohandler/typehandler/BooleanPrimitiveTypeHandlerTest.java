@@ -6,7 +6,6 @@ import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,14 +16,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BooleanPrimitiveTypeHandlerTest {
-    @Before
-    public void setup() {
-        initMocks(this);
-    }
-
     @Test
     public void shouldHandleBooleanTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
