@@ -105,12 +105,12 @@ public class IntegerPrimitiveTypeHandlerTest {
                 .required(INT32).named("cancel_reason_id")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        simpleGroup.add("cancel_reason_id", Integer.MIN_VALUE);
+        simpleGroup.add("cancel_reason_id", 34);
 
         IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
         Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
-        assertEquals(Integer.MIN_VALUE, actualValue);
+        assertEquals(34, actualValue);
     }
 
     @Test
