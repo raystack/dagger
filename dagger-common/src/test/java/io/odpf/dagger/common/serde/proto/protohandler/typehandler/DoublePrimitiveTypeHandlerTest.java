@@ -100,12 +100,12 @@ public class DoublePrimitiveTypeHandlerTest {
                 .required(DOUBLE).named("cash_amount")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        simpleGroup.add("cash_amount", Double.MAX_VALUE);
+        simpleGroup.add("cash_amount", 34.23D);
 
         DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
         Object actualValue = doubleHandler.parseSimpleGroup(simpleGroup);
 
-        assertEquals(Double.MAX_VALUE, actualValue);
+        assertEquals(34.23D, actualValue);
     }
 
     @Test
