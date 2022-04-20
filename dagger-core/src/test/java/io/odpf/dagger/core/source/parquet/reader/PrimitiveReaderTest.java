@@ -51,10 +51,10 @@ public class PrimitiveReaderTest {
         String filePath2 = classLoader.getResource("multiple_row_groups_test_file.parquet").getPath();
         PrimitiveReader reader2 = provider.getReader(filePath2);
 
-        assertEquals(new Path(filePath1), reader1.getHadoopFilePath());
-        assertEquals(new Path(filePath2), reader2.getHadoopFilePath());
-        assertEquals(deserializer, reader1.getSimpleGroupDeserializer());
-        assertEquals(deserializer, reader2.getSimpleGroupDeserializer());
+        assertEquals(new Path(filePath1), reader1.hadoopFilePath);
+        assertEquals(new Path(filePath2), reader2.hadoopFilePath);
+        assertEquals(deserializer, reader1.simpleGroupDeserializer);
+        assertEquals(deserializer, reader2.simpleGroupDeserializer);
     }
 
     @Test
