@@ -103,12 +103,12 @@ public class FloatPrimitiveTypeHandlerTest {
                 .required(FLOAT).named("amount_paid_by_cash")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        simpleGroup.add("amount_paid_by_cash", Float.MIN_VALUE);
+        simpleGroup.add("amount_paid_by_cash", 32.56F);
         FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
 
         Object actualValue = floatHandler.parseSimpleGroup(simpleGroup);
 
-        assertEquals(Float.MIN_VALUE, actualValue);
+        assertEquals(32.56F, actualValue);
     }
 
     @Test
