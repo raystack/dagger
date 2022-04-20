@@ -7,6 +7,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeH
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +68,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         return null;
     }
 

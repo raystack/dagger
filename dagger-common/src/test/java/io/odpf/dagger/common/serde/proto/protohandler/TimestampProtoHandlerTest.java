@@ -277,25 +277,14 @@ public class TimestampProtoHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfNullIsPassedToTransformFromParquet() {
+    public void shouldReturnDefaultTimestampRowDuringTransformIfNullIsPassedToTransformFromParquet() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> timestampProtoHandler.transformFromParquet(null));
-        assertEquals("Error: object to be deserialized is not of type SimpleGroup. Cannot extract timestamp "
-                + "with descriptor name event_timestamp from object null", exception.getMessage());
-    }
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(null);
 
-    @Test
-    public void shouldThrowExceptionIfAnyArgumentOtherThanSimpleGroupIsPassedToTransformFromParquet() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
-        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> timestampProtoHandler.transformFromParquet("some object"));
-        assertEquals("Error: object to be deserialized is not of type SimpleGroup. Cannot extract timestamp "
-                + "with descriptor name event_timestamp from object some object", exception.getMessage());
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
     }
 
     @Test

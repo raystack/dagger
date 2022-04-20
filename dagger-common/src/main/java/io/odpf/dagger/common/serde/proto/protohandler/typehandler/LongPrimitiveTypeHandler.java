@@ -31,14 +31,12 @@ public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
     }
 
     @Override
-    public Object getValue(Object field) {
-        if (field instanceof SimpleGroup) {
-            return getValue((SimpleGroup) field);
-        }
+    public Object parseObject(Object field) {
         return Long.parseLong(getValueOrDefault(field, "0"));
     }
 
-    private Object getValue(SimpleGroup simpleGroup) {
+    @Override
+    public Object parseSimpleGroup(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */

@@ -8,6 +8,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -74,8 +76,10 @@ public class StructMessageProtoHandlerTest {
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler protoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        Object obj = new Object();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(obj));
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

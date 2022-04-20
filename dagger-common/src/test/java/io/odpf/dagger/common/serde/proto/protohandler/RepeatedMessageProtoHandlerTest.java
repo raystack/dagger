@@ -10,6 +10,8 @@ import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestReason;
 import net.minidev.json.JSONArray;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -298,8 +300,10 @@ public class RepeatedMessageProtoHandlerTest {
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("reason");
         RepeatedMessageProtoHandler protoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
-        Object obj = new Object();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(obj));
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

@@ -9,6 +9,8 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestPaymentOptionMetadata;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -196,8 +198,10 @@ public class MessageProtoHandlerTest {
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
         MessageProtoHandler protoHandler = new MessageProtoHandler(fieldDescriptor);
-        Object obj = new Object();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(obj));
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

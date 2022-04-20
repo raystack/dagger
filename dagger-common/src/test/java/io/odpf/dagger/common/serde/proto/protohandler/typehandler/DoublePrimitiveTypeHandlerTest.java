@@ -35,7 +35,7 @@ public class DoublePrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
-        Object value = doublePrimitiveTypeHandler.getValue(actualValue);
+        Object value = doublePrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -46,7 +46,7 @@ public class DoublePrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
-        Object value = doublePrimitiveTypeHandler.getValue(String.valueOf(actualValue));
+        Object value = doublePrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -55,7 +55,7 @@ public class DoublePrimitiveTypeHandlerTest {
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeDouble() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoublePrimitiveTypeHandler doublePrimitiveTypeHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
-        Object value = doublePrimitiveTypeHandler.getValue(null);
+        Object value = doublePrimitiveTypeHandler.parseObject(null);
 
         assertEquals(0.0D, value);
     }
@@ -103,7 +103,7 @@ public class DoublePrimitiveTypeHandlerTest {
         simpleGroup.add("cash_amount", Double.MAX_VALUE);
 
         DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
-        Object actualValue = doubleHandler.getValue(simpleGroup);
+        Object actualValue = doubleHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(Double.MAX_VALUE, actualValue);
     }
@@ -118,7 +118,7 @@ public class DoublePrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = doubleHandler.getValue(simpleGroup);
+        Object actualValue = doubleHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0.0D, actualValue);
     }
@@ -134,7 +134,7 @@ public class DoublePrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         DoublePrimitiveTypeHandler doubleHandler = new DoublePrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = doubleHandler.getValue(simpleGroup);
+        Object actualValue = doubleHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0.0D, actualValue);
     }

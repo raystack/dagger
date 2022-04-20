@@ -10,6 +10,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnumMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -112,8 +114,10 @@ public class RepeatedEnumProtoHandlerTest {
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler protoHandler = new RepeatedEnumProtoHandler(fieldDescriptor);
-        Object obj = new Object();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(obj));
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

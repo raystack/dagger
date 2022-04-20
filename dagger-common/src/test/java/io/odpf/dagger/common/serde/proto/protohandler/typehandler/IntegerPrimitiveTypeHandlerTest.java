@@ -39,7 +39,7 @@ public class IntegerPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.getValue(actualValue);
+        Object value = integerPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -50,7 +50,7 @@ public class IntegerPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
+        Object value = integerPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -59,7 +59,7 @@ public class IntegerPrimitiveTypeHandlerTest {
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeInteger() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.getValue(null);
+        Object value = integerPrimitiveTypeHandler.parseObject(null);
 
         assertEquals(0, value);
     }
@@ -108,7 +108,7 @@ public class IntegerPrimitiveTypeHandlerTest {
         simpleGroup.add("cancel_reason_id", Integer.MIN_VALUE);
 
         IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object actualValue = integerHandler.getValue(simpleGroup);
+        Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(Integer.MIN_VALUE, actualValue);
     }
@@ -123,7 +123,7 @@ public class IntegerPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = integerHandler.getValue(simpleGroup);
+        Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0, actualValue);
     }
@@ -139,7 +139,7 @@ public class IntegerPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = integerHandler.getValue(simpleGroup);
+        Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0, actualValue);
     }

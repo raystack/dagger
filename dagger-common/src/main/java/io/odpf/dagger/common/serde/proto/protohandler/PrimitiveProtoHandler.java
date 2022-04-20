@@ -7,6 +7,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeH
 import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The type Primitive proto handler.
@@ -41,7 +42,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     private Object transform(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         try {
-            return primitiveTypeHandler.getValue(field);
+            return primitiveTypeHandler.parseObject(field);
         } catch (NumberFormatException e) {
             String errMessage = String.format("type mismatch of field: %s, expecting %s type, actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), field.getClass());
             throw new InvalidDataTypeException(errMessage);
@@ -54,9 +55,9 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveTypeHandler.getValue(field);
+        return primitiveTypeHandler.parseSimpleGroup(simpleGroup);
     }
 
     @Override

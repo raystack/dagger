@@ -38,7 +38,7 @@ public class ByteStringPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringPrimitiveTypeHandler byteStringPrimitiveTypeHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
-        Object value = byteStringPrimitiveTypeHandler.getValue(actualValue);
+        Object value = byteStringPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -86,7 +86,7 @@ public class ByteStringPrimitiveTypeHandlerTest {
         simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
         ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = byteStringHandler.getValue(simpleGroup);
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(expectedByteString, actualValue);
     }
@@ -100,7 +100,7 @@ public class ByteStringPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = byteStringHandler.getValue(simpleGroup);
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
         assertNull(actualValue);
     }
@@ -115,7 +115,7 @@ public class ByteStringPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = byteStringHandler.getValue(simpleGroup);
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
         assertNull(actualValue);
     }

@@ -103,19 +103,11 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
-        if (!(field instanceof SimpleGroup)) {
-            String errMessage = String.format("Error: object to be deserialized is not of type SimpleGroup. Cannot "
-                    + "extract timestamp with descriptor name %s from object %s", fieldDescriptor.getName(), field);
-            throw new IllegalArgumentException(errMessage);
-        }
-        return transformFromSimpleGroup((SimpleGroup) field);
-    }
-
-    /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
-    private Object transformFromSimpleGroup(SimpleGroup simpleGroup) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
-        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+
+            /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
             long timeInMillis = simpleGroup.getLong(fieldName, 0);
             long seconds = Math.floorDiv(timeInMillis, SECOND_TO_MS_FACTOR);
             int mos = (int) Math.floorMod(timeInMillis, SECOND_TO_MS_FACTOR);

@@ -11,6 +11,8 @@ import io.odpf.dagger.common.exceptions.serde.DataTypeNotSupportedException;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -241,8 +243,10 @@ public class RepeatedPrimitiveProtoHandlerTest {
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         RepeatedPrimitiveProtoHandler protoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
-        Object obj = new Object();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(obj));
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

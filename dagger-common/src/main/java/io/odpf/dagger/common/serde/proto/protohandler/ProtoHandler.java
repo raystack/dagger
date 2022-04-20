@@ -3,6 +3,7 @@ package io.odpf.dagger.common.serde.proto.protohandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The interface Proto handler.
@@ -41,12 +42,12 @@ public interface ProtoHandler {
     Object transformFromProto(Object field);
 
     /**
-     * Transform from parquet object.
+     * Transform from parquet SimpleGroup.
      *
-     * @param field the field
-     * @return the object
+     * @param simpleGroup the SimpleGroup object
+     * @return the transformed object
      */
-    Object transformFromParquet(Object field);
+    Object transformFromParquet(SimpleGroup simpleGroup);
 
     /**
      * Transform to json object.

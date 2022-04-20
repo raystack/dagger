@@ -5,6 +5,7 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The type Repeated struct message proto handler.
@@ -43,7 +44,7 @@ public class RepeatedStructMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         return null;
     }
 

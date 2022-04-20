@@ -45,7 +45,7 @@ public class BooleanPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
         BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.getValue(actualValue);
+        Object value = booleanPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -57,7 +57,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
         BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
+        Object value = booleanPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -67,7 +67,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
         BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.getValue(null);
+        Object value = booleanPrimitiveTypeHandler.parseObject(null);
 
         assertEquals(false, value);
     }
@@ -118,7 +118,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         simpleGroup.add("customer_dynamic_surge_enabled", true);
 
         BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object actualValue = booleanHandler.getValue(simpleGroup);
+        Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(true, actualValue);
     }
@@ -132,7 +132,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = booleanHandler.getValue(simpleGroup);
+        Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(false, actualValue);
     }
@@ -147,7 +147,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = booleanHandler.getValue(simpleGroup);
+        Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(false, actualValue);
     }

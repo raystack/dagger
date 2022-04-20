@@ -38,7 +38,7 @@ public class FloatPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
-        Object value = floatPrimitiveTypeHandler.getValue(actualValue);
+        Object value = floatPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -49,7 +49,7 @@ public class FloatPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
-        Object value = floatPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
+        Object value = floatPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -58,7 +58,7 @@ public class FloatPrimitiveTypeHandlerTest {
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeFloat() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatPrimitiveTypeHandler floatPrimitiveTypeHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
-        Object value = floatPrimitiveTypeHandler.getValue(null);
+        Object value = floatPrimitiveTypeHandler.parseObject(null);
 
         assertEquals(0.0f, value);
     }
@@ -106,7 +106,7 @@ public class FloatPrimitiveTypeHandlerTest {
         simpleGroup.add("amount_paid_by_cash", Float.MIN_VALUE);
         FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = floatHandler.getValue(simpleGroup);
+        Object actualValue = floatHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(Float.MIN_VALUE, actualValue);
     }
@@ -120,7 +120,7 @@ public class FloatPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = floatHandler.getValue(simpleGroup);
+        Object actualValue = floatHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0.0F, actualValue);
     }
@@ -136,7 +136,7 @@ public class FloatPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         FloatPrimitiveTypeHandler floatHandler = new FloatPrimitiveTypeHandler(fieldDescriptor);
 
-        Object actualValue = floatHandler.getValue(simpleGroup);
+        Object actualValue = floatHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0.0F, actualValue);
     }

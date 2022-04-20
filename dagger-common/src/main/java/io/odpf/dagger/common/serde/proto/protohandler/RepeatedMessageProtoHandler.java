@@ -9,6 +9,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
 import net.minidev.json.JSONArray;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +85,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         return null;
     }
 

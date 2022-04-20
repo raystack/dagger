@@ -7,6 +7,7 @@ import org.apache.flink.types.Row;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class MessageProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         return null;
     }
 

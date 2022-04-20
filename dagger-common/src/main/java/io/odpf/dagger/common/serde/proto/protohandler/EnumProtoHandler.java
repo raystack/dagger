@@ -61,16 +61,13 @@ public class EnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromParquet(Object field) {
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
         String defaultEnumValue = fieldDescriptor.getEnumType().findValueByNumber(0).getName();
         String fieldName = fieldDescriptor.getName();
-        if (field instanceof SimpleGroup) {
-            SimpleGroup simpleGroup = (SimpleGroup) field;
-            if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-                String parquetEnumValue = simpleGroup.getString(fieldName, 0);
-                Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(parquetEnumValue);
-                return enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
-            }
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            String parquetEnumValue = simpleGroup.getString(fieldName, 0);
+            Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(parquetEnumValue);
+            return enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
         }
         return defaultEnumValue;
     }
