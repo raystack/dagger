@@ -38,12 +38,6 @@ public class StreamType implements Serializable {
             this.stencilClientOrchestrator = stencilClientOrchestrator;
         }
 
-        public Builder(StreamConfig streamConfig, Configuration configuration) {
-            this.streamConfig = streamConfig;
-            this.configuration = configuration;
-            this.stencilClientOrchestrator = null;
-        }
-
         public StreamType build() {
             DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
             DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer);
