@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class ParquetReader implements FileRecordFormat.Reader<Row> {
-    final Path hadoopFilePath;
-    final SimpleGroupDeserializer simpleGroupDeserializer;
+    private final Path hadoopFilePath;
+    private final SimpleGroupDeserializer simpleGroupDeserializer;
     private long currentRecordIndex;
     private final ParquetFileReader parquetFileReader;
     private long rowCount;
@@ -32,7 +32,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private final MessageType schema;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
-    public ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
+    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
         this.hadoopFilePath = hadoopFilePath;
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;

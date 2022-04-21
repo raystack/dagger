@@ -5,7 +5,6 @@ import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializ
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.fs.Path;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -43,18 +42,18 @@ public class ParquetReaderTest {
     }
 
     @Test
-    public void shouldCreateReadersConfiguredWithTheSameDeserializerButForDifferentFilePaths() {
+    public void shouldCreateReadersConfiguredWithTheSameDeserializerButForDifferentFilePaths() throws IOException {
+        when(deserializer.deserialize(any(SimpleGroup.class))).thenReturn(Row.of("same", "deserializer"));
         ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
+
         String filePath1 = classLoader.getResource("test_file.parquet").getPath();
         ParquetReader reader1 = provider.getReader(filePath1);
+
         String filePath2 = classLoader.getResource("multiple_row_groups_test_file.parquet").getPath();
         ParquetReader reader2 = provider.getReader(filePath2);
 
-        assertEquals(new Path(filePath1), reader1.hadoopFilePath);
-        assertEquals(new Path(filePath2), reader2.hadoopFilePath);
-        assertEquals(deserializer, reader1.simpleGroupDeserializer);
-        assertEquals(deserializer, reader2.simpleGroupDeserializer);
+        assertEquals(reader1.read(), reader2.read());
     }
 
     @Test
