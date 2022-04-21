@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class PrimitiveReaderTest {
+public class ParquetReaderTest {
     @Mock
     private SimpleGroupDeserializer deserializer;
 
@@ -44,12 +44,12 @@ public class PrimitiveReaderTest {
 
     @Test
     public void shouldCreateReadersConfiguredWithTheSameDeserializerButForDifferentFilePaths() {
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
         String filePath1 = classLoader.getResource("test_file.parquet").getPath();
-        PrimitiveReader reader1 = provider.getReader(filePath1);
+        ParquetReader reader1 = provider.getReader(filePath1);
         String filePath2 = classLoader.getResource("multiple_row_groups_test_file.parquet").getPath();
-        PrimitiveReader reader2 = provider.getReader(filePath2);
+        ParquetReader reader2 = provider.getReader(filePath2);
 
         assertEquals(new Path(filePath1), reader1.hadoopFilePath);
         assertEquals(new Path(filePath2), reader2.hadoopFilePath);
@@ -59,9 +59,9 @@ public class PrimitiveReaderTest {
 
     @Test
     public void shouldReadFileAndCallDeserializerWithSimpleGroupWhenReadIsCalled() throws IOException {
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
-        PrimitiveReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
         reader.read();
         reader.read();
@@ -84,9 +84,9 @@ public class PrimitiveReaderTest {
 
     @Test
     public void shouldBeAbleToReadParquetFileContainingMultipleRowGroups() throws IOException {
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
-        PrimitiveReader reader = provider.getReader(classLoader.getResource("multiple_row_groups_test_file.parquet").getPath());
+        ParquetReader reader = provider.getReader(classLoader.getResource("multiple_row_groups_test_file.parquet").getPath());
 
         reader.read();
         reader.read();
@@ -112,9 +112,9 @@ public class PrimitiveReaderTest {
 
     @Test
     public void shouldReturnDeserializedValueWhenRecordsPresentAndNullWhenNoMoreDataLeftToRead() throws IOException {
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
-        PrimitiveReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
         when(deserializer.deserialize(any(SimpleGroup.class))).thenReturn(Row.of("some value"));
 
         assertEquals(Row.of("some value"), reader.read());
@@ -125,9 +125,9 @@ public class PrimitiveReaderTest {
 
     @Test
     public void shouldThrowNullPointerExceptionIfReadIsCalledAfterCallingClose() throws IOException {
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
-        PrimitiveReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
         reader.close();
 
@@ -137,7 +137,7 @@ public class PrimitiveReaderTest {
     @Test
     public void shouldThrowParquetFileSourceReaderInitializationExceptionIfCannotConstructReaderForTheFile() throws IOException {
         final File tempFile = tempFolder.newFile("test_file.parquet");
-        PrimitiveReader.PrimitiveReaderProvider provider = new PrimitiveReader.PrimitiveReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
 
         assertThrows(ParquetFileSourceReaderInitializationException.class, () -> provider.getReader(tempFile.getPath()));
     }

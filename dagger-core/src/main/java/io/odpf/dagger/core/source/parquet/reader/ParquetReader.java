@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-public class PrimitiveReader implements FileRecordFormat.Reader<Row> {
+public class ParquetReader implements FileRecordFormat.Reader<Row> {
     final Path hadoopFilePath;
     final SimpleGroupDeserializer simpleGroupDeserializer;
     private long currentRecordIndex;
@@ -30,9 +30,9 @@ public class PrimitiveReader implements FileRecordFormat.Reader<Row> {
     private long rowCount;
     private RecordReader<Group> recordReader;
     private final MessageType schema;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrimitiveReader.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
-    public PrimitiveReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
+    public ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
         this.hadoopFilePath = hadoopFilePath;
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;
@@ -72,20 +72,20 @@ public class PrimitiveReader implements FileRecordFormat.Reader<Row> {
         recordReader = null;
     }
 
-    public static class PrimitiveReaderProvider implements ReaderProvider {
+    public static class ParquetReaderProvider implements ReaderProvider {
         private final SimpleGroupDeserializer simpleGroupDeserializer;
 
-        public PrimitiveReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer) {
+        public ParquetReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer) {
             this.simpleGroupDeserializer = simpleGroupDeserializer;
         }
 
         @Override
-        public PrimitiveReader getReader(String filePath) {
+        public ParquetReader getReader(String filePath) {
             try {
                 Configuration conf = new Configuration();
                 Path hadoopFilePath = new Path(filePath);
                 ParquetFileReader parquetFileReader = ParquetFileReader.open(HadoopInputFile.fromPath(hadoopFilePath, conf));
-                return new PrimitiveReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader);
+                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader);
             } catch (IOException | RuntimeException ex) {
                 throw new ParquetFileSourceReaderInitializationException(ex);
             }

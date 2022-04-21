@@ -9,7 +9,7 @@ import io.odpf.dagger.core.source.SourceName;
 import io.odpf.dagger.core.source.SourceType;
 import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.source.DaggerSource;
-import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
+import io.odpf.dagger.core.source.parquet.reader.ParquetReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -94,7 +94,7 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
 
     private ParquetFileRecordFormat buildParquetFileRecordFormat() {
         SimpleGroupDeserializer simpleGroupDeserializer = (SimpleGroupDeserializer) deserializer;
-        ReaderProvider parquetFileReaderProvider = new PrimitiveReader.PrimitiveReaderProvider(simpleGroupDeserializer);
+        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer);
         ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
         Supplier<TypeInformation<Row>> typeInformationProvider = (Supplier<TypeInformation<Row>> & Serializable) simpleGroupDeserializer::getProducedType;
         return parquetFileRecordFormatBuilder

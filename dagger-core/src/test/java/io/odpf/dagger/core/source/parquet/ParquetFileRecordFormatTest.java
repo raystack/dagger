@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.source.parquet;
 
 
-import io.odpf.dagger.core.source.parquet.reader.PrimitiveReader;
+import io.odpf.dagger.core.source.parquet.reader.ParquetReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
@@ -20,7 +20,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ParquetFileRecordFormatTest {
 
     @Mock
-    private PrimitiveReader primitiveReader;
+    private ParquetReader parquetReader;
 
     @Mock
     private TypeInformation<Row> typeInformation;
@@ -28,7 +28,7 @@ public class ParquetFileRecordFormatTest {
     @Mock
     private Configuration configuration;
 
-    private final ReaderProvider readerProviderMock = (filePath) -> primitiveReader;
+    private final ReaderProvider readerProviderMock = (filePath) -> parquetReader;
     private final Supplier<TypeInformation<Row>> typeInformationProviderMock = () -> typeInformation;
 
     @Before
@@ -46,7 +46,7 @@ public class ParquetFileRecordFormatTest {
         FileRecordFormat.Reader<Row> expectedReader = parquetFileRecordFormat.createReader(configuration, new Path("gs://file-path"), 0, 1024);
         TypeInformation<Row> expectedTypeInformation = parquetFileRecordFormat.getProducedType();
 
-        assertEquals(expectedReader, primitiveReader);
+        assertEquals(expectedReader, parquetReader);
         assertEquals(expectedTypeInformation, typeInformation);
     }
 
