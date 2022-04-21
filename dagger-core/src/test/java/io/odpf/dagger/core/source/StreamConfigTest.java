@@ -174,16 +174,16 @@ public class StreamConfigTest {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{"
                         + "\"SOURCE_DETAILS\": "
-                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"},"
-                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA\"}]"
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"},"
+                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}]"
                         + "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         SourceDetails[] sourceDetails = streamConfigs[0].getSourceDetails();
         assertEquals(SourceType.valueOf("BOUNDED"), sourceDetails[0].getSourceType());
-        assertEquals(SourceName.valueOf("PARQUET"), sourceDetails[0].getSourceName());
+        assertEquals(SourceName.valueOf("PARQUET_SOURCE"), sourceDetails[0].getSourceName());
         assertEquals(SourceType.valueOf("UNBOUNDED"), sourceDetails[1].getSourceType());
-        assertEquals(SourceName.valueOf("KAFKA"), sourceDetails[1].getSourceName());
+        assertEquals(SourceName.valueOf("KAFKA_SOURCE"), sourceDetails[1].getSourceName());
     }
 
     @Test

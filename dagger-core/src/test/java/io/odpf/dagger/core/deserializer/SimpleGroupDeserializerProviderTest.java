@@ -40,7 +40,7 @@ public class SimpleGroupDeserializerProviderTest {
 
     @Test
     public void shouldBeAbleToProvideSimpleGroupDeserializerWhenSourceNameIsParquetAndSchemaTypeIsPROTO() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
         SimpleGroupDeserializerProvider provider = new SimpleGroupDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);
@@ -50,7 +50,7 @@ public class SimpleGroupDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideSimpleGroupDeserializerWhenSourceNameIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
         SimpleGroupDeserializerProvider provider = new SimpleGroupDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);
@@ -60,7 +60,7 @@ public class SimpleGroupDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideSimpleGroupDeserializerWhenSchemaTypeIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
         SimpleGroupDeserializerProvider provider = new SimpleGroupDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);
@@ -70,7 +70,7 @@ public class SimpleGroupDeserializerProviderTest {
 
     @Test
     public void shouldReturnSimpleGroupDeserializerForSupportedSourceNameAndSchemaType() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");

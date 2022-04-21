@@ -15,14 +15,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
 
-import static io.odpf.dagger.core.source.SourceName.KAFKA;
+import static io.odpf.dagger.core.source.SourceName.KAFKA_SOURCE;
 import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
 
 public class KafkaDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;
     private final StreamConfig streamConfig;
     private final Configuration configuration;
-    private static final SourceName SUPPORTED_SOURCE_NAME = KAFKA;
+    private static final SourceName SUPPORTED_SOURCE_NAME = KAFKA_SOURCE;
     private static final SourceType SUPPORTED_SOURCE_TYPE = UNBOUNDED;
 
     public KafkaDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {

@@ -68,7 +68,7 @@ public class DaggerDeserializerFactoryTest {
 
     @Test
     public void shouldReturnSimpleGroupDeserializerWhenConfigured() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
@@ -82,7 +82,7 @@ public class DaggerDeserializerFactoryTest {
 
     @Test
     public void shouldThrowRuntimeExceptionIfNoDeserializerCouldBeCreatedFromConfigs() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
         assertThrows(DaggerConfigurationException.class, () -> DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator));

@@ -8,9 +8,9 @@ import static io.odpf.dagger.core.utils.Constants.STREAM_SOURCE_DETAILS_SOURCE_N
 
 public enum SourceName {
     @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_KAFKA)
-    KAFKA,
+    KAFKA_SOURCE,
     @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_PARQUET)
-    PARQUET,
+    PARQUET_SOURCE,
     @SerializedName(STREAM_SOURCE_DETAILS_SOURCE_NAME_KAFKA_CONSUMER)
     KAFKA_CONSUMER
 }

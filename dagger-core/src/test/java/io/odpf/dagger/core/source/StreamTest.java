@@ -42,7 +42,7 @@ public class StreamTest {
 
     @Test
     public void shouldBeAbleToBuildAStreamWithKafkaDaggerSourceAndProtoSchema() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
@@ -83,7 +83,7 @@ public class StreamTest {
 
     @Test
     public void shouldBeAbleToBuildAStreamWithKafkaDaggerSourceAndJsonSchema() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
@@ -109,7 +109,7 @@ public class StreamTest {
 
     @Test
     public void shouldBeAbleToBuildAStreamWithParquetDaggerSourceAndProtoSchema() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");

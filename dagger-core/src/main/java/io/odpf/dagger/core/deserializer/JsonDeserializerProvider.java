@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import static io.odpf.dagger.common.serde.DataTypes.JSON;
-import static io.odpf.dagger.core.source.SourceName.KAFKA;
+import static io.odpf.dagger.core.source.SourceName.KAFKA_SOURCE;
 import static io.odpf.dagger.core.source.SourceName.KAFKA_CONSUMER;
 
 public class JsonDeserializerProvider implements DaggerDeserializerProvider<Row> {
     private final StreamConfig streamConfig;
-    private static final HashSet<SourceName> COMPATIBLE_SOURCES = new HashSet<>(Arrays.asList(KAFKA, KAFKA_CONSUMER));
+    private static final HashSet<SourceName> COMPATIBLE_SOURCES = new HashSet<>(Arrays.asList(KAFKA_SOURCE, KAFKA_CONSUMER));
     private static final DataTypes COMPATIBLE_INPUT_SCHEMA_TYPE = JSON;
 
     public JsonDeserializerProvider(StreamConfig streamConfig) {

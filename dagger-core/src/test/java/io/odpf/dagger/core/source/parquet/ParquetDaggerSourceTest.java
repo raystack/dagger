@@ -62,7 +62,7 @@ public class ParquetDaggerSourceTest {
 
     @Test
     public void shouldBeAbleToBuildSourceIfSourceDetailsIsBoundedParquetAndDaggerDeserializerIsSimpleGroupDeserializer() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertTrue(daggerSource.canBuild());
@@ -70,8 +70,8 @@ public class ParquetDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceDetailsContainsMultipleBackToBackSources() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED),
-                new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED),
+                new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());
@@ -87,7 +87,7 @@ public class ParquetDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceTypeIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
         ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());
@@ -96,7 +96,7 @@ public class ParquetDaggerSourceTest {
     @Test
     public void shouldNotBeAbleToBuildSourceIfDeserializerTypeIsUnsupported() {
         DaggerDeserializer<Row> unsupportedDeserializer = Mockito.mock(ProtoDeserializer.class);
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, unsupportedDeserializer);
 
         assertFalse(daggerSource.canBuild());

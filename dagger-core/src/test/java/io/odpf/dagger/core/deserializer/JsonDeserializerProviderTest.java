@@ -27,7 +27,7 @@ public class JsonDeserializerProviderTest {
 
     @Test
     public void shouldBeAbleToProvideJsonDeserializerWhenSourceNameIsKafkaAndSchemaTypeIsJSON() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
         JsonDeserializerProvider provider = new JsonDeserializerProvider(streamConfig);
@@ -47,7 +47,7 @@ public class JsonDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideJsonDeserializerWhenSourceNameIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
         JsonDeserializerProvider provider = new JsonDeserializerProvider(streamConfig);
@@ -57,7 +57,7 @@ public class JsonDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideJsonDeserializerWhenSchemaTypeIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
         JsonDeserializerProvider provider = new JsonDeserializerProvider(streamConfig);

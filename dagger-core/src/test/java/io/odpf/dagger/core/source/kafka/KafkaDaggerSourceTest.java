@@ -53,7 +53,7 @@ public class KafkaDaggerSourceTest {
 
     @Test
     public void shouldBeAbleToBuildSourceIfSourceDetailsIsUnboundedKafkaAndDaggerDeserializerIsKafkaDeserializationSchema() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertTrue(daggerSource.canBuild());
@@ -61,8 +61,8 @@ public class KafkaDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceDetailsContainsMultipleBackToBackSources() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED),
-                new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED),
+                new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());
@@ -70,7 +70,7 @@ public class KafkaDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceNameIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
         KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());
@@ -78,7 +78,7 @@ public class KafkaDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceTypeIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.BOUNDED)});
         KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());
@@ -87,7 +87,7 @@ public class KafkaDaggerSourceTest {
     @Test
     public void shouldNotBeAbleToBuildSourceIfDeserializerTypeIsUnsupported() {
         DaggerDeserializer<Row> unsupportedDeserializer = Mockito.mock(SimpleGroupDeserializer.class);
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         KafkaDaggerSource daggerSource = new KafkaDaggerSource(streamConfig, configuration, unsupportedDeserializer);
 
         assertFalse(daggerSource.canBuild());

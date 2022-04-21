@@ -11,7 +11,7 @@ import io.odpf.dagger.core.source.StreamConfig;
 import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.common.serde.DataTypes.PROTO;
-import static io.odpf.dagger.core.source.SourceName.PARQUET;
+import static io.odpf.dagger.core.source.SourceName.PARQUET_SOURCE;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 
@@ -19,7 +19,7 @@ public class SimpleGroupDeserializerProvider implements DaggerDeserializerProvid
     protected final StreamConfig streamConfig;
     protected final Configuration configuration;
     protected final StencilClientOrchestrator stencilClientOrchestrator;
-    private static final SourceName COMPATIBLE_SOURCE = PARQUET;
+    private static final SourceName COMPATIBLE_SOURCE = PARQUET_SOURCE;
     private static final DataTypes COMPATIBLE_INPUT_SCHEMA_TYPE = PROTO;
 
     public SimpleGroupDeserializerProvider(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {

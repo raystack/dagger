@@ -33,7 +33,7 @@ public class DaggerSourceFactoryTest {
     @Test
     public void shouldReturnKafkaDaggerSourceWhenConfigured() {
         ProtoDeserializer deserializer = Mockito.mock(ProtoDeserializer.class);
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer);
 
         assertTrue(daggerSource instanceof KafkaDaggerSource);
@@ -51,7 +51,7 @@ public class DaggerSourceFactoryTest {
     @Test
     public void shouldReturnParquetDaggerSourceWhenConfigured() {
         SimpleGroupDeserializer deserializer = Mockito.mock(SimpleGroupDeserializer.class);
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer);
 
         assertTrue(daggerSource instanceof ParquetDaggerSource);
@@ -60,7 +60,7 @@ public class DaggerSourceFactoryTest {
     @Test
     public void shouldThrowRuntimeExceptionIfNoDaggerSourceCouldBeCreatedAsPerConfigs() {
         SimpleGroupDeserializer deserializer = Mockito.mock(SimpleGroupDeserializer.class);
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
 
         assertThrows(InvalidDaggerSourceException.class, () -> DaggerSourceFactory.create(streamConfig, configuration, deserializer));
     }

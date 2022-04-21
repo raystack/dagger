@@ -39,7 +39,7 @@ public class ProtoDeserializerProviderTest {
 
     @Test
     public void shouldBeAbleToProvideProtoDeserializerWhenSourceNameIsKafkaAndSchemaTypeIsPROTO() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
         ProtoDeserializerProvider provider = new ProtoDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);
@@ -59,7 +59,7 @@ public class ProtoDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideProtoDeserializerWhenSourceNameIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("PROTO");
 
         ProtoDeserializerProvider provider = new ProtoDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);
@@ -69,7 +69,7 @@ public class ProtoDeserializerProviderTest {
 
     @Test
     public void shouldNotProvideProtoDeserializerWhenSchemaTypeIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
         ProtoDeserializerProvider provider = new ProtoDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);

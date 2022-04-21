@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import static io.odpf.dagger.common.serde.DataTypes.PROTO;
-import static io.odpf.dagger.core.source.SourceName.KAFKA;
+import static io.odpf.dagger.core.source.SourceName.KAFKA_SOURCE;
 import static io.odpf.dagger.core.source.SourceName.KAFKA_CONSUMER;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
@@ -23,7 +23,7 @@ public class ProtoDeserializerProvider implements DaggerDeserializerProvider<Row
     protected final StreamConfig streamConfig;
     protected final Configuration configuration;
     protected final StencilClientOrchestrator stencilClientOrchestrator;
-    private static final HashSet<SourceName> COMPATIBLE_SOURCES = new HashSet<>(Arrays.asList(KAFKA, KAFKA_CONSUMER));
+    private static final HashSet<SourceName> COMPATIBLE_SOURCES = new HashSet<>(Arrays.asList(KAFKA_SOURCE, KAFKA_CONSUMER));
     private static final DataTypes COMPATIBLE_INPUT_SCHEMA_TYPE = PROTO;
 
     public ProtoDeserializerProvider(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {

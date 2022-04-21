@@ -68,7 +68,7 @@ public class FlinkKafkaConsumerDaggerSourceTest {
 
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceNameIsUnsupported() {
-        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.UNBOUNDED)});
+        when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
         FlinkKafkaConsumerDaggerSource daggerSource = new FlinkKafkaConsumerDaggerSource(streamConfig, configuration, daggerDeserializer);
 
         assertFalse(daggerSource.canBuild());

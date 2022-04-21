@@ -52,7 +52,7 @@ public class StreamsFactoryTest {
                         + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"},"
                         + "{\"INPUT_SCHEMA_TABLE\": \"data_stream_2\","
                         + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic-2\","
-                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA\"}],"
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}],"
                         + "\"INPUT_DATATYPE\": \"JSON\","
                         + "\"INPUT_SCHEMA_JSON_SCHEMA\" : \"{ \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\", \\\"$id\\\": \\\"https://example.com/product.schema.json\\\", \\\"title\\\": \\\"Product\\\", \\\"description\\\": \\\"A product from Acme's catalog\\\", \\\"type\\\": \\\"object\\\", \\\"properties\\\": { \\\"id\\\": { \\\"description\\\": \\\"The unique identifier for a product\\\", \\\"type\\\": \\\"string\\\" }, \\\"time\\\": { \\\"description\\\": \\\"event timestamp of the event\\\", \\\"type\\\": \\\"string\\\", \\\"format\\\" : \\\"date-time\\\" } }, \\\"required\\\": [ \\\"id\\\", \\\"time\\\" ] }\","
                         + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\","
@@ -81,7 +81,7 @@ public class StreamsFactoryTest {
                         + "\"INPUT_DATATYPE\": \"PROTO\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \\\"EARLIEST_TIME_URL_FIRST,"
                         + "\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-05/hr=09/\",  \"gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-03/hr=14/\"],"
-                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET\"}],"
+                        + "\"SOURCE_DETAILS\": [{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}],"
                         + "\"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\","
                         + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"}]");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);

@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import static io.odpf.dagger.core.source.SourceName.PARQUET;
+import static io.odpf.dagger.core.source.SourceName.PARQUET_SOURCE;
 import static io.odpf.dagger.core.source.SourceType.BOUNDED;
 
 public class ParquetDaggerSource implements DaggerSource<Row> {
@@ -33,7 +33,7 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
     private final StreamConfig streamConfig;
     private final Configuration configuration;
     private static final SourceType SUPPORTED_SOURCE_TYPE = BOUNDED;
-    private static final SourceName SUPPORTED_SOURCE_NAME = PARQUET;
+    private static final SourceName SUPPORTED_SOURCE_NAME = PARQUET_SOURCE;
 
     public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
         this.streamConfig = streamConfig;
