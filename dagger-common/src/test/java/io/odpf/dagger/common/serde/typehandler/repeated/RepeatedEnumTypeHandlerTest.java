@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumProtoHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -20,45 +19,45 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
-public class RepeatedEnumProtoHandlerTest {
+public class RepeatedEnumTypeHandlerTest {
     @Test
     public void shouldReturnTrueIfRepeatedEnumFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
 
-        assertTrue(repeatedEnumProtoHandler.canHandle());
+        assertTrue(repeatedEnumTypeHandler.canHandle());
     }
 
     @Test
     public void shouldReturnFalseIfEnumFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(enumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(enumFieldDescriptor);
 
-        assertFalse(repeatedEnumProtoHandler.canHandle());
+        assertFalse(repeatedEnumTypeHandler.canHandle());
     }
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanRepeatedEnumTypeIsPassed() {
         Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(otherFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(otherFieldDescriptor);
 
-        assertFalse(repeatedEnumProtoHandler.canHandle());
+        assertFalse(repeatedEnumTypeHandler.canHandle());
     }
 
     @Test
     public void shouldReturnTheSameBuilderWithoutSettingAnyValue() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedEnumFieldDescriptor.getContainingType());
 
-        assertEquals(Collections.EMPTY_LIST, repeatedEnumProtoHandler.transformToProtoBuilder(builder, 123).getField(repeatedEnumFieldDescriptor));
+        assertEquals(Collections.EMPTY_LIST, repeatedEnumTypeHandler.transformToProtoBuilder(builder, 123).getField(repeatedEnumFieldDescriptor));
     }
 
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
-        TypeInformation actualTypeInformation = repeatedEnumProtoHandler.getTypeInformation();
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
+        TypeInformation actualTypeInformation = repeatedEnumTypeHandler.getTypeInformation();
         TypeInformation<String[]> expectedTypeInformation = ObjectArrayTypeInfo.getInfoFor(Types.STRING);
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
@@ -70,9 +69,9 @@ public class RepeatedEnumProtoHandlerTest {
         inputValues.add("test2");
 
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromPostProcessor(inputValues);
+        String[] outputValues = (String[]) repeatedEnumTypeHandler.transformFromPostProcessor(inputValues);
 
         assertEquals(inputValues.get(0), outputValues[0]);
         assertEquals(inputValues.get(1), outputValues[1]);
@@ -81,9 +80,9 @@ public class RepeatedEnumProtoHandlerTest {
     @Test
     public void shouldTransformValueForPostProcessorAsEmptyStringArrayForNull() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromPostProcessor(null);
+        String[] outputValues = (String[]) repeatedEnumTypeHandler.transformFromPostProcessor(null);
 
         assertEquals(0, outputValues.length);
     }
@@ -94,9 +93,9 @@ public class RepeatedEnumProtoHandlerTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestRepeatedEnumMessage.getDescriptor(), testRepeatedEnumMessage.toByteArray());
 
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromProto(dynamicMessage.getField(repeatedEnumFieldDescriptor));
+        String[] outputValues = (String[]) repeatedEnumTypeHandler.transformFromProto(dynamicMessage.getField(repeatedEnumFieldDescriptor));
 
         assertEquals("UNKNOWN", outputValues[0]);
     }
@@ -104,9 +103,9 @@ public class RepeatedEnumProtoHandlerTest {
     @Test
     public void shouldTransformValueForKafkaAsEmptyStringArrayForNull() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
+        RepeatedEnumTypeHandler repeatedEnumTypeHandler = new RepeatedEnumTypeHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromProto(null);
+        String[] outputValues = (String[]) repeatedEnumTypeHandler.transformFromProto(null);
 
         assertEquals(0, outputValues.length);
     }
@@ -114,7 +113,7 @@ public class RepeatedEnumProtoHandlerTest {
     @Test
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumProtoHandler protoHandler = new RepeatedEnumProtoHandler(fieldDescriptor);
+        RepeatedEnumTypeHandler protoHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);

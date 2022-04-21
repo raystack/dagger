@@ -19,7 +19,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 /**
  * The type Repeated enum proto handler.
  */
-public class RepeatedEnumProtoHandler implements ProtoHandler {
+public class RepeatedEnumTypeHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 
@@ -28,7 +28,7 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public RepeatedEnumProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public RepeatedEnumTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

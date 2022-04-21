@@ -6,10 +6,10 @@ import io.odpf.dagger.common.serde.typehandler.complex.MapTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.MessageTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.StructMessageTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.TimestampTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageTypeHandler;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
@@ -54,28 +54,28 @@ public class ProtoHandlerFactoryTest {
     public void shouldReturnRepeatedProtoHandlerIfRepeatedFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedFieldDescriptor);
-        assertEquals(RepeatedPrimitiveProtoHandler.class, protoHandler.getClass());
+        assertEquals(RepeatedPrimitiveTypeHandler.class, protoHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedMessageProtoHandlerIfRepeatedMessageFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor);
-        assertEquals(RepeatedMessageProtoHandler.class, protoHandler.getClass());
+        assertEquals(RepeatedMessageTypeHandler.class, protoHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedEnumProtoHandlerIfRepeatedEnumFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedEnumFieldDescriptor);
-        assertEquals(RepeatedEnumProtoHandler.class, protoHandler.getClass());
+        assertEquals(RepeatedEnumTypeHandler.class, protoHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedStructProtoHandlerIfRepeatedStructFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(repeatedStructFieldDescriptor);
-        assertEquals(RepeatedStructMessageProtoHandler.class, protoHandler.getClass());
+        assertEquals(RepeatedStructMessageTypeHandler.class, protoHandler.getClass());
     }
 
     @Test

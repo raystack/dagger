@@ -25,7 +25,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 /**
  * The type Repeated message proto handler.
  */
-public class RepeatedMessageProtoHandler implements ProtoHandler {
+public class RepeatedMessageTypeHandler implements ProtoHandler {
     private JsonRowSerializationSchema jsonRowSerializationSchema;
     private FieldDescriptor fieldDescriptor;
 
@@ -34,7 +34,7 @@ public class RepeatedMessageProtoHandler implements ProtoHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public RepeatedMessageProtoHandler(FieldDescriptor fieldDescriptor) {
+    public RepeatedMessageTypeHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

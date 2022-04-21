@@ -11,7 +11,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The type Repeated struct message proto handler.
  */
-public class RepeatedStructMessageProtoHandler implements ProtoHandler {
+public class RepeatedStructMessageTypeHandler implements ProtoHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
@@ -19,7 +19,7 @@ public class RepeatedStructMessageProtoHandler implements ProtoHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public RepeatedStructMessageProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public RepeatedStructMessageTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

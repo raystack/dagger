@@ -21,7 +21,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 /**
  * The type Repeated primitive proto handler.
  */
-public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
+public class RepeatedPrimitiveTypeHandler implements ProtoHandler {
     private final FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 
@@ -30,7 +30,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public RepeatedPrimitiveProtoHandler(FieldDescriptor fieldDescriptor) {
+    public RepeatedPrimitiveTypeHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

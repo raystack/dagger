@@ -6,10 +6,10 @@ import io.odpf.dagger.common.serde.typehandler.complex.MapTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.MessageTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.StructMessageTypeHandler;
 import io.odpf.dagger.common.serde.typehandler.complex.TimestampTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageTypeHandler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,10 +47,10 @@ public class ProtoHandlerFactory {
                 new TimestampTypeHandler(fieldDescriptor),
                 new EnumTypeHandler(fieldDescriptor),
                 new StructMessageTypeHandler(fieldDescriptor),
-                new RepeatedStructMessageProtoHandler(fieldDescriptor),
-                new RepeatedPrimitiveProtoHandler(fieldDescriptor),
-                new RepeatedMessageProtoHandler(fieldDescriptor),
-                new RepeatedEnumProtoHandler(fieldDescriptor),
+                new RepeatedStructMessageTypeHandler(fieldDescriptor),
+                new RepeatedPrimitiveTypeHandler(fieldDescriptor),
+                new RepeatedMessageTypeHandler(fieldDescriptor),
+                new RepeatedEnumTypeHandler(fieldDescriptor),
                 new MessageTypeHandler(fieldDescriptor)
         );
     }

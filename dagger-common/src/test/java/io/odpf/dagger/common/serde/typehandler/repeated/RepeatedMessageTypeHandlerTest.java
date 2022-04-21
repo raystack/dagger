@@ -1,7 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
 import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageProtoHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
@@ -25,20 +24,20 @@ import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
 import static org.apache.flink.api.common.typeinfo.Types.STRING;
 import static org.junit.Assert.*;
 
-public class RepeatedMessageProtoHandlerTest {
+public class RepeatedMessageTypeHandlerTest {
 
     @Test
     public void shouldReturnTrueIfRepeatedMessageFieldDescriptorIsPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler repeatedMessageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMessageTypeHandler = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor);
 
-        assertTrue(repeatedMessageProtoHandler.canHandle());
+        assertTrue(repeatedMessageTypeHandler.canHandle());
     }
 
     @Test
     public void shouldReturnFalseIfFieldDescriptorOtherThanRepeatedMessageTypeIsPassed() {
         Descriptors.FieldDescriptor otherFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(otherFieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMesssageProtoHandler = new RepeatedMessageTypeHandler(otherFieldDescriptor);
 
         assertFalse(repeatedMesssageProtoHandler.canHandle());
     }
@@ -46,7 +45,7 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldReturnTheSameBuilderWithoutSettingFieldIfCanNotHandle() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMesssageProtoHandler = new RepeatedMessageTypeHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
         assertEquals(builder, repeatedMesssageProtoHandler.transformToProtoBuilder(builder, 123));
@@ -56,7 +55,7 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldReturnTheSameBuilderWithoutSettingFieldIfNullPassed() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMesssageProtoHandler = new RepeatedMessageTypeHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
         DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.transformToProtoBuilder(builder, null);
@@ -67,7 +66,7 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldSetTheFieldsPassedInTheBuilderForRepeatedMessageFieldTypeDescriptor() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler repeatedMessageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMessageTypeHandler = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedMessageFieldDescriptor.getContainingType());
 
         Row inputRow1 = new Row(2);
@@ -82,7 +81,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMessageProtoHandler.transformToProtoBuilder(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMessageTypeHandler.transformToProtoBuilder(builder, inputRows.toArray());
 
         List<DynamicMessage> reasons = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -98,7 +97,7 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldSetTheFieldsPassedInTheBuilderForRepeatedMessageFieldTypeDescriptorIfInputIsList() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMesssageProtoHandler = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedMessageFieldDescriptor.getContainingType());
 
         Row inputRow1 = new Row(2);
@@ -132,7 +131,7 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldSetTheFieldsNotPassedInTheBuilderForRepeatedMessageFieldTypeDescriptorToDefaults() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
+        RepeatedMessageTypeHandler repeatedMesssageProtoHandler = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedMessageFieldDescriptor.getContainingType());
 
         Row inputRow1 = new Row(2);
@@ -242,7 +241,7 @@ public class RepeatedMessageProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowsIfNullPassedForKafkaTransform() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromProto(null);
+        Object[] values = (Object[]) new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor).transformFromProto(null);
 
         assertEquals(0, values.length);
     }
@@ -258,7 +257,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromProto(dynamicMessage.getField(repeatedMessageFieldDescriptor));
+        Object[] values = (Object[]) new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor).transformFromProto(dynamicMessage.getField(repeatedMessageFieldDescriptor));
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
@@ -272,8 +271,8 @@ public class RepeatedMessageProtoHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler repeatedMessageProtoHandler = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor);
-        TypeInformation actualTypeInformation = repeatedMessageProtoHandler.getTypeInformation();
+        RepeatedMessageTypeHandler repeatedMessageTypeHandler = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor);
+        TypeInformation actualTypeInformation = repeatedMessageTypeHandler.getTypeInformation();
         TypeInformation<Row[]> expectedTypeInformation = OBJECT_ARRAY(ROW_NAMED(new String[]{"reason_id", "group_id"}, STRING, STRING));
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
@@ -294,14 +293,14 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows[0] = inputRow1;
         inputRows[1] = inputRow2;
 
-        Object value = new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformToJson(inputRows);
+        Object value = new RepeatedMessageTypeHandler(repeatedMessageFieldDescriptor).transformToJson(inputRows);
         assertEquals("[{\"reason_id\":\"reason1\",\"group_id\":\"group1\"}, {\"reason_id\":\"reason2\",\"group_id\":\"group2\"}]", String.valueOf(value));
     }
 
     @Test
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("reason");
-        RepeatedMessageProtoHandler protoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        RepeatedMessageTypeHandler protoHandler = new RepeatedMessageTypeHandler(fieldDescriptor);
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
