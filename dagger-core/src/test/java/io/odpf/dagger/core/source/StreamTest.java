@@ -7,6 +7,9 @@ import io.odpf.dagger.core.source.flinkkafkaconsumer.FlinkKafkaConsumerDaggerSou
 import io.odpf.dagger.core.source.kafka.KafkaDaggerSource;
 import io.odpf.dagger.core.source.parquet.ParquetDaggerSource;
 import io.odpf.stencil.client.StencilClient;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,6 +21,8 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -34,6 +39,15 @@ public class StreamTest {
 
     @Mock
     private StreamConfig streamConfig;
+
+    @Mock
+    private StreamExecutionEnvironment streamExecutionEnvironment;
+
+    @Mock
+    private WatermarkStrategy<Row> watermarkStrategy;
+
+    @Mock
+    private DaggerSource<Row> mockDaggerSource;
 
     @Before
     public void setup() {
@@ -120,5 +134,15 @@ public class StreamTest {
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof ParquetDaggerSource);
+    }
+
+    @Test
+    public void shouldInvokeTheDaggerSourceRegistrationMethodWhenRegisterSourceIsCalled() {
+        Stream stream = new Stream(mockDaggerSource, "some-stream");
+
+        stream.registerSource(streamExecutionEnvironment, watermarkStrategy);
+
+        verify(mockDaggerSource, times(1)).register(streamExecutionEnvironment, watermarkStrategy);
+
     }
 }

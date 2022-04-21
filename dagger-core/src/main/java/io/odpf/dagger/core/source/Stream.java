@@ -18,7 +18,7 @@ public class Stream implements Serializable {
     @Getter
     private final String streamName;
 
-    private Stream(DaggerSource<Row> daggerSource, String streamName) {
+    Stream(DaggerSource<Row> daggerSource, String streamName) {
         this.daggerSource = daggerSource;
         this.streamName = streamName;
     }
