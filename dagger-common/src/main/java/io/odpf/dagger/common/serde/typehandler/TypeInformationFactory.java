@@ -1,11 +1,10 @@
 package io.odpf.dagger.common.serde.typehandler;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
-
-import com.google.protobuf.Descriptors;
-import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 
 /**
  * The factory class for Type information.

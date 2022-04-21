@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler;
 
-import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
