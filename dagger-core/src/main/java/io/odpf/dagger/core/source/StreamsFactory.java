@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamsFactory {
-    public static List<StreamType> getStreamTypes(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
+    public static List<Stream> getStreams(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator) {
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
-        ArrayList<StreamType> streamTypes = new ArrayList<>();
+        ArrayList<Stream> streams = new ArrayList<>();
 
         for (StreamConfig streamConfig : streamConfigs) {
-            StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-            streamTypes.add(builder.build());
+            Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+            streams.add(builder.build());
         }
-        return streamTypes;
+        return streams;
     }
 }

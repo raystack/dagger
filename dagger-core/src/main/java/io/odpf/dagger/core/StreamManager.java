@@ -1,6 +1,6 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.core.source.StreamType;
+import io.odpf.dagger.core.source.Stream;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -94,10 +94,10 @@ public class StreamManager {
         long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        getStreamTypes().forEach(streamType -> {
-            String tableName = streamType.getStreamName();
+        getStreams().forEach(stream -> {
+            String tableName = stream.getStreamName();
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
-            DataStream<Row> dataStream = streamType.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay));
+            DataStream<Row> dataStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay));
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
@@ -219,7 +219,7 @@ public class StreamManager {
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
     }
 
-    List<StreamType> getStreamTypes() {
-        return StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
+    List<Stream> getStreams() {
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator);
     }
 }

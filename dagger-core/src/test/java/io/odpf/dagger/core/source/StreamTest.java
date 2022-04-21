@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class StreamTypeTest {
+public class StreamTest {
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -41,7 +41,7 @@ public class StreamTypeTest {
     }
 
     @Test
-    public void shouldBeAbleToBuildAStreamTypeWithKafkaDaggerSourceAndProtoSchema() {
+    public void shouldBeAbleToBuildAStreamWithKafkaDaggerSourceAndProtoSchema() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getDataType()).thenReturn("PROTO");
@@ -50,14 +50,14 @@ public class StreamTypeTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-        StreamType streamType = builder.build();
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream stream = builder.build();
 
-        assertTrue(streamType.getDaggerSource() instanceof KafkaDaggerSource);
+        assertTrue(stream.getDaggerSource() instanceof KafkaDaggerSource);
     }
 
     @Test
-    public void shouldBeAbleToBuildAStreamTypeWithFlinkKafkaConsumerDaggerSourceAndProtoSchema() {
+    public void shouldBeAbleToBuildAStreamWithFlinkKafkaConsumerDaggerSourceAndProtoSchema() {
         HashMap<String, String> kafkaPropMap = new HashMap<>();
         kafkaPropMap.put("group.id", "dummy-consumer-group");
         kafkaPropMap.put("bootstrap.servers", "localhost:9092");
@@ -75,40 +75,40 @@ public class StreamTypeTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-        StreamType streamType = builder.build();
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream stream = builder.build();
 
-        assertTrue(streamType.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
+        assertTrue(stream.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
     }
 
     @Test
-    public void shouldBeAbleToBuildAStreamTypeWithKafkaDaggerSourceAndJsonSchema() {
+    public void shouldBeAbleToBuildAStreamWithKafkaDaggerSourceAndJsonSchema() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
 
-        StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-        StreamType streamType = builder.build();
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream stream = builder.build();
 
-        assertTrue(streamType.getDaggerSource() instanceof KafkaDaggerSource);
+        assertTrue(stream.getDaggerSource() instanceof KafkaDaggerSource);
     }
 
     @Test
-    public void shouldBeAbleToBuildAStreamTypeWithFlinkKafkaConsumerDaggerSourceAndJsonSchema() {
+    public void shouldBeAbleToBuildAStreamWithFlinkKafkaConsumerDaggerSourceAndJsonSchema() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.UNBOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
 
-        StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-        StreamType streamType = builder.build();
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream stream = builder.build();
 
-        assertTrue(streamType.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
+        assertTrue(stream.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
     }
 
     @Test
-    public void shouldBeAbleToBuildAStreamTypeWithParquetDaggerSourceAndProtoSchema() {
+    public void shouldBeAbleToBuildAStreamWithParquetDaggerSourceAndProtoSchema() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET, SourceType.BOUNDED)});
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getDataType()).thenReturn("PROTO");
@@ -116,9 +116,9 @@ public class StreamTypeTest {
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-        StreamType.Builder builder = new StreamType.Builder(streamConfig, configuration, stencilClientOrchestrator);
-        StreamType streamType = builder.build();
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream stream = builder.build();
 
-        assertTrue(streamType.getDaggerSource() instanceof ParquetDaggerSource);
+        assertTrue(stream.getDaggerSource() instanceof ParquetDaggerSource);
     }
 }

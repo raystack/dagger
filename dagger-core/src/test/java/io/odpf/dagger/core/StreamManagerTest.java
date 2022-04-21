@@ -2,7 +2,7 @@ package io.odpf.dagger.core;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
-import io.odpf.dagger.core.source.StreamType;
+import io.odpf.dagger.core.source.Stream;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -91,7 +91,7 @@ public class StreamManagerTest {
     private Configuration configuration;
 
     @Mock
-    private StreamType streamType;
+    private Stream stream;
 
     @Before
     public void setup() {
@@ -143,9 +143,9 @@ public class StreamManagerTest {
     @Test
     public void shouldRegisterSourceWithPreprocessorsWithWaterMarks() {
         when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
-        when(streamType.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
         when(singleOutputStream.getType()).thenReturn(typeInformation);
-        when(streamType.getStreamName()).thenReturn("data_stream");
+        when(stream.getStreamName()).thenReturn("data_stream");
 
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
@@ -157,15 +157,15 @@ public class StreamManagerTest {
     @Test
     public void shouldCreateValidSourceWithWatermarks() {
         when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
-        when(streamType.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
+        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
         when(singleOutputStream.getType()).thenReturn(typeInformation);
-        when(streamType.getStreamName()).thenReturn("data_stream");
+        when(stream.getStreamName()).thenReturn("data_stream");
 
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
         streamManagerStub.registerSourceWithPreProcessors();
 
-        verify(streamType, Mockito.times(1)).registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class));
+        verify(stream, Mockito.times(1)).registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class));
     }
 
     @Test
@@ -197,8 +197,8 @@ public class StreamManagerTest {
         }
 
         @Override
-        List<StreamType> getStreamTypes() {
-            return Collections.singletonList(streamType);
+        List<Stream> getStreams() {
+            return Collections.singletonList(stream);
         }
     }
 }

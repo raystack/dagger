@@ -12,13 +12,13 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 
-public class StreamType implements Serializable {
+public class Stream implements Serializable {
     @Getter
     private final DaggerSource<Row> daggerSource;
     @Getter
     private final String streamName;
 
-    private StreamType(DaggerSource<Row> daggerSource, String streamName) {
+    private Stream(DaggerSource<Row> daggerSource, String streamName) {
         this.daggerSource = daggerSource;
         this.streamName = streamName;
     }
@@ -38,10 +38,10 @@ public class StreamType implements Serializable {
             this.stencilClientOrchestrator = stencilClientOrchestrator;
         }
 
-        public StreamType build() {
+        public Stream build() {
             DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
             DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer);
-            return new StreamType(daggerSource, streamConfig.getSchemaTable());
+            return new Stream(daggerSource, streamConfig.getSchemaTable());
         }
     }
 }

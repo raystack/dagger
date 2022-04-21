@@ -37,7 +37,7 @@ public class StreamsFactoryTest {
     }
 
     @Test
-    public void shouldReturnListOfStreamTypesCreatedFromConfiguration() {
+    public void shouldReturnListOfStreamsCreatedFromConfiguration() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream_1\","
                         + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic-1\","
@@ -65,13 +65,13 @@ public class StreamsFactoryTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        List<StreamType> streamTypes = StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator);
+        List<Stream> streams = StreamsFactory.getStreams(configuration, stencilClientOrchestrator);
 
-        assertEquals(2, streamTypes.size());
-        assertTrue(streamTypes.get(0).getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
-        assertEquals("data_stream_1", streamTypes.get(0).getStreamName());
-        assertTrue(streamTypes.get(1).getDaggerSource() instanceof KafkaDaggerSource);
-        assertEquals("data_stream_2", streamTypes.get(1).getStreamName());
+        assertEquals(2, streams.size());
+        assertTrue(streams.get(0).getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
+        assertEquals("data_stream_1", streams.get(0).getStreamName());
+        assertTrue(streams.get(1).getDaggerSource() instanceof KafkaDaggerSource);
+        assertEquals("data_stream_2", streams.get(1).getStreamName());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class StreamsFactoryTest {
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
         assertThrows(JsonSyntaxException.class,
-                () -> StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator));
+                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator));
     }
 
     @Test
@@ -96,6 +96,6 @@ public class StreamsFactoryTest {
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("");
 
         assertThrows(NullPointerException.class,
-                () -> StreamsFactory.getStreamTypes(configuration, stencilClientOrchestrator));
+                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator));
     }
 }
