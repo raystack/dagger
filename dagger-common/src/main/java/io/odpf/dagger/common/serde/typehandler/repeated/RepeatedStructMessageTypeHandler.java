@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -11,7 +11,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The type Repeated struct message proto handler.
  */
-public class RepeatedStructMessageTypeHandler implements ProtoHandler {
+public class RepeatedStructMessageTypeHandler implements TypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**

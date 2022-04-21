@@ -1,7 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
-import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.consumer.TestPrimitiveMessage;
 import io.odpf.dagger.consumer.TestReason;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -115,7 +113,7 @@ public class RowFactoryTest {
         ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
         ExecutionConfig config = new ExecutionConfig();
         TestBookingLogMessage.getDescriptor().getFields().forEach(fieldDescriptor -> {
-            typeInformations.add(ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
+            typeInformations.add(TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
         });
         ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
         typeInformations.forEach(rowTypeInformation -> {
@@ -204,7 +202,7 @@ public class RowFactoryTest {
         ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
         ExecutionConfig config = new ExecutionConfig();
         TestReason.getDescriptor().getFields().forEach(fieldDescriptor -> {
-            typeInformations.add(ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
+            typeInformations.add(TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
         });
         ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
         typeInformations.forEach(rowTypeInformation -> {

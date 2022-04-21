@@ -6,7 +6,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The interface Primitive type handler.
  */
-public interface PrimitiveTypeHandler {
+public interface PrimitiveHandler {
     /**
      * this method check if it can handle the data type or not.
      *

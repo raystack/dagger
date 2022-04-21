@@ -8,7 +8,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The interface Proto handler.
  */
-public interface ProtoHandler {
+public interface TypeHandler {
     /**
      * Can handle boolean.
      *

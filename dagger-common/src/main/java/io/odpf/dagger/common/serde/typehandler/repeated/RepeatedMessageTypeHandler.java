@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -25,7 +25,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 /**
  * The type Repeated message proto handler.
  */
-public class RepeatedMessageTypeHandler implements ProtoHandler {
+public class RepeatedMessageTypeHandler implements TypeHandler {
     private JsonRowSerializationSchema jsonRowSerializationSchema;
     private FieldDescriptor fieldDescriptor;
 
@@ -119,8 +119,8 @@ public class RepeatedMessageTypeHandler implements ProtoHandler {
             int index = nestedFieldDescriptor.getIndex();
 
             if (index < row.getArity()) {
-                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
-                protoHandler.transformToProtoBuilder(elementBuilder, row.getField(index));
+                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(nestedFieldDescriptor);
+                typeHandler.transformToProtoBuilder(elementBuilder, row.getField(index));
             }
         }
     }

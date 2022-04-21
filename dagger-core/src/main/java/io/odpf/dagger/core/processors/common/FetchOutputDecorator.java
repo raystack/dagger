@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.common;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.core.processors.types.MapDecorator;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -66,7 +66,7 @@ public class FetchOutputDecorator implements MapDecorator {
                 String outputColumnName = outputColumnNames[index];
                 Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(outputColumnName);
                 typeInformations[index] = fieldDescriptor != null
-                        ? ProtoHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation()
+                        ? TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation()
                         : outputColumnName.equals(ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
             }
         }

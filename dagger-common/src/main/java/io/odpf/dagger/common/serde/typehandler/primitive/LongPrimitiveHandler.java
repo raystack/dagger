@@ -5,35 +5,34 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type String primitive type handler.
+ * The type Long primitive type handler.
  */
-public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
+public class LongPrimitiveHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new String primitive type handler.
+     * Instantiates a new Long primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public StringPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public LongPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.STRING;
+        return fieldDescriptor.getJavaType() == JavaType.LONG;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return getValueOrDefault(field, "");
+        return Long.parseLong(getValueOrDefault(field, "0"));
     }
 
     @Override
@@ -42,29 +41,29 @@ public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getString(fieldName, 0);
+            return simpleGroup.getLong(fieldName, 0);
         } else {
             /* return default value */
-            return "";
+            return 0L;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        List<String> inputValues = new ArrayList<>();
+        List<Long> inputValues = new ArrayList<>();
         if (field != null) {
-            inputValues = (List<String>) field;
+            inputValues = (List<Long>) field;
         }
-        return inputValues.toArray(new String[]{});
+        return inputValues.toArray(new Long[]{});
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.STRING;
+        return Types.LONG;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return ObjectArrayTypeInfo.getInfoFor(Types.STRING);
+        return Types.OBJECT_ARRAY(Types.LONG);
     }
 }

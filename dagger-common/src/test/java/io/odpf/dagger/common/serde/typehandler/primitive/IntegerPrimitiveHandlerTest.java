@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import io.odpf.dagger.common.serde.typehandler.primitive.IntegerPrimitiveTypeHandler;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
@@ -18,20 +17,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class IntegerPrimitiveTypeHandlerTest {
+public class IntegerPrimitiveHandlerTest {
 
     @Test
     public void shouldHandleIntegerTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        assertTrue(integerPrimitiveTypeHandler.canHandle());
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        assertTrue(integerPrimitiveHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanInteger() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        assertFalse(integerPrimitiveTypeHandler.canHandle());
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        assertFalse(integerPrimitiveHandler.canHandle());
     }
 
     @Test
@@ -39,8 +38,8 @@ public class IntegerPrimitiveTypeHandlerTest {
         int actualValue = 2;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.parseObject(actualValue);
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        Object value = integerPrimitiveHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -50,8 +49,8 @@ public class IntegerPrimitiveTypeHandlerTest {
         int actualValue = 2;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        Object value = integerPrimitiveHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -59,8 +58,8 @@ public class IntegerPrimitiveTypeHandlerTest {
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeInteger() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object value = integerPrimitiveTypeHandler.parseObject(null);
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        Object value = integerPrimitiveHandler.parseObject(null);
 
         assertEquals(0, value);
     }
@@ -68,23 +67,23 @@ public class IntegerPrimitiveTypeHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.INT, integerPrimitiveTypeHandler.getTypeInformation());
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        assertEquals(Types.INT, integerPrimitiveHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.PRIMITIVE_ARRAY(Types.INT), integerPrimitiveTypeHandler.getArrayType());
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        assertEquals(Types.PRIMITIVE_ARRAY(Types.INT), integerPrimitiveHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
         ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
-        Object actualValues = integerPrimitiveTypeHandler.getArray(inputValues);
+        Object actualValues = integerPrimitiveHandler.getArray(inputValues);
 
         assertArrayEquals(new int[]{1, 2, 3}, (int[]) actualValues);
     }
@@ -92,8 +91,8 @@ public class IntegerPrimitiveTypeHandlerTest {
     @Test
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
-        IntegerPrimitiveTypeHandler integerPrimitiveTypeHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
-        Object actualValues = integerPrimitiveTypeHandler.getArray(null);
+        IntegerPrimitiveHandler integerPrimitiveHandler = new IntegerPrimitiveHandler(fieldDescriptor);
+        Object actualValues = integerPrimitiveHandler.getArray(null);
 
         assertEquals(0, ((int[]) actualValues).length);
     }
@@ -108,7 +107,7 @@ public class IntegerPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("cancel_reason_id", 34);
 
-        IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        IntegerPrimitiveHandler integerHandler = new IntegerPrimitiveHandler(fieldDescriptor);
         Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(34, actualValue);
@@ -122,7 +121,7 @@ public class IntegerPrimitiveTypeHandlerTest {
                 .required(INT32).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        IntegerPrimitiveHandler integerHandler = new IntegerPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
@@ -138,7 +137,7 @@ public class IntegerPrimitiveTypeHandlerTest {
                 .required(INT32).named("cancel_reason_id")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        IntegerPrimitiveTypeHandler integerHandler = new IntegerPrimitiveTypeHandler(fieldDescriptor);
+        IntegerPrimitiveHandler integerHandler = new IntegerPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 

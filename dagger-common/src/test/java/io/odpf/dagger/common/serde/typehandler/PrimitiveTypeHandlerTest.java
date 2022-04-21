@@ -1,7 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler;
 
 import com.google.protobuf.ByteString;
-import io.odpf.dagger.common.serde.typehandler.PrimitiveProtoHandler;
 import io.odpf.dagger.consumer.TestMessageEnvelope;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -18,33 +17,33 @@ import org.junit.Test;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.junit.Assert.*;
 
-public class PrimitiveProtoHandlerTest {
+public class PrimitiveTypeHandlerTest {
 
     @Test
     public void shouldReturnTrueForAnyDataType() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
 
-        assertTrue(primitiveProtoHandler.canHandle());
+        assertTrue(primitiveTypeHandler.canHandle());
     }
 
     @Test
     public void shouldReturnSameBuilderWithoutSettingFieldIfNullFieldIsPassed() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformToProtoBuilder(builder, null);
+        DynamicMessage.Builder returnedBuilder = primitiveTypeHandler.transformToProtoBuilder(builder, null);
         assertEquals("", returnedBuilder.getField(fieldDescriptor));
     }
 
     @Test
     public void shouldSetFieldPassedInTheBuilder() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = primitiveProtoHandler.transformToProtoBuilder(builder, "123");
+        DynamicMessage.Builder returnedBuilder = primitiveTypeHandler.transformToProtoBuilder(builder, "123");
         assertEquals("123", returnedBuilder.getField(fieldDescriptor));
     }
 
@@ -52,45 +51,45 @@ public class PrimitiveProtoHandlerTest {
     public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor(1));
+        assertEquals(1, primitiveTypeHandler.transformFromPostProcessor(1));
     }
 
     @Test
     public void shouldReturnIntegerValueForIntegerTypeFieldDescriptorIfIntegerIsPassedAsStringForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("cancel_reason_id");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
 
-        assertEquals(1, primitiveProtoHandler.transformFromPostProcessor("1"));
+        assertEquals(1, primitiveTypeHandler.transformFromPostProcessor("1"));
     }
 
     @Test
     public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor("123"));
+        assertEquals("123", primitiveTypeHandler.transformFromPostProcessor("123"));
     }
 
     @Test
     public void shouldReturnStringValueForStringTypeFieldDescriptorIfStringIsNotPassedForPostProcessorTransform() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);
 
-        assertEquals("123", primitiveProtoHandler.transformFromPostProcessor(123));
+        assertEquals("123", primitiveTypeHandler.transformFromPostProcessor(123));
     }
 
     @Test
     public void shouldThrowInvalidDataTypeExceptionInCaseOfTypeMismatchForPostProcessorTransform() {
         Descriptors.FieldDescriptor floatFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("total_customer_discount");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(floatFieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(floatFieldDescriptor);
 
         InvalidDataTypeException exception = Assert.assertThrows(InvalidDataTypeException.class,
-                () -> primitiveProtoHandler.transformFromPostProcessor("stringValue"));
+                () -> primitiveTypeHandler.transformFromPostProcessor("stringValue"));
         assertEquals("type mismatch of field: total_customer_discount, expecting FLOAT type, actual type class java.lang.String", exception.getMessage());
     }
 
@@ -98,24 +97,24 @@ public class PrimitiveProtoHandlerTest {
     public void shouldReturnSameValueForTransformFromKafka() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);
 
-        assertEquals(123, primitiveProtoHandler.transformFromProto(123));
-        assertEquals("123", primitiveProtoHandler.transformFromProto("123"));
+        assertEquals(123, primitiveTypeHandler.transformFromProto(123));
+        assertEquals("123", primitiveTypeHandler.transformFromProto("123"));
     }
 
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(stringFieldDescriptor);
-        assertEquals(Types.STRING, primitiveProtoHandler.getTypeInformation());
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);
+        assertEquals(Types.STRING, primitiveTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldConvertPrimitiveStringToJsonString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        Object value = new PrimitiveProtoHandler(fieldDescriptor).transformToJson("123");
+        Object value = new PrimitiveTypeHandler(fieldDescriptor).transformToJson("123");
 
         assertEquals("123", value);
     }
@@ -130,9 +129,9 @@ public class PrimitiveProtoHandlerTest {
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
-        PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
 
-        ByteString actualByteString = (ByteString) primitiveProtoHandler.transformFromParquet(simpleGroup);
+        ByteString actualByteString = (ByteString) primitiveTypeHandler.transformFromParquet(simpleGroup);
 
         assertEquals(expectedByteString, actualByteString);
     }

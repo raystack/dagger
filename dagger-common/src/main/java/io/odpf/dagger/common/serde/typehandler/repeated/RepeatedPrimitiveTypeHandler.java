@@ -1,11 +1,11 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
-import io.odpf.dagger.common.serde.typehandler.PrimitiveProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.PrimitiveTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
-import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveTypeHandlerFactory;
-import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveHandler;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -21,7 +21,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 /**
  * The type Repeated primitive proto handler.
  */
-public class RepeatedPrimitiveTypeHandler implements ProtoHandler {
+public class RepeatedPrimitiveTypeHandler implements TypeHandler {
     private final FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 
@@ -55,9 +55,9 @@ public class RepeatedPrimitiveTypeHandler implements ProtoHandler {
         ArrayList<Object> outputValues = new ArrayList<>();
         if (field != null) {
             List<Object> inputValues = (List<Object>) field;
-            PrimitiveProtoHandler primitiveProtoHandler = new PrimitiveProtoHandler(fieldDescriptor);
+            PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(fieldDescriptor);
             for (Object inputField : inputValues) {
-                outputValues.add(primitiveProtoHandler.transformFromPostProcessor(inputField));
+                outputValues.add(primitiveTypeHandler.transformFromPostProcessor(inputField));
             }
         }
         return outputValues;
@@ -65,8 +65,8 @@ public class RepeatedPrimitiveTypeHandler implements ProtoHandler {
 
     @Override
     public Object transformFromProto(Object field) {
-        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveTypeHandler.getArray(field);
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.getArray(field);
     }
 
     @Override
@@ -81,6 +81,6 @@ public class RepeatedPrimitiveTypeHandler implements ProtoHandler {
 
     @Override
     public TypeInformation getTypeInformation() {
-        return PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor).getArrayType();
+        return PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor).getArrayType();
     }
 }

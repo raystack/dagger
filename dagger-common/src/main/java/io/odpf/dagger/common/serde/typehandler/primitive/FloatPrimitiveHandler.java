@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * The type Float primitive type handler.
  */
-public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
+public class FloatPrimitiveHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
@@ -21,7 +21,7 @@ public class FloatPrimitiveTypeHandler implements PrimitiveTypeHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public FloatPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public FloatPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 

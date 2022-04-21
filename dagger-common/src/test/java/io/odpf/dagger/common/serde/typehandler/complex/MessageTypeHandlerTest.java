@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -101,7 +101,7 @@ public class MessageTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
+        Row value = (Row) TypeHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -115,7 +115,7 @@ public class MessageTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
+        Row value = (Row) TypeHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(inputValues);
 
         assertEquals("test1", value.getField(0));
         assertEquals(null, value.getField(1));
@@ -129,7 +129,7 @@ public class MessageTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) ProtoHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(null);
+        Row value = (Row) TypeHandlerFactory.getProtoHandler(fieldDescriptor).transformFromPostProcessor(null);
 
         assertEquals(2, value.getArity());
         assertEquals(null, value.getField(0));

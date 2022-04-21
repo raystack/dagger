@@ -28,9 +28,9 @@ public class RowFactory {
             return row;
         }
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
-            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+            TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
             if (inputMap.get(fieldDescriptor.getName()) != null) {
-                row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromPostProcessor(inputMap.get(fieldDescriptor.getName())));
+                row.setField(fieldDescriptor.getIndex(), typeHandler.transformFromPostProcessor(inputMap.get(fieldDescriptor.getName())));
             }
         }
         return row;
@@ -47,8 +47,8 @@ public class RowFactory {
         List<FieldDescriptor> descriptorFields = proto.getDescriptorForType().getFields();
         Row row = new Row(descriptorFields.size() + extraColumns);
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
-            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromProto(proto.getField(fieldDescriptor)));
+            TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+            row.setField(fieldDescriptor.getIndex(), typeHandler.transformFromProto(proto.getField(fieldDescriptor)));
         }
         return row;
     }
@@ -57,8 +57,8 @@ public class RowFactory {
         List<FieldDescriptor> descriptorFields = descriptor.getFields();
         Row row = new Row(descriptorFields.size() + extraColumns);
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
-            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromParquet(simpleGroup));
+            TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+            row.setField(fieldDescriptor.getIndex(), typeHandler.transformFromParquet(simpleGroup));
         }
         return row;
     }

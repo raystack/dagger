@@ -1,38 +1,38 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
+import com.google.common.primitives.Booleans;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
-import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type Long primitive type handler.
+ * The type Boolean primitive type handler.
  */
-public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
+public class BooleanPrimitiveHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Long primitive type handler.
+     * Instantiates a new Boolean primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public LongPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public BooleanPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.LONG;
+        return fieldDescriptor.getJavaType() == JavaType.BOOLEAN;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return Long.parseLong(getValueOrDefault(field, "0"));
+        return Boolean.parseBoolean(getValueOrDefault(field, "false"));
     }
 
     @Override
@@ -41,29 +41,29 @@ public class LongPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getLong(fieldName, 0);
+            return simpleGroup.getBoolean(fieldName, 0);
         } else {
             /* return default value */
-            return 0L;
+            return false;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        List<Long> inputValues = new ArrayList<>();
+        boolean[] inputValues = new boolean[0];
         if (field != null) {
-            inputValues = (List<Long>) field;
+            inputValues = Booleans.toArray((List<Boolean>) field);
         }
-        return inputValues.toArray(new Long[]{});
+        return inputValues;
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.LONG;
+        return Types.BOOLEAN;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.OBJECT_ARRAY(Types.LONG);
+        return Types.PRIMITIVE_ARRAY(Types.BOOLEAN);
     }
 }

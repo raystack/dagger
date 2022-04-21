@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -180,9 +180,9 @@ public class TimestampTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transformFromPostProcessor(strValue);
+        Object value = typeHandler.transformFromPostProcessor(strValue);
         assertEquals(strValue, value);
     }
 
@@ -191,9 +191,9 @@ public class TimestampTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transformFromPostProcessor(null);
+        Object value = typeHandler.transformFromPostProcessor(null);
         assertNull(value);
     }
 
@@ -202,9 +202,9 @@ public class TimestampTypeHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
-        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
 
-        Object value = protoHandler.transformFromPostProcessor("2");
+        Object value = typeHandler.transformFromPostProcessor("2");
 
         assertNull(value);
     }

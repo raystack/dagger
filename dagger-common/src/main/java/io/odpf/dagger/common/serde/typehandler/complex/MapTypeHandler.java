@@ -4,7 +4,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.WireFormat;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 /**
  * The type Map proto handler.
  */
-public class MapTypeHandler implements ProtoHandler {
+public class MapTypeHandler implements TypeHandler {
 
     private Descriptors.FieldDescriptor fieldDescriptor;
 

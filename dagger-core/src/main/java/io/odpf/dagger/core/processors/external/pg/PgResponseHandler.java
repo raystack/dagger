@@ -6,8 +6,8 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.vertx.core.AsyncResult;
@@ -142,8 +142,8 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
             if (value instanceof Map) {
                 rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
             } else {
-                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-                rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+                rowManager.setInOutput(index, typeHandler.transformFromPostProcessor(value));
             }
         } else {
             rowManager.setInOutput(index, value);

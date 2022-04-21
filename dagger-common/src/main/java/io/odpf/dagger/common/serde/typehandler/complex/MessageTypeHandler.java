@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -21,7 +21,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 /**
  * The type Message proto handler.
  */
-public class MessageTypeHandler implements ProtoHandler {
+public class MessageTypeHandler implements TypeHandler {
     private FieldDescriptor fieldDescriptor;
     private JsonRowSerializationSchema jsonRowSerializationSchema;
 
@@ -52,9 +52,9 @@ public class MessageTypeHandler implements ProtoHandler {
         for (FieldDescriptor nestedFieldDescriptor : nestedFieldDescriptors) {
             int index = nestedFieldDescriptor.getIndex();
             if (index < rowElement.getArity()) {
-                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(nestedFieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
-                    protoHandler.transformToProtoBuilder(elementBuilder, rowElement.getField(index));
+                    typeHandler.transformToProtoBuilder(elementBuilder, rowElement.getField(index));
                 }
             }
         }

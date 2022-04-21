@@ -1,7 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -13,7 +13,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The type Enum proto handler.
  */
-public class EnumTypeHandler implements ProtoHandler {
+public class EnumTypeHandler implements TypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**

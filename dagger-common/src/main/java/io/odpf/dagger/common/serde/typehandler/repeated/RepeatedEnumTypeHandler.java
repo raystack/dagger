@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -19,7 +19,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM;
 /**
  * The type Repeated enum proto handler.
  */
-public class RepeatedEnumTypeHandler implements ProtoHandler {
+public class RepeatedEnumTypeHandler implements TypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
     private static final Gson GSON = new Gson();
 

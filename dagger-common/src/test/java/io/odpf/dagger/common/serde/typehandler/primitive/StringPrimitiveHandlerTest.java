@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import io.odpf.dagger.common.serde.typehandler.primitive.StringPrimitiveTypeHandler;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 
@@ -19,20 +18,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StringPrimitiveTypeHandlerTest {
+public class StringPrimitiveHandlerTest {
 
     @Test
     public void shouldHandleStringTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        assertTrue(stringPrimitiveTypeHandler.canHandle());
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        assertTrue(stringPrimitiveHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        assertFalse(stringPrimitiveTypeHandler.canHandle());
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        assertFalse(stringPrimitiveHandler.canHandle());
     }
 
     @Test
@@ -40,8 +39,8 @@ public class StringPrimitiveTypeHandlerTest {
         String actualValue = "test";
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        Object value = stringPrimitiveTypeHandler.parseObject(actualValue);
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        Object value = stringPrimitiveHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -51,8 +50,8 @@ public class StringPrimitiveTypeHandlerTest {
         Integer actualValue = 23;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        Object value = stringPrimitiveTypeHandler.parseObject(actualValue);
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        Object value = stringPrimitiveHandler.parseObject(actualValue);
 
         assertEquals("23", value);
     }
@@ -60,8 +59,8 @@ public class StringPrimitiveTypeHandlerTest {
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        Object value = stringPrimitiveTypeHandler.parseObject(null);
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        Object value = stringPrimitiveHandler.parseObject(null);
 
         assertEquals("", value);
     }
@@ -69,31 +68,31 @@ public class StringPrimitiveTypeHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.STRING, stringPrimitiveTypeHandler.getTypeInformation());
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        assertEquals(Types.STRING, stringPrimitiveHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(ObjectArrayTypeInfo.getInfoFor(Types.STRING), stringPrimitiveTypeHandler.getArrayType());
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        assertEquals(ObjectArrayTypeInfo.getInfoFor(Types.STRING), stringPrimitiveHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
         ArrayList<String> inputValues = new ArrayList<>(Arrays.asList("1", "2", "3"));
-        Object actualValues = stringPrimitiveTypeHandler.getArray(inputValues);
+        Object actualValues = stringPrimitiveHandler.getArray(inputValues);
         assertArrayEquals(inputValues.toArray(), (String[]) actualValues);
     }
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveTypeHandler stringPrimitiveTypeHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
-        Object actualValues = stringPrimitiveTypeHandler.getArray(null);
+        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        Object actualValues = stringPrimitiveHandler.getArray(null);
         assertEquals(0, ((String[]) actualValues).length);
     }
 
@@ -105,7 +104,7 @@ public class StringPrimitiveTypeHandlerTest {
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("order_number", "some-value");
-        StringPrimitiveTypeHandler stringHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 
@@ -119,7 +118,7 @@ public class StringPrimitiveTypeHandlerTest {
                 .required(BINARY).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        StringPrimitiveTypeHandler stringHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 
@@ -134,7 +133,7 @@ public class StringPrimitiveTypeHandlerTest {
                 .required(BINARY).named("order_number")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        StringPrimitiveTypeHandler stringHandler = new StringPrimitiveTypeHandler(fieldDescriptor);
+        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 

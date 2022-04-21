@@ -1,38 +1,40 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import com.google.common.primitives.Ints;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type Integer primitive type handler.
+ * The type Byte string primitive type handler.
  */
-public class IntegerPrimitiveTypeHandler implements PrimitiveTypeHandler {
+public class ByteStringPrimitiveHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Integer primitive type handler.
+     * Instantiates a new Byte string primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public IntegerPrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public ByteStringPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.INT;
+        return fieldDescriptor.getJavaType() == JavaType.BYTE_STRING;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return Integer.parseInt(getValueOrDefault(field, "0"));
+        return field;
     }
 
     @Override
@@ -41,29 +43,29 @@ public class IntegerPrimitiveTypeHandler implements PrimitiveTypeHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getInteger(fieldName, 0);
+            byte[] byteArray = simpleGroup.getBinary(fieldName, 0).getBytes();
+            return ByteString.copyFrom(byteArray);
         } else {
-            /* return default value */
-            return 0;
+            return null;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        int[] inputValues = new int[0];
+        List<ByteString> inputValues = new ArrayList<>();
         if (field != null) {
-            inputValues = Ints.toArray((List<Integer>) field);
+            inputValues = (List<ByteString>) field;
         }
-        return inputValues;
+        return inputValues.toArray(new ByteString[]{});
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.INT;
+        return TypeInformation.of(ByteString.class);
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.PRIMITIVE_ARRAY(Types.INT);
+        return Types.OBJECT_ARRAY(TypeInformation.of(ByteString.class));
     }
 }

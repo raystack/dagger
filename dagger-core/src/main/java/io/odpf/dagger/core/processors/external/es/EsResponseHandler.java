@@ -7,8 +7,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.exception.HttpFailureException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
@@ -152,8 +152,8 @@ public class EsResponseHandler implements ResponseListener {
             if (value instanceof Map) {
                 rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
             } else {
-                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-                rowManager.setInOutput(index, protoHandler.transformFromPostProcessor(value));
+                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+                rowManager.setInOutput(index, typeHandler.transformFromPostProcessor(value));
             }
         } else {
             rowManager.setInOutput(index, value);

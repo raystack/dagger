@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The factory class for Proto handler.
  */
-public class ProtoHandlerFactory {
-    private static Map<String, ProtoHandler> protoHandlerMap = new ConcurrentHashMap<>();
+public class TypeHandlerFactory {
+    private static Map<String, TypeHandler> protoHandlerMap = new ConcurrentHashMap<>();
 
     /**
      * Gets proto handler.
@@ -28,10 +28,10 @@ public class ProtoHandlerFactory {
      * @param fieldDescriptor the field descriptor
      * @return the proto handler
      */
-    public static ProtoHandler getProtoHandler(final Descriptors.FieldDescriptor fieldDescriptor) {
+    public static TypeHandler getProtoHandler(final Descriptors.FieldDescriptor fieldDescriptor) {
         return protoHandlerMap.computeIfAbsent(fieldDescriptor.getFullName(),
-                k -> getSpecificHandlers(fieldDescriptor).stream().filter(ProtoHandler::canHandle)
-                        .findFirst().orElseGet(() -> new PrimitiveProtoHandler(fieldDescriptor)));
+                k -> getSpecificHandlers(fieldDescriptor).stream().filter(TypeHandler::canHandle)
+                        .findFirst().orElseGet(() -> new PrimitiveTypeHandler(fieldDescriptor)));
     }
 
     /**
@@ -41,7 +41,7 @@ public class ProtoHandlerFactory {
         protoHandlerMap.clear();
     }
 
-    private static List<ProtoHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
+    private static List<TypeHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
         return Arrays.asList(
                 new MapTypeHandler(fieldDescriptor),
                 new TimestampTypeHandler(fieldDescriptor),

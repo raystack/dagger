@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -11,7 +11,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The type Struct message proto handler.
  */
-public class StructMessageTypeHandler implements ProtoHandler {
+public class StructMessageTypeHandler implements TypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**

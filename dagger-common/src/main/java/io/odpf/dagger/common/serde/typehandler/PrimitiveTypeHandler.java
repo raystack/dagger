@@ -3,8 +3,8 @@ package io.odpf.dagger.common.serde.typehandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
-import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveTypeHandlerFactory;
-import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.primitive.PrimitiveHandler;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.parquet.example.data.simple.SimpleGroup;
@@ -12,7 +12,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The type Primitive proto handler.
  */
-public class PrimitiveProtoHandler implements ProtoHandler {
+public class PrimitiveTypeHandler implements TypeHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
@@ -20,7 +20,7 @@ public class PrimitiveProtoHandler implements ProtoHandler {
      *
      * @param fieldDescriptor the field descriptor
      */
-    public PrimitiveProtoHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public PrimitiveTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
@@ -40,9 +40,9 @@ public class PrimitiveProtoHandler implements ProtoHandler {
     }
 
     private Object transform(Object field) {
-        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
         try {
-            return primitiveTypeHandler.parseObject(field);
+            return primitiveHandler.parseObject(field);
         } catch (NumberFormatException e) {
             String errMessage = String.format("type mismatch of field: %s, expecting %s type, actual type %s", fieldDescriptor.getName(), fieldDescriptor.getType(), field.getClass());
             throw new InvalidDataTypeException(errMessage);
@@ -56,8 +56,8 @@ public class PrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveTypeHandler.parseSimpleGroup(simpleGroup);
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.parseSimpleGroup(simpleGroup);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class PrimitiveProtoHandler implements ProtoHandler {
 
     @Override
     public TypeInformation getTypeInformation() {
-        PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveTypeHandler.getTypeInformation();
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.getTypeInformation();
     }
 
 }

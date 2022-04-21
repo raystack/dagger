@@ -2,7 +2,7 @@ package io.odpf.dagger.common.serde.typehandler.complex;
 
 import com.google.protobuf.Timestamp;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
-import io.odpf.dagger.common.serde.typehandler.ProtoHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -22,7 +22,7 @@ import java.util.TimeZone;
 /**
  * The type Timestamp proto handler.
  */
-public class TimestampTypeHandler implements ProtoHandler {
+public class TimestampTypeHandler implements TypeHandler {
     private static final int SECOND_TO_MS_FACTOR = 1000;
     private static final long DEFAULT_SECONDS_VALUE = 0L;
     private static final int DEFAULT_NANOS_VALUE = 0;

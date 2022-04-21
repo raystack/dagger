@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import io.odpf.dagger.common.serde.typehandler.primitive.BooleanPrimitiveTypeHandler;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
@@ -18,19 +17,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BooleanPrimitiveTypeHandlerTest {
+public class BooleanPrimitiveHandlerTest {
     @Test
     public void shouldHandleBooleanTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        assertTrue(booleanPrimitiveTypeHandler.canHandle());
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        assertTrue(booleanPrimitiveHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanBoolean() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        assertFalse(booleanPrimitiveTypeHandler.canHandle());
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        assertFalse(booleanPrimitiveHandler.canHandle());
     }
 
     @Test
@@ -38,8 +37,8 @@ public class BooleanPrimitiveTypeHandlerTest {
         boolean actualValue = true;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.parseObject(actualValue);
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        Object value = booleanPrimitiveHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -50,8 +49,8 @@ public class BooleanPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        Object value = booleanPrimitiveHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -60,8 +59,8 @@ public class BooleanPrimitiveTypeHandlerTest {
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeBool() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object value = booleanPrimitiveTypeHandler.parseObject(null);
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        Object value = booleanPrimitiveHandler.parseObject(null);
 
         assertEquals(false, value);
     }
@@ -70,24 +69,24 @@ public class BooleanPrimitiveTypeHandlerTest {
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.BOOLEAN, booleanPrimitiveTypeHandler.getTypeInformation());
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        assertEquals(Types.BOOLEAN, booleanPrimitiveHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        assertEquals(Types.PRIMITIVE_ARRAY(Types.BOOLEAN), booleanPrimitiveTypeHandler.getArrayType());
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        assertEquals(Types.PRIMITIVE_ARRAY(Types.BOOLEAN), booleanPrimitiveHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
         ArrayList<Boolean> inputValues = new ArrayList<>(Arrays.asList(true, false, false));
-        Object actualValues = booleanPrimitiveTypeHandler.getArray(inputValues);
+        Object actualValues = booleanPrimitiveHandler.getArray(inputValues);
 
         assertArrayEquals(new boolean[]{true, false, false}, (boolean[]) actualValues);
     }
@@ -96,8 +95,8 @@ public class BooleanPrimitiveTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
-        BooleanPrimitiveTypeHandler booleanPrimitiveTypeHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
-        Object actualValues = booleanPrimitiveTypeHandler.getArray(null);
+        BooleanPrimitiveHandler booleanPrimitiveHandler = new BooleanPrimitiveHandler(fieldDescriptor);
+        Object actualValues = booleanPrimitiveHandler.getArray(null);
 
         assertEquals(0, ((boolean[]) actualValues).length);
     }
@@ -111,7 +110,7 @@ public class BooleanPrimitiveTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("customer_dynamic_surge_enabled", true);
 
-        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        BooleanPrimitiveHandler booleanHandler = new BooleanPrimitiveHandler(fieldDescriptor);
         Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(true, actualValue);
@@ -124,7 +123,7 @@ public class BooleanPrimitiveTypeHandlerTest {
                 .required(BOOLEAN).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        BooleanPrimitiveHandler booleanHandler = new BooleanPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
@@ -139,7 +138,7 @@ public class BooleanPrimitiveTypeHandlerTest {
                 .required(BOOLEAN).named("customer_dynamic_surge_enabled")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        BooleanPrimitiveTypeHandler booleanHandler = new BooleanPrimitiveTypeHandler(fieldDescriptor);
+        BooleanPrimitiveHandler booleanHandler = new BooleanPrimitiveHandler(fieldDescriptor);
 
         Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
