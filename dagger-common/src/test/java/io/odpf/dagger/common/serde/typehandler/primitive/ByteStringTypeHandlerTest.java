@@ -17,19 +17,19 @@ import java.util.Arrays;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.junit.Assert.*;
 
-public class ByteStringPrimitiveHandlerTest {
+public class ByteStringTypeHandlerTest {
     @Test
     public void shouldHandleByteStringTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        assertTrue(byteStringPrimitiveHandler.canHandle());
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        assertTrue(byteStringTypeHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanByteString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("topic");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        assertFalse(byteStringPrimitiveHandler.canHandle());
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        assertFalse(byteStringTypeHandler.canHandle());
     }
 
     @Test
@@ -37,8 +37,8 @@ public class ByteStringPrimitiveHandlerTest {
         ByteString actualValue = ByteString.copyFromUtf8("test");
 
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        Object value = byteStringPrimitiveHandler.parseObject(actualValue);
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        Object value = byteStringTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -46,31 +46,31 @@ public class ByteStringPrimitiveHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        assertEquals(TypeInformation.of(ByteString.class), byteStringPrimitiveHandler.getTypeInformation());
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        assertEquals(TypeInformation.of(ByteString.class), byteStringTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        assertEquals(Types.OBJECT_ARRAY(TypeInformation.of(ByteString.class)), byteStringPrimitiveHandler.getArrayType());
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        assertEquals(Types.OBJECT_ARRAY(TypeInformation.of(ByteString.class)), byteStringTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
         ArrayList<ByteString> inputValues = new ArrayList<>(Arrays.asList(ByteString.copyFromUtf8("test1"), ByteString.copyFromUtf8("test2")));
-        Object actualValues = byteStringPrimitiveHandler.getArray(inputValues);
+        Object actualValues = byteStringTypeHandler.getArray(inputValues);
         assertArrayEquals(inputValues.toArray(), (ByteString[]) actualValues);
     }
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
-        ByteStringPrimitiveHandler byteStringPrimitiveHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
-        Object actualValues = byteStringPrimitiveHandler.getArray(null);
+        ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
+        Object actualValues = byteStringTypeHandler.getArray(null);
         assertEquals(0, ((ByteString[]) actualValues).length);
     }
 
@@ -84,7 +84,7 @@ public class ByteStringPrimitiveHandlerTest {
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
-        ByteStringPrimitiveHandler byteStringHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
+        ByteStringTypeHandler byteStringHandler = new ByteStringTypeHandler(fieldDescriptor);
 
         Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
@@ -98,7 +98,7 @@ public class ByteStringPrimitiveHandlerTest {
                 .required(BINARY).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        ByteStringPrimitiveHandler byteStringHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
+        ByteStringTypeHandler byteStringHandler = new ByteStringTypeHandler(fieldDescriptor);
 
         Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
@@ -113,7 +113,7 @@ public class ByteStringPrimitiveHandlerTest {
                 .required(BINARY).named("log_key")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        ByteStringPrimitiveHandler byteStringHandler = new ByteStringPrimitiveHandler(fieldDescriptor);
+        ByteStringTypeHandler byteStringHandler = new ByteStringTypeHandler(fieldDescriptor);
 
         Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 

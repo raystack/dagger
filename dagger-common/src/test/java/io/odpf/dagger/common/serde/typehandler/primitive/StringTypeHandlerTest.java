@@ -18,20 +18,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StringPrimitiveHandlerTest {
+public class StringTypeHandlerTest {
 
     @Test
     public void shouldHandleStringTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        assertTrue(stringPrimitiveHandler.canHandle());
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        assertTrue(stringTypeHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        assertFalse(stringPrimitiveHandler.canHandle());
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        assertFalse(stringTypeHandler.canHandle());
     }
 
     @Test
@@ -39,8 +39,8 @@ public class StringPrimitiveHandlerTest {
         String actualValue = "test";
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        Object value = stringPrimitiveHandler.parseObject(actualValue);
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        Object value = stringTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -50,8 +50,8 @@ public class StringPrimitiveHandlerTest {
         Integer actualValue = 23;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        Object value = stringPrimitiveHandler.parseObject(actualValue);
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        Object value = stringTypeHandler.parseObject(actualValue);
 
         assertEquals("23", value);
     }
@@ -59,8 +59,8 @@ public class StringPrimitiveHandlerTest {
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeString() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        Object value = stringPrimitiveHandler.parseObject(null);
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        Object value = stringTypeHandler.parseObject(null);
 
         assertEquals("", value);
     }
@@ -68,31 +68,31 @@ public class StringPrimitiveHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        assertEquals(Types.STRING, stringPrimitiveHandler.getTypeInformation());
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        assertEquals(Types.STRING, stringTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        assertEquals(ObjectArrayTypeInfo.getInfoFor(Types.STRING), stringPrimitiveHandler.getArrayType());
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        assertEquals(ObjectArrayTypeInfo.getInfoFor(Types.STRING), stringTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
         ArrayList<String> inputValues = new ArrayList<>(Arrays.asList("1", "2", "3"));
-        Object actualValues = stringPrimitiveHandler.getArray(inputValues);
+        Object actualValues = stringTypeHandler.getArray(inputValues);
         assertArrayEquals(inputValues.toArray(), (String[]) actualValues);
     }
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        StringPrimitiveHandler stringPrimitiveHandler = new StringPrimitiveHandler(fieldDescriptor);
-        Object actualValues = stringPrimitiveHandler.getArray(null);
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        Object actualValues = stringTypeHandler.getArray(null);
         assertEquals(0, ((String[]) actualValues).length);
     }
 
@@ -104,7 +104,7 @@ public class StringPrimitiveHandlerTest {
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("order_number", "some-value");
-        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
+        StringTypeHandler stringHandler = new StringTypeHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 
@@ -118,7 +118,7 @@ public class StringPrimitiveHandlerTest {
                 .required(BINARY).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
+        StringTypeHandler stringHandler = new StringTypeHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 
@@ -133,7 +133,7 @@ public class StringPrimitiveHandlerTest {
                 .required(BINARY).named("order_number")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        StringPrimitiveHandler stringHandler = new StringPrimitiveHandler(fieldDescriptor);
+        StringTypeHandler stringHandler = new StringTypeHandler(fieldDescriptor);
 
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 

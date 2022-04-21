@@ -1,6 +1,5 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import com.google.common.primitives.Doubles;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
@@ -8,31 +7,32 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type Double primitive type handler.
+ * The type Long primitive type handler.
  */
-public class DoublePrimitiveHandler implements PrimitiveHandler {
+public class LongTypeHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Double primitive type handler.
+     * Instantiates a new Long primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public DoublePrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public LongTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.DOUBLE;
+        return fieldDescriptor.getJavaType() == JavaType.LONG;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return Double.parseDouble(getValueOrDefault(field, "0"));
+        return Long.parseLong(getValueOrDefault(field, "0"));
     }
 
     @Override
@@ -41,29 +41,29 @@ public class DoublePrimitiveHandler implements PrimitiveHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getDouble(fieldName, 0);
+            return simpleGroup.getLong(fieldName, 0);
         } else {
             /* return default value */
-            return 0.0D;
+            return 0L;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        double[] inputValues = new double[0];
+        List<Long> inputValues = new ArrayList<>();
         if (field != null) {
-            inputValues = Doubles.toArray((List<Double>) field);
+            inputValues = (List<Long>) field;
         }
-        return inputValues;
+        return inputValues.toArray(new Long[]{});
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.DOUBLE;
+        return Types.LONG;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.PRIMITIVE_ARRAY(Types.DOUBLE);
+        return Types.OBJECT_ARRAY(Types.LONG);
     }
 }

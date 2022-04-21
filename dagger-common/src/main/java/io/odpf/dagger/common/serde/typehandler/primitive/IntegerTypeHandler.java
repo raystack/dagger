@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
@@ -11,28 +11,28 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import java.util.List;
 
 /**
- * The type Float primitive type handler.
+ * The type Integer primitive type handler.
  */
-public class FloatPrimitiveHandler implements PrimitiveHandler {
+public class IntegerTypeHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Float primitive type handler.
+     * Instantiates a new Integer primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public FloatPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public IntegerTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.FLOAT;
+        return fieldDescriptor.getJavaType() == JavaType.INT;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return Float.parseFloat(getValueOrDefault(field, "0"));
+        return Integer.parseInt(getValueOrDefault(field, "0"));
     }
 
     @Override
@@ -41,30 +41,29 @@ public class FloatPrimitiveHandler implements PrimitiveHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getFloat(fieldName, 0);
+            return simpleGroup.getInteger(fieldName, 0);
         } else {
             /* return default value */
-            return 0.0F;
+            return 0;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-
-        float[] inputValues = new float[0];
+        int[] inputValues = new int[0];
         if (field != null) {
-            inputValues = Floats.toArray((List<Float>) field);
+            inputValues = Ints.toArray((List<Integer>) field);
         }
         return inputValues;
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.FLOAT;
+        return Types.INT;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.PRIMITIVE_ARRAY(Types.FLOAT);
+        return Types.PRIMITIVE_ARRAY(Types.INT);
     }
 }

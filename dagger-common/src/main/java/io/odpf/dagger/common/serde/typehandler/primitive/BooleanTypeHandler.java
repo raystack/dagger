@@ -1,40 +1,38 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-
-import com.google.protobuf.ByteString;
+import com.google.common.primitives.Booleans;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type Byte string primitive type handler.
+ * The type Boolean primitive type handler.
  */
-public class ByteStringPrimitiveHandler implements PrimitiveHandler {
+public class BooleanTypeHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Byte string primitive type handler.
+     * Instantiates a new Boolean primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public ByteStringPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public BooleanTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.BYTE_STRING;
+        return fieldDescriptor.getJavaType() == JavaType.BOOLEAN;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return field;
+        return Boolean.parseBoolean(getValueOrDefault(field, "false"));
     }
 
     @Override
@@ -43,29 +41,29 @@ public class ByteStringPrimitiveHandler implements PrimitiveHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            byte[] byteArray = simpleGroup.getBinary(fieldName, 0).getBytes();
-            return ByteString.copyFrom(byteArray);
+            return simpleGroup.getBoolean(fieldName, 0);
         } else {
-            return null;
+            /* return default value */
+            return false;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        List<ByteString> inputValues = new ArrayList<>();
+        boolean[] inputValues = new boolean[0];
         if (field != null) {
-            inputValues = (List<ByteString>) field;
+            inputValues = Booleans.toArray((List<Boolean>) field);
         }
-        return inputValues.toArray(new ByteString[]{});
+        return inputValues;
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return TypeInformation.of(ByteString.class);
+        return Types.BOOLEAN;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.OBJECT_ARRAY(TypeInformation.of(ByteString.class));
+        return Types.PRIMITIVE_ARRAY(Types.BOOLEAN);
     }
 }

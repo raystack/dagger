@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
-import com.google.common.primitives.Ints;
+import com.google.common.primitives.Doubles;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
@@ -11,28 +11,28 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import java.util.List;
 
 /**
- * The type Integer primitive type handler.
+ * The type Double primitive type handler.
  */
-public class IntegerPrimitiveHandler implements PrimitiveHandler {
+public class DoubleTypeHandler implements PrimitiveHandler {
     private Descriptors.FieldDescriptor fieldDescriptor;
 
     /**
-     * Instantiates a new Integer primitive type handler.
+     * Instantiates a new Double primitive type handler.
      *
      * @param fieldDescriptor the field descriptor
      */
-    public IntegerPrimitiveHandler(Descriptors.FieldDescriptor fieldDescriptor) {
+    public DoubleTypeHandler(Descriptors.FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
     }
 
     @Override
     public boolean canHandle() {
-        return fieldDescriptor.getJavaType() == JavaType.INT;
+        return fieldDescriptor.getJavaType() == JavaType.DOUBLE;
     }
 
     @Override
     public Object parseObject(Object field) {
-        return Integer.parseInt(getValueOrDefault(field, "0"));
+        return Double.parseDouble(getValueOrDefault(field, "0"));
     }
 
     @Override
@@ -41,29 +41,29 @@ public class IntegerPrimitiveHandler implements PrimitiveHandler {
 
         /* this if branch checks that the field name exists in the simple group schema and is initialized */
         if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            return simpleGroup.getInteger(fieldName, 0);
+            return simpleGroup.getDouble(fieldName, 0);
         } else {
             /* return default value */
-            return 0;
+            return 0.0D;
         }
     }
 
     @Override
     public Object getArray(Object field) {
-        int[] inputValues = new int[0];
+        double[] inputValues = new double[0];
         if (field != null) {
-            inputValues = Ints.toArray((List<Integer>) field);
+            inputValues = Doubles.toArray((List<Double>) field);
         }
         return inputValues;
     }
 
     @Override
     public TypeInformation getTypeInformation() {
-        return Types.INT;
+        return Types.DOUBLE;
     }
 
     @Override
     public TypeInformation getArrayType() {
-        return Types.PRIMITIVE_ARRAY(Types.INT);
+        return Types.PRIMITIVE_ARRAY(Types.DOUBLE);
     }
 }

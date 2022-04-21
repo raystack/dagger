@@ -17,20 +17,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class LongPrimitiveHandlerTest {
+public class LongTypeHandlerTest {
 
     @Test
     public void shouldHandleLongTypes() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        assertTrue(longPrimitiveHandler.canHandle());
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        assertTrue(longTypeHandler.canHandle());
     }
 
     @Test
     public void shouldNotHandleTypesOtherThanLong() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("vehicle_type");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        assertFalse(longPrimitiveHandler.canHandle());
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        assertFalse(longTypeHandler.canHandle());
     }
 
     @Test
@@ -38,8 +38,8 @@ public class LongPrimitiveHandlerTest {
         long actualValue = 2L;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        Object value = longPrimitiveHandler.parseObject(actualValue);
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        Object value = longTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -49,8 +49,8 @@ public class LongPrimitiveHandlerTest {
         long actualValue = 2L;
 
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        Object value = longPrimitiveHandler.parseObject(String.valueOf(actualValue));
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        Object value = longTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -58,8 +58,8 @@ public class LongPrimitiveHandlerTest {
     @Test
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeLong() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        Object value = longPrimitiveHandler.parseObject(null);
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        Object value = longTypeHandler.parseObject(null);
 
         assertEquals(0L, value);
     }
@@ -67,31 +67,31 @@ public class LongPrimitiveHandlerTest {
     @Test
     public void shouldReturnTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        assertEquals(Types.LONG, longPrimitiveHandler.getTypeInformation());
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        assertEquals(Types.LONG, longTypeHandler.getTypeInformation());
     }
 
     @Test
     public void shouldReturnArrayTypeInformation() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        assertEquals(Types.OBJECT_ARRAY(Types.LONG), longPrimitiveHandler.getArrayType());
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        assertEquals(Types.OBJECT_ARRAY(Types.LONG), longTypeHandler.getArrayType());
     }
 
     @Test
     public void shouldReturnArrayValues() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
         ArrayList<Long> inputValues = new ArrayList<>(Arrays.asList(1L, 2L, 3L));
-        Object actualValues = longPrimitiveHandler.getArray(inputValues);
+        Object actualValues = longTypeHandler.getArray(inputValues);
         assertArrayEquals(inputValues.toArray(), (Long[]) actualValues);
     }
 
     @Test
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
-        LongPrimitiveHandler longPrimitiveHandler = new LongPrimitiveHandler(fieldDescriptor);
-        Object actualValues = longPrimitiveHandler.getArray(null);
+        LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
+        Object actualValues = longTypeHandler.getArray(null);
         assertEquals(0, ((Long[]) actualValues).length);
     }
 
@@ -103,7 +103,7 @@ public class LongPrimitiveHandlerTest {
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
         simpleGroup.add("s2_id", 101828L);
-        LongPrimitiveHandler longHandler = new LongPrimitiveHandler(fieldDescriptor);
+        LongTypeHandler longHandler = new LongTypeHandler(fieldDescriptor);
 
         Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
 
@@ -118,7 +118,7 @@ public class LongPrimitiveHandlerTest {
                 .required(INT64).named("some-other-field")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        LongPrimitiveHandler longHandler = new LongPrimitiveHandler(fieldDescriptor);
+        LongTypeHandler longHandler = new LongTypeHandler(fieldDescriptor);
 
         Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
 
@@ -134,7 +134,7 @@ public class LongPrimitiveHandlerTest {
                 .required(INT64).named("s2_id")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-        LongPrimitiveHandler longHandler = new LongPrimitiveHandler(fieldDescriptor);
+        LongTypeHandler longHandler = new LongTypeHandler(fieldDescriptor);
 
         Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
 
