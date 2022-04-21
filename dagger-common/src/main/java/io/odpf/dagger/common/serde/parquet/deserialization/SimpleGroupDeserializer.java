@@ -8,7 +8,7 @@ import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoType;
-import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
+import io.odpf.dagger.common.serde.proto.typehandler.RowFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.apache.parquet.example.data.simple.SimpleGroup;

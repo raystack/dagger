@@ -5,7 +5,7 @@ import io.odpf.dagger.core.processors.common.SchemaConfig;
 import io.odpf.dagger.core.processors.internal.InternalSourceConfig;
 import io.odpf.dagger.core.processors.internal.processor.function.FunctionProcessor;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.common.serde.proto.protohandler.TypeInformationFactory;
+import io.odpf.dagger.common.serde.proto.typehandler.TypeInformationFactory;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.stencil.client.StencilClient;
