@@ -17,7 +17,7 @@ ext {
     flinkVersion = System.getenv('flinkVersion') ?: '1.14.3'
 }
 
-def pyZipVersion = '0.0.1'
+def pyZipVersion = rootProject.file('version.txt').text.trim()
 group 'io.odpf'
 
 subprojects {
