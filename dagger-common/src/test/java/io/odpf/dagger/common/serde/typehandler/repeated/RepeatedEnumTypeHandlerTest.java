@@ -17,7 +17,13 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
+import static org.apache.parquet.schema.Types.buildMessage;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RepeatedEnumTypeHandlerTest {
     @Test
@@ -111,13 +117,81 @@ public class RepeatedEnumTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("test_enums");
-        RepeatedEnumTypeHandler protoHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+    public void shouldTransformValueForParquetAsStringArray() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumTypeHandler typeHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
+        String enum1 = String.valueOf(fieldDescriptor.getEnumType().findValueByName("FIRST_ENUM_VALUE"));
+        String enum2 = String.valueOf(fieldDescriptor.getEnumType().findValueByName("SECOND_ENUM_VALUE"));
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("test_enums")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("test_enums", enum1);
+        simpleGroup.add("test_enums", enum2);
+
+        String[] actualEnumArray = (String[]) typeHandler.transformFromParquet(simpleGroup);
+        assertEquals("FIRST_ENUM_VALUE", actualEnumArray[0]);
+        assertEquals("SECOND_ENUM_VALUE", actualEnumArray[1]);
+    }
+
+    @Test
+    public void shouldTransformValueForParquetAsEmptyStringArrayWhenNullIsPassedAsArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumTypeHandler typeHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
+
+        String[] expectedEnumArray = (String[]) typeHandler.transformFromParquet(null);
+
+        assertArrayEquals(new String[0], expectedEnumArray);
+    }
+
+    @Test
+    public void shouldSubstituteDefaultEnumStringWhenAnyValueInsideSimpleGroupRepeatedEnumIsNotPresentInProtoDefinition() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumTypeHandler typeHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
+        String enum1 = String.valueOf(fieldDescriptor.getEnumType().findValueByName("FIRST_ENUM_VALUE"));
+        String enum2 = "some-junk-value";
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("test_enums")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("test_enums", enum1);
+        simpleGroup.add("test_enums", enum2);
+
+        String[] actualEnumArray = (String[]) typeHandler.transformFromParquet(simpleGroup);
+        assertEquals("FIRST_ENUM_VALUE", actualEnumArray[0]);
+        assertEquals("UNKNOWN", actualEnumArray[1]);
+    }
+
+    @Test
+    public void shouldTransformValueForParquetAsEmptyStringArrayWhenFieldIsNotPresentInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumTypeHandler typeHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(INT64).named("first_name")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("first_name", 34L);
+
+        String[] actualEnumArray = (String[]) typeHandler.transformFromParquet(simpleGroup);
+
+        assertArrayEquals(new String[0], actualEnumArray);
+    }
+
+    @Test
+    public void shouldTransformValueForParquetAsEmptyStringArrayWhenFieldIsNotInitializedInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumTypeHandler typeHandler = new RepeatedEnumTypeHandler(fieldDescriptor);
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("test_enums")
                 .named("TestGroupType");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(simpleGroup));
+        String[] actualEnumArray = (String[]) typeHandler.transformFromParquet(simpleGroup);
+
+        assertArrayEquals(new String[0], actualEnumArray);
     }
 }
