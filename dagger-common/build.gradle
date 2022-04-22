@@ -62,7 +62,7 @@ dependencies {
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
-    dependenciesCommonJar 'io.odpf:stencil:0.1.6'
+    dependenciesCommonJar 'io.odpf:stencil:0.2.1'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
 
     testImplementation 'junit:junit:4.13'
