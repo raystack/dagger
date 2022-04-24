@@ -339,6 +339,8 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
         "verb": "get",
         "request_pattern": "/customers/customer/%s",
         "request_variables": "customer_id",
+        "header_pattern": "{\"Header_Key\": \"%s\"}",
+        "header_variables": "wallet_id",
         "stream_timeout": "5000",
         "connect_timeout": "5000",
         "fail_on_errors": "false",
