@@ -15,6 +15,7 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.utils.Constants;
+import io.odpf.dagger.core.utils.Constants.VariableType;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
@@ -94,9 +95,9 @@ public class HttpAsyncConnector extends AsyncConnector {
             RowManager rowManager = new RowManager(input);
 
             Object[] requestVariablesValues = getEndpointHandler()
-                    .getVariablesValue(rowManager, httpSourceConfig.getRequestVariables(), resultFuture);
+                    .getVariablesValue(rowManager, VariableType.REQUEST_VARIABLES, httpSourceConfig.getRequestVariables(), resultFuture);
             Object[] dynamicHeaderVariablesValues = getEndpointHandler()
-                    .getVariablesValue(rowManager, httpSourceConfig.getHeaderVariables(), resultFuture);
+                    .getVariablesValue(rowManager, VariableType.HEADER_VARIABLES, httpSourceConfig.getHeaderVariables(), resultFuture);
             if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getRequestVariables(), requestVariablesValues) || getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getHeaderVariables(), dynamicHeaderVariablesValues)) {
                 return;
             }

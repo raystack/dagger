@@ -7,6 +7,7 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Http post request handler.
@@ -37,12 +38,12 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
         BoundRequestBuilder postRequest = httpClient
                 .preparePost(endpoint)
                 .setBody(requestBody);
+        Map<String, String> headers = httpSourceConfig.getHeaders();
         if (!StringUtil.isNullOrEmpty(httpSourceConfig.getHeaderPattern())) {
             String dynamicHeader = String.format(httpSourceConfig.getHeaderPattern(), dynamicHeaderVariablesValues);
-            HashMap<String, String> dynamicHeaderMap = new Gson().fromJson(dynamicHeader, HashMap.class);
-            postRequest = addHeaders(postRequest, dynamicHeaderMap);
+            headers.putAll(new Gson().fromJson(dynamicHeader, HashMap.class));
         }
-        return addHeaders(postRequest, httpSourceConfig.getHeaders());
+        return addHeaders(postRequest, headers);
     }
 
     @Override

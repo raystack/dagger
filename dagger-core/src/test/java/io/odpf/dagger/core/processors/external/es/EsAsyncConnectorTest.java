@@ -184,7 +184,7 @@ public class EsAsyncConnectorTest {
 
         ArgumentCaptor<InvalidConfigurationException> invalidConfigurationExceptionCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
         ArgumentCaptor<InvalidConfigurationException> reportExceptionCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
-        String expectedExceptionMessage = "Column 'invalid_variable' not found as configured in the endpoint/query variable";
+        String expectedExceptionMessage = "Column 'invalid_variable' not found as configured in the 'ENDPOINT_VARIABLE' variable";
 
         verify(resultFuture, times(1)).completeExceptionally(invalidConfigurationExceptionCaptor.capture());
         assertEquals(expectedExceptionMessage, invalidConfigurationExceptionCaptor.getValue().getMessage());

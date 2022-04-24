@@ -3,6 +3,7 @@ package io.odpf.dagger.core.processors.common;
 import io.netty.util.internal.StringUtil;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.types.SourceConfig;
+import io.odpf.dagger.core.utils.Constants.VariableType;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -67,11 +68,12 @@ public class EndpointHandler {
      * Get dynamic header variables values.
      *
      * @param rowManager   the row manager
+     * @param variableType the variable type
      * @parm variables     the variable list
      * @param resultFuture the result future
      * @return the array object
      */
-    public Object[] getVariablesValue(RowManager rowManager, String variables, ResultFuture<Row> resultFuture) {
+    public Object[] getVariablesValue(RowManager rowManager, VariableType variableType, String variables, ResultFuture<Row> resultFuture) {
         if (StringUtils.isEmpty(variables)) {
             return new Object[0];
         }
@@ -85,7 +87,7 @@ public class EndpointHandler {
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
+                throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the '%s' variable", inputColumnName, variableType));
             }
 
             Descriptors.FieldDescriptor fieldDescriptor = descriptorMap.get(inputColumnName);

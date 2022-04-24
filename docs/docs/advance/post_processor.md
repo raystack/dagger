@@ -247,6 +247,20 @@ List of comma-separated parameters to be replaced in request_pattern, these vari
 - Example value: `customer_id`
 - Type: `optional`
 
+##### `header_pattern`
+
+Template for the dynamic headers.
+
+- Example value: `{"key": "%s"}`
+- Type: `optional`
+
+##### `header_variables`
+
+List of comma-separated parameters to be replaced in header_pattern, these variables must be present in the input proto and selected via the SQL query.
+
+- Example value: `customer_id`
+- Type: `optional`
+
 ##### `stream_timeout`
 
 The timeout value for the stream in ms.

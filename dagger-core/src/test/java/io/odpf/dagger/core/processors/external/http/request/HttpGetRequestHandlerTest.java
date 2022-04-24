@@ -31,6 +31,8 @@ public class HttpGetRequestHandlerTest {
         requestVariablesValues = new ArrayList<>();
         requestVariablesValues.add(1);
         headerVariablesValues = new ArrayList<>();
+        headerVariablesValues.add("1");
+        headerVariablesValues.add("2");
     }
 
     @Test
@@ -59,7 +61,6 @@ public class HttpGetRequestHandlerTest {
     public void shouldBuildGetRequestWithOnlyDynamicHeader() {
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         when(request.addHeader("header_key", "1")).thenReturn(request);
-        headerVariablesValues.add("1");
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "{\"header_key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray());
         httpGetRequestBuilder.create();
@@ -71,7 +72,6 @@ public class HttpGetRequestHandlerTest {
     public void shouldBuildGetRequestWithDynamicAndStaticHeader() {
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         when(request.addHeader("header_key", "1")).thenReturn(request);
-        headerVariablesValues.add("1");
         HashMap<String, String> staticHeader = new HashMap<String, String>();
         staticHeader.put("static", "2");
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "{\"header_key\": \"%s\"}", "1", "123", "234", false, "type", "345", staticHeader, null, "metricId_01", false);
@@ -80,5 +80,19 @@ public class HttpGetRequestHandlerTest {
         verify(request, times(2)).addHeader(anyString(), anyString());
         verify(request, times(1)).addHeader("header_key", "1");
         verify(request, times(1)).addHeader("static", "2");
+    }
+
+    @Test
+    public void shouldBuildGetRequestWithMultipleDynamicAndStaticHeaders() {
+        when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
+        HashMap<String, String> staticHeader = new HashMap<String, String>();
+        staticHeader.put("static", "3");
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "GET", "/key/%s", "1", "{\"header_key_1\": \"%s\",\"header_key_2\": \"%s\"}", "1,2", "123", "234", false, "type", "345", staticHeader, null, "metricId_01", false);
+        HttpGetRequestHandler httpGetRequestBuilder = new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray());
+        httpGetRequestBuilder.create();
+        verify(request, times(3)).addHeader(anyString(), anyString());
+        verify(request, times(1)).addHeader("header_key_1", "1");
+        verify(request, times(1)).addHeader("header_key_2", "2");
+        verify(request, times(1)).addHeader("static", "3");
     }
 }
