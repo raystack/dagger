@@ -41,6 +41,15 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         this.isRecordReaderInitialized = false;
     }
 
+    private boolean checkIfNullPage(PageReadStore page) {
+        if (page == null) {
+            String logMessage = String.format("No more data found in Parquet file %s", hadoopFilePath.getName());
+            LOGGER.info(logMessage);
+            return true;
+        }
+        return false;
+    }
+
     private void changeReaderPosition(PageReadStore pages) {
         rowCount = pages.getRowCount();
         currentRecordIndex = 0;
@@ -48,27 +57,21 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         recordReader = columnIO.getRecordReader(pages, new GroupRecordConverter(schema));
     }
 
-    private Row initializeRecordReader() throws IOException {
-        PageReadStore page = parquetFileReader.readNextRowGroup();
-        if (page == null) {
-            String logMessage = String.format("No readable data found in Parquet file %s", hadoopFilePath.getName());
-            LOGGER.info(logMessage);
-            return null;
-        }
-        changeReaderPosition(page);
+    private void initializeRecordReader() throws IOException {
+        PageReadStore nextPage = parquetFileReader.readNextRowGroup();
+        changeReaderPosition(nextPage);
         this.isRecordReaderInitialized = true;
         String logMessage = String.format("Successfully created the ParquetFileReader and RecordReader for file %s", hadoopFilePath.getName());
         LOGGER.info(logMessage);
-        return readAndDeserialize();
     }
 
-    private Row readRecordsFromPage() throws IOException {
+    private Row readRecords() throws IOException {
         if (currentRecordIndex >= rowCount) {
-            PageReadStore page = parquetFileReader.readNextRowGroup();
-            if (page == null) {
+            PageReadStore nextPage = parquetFileReader.readNextRowGroup();
+            if (checkIfNullPage(nextPage)) {
                 return null;
             }
-            changeReaderPosition(page);
+            changeReaderPosition(nextPage);
         }
         return readAndDeserialize();
     }
@@ -77,10 +80,9 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     @Override
     public Row read() throws IOException {
         if (!isRecordReaderInitialized) {
-            return initializeRecordReader();
-        } else {
-            return readRecordsFromPage();
+            initializeRecordReader();
         }
+        return readRecords();
     }
 
     private Row readAndDeserialize() {
