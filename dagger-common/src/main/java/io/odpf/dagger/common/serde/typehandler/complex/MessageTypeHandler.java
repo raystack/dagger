@@ -1,5 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.complex;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
@@ -24,6 +26,8 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 public class MessageTypeHandler implements TypeHandler {
     private FieldDescriptor fieldDescriptor;
     private JsonRowSerializationSchema jsonRowSerializationSchema;
+    private DynamicMessage defaultMessageInstance;
+    private Descriptors.Descriptor fieldMessageDescriptor;
 
     /**
      * Instantiates a new Message proto handler.
@@ -32,6 +36,10 @@ public class MessageTypeHandler implements TypeHandler {
      */
     public MessageTypeHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
+        if (canHandle()) {
+            this.defaultMessageInstance = DynamicMessage.getDefaultInstance(fieldDescriptor.getMessageType());
+            this.fieldMessageDescriptor = fieldDescriptor.getMessageType();
+        }
     }
 
     @Override
@@ -74,7 +82,12 @@ public class MessageTypeHandler implements TypeHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            SimpleGroup nestedGroup = (SimpleGroup) simpleGroup.getGroup(fieldName, 0);
+            return RowFactory.createRow(fieldMessageDescriptor, nestedGroup);
+        }
+        return RowFactory.createRow(defaultMessageInstance);
     }
 
     @Override

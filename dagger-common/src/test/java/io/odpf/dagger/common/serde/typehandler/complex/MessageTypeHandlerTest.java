@@ -12,10 +12,13 @@ import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestPaymentOptionMetadata;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
+import org.apache.parquet.schema.PrimitiveType;
 import org.junit.Test;
 
 import java.util.HashMap;
 
+import static org.apache.parquet.schema.Types.buildMessage;
+import static org.apache.parquet.schema.Types.requiredGroup;
 import static org.junit.Assert.*;
 
 public class MessageTypeHandlerTest {
@@ -196,13 +199,73 @@ public class MessageTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+    public void shouldReturnRowContainingAllFieldsWhenTransformFromParquetIsCalledWithANestedSimpleGroup() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
         MessageTypeHandler protoHandler = new MessageTypeHandler(fieldDescriptor);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
-                .named("TestGroupType");
-        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(simpleGroup));
+        GroupType nestedGroupSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("masked_card")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("network")
+                .named("payment_option_metadata");
+        SimpleGroup nestedGroup = new SimpleGroup(nestedGroupSchema);
+        nestedGroup.add("masked_card", "4567XXXX1234");
+        nestedGroup.add("network", "4G");
+
+        GroupType mainMessageSchema = buildMessage().addField(nestedGroupSchema).named("MainMessage");
+        SimpleGroup mainMessageGroup = new SimpleGroup(mainMessageSchema);
+        mainMessageGroup.add("payment_option_metadata", nestedGroup);
+
+        Row row = (Row) protoHandler.transformFromParquet(mainMessageGroup);
+
+        assertEquals(2, row.getArity());
+        assertEquals("4567XXXX1234", row.getField(0));
+        assertEquals("4G", row.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowContainingDefaultValuesForFieldsWhenTransformFromParquetIsCalledWithUninitializedNestedSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
+        MessageTypeHandler protoHandler = new MessageTypeHandler(fieldDescriptor);
+
+        GroupType nestedGroupSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("masked_card")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("network")
+                .named("payment_option_metadata");
+
+        GroupType mainMessageSchema = buildMessage().addField(nestedGroupSchema).named("MainMessage");
+        SimpleGroup mainMessageGroup = new SimpleGroup(mainMessageSchema);
+
+        Row row = (Row) protoHandler.transformFromParquet(mainMessageGroup);
+
+        assertEquals(2, row.getArity());
+        assertEquals("", row.getField(0));
+        assertEquals("", row.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowContainingDefaultValuesForFieldsWhenTransformFromParquetIsCalledWithMissingNestedSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
+        MessageTypeHandler protoHandler = new MessageTypeHandler(fieldDescriptor);
+
+        GroupType mainMessageSchema = buildMessage().named("MainMessage");
+        SimpleGroup mainMessageGroup = new SimpleGroup(mainMessageSchema);
+
+        Row row = (Row) protoHandler.transformFromParquet(mainMessageGroup);
+
+        assertEquals(2, row.getArity());
+        assertEquals("", row.getField(0));
+        assertEquals("", row.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowContainingDefaultValuesForFieldsWhenTransformFromParquetIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
+        MessageTypeHandler protoHandler = new MessageTypeHandler(fieldDescriptor);
+
+        Row row = (Row) protoHandler.transformFromParquet(null);
+
+        assertEquals(2, row.getArity());
+        assertEquals("", row.getField(0));
+        assertEquals("", row.getField(1));
     }
 }
