@@ -1,8 +1,7 @@
 package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.types.SourceConfig;
-import io.odpf.dagger.core.utils.Constants.VariableType;
+import io.odpf.dagger.core.utils.Constants.ExternalPostProcessorVariableType;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -30,7 +29,6 @@ import static java.util.Collections.singleton;
  */
 public class EndpointHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(EndpointHandler.class.getName());
-    private SourceConfig sourceConfig;
     private MeterStatsManager meterStatsManager;
     private ErrorReporter errorReporter;
     private String[] inputProtoClasses;
@@ -49,13 +47,11 @@ public class EndpointHandler {
      * @param columnNameManager the column name manager
      * @param descriptorManager the descriptor manager
      */
-    public EndpointHandler(SourceConfig sourceConfig,
-                           MeterStatsManager meterStatsManager,
+    public EndpointHandler(MeterStatsManager meterStatsManager,
                            ErrorReporter errorReporter,
                            String[] inputProtoClasses,
                            ColumnNameManager columnNameManager,
                            DescriptorManager descriptorManager) {
-        this.sourceConfig = sourceConfig;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
         this.inputProtoClasses = inputProtoClasses;
@@ -64,7 +60,7 @@ public class EndpointHandler {
     }
 
     /**
-     * Get dynamic header variables values.
+     * Get external post processor variables values.
      *
      * @param rowManager   the row manager
      * @param variableType the variable type
@@ -72,7 +68,7 @@ public class EndpointHandler {
      * @param resultFuture the result future
      * @return the array object
      */
-    public Object[] getVariablesValue(RowManager rowManager, VariableType variableType, String variables, ResultFuture<Row> resultFuture) {
+    public Object[] getVariablesValue(RowManager rowManager, ExternalPostProcessorVariableType variableType, String variables, ResultFuture<Row> resultFuture) {
         if (StringUtils.isEmpty(variables)) {
             return new Object[0];
         }

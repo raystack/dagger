@@ -10,7 +10,7 @@ import io.odpf.dagger.core.processors.external.AsyncConnector;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 import io.odpf.dagger.core.utils.Constants;
-import io.odpf.dagger.core.utils.Constants.VariableType;
+import io.odpf.dagger.core.utils.Constants.ExternalPostProcessorVariableType;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -79,7 +79,7 @@ public class EsAsyncConnector extends AsyncConnector {
     protected void process(Row input, ResultFuture<Row> resultFuture) {
         RowManager rowManager = new RowManager(input);
         Object[] endpointVariablesValues = getEndpointHandler()
-                .getVariablesValue(rowManager, VariableType.ENDPOINT_VARIABLE, esSourceConfig.getVariables(), resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.ENDPOINT_VARIABLE, esSourceConfig.getVariables(), resultFuture);
         if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, esSourceConfig.getVariables(), endpointVariablesValues)) {
             return;
         }

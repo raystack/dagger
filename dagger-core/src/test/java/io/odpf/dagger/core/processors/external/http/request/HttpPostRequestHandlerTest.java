@@ -51,7 +51,7 @@ public class HttpPostRequestHandlerTest {
     }
 
     @Test
-    public void shouldBuildPostRequest() {
+    public void shouldBuildPostRequestWithoutHeader() {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
@@ -60,16 +60,7 @@ public class HttpPostRequestHandlerTest {
     }
 
     @Test
-    public void shouldBuildPostRequestWithHeader() {
-        when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
-        when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
-        HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray(), dynamicHeaderVariablesValues.toArray());
-        assertEquals(request, httpPostRequestBuilder.create());
-    }
-
-    @Test
-    public void shouldBuildGetRequestWithOnlyDynamicHeader() {
+    public void shouldBuildPostRequestWithOnlyDynamicHeader() {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "1", "{\"header_key\": \"%s\"}", "1", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
@@ -80,7 +71,7 @@ public class HttpPostRequestHandlerTest {
     }
 
     @Test
-    public void shouldBuildGetRequestWithDynamicAndStaticHeader() {
+    public void shouldBuildPostRequestWithDynamicAndStaticHeader() {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         HashMap<String, String> staticHeader = new HashMap<String, String>();
@@ -94,7 +85,7 @@ public class HttpPostRequestHandlerTest {
     }
 
     @Test
-    public void shouldBuildGetRequestWithMultipleDynamicAndStaticHeaders() {
+    public void shouldBuildPostRequestWithMultipleDynamicAndStaticHeaders() {
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"1\"}")).thenReturn(request);
         HashMap<String, String> staticHeader = new HashMap<String, String>();
