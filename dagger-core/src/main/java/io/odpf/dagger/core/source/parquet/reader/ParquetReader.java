@@ -28,6 +28,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private long currentRecordIndex;
     private final ParquetFileReader parquetFileReader;
     private long rowCount;
+    private boolean isRecordReaderInitialized;
     private RecordReader<Group> recordReader;
     private final MessageType schema;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
@@ -37,9 +38,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
-        changeReaderPosition(this.parquetFileReader.readNextRowGroup());
-        String logMessage = String.format("Successfully created the ParquetFileReader and RecordReader for file %s", hadoopFilePath.getName());
-        LOGGER.info(logMessage);
+        this.isRecordReaderInitialized = false;
     }
 
     private void changeReaderPosition(PageReadStore pages) {
@@ -49,16 +48,42 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         recordReader = columnIO.getRecordReader(pages, new GroupRecordConverter(schema));
     }
 
+    private Row initializeRecordReader() throws IOException {
+        PageReadStore page = parquetFileReader.readNextRowGroup();
+        if (page == null) {
+            String logMessage = String.format("No readable data found in Parquet file %s", hadoopFilePath.getName());
+            LOGGER.info(logMessage);
+            return null;
+        }
+        changeReaderPosition(page);
+        this.isRecordReaderInitialized = true;
+        String logMessage = String.format("Successfully created the ParquetFileReader and RecordReader for file %s", hadoopFilePath.getName());
+        LOGGER.info(logMessage);
+        return readAndDeserialize();
+    }
+
+    private Row readRecordsFromPage() throws IOException {
+        if (currentRecordIndex >= rowCount) {
+            PageReadStore page = parquetFileReader.readNextRowGroup();
+            if (page == null) {
+                return null;
+            }
+            changeReaderPosition(page);
+        }
+        return readAndDeserialize();
+    }
+
     @Nullable
     @Override
     public Row read() throws IOException {
-        if (currentRecordIndex >= rowCount) {
-            PageReadStore nextPage = parquetFileReader.readNextRowGroup();
-            if (nextPage == null) {
-                return null;
-            }
-            changeReaderPosition(nextPage);
+        if (!isRecordReaderInitialized) {
+            return initializeRecordReader();
+        } else {
+            return readRecordsFromPage();
         }
+    }
+
+    private Row readAndDeserialize() {
         SimpleGroup simpleGroup = (SimpleGroup) recordReader.read();
         currentRecordIndex++;
         return simpleGroupDeserializer.deserialize(simpleGroup);
@@ -66,9 +91,16 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
 
     @Override
     public void close() throws IOException {
-        String logMessage = String.format("Closing the ParquetFileReader and de-referencing the RecordReader for file %s", hadoopFilePath.getName());
-        LOGGER.info(logMessage);
         parquetFileReader.close();
+        closeRecordReader();
+        String logMessage = String.format("Closed the ParquetFileReader and de-referenced the RecordReader for file %s", hadoopFilePath.getName());
+        LOGGER.info(logMessage);
+    }
+
+    private void closeRecordReader() {
+        if (isRecordReaderInitialized) {
+            this.isRecordReaderInitialized = false;
+        }
         recordReader = null;
     }
 
