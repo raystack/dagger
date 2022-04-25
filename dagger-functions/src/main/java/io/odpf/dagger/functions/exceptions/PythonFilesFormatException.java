@@ -1,11 +1,9 @@
 package io.odpf.dagger.functions.exceptions;
 
-import java.io.IOException;
-
 /**
  * The type Python files format exception.
  */
-public class PythonFilesFormatException extends IOException {
+public class PythonFilesFormatException extends RuntimeException {
 
     /**
      * Instantiates a new Python files format exception.
