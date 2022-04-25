@@ -123,14 +123,14 @@ public class ParquetReaderTest {
     }
 
     @Test
-    public void shouldThrowNullPointerExceptionIfReadIsCalledAfterCallingClose() throws IOException {
+    public void shouldThrowIOExceptionIfReadIsCalledAfterCallingClose() throws IOException {
         ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
         reader.close();
 
-        assertThrows(NullPointerException.class, reader::read);
+        assertThrows(IOException.class, reader::read);
     }
 
     @Test
