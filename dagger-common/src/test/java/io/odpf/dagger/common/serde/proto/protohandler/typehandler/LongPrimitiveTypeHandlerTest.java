@@ -4,11 +4,14 @@ import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestAggregatedSupplyMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -36,7 +39,7 @@ public class LongPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongPrimitiveTypeHandler longPrimitiveTypeHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
-        Object value = longPrimitiveTypeHandler.getValue(actualValue);
+        Object value = longPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -47,7 +50,7 @@ public class LongPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongPrimitiveTypeHandler longPrimitiveTypeHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
-        Object value = longPrimitiveTypeHandler.getValue(String.valueOf(actualValue));
+        Object value = longPrimitiveTypeHandler.parseObject(String.valueOf(actualValue));
 
         assertEquals(actualValue, value);
     }
@@ -56,7 +59,7 @@ public class LongPrimitiveTypeHandlerTest {
     public void shouldFetchDefaultValueIfValueNotPresentForFieldDescriptorOfTypeLong() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongPrimitiveTypeHandler longPrimitiveTypeHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
-        Object value = longPrimitiveTypeHandler.getValue(null);
+        Object value = longPrimitiveTypeHandler.parseObject(null);
 
         assertEquals(0L, value);
     }
@@ -92,4 +95,49 @@ public class LongPrimitiveTypeHandlerTest {
         assertEquals(0, ((Long[]) actualValues).length);
     }
 
+    @Test
+    public void shouldFetchParsedValueForFieldOfTypeLongInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("s2_id")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("s2_id", 101828L);
+        LongPrimitiveTypeHandler longHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
+
+        assertEquals(101828L, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotPresentInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
+
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        LongPrimitiveTypeHandler longHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
+
+        assertEquals(0L, actualValue);
+    }
+
+    @Test
+    public void shouldFetchDefaultValueIfFieldNotInitializedWithAValueInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
+
+        /* The field is added to the schema but not assigned a value */
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("s2_id")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        LongPrimitiveTypeHandler longHandler = new LongPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
+
+        assertEquals(0L, actualValue);
+    }
 }

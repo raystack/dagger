@@ -6,15 +6,16 @@ import org.apache.flink.api.common.typeinfo.Types;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.consumer.TestMessageEnvelope;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.junit.Assert.*;
 
 public class ByteStringPrimitiveTypeHandlerTest {
     @Test
@@ -37,7 +38,7 @@ public class ByteStringPrimitiveTypeHandlerTest {
 
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringPrimitiveTypeHandler byteStringPrimitiveTypeHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
-        Object value = byteStringPrimitiveTypeHandler.getValue(actualValue);
+        Object value = byteStringPrimitiveTypeHandler.parseObject(actualValue);
 
         assertEquals(actualValue, value);
     }
@@ -73,4 +74,49 @@ public class ByteStringPrimitiveTypeHandlerTest {
         assertEquals(0, ((ByteString[]) actualValues).length);
     }
 
+    @Test
+    public void shouldFetchUTF8EncodedByteStringForFieldOfTypeBinaryInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
+        String testString = "test-string";
+        ByteString expectedByteString = ByteString.copyFrom(testString.getBytes());
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("log_key")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("log_key", Binary.fromConstantByteArray(expectedByteString.toByteArray()));
+        ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
+
+        assertEquals(expectedByteString, actualValue);
+    }
+
+    @Test
+    public void shouldReturnNullIfFieldNotPresentInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
+
+        assertNull(actualValue);
+    }
+
+    @Test
+    public void shouldReturnNullIfFieldNotInitializedWithAValueInSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
+        /* The field is added to the schema but not assigned a value */
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("log_key")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        ByteStringPrimitiveTypeHandler byteStringHandler = new ByteStringPrimitiveTypeHandler(fieldDescriptor);
+
+        Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
+
+        assertNull(actualValue);
+    }
 }

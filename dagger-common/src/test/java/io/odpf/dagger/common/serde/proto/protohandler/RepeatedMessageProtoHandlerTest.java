@@ -10,6 +10,8 @@ import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestReason;
 import net.minidev.json.JSONArray;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,9 +21,7 @@ import java.util.List;
 import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
 import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
 import static org.apache.flink.api.common.typeinfo.Types.STRING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedMessageProtoHandlerTest {
 
@@ -47,8 +47,8 @@ public class RepeatedMessageProtoHandlerTest {
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, repeatedMesssageProtoHandler.transformForKafka(builder, 123));
-        assertEquals("", repeatedMesssageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, repeatedMesssageProtoHandler.transformToProtoBuilder(builder, 123));
+        assertEquals("", repeatedMesssageProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class RepeatedMessageProtoHandlerTest {
         RepeatedMessageProtoHandler repeatedMesssageProtoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder outputBuilder = repeatedMesssageProtoHandler.transformToProtoBuilder(builder, null);
         assertEquals(builder, outputBuilder);
         assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
@@ -80,7 +80,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMessageProtoHandler.transformForKafka(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedMessageProtoHandler.transformToProtoBuilder(builder, inputRows.toArray());
 
         List<DynamicMessage> reasons = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
 
@@ -112,7 +112,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows);
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformToProtoBuilder(builder, inputRows);
 
 
         List<DynamicMessage> reasons = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
@@ -144,7 +144,7 @@ public class RepeatedMessageProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformForKafka(builder, inputRows);
+        DynamicMessage.Builder returnedBuilder = repeatedMesssageProtoHandler.transformToProtoBuilder(builder, inputRows);
 
 
         List<DynamicMessage> reasons = (List<DynamicMessage>) returnedBuilder.getField(repeatedMessageFieldDescriptor);
@@ -240,7 +240,7 @@ public class RepeatedMessageProtoHandlerTest {
     public void shouldReturnEmptyArrayOfRowsIfNullPassedForKafkaTransform() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromKafka(null);
+        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromProto(null);
 
         assertEquals(0, values.length);
     }
@@ -256,7 +256,7 @@ public class RepeatedMessageProtoHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromKafka(dynamicMessage.getField(repeatedMessageFieldDescriptor));
+        Object[] values = (Object[]) new RepeatedMessageProtoHandler(repeatedMessageFieldDescriptor).transformFromProto(dynamicMessage.getField(repeatedMessageFieldDescriptor));
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
@@ -296,4 +296,14 @@ public class RepeatedMessageProtoHandlerTest {
         assertEquals("[{\"reason_id\":\"reason1\",\"group_id\":\"group1\"}, {\"reason_id\":\"reason2\",\"group_id\":\"group2\"}]", String.valueOf(value));
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("reason");
+        RepeatedMessageProtoHandler protoHandler = new RepeatedMessageProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
+    }
 }

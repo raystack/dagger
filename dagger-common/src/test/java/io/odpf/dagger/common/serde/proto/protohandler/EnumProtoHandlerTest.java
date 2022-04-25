@@ -2,15 +2,16 @@ package io.odpf.dagger.common.serde.proto.protohandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import io.odpf.dagger.consumer.TestBookingLogMessage;
-import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
-import io.odpf.dagger.consumer.TestServiceType;
+import io.odpf.dagger.consumer.*;
 import io.odpf.dagger.common.exceptions.serde.EnumFieldNotFoundException;
 import org.apache.flink.api.common.typeinfo.Types;
 
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.junit.Assert.*;
 
 public class EnumProtoHandlerTest {
@@ -45,7 +46,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals("", enumProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
+        assertEquals("", enumProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -54,7 +55,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals("", enumProtoHandler.transformForKafka(builder, null).getField(fieldDescriptor));
+        assertEquals("", enumProtoHandler.transformToProtoBuilder(builder, null).getField(fieldDescriptor));
     }
 
     @Test
@@ -63,7 +64,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformForKafka(builder, "GO_RIDE");
+        DynamicMessage.Builder returnedBuilder = enumProtoHandler.transformToProtoBuilder(builder, "GO_RIDE");
         assertEquals(TestServiceType.Enum.GO_RIDE.getValueDescriptor(), returnedBuilder.getField(enumFieldDescriptor));
     }
 
@@ -73,7 +74,7 @@ public class EnumProtoHandlerTest {
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(enumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(enumFieldDescriptor.getContainingType());
 
-        EnumFieldNotFoundException exception = Assert.assertThrows(EnumFieldNotFoundException.class, () -> enumProtoHandler.transformForKafka(builder, "test"));
+        EnumFieldNotFoundException exception = Assert.assertThrows(EnumFieldNotFoundException.class, () -> enumProtoHandler.transformToProtoBuilder(builder, "test"));
         assertEquals("field: test not found in io.odpf.dagger.consumer.TestBookingLogMessage.service_type", exception.getMessage());
     }
 
@@ -152,7 +153,7 @@ public class EnumProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
-        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromKafka("DRIVER_FOUND"));
+        assertEquals("DRIVER_FOUND", enumProtoHandler.transformFromProto("DRIVER_FOUND"));
     }
 
     @Test
@@ -161,5 +162,46 @@ public class EnumProtoHandlerTest {
         Object value = new EnumProtoHandler(fieldDescriptor).transformToJson("DRIVER_FOUND");
 
         assertEquals("DRIVER_FOUND", value);
+    }
+
+    @Test
+    public void shouldReturnStringEnumValueWhenSimpleGroupIsPassed() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        String expectedEnum = fieldDescriptor.getEnumType().getValues().get(1).getName();
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("status")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("status", expectedEnum);
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnum = enumProtoHandler.transformFromParquet(simpleGroup);
+
+        assertEquals(expectedEnum, actualEnum);
+    }
+
+    @Test
+    public void shouldReturnDefaultEnumStringWhenNullIsPassedToTransformFromParquet() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnumValue = enumProtoHandler.transformFromParquet(null);
+
+        assertEquals("UNKNOWN", actualEnumValue);
+    }
+
+    @Test
+    public void shouldReturnDefaultEnumStringWhenEnumValueInsideSimpleGroupIsNotPresentInProtoDefinition() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(BINARY).named("status")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("status", "NON_EXISTENT_ENUM");
+        EnumProtoHandler enumProtoHandler = new EnumProtoHandler(fieldDescriptor);
+
+        Object actualEnum = enumProtoHandler.transformFromParquet(simpleGroup);
+
+        assertEquals("UNKNOWN", actualEnum);
     }
 }

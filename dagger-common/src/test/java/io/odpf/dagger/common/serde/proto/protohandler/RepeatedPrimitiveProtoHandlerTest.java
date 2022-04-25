@@ -11,6 +11,8 @@ import io.odpf.dagger.common.exceptions.serde.DataTypeNotSupportedException;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,10 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedPrimitiveProtoHandlerTest {
 
@@ -63,7 +62,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, "123");
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformToProtoBuilder(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -73,7 +72,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformToProtoBuilder(builder, null);
         List<Object> outputValues = (List<Object>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(0, outputValues.size());
     }
@@ -86,7 +85,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         ArrayList<String> inputValues = new ArrayList<>();
 
-        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, inputValues);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformToProtoBuilder(builder, inputValues);
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(0, outputValues.size());
     }
@@ -101,7 +100,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         inputValues.add("test1");
         inputValues.add("test2");
 
-        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, inputValues);
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformToProtoBuilder(builder, inputValues);
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(asList("test1", "test2"), outputValues);
     }
@@ -116,7 +115,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         inputValues.add("test1");
         inputValues.add("test2");
 
-        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformForKafka(builder, inputValues.toArray());
+        DynamicMessage.Builder returnedBuilder = repeatedPrimitiveProtoHandler.transformToProtoBuilder(builder, inputValues.toArray());
         List<String> outputValues = (List<String>) returnedBuilder.getField(repeatedFieldDescriptor);
         assertEquals(asList("test1", "test2"), outputValues);
     }
@@ -206,7 +205,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), goLifeBookingLogMessage.toByteArray());
 
-        String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformFromKafka(dynamicMessage.getField(repeatedFieldDescriptor));
+        String[] outputValues = (String[]) repeatedPrimitiveProtoHandler.transformFromProto(dynamicMessage.getField(repeatedFieldDescriptor));
         assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
     }
 
@@ -216,7 +215,7 @@ public class RepeatedPrimitiveProtoHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         RepeatedPrimitiveProtoHandler repeatedPrimitiveProtoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
         DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
-                () -> repeatedPrimitiveProtoHandler.transformFromKafka("CREATED"));
+                () -> repeatedPrimitiveProtoHandler.transformFromProto("CREATED"));
         assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
     }
 
@@ -238,5 +237,16 @@ public class RepeatedPrimitiveProtoHandlerTest {
 
         Object value = new RepeatedPrimitiveProtoHandler(repeatedFieldDescriptor).transformToJson(inputValues);
         assertEquals("[\"test1\",\"test2\"]", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+        RepeatedPrimitiveProtoHandler protoHandler = new RepeatedPrimitiveProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

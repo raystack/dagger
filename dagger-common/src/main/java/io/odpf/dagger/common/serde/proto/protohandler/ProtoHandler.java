@@ -3,6 +3,7 @@ package io.odpf.dagger.common.serde.proto.protohandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The interface Proto handler.
@@ -16,13 +17,13 @@ public interface ProtoHandler {
     boolean canHandle();
 
     /**
-     * Transform for kafka dynamic message . builder.
+     * Transform to protobuf message builder.
      *
      * @param builder the builder
      * @param field   the field
      * @return the dynamic message . builder
      */
-    DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field);
+    DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field);
 
     /**
      * Transform from post processor object.
@@ -33,12 +34,20 @@ public interface ProtoHandler {
     Object transformFromPostProcessor(Object field);
 
     /**
-     * Transform from kafka object.
+     * Transform from protobuf message.
      *
      * @param field the field
      * @return the object
      */
-    Object transformFromKafka(Object field);
+    Object transformFromProto(Object field);
+
+    /**
+     * Transform from parquet SimpleGroup.
+     *
+     * @param simpleGroup the SimpleGroup object
+     * @return the transformed object
+     */
+    Object transformFromParquet(SimpleGroup simpleGroup);
 
     /**
      * Transform to json object.

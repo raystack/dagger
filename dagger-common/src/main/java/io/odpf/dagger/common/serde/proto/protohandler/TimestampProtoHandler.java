@@ -1,11 +1,13 @@
 package io.odpf.dagger.common.serde.proto.protohandler;
 
+import com.google.protobuf.Timestamp;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Timestamp;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -19,6 +21,9 @@ import java.util.TimeZone;
  */
 public class TimestampProtoHandler implements ProtoHandler {
     private static final int SECOND_TO_MS_FACTOR = 1000;
+    private static final long DEFAULT_SECONDS_VALUE = 0L;
+    private static final int DEFAULT_NANOS_VALUE = 0;
+    private static final int MS_TO_NANOS_FACTOR = 1000_000;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Descriptors.FieldDescriptor fieldDescriptor;
 
@@ -38,7 +43,7 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -93,8 +98,24 @@ public class TimestampProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+
+            /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
+            long timeInMillis = simpleGroup.getLong(fieldName, 0);
+            long seconds = Math.floorDiv(timeInMillis, SECOND_TO_MS_FACTOR);
+            int mos = (int) Math.floorMod(timeInMillis, SECOND_TO_MS_FACTOR);
+            int nanos = mos * MS_TO_NANOS_FACTOR;
+            return Row.of(seconds, nanos);
+        } else {
+            return Row.of(DEFAULT_SECONDS_VALUE, DEFAULT_NANOS_VALUE);
+        }
     }
 
     @Override

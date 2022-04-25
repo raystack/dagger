@@ -1,5 +1,15 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.core.source.Stream;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.ApiExpression;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
+
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
@@ -16,17 +26,8 @@ import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExport
 import io.odpf.dagger.core.processors.types.PostProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
 import io.odpf.dagger.core.sink.SinkOrchestrator;
-import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.ApiExpression;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.types.Row;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -84,7 +85,6 @@ public class StreamManager {
         return this;
     }
 
-
     /**
      * Register source with pre processors stream manager.
      *
@@ -97,13 +97,13 @@ public class StreamManager {
         getStreams().forEach(stream -> {
             String tableName = stream.getStreamName();
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
-            DataStream<Row> kafkaStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), stream.getStreamName());
+            DataStream<Row> dataStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay));
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-                    .assignTimeStampAndWatermark(kafkaStream, watermarkDelay, enablePerPartitionWatermark);
+                    .assignTimeStampAndWatermark(dataStream, watermarkDelay, enablePerPartitionWatermark);
 
-            TableSchema tableSchema = TableSchema.fromTypeInfo(kafkaStream.getType());
+            TableSchema tableSchema = TableSchema.fromTypeInfo(dataStream.getType());
             StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
             streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
 
@@ -197,10 +197,6 @@ public class StreamManager {
         return new StreamInfo(stream, table.getSchema().getFieldNames());
     }
 
-    List<Stream> getStreams() {
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
-    }
-
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         for (PostProcessor postProcessor : postProcessors) {
@@ -221,5 +217,9 @@ public class StreamManager {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
         sinkOrchestrator.addSubscriber(telemetryExporter);
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
+    }
+
+    List<Stream> getStreams() {
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator);
     }
 }

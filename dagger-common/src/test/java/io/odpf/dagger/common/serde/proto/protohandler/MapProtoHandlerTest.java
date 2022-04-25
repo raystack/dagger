@@ -11,6 +11,8 @@ import com.google.protobuf.WireFormat;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestComplexMap;
 import io.odpf.dagger.consumer.TestMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,9 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MapProtoHandlerTest {
 
@@ -48,7 +48,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, "123");
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformToProtoBuilder(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -58,7 +58,7 @@ public class MapProtoHandlerTest {
         MapProtoHandler mapProtoHandler = new MapProtoHandler(mapFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformToProtoBuilder(builder, null);
         List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
         assertEquals(0, entries.size());
     }
@@ -73,7 +73,7 @@ public class MapProtoHandlerTest {
         inputMap.put("a", "123");
         inputMap.put("b", "456");
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, inputMap);
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformToProtoBuilder(builder, inputMap);
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -103,7 +103,7 @@ public class MapProtoHandlerTest {
         inputRows.add(inputRow1);
         inputRows.add(inputRow2);
 
-        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformForKafka(builder, inputRows.toArray());
+        DynamicMessage.Builder returnedBuilder = mapProtoHandler.transformToProtoBuilder(builder, inputRows.toArray());
         List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
@@ -124,7 +124,7 @@ public class MapProtoHandlerTest {
         Row inputRow = new Row(3);
         inputRows.add(inputRow);
         IllegalArgumentException exception = Assert.assertThrows(IllegalArgumentException.class,
-                () -> mapProtoHandler.transformForKafka(builder, inputRows.toArray()));
+                () -> mapProtoHandler.transformToProtoBuilder(builder, inputRows.toArray()));
         assertEquals("Row: +I[null, null, null] of size: 3 cannot be converted to map", exception.getMessage());
     }
 
@@ -182,7 +182,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(2, outputValues.size());
     }
@@ -201,7 +201,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), driverProfileFlattenLogMessage.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals("a", ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) outputValues.get(0)).getField(1));
@@ -222,7 +222,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(2, outputValues.size());
     }
@@ -238,7 +238,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(1, ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
@@ -262,7 +262,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(0, ((Row) outputValues.get(0)).getField(0));
         assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
@@ -281,7 +281,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(1, ((Row) outputValues.get(0)).getField(0));
         assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
@@ -300,7 +300,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(0, ((Row) outputValues.get(0)).getField(0));
         assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
@@ -319,7 +319,7 @@ public class MapProtoHandlerTest {
 
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestComplexMap.getDescriptor(), testComplexMap.toByteArray());
 
-        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromKafka(dynamicMessage.getField(mapFieldDescriptor)));
+        List<Object> outputValues = Arrays.asList((Object[]) mapProtoHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
         assertEquals(0, ((Row) outputValues.get(0)).getField(0));
         assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
@@ -344,4 +344,14 @@ public class MapProtoHandlerTest {
         assertEquals(Types.OBJECT_ARRAY(Types.ROW_NAMED(new String[]{"key", "value"}, Types.STRING, Types.STRING)), mapProtoHandler.getTypeInformation());
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapProtoHandler protoHandler = new MapProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
+    }
 }

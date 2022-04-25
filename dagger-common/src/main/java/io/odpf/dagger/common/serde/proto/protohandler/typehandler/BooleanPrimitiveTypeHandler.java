@@ -5,6 +5,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 
 import java.util.List;
 
@@ -29,8 +31,21 @@ public class BooleanPrimitiveTypeHandler implements PrimitiveTypeHandler {
     }
 
     @Override
-    public Object getValue(Object field) {
+    public Object parseObject(Object field) {
         return Boolean.parseBoolean(getValueOrDefault(field, "false"));
+    }
+
+    @Override
+    public Object parseSimpleGroup(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+
+        /* this if branch checks that the field name exists in the simple group schema and is initialized */
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            return simpleGroup.getBoolean(fieldName, 0);
+        } else {
+            /* return default value */
+            return false;
+        }
     }
 
     @Override

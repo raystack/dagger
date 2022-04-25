@@ -10,14 +10,14 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnumMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RepeatedEnumProtoHandlerTest {
     @Test
@@ -50,7 +50,7 @@ public class RepeatedEnumProtoHandlerTest {
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedEnumFieldDescriptor.getContainingType());
 
-        assertEquals(Collections.EMPTY_LIST, repeatedEnumProtoHandler.transformForKafka(builder, 123).getField(repeatedEnumFieldDescriptor));
+        assertEquals(Collections.EMPTY_LIST, repeatedEnumProtoHandler.transformToProtoBuilder(builder, 123).getField(repeatedEnumFieldDescriptor));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class RepeatedEnumProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromKafka(dynamicMessage.getField(repeatedEnumFieldDescriptor));
+        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromProto(dynamicMessage.getField(repeatedEnumFieldDescriptor));
 
         assertEquals("UNKNOWN", outputValues[0]);
     }
@@ -105,8 +105,19 @@ public class RepeatedEnumProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumProtoHandler repeatedEnumProtoHandler = new RepeatedEnumProtoHandler(repeatedEnumFieldDescriptor);
 
-        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromKafka(null);
+        String[] outputValues = (String[]) repeatedEnumProtoHandler.transformFromProto(null);
 
         assertEquals(0, outputValues.length);
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumProtoHandler protoHandler = new RepeatedEnumProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

@@ -7,6 +7,7 @@ import io.odpf.dagger.common.serde.proto.protohandler.typehandler.PrimitiveTypeH
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         if (!canHandle() || field == null) {
             return builder;
         }
@@ -61,9 +62,14 @@ public class RepeatedPrimitiveProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         PrimitiveTypeHandler primitiveTypeHandler = PrimitiveTypeHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveTypeHandler.getArray(field);
+    }
+
+    @Override
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
+        return null;
     }
 
     @Override

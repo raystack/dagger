@@ -8,6 +8,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -15,10 +17,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
+import static org.junit.Assert.*;
 
 public class TimestampProtoHandlerTest {
     @Test
@@ -43,7 +43,7 @@ public class TimestampProtoHandlerTest {
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(otherFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(otherFieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder returnedBuilder = timestampProtoHandler.transformForKafka(builder, "123");
+        DynamicMessage.Builder returnedBuilder = timestampProtoHandler.transformToProtoBuilder(builder, "123");
         assertEquals("", returnedBuilder.getField(otherFieldDescriptor));
     }
 
@@ -53,7 +53,7 @@ public class TimestampProtoHandlerTest {
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(timestampFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(timestampFieldDescriptor.getContainingType());
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, null).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, null).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(0L, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -69,7 +69,7 @@ public class TimestampProtoHandlerTest {
         long milliSeconds = System.currentTimeMillis();
 
         Timestamp inputTimestamp = new Timestamp(milliSeconds);
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputTimestamp).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, inputTimestamp).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -87,7 +87,7 @@ public class TimestampProtoHandlerTest {
         Timestamp inputTimestamp = new Timestamp(milliSeconds);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliSeconds), ZoneOffset.UTC);
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, localDateTime).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, localDateTime).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(milliSeconds / 1000, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -103,7 +103,7 @@ public class TimestampProtoHandlerTest {
         int nanos = (int) (System.currentTimeMillis() * 1000000);
 
         Row inputRow = Row.of(seconds, nanos);
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputRow).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, inputRow).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -119,7 +119,7 @@ public class TimestampProtoHandlerTest {
         Row inputRow = new Row(3);
 
         try {
-            timestampProtoHandler.transformForKafka(builder, inputRow).build();
+            timestampProtoHandler.transformToProtoBuilder(builder, inputRow).build();
         } catch (Exception e) {
             assertEquals(IllegalArgumentException.class, e.getClass());
             assertEquals("Row: +I[null, null, null] of size: 3 cannot be converted to timestamp", e.getMessage());
@@ -134,7 +134,7 @@ public class TimestampProtoHandlerTest {
 
         long seconds = System.currentTimeMillis() / 1000;
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, seconds).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, seconds).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(seconds, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -149,7 +149,7 @@ public class TimestampProtoHandlerTest {
 
         Instant instant = Instant.now();
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, instant).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, instant).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(instant.getEpochSecond(), bookingLogMessage.getEventTimestamp().getSeconds());
@@ -164,7 +164,7 @@ public class TimestampProtoHandlerTest {
 
         String inputTimestamp = "2019-03-28T05:50:13Z";
 
-        DynamicMessage dynamicMessage = timestampProtoHandler.transformForKafka(builder, inputTimestamp).build();
+        DynamicMessage dynamicMessage = timestampProtoHandler.transformToProtoBuilder(builder, inputTimestamp).build();
 
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage.parseFrom(dynamicMessage.toByteArray());
         assertEquals(1553752213, bookingLogMessage.getEventTimestamp().getSeconds());
@@ -227,7 +227,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromProto(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(10L, 10), row);
     }
 
@@ -240,7 +240,7 @@ public class TimestampProtoHandlerTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
-        Row row = (Row) timestampProtoHandler.transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row row = (Row) timestampProtoHandler.transformFromProto(dynamicMessage.getField(fieldDescriptor));
         assertEquals(Row.of(0L, 0), row);
     }
 
@@ -255,5 +255,65 @@ public class TimestampProtoHandlerTest {
         Object value = new TimestampProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
         assertEquals("2020-09-14 11:43:48", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldTransformEpochInMillisFromSimpleGroup() {
+        long sampleTimeInMillis = Instant.now().toEpochMilli();
+        Instant instant = Instant.ofEpochMilli(sampleTimeInMillis);
+        Row expectedRow = Row.of(instant.getEpochSecond(), instant.getNano());
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("event_timestamp")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("event_timestamp", sampleTimeInMillis);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldReturnDefaultTimestampRowDuringTransformIfNullIsPassedToTransformFromParquet() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(null);
+
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainField() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("some-other-field")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
+
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainValueForField() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("event_timestamp")
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        TimestampProtoHandler timestampProtoHandler = new TimestampProtoHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampProtoHandler.transformFromParquet(simpleGroup);
+
+        Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
     }
 }

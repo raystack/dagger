@@ -8,6 +8,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -45,7 +47,7 @@ public class RepeatedStructMessageProtoHandlerTest {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(repeatedStructFieldDescriptor.getContainingType());
-        assertEquals(Collections.EMPTY_LIST, repeatedStructMessageProtoHandler.transformForKafka(builder, 123).getField(repeatedStructFieldDescriptor));
+        assertEquals(Collections.EMPTY_LIST, repeatedStructMessageProtoHandler.transformToProtoBuilder(builder, 123).getField(repeatedStructFieldDescriptor));
     }
 
     @Test
@@ -59,7 +61,7 @@ public class RepeatedStructMessageProtoHandlerTest {
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageProtoHandler repeatedStructMessageProtoHandler = new RepeatedStructMessageProtoHandler(repeatedStructFieldDescriptor);
-        assertNull(repeatedStructMessageProtoHandler.transformFromKafka("test"));
+        assertNull(repeatedStructMessageProtoHandler.transformFromProto("test"));
     }
 
     @Test
@@ -69,6 +71,17 @@ public class RepeatedStructMessageProtoHandlerTest {
         TypeInformation actualTypeInformation = repeatedStructMessageProtoHandler.getTypeInformation();
         TypeInformation<Row[]> expectedTypeInformation = Types.OBJECT_ARRAY(Types.ROW_NAMED(new String[]{}));
         assertEquals(expectedTypeInformation, actualTypeInformation);
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        RepeatedStructMessageProtoHandler protoHandler = new RepeatedStructMessageProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 
 }

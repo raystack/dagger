@@ -1,6 +1,7 @@
 package io.odpf.dagger.common.serde.proto.protohandler.typehandler;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
  * The interface Primitive type handler.
@@ -14,12 +15,20 @@ public interface PrimitiveTypeHandler {
     boolean canHandle();
 
     /**
-     * Gets value.
+     * Parses a primitive value from an object.
      *
-     * @param field the field
-     * @return the value
+     * @param field the object to be parsed
+     * @return the parsed value
      */
-    Object getValue(Object field);
+    Object parseObject(Object field);
+
+    /**
+     * Parses a primitive value from a SimpleGroup object.
+     *
+     * @param simpleGroup SimpleGroup object to be parsed
+     * @return the parsed value
+     */
+    Object parseSimpleGroup(SimpleGroup simpleGroup);
 
     /**
      * Gets array.

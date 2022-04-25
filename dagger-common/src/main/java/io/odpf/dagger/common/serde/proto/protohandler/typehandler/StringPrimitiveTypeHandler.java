@@ -2,9 +2,11 @@ package io.odpf.dagger.common.serde.proto.protohandler.typehandler;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +32,21 @@ public class StringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     }
 
     @Override
-    public Object getValue(Object field) {
+    public Object parseObject(Object field) {
         return getValueOrDefault(field, "");
+    }
+
+    @Override
+    public Object parseSimpleGroup(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+
+        /* this if branch checks that the field name exists in the simple group schema and is initialized */
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            return simpleGroup.getString(fieldName, 0);
+        } else {
+            /* return default value */
+            return "";
+        }
     }
 
     @Override

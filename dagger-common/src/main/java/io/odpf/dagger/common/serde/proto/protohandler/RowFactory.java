@@ -5,6 +5,7 @@ import org.apache.flink.types.Row;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -47,9 +48,23 @@ public class RowFactory {
         Row row = new Row(descriptorFields.size() + extraColumns);
         for (FieldDescriptor fieldDescriptor : descriptorFields) {
             ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromKafka(proto.getField(fieldDescriptor)));
+            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromProto(proto.getField(fieldDescriptor)));
         }
         return row;
+    }
+
+    public static Row createRow(Descriptors.Descriptor descriptor, SimpleGroup simpleGroup, int extraColumns) {
+        List<FieldDescriptor> descriptorFields = descriptor.getFields();
+        Row row = new Row(descriptorFields.size() + extraColumns);
+        for (FieldDescriptor fieldDescriptor : descriptorFields) {
+            ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+            row.setField(fieldDescriptor.getIndex(), protoHandler.transformFromParquet(simpleGroup));
+        }
+        return row;
+    }
+
+    public static Row createRow(Descriptors.Descriptor descriptor, SimpleGroup simpleGroup) {
+        return createRow(descriptor, simpleGroup, 0);
     }
 
     /**

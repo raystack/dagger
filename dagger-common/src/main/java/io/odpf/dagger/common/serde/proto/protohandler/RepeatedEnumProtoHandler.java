@@ -7,6 +7,7 @@ import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import com.google.gson.Gson;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public DynamicMessage.Builder transformForKafka(DynamicMessage.Builder builder, Object field) {
+    public DynamicMessage.Builder transformToProtoBuilder(DynamicMessage.Builder builder, Object field) {
         return builder;
     }
 
@@ -46,8 +47,13 @@ public class RepeatedEnumProtoHandler implements ProtoHandler {
     }
 
     @Override
-    public Object transformFromKafka(Object field) {
+    public Object transformFromProto(Object field) {
         return getValue(field);
+    }
+
+    @Override
+    public Object transformFromParquet(SimpleGroup simpleGroup) {
+        return null;
     }
 
     @Override

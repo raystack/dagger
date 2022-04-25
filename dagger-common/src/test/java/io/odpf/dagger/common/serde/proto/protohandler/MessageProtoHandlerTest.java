@@ -9,13 +9,13 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestPaymentOptionMetadata;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MessageProtoHandlerTest {
 
@@ -41,8 +41,8 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        assertEquals(builder, messsageProtoHandler.transformForKafka(builder, 123));
-        assertEquals("", messsageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor));
+        assertEquals(builder, messsageProtoHandler.transformToProtoBuilder(builder, 123));
+        assertEquals("", messsageProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class MessageProtoHandlerTest {
         MessageProtoHandler messsageProtoHandler = new MessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
 
-        DynamicMessage.Builder outputBuilder = messsageProtoHandler.transformForKafka(builder, null);
+        DynamicMessage.Builder outputBuilder = messsageProtoHandler.transformToProtoBuilder(builder, null);
         assertEquals(builder, outputBuilder);
         assertEquals("", outputBuilder.getField(fieldDescriptor));
     }
@@ -65,7 +65,7 @@ public class MessageProtoHandlerTest {
         Row inputRow = new Row(2);
         inputRow.setField(0, "test1");
         inputRow.setField(1, "test2");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformToProtoBuilder(builder, inputRow);
 
         TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -82,7 +82,7 @@ public class MessageProtoHandlerTest {
 
         Row inputRow = new Row(1);
         inputRow.setField(0, "test1");
-        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformForKafka(builder, inputRow);
+        DynamicMessage.Builder returnedBuilder = messageProtoHandler.transformToProtoBuilder(builder, inputRow);
 
         TestPaymentOptionMetadata returnedValue = TestPaymentOptionMetadata.parseFrom(((DynamicMessage) returnedBuilder.getField(messageFieldDescriptor)).toByteArray());
 
@@ -147,7 +147,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromProto(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("test2", value.getField(1));
@@ -165,7 +165,7 @@ public class MessageProtoHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
 
-        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromKafka(dynamicMessage.getField(fieldDescriptor));
+        Row value = (Row) new MessageProtoHandler(fieldDescriptor).transformFromProto(dynamicMessage.getField(fieldDescriptor));
 
         assertEquals("test1", value.getField(0));
         assertEquals("", value.getField(1));
@@ -192,5 +192,16 @@ public class MessageProtoHandlerTest {
         Object value = new MessageProtoHandler(fieldDescriptor).transformToJson(inputRow);
 
         assertEquals("{\"masked_card\":\"test1\",\"network\":\"test2\"}", String.valueOf(value));
+    }
+
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
+        MessageProtoHandler protoHandler = new MessageProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
 }

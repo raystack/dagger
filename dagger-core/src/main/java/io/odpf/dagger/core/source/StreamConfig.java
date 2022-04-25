@@ -1,12 +1,15 @@
 package io.odpf.dagger.core.source;
 
+import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
+import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import io.odpf.dagger.common.configuration.Configuration;
 import lombok.Getter;
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 import java.io.StringReader;
@@ -14,7 +17,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
+import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.utils.Constants.*;
 
 public class StreamConfig {
@@ -71,21 +76,38 @@ public class StreamConfig {
     @SerializedName(STREAM_INPUT_DATATYPE)
     private String dataType;
 
-    @SerializedName(STREAM_INPUT_SOURCE_TYPE)
-    private String sourceType;
+    @SerializedName(STREAM_SOURCE_DETAILS_KEY)
+    private SourceDetails[] sourceDetails;
 
-    public String getSourceType() {
-        if (sourceType == null) {
-            sourceType = SourceName.OLD_KAFKA_SOURCE.toString();
-        }
-        return sourceType;
-    }
+    @SerializedName(STREAM_SOURCE_PARQUET_BILLING_PROJECT_KEY)
+    @Getter
+    private String parquetBillingProject;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_FILE_PATHS_KEY)
+    @Getter
+    private String[] parquetFilePaths;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_READ_ORDER_STRATEGY_KEY)
+    @Getter
+    private SourceParquetReadOrderStrategy parquetFilesReadOrderStrategy;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY_KEY)
+    @Getter
+    private SourceParquetSchemaMatchStrategy parquetSchemaMatchStrategy;
 
     public String getDataType() {
         if (dataType == null) {
             dataType = "PROTO";
         }
         return dataType;
+    }
+
+    public SourceDetails[] getSourceDetails() {
+        if (sourceDetails == null) {
+            return new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.UNBOUNDED)};
+        } else {
+            return sourceDetails;
+        }
     }
 
     public String getAutoOffsetReset() {

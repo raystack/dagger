@@ -1,11 +1,13 @@
 package io.odpf.dagger.common.serde.proto.protohandler.typehandler;
 
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +33,21 @@ public class ByteStringPrimitiveTypeHandler implements PrimitiveTypeHandler {
     }
 
     @Override
-    public Object getValue(Object field) {
+    public Object parseObject(Object field) {
         return field;
+    }
+
+    @Override
+    public Object parseSimpleGroup(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+
+        /* this if branch checks that the field name exists in the simple group schema and is initialized */
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            byte[] byteArray = simpleGroup.getBinary(fieldName, 0).getBytes();
+            return ByteString.copyFrom(byteArray);
+        } else {
+            return null;
+        }
     }
 
     @Override

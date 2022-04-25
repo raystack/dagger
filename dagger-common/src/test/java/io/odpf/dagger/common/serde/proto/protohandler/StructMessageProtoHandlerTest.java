@@ -8,6 +8,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestRepeatedEnumMessage;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -44,7 +46,7 @@ public class StructMessageProtoHandlerTest {
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
         DynamicMessage.Builder builder = DynamicMessage.newBuilder(fieldDescriptor.getContainingType());
         assertEquals(DynamicMessage.getDefaultInstance(fieldDescriptor.getContainingType()).getAllFields().size(),
-                ((DynamicMessage) structMessageProtoHandler.transformForKafka(builder, 123).getField(fieldDescriptor)).getAllFields().size());
+                ((DynamicMessage) structMessageProtoHandler.transformToProtoBuilder(builder, 123).getField(fieldDescriptor)).getAllFields().size());
     }
 
     @Test
@@ -58,7 +60,7 @@ public class StructMessageProtoHandlerTest {
     public void shouldReturnNullForTransformForKafka() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageProtoHandler structMessageProtoHandler = new StructMessageProtoHandler(fieldDescriptor);
-        assertNull(structMessageProtoHandler.transformFromKafka("test"));
+        assertNull(structMessageProtoHandler.transformFromProto("test"));
     }
 
     @Test
@@ -70,4 +72,14 @@ public class StructMessageProtoHandlerTest {
         assertEquals(expectedTypeInformation, actualTypeInformation);
     }
 
+    @Test
+    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
+        StructMessageProtoHandler protoHandler = new StructMessageProtoHandler(fieldDescriptor);
+        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .named("TestGroupType");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        assertNull(protoHandler.transformFromParquet(simpleGroup));
+    }
 }

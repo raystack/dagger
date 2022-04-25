@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.source.kafka;
+package io.odpf.dagger.core.source.flinkkafkaconsumer;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
