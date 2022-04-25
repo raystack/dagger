@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.common;
 
 import io.odpf.dagger.core.processors.ColumnNameManager;
-import io.odpf.dagger.core.processors.types.SourceConfig;
+import io.odpf.dagger.core.utils.Constants.ExternalPostProcessorVariableType;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -29,7 +29,6 @@ import static java.util.Collections.singleton;
  */
 public class EndpointHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(EndpointHandler.class.getName());
-    private SourceConfig sourceConfig;
     private MeterStatsManager meterStatsManager;
     private ErrorReporter errorReporter;
     private String[] inputProtoClasses;
@@ -48,13 +47,11 @@ public class EndpointHandler {
      * @param columnNameManager the column name manager
      * @param descriptorManager the descriptor manager
      */
-    public EndpointHandler(SourceConfig sourceConfig,
-                           MeterStatsManager meterStatsManager,
+    public EndpointHandler(MeterStatsManager meterStatsManager,
                            ErrorReporter errorReporter,
                            String[] inputProtoClasses,
                            ColumnNameManager columnNameManager,
                            DescriptorManager descriptorManager) {
-        this.sourceConfig = sourceConfig;
         this.meterStatsManager = meterStatsManager;
         this.errorReporter = errorReporter;
         this.inputProtoClasses = inputProtoClasses;
@@ -63,19 +60,20 @@ public class EndpointHandler {
     }
 
     /**
-     * Get endpoint or query variables values.
+     * Get external post processor variables values.
      *
      * @param rowManager   the row manager
+     * @param variableType the variable type
+     * @parm variables     the variable list
      * @param resultFuture the result future
      * @return the array object
      */
-    public Object[] getEndpointOrQueryVariablesValues(RowManager rowManager, ResultFuture<Row> resultFuture) {
-        String queryVariables = sourceConfig.getVariables();
-        if (StringUtils.isEmpty(queryVariables)) {
+    public Object[] getVariablesValue(RowManager rowManager, ExternalPostProcessorVariableType variableType, String variables, ResultFuture<Row> resultFuture) {
+        if (StringUtils.isEmpty(variables)) {
             return new Object[0];
         }
 
-        String[] requiredInputColumns = queryVariables.split(",");
+        String[] requiredInputColumns = variables.split(",");
         ArrayList<Object> inputColumnValues = new ArrayList<>();
         if (descriptorMap == null) {
             descriptorMap = createDescriptorMap(requiredInputColumns, inputProtoClasses, resultFuture);
@@ -84,7 +82,7 @@ public class EndpointHandler {
         for (String inputColumnName : requiredInputColumns) {
             int inputColumnIndex = columnNameManager.getInputIndex(inputColumnName);
             if (inputColumnIndex == -1) {
-                throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the endpoint/query variable", inputColumnName));
+                throw new InvalidConfigurationException(String.format("Column '%s' not found as configured in the '%s' variable", inputColumnName, variableType));
             }
 
             Descriptors.FieldDescriptor fieldDescriptor = descriptorMap.get(inputColumnName);
@@ -105,11 +103,12 @@ public class EndpointHandler {
      *
      * @param resultFuture            the result future
      * @param rowManager              the row manager
-     * @param endpointVariablesValues the endpoint variables values
+     * @param variables               the request/header variables
+     * @param variablesValue          the variables value
      * @return the boolean
      */
-    public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, Object[] endpointVariablesValues) {
-        if (!StringUtils.isEmpty(sourceConfig.getVariables()) && (Arrays.asList(endpointVariablesValues).isEmpty() || Arrays.stream(endpointVariablesValues).allMatch(""::equals))) {
+    public boolean isQueryInvalid(ResultFuture<Row> resultFuture, RowManager rowManager, String variables, Object[] variablesValue) {
+        if (!StringUtils.isEmpty(variables) && (Arrays.asList(variablesValue).isEmpty() || Arrays.stream(variablesValue).allMatch(""::equals))) {
             LOGGER.warn("Could not populate any request variable. Skipping external calls");
             meterStatsManager.markEvent(ExternalSourceAspects.EMPTY_INPUT);
             resultFuture.complete(singleton(rowManager.getAll()));

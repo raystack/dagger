@@ -20,6 +20,7 @@ import io.odpf.dagger.core.processors.external.grpc.client.GrpcClient;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.core.utils.Constants;
+import io.odpf.dagger.core.utils.Constants.ExternalPostProcessorVariableType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +91,8 @@ public class GrpcAsyncConnector extends AsyncConnector {
             RowManager rowManager = new RowManager(input);
 
             Object[] requestVariablesValues = getEndpointHandler()
-                    .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
-            if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, requestVariablesValues)) {
+                    .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, grpcSourceConfig.getVariables(), resultFuture);
+            if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, grpcSourceConfig.getVariables(), requestVariablesValues)) {
                 return;
             }
 

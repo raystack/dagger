@@ -1,8 +1,13 @@
 package io.odpf.dagger.core.processors.external.http.request;
 
+import com.google.gson.Gson;
+import io.netty.util.internal.StringUtil;
 import io.odpf.dagger.core.processors.external.http.HttpSourceConfig;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Http post request handler.
@@ -11,7 +16,7 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
     private HttpSourceConfig httpSourceConfig;
     private AsyncHttpClient httpClient;
     private Object[] requestVariablesValues;
-
+    private Object[] dynamicHeaderVariablesValues;
     /**
      * Instantiates a new Http post request handler.
      *
@@ -19,10 +24,11 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
      * @param httpClient             the http client
      * @param requestVariablesValues the request variables values
      */
-    public HttpPostRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues) {
+    public HttpPostRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues) {
         this.httpSourceConfig = httpSourceConfig;
         this.httpClient = httpClient;
         this.requestVariablesValues = requestVariablesValues;
+        this.dynamicHeaderVariablesValues = dynamicHeaderVariablesValues;
     }
 
     @Override
@@ -32,7 +38,12 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
         BoundRequestBuilder postRequest = httpClient
                 .preparePost(endpoint)
                 .setBody(requestBody);
-        return addHeaders(postRequest, httpSourceConfig.getHeaders());
+        Map<String, String> headers = httpSourceConfig.getHeaders();
+        if (!StringUtil.isNullOrEmpty(httpSourceConfig.getHeaderPattern())) {
+            String dynamicHeader = String.format(httpSourceConfig.getHeaderPattern(), dynamicHeaderVariablesValues);
+            headers.putAll(new Gson().fromJson(dynamicHeader, HashMap.class));
+        }
+        return addHeaders(postRequest, headers);
     }
 
     @Override
