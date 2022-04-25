@@ -1,6 +1,5 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.core.utils.Constants;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;

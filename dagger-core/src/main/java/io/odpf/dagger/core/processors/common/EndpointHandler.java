@@ -1,6 +1,5 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.netty.util.internal.StringUtil;
 import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.types.SourceConfig;
 import io.odpf.dagger.core.utils.Constants.VariableType;
