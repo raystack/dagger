@@ -1,5 +1,7 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
+import com.google.protobuf.Descriptors;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
@@ -28,6 +30,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 public class RepeatedMessageTypeHandler implements TypeHandler {
     private JsonRowSerializationSchema jsonRowSerializationSchema;
     private FieldDescriptor fieldDescriptor;
+    private Descriptors.Descriptor fieldMessageDescriptor;
 
     /**
      * Instantiates a new Repeated message proto handler.
@@ -36,6 +39,9 @@ public class RepeatedMessageTypeHandler implements TypeHandler {
      */
     public RepeatedMessageTypeHandler(FieldDescriptor fieldDescriptor) {
         this.fieldDescriptor = fieldDescriptor;
+        if (canHandle()) {
+            this.fieldMessageDescriptor = fieldDescriptor.getMessageType();
+        }
     }
 
     @Override
@@ -90,7 +96,16 @@ public class RepeatedMessageTypeHandler implements TypeHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        ArrayList<Row> rowList = new ArrayList<>();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            for (int i = 0; i < repetitionCount; i++) {
+                SimpleGroup nestedGroup = (SimpleGroup) simpleGroup.getGroup(fieldName, i);
+                rowList.add(RowFactory.createRow(fieldMessageDescriptor, nestedGroup));
+            }
+        }
+        return rowList.toArray();
     }
 
     @Override
