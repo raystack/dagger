@@ -11,8 +11,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.FLOAT;
 import static org.apache.parquet.schema.Types.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -139,6 +141,64 @@ public class FloatTypeHandlerTest {
         Object actualValue = floatHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0.0F, actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfFloatValuesForFieldOfTypeRepeatedFloatInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("float_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(FLOAT).named("float_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("float_array_field", 0.45123F);
+        simpleGroup.add("float_array_field", 23.0123F);
+
+        FloatTypeHandler floatHandler = new FloatTypeHandler(fieldDescriptor);
+        float[] actualValue = (float[]) floatHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new float[]{0.45123F, 23.0123F}, actualValue, 0F);
+    }
+
+    @Test
+    public void shouldReturnEmptyFloatArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("float_array_field");
+
+        FloatTypeHandler floatHandler = new FloatTypeHandler(fieldDescriptor);
+        float[] actualValue = (float[]) floatHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new float[0], actualValue, 0F);
+    }
+
+    @Test
+    public void shouldReturnEmptyFloatArrayWhenRepeatedFloatFieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("float_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        FloatTypeHandler floatHandler = new FloatTypeHandler(fieldDescriptor);
+        float[] actualValue = (float[]) floatHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new float[0], actualValue, 0F);
+    }
+
+    @Test
+    public void shouldReturnEmptyFloatArrayWhenRepeatedFloatFieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("float_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(FLOAT).named("float_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        FloatTypeHandler floatHandler = new FloatTypeHandler(fieldDescriptor);
+        float[] actualValue = (float[]) floatHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new float[0], actualValue, 0F);
     }
 
 }

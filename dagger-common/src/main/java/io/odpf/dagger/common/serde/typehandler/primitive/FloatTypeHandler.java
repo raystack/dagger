@@ -60,7 +60,16 @@ public class FloatTypeHandler implements PrimitiveHandler {
 
     @Override
     public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            float[] floatArray = new float[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                floatArray[i] = simpleGroup.getFloat(fieldName, i);
+            }
+            return floatArray;
+        }
+        return new float[0];
     }
 
     @Override
