@@ -55,3 +55,7 @@ message TestEnumMessage {
 message TestComplexMap {
     map<int32, TestMessage> complex_map = 1;
 }
+
+message TestRepeatedPrimitiveMessage {
+    repeated bytes metadata_bytes = 1;
+}
