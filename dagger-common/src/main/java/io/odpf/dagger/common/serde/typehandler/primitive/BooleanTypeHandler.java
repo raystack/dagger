@@ -59,7 +59,16 @@ public class BooleanTypeHandler implements PrimitiveHandler {
 
     @Override
     public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            boolean[] booleanArray = new boolean[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                booleanArray[i] = simpleGroup.getBoolean(fieldName, i);
+            }
+            return booleanArray;
+        }
+        return new boolean[0];
     }
 
     @Override

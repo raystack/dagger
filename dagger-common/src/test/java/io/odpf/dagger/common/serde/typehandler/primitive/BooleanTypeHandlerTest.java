@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -143,5 +144,62 @@ public class BooleanTypeHandlerTest {
         Object actualValue = booleanHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(false, actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfJavaBooleanValuesForFieldOfTypeRepeatedBooleanInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("boolean_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("boolean_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        simpleGroup.add("boolean_array_field", true);
+        simpleGroup.add("boolean_array_field", false);
+
+        BooleanTypeHandler booleanHandler = new BooleanTypeHandler(fieldDescriptor);
+        boolean[] actualValue = (boolean[]) booleanHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new boolean[]{true, false}, actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyBooleanArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("boolean_array_field");
+
+        BooleanTypeHandler booleanHandler = new BooleanTypeHandler(fieldDescriptor);
+        boolean[] actualValue = (boolean[]) booleanHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new boolean[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyBooleanArrayWhenRepeatedFieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("boolean_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        BooleanTypeHandler booleanHandler = new BooleanTypeHandler(fieldDescriptor);
+        boolean[] actualValue = (boolean[]) booleanHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new boolean[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyBooleanArrayWhenRepeatedFieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("boolean_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("boolean_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        BooleanTypeHandler booleanHandler = new BooleanTypeHandler(fieldDescriptor);
+        boolean[] actualValue = (boolean[]) booleanHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new boolean[0], actualValue);
     }
 }
