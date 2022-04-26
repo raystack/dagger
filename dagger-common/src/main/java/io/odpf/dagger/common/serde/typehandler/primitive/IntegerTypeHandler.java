@@ -58,6 +58,11 @@ public class IntegerTypeHandler implements PrimitiveHandler {
     }
 
     @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        return null;
+    }
+
+    @Override
     public TypeInformation getTypeInformation() {
         return Types.INT;
     }

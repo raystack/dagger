@@ -60,6 +60,11 @@ public class ByteStringTypeHandler implements PrimitiveHandler {
     }
 
     @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        return null;
+    }
+
+    @Override
     public TypeInformation getTypeInformation() {
         return TypeInformation.of(ByteString.class);
     }
