@@ -84,7 +84,7 @@ public class StringTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
         ArrayList<String> inputValues = new ArrayList<>(Arrays.asList("1", "2", "3"));
-        Object actualValues = stringTypeHandler.parseObjectArray(inputValues);
+        Object actualValues = stringTypeHandler.parseRepeatedObjectField(inputValues);
         assertArrayEquals(inputValues.toArray(), (String[]) actualValues);
     }
 
@@ -92,7 +92,7 @@ public class StringTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
         StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
-        Object actualValues = stringTypeHandler.parseObjectArray(null);
+        Object actualValues = stringTypeHandler.parseRepeatedObjectField(null);
         assertEquals(0, ((String[]) actualValues).length);
     }
 

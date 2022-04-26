@@ -83,7 +83,7 @@ public class LongTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
         ArrayList<Long> inputValues = new ArrayList<>(Arrays.asList(1L, 2L, 3L));
-        Object actualValues = longTypeHandler.parseObjectArray(inputValues);
+        Object actualValues = longTypeHandler.parseRepeatedObjectField(inputValues);
         assertArrayEquals(inputValues.toArray(), (Long[]) actualValues);
     }
 
@@ -91,7 +91,7 @@ public class LongTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
-        Object actualValues = longTypeHandler.parseObjectArray(null);
+        Object actualValues = longTypeHandler.parseRepeatedObjectField(null);
         assertEquals(0, ((Long[]) actualValues).length);
     }
 

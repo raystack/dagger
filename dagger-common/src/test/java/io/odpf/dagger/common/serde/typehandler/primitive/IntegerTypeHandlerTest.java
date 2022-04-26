@@ -83,7 +83,7 @@ public class IntegerTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerTypeHandler integerTypeHandler = new IntegerTypeHandler(fieldDescriptor);
         ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
-        Object actualValues = integerTypeHandler.parseObjectArray(inputValues);
+        Object actualValues = integerTypeHandler.parseRepeatedObjectField(inputValues);
 
         assertArrayEquals(new int[]{1, 2, 3}, (int[]) actualValues);
     }
@@ -92,7 +92,7 @@ public class IntegerTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerTypeHandler integerTypeHandler = new IntegerTypeHandler(fieldDescriptor);
-        Object actualValues = integerTypeHandler.parseObjectArray(null);
+        Object actualValues = integerTypeHandler.parseRepeatedObjectField(null);
 
         assertEquals(0, ((int[]) actualValues).length);
     }

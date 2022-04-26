@@ -50,7 +50,7 @@ public class StringTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object parseObjectArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         List<String> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<String>) field;

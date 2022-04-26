@@ -79,7 +79,7 @@ public class DoubleTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoubleTypeHandler doubleTypeHandler = new DoubleTypeHandler(fieldDescriptor);
         ArrayList<Double> inputValues = new ArrayList<>(Arrays.asList(1D, 2D, 3D));
-        double[] actualValues = (double[]) doubleTypeHandler.parseObjectArray(inputValues);
+        double[] actualValues = (double[]) doubleTypeHandler.parseRepeatedObjectField(inputValues);
 
         assertTrue(Arrays.equals(new double[]{1D, 2D, 3D}, actualValues));
     }
@@ -88,7 +88,7 @@ public class DoubleTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount");
         DoubleTypeHandler doubleTypeHandler = new DoubleTypeHandler(fieldDescriptor);
-        Object actualValues = doubleTypeHandler.parseObjectArray(null);
+        Object actualValues = doubleTypeHandler.parseRepeatedObjectField(null);
 
         assertEquals(0, ((double[]) actualValues).length);
     }

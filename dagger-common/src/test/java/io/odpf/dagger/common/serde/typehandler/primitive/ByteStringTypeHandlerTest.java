@@ -62,7 +62,7 @@ public class ByteStringTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
         ArrayList<ByteString> inputValues = new ArrayList<>(Arrays.asList(ByteString.copyFromUtf8("test1"), ByteString.copyFromUtf8("test2")));
-        Object actualValues = byteStringTypeHandler.parseObjectArray(inputValues);
+        Object actualValues = byteStringTypeHandler.parseRepeatedObjectField(inputValues);
         assertArrayEquals(inputValues.toArray(), (ByteString[]) actualValues);
     }
 
@@ -70,7 +70,7 @@ public class ByteStringTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringTypeHandler byteStringTypeHandler = new ByteStringTypeHandler(fieldDescriptor);
-        Object actualValues = byteStringTypeHandler.parseObjectArray(null);
+        Object actualValues = byteStringTypeHandler.parseRepeatedObjectField(null);
         assertEquals(0, ((ByteString[]) actualValues).length);
     }
 

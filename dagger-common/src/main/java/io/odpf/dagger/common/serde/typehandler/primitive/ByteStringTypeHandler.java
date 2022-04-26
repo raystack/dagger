@@ -51,7 +51,7 @@ public class ByteStringTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object parseObjectArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         List<ByteString> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<ByteString>) field;
