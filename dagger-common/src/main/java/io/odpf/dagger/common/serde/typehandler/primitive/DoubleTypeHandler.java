@@ -59,7 +59,16 @@ public class DoubleTypeHandler implements PrimitiveHandler {
 
     @Override
     public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            double[] doubleArray = new double[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                doubleArray[i] = simpleGroup.getDouble(fieldName, i);
+            }
+            return doubleArray;
+        }
+        return new double[0];
     }
 
     @Override

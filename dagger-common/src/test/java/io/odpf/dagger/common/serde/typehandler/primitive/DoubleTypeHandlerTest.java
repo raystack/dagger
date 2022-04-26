@@ -10,7 +10,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.DOUBLE;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.*;
 
 public class DoubleTypeHandlerTest {
@@ -139,4 +141,61 @@ public class DoubleTypeHandlerTest {
         assertEquals(0.0D, actualValue);
     }
 
+    @Test
+    public void shouldReturnArrayOfDoubleValuesForFieldOfTypeRepeatedDoubleInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("double_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(DOUBLE).named("double_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("double_array_field", 0.45123D);
+        simpleGroup.add("double_array_field", 23.0123D);
+
+        DoubleTypeHandler doubleHandler = new DoubleTypeHandler(fieldDescriptor);
+        double[] actualValue = (double[]) doubleHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new double[]{0.45123D, 23.0123D}, actualValue, 0D);
+    }
+
+    @Test
+    public void shouldReturnEmptyDoubleArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("double_array_field");
+
+        DoubleTypeHandler doubleHandler = new DoubleTypeHandler(fieldDescriptor);
+        double[] actualValue = (double[]) doubleHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new double[0], actualValue, 0D);
+    }
+
+    @Test
+    public void shouldReturnEmptyDoubleArrayWhenRepeatedDoubleFieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("double_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        DoubleTypeHandler doubleHandler = new DoubleTypeHandler(fieldDescriptor);
+        double[] actualValue = (double[]) doubleHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new double[0], actualValue, 0D);
+    }
+
+    @Test
+    public void shouldReturnEmptyDoubleArrayWhenRepeatedDoubleFieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("double_array_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(DOUBLE).named("double_array_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        DoubleTypeHandler doubleHandler = new DoubleTypeHandler(fieldDescriptor);
+        double[] actualValue = (double[]) doubleHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new double[0], actualValue, 0D);
+    }
 }
