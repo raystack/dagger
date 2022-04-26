@@ -66,7 +66,7 @@ public class RepeatedPrimitiveTypeHandler implements TypeHandler {
     @Override
     public Object transformFromProto(Object field) {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveHandler.getArray(field);
+        return primitiveHandler.parseObjectArray(field);
     }
 
     @Override

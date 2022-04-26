@@ -49,7 +49,7 @@ public class LongTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
         List<Long> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<Long>) field;

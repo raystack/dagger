@@ -49,7 +49,7 @@ public class IntegerTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
         int[] inputValues = new int[0];
         if (field != null) {
             inputValues = Ints.toArray((List<Integer>) field);

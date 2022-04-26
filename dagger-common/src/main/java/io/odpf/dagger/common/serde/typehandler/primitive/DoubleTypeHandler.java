@@ -49,7 +49,7 @@ public class DoubleTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
         double[] inputValues = new double[0];
         if (field != null) {
             inputValues = Doubles.toArray((List<Double>) field);

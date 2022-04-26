@@ -49,7 +49,7 @@ public class BooleanTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
         boolean[] inputValues = new boolean[0];
         if (field != null) {
             inputValues = Booleans.toArray((List<Boolean>) field);

@@ -82,7 +82,7 @@ public class FloatTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatTypeHandler floatTypeHandler = new FloatTypeHandler(fieldDescriptor);
         ArrayList<Float> inputValues = new ArrayList<>(Arrays.asList(1F, 2F, 3F));
-        Object actualValues = floatTypeHandler.getArray(inputValues);
+        Object actualValues = floatTypeHandler.parseObjectArray(inputValues);
 
         assertTrue(Arrays.equals(new float[]{1F, 2F, 3F}, (float[]) actualValues));
     }
@@ -91,7 +91,7 @@ public class FloatTypeHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash");
         FloatTypeHandler floatTypeHandler = new FloatTypeHandler(fieldDescriptor);
-        Object actualValues = floatTypeHandler.getArray(null);
+        Object actualValues = floatTypeHandler.parseObjectArray(null);
 
         assertEquals(0, ((float[]) actualValues).length);
     }

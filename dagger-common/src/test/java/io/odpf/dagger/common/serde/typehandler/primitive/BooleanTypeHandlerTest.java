@@ -86,7 +86,7 @@ public class BooleanTypeHandlerTest {
 
         BooleanTypeHandler booleanTypeHandler = new BooleanTypeHandler(fieldDescriptor);
         ArrayList<Boolean> inputValues = new ArrayList<>(Arrays.asList(true, false, false));
-        Object actualValues = booleanTypeHandler.getArray(inputValues);
+        Object actualValues = booleanTypeHandler.parseObjectArray(inputValues);
 
         assertArrayEquals(new boolean[]{true, false, false}, (boolean[]) actualValues);
     }
@@ -96,7 +96,7 @@ public class BooleanTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled");
 
         BooleanTypeHandler booleanTypeHandler = new BooleanTypeHandler(fieldDescriptor);
-        Object actualValues = booleanTypeHandler.getArray(null);
+        Object actualValues = booleanTypeHandler.parseObjectArray(null);
 
         assertEquals(0, ((boolean[]) actualValues).length);
     }

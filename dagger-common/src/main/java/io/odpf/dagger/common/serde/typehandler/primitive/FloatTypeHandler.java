@@ -49,7 +49,7 @@ public class FloatTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
 
         float[] inputValues = new float[0];
         if (field != null) {

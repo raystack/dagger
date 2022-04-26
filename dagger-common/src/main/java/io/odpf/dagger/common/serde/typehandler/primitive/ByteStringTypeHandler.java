@@ -51,7 +51,7 @@ public class ByteStringTypeHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseObjectArray(Object field) {
         List<ByteString> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<ByteString>) field;
