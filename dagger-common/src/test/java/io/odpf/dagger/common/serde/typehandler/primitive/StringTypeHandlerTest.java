@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -138,5 +140,63 @@ public class StringTypeHandlerTest {
         Object actualValue = stringHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals("", actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfStringValuesForFieldOfTypeRepeatedBinaryInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("meta_array")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("meta_array", "Hello World");
+        simpleGroup.add("meta_array", "Welcome");
+
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        String[] actualValue = (String[]) stringTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new String[]{"Hello World", "Welcome"}, actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyStringArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        String[] actualValue = (String[]) stringTypeHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new String[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyStringArrayWhenRepeatedBinaryFieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        String[] actualValue = (String[]) stringTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new String[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyStringArrayWhenRepeatedBinaryFieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("meta_array")
+                .named("TestBookingLogMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        StringTypeHandler stringTypeHandler = new StringTypeHandler(fieldDescriptor);
+        String[] actualValue = (String[]) stringTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new String[0], actualValue);
     }
 }

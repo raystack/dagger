@@ -60,7 +60,16 @@ public class StringTypeHandler implements PrimitiveHandler {
 
     @Override
     public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            String[] stringArray = new String[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                stringArray[i] = simpleGroup.getString(fieldName, i);
+            }
+            return stringArray;
+        }
+        return new String[0];
     }
 
     @Override
