@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -108,6 +107,10 @@ public class PythonUdfManagerTest {
     public void shouldOnlyExecutePyFormatInsideZipFile() throws IOException {
         String pathFile = getPath("python_udf.zip");
 
+        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION MULTIPLY AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
+        String sqlRegisterSecondUdf = "CREATE TEMPORARY FUNCTION ADD AS 'python_udf.scalar.add.add' LANGUAGE PYTHON";
+        String sqlRegisterThirdUdf = "CREATE TEMPORARY FUNCTION SUBSTRACT AS 'python_udf.vectorized.substract.substract' LANGUAGE PYTHON";
+
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);
         when(pythonUdfConfig.getPythonFiles()).thenReturn(pathFile);
@@ -116,7 +119,9 @@ public class PythonUdfManagerTest {
         pythonUdfManager.registerPythonFunctions();
 
         verify(configuration, times(1)).setString("python.files", pathFile);
-        verify(tableEnvironment, times(2)).executeSql(anyString());
+        verify(tableEnvironment, times(0)).executeSql(sqlRegisterFirstUdf);
+        verify(tableEnvironment, times(1)).executeSql(sqlRegisterSecondUdf);
+        verify(tableEnvironment, times(1)).executeSql(sqlRegisterThirdUdf);
     }
 
     @Test
