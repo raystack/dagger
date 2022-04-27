@@ -59,7 +59,16 @@ public class IntegerTypeHandler implements PrimitiveHandler {
 
     @Override
     public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            int[] intArray = new int[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                intArray[i] = simpleGroup.getInteger(fieldName, i);
+            }
+            return intArray;
+        }
+        return new int[0];
     }
 
     @Override
