@@ -44,6 +44,10 @@ sourceSets {
 }
 
 dependencies {
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
     compileOnly project(path: ':dagger-common', configuration: 'minimalCommonJar')
     compileOnly project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
@@ -56,6 +60,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
 
     dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
+    dependenciesFunctionsJar 'org.apache.flink:flink-python_2.11:' + flinkVersion
     dependenciesFunctionsJar group: 'org.apache.commons', name: 'commons-jexl3', version: '3.1'
     dependenciesFunctionsJar group: 'org.isuper', name: 's2-geometry-library-java', version: '0.0.1'
     dependenciesFunctionsJar group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.67.0'
