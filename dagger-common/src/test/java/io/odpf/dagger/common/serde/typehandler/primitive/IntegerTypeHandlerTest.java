@@ -148,7 +148,7 @@ public class IntegerTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnArrayOfIntValuesForFieldOfTypeRepeatedIntegerInsideSimpleGroup() {
+    public void shouldReturnArrayOfIntValuesForFieldOfTypeRepeatedInt32InsideSimpleGroup() {
         Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
 
         GroupType parquetSchema = buildMessage()
@@ -176,7 +176,7 @@ public class IntegerTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyIntegerArrayWhenRepeatedIntegerFieldInsideSimpleGroupIsNotPresent() {
+    public void shouldReturnEmptyIntArrayWhenRepeatedInt32FieldInsideSimpleGroupIsNotPresent() {
         Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
 
         GroupType parquetSchema = buildMessage()
@@ -191,7 +191,7 @@ public class IntegerTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyIntegerArrayWhenRepeatedIntegerFieldInsideSimpleGroupIsNotInitialized() {
+    public void shouldReturnEmptyIntArrayWhenRepeatedInt32FieldInsideSimpleGroupIsNotInitialized() {
         Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
 
         GroupType parquetSchema = buildMessage()
