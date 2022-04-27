@@ -21,10 +21,10 @@ public class PythonUdfManager {
 
     public void registerPythonFunctions() throws IOException {
 
-        registerPythonConfig();
         String inputFiles = pythonUdfConfig.getPythonFiles();
         String[] pythonFilesSource;
         if (inputFiles != null) {
+            registerPythonConfig();
             pythonFilesSource = inputFiles.split(",");
         } else {
             throw new PythonFilesNotFoundException("Python files not found");
