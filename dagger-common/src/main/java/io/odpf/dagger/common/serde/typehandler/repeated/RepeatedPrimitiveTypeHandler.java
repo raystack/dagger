@@ -71,7 +71,8 @@ public class RepeatedPrimitiveTypeHandler implements TypeHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.parseRepeatedSimpleGroupField(simpleGroup);
     }
 
     @Override

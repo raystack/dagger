@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.*;
 
 public class RepeatedPrimitiveTypeHandlerTest {
@@ -209,7 +211,6 @@ public class RepeatedPrimitiveTypeHandlerTest {
         assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
     }
 
-
     @Test
     public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForKafkaTransform() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
@@ -240,13 +241,21 @@ public class RepeatedPrimitiveTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+    public void shouldReturnArrayOfPrimitiveValuesWhenTransformFromParquetIsCalledWithSimpleGroupContainingRepeatedPrimitive() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
-        RepeatedPrimitiveTypeHandler protoHandler = new RepeatedPrimitiveTypeHandler(fieldDescriptor);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
-                .named("TestGroupType");
+
+        RepeatedPrimitiveTypeHandler primitiveTypeHandler = new RepeatedPrimitiveTypeHandler(fieldDescriptor);
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("meta_array")
+                .named("TestBookingLogMessage");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(simpleGroup));
+        simpleGroup.add("meta_array", "Hello World");
+        simpleGroup.add("meta_array", "Welcome");
+
+        String[] actualValue = (String[]) primitiveTypeHandler.transformFromParquet(simpleGroup);
+
+        assertArrayEquals(new String[]{"Hello World", "Welcome"}, actualValue);
     }
 }
