@@ -15,7 +15,6 @@ public class PythonUdfConfig {
             .create();
 
     @SerializedName(PYTHON_FILES_KEY)
-    @Getter
     private String pythonFiles;
 
     @SerializedName(PYTHON_REQUIREMENTS_KEY)
@@ -34,6 +33,13 @@ public class PythonUdfConfig {
 
     @SerializedName(PYTHON_FN_EXECUTION_BUNDLE_TIME_KEY)
     private Long pythonBundleTime;
+
+    public String getPythonFiles() {
+        if (pythonFiles != null) {
+            return pythonFiles.replaceAll("\\s+", "");
+        }
+        return null;
+    }
 
     public int getPythonArrowBatchSize() {
         if (pythonArrowBatchSize == null) {

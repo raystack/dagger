@@ -64,7 +64,9 @@ dependencies {
     dependenciesFunctionsJar group: 'org.apache.commons', name: 'commons-jexl3', version: '3.1'
     dependenciesFunctionsJar group: 'org.isuper', name: 's2-geometry-library-java', version: '0.0.1'
     dependenciesFunctionsJar group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.67.0'
-
+    dependenciesFunctionsJar group: 'org.apache.flink', name: 'flink-shaded-hadoop2-uber', version: '2.4.1-1.8.3'
+    dependenciesFunctionsJar group: 'com.google.cloud.bigdataoss', name: 'gcs-connector', version: '1.9.0-hadoop2'
+    
     testImplementation project(':dagger-common').sourceSets.test.output
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.mockito:mockito-core:2.0.99-beta'

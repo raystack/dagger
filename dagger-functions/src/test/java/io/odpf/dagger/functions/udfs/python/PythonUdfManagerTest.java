@@ -147,6 +147,22 @@ public class PythonUdfManagerTest {
     }
 
     @Test
+    public void shouldRegisterPythonUdfFromGCS() throws IOException {
+        String pathFile = "gs://bucket-name/path/to/file/test_function.py";
+        String sqlRegisterUdf = "CREATE TEMPORARY FUNCTION TEST_FUNCTION AS 'test_function.test_function' LANGUAGE PYTHON";
+
+        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
+        when(tableConfig.getConfiguration()).thenReturn(configuration);
+        when(pythonUdfConfig.getPythonFiles()).thenReturn(pathFile);
+
+        PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+        pythonUdfManager.registerPythonFunctions();
+
+        verify(configuration, times(1)).setString("python.files", pathFile);
+        verify(tableEnvironment, times(1)).executeSql(sqlRegisterUdf);
+    }
+
+    @Test
     public void shouldThrowExceptionIfPythonFilesNotInZipOrPyFormat() throws IOException {
         expectedEx.expect(PythonFilesFormatException.class);
         expectedEx.expectMessage("Python files should be in .py or .zip format");
