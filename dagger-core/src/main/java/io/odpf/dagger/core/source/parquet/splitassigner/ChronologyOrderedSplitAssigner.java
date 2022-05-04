@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.source.parquet.splitassigner;
 
+import io.odpf.dagger.core.exception.PathParserNotProvidedException;
 import io.odpf.dagger.core.source.config.models.TimeRanges;
 import io.odpf.dagger.core.source.parquet.path.PathParser;
 import org.apache.flink.connector.file.src.FileSourceSplit;
@@ -55,6 +56,9 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     }
 
     private void validateAndAddSplits(FileSourceSplit split) {
+        if (pathParser == null) {
+            throw new PathParserNotProvidedException("Path parser is null");
+        }
         try {
             Instant instant = pathParser.instantFromFilePath(split.path());
             if (timeRanges == null || timeRanges.contains(instant)) {

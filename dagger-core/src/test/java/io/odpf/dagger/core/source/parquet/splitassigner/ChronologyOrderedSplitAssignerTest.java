@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.source.parquet.splitassigner;
 
 
+import io.odpf.dagger.core.exception.PathParserNotProvidedException;
 import io.odpf.dagger.core.source.config.models.TimeRange;
 import io.odpf.dagger.core.source.config.models.TimeRanges;
 import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
@@ -208,6 +209,23 @@ public class ChronologyOrderedSplitAssignerTest {
         assertEquals(firstSplit, splitAssigner.getNext(null).get());
         assertEquals(thirdSplit, splitAssigner.getNext(null).get());
         assertFalse(splitAssigner.getNext(null).isPresent());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPathParserNotProvided() {
+        FileSourceSplit firstSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2019-10-12/hr=00/hd6a7gad"), 0, 1024);
+        FileSourceSplit secondSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2019-10-12/hr=08/sa6advgad7"), 0, 1024);
+        FileSourceSplit thirdSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2020-11-30/hr=09/aga6adgad"), 0, 1024);
+        FileSourceSplit fourthSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2020-12-31/hr=23/ahaha4a5dg"), 0, 1024);
+        List<FileSourceSplit> inputSplits = Arrays.asList(secondSplit, fourthSplit, firstSplit, thirdSplit);
+
+        ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
+
+        TimeRanges timeRanges = new TimeRanges();
+        timeRanges.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
+        timeRanges.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
+        PathParserNotProvidedException pathParserNotProvidedException = assertThrows(PathParserNotProvidedException.class, () -> splitAssignerBuilder.addTimeRanges(timeRanges).build(inputSplits));
+        assertEquals("Path parser is null", pathParserNotProvidedException.getMessage());
     }
 
 }
