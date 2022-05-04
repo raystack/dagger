@@ -157,9 +157,9 @@ public class LongTypeHandlerTest {
         simpleGroup.add("repeated_long_field", 0L);
 
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
-        long[] actualValue = (long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+        Long[] actualValue = (Long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
 
-        assertArrayEquals(new long[]{6222L, 0L}, actualValue);
+        assertArrayEquals(new Long[]{6222L, 0L}, actualValue);
     }
 
     @Test
@@ -167,9 +167,9 @@ public class LongTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_long_field");
 
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
-        long[] actualValue = (long[]) longTypeHandler.parseRepeatedSimpleGroupField(null);
+        Long[] actualValue = (Long[]) longTypeHandler.parseRepeatedSimpleGroupField(null);
 
-        assertArrayEquals(new long[0], actualValue);
+        assertArrayEquals(new Long[0], actualValue);
     }
 
     @Test
@@ -182,9 +182,9 @@ public class LongTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
-        long[] actualValue = (long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+        Long[] actualValue = (Long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
 
-        assertArrayEquals(new long[0], actualValue);
+        assertArrayEquals(new Long[0], actualValue);
     }
 
     @Test
@@ -197,8 +197,8 @@ public class LongTypeHandlerTest {
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
         LongTypeHandler longTypeHandler = new LongTypeHandler(fieldDescriptor);
-        long[] actualValue = (long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
+        Long[] actualValue = (Long[]) longTypeHandler.parseRepeatedSimpleGroupField(simpleGroup);
 
-        assertArrayEquals(new long[0], actualValue);
+        assertArrayEquals(new Long[0], actualValue);
     }
 }
