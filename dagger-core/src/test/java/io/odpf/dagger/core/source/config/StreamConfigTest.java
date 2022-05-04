@@ -1,7 +1,8 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.core.source.config;
 
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.source.config.models.*;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -13,15 +14,17 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.source.SourceName.KAFKA_CONSUMER;
-import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.config.models.SourceName.KAFKA_CONSUMER;
+import static io.odpf.dagger.core.source.config.models.SourceType.UNBOUNDED;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -221,5 +224,36 @@ public class StreamConfigTest {
         assertEquals("data-project", streamConfigs[0].getParquetBillingProject());
         assertEquals(SourceParquetReadOrderStrategy.valueOf("EARLIEST_TIME_URL_FIRST"), streamConfigs[0].getParquetFilesReadOrderStrategy());
         assertEquals(SourceParquetSchemaMatchStrategy.valueOf("BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH"), streamConfigs[0].getParquetSchemaMatchStrategy());
+    }
+
+
+    @Test
+    public void shouldParseParquetFileDateRange() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_FILE_DATE_RANGE\":\"2022-02-13T14:00:00, 2022-02-13T18:00:00Z\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        TimeRanges parquetFileDateRange = streamConfigs[0].getParquetFileDateRange();
+
+        List<TimeRange> timeRanges = parquetFileDateRange.getTimeRanges();
+
+        assertEquals(1644760800L, timeRanges.get(0).getStartInstant().getEpochSecond());
+        assertEquals(1644775200L, timeRanges.get(0).getEndInstant().getEpochSecond());
+    }
+
+    @Test
+    public void shouldReturnEmptyTimeRangeIfParquetFileDateRangeNotGiven() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        assertNull(streamConfigs[0].getParquetFileDateRange());
     }
 }
