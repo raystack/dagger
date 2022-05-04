@@ -4,6 +4,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.deserializer.DaggerDeserializerFactory;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import lombok.Getter;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;

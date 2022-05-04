@@ -4,11 +4,12 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.source.SourceDetails;
-import io.odpf.dagger.core.source.SourceName;
-import io.odpf.dagger.core.source.SourceType;
-import io.odpf.dagger.core.source.StreamConfig;
 import io.odpf.dagger.core.source.DaggerSource;
+import io.odpf.dagger.core.source.config.StreamConfig;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.models.SourceType;
+import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
 import io.odpf.dagger.core.source.parquet.reader.ParquetReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
@@ -25,8 +26,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import static io.odpf.dagger.core.source.SourceName.PARQUET_SOURCE;
-import static io.odpf.dagger.core.source.SourceType.BOUNDED;
+import static io.odpf.dagger.core.source.config.models.SourceName.PARQUET_SOURCE;
+import static io.odpf.dagger.core.source.config.models.SourceType.BOUNDED;
 
 public class ParquetDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;
@@ -85,7 +86,11 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
         SourceParquetReadOrderStrategy readOrderStrategy = streamConfig.getParquetFilesReadOrderStrategy();
         switch (readOrderStrategy) {
             case EARLIEST_TIME_URL_FIRST:
-                return ChronologyOrderedSplitAssigner::new;
+                ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder chronologyOrderedSplitAssignerBuilder =
+                        new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()
+                                .addTimeRanges(streamConfig.getParquetFileDateRange())
+                                .addPathParser(new HourDatePathParser());
+                return chronologyOrderedSplitAssignerBuilder::build;
             case EARLIEST_INDEX_FIRST:
             default:
                 throw new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");

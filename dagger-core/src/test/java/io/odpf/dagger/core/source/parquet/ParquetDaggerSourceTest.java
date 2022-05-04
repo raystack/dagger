@@ -5,10 +5,10 @@ import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.source.SourceDetails;
-import io.odpf.dagger.core.source.SourceName;
-import io.odpf.dagger.core.source.SourceType;
-import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.config.StreamConfig;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.models.SourceType;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -22,14 +22,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-
 import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_INDEX_FIRST;
 import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_TIME_URL_FIRST;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @PrepareForTest(FileSource.class)
