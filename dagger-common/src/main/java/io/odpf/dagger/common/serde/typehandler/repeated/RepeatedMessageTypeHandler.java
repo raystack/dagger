@@ -105,7 +105,7 @@ public class RepeatedMessageTypeHandler implements TypeHandler {
                 rowList.add(RowFactory.createRow(fieldMessageDescriptor, nestedGroup));
             }
         }
-        return rowList.toArray();
+        return rowList.toArray(new Row[]{});
     }
 
     @Override

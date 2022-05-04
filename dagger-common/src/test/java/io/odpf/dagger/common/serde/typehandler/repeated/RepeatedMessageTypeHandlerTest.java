@@ -321,9 +321,7 @@ public class RepeatedMessageTypeHandlerTest {
         mainMessageGroup.add("reason", value1);
         mainMessageGroup.add("reason", value2);
 
-        Row[] actualRows = Arrays
-                .stream((Object[]) protoHandler.transformFromParquet(mainMessageGroup))
-                .toArray(Row[]::new);
+        Row[] actualRows = (Row[]) protoHandler.transformFromParquet(mainMessageGroup);
 
         Row expectedRow1 = new Row(2);
         expectedRow1.setField(0, "FIRST");
@@ -341,9 +339,7 @@ public class RepeatedMessageTypeHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
         RepeatedMessageTypeHandler protoHandler = new RepeatedMessageTypeHandler(fieldDescriptor);
 
-        Row[] actualRows = Arrays
-                .stream((Object[]) protoHandler.transformFromParquet(null))
-                .toArray(Row[]::new);
+        Row[] actualRows = (Row[]) protoHandler.transformFromParquet(null);
 
         assertEquals(0, actualRows.length);
     }
@@ -361,9 +357,7 @@ public class RepeatedMessageTypeHandlerTest {
         GroupType mainMessageSchema = buildMessage().addField(nestedGroupSchema).named("MainMessage");
         SimpleGroup mainMessageGroup = new SimpleGroup(mainMessageSchema);
 
-        Row[] actualRows = Arrays
-                .stream((Object[]) protoHandler.transformFromParquet(mainMessageGroup))
-                .toArray(Row[]::new);
+        Row[] actualRows = (Row[]) protoHandler.transformFromParquet(mainMessageGroup);
 
         assertEquals(0, actualRows.length);
     }
@@ -378,9 +372,7 @@ public class RepeatedMessageTypeHandlerTest {
                 .named("MainMessage");
         SimpleGroup mainMessageGroup = new SimpleGroup(mainMessageSchema);
 
-        Row[] actualRows = Arrays
-                .stream((Object[]) protoHandler.transformFromParquet(mainMessageGroup))
-                .toArray(Row[]::new);
+        Row[] actualRows = (Row[]) protoHandler.transformFromParquet(mainMessageGroup);
 
         assertEquals(0, actualRows.length);
     }
