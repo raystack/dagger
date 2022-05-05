@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.WireFormat;
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
@@ -79,7 +80,19 @@ public class MapHandler implements TypeHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        String fieldName = fieldDescriptor.getName();
+        final String innerFieldName = "key_value";
+        ArrayList<Row> deserializedRows = new ArrayList<>();
+        if (simpleGroup!=null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            SimpleGroup nestedMapGroup = (SimpleGroup) simpleGroup.getGroup(fieldName, 0);
+            int repetitionCount = nestedMapGroup.getFieldRepetitionCount(innerFieldName);
+            Descriptors.Descriptor keyValueDescriptor = fieldDescriptor.getMessageType();
+            for (int i = 0; i < repetitionCount; i++) {
+                SimpleGroup keyValuePair = (SimpleGroup) nestedMapGroup.getGroup(innerFieldName, i);
+                deserializedRows.add(RowFactory.createRow(keyValueDescriptor, keyValuePair));
+            }
+        }
+        return deserializedRows.toArray(new Row[]{});
     }
 
     @Override
