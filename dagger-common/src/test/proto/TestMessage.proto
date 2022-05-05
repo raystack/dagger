@@ -47,9 +47,15 @@ message TestRepeatedEnumMessage {
 message TestEnumMessage {
     enum Enum {
         UNKNOWN = 0;
+        FIRST_ENUM_VALUE = 1;
+        SECOND_ENUM_VALUE = 2;
     }
 }
 
 message TestComplexMap {
     map<int32, TestMessage> complex_map = 1;
+}
+
+message TestRepeatedPrimitiveMessage {
+    repeated bytes metadata_bytes = 1;
 }
