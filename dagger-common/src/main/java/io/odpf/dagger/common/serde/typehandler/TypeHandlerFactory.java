@@ -1,15 +1,15 @@
 package io.odpf.dagger.common.serde.typehandler;
 
 import com.google.protobuf.Descriptors;
-import io.odpf.dagger.common.serde.typehandler.complex.EnumTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.MapTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.MessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.StructMessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.TimestampTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.EnumHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.MapHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.MessageHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.StructMessageHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.TimestampHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageHandler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,15 +43,15 @@ public class TypeHandlerFactory {
 
     private static List<TypeHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
         return Arrays.asList(
-                new MapTypeHandler(fieldDescriptor),
-                new TimestampTypeHandler(fieldDescriptor),
-                new EnumTypeHandler(fieldDescriptor),
-                new StructMessageTypeHandler(fieldDescriptor),
-                new RepeatedStructMessageTypeHandler(fieldDescriptor),
-                new RepeatedPrimitiveTypeHandler(fieldDescriptor),
-                new RepeatedMessageTypeHandler(fieldDescriptor),
-                new RepeatedEnumTypeHandler(fieldDescriptor),
-                new MessageTypeHandler(fieldDescriptor)
+                new MapHandler(fieldDescriptor),
+                new TimestampHandler(fieldDescriptor),
+                new EnumHandler(fieldDescriptor),
+                new StructMessageHandler(fieldDescriptor),
+                new RepeatedStructMessageHandler(fieldDescriptor),
+                new RepeatedPrimitiveHandler(fieldDescriptor),
+                new RepeatedMessageHandler(fieldDescriptor),
+                new RepeatedEnumHandler(fieldDescriptor),
+                new MessageHandler(fieldDescriptor)
         );
     }
 }

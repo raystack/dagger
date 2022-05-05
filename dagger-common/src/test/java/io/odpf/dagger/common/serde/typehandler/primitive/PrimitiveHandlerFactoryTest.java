@@ -14,49 +14,49 @@ public class PrimitiveHandlerFactoryTest {
     public void shouldReturnIntegerTypeHandlerForInteger() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id"));
-        assertEquals(IntegerTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(IntegerHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnBooleanTypeHandlerForBoolean() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("customer_dynamic_surge_enabled"));
-        assertEquals(BooleanTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(BooleanHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnDoubleTypeHandlerForDouble() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("cash_amount"));
-        assertEquals(DoubleTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(DoubleHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnFloatTypeHandlerForFloat() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("amount_paid_by_cash"));
-        assertEquals(FloatTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(FloatHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnLongTypeHandlerForLong() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("customer_total_fare_without_surge"));
-        assertEquals(LongTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(LongHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnStringTypeHandlerForString() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestBookingLogMessage.getDescriptor().findFieldByName("order_number"));
-        assertEquals(StringTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(StringHandler.class, primitiveHandler.getClass());
     }
 
     @Test
     public void shouldReturnByteStringTypeHandlerForByteString() {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory
                 .getTypeHandler(TestMessageEnvelope.getDescriptor().findFieldByName("log_key"));
-        assertEquals(ByteStringTypeHandler.class, primitiveHandler.getClass());
+        assertEquals(ByteStringHandler.class, primitiveHandler.getClass());
     }
 
     @Test

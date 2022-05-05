@@ -1,15 +1,15 @@
 package io.odpf.dagger.common.serde.typehandler;
 
 import com.google.protobuf.Descriptors;
-import io.odpf.dagger.common.serde.typehandler.complex.EnumTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.MapTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.MessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.StructMessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.complex.TimestampTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveTypeHandler;
-import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageTypeHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.EnumHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.MapHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.MessageHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.StructMessageHandler;
+import io.odpf.dagger.common.serde.typehandler.complex.TimestampHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedEnumHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedMessageHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedPrimitiveHandler;
+import io.odpf.dagger.common.serde.typehandler.repeated.RepeatedStructMessageHandler;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestFeedbackLogMessage;
 import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
@@ -33,63 +33,63 @@ public class TypeHandlerFactoryTest {
     public void shouldReturnMapProtoHandlerIfMapFieldDescriptorPassed() {
         Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(mapFieldDescriptor);
-        assertEquals(MapTypeHandler.class, typeHandler.getClass());
+        assertEquals(MapHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnTimestampProtoHandlerIfTimestampFieldDescriptorPassed() {
         Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(timestampFieldDescriptor);
-        assertEquals(TimestampTypeHandler.class, typeHandler.getClass());
+        assertEquals(TimestampHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnEnumProtoHandlerIfEnumFieldDescriptorPassed() {
         Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(enumFieldDescriptor);
-        assertEquals(EnumTypeHandler.class, typeHandler.getClass());
+        assertEquals(EnumHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedProtoHandlerIfRepeatedFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedFieldDescriptor);
-        assertEquals(RepeatedPrimitiveTypeHandler.class, typeHandler.getClass());
+        assertEquals(RepeatedPrimitiveHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedMessageProtoHandlerIfRepeatedMessageFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor);
-        assertEquals(RepeatedMessageTypeHandler.class, typeHandler.getClass());
+        assertEquals(RepeatedMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedEnumProtoHandlerIfRepeatedEnumFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedEnumFieldDescriptor);
-        assertEquals(RepeatedEnumTypeHandler.class, typeHandler.getClass());
+        assertEquals(RepeatedEnumHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnRepeatedStructProtoHandlerIfRepeatedStructFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedStructFieldDescriptor);
-        assertEquals(RepeatedStructMessageTypeHandler.class, typeHandler.getClass());
+        assertEquals(RepeatedStructMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnStructProtoHandlerIfStructFieldDescriptorPassed() {
         Descriptors.FieldDescriptor structFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(structFieldDescriptor);
-        assertEquals(StructMessageTypeHandler.class, typeHandler.getClass());
+        assertEquals(StructMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
     public void shouldReturnMessageProtoHandlerIfMessageFieldDescriptorPassed() {
         Descriptors.FieldDescriptor messageFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
         TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(messageFieldDescriptor);
-        assertEquals(MessageTypeHandler.class, typeHandler.getClass());
+        assertEquals(MessageHandler.class, typeHandler.getClass());
     }
 
     @Test

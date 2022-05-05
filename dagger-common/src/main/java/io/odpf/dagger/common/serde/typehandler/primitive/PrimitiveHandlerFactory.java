@@ -28,13 +28,13 @@ public class PrimitiveHandlerFactory {
 
     private static List<PrimitiveHandler> getSpecificHandlers(Descriptors.FieldDescriptor fieldDescriptor) {
         return Arrays.asList(
-                new IntegerTypeHandler(fieldDescriptor),
-                new BooleanTypeHandler(fieldDescriptor),
-                new DoubleTypeHandler(fieldDescriptor),
-                new FloatTypeHandler(fieldDescriptor),
-                new LongTypeHandler(fieldDescriptor),
-                new StringTypeHandler(fieldDescriptor),
-                new ByteStringTypeHandler(fieldDescriptor)
+                new IntegerHandler(fieldDescriptor),
+                new BooleanHandler(fieldDescriptor),
+                new DoubleHandler(fieldDescriptor),
+                new FloatHandler(fieldDescriptor),
+                new LongHandler(fieldDescriptor),
+                new StringHandler(fieldDescriptor),
+                new ByteStringHandler(fieldDescriptor)
         );
     }
 }
