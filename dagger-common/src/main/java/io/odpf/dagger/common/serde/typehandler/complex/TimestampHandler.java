@@ -11,6 +11,9 @@ import org.apache.flink.types.Row;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.schema.GroupType;
+import org.apache.parquet.schema.PrimitiveType;
+import org.apache.parquet.schema.Type;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -109,16 +112,36 @@ public class TimestampHandler implements TypeHandler {
     public Object transformFromParquet(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
         if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-
-            /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
-            long timeInMillis = simpleGroup.getLong(fieldName, 0);
-            long seconds = Math.floorDiv(timeInMillis, SECOND_TO_MS_FACTOR);
-            int mos = (int) Math.floorMod(timeInMillis, SECOND_TO_MS_FACTOR);
-            int nanos = mos * MS_TO_NANOS_FACTOR;
-            return Row.of(seconds, nanos);
-        } else {
-            return Row.of(DEFAULT_SECONDS_VALUE, DEFAULT_NANOS_VALUE);
+            Type timestampType = simpleGroup.getType().getType(fieldName);
+            if (timestampType instanceof PrimitiveType) {
+                return parseInt64TimestampFromSimpleGroup(simpleGroup, fieldName);
+            } else if (timestampType instanceof GroupType) {
+                return parseGroupTypeTimestampFromSimpleGroup(simpleGroup, fieldName);
+            }
         }
+        return Row.of(DEFAULT_SECONDS_VALUE, DEFAULT_NANOS_VALUE);
+    }
+
+    private Row parseInt64TimestampFromSimpleGroup(SimpleGroup simpleGroup, String timestampFieldName) {
+        /* conversion from ms to nanos borrowed from Instant.java class and inlined here for performance reasons */
+        long timeInMillis = simpleGroup.getLong(timestampFieldName, 0);
+        long seconds = Math.floorDiv(timeInMillis, SECOND_TO_MS_FACTOR);
+        int mos = (int) Math.floorMod(timeInMillis, SECOND_TO_MS_FACTOR);
+        int nanos = mos * MS_TO_NANOS_FACTOR;
+        return Row.of(seconds, nanos);
+    }
+
+    private Row parseGroupTypeTimestampFromSimpleGroup(SimpleGroup simpleGroup, String timestampFieldName) {
+        SimpleGroup timestampGroup = (SimpleGroup) simpleGroup.getGroup(timestampFieldName, 0);
+        long seconds = 0L;
+        int nanos = 0;
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(timestampGroup, "seconds")) {
+            seconds = timestampGroup.getLong("seconds", 0);
+        }
+        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(timestampGroup, "nanos")) {
+            nanos = timestampGroup.getInteger("nanos", 0);
+        }
+        return Row.of(seconds, nanos);
     }
 
     @Override

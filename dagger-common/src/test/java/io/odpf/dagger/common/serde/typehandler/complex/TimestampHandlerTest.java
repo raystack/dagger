@@ -12,6 +12,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
+import org.apache.parquet.schema.MessageType;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -19,7 +20,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.*;
 
 public class TimestampHandlerTest {
@@ -305,7 +308,7 @@ public class TimestampHandlerTest {
     }
 
     @Test
-    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainValueForField() {
+    public void shouldReturnDefaultTimestampRowDuringTransformIfSimpleGroupDoesNotContainValueForInt64TimestampField() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .required(INT64).named("event_timestamp")
@@ -316,6 +319,144 @@ public class TimestampHandlerTest {
         Row actualRow = (Row) timestampHandler.transformFromParquet(simpleGroup);
 
         Row expectedRow = Row.of(0L, 0);
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldTransformGroupTypeTimestampFromSimpleGroup() {
+        Instant currentInstant = Instant.now();
+        long seconds = currentInstant.getEpochSecond();
+        int nanos = currentInstant.getNano();
+        Row expectedRow = Row.of(seconds, nanos);
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        GroupType timestampSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("seconds")
+                .required(INT32).named("nanos")
+                .named("event_timestamp");
+        SimpleGroup timestampMessage = new SimpleGroup(timestampSchema);
+        timestampMessage.add("seconds", seconds);
+        timestampMessage.add("nanos", nanos);
+
+        MessageType parquetSchema = buildMessage()
+                .addField(timestampSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("event_timestamp", timestampMessage);
+
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+        Row actualRow = (Row) timestampHandler.transformFromParquet(mainMessage);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldUseDefaultSecondsDuringTransformIfSimpleGroupDoesNotContainSecondsInGroupTypeTimestamp() {
+        Instant currentInstant = Instant.now();
+        int nanos = currentInstant.getNano();
+        Row expectedRow = Row.of(0L, nanos);
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+
+        /* only adding nanos field to the timestamp schema and initializing it */
+        GroupType timestampSchema = org.apache.parquet.schema.Types.optionalGroup()
+                .optional(INT32).named("nanos")
+                .named("event_timestamp");
+        SimpleGroup timestampMessage = new SimpleGroup(timestampSchema);
+        timestampMessage.add("nanos", nanos);
+
+        MessageType parquetSchema = buildMessage()
+                .addField(timestampSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("event_timestamp", timestampMessage);
+
+        Row actualRow = (Row) timestampHandler.transformFromParquet(mainMessage);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldUseDefaultSecondsDuringTransformIfSimpleGroupHasGroupTypeTimestampWithSecondsNotInitialized() {
+        Instant currentInstant = Instant.now();
+        int nanos = currentInstant.getNano();
+        Row expectedRow = Row.of(0L, nanos);
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+
+        /* adding both nanos and seconds field to the timestamp schema but initializing only for nanos */
+        GroupType timestampSchema = org.apache.parquet.schema.Types.requiredGroup()
+                .required(INT64).named("seconds")
+                .required(INT32).named("nanos")
+                .named("event_timestamp");
+        SimpleGroup timestampMessage = new SimpleGroup(timestampSchema);
+        timestampMessage.add("nanos", nanos);
+
+        MessageType parquetSchema = buildMessage()
+                .addField(timestampSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("event_timestamp", timestampMessage);
+
+        Row actualRow = (Row) timestampHandler.transformFromParquet(mainMessage);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldUseDefaultNanosDuringTransformIfSimpleGroupDoesNotContainNanosInGroupTypeTimestamp() {
+        Instant currentInstant = Instant.now();
+        long seconds = currentInstant.getEpochSecond();
+        Row expectedRow = Row.of(seconds, 0);
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+
+        /* only adding seconds field to the timestamp schema and initializing it */
+        GroupType timestampSchema = org.apache.parquet.schema.Types.optionalGroup()
+                .optional(INT64).named("seconds")
+                .named("event_timestamp");
+        SimpleGroup timestampMessage = new SimpleGroup(timestampSchema);
+        timestampMessage.add("seconds", seconds);
+
+        MessageType parquetSchema = buildMessage()
+                .addField(timestampSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("event_timestamp", timestampMessage);
+
+        Row actualRow = (Row) timestampHandler.transformFromParquet(mainMessage);
+
+        assertEquals(expectedRow, actualRow);
+    }
+
+    @Test
+    public void shouldUseDefaultNanosDuringTransformIfSimpleGroupHasGroupTypeTimestampWithNanosNotInitialized() {
+        Instant currentInstant = Instant.now();
+        long seconds = currentInstant.getEpochSecond();
+        Row expectedRow = Row.of(seconds, 0);
+
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+
+        /* adding both nanos and seconds field to the timestamp schema but initializing only for seconds */
+        GroupType timestampSchema = org.apache.parquet.schema.Types.optionalGroup()
+                .optional(INT64).named("seconds")
+                .optional(INT32).named("nanos")
+                .named("event_timestamp");
+        SimpleGroup timestampMessage = new SimpleGroup(timestampSchema);
+        timestampMessage.add("seconds", seconds);
+
+        MessageType parquetSchema = buildMessage()
+                .addField(timestampSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("event_timestamp", timestampMessage);
+
+        Row actualRow = (Row) timestampHandler.transformFromParquet(mainMessage);
+
         assertEquals(expectedRow, actualRow);
     }
 }
