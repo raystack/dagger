@@ -158,12 +158,12 @@ public class PgAsyncConnectorTest {
 
         ArgumentCaptor<InvalidConfigurationException> invalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
         verify(resultFuture, times(1)).completeExceptionally(invalidConfigCaptor.capture());
-        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable", invalidConfigCaptor.getValue().getMessage());
+        assertEquals("Column 'invalid_variable' not found as configured in the 'QUERY_VARIABLES' variable", invalidConfigCaptor.getValue().getMessage());
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.INVALID_CONFIGURATION);
 
         ArgumentCaptor<InvalidConfigurationException> reportExceptionCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
         verify(errorReporter, times(1)).reportFatalException(reportExceptionCaptor.capture());
-        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable", reportExceptionCaptor.getValue().getMessage());
+        assertEquals("Column 'invalid_variable' not found as configured in the 'QUERY_VARIABLES' variable", reportExceptionCaptor.getValue().getMessage());
         verify(pgClient, never()).query(any(String.class));
     }
 
