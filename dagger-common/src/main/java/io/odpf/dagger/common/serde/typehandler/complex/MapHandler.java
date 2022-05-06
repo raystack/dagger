@@ -4,7 +4,6 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.WireFormat;
-import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import io.odpf.dagger.common.serde.typehandler.TypeInformationFactory;
@@ -17,6 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import static io.odpf.dagger.common.serde.parquet.SimpleGroupValidation.checkFieldExistsAndIsInitialized;
+import static io.odpf.dagger.common.serde.parquet.SimpleGroupValidation.checkIsLegacySimpleGroupMap;
+import static io.odpf.dagger.common.serde.parquet.SimpleGroupValidation.checkIsStandardSimpleGroupMap;
 
 /**
  * The type Map proto handler.
@@ -81,16 +84,36 @@ public class MapHandler implements TypeHandler {
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
         String fieldName = fieldDescriptor.getName();
-        final String innerFieldName = "key_value";
-        ArrayList<Row> deserializedRows = new ArrayList<>();
-        if (simpleGroup!=null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
-            SimpleGroup nestedMapGroup = (SimpleGroup) simpleGroup.getGroup(fieldName, 0);
-            int repetitionCount = nestedMapGroup.getFieldRepetitionCount(innerFieldName);
-            Descriptors.Descriptor keyValueDescriptor = fieldDescriptor.getMessageType();
-            for (int i = 0; i < repetitionCount; i++) {
-                SimpleGroup keyValuePair = (SimpleGroup) nestedMapGroup.getGroup(innerFieldName, i);
-                deserializedRows.add(RowFactory.createRow(keyValueDescriptor, keyValuePair));
+        if (simpleGroup != null && checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            if (checkIsLegacySimpleGroupMap(simpleGroup, fieldName)) {
+                return transformLegacyMapFromSimpleGroup(simpleGroup, fieldName);
+            } else if (checkIsStandardSimpleGroupMap(simpleGroup, fieldName)) {
+                return transformStandardMapFromSimpleGroup(simpleGroup, fieldName);
             }
+        }
+        return new Row[0];
+    }
+
+    private Row[] transformLegacyMapFromSimpleGroup(SimpleGroup simpleGroup, String fieldName) {
+        ArrayList<Row> deserializedRows = new ArrayList<>();
+        int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+        Descriptors.Descriptor keyValueDescriptor = fieldDescriptor.getMessageType();
+        for (int i = 0; i < repetitionCount; i++) {
+            SimpleGroup keyValuePair = (SimpleGroup) simpleGroup.getGroup(fieldName, i);
+            deserializedRows.add(RowFactory.createRow(keyValueDescriptor, keyValuePair));
+        }
+        return deserializedRows.toArray(new Row[]{});
+    }
+
+    private Row[] transformStandardMapFromSimpleGroup(SimpleGroup simpleGroup, String fieldName) {
+        ArrayList<Row> deserializedRows = new ArrayList<>();
+        final String innerFieldName = "key_value";
+        SimpleGroup nestedMapGroup = (SimpleGroup) simpleGroup.getGroup(fieldName, 0);
+        int repetitionCount = nestedMapGroup.getFieldRepetitionCount(innerFieldName);
+        Descriptors.Descriptor keyValueDescriptor = fieldDescriptor.getMessageType();
+        for (int i = 0; i < repetitionCount; i++) {
+            SimpleGroup keyValuePair = (SimpleGroup) nestedMapGroup.getGroup(innerFieldName, i);
+            deserializedRows.add(RowFactory.createRow(keyValueDescriptor, keyValuePair));
         }
         return deserializedRows.toArray(new Row[]{});
     }
