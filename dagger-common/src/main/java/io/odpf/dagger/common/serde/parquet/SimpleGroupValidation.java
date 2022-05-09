@@ -62,18 +62,31 @@ public class SimpleGroupValidation {
      * @return true, if the map structure follows the spec and false otherwise.
      */
     public static boolean checkIsStandardSimpleGroupMap(SimpleGroup simpleGroup, String fieldName) {
-        if (simpleGroup.getType().getType(fieldName) instanceof GroupType) {
-            GroupType mapType = simpleGroup.getType().getType(fieldName).asGroupType();
-            if (mapType.asGroupType().getType("key_value") instanceof GroupType) {
-                GroupType nestedKeyValueMessageType = mapType.asGroupType().getType("key_value").asGroupType();
-                return (mapType.getRepetition().equals(OPTIONAL)
-                        || mapType.isRepetition(REQUIRED))
-                        && mapType.getLogicalTypeAnnotation().equals(LogicalTypeAnnotation.mapType())
-                        && mapType.getFieldCount() == 1
-                        && mapType.containsField("key_value")
-                        && nestedKeyValueMessageType.isRepetition(REPEATED)
-                        && nestedKeyValueMessageType.asGroupType().containsField("key")
-                        && nestedKeyValueMessageType.asGroupType().getType("key").isRepetition(REQUIRED);
+        return applyMapFieldValidations(simpleGroup, fieldName)
+                && applyNestedKeyValueFieldValidations(simpleGroup, fieldName);
+    }
+
+    private static boolean applyMapFieldValidations(SimpleGroup simpleGroup, String fieldName) {
+        Type mapType = simpleGroup.getType().getType(fieldName);
+        if (mapType instanceof GroupType) {
+            GroupType mapGroupType = mapType.asGroupType();
+            return (mapGroupType.getRepetition().equals(OPTIONAL)
+                    || mapGroupType.isRepetition(REQUIRED))
+                    && mapGroupType.getLogicalTypeAnnotation().equals(LogicalTypeAnnotation.mapType())
+                    && mapGroupType.getFieldCount() == 1;
+        }
+        return false;
+    }
+
+    private static boolean applyNestedKeyValueFieldValidations(SimpleGroup simpleGroup, String fieldName) {
+        GroupType mapGroupType = simpleGroup.getType().getType(fieldName).asGroupType();
+        if (mapGroupType.containsField("key_value")) {
+            Type nestedKeyValueType = mapGroupType.getType("key_value");
+            if (nestedKeyValueType instanceof GroupType) {
+                GroupType nestedKeyValueGroupType = nestedKeyValueType.asGroupType();
+                return nestedKeyValueGroupType.isRepetition(REPEATED)
+                        && nestedKeyValueGroupType.containsField("key")
+                        && nestedKeyValueGroupType.getType("key").isRepetition(REQUIRED);
             }
         }
         return false;
