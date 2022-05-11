@@ -148,7 +148,7 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + key);
             reportAndThrowError(illegalArgumentException);
         }
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
         rowManager.setInOutput(fieldIndex, typeHandler.transformFromPostProcessor(value));
     }
 

@@ -66,7 +66,7 @@ public class FetchOutputDecorator implements MapDecorator {
                 String outputColumnName = outputColumnNames[index];
                 Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(outputColumnName);
                 typeInformations[index] = fieldDescriptor != null
-                        ? TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation()
+                        ? TypeHandlerFactory.getTypeHandler(fieldDescriptor).getTypeInformation()
                         : outputColumnName.equals(ROWTIME) ? Types.SQL_TIMESTAMP : TypeInformation.of(Object.class);
             }
         }

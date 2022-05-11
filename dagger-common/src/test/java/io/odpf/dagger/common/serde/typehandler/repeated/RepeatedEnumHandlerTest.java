@@ -94,7 +94,7 @@ public class RepeatedEnumHandlerTest {
     }
 
     @Test
-    public void shouldTransformValueForKafkaAsStringArray() throws InvalidProtocolBufferException {
+    public void shouldTransformValueFromProtoAsStringArray() throws InvalidProtocolBufferException {
         TestRepeatedEnumMessage testRepeatedEnumMessage = TestRepeatedEnumMessage.newBuilder().addTestEnums(TestEnumMessage.Enum.UNKNOWN).build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestRepeatedEnumMessage.getDescriptor(), testRepeatedEnumMessage.toByteArray());
 
@@ -107,7 +107,7 @@ public class RepeatedEnumHandlerTest {
     }
 
     @Test
-    public void shouldTransformValueForKafkaAsEmptyStringArrayForNull() {
+    public void shouldTransformValueFromProtoAsEmptyStringArrayForNull() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
         RepeatedEnumHandler repeatedEnumHandler = new RepeatedEnumHandler(repeatedEnumFieldDescriptor);
 

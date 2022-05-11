@@ -183,7 +183,7 @@ public class TimestampHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
 
         Object value = typeHandler.transformFromPostProcessor(strValue);
         assertEquals(strValue, value);
@@ -194,7 +194,7 @@ public class TimestampHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("booking_creation_time");
 
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
 
         Object value = typeHandler.transformFromPostProcessor(null);
         assertNull(value);
@@ -205,7 +205,7 @@ public class TimestampHandlerTest {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
 
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
 
         Object value = typeHandler.transformFromPostProcessor("2");
 

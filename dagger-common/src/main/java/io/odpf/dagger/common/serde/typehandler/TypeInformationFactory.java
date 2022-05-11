@@ -28,7 +28,7 @@ public class TypeInformationFactory {
         TypeInformation[] fieldTypes = descriptor
                 .getFields()
                 .stream()
-                .map(fieldDescriptor -> TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation())
+                .map(fieldDescriptor -> TypeHandlerFactory.getTypeHandler(fieldDescriptor).getTypeInformation())
                 .toArray(TypeInformation[]::new);
         return Types.ROW_NAMED(fieldNames, fieldTypes);
     }
