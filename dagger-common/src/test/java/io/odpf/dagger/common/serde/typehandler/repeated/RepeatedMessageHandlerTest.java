@@ -241,7 +241,7 @@ public class RepeatedMessageHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayOfRowsIfNullPassedForKafkaTransform() {
+    public void shouldReturnEmptyArrayOfRowsIfNullPassedForTransformFromProto() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
         Object[] values = (Object[]) new RepeatedMessageHandler(repeatedMessageFieldDescriptor).transformFromProto(null);
@@ -250,7 +250,7 @@ public class RepeatedMessageHandlerTest {
     }
 
     @Test
-    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfAsDescriptorForKafkaTransform() throws InvalidProtocolBufferException {
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfAsDescriptorForTransformFromProto() throws InvalidProtocolBufferException {
         TestFeedbackLogMessage logMessage = TestFeedbackLogMessage
                 .newBuilder()
                 .addReason(TestReason.newBuilder().setReasonId("reason1").setGroupId("group1").build())

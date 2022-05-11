@@ -94,7 +94,7 @@ public class PrimitiveTypeHandlerTest {
     }
 
     @Test
-    public void shouldReturnSameValueForTransformFromKafka() {
+    public void shouldReturnSameValueForTransformFromProto() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
         PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);

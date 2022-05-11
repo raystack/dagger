@@ -140,7 +140,7 @@ public class MessageHandlerTest {
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformForKafka() throws InvalidProtocolBufferException {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformFromProto() throws InvalidProtocolBufferException {
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
@@ -158,7 +158,7 @@ public class MessageHandlerTest {
     }
 
     @Test
-    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformForKafka() throws InvalidProtocolBufferException {
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformFromProto() throws InvalidProtocolBufferException {
         TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
                 .newBuilder()
                 .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
