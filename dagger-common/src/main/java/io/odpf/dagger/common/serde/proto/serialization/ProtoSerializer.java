@@ -137,7 +137,7 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         if (fieldDescriptor == null) {
             return builder;
         }
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
         if (data != null) {
             try {
                 builder = typeHandler.transformToProtoBuilder(builder, data);

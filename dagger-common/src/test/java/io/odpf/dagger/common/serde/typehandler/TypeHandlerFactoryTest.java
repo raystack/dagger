@@ -26,76 +26,76 @@ import static org.junit.Assert.assertEquals;
 public class TypeHandlerFactoryTest {
     @Before
     public void setup() {
-        TypeHandlerFactory.clearProtoHandlerMap();
+        TypeHandlerFactory.clearTypeHandlerMap();
     }
 
     @Test
-    public void shouldReturnMapProtoHandlerIfMapFieldDescriptorPassed() {
+    public void shouldReturnMapHandlerIfMapFieldDescriptorPassed() {
         Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(mapFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(mapFieldDescriptor);
         assertEquals(MapHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnTimestampProtoHandlerIfTimestampFieldDescriptorPassed() {
+    public void shouldReturnTimestampHandlerIfTimestampFieldDescriptorPassed() {
         Descriptors.FieldDescriptor timestampFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("event_timestamp");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(timestampFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(timestampFieldDescriptor);
         assertEquals(TimestampHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnEnumProtoHandlerIfEnumFieldDescriptorPassed() {
+    public void shouldReturnEnumHandlerIfEnumFieldDescriptorPassed() {
         Descriptors.FieldDescriptor enumFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("service_type");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(enumFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(enumFieldDescriptor);
         assertEquals(EnumHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnRepeatedProtoHandlerIfRepeatedFieldDescriptorPassed() {
+    public void shouldReturnRepeatedHandlerIfRepeatedFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(repeatedFieldDescriptor);
         assertEquals(RepeatedPrimitiveHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnRepeatedMessageProtoHandlerIfRepeatedMessageFieldDescriptorPassed() {
+    public void shouldReturnRepeatedMessageHandlerIfRepeatedMessageFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(repeatedMessageFieldDescriptor);
         assertEquals(RepeatedMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnRepeatedEnumProtoHandlerIfRepeatedEnumFieldDescriptorPassed() {
+    public void shouldReturnRepeatedEnumHandlerIfRepeatedEnumFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedEnumFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(repeatedEnumFieldDescriptor);
         assertEquals(RepeatedEnumHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnRepeatedStructProtoHandlerIfRepeatedStructFieldDescriptorPassed() {
+    public void shouldReturnRepeatedStructHandlerIfRepeatedStructFieldDescriptorPassed() {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(repeatedStructFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(repeatedStructFieldDescriptor);
         assertEquals(RepeatedStructMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnStructProtoHandlerIfStructFieldDescriptorPassed() {
+    public void shouldReturnStructHandlerIfStructFieldDescriptorPassed() {
         Descriptors.FieldDescriptor structFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(structFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(structFieldDescriptor);
         assertEquals(StructMessageHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnMessageProtoHandlerIfMessageFieldDescriptorPassed() {
+    public void shouldReturnMessageHandlerIfMessageFieldDescriptorPassed() {
         Descriptors.FieldDescriptor messageFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("payment_option_metadata");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(messageFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(messageFieldDescriptor);
         assertEquals(MessageHandler.class, typeHandler.getClass());
     }
 
     @Test
-    public void shouldReturnDefaultProtoHandlerIfPrimitiveFieldDescriptorPassed() {
+    public void shouldReturnDefaultHandlerIfPrimitiveFieldDescriptorPassed() {
         Descriptors.FieldDescriptor primitiveFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(primitiveFieldDescriptor);
         assertEquals(PrimitiveTypeHandler.class, typeHandler.getClass());
     }
 
@@ -106,7 +106,7 @@ public class TypeHandlerFactoryTest {
         for (int i = 0; i < 1000; i++) {
             e.submit(() -> {
                 Descriptors.FieldDescriptor primitiveFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(primitiveFieldDescriptor);
                 assertEquals(PrimitiveTypeHandler.class, typeHandler.getClass());
                 synchronized (cache) {
                     TypeHandler oldHandler = cache[0];
@@ -126,9 +126,9 @@ public class TypeHandlerFactoryTest {
     @Test
     public void shouldReturnTheSameObjectWhenFactoryMethodIsCalledMultipleTimes() {
         Descriptors.FieldDescriptor primitiveFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("order_number");
-        TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(primitiveFieldDescriptor);
         assertEquals(PrimitiveTypeHandler.class, typeHandler.getClass());
-        TypeHandler newTypeHandler = TypeHandlerFactory.getProtoHandler(primitiveFieldDescriptor);
+        TypeHandler newTypeHandler = TypeHandlerFactory.getTypeHandler(primitiveFieldDescriptor);
         assertEquals(PrimitiveTypeHandler.class, newTypeHandler.getClass());
         assertEquals(typeHandler, newTypeHandler);
     }

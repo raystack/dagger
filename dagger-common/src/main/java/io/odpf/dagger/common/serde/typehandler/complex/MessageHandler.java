@@ -52,7 +52,7 @@ public class MessageHandler implements TypeHandler {
         for (FieldDescriptor nestedFieldDescriptor : nestedFieldDescriptors) {
             int index = nestedFieldDescriptor.getIndex();
             if (index < rowElement.getArity()) {
-                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(nestedFieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(nestedFieldDescriptor);
                 if (rowElement.getField(index) != null) {
                     typeHandler.transformToProtoBuilder(elementBuilder, rowElement.getField(index));
                 }

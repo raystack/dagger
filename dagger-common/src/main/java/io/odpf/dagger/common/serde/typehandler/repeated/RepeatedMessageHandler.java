@@ -119,7 +119,7 @@ public class RepeatedMessageHandler implements TypeHandler {
             int index = nestedFieldDescriptor.getIndex();
 
             if (index < row.getArity()) {
-                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(nestedFieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(nestedFieldDescriptor);
                 typeHandler.transformToProtoBuilder(elementBuilder, row.getField(index));
             }
         }

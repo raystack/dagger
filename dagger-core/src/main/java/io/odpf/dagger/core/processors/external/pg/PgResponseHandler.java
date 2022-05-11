@@ -142,7 +142,7 @@ public class PgResponseHandler implements Handler<AsyncResult<RowSet<io.vertx.sq
             if (value instanceof Map) {
                 rowManager.setInOutput(index, createRow((Map<String, Object>) value, fieldDescriptor.getMessageType()));
             } else {
-                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
                 rowManager.setInOutput(index, typeHandler.transformFromPostProcessor(value));
             }
         } else {
