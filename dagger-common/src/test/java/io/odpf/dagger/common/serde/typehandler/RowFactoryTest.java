@@ -113,7 +113,7 @@ public class RowFactoryTest {
         ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
         ExecutionConfig config = new ExecutionConfig();
         TestBookingLogMessage.getDescriptor().getFields().forEach(fieldDescriptor -> {
-            typeInformations.add(TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
+            typeInformations.add(TypeHandlerFactory.getTypeHandler(fieldDescriptor).getTypeInformation());
         });
         ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
         typeInformations.forEach(rowTypeInformation -> {
@@ -202,7 +202,7 @@ public class RowFactoryTest {
         ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
         ExecutionConfig config = new ExecutionConfig();
         TestReason.getDescriptor().getFields().forEach(fieldDescriptor -> {
-            typeInformations.add(TypeHandlerFactory.getProtoHandler(fieldDescriptor).getTypeInformation());
+            typeInformations.add(TypeHandlerFactory.getTypeHandler(fieldDescriptor).getTypeInformation());
         });
         ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
         typeInformations.forEach(rowTypeInformation -> {

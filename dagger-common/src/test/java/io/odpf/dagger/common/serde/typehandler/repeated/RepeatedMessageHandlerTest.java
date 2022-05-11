@@ -166,7 +166,7 @@ public class RepeatedMessageHandlerTest {
     @Test
     public void shouldReturnEmptyArrayOfRowsIfNullPassedForPostProcessorTransform() {
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
-        Object[] values = (Object[]) TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(null);
+        Object[] values = (Object[]) TypeHandlerFactory.getTypeHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(null);
 
         assertEquals(0, values.length);
     }
@@ -188,7 +188,7 @@ public class RepeatedMessageHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
+        Object[] values = (Object[]) TypeHandlerFactory.getTypeHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
         assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
@@ -211,7 +211,7 @@ public class RepeatedMessageHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
+        Object[] values = (Object[]) TypeHandlerFactory.getTypeHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals("reason1", ((Row) values[0]).getField(0));
         assertEquals("group1", ((Row) values[0]).getField(1));
@@ -234,7 +234,7 @@ public class RepeatedMessageHandlerTest {
 
         Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
 
-        Object[] values = (Object[]) TypeHandlerFactory.getProtoHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
+        Object[] values = (Object[]) TypeHandlerFactory.getTypeHandler(repeatedMessageFieldDescriptor).transformFromPostProcessor(jsonArray);
 
         assertEquals("reason1", ((Row) values[0]).getField(0));
         assertEquals("group1", ((Row) values[0]).getField(1));

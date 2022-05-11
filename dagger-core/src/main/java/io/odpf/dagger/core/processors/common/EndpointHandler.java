@@ -90,7 +90,7 @@ public class EndpointHandler {
             Descriptors.FieldDescriptor fieldDescriptor = descriptorMap.get(inputColumnName);
             Object singleColumnValue;
             if (fieldDescriptor != null) {
-                TypeHandler typeHandler = TypeHandlerFactory.getProtoHandler(fieldDescriptor);
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
                 singleColumnValue = typeHandler.transformToJson(rowManager.getFromInput(inputColumnIndex));
             } else {
                 singleColumnValue = rowManager.getFromInput(inputColumnIndex);
