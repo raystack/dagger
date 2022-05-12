@@ -1,5 +1,11 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.core.source.config;
 
+import com.google.gson.annotations.JsonAdapter;
+import io.odpf.dagger.core.source.config.adapter.FileDateRangeAdaptor;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.models.SourceType;
+import io.odpf.dagger.core.source.config.models.TimeRanges;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -21,6 +27,7 @@ import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_TABLE;
 import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.STREAM_SOURCE_PARQUET_FILE_DATE_RANGE_KEY;
 
 public class StreamConfig {
     private static final Gson GSON = new GsonBuilder()
@@ -94,6 +101,11 @@ public class StreamConfig {
     @SerializedName(STREAM_SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY_KEY)
     @Getter
     private SourceParquetSchemaMatchStrategy parquetSchemaMatchStrategy;
+
+    @SerializedName(STREAM_SOURCE_PARQUET_FILE_DATE_RANGE_KEY)
+    @JsonAdapter(FileDateRangeAdaptor.class)
+    @Getter
+    private TimeRanges parquetFileDateRange;
 
     public String getDataType() {
         if (dataType == null) {

@@ -3,6 +3,7 @@ package io.odpf.dagger.core.source;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.exception.InvalidDaggerSourceException;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import io.odpf.dagger.core.source.flinkkafkaconsumer.FlinkKafkaConsumerDaggerSource;
 import io.odpf.dagger.core.source.kafka.KafkaDaggerSource;
 import io.odpf.dagger.core.source.parquet.ParquetDaggerSource;

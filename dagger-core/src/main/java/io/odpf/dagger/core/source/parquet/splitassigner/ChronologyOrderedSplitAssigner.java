@@ -1,39 +1,33 @@
 package io.odpf.dagger.core.source.parquet.splitassigner;
 
+import io.odpf.dagger.core.exception.PathParserNotProvidedException;
+import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.parquet.path.PathParser;
 import org.apache.flink.connector.file.src.FileSourceSplit;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
-import org.apache.flink.core.fs.Path;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final PriorityBlockingQueue<InstantEnrichedSplit> unassignedSplits;
-    private final Pattern filePathPattern = Pattern.compile("^.*/dt=([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/(hr=([0-9][0-9]))?.*$");
     private static final int INITIAL_DEFAULT_CAPACITY = 11;
+    private PathParser pathParser;
+    private TimeRanges timeRanges;
 
-    public ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits) {
+    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser, TimeRanges timeRanges) {
+        this.pathParser = pathParser;
+        this.timeRanges = timeRanges;
         this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
-        }
-    }
-
-    private void validateAndAddSplits(FileSourceSplit split) {
-        try {
-            Instant instant = parseInstantFromFilePath(split.path());
-            this.unassignedSplits.add(new InstantEnrichedSplit(split, instant));
-        } catch (ParseException ex) {
-            throw new IllegalArgumentException(ex);
         }
     }
 
@@ -61,6 +55,20 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
                 .collect(Collectors.toList());
     }
 
+    private void validateAndAddSplits(FileSourceSplit split) {
+        if (pathParser == null) {
+            throw new PathParserNotProvidedException("Path parser is null");
+        }
+        try {
+            Instant instant = pathParser.instantFromFilePath(split.path());
+            if (timeRanges == null || timeRanges.contains(instant)) {
+                this.unassignedSplits.add(new InstantEnrichedSplit(split, instant));
+            }
+        } catch (ParseException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
     private Comparator<InstantEnrichedSplit> getFileSourceSplitComparator() {
         return (instantEnrichedSplit1, instantEnrichedSplit2) -> {
             Instant instant1 = instantEnrichedSplit1.getInstant();
@@ -75,30 +83,22 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
         };
     }
 
-    private Instant parseInstantFromFilePath(Path path) throws ParseException {
-        Matcher matcher = filePathPattern.matcher(path.toString());
-        final int hourMatcherGroupNumber = 3;
-        final int dateMatcherGroupNumber = 1;
-        boolean matchFound = matcher.find();
-        if (matchFound && matcher.group(hourMatcherGroupNumber) != null && matcher.group(dateMatcherGroupNumber) != null) {
-            return convertToInstant(matcher.group(dateMatcherGroupNumber), matcher.group(hourMatcherGroupNumber));
-        } else if (matchFound && matcher.group(hourMatcherGroupNumber) == null && matcher.group(dateMatcherGroupNumber) != null) {
-            return convertToInstant(matcher.group(dateMatcherGroupNumber));
-        } else {
-            String message = String.format("Cannot extract timestamp from filepath for deciding order of processing.\n"
-                    + "File path doesn't abide with any partitioning strategy: %s", path);
-            throw new ParseException(message, 0);
+    public static class ChronologyOrderedSplitAssignerBuilder implements Serializable {
+        private PathParser pathParser;
+        private TimeRanges parquetFileDateRange;
+
+        public ChronologyOrderedSplitAssignerBuilder addPathParser(PathParser parser) {
+            this.pathParser = parser;
+            return this;
         }
-    }
 
-    private Instant convertToInstant(String dateSegment) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        return formatter.parse(dateSegment).toInstant();
-    }
+        public ChronologyOrderedSplitAssignerBuilder addTimeRanges(TimeRanges timeRanges) {
+            this.parquetFileDateRange = timeRanges;
+            return this;
+        }
 
-    private Instant convertToInstant(String dateSegment, String hourSegment) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH");
-        String dateHourString = String.join(" ", dateSegment, hourSegment);
-        return formatter.parse(dateHourString).toInstant();
+        public ChronologyOrderedSplitAssigner build(Collection<FileSourceSplit> fileSourceSplits) {
+            return new ChronologyOrderedSplitAssigner(fileSourceSplits, pathParser, parquetFileDateRange);
+        }
     }
 }
