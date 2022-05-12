@@ -10,8 +10,8 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
 import io.odpf.dagger.common.exceptions.serde.InvalidColumnMappingException;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,10 +137,10 @@ public class ProtoSerializer implements KafkaRecordSerializationSchema<Row> {
         if (fieldDescriptor == null) {
             return builder;
         }
-        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
         if (data != null) {
             try {
-                builder = protoHandler.transformToProtoBuilder(builder, data);
+                builder = typeHandler.transformToProtoBuilder(builder, data);
             } catch (IllegalArgumentException e) {
                 String protoType = fieldDescriptor.getType().toString();
                 if (fieldDescriptor.isRepeated()) {
