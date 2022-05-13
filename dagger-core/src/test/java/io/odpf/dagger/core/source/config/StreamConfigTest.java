@@ -237,7 +237,7 @@ public class StreamConfigTest {
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
-        TimeRanges parquetFileDateRange = streamConfigs[0].getParquetFileDateRange();
+        TimeRangePool parquetFileDateRange = streamConfigs[0].getParquetFileDateRange();
 
         List<TimeRange> timeRanges = parquetFileDateRange.getTimeRanges();
 

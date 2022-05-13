@@ -5,7 +5,7 @@ import io.odpf.dagger.core.source.config.adapter.FileDateRangeAdaptor;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
 import io.odpf.dagger.core.source.config.models.SourceName;
 import io.odpf.dagger.core.source.config.models.SourceType;
-import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -105,7 +105,7 @@ public class StreamConfig {
     @SerializedName(STREAM_SOURCE_PARQUET_FILE_DATE_RANGE_KEY)
     @JsonAdapter(FileDateRangeAdaptor.class)
     @Getter
-    private TimeRanges parquetFileDateRange;
+    private TimeRangePool parquetFileDateRange;
 
     public String getDataType() {
         if (dataType == null) {

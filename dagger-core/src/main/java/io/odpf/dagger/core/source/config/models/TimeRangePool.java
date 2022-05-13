@@ -7,8 +7,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimeRanges implements Serializable {
-    public TimeRanges() {
+public class TimeRangePool implements Serializable {
+    public TimeRangePool() {
         this.timeRanges = new ArrayList<>();
     }
 

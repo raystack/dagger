@@ -4,7 +4,7 @@ package io.odpf.dagger.core.source.config.adapter;
 import com.google.gson.stream.JsonReader;
 import io.odpf.dagger.core.exception.InvalidTimeRangeException;
 import io.odpf.dagger.core.source.config.models.TimeRange;
-import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,8 +34,8 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn("2022-02-13T14:00:00,2022-02-13T17:59:00");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        TimeRanges timeRanges = fileDateRangeAdaptor.read(jsonReader);
-        List<TimeRange> timeRangesList = timeRanges.getTimeRanges();
+        TimeRangePool timeRangePool = fileDateRangeAdaptor.read(jsonReader);
+        List<TimeRange> timeRangesList = timeRangePool.getTimeRanges();
 
         assertEquals(1644760800, timeRangesList.get(0).getStartInstant().getEpochSecond());
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());
@@ -46,8 +46,8 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn("2022-02-13T14:00:00Z,2022-02-13T17:59:00Z");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        TimeRanges timeRanges = fileDateRangeAdaptor.read(jsonReader);
-        List<TimeRange> timeRangesList = timeRanges.getTimeRanges();
+        TimeRangePool timeRangePool = fileDateRangeAdaptor.read(jsonReader);
+        List<TimeRange> timeRangesList = timeRangePool.getTimeRanges();
 
         assertEquals(1644760800, timeRangesList.get(0).getStartInstant().getEpochSecond());
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());
@@ -58,8 +58,8 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn("  2022-02-13T14:00:00 ,  2022-02-13T17:59:00  ");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        TimeRanges timeRanges = fileDateRangeAdaptor.read(jsonReader);
-        List<TimeRange> timeRangesList = timeRanges.getTimeRanges();
+        TimeRangePool timeRangePool = fileDateRangeAdaptor.read(jsonReader);
+        List<TimeRange> timeRangesList = timeRangePool.getTimeRanges();
 
         assertEquals(1644760800, timeRangesList.get(0).getStartInstant().getEpochSecond());
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());
@@ -100,8 +100,8 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn("2022-02-13T14:00:00,2022-02-13T17:59:00;2022-02-14T15:30:00,2022-02-14T17:35:00");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        TimeRanges timeRanges = fileDateRangeAdaptor.read(jsonReader);
-        List<TimeRange> timeRangesList = timeRanges.getTimeRanges();
+        TimeRangePool timeRangePool = fileDateRangeAdaptor.read(jsonReader);
+        List<TimeRange> timeRangesList = timeRangePool.getTimeRanges();
 
         assertEquals(1644760800, timeRangesList.get(0).getStartInstant().getEpochSecond());
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());
@@ -114,8 +114,8 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn(" 2022-02-13T14:00:00 , 2022-02-13T17:59:00 ;  2022-02-14T15:30:00 ,2022-02-14T17:35:00 ");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        TimeRanges timeRanges = fileDateRangeAdaptor.read(jsonReader);
-        List<TimeRange> timeRangesList = timeRanges.getTimeRanges();
+        TimeRangePool timeRangePool = fileDateRangeAdaptor.read(jsonReader);
+        List<TimeRange> timeRangesList = timeRangePool.getTimeRanges();
 
         assertEquals(1644760800, timeRangesList.get(0).getStartInstant().getEpochSecond());
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());

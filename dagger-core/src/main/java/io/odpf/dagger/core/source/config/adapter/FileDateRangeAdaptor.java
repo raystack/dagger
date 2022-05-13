@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import io.odpf.dagger.core.exception.InvalidTimeRangeException;
 import io.odpf.dagger.core.source.config.models.TimeRange;
-import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.config.models.TimeRangePool;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -14,15 +14,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 
-public class FileDateRangeAdaptor extends TypeAdapter<TimeRanges> {
+public class FileDateRangeAdaptor extends TypeAdapter<TimeRangePool> {
     @Override
-    public void write(JsonWriter out, TimeRanges value) {
+    public void write(JsonWriter out, TimeRangePool value) {
 
     }
 
     @Override
-    public TimeRanges read(JsonReader reader) throws IOException {
-        TimeRanges timeRanges = new TimeRanges();
+    public TimeRangePool read(JsonReader reader) throws IOException {
+        TimeRangePool timeRangePool = new TimeRangePool();
         String timeRangesString = reader.nextString();
         String[] timeRangesArray = timeRangesString.split(";");
         Arrays.asList(timeRangesArray).forEach(timeRange -> {
@@ -33,12 +33,12 @@ public class FileDateRangeAdaptor extends TypeAdapter<TimeRanges> {
                 if (startTime.isAfter(endTime)) {
                     throw new InvalidTimeRangeException("startTime should not be after endTime");
                 }
-                timeRanges.add(new TimeRange(startTime, endTime));
+                timeRangePool.add(new TimeRange(startTime, endTime));
             } else {
                 throw new InvalidTimeRangeException("The time ranges should contain two ISO format timestamps");
             }
         });
-        return timeRanges;
+        return timeRangePool;
     }
 
     private Instant parseInstant(String timestamp) {
