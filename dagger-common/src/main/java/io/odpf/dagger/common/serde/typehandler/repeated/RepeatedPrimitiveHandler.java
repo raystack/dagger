@@ -66,12 +66,13 @@ public class RepeatedPrimitiveHandler implements TypeHandler {
     @Override
     public Object transformFromProto(Object field) {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
-        return primitiveHandler.getArray(field);
+        return primitiveHandler.parseRepeatedObjectField(field);
     }
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.parseRepeatedSimpleGroupField(simpleGroup);
     }
 
     @Override

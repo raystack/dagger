@@ -49,12 +49,25 @@ public class LongHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         List<Long> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<Long>) field;
         }
         return inputValues.toArray(new Long[]{});
+    }
+
+    @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        ArrayList<Long> deserializedValues = new ArrayList<>();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            for (int i = 0; i < repetitionCount; i++) {
+                deserializedValues.add(simpleGroup.getLong(fieldName, i));
+            }
+        }
+        return deserializedValues.toArray(new Long[]{});
     }
 
     @Override

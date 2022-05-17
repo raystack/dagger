@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.repeated;
 
+import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -54,7 +55,19 @@ public class RepeatedEnumHandler implements TypeHandler {
 
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
-        return null;
+        String defaultEnumValue = fieldDescriptor.getEnumType().findValueByNumber(0).getName();
+        List<String> deserializedEnumArray = new ArrayList<>();
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            for (int positionIndex = 0; positionIndex < repetitionCount; positionIndex++) {
+                String extractedValue = simpleGroup.getString(fieldName, positionIndex);
+                Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(extractedValue);
+                String enumValue = enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
+                deserializedEnumArray.add(enumValue);
+            }
+        }
+        return deserializedEnumArray.toArray(new String[]{});
     }
 
     @Override

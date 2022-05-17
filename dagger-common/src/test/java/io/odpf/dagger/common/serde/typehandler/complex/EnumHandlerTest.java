@@ -150,7 +150,7 @@ public class EnumHandlerTest {
     }
 
     @Test
-    public void shouldTransformValueForKafka() {
+    public void shouldTransformValueFromProto() {
         Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumHandler enumHandler = new EnumHandler(fieldDescriptor);
