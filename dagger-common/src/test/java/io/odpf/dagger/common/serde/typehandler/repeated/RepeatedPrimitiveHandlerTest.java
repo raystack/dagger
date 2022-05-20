@@ -195,7 +195,7 @@ public class RepeatedPrimitiveHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForKafkaTransform() throws InvalidProtocolBufferException {
+    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForTransformFromProto() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(repeatedFieldDescriptor);
 
@@ -212,7 +212,7 @@ public class RepeatedPrimitiveHandlerTest {
     }
 
     @Test
-    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForKafkaTransform() {
+    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForTransformFromProto() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
         DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
