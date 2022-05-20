@@ -56,7 +56,7 @@ public class RepeatedEnumHandler implements TypeHandler {
     @Override
     public Object transformFromParquet(SimpleGroup simpleGroup) {
         String defaultEnumValue = fieldDescriptor.getEnumType().findValueByNumber(0).getName();
-        List<String> deserializedEnumArray = new ArrayList<>();
+        List<String> enumArrayList = new ArrayList<>();
         String fieldName = fieldDescriptor.getName();
         if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
             int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
@@ -64,10 +64,10 @@ public class RepeatedEnumHandler implements TypeHandler {
                 String extractedValue = simpleGroup.getString(fieldName, positionIndex);
                 Descriptors.EnumValueDescriptor enumValueDescriptor = fieldDescriptor.getEnumType().findValueByName(extractedValue);
                 String enumValue = enumValueDescriptor == null ? defaultEnumValue : enumValueDescriptor.getName();
-                deserializedEnumArray.add(enumValue);
+                enumArrayList.add(enumValue);
             }
         }
-        return deserializedEnumArray.toArray(new String[]{});
+        return enumArrayList.toArray(new String[]{});
     }
 
     @Override
