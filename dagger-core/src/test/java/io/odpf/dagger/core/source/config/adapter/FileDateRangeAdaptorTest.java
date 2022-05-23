@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.io.IOException;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -72,7 +71,7 @@ public class FileDateRangeAdaptorTest {
 
         InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
 
-        assertEquals("The time ranges should contain two ISO format timestamps", invalidTimeRangeException.getMessage());
+        assertEquals("Each time range should contain a pair of ISO format timestamps separated by comma. Multiple ranges can be provided separated by ;", invalidTimeRangeException.getMessage());
     }
 
     @Test
@@ -90,9 +89,9 @@ public class FileDateRangeAdaptorTest {
         when(jsonReader.nextString()).thenReturn("2022-02-13/14:00:00,2022-02-13/17:59:00");
         FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
 
-        DateTimeParseException dateTimeParseException = assertThrows(DateTimeParseException.class, () -> fileDateRangeAdaptor.read(jsonReader));
+        InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
 
-        assertEquals("Text '2022-02-13/14:00:00' could not be parsed at index 10", dateTimeParseException.getMessage());
+        assertEquals("Unable to parse timestamp: 2022-02-13/14:00:00 with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", invalidTimeRangeException.getMessage());
     }
 
     @Test
@@ -121,6 +120,26 @@ public class FileDateRangeAdaptorTest {
         assertEquals(1644775140, timeRangesList.get(0).getEndInstant().getEpochSecond());
         assertEquals(1644852600, timeRangesList.get(1).getStartInstant().getEpochSecond());
         assertEquals(1644860100, timeRangesList.get(1).getEndInstant().getEpochSecond());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfTimestampsGivenWithOtherTimezoneOffset() throws IOException {
+        when(jsonReader.nextString()).thenReturn("2022-02-13T14:00:00+05:30,2022-02-13T17:59:00+05:30");
+        FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
+
+        InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
+
+        assertEquals("Unable to parse timestamp: 2022-02-13T14:00:00+05:30 with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", invalidTimeRangeException.getMessage());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfTimestampRangesAreValidButWithInvalidDelimeter() throws IOException {
+        when(jsonReader.nextString()).thenReturn("2022-02-13T14:00:00,2022-02-13T17:59:00|2022-02-14T15:30:00,2022-02-14T17:35:00");
+        FileDateRangeAdaptor fileDateRangeAdaptor = new FileDateRangeAdaptor();
+
+        InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
+
+        assertEquals("Each time range should contain a pair of ISO format timestamps separated by comma. Multiple ranges can be provided separated by ;", invalidTimeRangeException.getMessage());
     }
 
 }
