@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.python;
 
 import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
-import io.odpf.dagger.functions.exceptions.PythonFilesNotFoundException;
+import io.odpf.dagger.functions.exceptions.PythonFilesNullException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -44,10 +44,8 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfConfig() throws IOException {
+    public void shouldRegisterPythonUdfConfig() {
         String pathFile = getPath("python_udf.zip");
-        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION ADD AS 'python_udf.scalar.add.add' LANGUAGE PYTHON";
-        String sqlRegisterSecondUdf = "CREATE TEMPORARY FUNCTION SUBSTRACT AS 'python_udf.vectorized.substract.substract' LANGUAGE PYTHON";
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);
@@ -67,12 +65,10 @@ public class PythonUdfManagerTest {
         verify(configuration, times(1)).setInteger("python.fn-execution.arrow.batch.size", 10000);
         verify(configuration, times(1)).setInteger("python.fn-execution.bundle.size", 100000);
         verify(configuration, times(1)).setLong("python.fn-execution.bundle.time", 1000);
-        verify(tableEnvironment, times(1)).executeSql(sqlRegisterFirstUdf);
-        verify(tableEnvironment, times(1)).executeSql(sqlRegisterSecondUdf);
     }
 
     @Test
-    public void shouldNotRegisterConfigIfNotSet() throws IOException {
+    public void shouldNotRegisterConfigIfNotSet() {
         String pathFile = getPath("python_udf.zip");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -88,7 +84,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfFromPyFile() throws IOException {
+    public void shouldRegisterPythonUdfFromPyFile() {
         String pathFile = getPath("test_udf.py");
         String sqlRegisterUdf = "CREATE TEMPORARY FUNCTION TEST_UDF AS 'test_udf.test_udf' LANGUAGE PYTHON";
 
@@ -104,7 +100,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldOnlyExecutePyFormatInsideZipFile() throws IOException {
+    public void shouldOnlyExecutePyFormatInsideZipFile() {
         String pathFile = getPath("python_udf.zip");
 
         String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION MULTIPLY AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
@@ -125,7 +121,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfFromPyAndZipFile() throws IOException {
+    public void shouldRegisterPythonUdfFromPyAndZipFile() {
         String zipPathFile = getPath("python_udf.zip");
         String pyPathFile = getPath("test_udf.py");
 
@@ -147,22 +143,6 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfFromGCS() throws IOException {
-        String pathFile = "gs://bucket-name/path/to/file/test_function.py";
-        String sqlRegisterUdf = "CREATE TEMPORARY FUNCTION TEST_FUNCTION AS 'test_function.test_function' LANGUAGE PYTHON";
-
-        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
-        when(tableConfig.getConfiguration()).thenReturn(configuration);
-        when(pythonUdfConfig.getPythonFiles()).thenReturn(pathFile);
-
-        PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
-        pythonUdfManager.registerPythonFunctions();
-
-        verify(configuration, times(1)).setString("python.files", pathFile);
-        verify(tableEnvironment, times(1)).executeSql(sqlRegisterUdf);
-    }
-
-    @Test
     public void shouldThrowExceptionIfPythonFilesNotInZipOrPyFormat() throws IOException {
         expectedEx.expect(PythonFilesFormatException.class);
         expectedEx.expectMessage("Python files should be in .py or .zip format");
@@ -179,9 +159,9 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPythonFilesNotExist() throws IOException {
-        expectedEx.expect(PythonFilesNotFoundException.class);
-        expectedEx.expectMessage("Python files not found");
+    public void shouldThrowExceptionIfPythonFilesNotExist() {
+        expectedEx.expect(PythonFilesNullException.class);
+        expectedEx.expectMessage("Python files can not be null");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);

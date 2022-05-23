@@ -8,6 +8,9 @@ import lombok.Getter;
 
 import static io.odpf.dagger.functions.common.Constants.*;
 
+/**
+ * The type Python udf config.
+ */
 public class PythonUdfConfig {
     private static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization()
@@ -34,6 +37,11 @@ public class PythonUdfConfig {
     @SerializedName(PYTHON_FN_EXECUTION_BUNDLE_TIME_KEY)
     private Long pythonBundleTime;
 
+    /**
+     * Gets python files.
+     *
+     * @return the python files
+     */
     public String getPythonFiles() {
         if (pythonFiles != null) {
             return pythonFiles.replaceAll("\\s+", "");
@@ -41,6 +49,11 @@ public class PythonUdfConfig {
         return null;
     }
 
+    /**
+     * Gets python arrow batch size.
+     *
+     * @return the python arrow batch size
+     */
     public int getPythonArrowBatchSize() {
         if (pythonArrowBatchSize == null) {
             return PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE_DEFAULT;
@@ -48,6 +61,11 @@ public class PythonUdfConfig {
         return pythonArrowBatchSize;
     }
 
+    /**
+     * Gets python bundle size.
+     *
+     * @return the python bundle size
+     */
     public int getPythonBundleSize() {
         if (pythonBundleSize == null) {
             return PYTHON_FN_EXECUTION_BUNDLE_SIZE_DEFAULT;
@@ -55,6 +73,11 @@ public class PythonUdfConfig {
         return pythonBundleSize;
     }
 
+    /**
+     * Gets python bundle time.
+     *
+     * @return the python bundle time
+     */
     public long getPythonBundleTime() {
         if (pythonBundleTime == null) {
             return PYTHON_FN_EXECUTION_BUNDLE_TIME_DEFAULT;
@@ -62,6 +85,12 @@ public class PythonUdfConfig {
         return pythonBundleTime;
     }
 
+    /**
+     * Parse python udf config.
+     *
+     * @param configuration the configuration
+     * @return the python udf config
+     */
     public static PythonUdfConfig parse(Configuration configuration) {
         String jsonString = configuration.getString(PYTHON_UDF_CONFIG, "");
 
