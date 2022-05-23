@@ -4,11 +4,10 @@ import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
-import io.odpf.dagger.common.exceptions.serde.SimpleGroupParsingException;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
-import io.odpf.dagger.common.serde.parquet.SimpleGroupValidation;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoType;
 import io.odpf.dagger.common.serde.typehandler.RowFactory;
+import io.odpf.dagger.common.serde.typehandler.complex.TimestampHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.apache.parquet.example.data.simple.SimpleGroup;
@@ -49,19 +48,14 @@ public class SimpleGroupDeserializer implements DaggerDeserializer<Row> {
 
     private Row addTimestampFieldToRow(Row row, SimpleGroup simpleGroup, Descriptors.Descriptor descriptor) {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByNumber(timestampFieldIndex);
-        String timestampFieldName = fieldDescriptor.getName();
-        if (SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, timestampFieldName)) {
-            long timeInMillis = simpleGroup.getLong(timestampFieldName, 0);
-            Instant instant = Instant.ofEpochMilli(timeInMillis);
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+        Row timestampRow = (Row) timestampHandler.transformFromParquet(simpleGroup);
+        long seconds = timestampRow.getFieldAs(0);
+        int nanos = timestampRow.getFieldAs(1);
 
-            row.setField(row.getArity() - 2, true);
-            row.setField(row.getArity() - 1, Timestamp.from(instant));
-            return row;
-        } else {
-            String errMessage = String.format("Could not extract timestamp with field name %s from simple group of type %s",
-                    fieldDescriptor.getName(), simpleGroup.getType().toString());
-            throw new SimpleGroupParsingException(errMessage);
-        }
+        row.setField(row.getArity() - 2, true);
+        row.setField(row.getArity() - 1, Timestamp.from(Instant.ofEpochSecond(seconds, nanos)));
+        return row;
     }
 
     @Override

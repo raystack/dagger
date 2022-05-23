@@ -13,6 +13,9 @@ import io.odpf.dagger.consumer.TestComplexMap;
 import io.odpf.dagger.consumer.TestMessage;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.PrimitiveType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,6 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.parquet.schema.Types.buildMessage;
+import static org.apache.parquet.schema.Types.repeatedGroup;
+import static org.apache.parquet.schema.Types.requiredGroup;
+import static org.apache.parquet.schema.Types.requiredMap;
 import static org.junit.Assert.*;
 
 public class MapHandlerTest {
@@ -345,13 +352,387 @@ public class MapHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+    public void shouldReturnArrayOfRowsForSimpleGroupContainingStandardSpecMap() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
-        MapHandler protoHandler = new MapHandler(fieldDescriptor);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
-                .named("TestGroupType");
-        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
 
-        assertNull(protoHandler.transformFromParquet(simpleGroup));
+        GroupType keyValueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("key")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("value")
+                .named("key_value");
+        GroupType mapSchema = requiredMap()
+                .key(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .requiredValue(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        SimpleGroup keyValue1 = new SimpleGroup(keyValueSchema);
+        keyValue1.add("key", "batman");
+        keyValue1.add("value", "DC");
+        SimpleGroup keyValue2 = new SimpleGroup(keyValueSchema);
+        keyValue2.add("key", "starlord");
+        keyValue2.add("value", "Marvel");
+
+        SimpleGroup mapMessage = new SimpleGroup(mapSchema);
+        mapMessage.add("key_value", keyValue1);
+        mapMessage.add("key_value", keyValue2);
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", mapMessage);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{Row.of("batman", "DC"), Row.of("starlord", "Marvel")};
+
+        assertEquals(2, actualRows.length);
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsForSimpleGroupContainingLegacySpecMap() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = repeatedGroup()
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("key")
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("value")
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        SimpleGroup keyValue1 = new SimpleGroup(mapSchema);
+        keyValue1.add("key", "batman");
+        keyValue1.add("value", "DC");
+        SimpleGroup keyValue2 = new SimpleGroup(mapSchema);
+        keyValue2.add("key", "starlord");
+        keyValue2.add("value", "Marvel");
+
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", keyValue1);
+        mainMessage.add("metadata", keyValue2);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{Row.of("batman", "DC"), Row.of("starlord", "Marvel")};
+
+        assertEquals(2, actualRows.length);
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsWhenHandlingSimpleGroupContainingStandardSpecMapOfComplexTypes() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType valueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_number")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_url")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_details")
+                .named("value");
+        GroupType keyValueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.INT32).named("key")
+                .addField(valueSchema)
+                .named("key_value");
+        GroupType mapSchema = requiredMap()
+                .key(PrimitiveType.PrimitiveTypeName.INT32)
+                .value(valueSchema)
+                .named("complex_map");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestComplexMap");
+
+        SimpleGroup keyValue1 = new SimpleGroup(keyValueSchema);
+        SimpleGroup value1 = new SimpleGroup(valueSchema);
+        value1.add("order_number", "RS-123");
+        value1.add("order_url", "http://localhost");
+        value1.add("order_details", "some-details");
+        keyValue1.add("key", 10);
+        keyValue1.add("value", value1);
+
+        SimpleGroup keyValue2 = new SimpleGroup(keyValueSchema);
+        SimpleGroup value2 = new SimpleGroup(valueSchema);
+        value2.add("order_number", "RS-456");
+        value2.add("order_url", "http://localhost:8888/some-url");
+        value2.add("order_details", "extra-details");
+        keyValue2.add("key", 90);
+        keyValue2.add("value", value2);
+
+        SimpleGroup mapMessage = new SimpleGroup(mapSchema);
+        mapMessage.add("key_value", keyValue1);
+        mapMessage.add("key_value", keyValue2);
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("complex_map", mapMessage);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{
+                Row.of(10, Row.of("RS-123", "http://localhost", "some-details")),
+                Row.of(90, Row.of("RS-456", "http://localhost:8888/some-url", "extra-details"))};
+
+        assertEquals(2, actualRows.length);
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsWhenHandlingSimpleGroupContainingLegacySpecMapOfComplexTypes() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType valueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_number")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_url")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_details")
+                .named("value");
+        GroupType mapSchema = repeatedGroup()
+                .required(PrimitiveType.PrimitiveTypeName.INT32).named("key")
+                .addField(valueSchema)
+                .named("complex_map");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestComplexMap");
+
+        SimpleGroup keyValue1 = new SimpleGroup(mapSchema);
+        SimpleGroup value1 = new SimpleGroup(valueSchema);
+        value1.add("order_number", "RS-123");
+        value1.add("order_url", "http://localhost");
+        value1.add("order_details", "some-details");
+        keyValue1.add("key", 10);
+        keyValue1.add("value", value1);
+
+        SimpleGroup keyValue2 = new SimpleGroup(mapSchema);
+        SimpleGroup value2 = new SimpleGroup(valueSchema);
+        value2.add("order_number", "RS-456");
+        value2.add("order_url", "http://localhost:8888/some-url");
+        value2.add("order_details", "extra-details");
+        keyValue2.add("key", 90);
+        keyValue2.add("value", value2);
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("complex_map", keyValue1);
+        mainMessage.add("complex_map", keyValue2);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{
+                Row.of(10, Row.of("RS-123", "http://localhost", "some-details")),
+                Row.of(90, Row.of("RS-456", "http://localhost:8888/some-url", "extra-details"))};
+
+        assertEquals(2, actualRows.length);
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldReturnEmptyRowArrayWhenHandlingASimpleGroupNotContainingTheMapField() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+        MessageType parquetSchema = buildMessage()
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+
+        assertArrayEquals(new Row[0], actualRows);
+    }
+
+    @Test
+    public void shouldReturnEmptyRowArrayWhenHandlingASimpleGroupWithStandardSpecMapFieldNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = requiredMap()
+                .key(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .requiredValue(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+
+        assertArrayEquals(new Row[0], actualRows);
+    }
+
+    @Test
+    public void shouldReturnEmptyRowArrayWhenHandlingASimpleGroupWithLegacySpecMapFieldNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = repeatedGroup()
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("key")
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("value")
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+
+        assertArrayEquals(new Row[0], actualRows);
+    }
+
+
+    @Test
+    public void shouldReturnEmptyRowArrayWhenHandlingNullSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(null);
+
+        assertArrayEquals(new Row[0], actualRows);
+    }
+
+    @Test
+    public void shouldUseDefaultKeyAsPerTypeWhenHandlingSimpleGroupAndStandardSpecMapEntryDoesNotHaveKeyInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType keyValueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("key")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("value")
+                .named("key_value");
+        GroupType mapSchema = requiredMap()
+                .key(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .requiredValue(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType())
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        /* Creating a map entry and only initializing the value but not the key */
+        SimpleGroup keyValue = new SimpleGroup(keyValueSchema);
+        keyValue.add("value", "DC");
+
+        SimpleGroup mapMessage = new SimpleGroup(mapSchema);
+        mapMessage.add("key_value", keyValue);
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", mapMessage);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{Row.of("", "DC")};
+
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldUseDefaultKeyAsPerTypeWhenHandlingSimpleGroupAndLegacySpecMapEntryDoesNotHaveKeyInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = repeatedGroup()
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("key")
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("value")
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        /* Creating a map entry and only initializing the value but not the key */
+        SimpleGroup keyValue = new SimpleGroup(mapSchema);
+        keyValue.add("value", "DC");
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", keyValue);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{Row.of("", "DC")};
+
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldUseDefaultValueAsPerTypeWhenHandlingSimpleGroupAndStandardSpecMapEntryDoesNotHaveValueInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestComplexMap.getDescriptor().findFieldByName("complex_map");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType valueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_number")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_url")
+                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_details")
+                .named("value");
+        GroupType keyValueSchema = requiredGroup()
+                .required(PrimitiveType.PrimitiveTypeName.INT32).named("key")
+                .addField(valueSchema)
+                .named("key_value");
+        GroupType mapSchema = requiredMap()
+                .key(PrimitiveType.PrimitiveTypeName.INT32)
+                .value(valueSchema)
+                .named("complex_map");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestComplexMap");
+
+        SimpleGroup keyValue = new SimpleGroup(keyValueSchema);
+        keyValue.add("key", 10);
+
+        /* Just creating an empty simple group for the value, without initializing any of the fields in it */
+        SimpleGroup value = new SimpleGroup(valueSchema);
+        keyValue.add("value", value);
+
+        SimpleGroup mapMessage = new SimpleGroup(mapSchema);
+        mapMessage.add("key_value", keyValue);
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("complex_map", mapMessage);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{
+                Row.of(10, Row.of("", "", ""))};
+
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldUseDefaultValueAsPerTypeWhenHandlingSimpleGroupAndLegacySpecMapEntryDoesNotHaveValueInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = repeatedGroup()
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("key")
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("value")
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        /* Creating a map entry and only initializing the key but not the value */
+        SimpleGroup keyValue = new SimpleGroup(mapSchema);
+        keyValue.add("key", "Superman");
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", keyValue);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+        Row[] expectedRows = new Row[]{Row.of("Superman", "")};
+
+        assertArrayEquals(expectedRows, actualRows);
+    }
+
+    @Test
+    public void shouldReturnEmptyRowArrayWhenHandlingSimpleGroupAndMapFieldDoesNotConformWithAnySpec() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        MapHandler mapHandler = new MapHandler(fieldDescriptor);
+
+        GroupType mapSchema = repeatedGroup()
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("random_key")
+                .optional(PrimitiveType.PrimitiveTypeName.BINARY).as(LogicalTypeAnnotation.stringType()).named("random_value")
+                .named("metadata");
+        MessageType parquetSchema = buildMessage()
+                .addField(mapSchema)
+                .named("TestBookingLogMessage");
+
+        SimpleGroup keyValue = new SimpleGroup(mapSchema);
+        keyValue.add("random_key", "Superman");
+        keyValue.add("random_value", "DC");
+
+        SimpleGroup mainMessage = new SimpleGroup(parquetSchema);
+        mainMessage.add("metadata", keyValue);
+
+        Row[] actualRows = (Row[]) mapHandler.transformFromParquet(mainMessage);
+
+        assertArrayEquals(new Row[]{}, actualRows);
     }
 }
