@@ -47,27 +47,24 @@ public class FileDateRangeAdaptor extends TypeAdapter<TimeRangePool> {
         SimpleDateFormat utcDateFormat = new SimpleDateFormat(utcDateFormatPattern);
         utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
+
         String localDataFormatPattern = "yyyy-MM-dd'T'HH:mm:ss";
         SimpleDateFormat localDateFormat = new SimpleDateFormat(localDataFormatPattern);
         localDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        Date dateTime;
         if (timestamp.length() == utcDateFormatPattern.replace("'", "").length()) {
-            dateTime = parse(timestamp, utcDateFormat);
+            return parse(timestamp, utcDateFormat).toInstant();
         } else if (timestamp.length() == localDataFormatPattern.replace("'", "").length()) {
-            dateTime = parse(timestamp, localDateFormat);
-        } else {
-            throw new InvalidTimeRangeException(String.format("Unable to parse timestamp: %s with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", timestamp));
+            return parse(timestamp, localDateFormat).toInstant();
         }
-
-        return dateTime.toInstant();
+        throw new InvalidTimeRangeException(String.format("Unable to parse timestamp: %s with supported date formats i.e. yyyy-MM-ddTHH:mm:ssZ and yyyy-MM-ddTHH:mm:ss", timestamp));
     }
 
     private Date parse(String timestamp, SimpleDateFormat simpleDateFormat) {
         try {
             return simpleDateFormat.parse(timestamp);
         } catch (ParseException e) {
-            throw new InvalidTimeRangeException(String.format("Unable to parse timestamp: %s with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", timestamp));
+            throw new InvalidTimeRangeException(String.format("Unable to parse timestamp: %s with supported date formats i.e. yyyy-MM-ddTHH:mm:ssZ and yyyy-MM-ddTHH:mm:ss", timestamp));
         }
     }
 }

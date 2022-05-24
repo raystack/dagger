@@ -91,7 +91,7 @@ public class FileDateRangeAdaptorTest {
 
         InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
 
-        assertEquals("Unable to parse timestamp: 2022-02-13/14:00:00 with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", invalidTimeRangeException.getMessage());
+        assertEquals("Unable to parse timestamp: 2022-02-13/14:00:00 with supported date formats i.e. yyyy-MM-ddTHH:mm:ssZ and yyyy-MM-ddTHH:mm:ss", invalidTimeRangeException.getMessage());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class FileDateRangeAdaptorTest {
 
         InvalidTimeRangeException invalidTimeRangeException = assertThrows(InvalidTimeRangeException.class, () -> fileDateRangeAdaptor.read(jsonReader));
 
-        assertEquals("Unable to parse timestamp: 2022-02-13T14:00:00+05:30 with supported date formats i.e. yyyy-MM-dd'T'HH:mm:ssZ and yyyy-MM-dd'T'HH:mm:ss", invalidTimeRangeException.getMessage());
+        assertEquals("Unable to parse timestamp: 2022-02-13T14:00:00+05:30 with supported date formats i.e. yyyy-MM-ddTHH:mm:ssZ and yyyy-MM-ddTHH:mm:ss", invalidTimeRangeException.getMessage());
     }
 
     @Test
