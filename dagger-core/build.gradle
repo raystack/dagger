@@ -71,10 +71,10 @@ dependencies {
     implementation 'org.apache.flink:flink-table:' + flinkVersion
     implementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-table-planner_2.11:' + flinkVersion
-    
+
     dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
-    
+
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
@@ -84,7 +84,7 @@ dependencies {
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
-    
+
     testImplementation project(':dagger-common').sourceSets.test.output
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
