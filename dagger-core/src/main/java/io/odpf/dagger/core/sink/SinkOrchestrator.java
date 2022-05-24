@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.sink;
 
+import io.odpf.dagger.core.sink.bigquery.BigquerySink;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -24,7 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_KEY;
+import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
 
 /**
  * The Sink orchestrator.
@@ -32,7 +41,7 @@ import static io.odpf.dagger.core.utils.Constants.*;
  */
 public class SinkOrchestrator implements TelemetryPublisher {
     private final MetricsTelemetryExporter telemetryExporter;
-    private Map<String, List<String>> metrics;
+    private final Map<String, List<String>> metrics;
 
     public SinkOrchestrator(MetricsTelemetryExporter telemetryExporter) {
         this.telemetryExporter = telemetryExporter;
@@ -70,6 +79,15 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 break;
             case "log":
                 sink = new LogSink(columnNames);
+                break;
+            case "bigquery":
+                sink = BigquerySink.builder()
+                        .setColumnNames(columnNames)
+                        .setConfiguration(configuration)
+                        .setStencilClientOrchestrator(stencilClientOrchestrator)
+                        .setKeyProtoClassName(configuration.getString(SINK_KAFKA_PROTO_KEY, null))
+                        .setMessageProtoClassName(configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, null))
+                        .build();
                 break;
             default:
                 sink = new InfluxDBSink(new InfluxDBFactoryWrapper(), configuration, columnNames, new ErrorHandler());

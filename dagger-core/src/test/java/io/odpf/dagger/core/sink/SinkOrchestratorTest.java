@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.sink;
 
+import io.odpf.dagger.core.sink.bigquery.BigquerySink;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 
@@ -103,5 +104,12 @@ public class SinkOrchestratorTest {
 
         sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
         assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
+    }
+
+    @Test
+    public void shouldReturnBigquerySink() {
+        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        assertThat(sinkFunction, instanceOf(BigquerySink.class));
     }
 }

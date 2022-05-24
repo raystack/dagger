@@ -79,6 +79,7 @@ dependencies {
     dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
     dependenciesJar 'org.influxdb:influxdb-java:2.8'
+    dependenciesJar 'io.odpf:depot:0.1.4'
     dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
     dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
@@ -120,7 +121,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.87
+                minimum = 0.80
             }
         }
     }
