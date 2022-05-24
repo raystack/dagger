@@ -159,10 +159,6 @@ jar {
 
 shadowJar {
     mergeServiceFiles()
-    minimize {
-        exclude(dependency('io.vertx:vertx-pg-client:.*'))
-        exclude(dependency('com.google.cloud.bigtable:bigtable-hbase-2.x:.*'))
-    }
     zip64 true
     configurations = [project.configurations.minimalJar, project.configurations.dependenciesJar]
     relocate('com.google.protobuf', 'shaded.com.google.protobuf') {
