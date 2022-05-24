@@ -2,10 +2,10 @@ package io.odpf.dagger.core.source.kafka;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
-import io.odpf.dagger.core.source.SourceDetails;
-import io.odpf.dagger.core.source.SourceName;
-import io.odpf.dagger.core.source.SourceType;
-import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.models.SourceType;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import io.odpf.dagger.core.source.DaggerSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -15,8 +15,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
 
-import static io.odpf.dagger.core.source.SourceName.KAFKA_SOURCE;
-import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.config.models.SourceName.KAFKA_SOURCE;
+import static io.odpf.dagger.core.source.config.models.SourceType.UNBOUNDED;
 
 public class KafkaDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;

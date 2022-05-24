@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.core.source.SourceType;
+import io.odpf.dagger.core.source.config.models.SourceType;
 import lombok.Getter;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
@@ -13,7 +13,7 @@ import org.apache.flink.types.Row;
 import java.io.Serializable;
 
 import static com.google.api.client.util.Preconditions.checkArgument;
-import static io.odpf.dagger.core.source.SourceType.BOUNDED;
+import static io.odpf.dagger.core.source.config.models.SourceType.BOUNDED;
 
 public class ParquetFileSource implements Serializable {
     @Getter
@@ -28,10 +28,10 @@ public class ParquetFileSource implements Serializable {
     private final FileSplitAssigner.Provider fileSplitAssigner;
 
     private ParquetFileSource(SourceType sourceType,
-                             Configuration configuration,
-                             FileRecordFormat<Row> fileRecordFormat,
-                             Path[] filePaths,
-                             FileSplitAssigner.Provider fileSplitAssigner) {
+                              Configuration configuration,
+                              FileRecordFormat<Row> fileRecordFormat,
+                              Path[] filePaths,
+                              FileSplitAssigner.Provider fileSplitAssigner) {
         this.sourceType = sourceType;
         this.configuration = configuration;
         this.filePaths = filePaths;

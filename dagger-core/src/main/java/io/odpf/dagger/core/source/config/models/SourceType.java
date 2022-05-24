@@ -1,4 +1,4 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.core.source.config.models;
 
 import com.google.gson.annotations.SerializedName;
 

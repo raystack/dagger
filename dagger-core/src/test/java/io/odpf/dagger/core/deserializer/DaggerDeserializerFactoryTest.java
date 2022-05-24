@@ -8,10 +8,10 @@ import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializ
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.source.SourceDetails;
-import io.odpf.dagger.core.source.SourceName;
-import io.odpf.dagger.core.source.SourceType;
-import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.models.SourceType;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import io.odpf.stencil.client.StencilClient;
 import org.apache.flink.types.Row;
 import org.junit.Before;
