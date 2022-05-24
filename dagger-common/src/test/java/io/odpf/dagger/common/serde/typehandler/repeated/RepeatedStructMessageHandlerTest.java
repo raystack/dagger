@@ -75,7 +75,7 @@ public class RepeatedStructMessageHandlerTest {
 
     @Test
     public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
-        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageHandler protoHandler = new RepeatedStructMessageHandler(fieldDescriptor);
         GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
                 .named("TestGroupType");
@@ -83,5 +83,4 @@ public class RepeatedStructMessageHandlerTest {
 
         assertNull(protoHandler.transformFromParquet(simpleGroup));
     }
-
 }

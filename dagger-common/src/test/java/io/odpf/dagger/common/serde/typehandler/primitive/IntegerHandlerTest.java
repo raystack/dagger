@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
@@ -11,7 +12,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -83,7 +86,7 @@ public class IntegerHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
         ArrayList<Integer> inputValues = new ArrayList<>(Arrays.asList(1, 2, 3));
-        Object actualValues = integerHandler.getArray(inputValues);
+        Object actualValues = integerHandler.parseRepeatedObjectField(inputValues);
 
         assertArrayEquals(new int[]{1, 2, 3}, (int[]) actualValues);
     }
@@ -92,7 +95,7 @@ public class IntegerHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("cancel_reason_id");
         IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
-        Object actualValues = integerHandler.getArray(null);
+        Object actualValues = integerHandler.parseRepeatedObjectField(null);
 
         assertEquals(0, ((int[]) actualValues).length);
     }
@@ -142,5 +145,63 @@ public class IntegerHandlerTest {
         Object actualValue = integerHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0, actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfIntValuesForFieldOfTypeRepeatedInt32InsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(INT32).named("repeated_number_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("repeated_number_field", 2342882);
+        simpleGroup.add("repeated_number_field", -382922);
+
+        IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
+        int[] actualValue = (int[]) integerHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new int[]{2342882, -382922}, actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyIntArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
+
+        IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
+        int[] actualValue = (int[]) integerHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new int[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyIntArrayWhenRepeatedInt32FieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
+        int[] actualValue = (int[]) integerHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new int[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyIntArrayWhenRepeatedInt32FieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_number_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(INT32).named("repeated_number_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        IntegerHandler integerHandler = new IntegerHandler(fieldDescriptor);
+        int[] actualValue = (int[]) integerHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new int[0], actualValue);
     }
 }

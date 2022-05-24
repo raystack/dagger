@@ -31,12 +31,21 @@ public interface PrimitiveHandler {
     Object parseSimpleGroup(SimpleGroup simpleGroup);
 
     /**
-     * Gets array.
+     * Parses a repeated object into an array of Java primitives.
      *
-     * @param field the field
-     * @return the array
+     * @param field the object array
+     * @return array of java primitive values as obtained from the repeated object
      */
-    Object getArray(Object field);
+    Object parseRepeatedObjectField(Object field);
+
+    /**
+     * Extracts the specific repeated primitive field from a SimpleGroup object and
+     * transforms it into an array of Java primitives.
+     *
+     * @param simpleGroup SimpleGroup object inside which the repeated primitive field resides
+     * @return array of java primitive values as obtained from the repeated primitive field
+     */
+    Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup);
 
     /**
      * Gets type information.

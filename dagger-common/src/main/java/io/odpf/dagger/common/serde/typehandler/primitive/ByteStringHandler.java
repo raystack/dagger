@@ -51,12 +51,26 @@ public class ByteStringHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         List<ByteString> inputValues = new ArrayList<>();
         if (field != null) {
             inputValues = (List<ByteString>) field;
         }
         return inputValues.toArray(new ByteString[]{});
+    }
+
+    @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        ArrayList<ByteString> byteStringList = new ArrayList<>();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            for (int i = 0; i < repetitionCount; i++) {
+                byte[] byteArray = simpleGroup.getBinary(fieldName, i).getBytes();
+                byteStringList.add(ByteString.copyFrom(byteArray));
+            }
+        }
+        return byteStringList.toArray(new ByteString[]{});
     }
 
     @Override

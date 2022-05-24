@@ -49,13 +49,27 @@ public class FloatHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
 
         float[] inputValues = new float[0];
         if (field != null) {
             inputValues = Floats.toArray((List<Float>) field);
         }
         return inputValues;
+    }
+
+    @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            float[] floatArray = new float[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                floatArray[i] = simpleGroup.getFloat(fieldName, i);
+            }
+            return floatArray;
+        }
+        return new float[0];
     }
 
     @Override

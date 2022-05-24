@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
+import io.odpf.dagger.consumer.TestNestedRepeatedMessage;
 import org.apache.flink.api.common.typeinfo.Types;
 
 import com.google.protobuf.Descriptors;
@@ -11,7 +12,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -83,7 +86,7 @@ public class LongHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongHandler longHandler = new LongHandler(fieldDescriptor);
         ArrayList<Long> inputValues = new ArrayList<>(Arrays.asList(1L, 2L, 3L));
-        Object actualValues = longHandler.getArray(inputValues);
+        Object actualValues = longHandler.parseRepeatedObjectField(inputValues);
         assertArrayEquals(inputValues.toArray(), (Long[]) actualValues);
     }
 
@@ -91,7 +94,7 @@ public class LongHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestAggregatedSupplyMessage.getDescriptor().findFieldByName("s2_id");
         LongHandler longHandler = new LongHandler(fieldDescriptor);
-        Object actualValues = longHandler.getArray(null);
+        Object actualValues = longHandler.parseRepeatedObjectField(null);
         assertEquals(0, ((Long[]) actualValues).length);
     }
 
@@ -139,5 +142,63 @@ public class LongHandlerTest {
         Object actualValue = longHandler.parseSimpleGroup(simpleGroup);
 
         assertEquals(0L, actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfLongValuesForFieldOfTypeRepeatedInt64InsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_long_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(INT64).named("repeated_long_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("repeated_long_field", 6222L);
+        simpleGroup.add("repeated_long_field", 0L);
+
+        LongHandler longHandler = new LongHandler(fieldDescriptor);
+        Long[] actualValue = (Long[]) longHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new Long[]{6222L, 0L}, actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyLongArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_long_field");
+
+        LongHandler longHandler = new LongHandler(fieldDescriptor);
+        Long[] actualValue = (Long[]) longHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new Long[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyLongArrayWhenRepeatedInt64FieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_long_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        LongHandler longHandler = new LongHandler(fieldDescriptor);
+        Long[] actualValue = (Long[]) longHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new Long[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyLongArrayWhenRepeatedInt64FieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("repeated_long_field");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(INT64).named("repeated_long_field")
+                .named("TestNestedRepeatedMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        LongHandler longHandler = new LongHandler(fieldDescriptor);
+        Long[] actualValue = (Long[]) longHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new Long[0], actualValue);
     }
 }
