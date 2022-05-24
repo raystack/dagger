@@ -3,7 +3,7 @@ package io.odpf.dagger.core.source.parquet.splitassigner;
 
 import io.odpf.dagger.core.exception.PathParserNotProvidedException;
 import io.odpf.dagger.core.source.config.models.TimeRange;
-import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
 import org.apache.flink.connector.file.src.FileSourceSplit;
 import org.apache.flink.core.fs.Path;
@@ -175,11 +175,11 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        TimeRanges timeRanges = new TimeRanges();
-        timeRanges.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
+        TimeRangePool timeRangePool = new TimeRangePool();
+        timeRangePool.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
         ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
                 .addPathParser(new HourDatePathParser())
-                .addTimeRanges(timeRanges)
+                .addTimeRanges(timeRangePool)
                 .build(inputSplits);
 
         assertEquals(firstSplit, splitAssigner.getNext(null).get());
@@ -198,12 +198,12 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        TimeRanges timeRanges = new TimeRanges();
-        timeRanges.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
-        timeRanges.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
+        TimeRangePool timeRangePool = new TimeRangePool();
+        timeRangePool.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
+        timeRangePool.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
         ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
                 .addPathParser(new HourDatePathParser())
-                .addTimeRanges(timeRanges)
+                .addTimeRanges(timeRangePool)
                 .build(inputSplits);
 
         assertEquals(firstSplit, splitAssigner.getNext(null).get());
@@ -221,10 +221,10 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        TimeRanges timeRanges = new TimeRanges();
-        timeRanges.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
-        timeRanges.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
-        PathParserNotProvidedException pathParserNotProvidedException = assertThrows(PathParserNotProvidedException.class, () -> splitAssignerBuilder.addTimeRanges(timeRanges).build(inputSplits));
+        TimeRangePool timeRangePool = new TimeRangePool();
+        timeRangePool.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
+        timeRangePool.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
+        PathParserNotProvidedException pathParserNotProvidedException = assertThrows(PathParserNotProvidedException.class, () -> splitAssignerBuilder.addTimeRanges(timeRangePool).build(inputSplits));
         assertEquals("Path parser is null", pathParserNotProvidedException.getMessage());
     }
 

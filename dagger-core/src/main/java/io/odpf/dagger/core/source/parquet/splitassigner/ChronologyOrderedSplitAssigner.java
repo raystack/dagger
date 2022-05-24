@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.source.parquet.splitassigner;
 
 import io.odpf.dagger.core.exception.PathParserNotProvidedException;
-import io.odpf.dagger.core.source.config.models.TimeRanges;
+import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import io.odpf.dagger.core.source.parquet.path.PathParser;
 import org.apache.flink.connector.file.src.FileSourceSplit;
 import org.apache.flink.connector.file.src.assigners.FileSplitAssigner;
@@ -20,11 +20,11 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final PriorityBlockingQueue<InstantEnrichedSplit> unassignedSplits;
     private static final int INITIAL_DEFAULT_CAPACITY = 11;
     private PathParser pathParser;
-    private TimeRanges timeRanges;
+    private TimeRangePool timeRangePool;
 
-    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser, TimeRanges timeRanges) {
+    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser, TimeRangePool timeRangePool) {
         this.pathParser = pathParser;
-        this.timeRanges = timeRanges;
+        this.timeRangePool = timeRangePool;
         this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
@@ -56,12 +56,9 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     }
 
     private void validateAndAddSplits(FileSourceSplit split) {
-        if (pathParser == null) {
-            throw new PathParserNotProvidedException("Path parser is null");
-        }
         try {
             Instant instant = pathParser.instantFromFilePath(split.path());
-            if (timeRanges == null || timeRanges.contains(instant)) {
+            if (timeRangePool == null || timeRangePool.contains(instant)) {
                 this.unassignedSplits.add(new InstantEnrichedSplit(split, instant));
             }
         } catch (ParseException ex) {
@@ -85,19 +82,22 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
 
     public static class ChronologyOrderedSplitAssignerBuilder implements Serializable {
         private PathParser pathParser;
-        private TimeRanges parquetFileDateRange;
+        private TimeRangePool parquetFileDateRange;
 
         public ChronologyOrderedSplitAssignerBuilder addPathParser(PathParser parser) {
             this.pathParser = parser;
             return this;
         }
 
-        public ChronologyOrderedSplitAssignerBuilder addTimeRanges(TimeRanges timeRanges) {
-            this.parquetFileDateRange = timeRanges;
+        public ChronologyOrderedSplitAssignerBuilder addTimeRanges(TimeRangePool timeRangePool) {
+            this.parquetFileDateRange = timeRangePool;
             return this;
         }
 
         public ChronologyOrderedSplitAssigner build(Collection<FileSourceSplit> fileSourceSplits) {
+            if (pathParser == null) {
+                throw new PathParserNotProvidedException("Path parser is null");
+            }
             return new ChronologyOrderedSplitAssigner(fileSourceSplits, pathParser, parquetFileDateRange);
         }
     }

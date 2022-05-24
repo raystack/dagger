@@ -3,6 +3,7 @@ package io.odpf.dagger.core.source.parquet;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.core.source.config.models.SourceType;
 import io.odpf.dagger.core.source.parquet.ParquetFileSource.Builder;
+import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
 import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
@@ -32,10 +33,12 @@ public class ParquetFileSourceTest {
     public void shouldBuildParquetFileSourceAsPerArguments() {
         Builder builder = Builder.getInstance();
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
+        ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
+        splitAssignerBuilder.addPathParser(new HourDatePathParser());
         ParquetFileSource parquetFileSource = builder.setConfiguration(configuration)
                 .setFileRecordFormat(fileRecordFormat)
                 .setSourceType(SourceType.BOUNDED)
-                .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
+                .setFileSplitAssigner(splitAssignerBuilder::build)
                 .setFilePaths(filePaths)
                 .build();
 
