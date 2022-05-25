@@ -1,7 +1,6 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
 import io.odpf.dagger.functions.udfs.python.file.source.FileSource;
-import io.odpf.dagger.functions.udfs.python.file.source.FileSourceFactory;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
@@ -15,34 +14,15 @@ import java.util.zip.ZipInputStream;
  */
 public class ZipFileType implements FileType {
 
-    private String pythonFile;
-    private FileSourceFactory fileSourceFactory;
+    private FileSource fileSource;
 
-    /**
-     * Instantiates a new Zip file type.
-     *
-     * @param pythonFile the python file
-     */
-    public ZipFileType(String pythonFile) {
-        this.pythonFile = pythonFile;
-    }
-
-    /**
-     * Instantiates a new Zip file type.
-     * This constructor used for unit test purposes.
-     *
-     * @param pythonFile  the python file
-     * @param fileSourceFactory the file source factory
-     */
-    public ZipFileType(String pythonFile, FileSourceFactory fileSourceFactory) {
-        this.pythonFile = pythonFile;
-        this.fileSourceFactory = fileSourceFactory;
+    public ZipFileType(FileSource fileSource) {
+        this.fileSource = fileSource;
     }
 
     @SneakyThrows
     @Override
     public List<String> getFileNames() {
-        FileSource fileSource = getFileSource();
         byte[] object = fileSource.getObjectFile();
 
         ZipInputStream zi = new ZipInputStream(new ByteArrayInputStream(object));
@@ -60,13 +40,6 @@ public class ZipFileType implements FileType {
             }
         }
         return fileNames;
-    }
-
-    public FileSource getFileSource() {
-        if (fileSourceFactory == null) {
-            fileSourceFactory = new FileSourceFactory(pythonFile);
-        }
-        return fileSourceFactory.getFileSource();
     }
 
     private boolean isPythonFile(String fileName) {

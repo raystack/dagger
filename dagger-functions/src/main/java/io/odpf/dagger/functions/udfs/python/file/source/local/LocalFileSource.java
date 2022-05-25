@@ -16,10 +16,10 @@ public class LocalFileSource implements FileSource {
     /**
      * Instantiates a new Local file source.
      *
-     * @param pythonFileSource the python file
+     * @param pythonFile the python file
      */
-    public LocalFileSource(String pythonFileSource) {
-        this.pythonFile = pythonFileSource;
+    public LocalFileSource(String pythonFile) {
+        this.pythonFile = pythonFile;
     }
 
     @SneakyThrows

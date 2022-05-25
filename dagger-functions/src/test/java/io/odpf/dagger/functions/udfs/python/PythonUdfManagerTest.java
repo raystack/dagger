@@ -13,7 +13,6 @@ import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -103,7 +102,7 @@ public class PythonUdfManagerTest {
     public void shouldOnlyExecutePyFormatInsideZipFile() {
         String pathFile = getPath("python_udf.zip");
 
-        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION MULTIPLY AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
+        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION TEST_FUNCTION AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
         String sqlRegisterSecondUdf = "CREATE TEMPORARY FUNCTION ADD AS 'python_udf.scalar.add.add' LANGUAGE PYTHON";
         String sqlRegisterThirdUdf = "CREATE TEMPORARY FUNCTION SUBSTRACT AS 'python_udf.vectorized.substract.substract' LANGUAGE PYTHON";
 
@@ -159,7 +158,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPythonFilesNotExist() {
+    public void shouldThrowExceptionIfPythonFilesIsNullOrEmpty() {
         expectedEx.expect(PythonFilesNullException.class);
         expectedEx.expectMessage("Python files can not be null");
 
@@ -172,8 +171,7 @@ public class PythonUdfManagerTest {
 
     private String getPath(String filename) {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
-        return file.getAbsolutePath();
+        return classLoader.getResource(filename).getPath();
     }
 }

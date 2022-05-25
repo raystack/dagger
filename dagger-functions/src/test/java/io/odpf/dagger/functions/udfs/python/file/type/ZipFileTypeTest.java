@@ -1,7 +1,5 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
-import io.odpf.dagger.functions.udfs.python.file.source.FileSourceFactory;
-import io.odpf.dagger.functions.udfs.python.file.source.gcs.GcsClient;
 import io.odpf.dagger.functions.udfs.python.file.source.gcs.GcsFileSource;
 import io.odpf.dagger.functions.udfs.python.file.source.local.LocalFileSource;
 import org.junit.Assert;
@@ -25,56 +23,38 @@ public class ZipFileTypeTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Mock
-    private GcsClient gcsClient;
+    private GcsFileSource gcsFileSource;
 
     @Mock
     private LocalFileSource localFileSource;
 
-    @Mock
-    private GcsFileSource gcsFileSource;
-
-    @Mock
-    private FileSourceFactory fileSourceFactory;
+    private byte[] zipInBytes;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         initMocks(this);
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("python_udf.zip")).getFile());
+        zipInBytes = Files.readAllBytes(file.toPath());
     }
 
     @Test
-    public void shouldGetFileNamesFromLocalZip() throws IOException {
-        String pathFile = "/path/to/file/python_udf.zip";
+    public void shouldGetFileNamesFromLocalZip() {
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("python_udf.zip")).getFile());
-
-        byte[] zipInBytes = Files.readAllBytes(file.toPath());
-
-        when(fileSourceFactory.getFileSource()).thenReturn(localFileSource);
         when(localFileSource.getObjectFile()).thenReturn(zipInBytes);
 
-        ZipFileType zipFileType = new ZipFileType(pathFile, fileSourceFactory);
-
+        ZipFileType zipFileType = new ZipFileType(localFileSource);
         List<String> fileNames = zipFileType.getFileNames();
 
         Assert.assertEquals("[python_udf/scalar/add.py, python_udf/vectorized/substract.py]", fileNames.toString());
     }
 
     @Test
-    public void shouldGetFileNamesFromGcsZip() throws IOException {
-        String pathFile = "gs://bucket-name/path/to/file/python_udf.zip";
+    public void shouldGetFileNamesFromGcsZip() {
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("python_udf.zip")).getFile());
-
-        byte[] zipInBytes = Files.readAllBytes(file.toPath());
-
-        when(fileSourceFactory.getFileSource()).thenReturn(gcsFileSource);
-        when(gcsFileSource.getGcsClient()).thenReturn(gcsClient);
         when(gcsFileSource.getObjectFile()).thenReturn(zipInBytes);
 
-        ZipFileType zipFileType = new ZipFileType(pathFile, fileSourceFactory);
-
+        ZipFileType zipFileType = new ZipFileType(gcsFileSource);
         List<String> fileNames = zipFileType.getFileNames();
 
         Assert.assertEquals("[python_udf/scalar/add.py, python_udf/vectorized/substract.py]", fileNames.toString());

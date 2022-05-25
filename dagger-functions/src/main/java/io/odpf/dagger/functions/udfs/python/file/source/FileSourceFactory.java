@@ -8,31 +8,21 @@ import io.odpf.dagger.functions.udfs.python.file.source.local.LocalFileSource;
  */
 public class FileSourceFactory {
 
-    private String pythonFile;
-
-    /**
-     * Instantiates a new File source factory.
-     *
-     * @param pythonFile the python file
-     */
-    public FileSourceFactory(String pythonFile) {
-        this.pythonFile = pythonFile;
-    }
-
     /**
      * Gets file source.
      *
+     * @param pythonFile the python file
      * @return the file source
      */
-    public FileSource getFileSource() {
-        if ("GS".equals(getFileSourcePrefix())) {
+    public static FileSource getFileSource(String pythonFile) {
+        if ("GS".equals(getFileSourcePrefix(pythonFile))) {
             return new GcsFileSource(pythonFile);
         } else {
             return new LocalFileSource(pythonFile);
         }
     }
 
-    private String getFileSourcePrefix() {
+    private static String getFileSourcePrefix(String pythonFile) {
         String[] files = pythonFile.split("://");
         return files[0].toUpperCase();
     }

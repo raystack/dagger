@@ -13,20 +13,20 @@ public class FileTypeFactoryTest {
 
     @Test
     public void shouldGetPythonFileType() {
-        String pythonFileSource = "/path/to/file/test_udf.py";
+        String pythonFile = "/path/to/file/test_udf.py";
 
-        FileTypeFactory fileTypeFactory = new FileTypeFactory(pythonFileSource);
+        FileType fileType = FileTypeFactory.getFileType(pythonFile);
 
-        Assert.assertTrue(fileTypeFactory.getFileType() instanceof PythonFileType);
+        Assert.assertTrue(fileType instanceof PythonFileType);
     }
 
     @Test
     public void shouldGetZipFileType() {
-        String pythonFileSource = "/path/to/file/python_udf.zip";
+        String pythonFile = "/path/to/file/python_udf.zip";
 
-        FileTypeFactory fileTypeFactory = new FileTypeFactory(pythonFileSource);
+        FileType fileType = FileTypeFactory.getFileType(pythonFile);
 
-        Assert.assertTrue(fileTypeFactory.getFileType() instanceof ZipFileType);
+        Assert.assertTrue(fileType instanceof ZipFileType);
     }
 
     @Test
@@ -34,9 +34,8 @@ public class FileTypeFactoryTest {
         expectedEx.expect(PythonFilesFormatException.class);
         expectedEx.expectMessage("Python files should be in .py or .zip format");
 
-        String pythonFileSource = "/path/to/file/test_file.txt";
+        String pythonFile = "/path/to/file/test_file.txt";
 
-        FileTypeFactory fileTypeFactory = new FileTypeFactory(pythonFileSource);
-        fileTypeFactory.getFileType();
+        FileTypeFactory.getFileType(pythonFile);
     }
 }

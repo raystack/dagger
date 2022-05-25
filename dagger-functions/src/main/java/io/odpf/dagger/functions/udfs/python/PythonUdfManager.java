@@ -41,8 +41,7 @@ public class PythonUdfManager {
         }
 
         for (String pythonFile : pythonFiles) {
-            FileTypeFactory fileTypeFactory = new FileTypeFactory(pythonFile);
-            FileType fileType = fileTypeFactory.getFileType();
+            FileType fileType = FileTypeFactory.getFileType(pythonFile);
             List<String> fileNames = fileType.getFileNames();
             List<String> sqlQueries = createQuery(fileNames);
             executeSql(sqlQueries);

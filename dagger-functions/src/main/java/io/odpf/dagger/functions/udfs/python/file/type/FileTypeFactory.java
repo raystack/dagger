@@ -1,40 +1,33 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
 import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
+import io.odpf.dagger.functions.udfs.python.file.source.FileSource;
+import io.odpf.dagger.functions.udfs.python.file.source.FileSourceFactory;
 
 /**
  * The type File type factory.
  */
 public class FileTypeFactory {
 
-    private String pythonFile;
-
-    /**
-     * Instantiates a new File type factory.
-     *
-     * @param pythonFile the python file
-     */
-    public FileTypeFactory(String pythonFile) {
-        this.pythonFile = pythonFile;
-    }
-
     /**
      * Gets file type.
      *
+     * @param pythonFile the python file
      * @return the file type
      */
-    public FileType getFileType() {
-        switch (getFileTypeFormat()) {
+    public static FileType getFileType(String pythonFile) {
+        FileSource fileSource = FileSourceFactory.getFileSource(pythonFile);
+        switch (getFileTypeFormat(pythonFile)) {
             case "PY":
                 return new PythonFileType(pythonFile);
             case "ZIP":
-                return new ZipFileType(pythonFile);
+                return new ZipFileType(fileSource);
             default:
                 throw new PythonFilesFormatException("Python files should be in .py or .zip format");
         }
     }
 
-    private String getFileTypeFormat() {
+    private static String getFileTypeFormat(String pythonFile) {
         String[] files = pythonFile.split("\\.");
         return files[files.length - 1].toUpperCase();
     }

@@ -9,19 +9,19 @@ public class FileSourceFactoryTest {
 
     @Test
     public void shouldGetLocalFileSource() {
-        String pythonFileSource = "/path/to/file/test_function.py";
+        String pythonFile = "/path/to/file/test_function.py";
 
-        FileSourceFactory fileSourceFactory = new FileSourceFactory(pythonFileSource);
+        FileSource fileSource = FileSourceFactory.getFileSource(pythonFile);
 
-        Assert.assertTrue(fileSourceFactory.getFileSource() instanceof LocalFileSource);
+        Assert.assertTrue(fileSource instanceof LocalFileSource);
     }
 
     @Test
     public void shouldGetGcsFileSource() {
-        String pythonFileSource = "gs://bucket-name/path/to/file/test_function.py";
+        String pythonFile = "gs://bucket-name/path/to/file/test_function.py";
 
-        FileSourceFactory fileSourceFactory = new FileSourceFactory(pythonFileSource);
+        FileSource fileSource = FileSourceFactory.getFileSource(pythonFile);
 
-        Assert.assertTrue(fileSourceFactory.getFileSource() instanceof GcsFileSource);
+        Assert.assertTrue(fileSource instanceof GcsFileSource);
     }
 }

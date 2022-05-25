@@ -42,7 +42,7 @@ public class GcsFileSource implements FileSource {
      *
      * @return the gcs client
      */
-    public GcsClient getGcsClient() {
+    private GcsClient getGcsClient() {
         if (this.gcsClient == null) {
             this.gcsClient = new GcsClient();
         }
