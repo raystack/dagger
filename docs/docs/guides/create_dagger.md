@@ -6,13 +6,79 @@ This page contains how-to guides for creating a Dagger job and configure it.
 
 Dagger is a stream processing framework built with Apache Flink to process/aggregate/transform protobuf data. To run a dagger in any environment you need to have the following things set up beforehand.
 
-#### `JDK and Gradle`
+### `JDK and Gradle`
 
 - Java 1.8 and gradle(5+) need to be installed to run in local mode. Follow this [link](https://www.oracle.com/in/java/technologies/javase/javase-jdk8-downloads.html) to download Java-1.8 in your setup and [this](https://gradle.org/install/) to set up gradle.
 
-#### `Kafka Cluster`
+### `A Source`
 
-- Dagger use [Kafka](https://kafka.apache.org/) as the source of Data. So you need to set up Kafka(1.0+) either in a local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in the local machine. If you have a clustered Kafka you can configure it to use in Dagger directly.
+Dagger currently supports 3 kinds of Data Sources. Here are the requirements for each:
+
+##### `KAFKA_SOURCE` and `KAFKA_CONSUMER`
+
+Both these sources use [Kafka](https://kafka.apache.org/) as the source of data. So you need to set up Kafka(1.0+) either 
+in a local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in 
+the local machine. If you have a clustered Kafka you can configure it to use in Dagger directly.
+
+##### `PARQUET_SOURCE`
+
+This source uses Parquet files as the source of data. The parquet files can be either hourly partitioned, such as
+```text
+root_folder
+    - booking_log
+        - dt=2022-02-05
+            - hr=09
+                * g6agdasgd6asdgvadhsaasd829ajs.parquet
+                * . . . (more parquet files)
+            - (...more hour folders)
+        - (... more date folders)
+
+```
+
+or data partitioned, such as:
+
+```text
+root_folder
+    - shipping_log
+        - dt=2021-01-11
+            * hs7hasd6t63eg7wbs8swssdasdasdasda.parquet
+            * ...(more parquet files)
+        * (... more date folders)
+
+```
+
+The file paths can be either in the local file system or in GCS bucket. When parquet files are provided from GCS bucket, 
+Dagger will require a `core_site.xml` to be configured in order to connect and read from GCS. A sample `core_site.xml` is 
+present in dagger and looks like this:
+```xml
+<configuration>
+    <property>
+        <name>google.cloud.auth.service.account.enable</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>google.cloud.auth.service.account.json.keyfile</name>
+        <value>/Users/dummy/secrets/google_service_account.json</value>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.mode</name>
+        <value>CUSTOM</value>
+        <final>true</final>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.buckets</name>
+        <value>my_sample_bucket_name</value>
+        <final>true</final>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.project.id</name>
+        <value>my_billing_project_id</value>
+        <final>true</final>
+    </property>
+</configuration>
+```
+You can look into the official [GCS Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/master/gcs/CONFIGURATION.md) 
+documentation to know more on how to edit this xml as per your needs.
 
 #### `Flink [optional]`
 
@@ -26,7 +92,7 @@ Dagger is a stream processing framework built with Apache Flink to process/aggre
 $ ./gradlew dagger-core:runFlink
 ```
 
-- Tu run the Flink jobs in the local machine with java jar and local properties run the following commands.
+- To run the Flink jobs in the local machine with java jar and local properties run the following commands.
 
 ```sh
 # Creating a fat jar
@@ -36,11 +102,20 @@ $ ./gradlew :dagger-core:fatJar
 $ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFile=<filepath>
 ```
 
-#### `Protobuf Data`
+#### `Protobuf Schema`
 
-- Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data i.e. Dagger consumes protobuf data from Kafka topics, do the processing and produces data in protobuf format to a Kafka topic(when the sink is Kafka).
-- So you need to push proto data to a Kafka topic to run a dagger. This you can do using any of the Kafka client libraries. Follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/) to produce proto data to a Kafka topic.
-- Also you need to define the [java compiled protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or use our in-house schema registry tool like [Stencil](https://github.com/odpf/stencil) to let dagger know about the data schema. Stencil is a event schema registry that provides an abstraction layer for schema handling, schema caching, and dynamic schema updates. [These configurations](../reference/configuration.md#schema-registry) needs to be set if you are using stencil for proto schema handling.
+- Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data. That is, for a 
+source reading from Kafka, Dagger consumes protobuf data from Kafka topics and does the processing. For a source reading 
+from Parquet Files, dagger uses protobuf schema to parse the Row Group. When pushing the results to a sink, Dagger produces 
+data as per the output protobuf schema to a Kafka topic(when the sink is Kafka).
+- When using Kafka as a source, you can push data to a Kafka topic as per protobuf format using any of the Kafka client 
+libraries. You can follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/).
+- For all kinds of sources, you need to define the 
+[java compiled protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or 
+use our in-house schema registry tool like [Stencil](https://github.com/odpf/stencil) to let dagger know about the data 
+schema. Stencil is an event schema registry that provides an abstraction layer for schema handling, schema caching, and 
+dynamic schema updates. [These configurations](../reference/configuration.md#schema-registry) needs to be set if you are 
+using stencil for proto schema handling.
 
 #### `Sinks`
 
