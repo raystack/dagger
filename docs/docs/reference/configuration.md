@@ -125,10 +125,19 @@ begin to process them in the order of ascending timestamps.
 
 Defines the time range which, if present, will be used to decide which files to add for processing post discovery from `SOURCE_PARQUET_FILE_PATHS`.
 Each time range consists of two ISO format timestamps, start time and end time, separated by a comma. Multiple time range
-intervals can also be provided separated by semicolon.
+intervals can also be provided separated by semicolon. 
 
 * Example value: `2022-05-08T00:00:00Z,2022-05-08T23:59:59Z;2022-05-10T00:00:00Z,2022-05-10T23:59:59Z`
 * Type: `optional`
+
+Please follow these guidelines when setting this configuration:
+1. Both the start and end time range are inclusive. For example, 
+   1. For an hour partitioned GCS folder structure,`2022-05-08T00:00:00Z,2022-05-08T10:00:00Z` will imply all files of hour 00, 01,..., 10 will be processed.
+   2. For a date partitioned GCS folder structure, `2022-05-08T00:00:00Z,2022-05-10T23:59:59Z` will imply all files of 8th, 9th and 10th May will be processed.
+2. For a date partitioned GCS folder, it is only the date component that is taken into consideration for selecting which files to process and the time component is ignored. However,
+for start-time, ensure that the time component is always set to 00:00:00. Otherwise, results might be unexpected and there will be data drop. For example, for a date partitioned GCS bucket folder, 
+   1. `2022-05-08T00:00:00Z,2022-05-08T10:00:00Z` is a valid config. All files for 8th May will be processed.
+   2. `2022-05-08T00:00:01Z,2022-05-08T10:00:00Z` is not a valid config and will cause the entire data for 2022-05-08 to be skipped.
 
 ##### Sample STREAMS Configuration using KAFKA_CONSUMER as the data source :
 ```
