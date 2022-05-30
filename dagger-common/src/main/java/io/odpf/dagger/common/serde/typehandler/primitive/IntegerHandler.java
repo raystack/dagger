@@ -49,12 +49,26 @@ public class IntegerHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         int[] inputValues = new int[0];
         if (field != null) {
             inputValues = Ints.toArray((List<Integer>) field);
         }
         return inputValues;
+    }
+
+    @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            int[] intArray = new int[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                intArray[i] = simpleGroup.getInteger(fieldName, i);
+            }
+            return intArray;
+        }
+        return new int[0];
     }
 
     @Override

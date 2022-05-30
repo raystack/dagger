@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.*;
 
 public class RepeatedPrimitiveHandlerTest {
@@ -193,7 +195,7 @@ public class RepeatedPrimitiveHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForKafkaTransform() throws InvalidProtocolBufferException {
+    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForTransformFromProto() throws InvalidProtocolBufferException {
         Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
         RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(repeatedFieldDescriptor);
 
@@ -209,9 +211,8 @@ public class RepeatedPrimitiveHandlerTest {
         assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
     }
 
-
     @Test
-    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForKafkaTransform() {
+    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForTransformFromProto() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
         RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
         DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
@@ -240,13 +241,21 @@ public class RepeatedPrimitiveHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransformFromParquetIsCalledWithAnyArgument() {
+    public void shouldReturnArrayOfPrimitiveValuesWhenTransformFromParquetIsCalledWithSimpleGroupContainingRepeatedPrimitive() {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
-        RepeatedPrimitiveHandler protoHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
-                .named("TestGroupType");
+
+        RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("meta_array")
+                .named("TestBookingLogMessage");
         SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
 
-        assertNull(protoHandler.transformFromParquet(simpleGroup));
+        simpleGroup.add("meta_array", "Hello World");
+        simpleGroup.add("meta_array", "Welcome");
+
+        String[] actualValue = (String[]) repeatedPrimitiveHandler.transformFromParquet(simpleGroup);
+
+        assertArrayEquals(new String[]{"Hello World", "Welcome"}, actualValue);
     }
 }

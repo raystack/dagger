@@ -4,7 +4,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
-import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import org.apache.flink.types.Row;
 
 import java.util.List;

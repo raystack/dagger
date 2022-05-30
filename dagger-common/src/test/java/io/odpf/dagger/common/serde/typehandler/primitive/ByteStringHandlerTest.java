@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.typehandler.primitive;
 
+import io.odpf.dagger.consumer.TestRepeatedPrimitiveMessage;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
+import static org.apache.parquet.schema.Types.buildMessage;
 import static org.junit.Assert.*;
 
 public class ByteStringHandlerTest {
@@ -62,7 +65,7 @@ public class ByteStringHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
         ArrayList<ByteString> inputValues = new ArrayList<>(Arrays.asList(ByteString.copyFromUtf8("test1"), ByteString.copyFromUtf8("test2")));
-        Object actualValues = byteStringHandler.getArray(inputValues);
+        Object actualValues = byteStringHandler.parseRepeatedObjectField(inputValues);
         assertArrayEquals(inputValues.toArray(), (ByteString[]) actualValues);
     }
 
@@ -70,7 +73,7 @@ public class ByteStringHandlerTest {
     public void shouldReturnEmptyArrayOnNull() {
         Descriptors.FieldDescriptor fieldDescriptor = TestMessageEnvelope.getDescriptor().findFieldByName("log_key");
         ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
-        Object actualValues = byteStringHandler.getArray(null);
+        Object actualValues = byteStringHandler.parseRepeatedObjectField(null);
         assertEquals(0, ((ByteString[]) actualValues).length);
     }
 
@@ -118,5 +121,68 @@ public class ByteStringHandlerTest {
         Object actualValue = byteStringHandler.parseSimpleGroup(simpleGroup);
 
         assertNull(actualValue);
+    }
+
+    @Test
+    public void shouldReturnArrayOfByteStringValuesForFieldOfTypeRepeatedBinaryInsideSimpleGroup() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedPrimitiveMessage.getDescriptor().findFieldByName("metadata_bytes");
+
+        String testString1 = "useful-metadata-string";
+        String testString2 = "another-metadata-string";
+        ByteString expectedByteString1 = ByteString.copyFrom(testString1.getBytes());
+        ByteString expectedByteString2 = ByteString.copyFrom(testString2.getBytes());
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("metadata_bytes")
+                .named("TestRepeatedPrimitiveMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        simpleGroup.add("metadata_bytes", Binary.fromConstantByteArray(expectedByteString1.toByteArray()));
+        simpleGroup.add("metadata_bytes", Binary.fromConstantByteArray(expectedByteString2.toByteArray()));
+
+        ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
+        ByteString[] actualValue = (ByteString[]) byteStringHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new ByteString[]{expectedByteString1, expectedByteString2}, actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyByteStringArrayWhenParseRepeatedSimpleGroupFieldIsCalledWithNull() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedPrimitiveMessage.getDescriptor().findFieldByName("metadata_bytes");
+
+        ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
+        ByteString[] actualValue = (ByteString[]) byteStringHandler.parseRepeatedSimpleGroupField(null);
+
+        assertArrayEquals(new ByteString[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyByteStringArrayWhenRepeatedFieldInsideSimpleGroupIsNotPresent() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedPrimitiveMessage.getDescriptor().findFieldByName("metadata_bytes");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BOOLEAN).named("some_other_field")
+                .named("TestRepeatedPrimitiveMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
+        ByteString[] actualValue = (ByteString[]) byteStringHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new ByteString[0], actualValue);
+    }
+
+    @Test
+    public void shouldReturnEmptyByteStringArrayWhenRepeatedFieldInsideSimpleGroupIsNotInitialized() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestRepeatedPrimitiveMessage.getDescriptor().findFieldByName("metadata_bytes");
+
+        GroupType parquetSchema = buildMessage()
+                .repeated(BINARY).named("metadata_bytes")
+                .named("TestRepeatedPrimitiveMessage");
+        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
+
+        ByteStringHandler byteStringHandler = new ByteStringHandler(fieldDescriptor);
+        ByteString[] actualValue = (ByteString[]) byteStringHandler.parseRepeatedSimpleGroupField(simpleGroup);
+
+        assertArrayEquals(new ByteString[0], actualValue);
     }
 }

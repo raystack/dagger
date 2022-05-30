@@ -5,13 +5,13 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.DataTypes;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
-import io.odpf.dagger.core.source.SourceDetails;
-import io.odpf.dagger.core.source.SourceName;
-import io.odpf.dagger.core.source.StreamConfig;
+import io.odpf.dagger.core.source.config.models.SourceDetails;
+import io.odpf.dagger.core.source.config.models.SourceName;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import org.apache.flink.types.Row;
 
 import static io.odpf.dagger.common.serde.DataTypes.PROTO;
-import static io.odpf.dagger.core.source.SourceName.PARQUET_SOURCE;
+import static io.odpf.dagger.core.source.config.models.SourceName.PARQUET_SOURCE;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.FLINK_ROWTIME_ATTRIBUTE_NAME_KEY;
 

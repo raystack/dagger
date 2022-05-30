@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.source.config.StreamConfig;
 
 import java.util.ArrayList;
 import java.util.List;

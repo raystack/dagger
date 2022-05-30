@@ -49,12 +49,26 @@ public class DoubleHandler implements PrimitiveHandler {
     }
 
     @Override
-    public Object getArray(Object field) {
+    public Object parseRepeatedObjectField(Object field) {
         double[] inputValues = new double[0];
         if (field != null) {
             inputValues = Doubles.toArray((List<Double>) field);
         }
         return inputValues;
+    }
+
+    @Override
+    public Object parseRepeatedSimpleGroupField(SimpleGroup simpleGroup) {
+        String fieldName = fieldDescriptor.getName();
+        if (simpleGroup != null && SimpleGroupValidation.checkFieldExistsAndIsInitialized(simpleGroup, fieldName)) {
+            int repetitionCount = simpleGroup.getFieldRepetitionCount(fieldName);
+            double[] doubleArray = new double[repetitionCount];
+            for (int i = 0; i < repetitionCount; i++) {
+                doubleArray[i] = simpleGroup.getDouble(fieldName, i);
+            }
+            return doubleArray;
+        }
+        return new double[0];
     }
 
     @Override

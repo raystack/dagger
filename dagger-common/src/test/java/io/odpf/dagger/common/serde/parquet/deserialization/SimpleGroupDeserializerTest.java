@@ -159,28 +159,6 @@ public class SimpleGroupDeserializerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfTimestampIsMissingInSimpleGroup() {
-        SimpleGroupDeserializer simpleGroupDeserializer = new SimpleGroupDeserializer(TestPrimitiveMessage.class.getTypeName(), 9, "rowtime", stencilClientOrchestrator);
-        GroupType parquetSchema = org.apache.parquet.schema.Types.requiredGroup()
-                .required(PrimitiveType.PrimitiveTypeName.BOOLEAN).named("is_valid")
-                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_number")
-                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("order_hash")
-                .required(PrimitiveType.PrimitiveTypeName.DOUBLE).named("latitude")
-                .required(PrimitiveType.PrimitiveTypeName.DOUBLE).named("longitude")
-                .required(PrimitiveType.PrimitiveTypeName.FLOAT).named("price")
-                .required(PrimitiveType.PrimitiveTypeName.INT32).named("packet_count")
-                .required(PrimitiveType.PrimitiveTypeName.INT64).named("phone")
-                .required(PrimitiveType.PrimitiveTypeName.INT64).named("event_timestamp")
-                .required(PrimitiveType.PrimitiveTypeName.BINARY).named("service_type")
-                .named("TestGroupType");
-
-        SimpleGroup simpleGroup = new SimpleGroup(parquetSchema);
-
-        Assert.assertThrows(DaggerDeserializationException.class,
-                () -> simpleGroupDeserializer.deserialize(simpleGroup));
-    }
-
-    @Test
     public void shouldThrowExceptionIfSimpleGroupIsNull() {
         SimpleGroupDeserializer simpleGroupDeserializer = new SimpleGroupDeserializer(TestPrimitiveMessage.class.getTypeName(), 9, "rowtime", stencilClientOrchestrator);
 

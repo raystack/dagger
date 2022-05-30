@@ -1,7 +1,8 @@
-package io.odpf.dagger.core.source;
+package io.odpf.dagger.core.source.config;
 
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.source.config.models.*;
 import io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy;
 import io.odpf.dagger.core.source.parquet.SourceParquetSchemaMatchStrategy;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -13,15 +14,19 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
-import static io.odpf.dagger.core.source.SourceName.KAFKA_CONSUMER;
-import static io.odpf.dagger.core.source.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.config.models.SourceName.KAFKA_CONSUMER;
+import static io.odpf.dagger.core.source.config.models.SourceType.UNBOUNDED;
+import static io.odpf.dagger.core.source.parquet.SourceParquetReadOrderStrategy.EARLIEST_TIME_URL_FIRST;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT;
 import static io.odpf.dagger.core.utils.Constants.SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -89,7 +94,6 @@ public class StreamConfigTest {
         assertEquals("data_stream_1", currConfigNext.getSchemaTable());
         assertEquals("local-kafka-stream", currConfigNext.getKafkaName());
     }
-
 
     @Test
     public void shouldParseKafkaProperties() {
@@ -175,7 +179,8 @@ public class StreamConfigTest {
                 .thenReturn("[{"
                         + "\"SOURCE_DETAILS\": "
                         + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"},"
-                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}]"
+                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}],"
+                        + "\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"]"
                         + "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
@@ -208,6 +213,25 @@ public class StreamConfigTest {
     }
 
     @Test
+    public void shouldGetEarliestTimeUrlStrategyAsParquetReadOrderStrategyWhenNotGiven() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"INPUT_SCHEMA_TABLE\": \"data_stream\","
+                        + "\"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"true\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\","
+                        + "\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"test-group-13\","
+                        + "\"SOURCE_KAFKA_NAME\": \"local-kafka-stream\","
+                        + "\"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\","
+                        + "\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\"}]");
+
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+        SourceParquetReadOrderStrategy actualReadOrderStrategy = streamConfigs[0].getParquetFilesReadOrderStrategy();
+
+        assertEquals(EARLIEST_TIME_URL_FIRST, actualReadOrderStrategy);
+    }
+
+    @Test
     public void shouldGetParquetSourceProperties() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
@@ -221,5 +245,153 @@ public class StreamConfigTest {
         assertEquals("data-project", streamConfigs[0].getParquetBillingProject());
         assertEquals(SourceParquetReadOrderStrategy.valueOf("EARLIEST_TIME_URL_FIRST"), streamConfigs[0].getParquetFilesReadOrderStrategy());
         assertEquals(SourceParquetSchemaMatchStrategy.valueOf("BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH"), streamConfigs[0].getParquetSchemaMatchStrategy());
+    }
+
+    @Test
+    public void shouldParseParquetFileDateRange() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_FILE_DATE_RANGE\":\"2022-02-13T14:00:00, 2022-02-13T18:00:00Z\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        TimeRangePool parquetFileDateRange = streamConfigs[0].getParquetFileDateRange();
+
+        List<TimeRange> timeRanges = parquetFileDateRange.getTimeRanges();
+
+        assertEquals(1644760800L, timeRanges.get(0).getStartInstant().getEpochSecond());
+        assertEquals(1644775200L, timeRanges.get(0).getEndInstant().getEpochSecond());
+    }
+
+    @Test
+    public void shouldReturnEmptyTimeRangeIfParquetFileDateRangeNotGiven() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        assertNull(streamConfigs[0].getParquetFileDateRange());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidData() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[null, {\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more elements inside SOURCE_DETAILS is either null or invalid.", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsArrayHasMissingSourceName() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. "
+                + "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidSourceName() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"           KAFKA_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. "
+                + "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsArrayHasMissingSourceType() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it "
+                + "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidSourceType() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"       BOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it "
+                + "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionForParquetSourceIfSourceParquetFilePathsArrayContainsInvalidFilePath() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [null, \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("One or more file path inside SOURCE_PARQUET_FILE_PATHS is null.", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionForParquetSourceIfSourceParquetFilePathsArrayIsNull() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("SOURCE_PARQUET_FILE_PATHS is required for configuring a Parquet Data Source Stream, "
+                + "but is set to null.", exception.getMessage());
+    }
+
+    @Test
+    public void shouldTrimLeadingAndTrailingWhitespacesFromParquetFilePathsWhenParquetSourceConfigured() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"   gs://some-parquet-path\", \"   gs://another-parquet-path   \"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": "
+                        + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"},"
+                        + "{\"SOURCE_TYPE\": \"UNBOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}]"
+                        + "}]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        Assert.assertArrayEquals(new String[]{"gs://some-parquet-path", "gs://another-parquet-path"}, streamConfigs[0].getParquetFilePaths());
     }
 }
