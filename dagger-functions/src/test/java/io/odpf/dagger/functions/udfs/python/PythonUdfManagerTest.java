@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.python;
 
 import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
-import io.odpf.dagger.functions.exceptions.PythonFilesNullException;
+import io.odpf.dagger.functions.exceptions.PythonFilesEmptyException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -43,7 +43,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfConfig() {
+    public void shouldRegisterPythonUdfConfig() throws IOException {
         String pathFile = getPath("python_udf.zip");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -67,7 +67,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldNotRegisterConfigIfNotSet() {
+    public void shouldNotRegisterConfigIfNotSet() throws IOException {
         String pathFile = getPath("python_udf.zip");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
@@ -83,7 +83,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfFromPyFile() {
+    public void shouldRegisterPythonUdfFromPyFile() throws IOException {
         String pathFile = getPath("test_udf.py");
         String sqlRegisterUdf = "CREATE TEMPORARY FUNCTION TEST_UDF AS 'test_udf.test_udf' LANGUAGE PYTHON";
 
@@ -99,7 +99,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldOnlyExecutePyFormatInsideZipFile() {
+    public void shouldOnlyExecutePyFormatInsideZipFile() throws IOException {
         String pathFile = getPath("python_udf.zip");
 
         String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION TEST_FUNCTION AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
@@ -120,7 +120,7 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldRegisterPythonUdfFromPyAndZipFile() {
+    public void shouldRegisterPythonUdfFromPyAndZipFile() throws IOException {
         String zipPathFile = getPath("python_udf.zip");
         String pyPathFile = getPath("test_udf.py");
 
@@ -158,8 +158,21 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPythonFilesIsNullOrEmpty() {
-        expectedEx.expect(PythonFilesNullException.class);
+    public void shouldThrowExceptionIfPythonFilesIsEmpty() throws IOException {
+        expectedEx.expect(PythonFilesFormatException.class);
+        expectedEx.expectMessage("Python files should be in .py or .zip format");
+
+        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
+        when(tableConfig.getConfiguration()).thenReturn(configuration);
+        when(pythonUdfConfig.getPythonFiles()).thenReturn("");
+
+        PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+        pythonUdfManager.registerPythonFunctions();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPythonFilesIsNull() throws IOException {
+        expectedEx.expect(PythonFilesEmptyException.class);
         expectedEx.expectMessage("Python files can not be null");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);

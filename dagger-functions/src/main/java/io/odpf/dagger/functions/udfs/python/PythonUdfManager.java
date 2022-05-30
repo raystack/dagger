@@ -1,10 +1,11 @@
 package io.odpf.dagger.functions.udfs.python;
 
-import io.odpf.dagger.functions.exceptions.PythonFilesNullException;
+import io.odpf.dagger.functions.exceptions.PythonFilesEmptyException;
 import io.odpf.dagger.functions.udfs.python.file.type.FileType;
 import io.odpf.dagger.functions.udfs.python.file.type.FileTypeFactory;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +31,14 @@ public class PythonUdfManager {
     /**
      * Register python functions.
      */
-    public void registerPythonFunctions() {
+    public void registerPythonFunctions() throws IOException {
         String inputFiles = pythonUdfConfig.getPythonFiles();
         String[] pythonFiles;
         if (inputFiles != null) {
             registerPythonConfig();
             pythonFiles = inputFiles.split(",");
         } else {
-            throw new PythonFilesNullException("Python files can not be null");
+            throw new PythonFilesEmptyException("Python files can not be null");
         }
 
         for (String pythonFile : pythonFiles) {

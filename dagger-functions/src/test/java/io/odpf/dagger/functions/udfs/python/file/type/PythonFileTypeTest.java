@@ -1,11 +1,16 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
 public class PythonFileTypeTest {
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
     public void shouldGetFileNames() {
@@ -16,5 +21,23 @@ public class PythonFileTypeTest {
         List<String> fileNames = pythonFileType.getFileNames();
 
         Assert.assertEquals("[test_udf.py]", fileNames.toString());
+    }
+
+    @Test
+    public void shouldGetEmptyFileNamesIfPythonFilesIsEmpty() {
+        String pythonFile = "";
+
+        PythonFileType pythonFileType = new PythonFileType(pythonFile);
+        List<String> fileNames = pythonFileType.getFileNames();
+
+        Assert.assertEquals("[]", fileNames.toString());
+    }
+
+    @Test
+    public void shouldThrowNullPointerExceptionIfPythonFilesIsNull() {
+        expectedEx.expect(NullPointerException.class);
+
+        PythonFileType pythonFileType = new PythonFileType(null);
+        pythonFileType.getFileNames();
     }
 }

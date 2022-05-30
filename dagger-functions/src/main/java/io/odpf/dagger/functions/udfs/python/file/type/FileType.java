@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -12,5 +13,5 @@ public interface FileType {
      *
      * @return the file names
      */
-    List<String> getFileNames();
+    List<String> getFileNames() throws IOException;
 }

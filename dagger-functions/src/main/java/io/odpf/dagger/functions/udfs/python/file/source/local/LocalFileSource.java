@@ -1,8 +1,8 @@
 package io.odpf.dagger.functions.udfs.python.file.source.local;
 
 import io.odpf.dagger.functions.udfs.python.file.source.FileSource;
-import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -22,9 +22,8 @@ public class LocalFileSource implements FileSource {
         this.pythonFile = pythonFile;
     }
 
-    @SneakyThrows
     @Override
-    public byte[] getObjectFile() {
+    public byte[] getObjectFile() throws IOException {
         return Files.readAllBytes(Paths.get(pythonFile));
     }
 }

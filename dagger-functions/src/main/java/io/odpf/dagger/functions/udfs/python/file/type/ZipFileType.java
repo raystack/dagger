@@ -1,9 +1,9 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
 import io.odpf.dagger.functions.udfs.python.file.source.FileSource;
-import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -20,9 +20,8 @@ public class ZipFileType implements FileType {
         this.fileSource = fileSource;
     }
 
-    @SneakyThrows
     @Override
-    public List<String> getFileNames() {
+    public List<String> getFileNames() throws IOException {
         byte[] object = fileSource.getObjectFile();
 
         ZipInputStream zi = new ZipInputStream(new ByteArrayInputStream(object));

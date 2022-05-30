@@ -4,9 +4,7 @@ import io.odpf.dagger.functions.udfs.python.file.source.gcs.GcsFileSource;
 import io.odpf.dagger.functions.udfs.python.file.source.local.LocalFileSource;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -18,9 +16,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ZipFileTypeTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private GcsFileSource gcsFileSource;
@@ -39,7 +34,7 @@ public class ZipFileTypeTest {
     }
 
     @Test
-    public void shouldGetFileNamesFromLocalZip() {
+    public void shouldGetFileNamesFromLocalZip() throws IOException {
 
         when(localFileSource.getObjectFile()).thenReturn(zipInBytes);
 
@@ -50,7 +45,7 @@ public class ZipFileTypeTest {
     }
 
     @Test
-    public void shouldGetFileNamesFromGcsZip() {
+    public void shouldGetFileNamesFromGcsZip() throws IOException {
 
         when(gcsFileSource.getObjectFile()).thenReturn(zipInBytes);
 
@@ -58,5 +53,20 @@ public class ZipFileTypeTest {
         List<String> fileNames = zipFileType.getFileNames();
 
         Assert.assertEquals("[python_udf/scalar/add.py, python_udf/vectorized/substract.py]", fileNames.toString());
+    }
+
+    @Test
+    public void shouldGetEmptyFileNamesIfZipFileNotContainPyFile() throws IOException {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("test_no_py.zip")).getFile());
+        zipInBytes = Files.readAllBytes(file.toPath());
+
+        when(gcsFileSource.getObjectFile()).thenReturn(zipInBytes);
+
+        ZipFileType zipFileType = new ZipFileType(gcsFileSource);
+        List<String> fileNames = zipFileType.getFileNames();
+
+        Assert.assertEquals("[]", fileNames.toString());
     }
 }

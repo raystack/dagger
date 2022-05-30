@@ -1,5 +1,7 @@
 package io.odpf.dagger.functions.udfs.python.file.source;
 
+import java.io.IOException;
+
 /**
  * The interface File source.
  */
@@ -10,5 +12,5 @@ public interface FileSource {
      *
      * @return the byte [ ]
      */
-    byte[] getObjectFile();
+    byte[] getObjectFile() throws IOException;
 }

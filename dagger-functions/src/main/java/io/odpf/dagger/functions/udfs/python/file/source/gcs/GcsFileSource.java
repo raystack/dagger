@@ -25,7 +25,7 @@ public class GcsFileSource implements FileSource {
      * This constructor used for unit test purposes.
      *
      * @param pythonFile the python file
-     * @param gcsClient        the gcs client
+     * @param gcsClient  the gcs client
      */
     public GcsFileSource(String pythonFile, GcsClient gcsClient) {
         this.pythonFile = pythonFile;
