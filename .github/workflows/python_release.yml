@@ -1,7 +1,7 @@
 name: Python Package
 on:
-  push:
-    tags: "*"
+  release:
+    types: [created]
 
 jobs:
   publishPythonZip:
