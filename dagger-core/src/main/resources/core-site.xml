@@ -1,0 +1,25 @@
+<configuration>
+    <property>
+        <name>google.cloud.auth.service.account.enable</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>google.cloud.auth.service.account.json.keyfile</name>
+        <value>absolute/path/to/key-file.json</value>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.mode</name>
+        <value>CUSTOM</value>
+        <final>true</final>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.buckets</name>
+        <value>sample-bucket</value>
+        <final>true</final>
+    </property>
+    <property>
+        <name>fs.gs.requester.pays.project.id</name>
+        <value>sample-project-id</value>
+        <final>true</final>
+    </property>
+</configuration>

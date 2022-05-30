@@ -26,7 +26,7 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '99.9.9'
+def dependenciesVersion = '0.2.0'
 
 description = """dagger to the heart!"""
 
@@ -159,6 +159,10 @@ jar {
 
 shadowJar {
     mergeServiceFiles()
+    minimize {
+        exclude(dependency('io.vertx:vertx-pg-client:.*'))
+        exclude(dependency('com.google.cloud.bigtable:bigtable-hbase-2.x:.*'))
+    }
     zip64 true
     configurations = [project.configurations.minimalJar, project.configurations.dependenciesJar]
     relocate('com.google.protobuf', 'shaded.com.google.protobuf') {
@@ -174,6 +178,7 @@ task minimalJar(type: ShadowJar) {
     from sourceSets.main.output
     configurations = [project.configurations.minimalJar]
     archiveVersion = minimalVersion
+    exclude("core-site.xml")
 }
 
 task dependenciesJar(type: ShadowJar) {

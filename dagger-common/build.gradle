@@ -59,8 +59,10 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
 
-    dependenciesCommonJar files('lib-common/flink-shaded-hadoop-2-uber-2.8.3-7.0.jar')
-    dependenciesCommonJar files('lib-common/gcs-connector-latest-hadoop2.jar')
+    dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
+        exclude module:"commons-cli"
+    }
+    dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
