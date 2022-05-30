@@ -403,6 +403,14 @@ Defines the flink watermark delay in milliseconds.
 * Type: `optional`
 * Default value: `10000`
 
+**Note:** For a stream configured with `PARQUET_SOURCE`, the watermark delay should be configured keeping in mind the 
+partitioning that has been used in the root folder containing the files of `SOURCE_PARQUET_FILE_PATHS` configuration.
+Currently, only [two types](../guides/create_dagger.md#parquet_source) of partitioning are supported: day and hour. Hence, 
+* if partitioning is day wise, `FLINK_WATERMARK_DELAY_MS` should be set to 24 x 60 x 60 x 1000 milliseconds, that is, 
+`86400000`.
+* if partitioning is hour wise, `FLINK_WATERMARK_DELAY_MS` should be set to 60 x 60 x 1000 milliseconds, that is, 
+`3600000`.
+
 #### `FLINK_WATERMARK_PER_PARTITION_ENABLE`
 
 Enable/Disable flink watermark per partition.
