@@ -16,8 +16,8 @@ public class SourceParquetFilePathsAdapter extends TypeAdapter<String[]> {
     @Override
     public String[] read(JsonReader jsonReader) throws IOException {
         Gson gson = new Gson();
-        String[] stringArray = gson.fromJson(jsonReader, String[].class);
-        return Arrays.stream(stringArray)
+        String[] filePathArray = gson.fromJson(jsonReader, String[].class);
+        return Arrays.stream(filePathArray)
                 .map(String::valueOf)
                 .map(String::trim).toArray(String[]::new);
     }

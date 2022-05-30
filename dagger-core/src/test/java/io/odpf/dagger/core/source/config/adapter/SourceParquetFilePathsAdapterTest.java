@@ -20,6 +20,16 @@ public class SourceParquetFilePathsAdapterTest {
     }
 
     @Test
+    public void shouldDeserializeEmptyJsonArrayToEmptyStringArray() throws IOException {
+        String parquetFilePathJSONString = "[]";
+        JsonReader reader = new JsonReader(new StringReader(parquetFilePathJSONString));
+
+        SourceParquetFilePathsAdapter adapter = new SourceParquetFilePathsAdapter();
+
+        assertArrayEquals(new String[]{}, adapter.read(reader));
+    }
+
+    @Test
     public void shouldDeserializeJsonArrayContainingNullsToStringArray() throws IOException {
         String parquetFilePathJSONString = "[null, \"gs://anything\"]";
         JsonReader reader = new JsonReader(new StringReader(parquetFilePathJSONString));
