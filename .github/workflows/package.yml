@@ -29,3 +29,7 @@ jobs:
         run: ./gradlew :dagger-core:minimalAndShadowPublish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Zip Package of dagger-py-functions
+        run: ./gradlew publishPyZipPublicationToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
