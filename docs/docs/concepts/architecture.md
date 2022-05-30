@@ -10,9 +10,12 @@ Dagger or Data Aggregator is a cloud native framework for processing real-time s
 
 _**Stream**_
 
-- Stream are logical Data sources from which Dagger reads unbounded Data.
-- Dagger only supports Kafka Queue as the supported data source for now. In the context of Kafka, a single stream is a group of Kafka topics with the same schema. Dagger can support multiple streams at a time.
-- Dagger consumes the data points from Kafka. So many Kafka consumer-level configurations like consumer groups and auto offset reset can be set in the stream itself.
+- A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers)
+  schema. All data produced by a source follows the protobuf schema. The source can be a bounded one such as `KAFKA_SOURCE` or `KAFKA_CONSUMER`
+  in which case, a single stream can consume from one or more topics all sharing the same schema. Otherwise, the source
+  can be an unbounded one such as `PARQUET_SOURCE` in which case, one or more parquet files as provided are consumed in a single stream.
+- Dagger can support multiple streams at a time.
+- For a kafka based source, many Kafka consumer-level configurations like consumer groups and auto offset reset can be set in the stream itself.
 
 _**Dagger Core**_
 
@@ -37,8 +40,9 @@ _**SQL Execution**_
 _**ProtoHandlers**_
 
 - Proto handler handles the SerDe mechanism for protobuf data to Flink understandable Distributed Data format(Flink Row).
-- It recursively parses complex Kafka messages to Flink Row on the consumer side and Flink row to Kafka messages on the producer side.
-- It does handle the Type conversion of data points.
+- It recursively parses Source specific messages to Flink Row on the consumer side and Flink row to Kafka messages on the producer side.
+- Dagger supports serialization and deserialization of various data types ranging from primitives such as int, long, float, etc to 
+complex types such as maps, nested messages, repeated types, etc.
 
 _**Post-Processor**_
 
@@ -66,19 +70,21 @@ _**Sink and Serializer**_
 
 ### Schema Handling
 
-- Protocol buffers are Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data. Data streams on Kafka topics are bound to a protobuf schema.
-
-- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts. The schema handling ie., find the mapped schema for the topic, downloading the descriptors, and dynamically being notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
-
+- Protocol buffers are Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data. 
+Each stream, irrespective of the data source, should produce data according to a fixed, configured protobuf schema.
+- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts. 
+The schema handling i:e, finding the mapped schema for the topic, downloading the descriptors, and dynamically being 
+notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
 - Stencil is a proprietary library that provides an abstraction layer, for schema handling.
-
 - Schema Caching, dynamic schema updates are features of the stencil client library.
 
 ## Dagger Integration
 
-### Kafka Input
+### Source
 
-- The Kafka topic\(s\) where Dagger reads from.
+- The Data Source configuration used by Dagger to generate streaming data. This can be either 
+[Kafka](../reference/configuration.md#sample-streams-configuration-using-kafka_consumer-as-the-data-source-) based or 
+[Parquet files](../reference/configuration.md#sample-streams-configuration-using-parquet_source-as-the-data-source-). 
 
 ### ProtoDescriptors
 
