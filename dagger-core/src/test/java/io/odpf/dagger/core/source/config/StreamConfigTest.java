@@ -302,8 +302,8 @@ public class StreamConfigTest {
                         + "[{\"SOURCE_TYPE\": \"BOUNDED\"}]"
                         + "}]");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
-        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. " +
-                "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. "
+                + "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
     }
 
     @Test
@@ -317,8 +317,8 @@ public class StreamConfigTest {
                         + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"           KAFKA_SOURCE\"}]"
                         + "}]");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
-        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. " +
-                "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceName. "
+                + "Check if it is a valid SourceName and ensure no trailing/leading whitespaces are present", exception.getMessage());
     }
 
     @Test
@@ -332,8 +332,8 @@ public class StreamConfigTest {
                         + "[{\"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
                         + "}]");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
-        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it " +
-                "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it "
+                + "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
     }
 
     @Test
@@ -347,8 +347,8 @@ public class StreamConfigTest {
                         + "[{\"SOURCE_TYPE\": \"       BOUNDED\", \"SOURCE_NAME\": \"KAFKA_SOURCE\"}]"
                         + "}]");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
-        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it " +
-                "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
+        assertEquals("One or more elements inside SOURCE_DETAILS has null or invalid SourceType. Check if it "
+                + "is a valid SourceType and ensure no trailing/leading whitespaces are present", exception.getMessage());
     }
 
     @Test
@@ -375,8 +375,8 @@ public class StreamConfigTest {
                         + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
                         + "}]");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
-        assertEquals("SOURCE_PARQUET_FILE_PATHS is required for configuring a Parquet Data Source Stream, " +
-                "but is set to null.", exception.getMessage());
+        assertEquals("SOURCE_PARQUET_FILE_PATHS is required for configuring a Parquet Data Source Stream, "
+                + "but is set to null.", exception.getMessage());
     }
 
     @Test
