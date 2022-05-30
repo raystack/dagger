@@ -1,4 +1,4 @@
-from python_functions.udfs.scalar.sample import sample
+from udfs.scalar.sample import sample
 
 
 def testSample():
