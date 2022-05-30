@@ -39,9 +39,17 @@ Please raise an issue in case you have more doubts.
 
 ### Why isn't my Dagger giving any results?
 
-- Check if the Dagger is processing any data. You can check this from the “Records Rate - All stages” dashboard from the monitoring section.
-- If there are any filters in the query, try to reduce the threshold or change any specific filter because of which it might not be outputting data. You can also try ensuring if you have written the filters with the correct data type.
-- Check your window duration and watermark delay, the output data will be delayed by the window duration + watermark delay you have provided.
+- Check if the Dagger is processing any data. You can check this from the “Records Rate - All stages” dashboard from 
+the monitoring section.
+- If there are any filters in the query, try to reduce the threshold or change any specific filter because of which it 
+- might not be outputting data. You can also try ensuring if you have written the filters with the correct data type.
+- Check your window duration and watermark delay, the output data will be delayed by the window duration + watermark 
+delay you have provided. If you are using parquet as a source, ensure you are using the 
+[correct watermark delay](../reference/configuration.md#flink_watermark_delay_ms) as per the partitioning of the 
+parquet files. Incorrect watermark delay can cause data loss and output could be empty.
+- When using `PARQUET_SOURCE`, ensure that the time range filter config, if used, is configured according 
+to [the guidelines](../reference/configuration.md#source_parquet_file_date_range). Failure to follow the guidelines will 
+cause Dagger to skip some days or hours worth of data. Also, ensure that the parquet files provided contain valid data.
 
 ### How do I verify/print the data generated to Kafka?
 
