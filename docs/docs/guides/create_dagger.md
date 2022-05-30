@@ -134,26 +134,29 @@ using stencil for proto schema handling.
 
 ## Common Configurations
 
-- These configurations are mandatory for dagger creation and are sink independent. Here you need to set the Kafka source-level information as well as SQL required for the dagger. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
-- Configuration for a given schema involving one or more Kafka topics is consolidated as a Stream. This involves properties for the Kafka cluster, schema, etc. In daggers, you could configure one or more streams for a single job.
+- These configurations are mandatory for dagger creation and are sink independent. Here you need to set configurations such as the source details, the protobuf schema class, the SQL query to be applied on the streaming data, etc. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
+- Configuration for a given schema involving a single source is consolidated as a Stream. In daggers, you can configure one or more streams for a single job. To know how to configure a stream based on a source, check [here](../reference/configuration.md#streams)
 - The `FLINK_JOB_ID` defines the name of the flink job. `ROWTIME_ATTRIBUTE_NAME` is the key name of [row time attribute](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/) required for stream processing.
 - In clustered mode, you can set up the `parallelism` configuration for distributed processing.
 - Read more about the mandatory configurations [here](../reference/configuration.md).
 
 ```properties
-STREAMS=[
-    {
+STREAMS = [{
         "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
         "INPUT_SCHEMA_TABLE": "data_stream",
         "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
         "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
-        "SOURCE_KAFKA_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
-        "SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE": "",
-        "SOURCE_KAFKA_CONFIG_AUTO_OFFSET_RESET": "latest",
-        "SOURCE_KAFKA_CONFIG_GROUP_ID": "dummy-consumer-group",
-        "NAME": "local-kafka-stream"
-    }
-]
+        "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+        "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+        "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+        "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+        "SOURCE_KAFKA_NAME": "local-kafka-stream",
+        "SOURCE_DETAILS": [
+            {
+                "SOURCE_TYPE": "UNBOUNDED",
+                "SOURCE_NAME": "KAFKA_CONSUMER"
+            }],
+        }]
 
 FLINK_ROWTIME_ATTRIBUTE_NAME=rowtime
 FLINK_JOB_ID=TestDagger
