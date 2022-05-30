@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source.config;
 
 import com.google.gson.annotations.JsonAdapter;
 import io.odpf.dagger.core.source.config.adapter.FileDateRangeAdaptor;
+import io.odpf.dagger.core.source.config.adapter.SourceParquetFilePathsAdapter;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
 import io.odpf.dagger.core.source.config.models.SourceName;
 import io.odpf.dagger.core.source.config.models.SourceType;
@@ -22,6 +23,7 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static io.odpf.dagger.common.core.Constants.INPUT_STREAMS;
 import static io.odpf.dagger.common.core.Constants.STREAM_INPUT_SCHEMA_PROTO_CLASS;
@@ -92,10 +94,10 @@ public class StreamConfig {
 
     @SerializedName(STREAM_SOURCE_PARQUET_FILE_PATHS_KEY)
     @Getter
+    @JsonAdapter(value = SourceParquetFilePathsAdapter.class)
     private String[] parquetFilePaths;
 
     @SerializedName(STREAM_SOURCE_PARQUET_READ_ORDER_STRATEGY_KEY)
-    @Getter
     private SourceParquetReadOrderStrategy parquetFilesReadOrderStrategy;
 
     @SerializedName(STREAM_SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY_KEY)
@@ -122,6 +124,14 @@ public class StreamConfig {
         }
     }
 
+    public SourceParquetReadOrderStrategy getParquetFilesReadOrderStrategy() {
+        if (parquetFilesReadOrderStrategy == null) {
+            return SourceParquetReadOrderStrategy.EARLIEST_TIME_URL_FIRST;
+        } else {
+            return parquetFilesReadOrderStrategy;
+        }
+    }
+
     public String getAutoOffsetReset() {
         if (autoOffsetReset == null) {
             autoOffsetReset = "latest";
@@ -134,7 +144,10 @@ public class StreamConfig {
         JsonReader reader = new JsonReader(new StringReader(jsonArrayString));
         reader.setLenient(true);
 
-        return GSON.fromJson(jsonArrayString, StreamConfig[].class);
+        return Stream.of(GSON.fromJson(jsonArrayString, StreamConfig[].class))
+                .map(StreamConfigValidator::validateSourceDetails)
+                .map(StreamConfigValidator::validateParquetDataSourceStreamConfigs)
+                .toArray(StreamConfig[]::new);
     }
 
     public Properties getKafkaProps(Configuration configuration) {
