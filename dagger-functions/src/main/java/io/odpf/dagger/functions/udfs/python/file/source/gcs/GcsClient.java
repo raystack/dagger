@@ -28,6 +28,16 @@ public class GcsClient {
     }
 
     /**
+     * Instantiates a new Gcs client.
+     * This constructor used for unit test purposes.
+     *
+     * @param storage the storage
+     */
+    public GcsClient(Storage storage) {
+        this.storage = storage;
+    }
+
+    /**
      * Get file byte [ ].
      *
      * @param pythonFile the python file
