@@ -105,10 +105,20 @@ Defines a name for the Kafka cluster. It's a logical way to name your Kafka clus
 
 #### `SOURCE_PARQUET_FILE_PATHS`
 
-Defines the array of date partitioned or hour partitioned GCS file path URLs to be processed by Parquet Source.
+Defines the array of date partitioned or hour partitioned file path URLs to be processed by Parquet Source. These can be
+either local file paths such as `/Users/dummy_user/booking_log/dt=2022-01-23/` or GCS file path URLs.
 
 * Example value:  `["gs://my-sample-bucket/booking-log/dt=2022-01-23/", "gs://my-sample-bucket/booking-log/dt=2021-01-23/"]`
 * Type: `required` only when `PARQUET_SOURCE` is configured in `SOURCE_DETAILS`
+
+Note: 
+1. Each file path in the array can be either a fully qualified file path, 
+for example `gs://my-sample-bucket/booking-log/dt=2021-01-23/my_file.parquet` or it can be a directory path, 
+for example `gs://my-sample-bucket/booking-log/`. For the latter, Dagger upon starting will first do a recursive search 
+for all files under the `booking-log` directory. If 
+[SOURCE_PARQUET_FILE_DATE_RANGE](configuration.md#source_parquet_file_date_range) is configured, it will only add those
+files as defined by the range into its internal index for processing and skip the others. If not configured, all the 
+discovered files are processed.
 
 #### `SOURCE_PARQUET_READ_ORDER_STRATEGY`
 
