@@ -3,7 +3,7 @@ name: Python Validation
 on: push
 
 jobs:
-  build:
+  pythonValidation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
