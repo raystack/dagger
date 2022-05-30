@@ -4,6 +4,6 @@ from pyflink.table.udf import udf
 
 @udf(result_type=DataTypes.STRING())
 def sample(text):
-    f = open("dagger-py-functions/data/sample_data.txt", "r")
+    f = open("data/sample_data.txt", "r")
     data = f.read()
     return text + data
