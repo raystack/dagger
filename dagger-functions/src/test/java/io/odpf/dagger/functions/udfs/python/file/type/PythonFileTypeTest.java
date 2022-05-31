@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
+import io.odpf.dagger.functions.exceptions.PythonFilesEmptyException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +36,8 @@ public class PythonFileTypeTest {
 
     @Test
     public void shouldThrowNullPointerExceptionIfPythonFilesIsNull() {
-        expectedEx.expect(NullPointerException.class);
+        expectedEx.expect(PythonFilesEmptyException.class);
+        expectedEx.expectMessage("Python files can not be null");
 
         PythonFileType pythonFileType = new PythonFileType(null);
         pythonFileType.getFileNames();

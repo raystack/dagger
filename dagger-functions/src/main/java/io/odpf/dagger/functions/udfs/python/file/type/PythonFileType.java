@@ -1,5 +1,7 @@
 package io.odpf.dagger.functions.udfs.python.file.type;
 
+import io.odpf.dagger.functions.exceptions.PythonFilesEmptyException;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -21,6 +23,9 @@ public class PythonFileType implements FileType {
 
     @Override
     public List<String> getFileNames() {
+        if (pythonFile == null) {
+            throw new PythonFilesEmptyException("Python files can not be null");
+        }
         String name = pythonFile.substring(pythonFile.lastIndexOf('/') + 1);
 
         return Collections.singletonList(name);

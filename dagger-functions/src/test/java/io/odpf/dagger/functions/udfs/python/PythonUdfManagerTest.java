@@ -102,7 +102,7 @@ public class PythonUdfManagerTest {
     public void shouldOnlyExecutePyFormatInsideZipFile() throws IOException {
         String pathFile = getPath("python_udf.zip");
 
-        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION TEST_FUNCTION AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
+        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION MULTIPLY AS 'python_udf.scalar.multiply.multiply' LANGUAGE PYTHON";
         String sqlRegisterSecondUdf = "CREATE TEMPORARY FUNCTION ADD AS 'python_udf.scalar.add.add' LANGUAGE PYTHON";
         String sqlRegisterThirdUdf = "CREATE TEMPORARY FUNCTION SUBSTRACT AS 'python_udf.vectorized.substract.substract' LANGUAGE PYTHON";
 
