@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.sink.bigquery.BigquerySink;
+import io.odpf.dagger.core.sink.bigquery.BigquerySinkBuilder;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -81,7 +81,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 sink = new LogSink(columnNames);
                 break;
             case "bigquery":
-                sink = BigquerySink.builder()
+                sink = BigquerySinkBuilder.create()
                         .setColumnNames(columnNames)
                         .setConfiguration(configuration)
                         .setStencilClientOrchestrator(stencilClientOrchestrator)

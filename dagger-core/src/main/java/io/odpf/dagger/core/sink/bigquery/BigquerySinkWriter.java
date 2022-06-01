@@ -35,7 +35,8 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
         if (currentBatchSize < batchSize) {
             messages.add(message);
             currentBatchSize++;
-        } else {
+        }
+        if (currentBatchSize >= batchSize) {
             log.info("Pushing " + currentBatchSize + " records to bq");
             OdpfSinkResponse odpfSinkResponse = bigquerySink.pushToSink(messages);
             if (odpfSinkResponse.hasErrors()) {

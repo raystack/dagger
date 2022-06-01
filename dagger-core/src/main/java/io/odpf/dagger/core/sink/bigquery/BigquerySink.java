@@ -4,6 +4,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
+import lombok.Getter;
 import org.apache.flink.api.connector.sink.Committer;
 import org.apache.flink.api.connector.sink.GlobalCommitter;
 import org.apache.flink.api.connector.sink.Sink;
@@ -16,20 +17,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class BigquerySink implements Sink<Row, Void, Void, Void> {
-
-
     private final ProtoSerializerHelper protoSerializerHelper;
+    @Getter
     private final int batchSize;
+    @Getter
     private final Configuration configuration;
 
-    BigquerySink(ProtoSerializerHelper protoSerializerHelper, Configuration configuration) {
+    protected BigquerySink(ProtoSerializerHelper protoSerializerHelper, Configuration configuration) {
         this.protoSerializerHelper = protoSerializerHelper;
         this.batchSize = configuration.getInteger("SINK_BIGQUERY_BATCH_SIZE", Constants.DEFAULT_BATCH_SIZE);
         this.configuration = configuration;
-    }
-
-    public static BigquerySinkBuilder builder() {
-        return new BigquerySinkBuilder();
     }
 
     @Override

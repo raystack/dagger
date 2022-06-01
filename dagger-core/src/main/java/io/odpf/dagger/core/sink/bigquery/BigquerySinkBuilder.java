@@ -6,6 +6,13 @@ import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
 
 public class BigquerySinkBuilder {
 
+    private BigquerySinkBuilder() {
+    }
+
+    public static BigquerySinkBuilder create() {
+        return new BigquerySinkBuilder();
+    }
+
     public BigquerySink build() {
         ProtoSerializerHelper protoSerializerHelper = new ProtoSerializerHelper(keyProtoClassName, columnNames, stencilClientOrchestrator, messageProtoClassName);
         return new BigquerySink(protoSerializerHelper, configuration);
