@@ -3,6 +3,7 @@ package io.odpf.dagger.core.source.parquet.reader;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
+import org.apache.flink.connector.file.src.util.CheckpointedPosition;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -31,6 +32,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private boolean isRecordReaderInitialized;
     private RecordReader<Group> recordReader;
     private final MessageType schema;
+    private long totalEmittedRowCount;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
     private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
@@ -39,6 +41,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         this.parquetFileReader = parquetFileReader;
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
+        this.totalEmittedRowCount = 0L;
     }
 
     private boolean checkIfNullPage(PageReadStore page) {
@@ -88,7 +91,9 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private Row readAndDeserialize() {
         SimpleGroup simpleGroup = (SimpleGroup) recordReader.read();
         currentRecordIndex++;
-        return simpleGroupDeserializer.deserialize(simpleGroup);
+        Row row = simpleGroupDeserializer.deserialize(simpleGroup);
+        totalEmittedRowCount++;
+        return row;
     }
 
     @Override
@@ -104,6 +109,11 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
             this.isRecordReaderInitialized = false;
         }
         recordReader = null;
+    }
+
+    @Override
+    public CheckpointedPosition getCheckpointedPosition() {
+        return new CheckpointedPosition(CheckpointedPosition.NO_OFFSET, totalEmittedRowCount);
     }
 
     public static class ParquetReaderProvider implements ReaderProvider {

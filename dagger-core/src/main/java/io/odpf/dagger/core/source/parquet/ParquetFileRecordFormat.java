@@ -25,10 +25,10 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
         return parquetFileReaderProvider.getReader(filePath.toString());
     }
 
-    /* TO DO: Need to implement a way on how to re-create the reader from saved state or from checkpoint */
     @Override
     public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) {
-        throw new UnsupportedOperationException("Error: Restoring a reader from saved state is not implemented yet");
+        throw new UnsupportedOperationException("Error: ParquetReader do not have offsets and hence cannot be restored "
+                + "via this method.");
     }
 
     @Override
