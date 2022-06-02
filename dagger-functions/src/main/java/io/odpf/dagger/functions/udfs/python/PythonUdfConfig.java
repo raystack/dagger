@@ -25,7 +25,6 @@ public class PythonUdfConfig {
     private String pythonRequirements;
 
     @SerializedName(PYTHON_ARCHIVES_KEY)
-    @Getter
     private String pythonArchives;
 
     @SerializedName(PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE_KEY)
@@ -45,6 +44,18 @@ public class PythonUdfConfig {
     public String getPythonFiles() {
         if (pythonFiles != null) {
             return pythonFiles.replaceAll("\\s+", "");
+        }
+        return null;
+    }
+
+    /**
+     * Gets python archives.
+     *
+     * @return the python archives
+     */
+    public String getPythonArchives() {
+        if (pythonArchives != null) {
+            return pythonArchives.replaceAll("\\s+", "");
         }
         return null;
     }

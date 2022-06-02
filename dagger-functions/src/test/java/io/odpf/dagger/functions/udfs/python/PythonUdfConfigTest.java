@@ -69,4 +69,14 @@ public class PythonUdfConfigTest {
 
         Assert.assertEquals(pythonUdfConfig.getPythonFiles(), "/path/to/function.zip,/path/to/files/test.py");
     }
+
+    @Test
+    public void shouldRemoveWhitespaceInPythonArchivesConfig() {
+        String pythonJsonConfig = "{ \"PYTHON_FILES\": \"/path/to/function.zip\", \"PYTHON_ARCHIVES\": \"   /path/to/data.zip,   /path/to/files/second_data.zip  \"}";
+
+        when(configuration.getString(PYTHON_UDF_CONFIG, "")).thenReturn(pythonJsonConfig);
+        PythonUdfConfig pythonUdfConfig = PythonUdfConfig.parse(configuration);
+
+        Assert.assertEquals(pythonUdfConfig.getPythonArchives(), "/path/to/data.zip,/path/to/files/second_data.zip");
+    }
 }

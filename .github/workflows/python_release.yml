@@ -11,7 +11,8 @@ jobs:
       - name: Zip Python Udf
         run: |
           zip -r python_udfs.zip dagger-py-functions/udfs -x "*/__init__.py"
-          zip -r dagger-py-functions.zip python_functions/requirements.txt python_functions/data python_udfs.zip
+          zip -r data.zip dagger-py-functions/data
+          zip -r dagger-py-functions.zip python_functions/requirements.txt data.zip python_udfs.zip
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
