@@ -28,7 +28,7 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
 
     @Override
     public void write(Row element, Context context) throws IOException {
-        log.info("row to BQ: " + element);
+        log.info("adding row to BQ batch : " + element);
         byte[] key = protoSerializerHelper.serializeKey(element);
         byte[] value = protoSerializerHelper.serializeValue(element);
         OdpfMessage message = new OdpfMessage(key, value);
@@ -40,7 +40,7 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
             log.info("Pushing " + currentBatchSize + " records to bq");
             OdpfSinkResponse odpfSinkResponse = bigquerySink.pushToSink(messages);
             if (odpfSinkResponse.hasErrors()) {
-                log.error("Failed record " + odpfSinkResponse.getErrors().size());
+                log.error("Failed to push " + odpfSinkResponse.getErrors().size() + " records to BigquerySink");
                 throw new IOException("Failed to push " + odpfSinkResponse.getErrors().size() + " records to BigquerySink");
             }
             messages.clear();

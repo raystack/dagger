@@ -18,7 +18,7 @@ public class BigquerySinkBuilderTest {
         builder.setColumnNames(new String[]{"test", "some_column"});
         Configuration conf = new Configuration(ParameterTool.fromMap(new HashMap<String, String>() {{
             put("a", "b");
-            put("SINK_BIGQUERY_BATCH_SIZE", "222");
+            put("SINK_CONNECTOR_BIGQUERY_BATCH_SIZE", "222");
         }}));
         builder.setConfiguration(conf);
         builder.setKeyProtoClassName("test.key.class");

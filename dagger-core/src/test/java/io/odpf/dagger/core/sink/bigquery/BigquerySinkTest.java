@@ -17,7 +17,7 @@ public class BigquerySinkTest {
     public void shouldReturnCommittersAndSerializer() throws IOException {
         Configuration conf = new Configuration(ParameterTool.fromMap(new HashMap<String, String>() {{
             put("a", "b");
-            put("SINK_BIGQUERY_BATCH_SIZE", "222");
+            put("SINK_CONNECTOR_BIGQUERY_BATCH_SIZE", "222");
         }}));
         ProtoSerializerHelper protoSerializerHelper = Mockito.mock(ProtoSerializerHelper.class);
         BigquerySink sink = new BigquerySink(protoSerializerHelper, conf);

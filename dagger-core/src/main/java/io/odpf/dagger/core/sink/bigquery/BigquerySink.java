@@ -2,6 +2,7 @@ package io.odpf.dagger.core.sink.bigquery;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
+import io.odpf.dagger.core.utils.Constants;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
 import lombok.Getter;
@@ -25,7 +26,9 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
 
     protected BigquerySink(ProtoSerializerHelper protoSerializerHelper, Configuration configuration) {
         this.protoSerializerHelper = protoSerializerHelper;
-        this.batchSize = configuration.getInteger("SINK_BIGQUERY_BATCH_SIZE", Constants.DEFAULT_BATCH_SIZE);
+        this.batchSize = configuration.getInteger(
+                Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE,
+                Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE_DEFAULT);
         this.configuration = configuration;
     }
 
