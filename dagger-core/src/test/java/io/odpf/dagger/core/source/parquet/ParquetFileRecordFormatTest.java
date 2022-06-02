@@ -11,12 +11,10 @@ import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ParquetFileRecordFormatTest {
@@ -30,15 +28,12 @@ public class ParquetFileRecordFormatTest {
     @Mock
     private Configuration configuration;
 
-    @Mock
-    private ReaderProvider readerProviderMock;
-
+    private final ReaderProvider readerProviderMock = (filePath) -> parquetReader;
     private final Supplier<TypeInformation<Row>> typeInformationProviderMock = () -> typeInformation;
 
     @Before
     public void setup() {
         initMocks(this);
-        when(readerProviderMock.getReader(Mockito.anyString())).thenReturn(parquetReader);
     }
 
     @Test

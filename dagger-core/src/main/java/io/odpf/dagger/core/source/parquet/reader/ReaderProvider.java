@@ -5,7 +5,7 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 
+@FunctionalInterface
 public interface ReaderProvider extends Serializable {
     FileRecordFormat.Reader<Row> getReader(String filePath);
-    FileRecordFormat.Reader<Row> getRestoredReader(String filePath, long restoredOffset, long splitOffset);
 }

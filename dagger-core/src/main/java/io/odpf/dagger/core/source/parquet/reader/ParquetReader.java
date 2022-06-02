@@ -31,20 +31,14 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private boolean isRecordReaderInitialized;
     private RecordReader<Group> recordReader;
     private final MessageType schema;
-    private ParquetReaderState parquetReaderState;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
-    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) {
-        this(hadoopFilePath, simpleGroupDeserializer, parquetFileReader, ParquetReaderState.NOT_INITIALIZED);
-    }
-
-    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader, ParquetReaderState parquetReaderState) {
+    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
         this.hadoopFilePath = hadoopFilePath;
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
-        this.parquetReaderState = parquetReaderState;
     }
 
     private boolean checkIfNullPage(PageReadStore page) {
@@ -121,18 +115,6 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
 
         @Override
         public ParquetReader getReader(String filePath) {
-            try {
-                Configuration conf = new Configuration();
-                Path hadoopFilePath = new Path(filePath);
-                ParquetFileReader parquetFileReader = ParquetFileReader.open(HadoopInputFile.fromPath(hadoopFilePath, conf));
-                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader);
-            } catch (IOException | RuntimeException ex) {
-                throw new ParquetFileSourceReaderInitializationException(ex);
-            }
-        }
-
-        @Override
-        public ParquetReader getRestoredReader(String filePath, long restoredOffset, long splitOffset) {
             try {
                 Configuration conf = new Configuration();
                 Path hadoopFilePath = new Path(filePath);
