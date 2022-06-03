@@ -4,6 +4,7 @@ package io.odpf.dagger.core.source.parquet.reader;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.flink.connector.file.src.util.CheckpointedPosition;
 import org.apache.flink.types.Row;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
@@ -139,6 +140,47 @@ public class ParquetReaderTest {
         ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
 
         assertThrows(ParquetFileSourceReaderInitializationException.class, () -> provider.getReader(tempFile.getPath()));
+    }
+
+    @Test
+    public void shouldReturnCheckPointedPositionWithNoOffsetAndZeroRecordsAfterOffsetWhenReadHasNotBeenCalledYet() {
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ClassLoader classLoader = getClass().getClassLoader();
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+
+        CheckpointedPosition expectedCheckpointedPosition = new CheckpointedPosition(CheckpointedPosition.NO_OFFSET, 0);
+
+        assertEquals(expectedCheckpointedPosition, reader.getCheckpointedPosition());
+    }
+
+    @Test
+    public void shouldUpdateCheckPointedPositionWithNoOffsetAndCountOfTotalRecordsReadYet() throws IOException {
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ClassLoader classLoader = getClass().getClassLoader();
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+
+        reader.read();
+        assertEquals(new CheckpointedPosition(CheckpointedPosition.NO_OFFSET, 1), reader.getCheckpointedPosition());
+
+        reader.read();
+        assertEquals(new CheckpointedPosition(CheckpointedPosition.NO_OFFSET, 2), reader.getCheckpointedPosition());
+    }
+
+    @Test
+    public void shouldNotUpdateCheckpointedPositionWhenNoMoreRecordsToRead() throws IOException {
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ClassLoader classLoader = getClass().getClassLoader();
+        ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
+
+        reader.read();
+        reader.read();
+        reader.read();
+        /* This 4th call to read will return null as there are only 3 rows in test_file.parquet */
+        reader.read();
+
+        CheckpointedPosition expectedCheckpointedPosition = new CheckpointedPosition(CheckpointedPosition.NO_OFFSET, 3);
+
+        assertEquals(expectedCheckpointedPosition, reader.getCheckpointedPosition());
     }
 
     private SimpleGroup[] getSimpleGroups() {
