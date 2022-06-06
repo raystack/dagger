@@ -39,9 +39,38 @@ Please raise an issue in case you have more doubts.
 
 ### Why isn't my Dagger giving any results?
 
-- Check if the Dagger is processing any data. You can check this from the “Records Rate - All stages” dashboard from the monitoring section.
-- If there are any filters in the query, try to reduce the threshold or change any specific filter because of which it might not be outputting data. You can also try ensuring if you have written the filters with the correct data type.
-- Check your window duration and watermark delay, the output data will be delayed by the window duration + watermark delay you have provided.
+- Check if the Dagger is processing any data. You can check this from the “Records Rate - All stages” dashboard from 
+the monitoring section.
+- If there are any filters in the query, try to reduce the threshold or change any specific filter because of which it 
+- might not be outputting data. You can also try ensuring if you have written the filters with the correct data type.
+- Check your window duration and watermark delay, the output data will be delayed by the window duration + watermark 
+delay you have provided. If you are using parquet as a source, ensure you are using the 
+[correct watermark delay](../reference/configuration.md#flink_watermark_delay_ms) as per the partitioning of the 
+parquet files. Incorrect watermark delay can cause data loss and output could be empty.
+- When using `PARQUET_SOURCE`, ensure that the time range filter config, if used, is configured according 
+to [the guidelines](../reference/configuration.md#source_parquet_file_date_range). Failure to follow the guidelines will 
+cause Dagger to skip some days or hours worth of data. Also, ensure that the parquet files provided contain valid data.
+
+### How do I verify that the parquet files are valid and dagger can process them ?
+
+- As of the latest release, Dagger uses protobuf schema for deserialization of 
+messages from the source. Hence, it can only deserialize data from the Parquet files if the Parquet file schema is 
+backward compatible with the stream Protobuf schema:
+  1. Fields which are present in the parquet schema but not present in the protobuf schema will be ignored and not form 
+  part of output.
+  2. Fields which are present in the protobuf schema but not present in the parquet schema will be substituted with 
+   their default protobuf values. 
+  3. Fields with the same name should have the same data type in both the schemas. For example, field named `booking_id`
+   cannot be a string in the parquet file schema and an integer in the protobuf schema. 
+
+- You can install [parquet-tools](https://formulae.brew.sh/formula/parquet-tools), which is a CLI tool for inspecting 
+parquet files. Then, check that you are able to open the parquet file and verify if the schema is compatible with the 
+protobuf schema that you have specified in the stream config.
+- If you have specified local files in the `SOURCE_PARQUET_FILE_PATHS`, ensure that the Dagger has read permission for the 
+files and folder. If you are using GCS file paths, ensure that the `core_site.xml` is properly configured. Also make sure 
+that the service account and billing project id(if any) being used are valid: you can quickly verify this by 
+using [gsutils](https://cloud.google.com/storage/docs/downloading-objects#cli-download-object) to check and see if you can 
+access the bucket.
 
 ### How do I verify/print the data generated to Kafka?
 
