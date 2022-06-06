@@ -35,7 +35,7 @@ root_folder
 
 ```
 
-or data partitioned, such as:
+or date partitioned, such as:
 
 ```text
 root_folder
@@ -43,7 +43,7 @@ root_folder
         - dt=2021-01-11
             * hs7hasd6t63eg7wbs8swssdasdasdasda.parquet
             * ...(more parquet files)
-        * (... more date folders)
+        - (... more date folders)
 
 ```
 
