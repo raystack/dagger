@@ -352,6 +352,20 @@ public class StreamConfigTest {
     }
 
     @Test
+    public void shouldThrowRuntimeExceptionIfSourceDetailsSetToEmptyArray() {
+        when(configuration.getString(INPUT_STREAMS, ""))
+                .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
+                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
+                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                        + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
+                        + "\"SOURCE_DETAILS\": []"
+                        + "}]");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> StreamConfig.parse(configuration));
+        assertEquals("SOURCE_DETAILS config is set to an empty array. Please check the documentation and specify "
+                + "in a valid format.", exception.getMessage());
+    }
+
+    @Test
     public void shouldThrowRuntimeExceptionForParquetSourceIfSourceParquetFilePathsArrayContainsInvalidFilePath() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [null, \"gs://another-parquet-path\"],"
