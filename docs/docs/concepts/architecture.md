@@ -10,10 +10,11 @@ Dagger or Data Aggregator is a cloud native framework for processing real-time s
 
 _**Stream**_
 
-- A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers)
-  schema. All data produced by a source follows the protobuf schema. The source can be a bounded one such as `KAFKA_SOURCE` or `KAFKA_CONSUMER`
-  in which case, a single stream can consume from one or more topics all sharing the same schema. Otherwise, the source
-  can be an unbounded one such as `PARQUET_SOURCE` in which case, one or more parquet files as provided are consumed in a single stream.
+- A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers) 
+schema. All data produced by a source follows the protobuf schema. The source can be an unbounded one such as
+`KAFKA_SOURCE` or `KAFKA_CONSUMER` in which case, a single stream can consume from one or more topics all sharing the 
+same schema. Otherwise, the source can be a bounded one such as `PARQUET_SOURCE` in which case, one or more parquet 
+files as provided are consumed in a single stream.
 - Dagger can support multiple streams at a time.
 - For a kafka based source, many Kafka consumer-level configurations like consumer groups and auto offset reset can be set in the stream itself.
 

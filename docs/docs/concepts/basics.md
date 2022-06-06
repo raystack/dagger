@@ -13,9 +13,10 @@ or an unbounded source such as Kafka.
 ### Streams
 
 A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers) 
-schema. All data produced by a source follows the protobuf schema. The source can be a bounded one such as `KAFKA_SOURCE` or `KAFKA_CONSUMER` 
-in which case, a single stream can consume from one or more topics all sharing the same schema. Otherwise, the source 
-can be an unbounded one such as `PARQUET_SOURCE` in which case, one or more parquet files as provided are consumed in a single stream.
+schema. All data produced by a source follows the protobuf schema. The source can be an unbounded one such as 
+`KAFKA_SOURCE` or `KAFKA_CONSUMER` in which case, a single stream can consume from one or more topics all sharing the 
+same schema. Otherwise, the source can be a bounded one such as `PARQUET_SOURCE` in which case, one or more parquet 
+files as provided are consumed in a single stream.
 
 Dagger allows creation of multiple streams, each having its own different schema, for use-cases such as SQL joins. However, the SQL 
 queries become more complex as the number of streams increase.
