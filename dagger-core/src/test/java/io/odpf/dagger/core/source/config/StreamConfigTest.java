@@ -235,14 +235,12 @@ public class StreamConfigTest {
     public void shouldGetParquetSourceProperties() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\""
                         + "}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
 
         Assert.assertArrayEquals(new String[]{"gs://some-parquet-path", "gs://another-parquet-path"}, streamConfigs[0].getParquetFilePaths());
-        assertEquals("data-project", streamConfigs[0].getParquetBillingProject());
         assertEquals(SourceParquetReadOrderStrategy.valueOf("EARLIEST_TIME_URL_FIRST"), streamConfigs[0].getParquetFilesReadOrderStrategy());
         assertEquals(SourceParquetSchemaMatchStrategy.valueOf("BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH"), streamConfigs[0].getParquetSchemaMatchStrategy());
     }
@@ -251,7 +249,6 @@ public class StreamConfigTest {
     public void shouldParseParquetFileDateRange() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_FILE_DATE_RANGE\":\"2022-02-13T14:00:00, 2022-02-13T18:00:00Z\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
@@ -269,7 +266,6 @@ public class StreamConfigTest {
     public void shouldReturnEmptyTimeRangeIfParquetFileDateRangeNotGiven() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\"}]");
         StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
@@ -281,7 +277,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidData() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -295,7 +290,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsArrayHasMissingSourceName() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -310,7 +304,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidSourceName() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -325,7 +318,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsArrayHasMissingSourceType() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -340,7 +332,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsArrayContainsInvalidSourceType() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -369,7 +360,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionForParquetSourceIfSourceParquetFilePathsArrayContainsInvalidFilePath() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [null, \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
@@ -382,8 +372,7 @@ public class StreamConfigTest {
     @Test
     public void shouldThrowRuntimeExceptionForParquetSourceIfSourceParquetFilePathsArrayIsNull() {
         when(configuration.getString(INPUT_STREAMS, ""))
-                .thenReturn("[{\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
-                        + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
+                .thenReturn("[{\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "
                         + "[{\"SOURCE_TYPE\": \"BOUNDED\", \"SOURCE_NAME\": \"PARQUET_SOURCE\"}]"
@@ -397,7 +386,6 @@ public class StreamConfigTest {
     public void shouldTrimLeadingAndTrailingWhitespacesFromParquetFilePathsWhenParquetSourceConfigured() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"   gs://some-parquet-path\", \"   gs://another-parquet-path   \"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": "

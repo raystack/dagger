@@ -88,10 +88,6 @@ public class StreamConfig {
     @SerializedName(STREAM_SOURCE_DETAILS_KEY)
     private SourceDetails[] sourceDetails;
 
-    @SerializedName(STREAM_SOURCE_PARQUET_BILLING_PROJECT_KEY)
-    @Getter
-    private String parquetBillingProject;
-
     @SerializedName(STREAM_SOURCE_PARQUET_FILE_PATHS_KEY)
     @Getter
     @JsonAdapter(value = SourceParquetFilePathsAdapter.class)
