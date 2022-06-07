@@ -346,7 +346,6 @@ public class StreamConfigTest {
     public void shouldThrowRuntimeExceptionIfSourceDetailsSetToEmptyArray() {
         when(configuration.getString(INPUT_STREAMS, ""))
                 .thenReturn("[{\"SOURCE_PARQUET_FILE_PATHS\": [\"gs://some-parquet-path\", \"gs://another-parquet-path\"],"
-                        + "\"SOURCE_PARQUET_BILLING_PROJECT\": \"data-project\","
                         + "\"SOURCE_PARQUET_READ_ORDER_STRATEGY\": \"EARLIEST_TIME_URL_FIRST\","
                         + "\"SOURCE_PARQUET_SCHEMA_MATCH_STRATEGY\": \"BACKWARD_COMPATIBLE_SCHEMA_WITH_FAIL_ON_TYPE_MISMATCH\","
                         + "\"SOURCE_DETAILS\": []"
