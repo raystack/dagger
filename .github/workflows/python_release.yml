@@ -10,9 +10,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Zip Python Udf
         run: |
-          zip -r python_udfs.zip dagger-py-functions/udfs -x "*/__init__.py"
-          zip -r data.zip dagger-py-functions/data
-          zip -r dagger-py-functions.zip python_functions/requirements.txt data.zip python_udfs.zip
+          cd dagger-py-functions
+          zip -r python_udfs.zip udfs -x "*/__init__.py"
+          zip -r data.zip data
+          zip -r dagger-py-functions.zip requirements.txt data.zip python_udfs.zip
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
