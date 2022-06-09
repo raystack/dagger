@@ -12,7 +12,7 @@ jobs:
         run: |
           cd dagger-py-functions
           zip -r python_udfs.zip udfs -x "*/__init__.py"
-          zip -r data.zip data
+          zip -jr data.zip data
           zip -r dagger-py-functions.zip requirements.txt data.zip python_udfs.zip
       - name: Upload Release
         uses: ncipollo/release-action@v1
