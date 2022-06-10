@@ -1,7 +1,7 @@
 package io.odpf.dagger.functions.udfs.python;
 
 import io.odpf.dagger.functions.exceptions.PythonFilesFormatException;
-import io.odpf.dagger.functions.exceptions.PythonFilesNotFoundException;
+import io.odpf.dagger.functions.exceptions.PythonFilesEmptyException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -13,7 +13,6 @@ import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,8 +45,6 @@ public class PythonUdfManagerTest {
     @Test
     public void shouldRegisterPythonUdfConfig() throws IOException {
         String pathFile = getPath("python_udf.zip");
-        String sqlRegisterFirstUdf = "CREATE TEMPORARY FUNCTION ADD AS 'python_udf.scalar.add.add' LANGUAGE PYTHON";
-        String sqlRegisterSecondUdf = "CREATE TEMPORARY FUNCTION SUBSTRACT AS 'python_udf.vectorized.substract.substract' LANGUAGE PYTHON";
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);
@@ -67,8 +64,6 @@ public class PythonUdfManagerTest {
         verify(configuration, times(1)).setInteger("python.fn-execution.arrow.batch.size", 10000);
         verify(configuration, times(1)).setInteger("python.fn-execution.bundle.size", 100000);
         verify(configuration, times(1)).setLong("python.fn-execution.bundle.time", 1000);
-        verify(tableEnvironment, times(1)).executeSql(sqlRegisterFirstUdf);
-        verify(tableEnvironment, times(1)).executeSql(sqlRegisterSecondUdf);
     }
 
     @Test
@@ -163,9 +158,22 @@ public class PythonUdfManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPythonFilesNotExist() throws IOException {
-        expectedEx.expect(PythonFilesNotFoundException.class);
-        expectedEx.expectMessage("Python files not found");
+    public void shouldThrowExceptionIfPythonFilesIsEmpty() throws IOException {
+        expectedEx.expect(PythonFilesFormatException.class);
+        expectedEx.expectMessage("Python files should be in .py or .zip format");
+
+        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
+        when(tableConfig.getConfiguration()).thenReturn(configuration);
+        when(pythonUdfConfig.getPythonFiles()).thenReturn("");
+
+        PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+        pythonUdfManager.registerPythonFunctions();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPythonFilesIsNull() throws IOException {
+        expectedEx.expect(PythonFilesEmptyException.class);
+        expectedEx.expectMessage("Python files can not be null");
 
         when(tableEnvironment.getConfig()).thenReturn(tableConfig);
         when(tableConfig.getConfiguration()).thenReturn(configuration);
@@ -176,8 +184,7 @@ public class PythonUdfManagerTest {
 
     private String getPath(String filename) {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
-        return file.getAbsolutePath();
+        return classLoader.getResource(filename).getPath();
     }
 }
