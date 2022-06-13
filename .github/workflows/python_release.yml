@@ -17,7 +17,7 @@ jobs:
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: dagger-py-functions.zip
+          artifacts: dagger-py-functions/dagger-py-functions.zip
           allowUpdates: true
           omitNameDuringUpdate: true
           omitBodyDuringUpdate: true
