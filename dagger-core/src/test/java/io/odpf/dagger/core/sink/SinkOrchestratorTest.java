@@ -2,6 +2,7 @@ package io.odpf.dagger.core.sink;
 
 import io.odpf.dagger.core.sink.bigquery.BigquerySink;
 import org.apache.flink.api.connector.sink.Sink;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -109,6 +110,7 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldReturnBigquerySink() {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
+        when(configuration.getParam()).thenReturn(ParameterTool.fromMap(new HashMap<>()));
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
         assertThat(sinkFunction, instanceOf(BigquerySink.class));
     }

@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.longbow.request;
 
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
+import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.core.utils.Constants;
@@ -22,7 +22,7 @@ public class ProtoBytePutRequest implements PutRequest {
     private static final byte[] QUALIFIER_NAME = Bytes.toBytes(Constants.LONGBOW_QUALIFIER_DEFAULT);
     private LongbowSchema longbowSchema;
     private Row input;
-    private ProtoSerializer protoSerializer;
+    private KafkaProtoSerializer kafkaProtoSerializer;
     private String tableId;
 
 
@@ -31,13 +31,13 @@ public class ProtoBytePutRequest implements PutRequest {
      *
      * @param longbowSchema   the longbow schema
      * @param input           the input
-     * @param protoSerializer the proto serializer
+     * @param kafkaProtoSerializer the proto serializer
      * @param tableId         the table id
      */
-    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer, String tableId) {
+    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, KafkaProtoSerializer kafkaProtoSerializer, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;
-        this.protoSerializer = protoSerializer;
+        this.kafkaProtoSerializer = kafkaProtoSerializer;
         this.tableId = tableId;
     }
 
@@ -45,7 +45,7 @@ public class ProtoBytePutRequest implements PutRequest {
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
         Timestamp rowtime = convertToTimeStamp(longbowSchema.getValue(input, ROWTIME));
-        putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), protoSerializer.serializeValue(input));
+        putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), kafkaProtoSerializer.serializeValue(input));
         return putRequest;
     }
 

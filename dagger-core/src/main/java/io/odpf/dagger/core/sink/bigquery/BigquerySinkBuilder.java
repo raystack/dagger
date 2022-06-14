@@ -1,10 +1,17 @@
 package io.odpf.dagger.core.sink.bigquery;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
+import io.odpf.depot.bigquery.BigQuerySinkFactory;
 
 public class BigquerySinkBuilder {
+
+    private String schemaKeyClass;
+    private String schemaMessageClass;
+    private String[] columnNames;
+    private int batchSize;
+    private StencilClientOrchestrator stencilClientOrchestrator;
+    private BigQuerySinkFactory sinkConnectorFactory;
 
     private BigquerySinkBuilder() {
     }
@@ -14,23 +21,31 @@ public class BigquerySinkBuilder {
     }
 
     public BigquerySink build() {
-        ProtoSerializerHelper protoSerializerHelper = new ProtoSerializerHelper(keyProtoClassName, columnNames, stencilClientOrchestrator, messageProtoClassName);
-        return new BigquerySink(protoSerializerHelper, configuration);
+        ProtoSerializer protoSerializer = new ProtoSerializer(
+                schemaKeyClass,
+                columnNames,
+                stencilClientOrchestrator,
+                schemaMessageClass);
+        return new BigquerySink(batchSize, protoSerializer, sinkConnectorFactory);
     }
 
-    private String keyProtoClassName;
-    private String[] columnNames;
-    private StencilClientOrchestrator stencilClientOrchestrator;
-    private String messageProtoClassName;
-    private Configuration configuration;
-
-    public BigquerySinkBuilder setKeyProtoClassName(String keyProtoClassName) {
-        this.keyProtoClassName = keyProtoClassName;
+    public BigquerySinkBuilder setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
         return this;
     }
 
-    public BigquerySinkBuilder setMessageProtoClassName(String messageProtoClassName) {
-        this.messageProtoClassName = messageProtoClassName;
+    public BigquerySinkBuilder setSchemaKeyClass(String schemaKeyClass) {
+        this.schemaKeyClass = schemaKeyClass;
+        return this;
+    }
+
+    public BigquerySinkBuilder setSchemaMessageClass(String schemaMessageClass) {
+        this.schemaMessageClass = schemaMessageClass;
+        return this;
+    }
+
+    public BigquerySinkBuilder setSinkConnectorFactory(BigQuerySinkFactory factory) {
+        this.sinkConnectorFactory = factory;
         return this;
     }
 
@@ -44,8 +59,4 @@ public class BigquerySinkBuilder {
         return this;
     }
 
-    public BigquerySinkBuilder setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
-    }
 }

@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.longbow.request;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
-import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
+import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Before;
@@ -18,7 +18,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProtoBytePutRequestTest {
     @Mock
-    private ProtoSerializer protoSerializer;
+    private KafkaProtoSerializer kafkaProtoSerializer;
 
     private Row input;
     private LongbowSchema longbowSchema;
@@ -38,7 +38,7 @@ public class ProtoBytePutRequestTest {
         input.setField(1, orderNumber);
         input.setField(2, longbowRowtime);
 
-        when(protoSerializer.serializeValue(input)).thenReturn(Bytes.toBytes(" "));
+        when(kafkaProtoSerializer.serializeValue(input)).thenReturn(Bytes.toBytes(" "));
 
         longbowSchema = new LongbowSchema(columnNames);
 
@@ -46,10 +46,10 @@ public class ProtoBytePutRequestTest {
 
     @Test
     public void shouldSetColumnFamilyTotsQualifierToProtoAndValueAsProtoByte() {
-        ProtoBytePutRequest protoBytePutRequest = new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
+        ProtoBytePutRequest protoBytePutRequest = new ProtoBytePutRequest(longbowSchema, input, kafkaProtoSerializer, tableId);
         Put expectedPut = new Put(longbowSchema.getKey(input, 0));
         expectedPut.addColumn(Bytes.toBytes("ts"), Bytes.toBytes("proto"), longbowRowtime.getTime(),
-                protoSerializer.serializeValue(input));
+                kafkaProtoSerializer.serializeValue(input));
         Put putRequest = protoBytePutRequest.get();
 
         assertEquals(expectedPut.get(Bytes.toBytes("ts"), Bytes.toBytes("proto")),

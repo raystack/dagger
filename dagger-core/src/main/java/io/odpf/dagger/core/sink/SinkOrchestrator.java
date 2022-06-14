@@ -1,6 +1,10 @@
 package io.odpf.dagger.core.sink;
 
 import io.odpf.dagger.core.sink.bigquery.BigquerySinkBuilder;
+import io.odpf.dagger.core.utils.Constants;
+import io.odpf.depot.bigquery.BigQuerySinkFactory;
+import io.odpf.depot.config.BigQuerySinkConfig;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -25,15 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_COMPRESSION_TYPE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_MAX_REQUEST_SIZE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_KEY;
-import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_PROTO_MESSAGE_KEY;
+import static io.odpf.dagger.core.utils.Constants.*;
 
 /**
  * The Sink orchestrator.
@@ -81,12 +77,18 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 sink = new LogSink(columnNames);
                 break;
             case "bigquery":
+                BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
+                BigQuerySinkFactory sinkFactory = new BigQuerySinkFactory(sinkConfig);
+                int batchSize = configuration.getInteger(
+                        Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE,
+                        Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE_DEFAULT);
                 sink = BigquerySinkBuilder.create()
                         .setColumnNames(columnNames)
-                        .setConfiguration(configuration)
+                        .setBatchSize(batchSize)
+                        .setSchemaKeyClass(sinkConfig.getSinkConnectorSchemaKeyClass())
+                        .setSchemaMessageClass(sinkConfig.getSinkConnectorSchemaMessageClass())
+                        .setSinkConnectorFactory(sinkFactory)
                         .setStencilClientOrchestrator(stencilClientOrchestrator)
-                        .setKeyProtoClassName(configuration.getString(SINK_KAFKA_PROTO_KEY, null))
-                        .setMessageProtoClassName(configuration.getString(SINK_KAFKA_PROTO_MESSAGE_KEY, null))
                         .build();
                 break;
             default:

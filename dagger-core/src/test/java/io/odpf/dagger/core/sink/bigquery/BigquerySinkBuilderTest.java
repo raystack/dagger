@@ -1,13 +1,10 @@
 package io.odpf.dagger.core.sink.bigquery;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import org.apache.flink.api.java.utils.ParameterTool;
+import io.odpf.depot.bigquery.BigQuerySinkFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.HashMap;
 
 
 public class BigquerySinkBuilderTest {
@@ -16,19 +13,16 @@ public class BigquerySinkBuilderTest {
     public void shouldBuildBigquerySink() {
         BigquerySinkBuilder builder = BigquerySinkBuilder.create();
         builder.setColumnNames(new String[]{"test", "some_column"});
-        Configuration conf = new Configuration(ParameterTool.fromMap(new HashMap<String, String>() {{
-            put("a", "b");
-            put("SINK_CONNECTOR_BIGQUERY_BATCH_SIZE", "222");
-        }}));
-        builder.setConfiguration(conf);
-        builder.setKeyProtoClassName("test.key.class");
-        builder.setMessageProtoClassName("test.message.class");
+        BigQuerySinkFactory sinkFactory = Mockito.mock(BigQuerySinkFactory.class);
+        builder.setSinkConnectorFactory(sinkFactory);
+        builder.setSchemaKeyClass("test.key.class");
+        builder.setBatchSize(222);
+        builder.setSchemaMessageClass("test.message.class");
         StencilClientOrchestrator stencilClientOrchestrator = Mockito.mock(StencilClientOrchestrator.class);
         builder.setStencilClientOrchestrator(stencilClientOrchestrator);
 
         BigquerySink sink = builder.build();
-        Assert.assertEquals(conf, sink.getConfiguration());
+        Assert.assertEquals(sinkFactory, sink.getSinkFactory());
         Assert.assertEquals(222, sink.getBatchSize());
     }
-
 }

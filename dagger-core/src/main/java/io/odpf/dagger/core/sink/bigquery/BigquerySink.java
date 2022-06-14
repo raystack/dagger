@@ -1,8 +1,6 @@
 package io.odpf.dagger.core.sink.bigquery;
 
-import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
-import io.odpf.dagger.core.utils.Constants;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
 import lombok.Getter;
@@ -18,26 +16,23 @@ import java.util.List;
 import java.util.Optional;
 
 public class BigquerySink implements Sink<Row, Void, Void, Void> {
-    private final ProtoSerializerHelper protoSerializerHelper;
+    private final ProtoSerializer protoSerializer;
     @Getter
     private final int batchSize;
     @Getter
-    private final Configuration configuration;
+    private final BigQuerySinkFactory sinkFactory;
 
-    protected BigquerySink(ProtoSerializerHelper protoSerializerHelper, Configuration configuration) {
-        this.protoSerializerHelper = protoSerializerHelper;
-        this.batchSize = configuration.getInteger(
-                Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE,
-                Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE_DEFAULT);
-        this.configuration = configuration;
+    protected BigquerySink(int batchSize, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory) {
+        this.batchSize = batchSize;
+        this.protoSerializer = protoSerializer;
+        this.sinkFactory = sinkFactory;
     }
 
     @Override
     public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) throws IOException {
-        BigQuerySinkFactory factory = new BigQuerySinkFactory(configuration.getParam().toMap(), null, null);
-        factory.init();
-        OdpfSink odpfSink = factory.create();
-        return new BigquerySinkWriter(protoSerializerHelper, odpfSink, batchSize);
+        sinkFactory.init();
+        OdpfSink odpfSink = sinkFactory.create();
+        return new BigquerySinkWriter(protoSerializer, odpfSink, batchSize);
     }
 
     @Override

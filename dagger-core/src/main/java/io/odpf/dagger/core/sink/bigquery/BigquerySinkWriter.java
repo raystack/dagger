@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.sink.bigquery;
 
-import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializerHelper;
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.OdpfSinkResponse;
 import io.odpf.depot.message.OdpfMessage;
@@ -14,14 +14,14 @@ import java.util.List;
 
 @Slf4j
 public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
-    private final ProtoSerializerHelper protoSerializerHelper;
+    private final ProtoSerializer protoSerializer;
     private final OdpfSink bigquerySink;
     private final int batchSize;
     private int currentBatchSize;
     private final List<OdpfMessage> messages = new ArrayList<>();
 
-    public BigquerySinkWriter(ProtoSerializerHelper protoSerializerHelper, OdpfSink bigquerySink, int batchSize) {
-        this.protoSerializerHelper = protoSerializerHelper;
+    public BigquerySinkWriter(ProtoSerializer protoSerializer, OdpfSink bigquerySink, int batchSize) {
+        this.protoSerializer = protoSerializer;
         this.bigquerySink = bigquerySink;
         this.batchSize = batchSize;
     }
@@ -29,8 +29,8 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
     @Override
     public void write(Row element, Context context) throws IOException {
         log.info("adding row to BQ batch : " + element);
-        byte[] key = protoSerializerHelper.serializeKey(element);
-        byte[] value = protoSerializerHelper.serializeValue(element);
+        byte[] key = protoSerializer.serializeKey(element);
+        byte[] value = protoSerializer.serializeValue(element);
         OdpfMessage message = new OdpfMessage(key, value);
         if (currentBatchSize < batchSize) {
             messages.add(message);

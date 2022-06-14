@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ProtoSerializerTest {
+public class KafkaProtoSerializerTest {
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -48,7 +48,7 @@ public class ProtoSerializerTest {
         String[] columnNames = {"window_start_time", "window_end_time", "s2_id_level", "s2_id", "service_type"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestSerDeLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         long seconds = System.currentTimeMillis() / 1000;
 
@@ -65,7 +65,7 @@ public class ProtoSerializerTest {
         element.setField(3, 3322909458387959808L);
         element.setField(4, TestServiceType.Enum.GO_RIDE);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, seconds);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, seconds);
 
         TestSerDeLogKey actualKey = TestSerDeLogKey.parseFrom(producerRecord.key());
 
@@ -83,7 +83,7 @@ public class ProtoSerializerTest {
                 "event_timestamp", "string_type", "bool_type", "message_type", "repeated_message_type", "map_type"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestSerDeLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         long seconds = System.currentTimeMillis() / 1000;
 
         Row element = new Row(12);
@@ -115,7 +115,7 @@ public class ProtoSerializerTest {
             put("key", "value");
         }});
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, seconds);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, seconds);
 
         TestSerDeLogMessage actualMessage = TestSerDeLogMessage.parseFrom(producerRecord.value());
 
@@ -142,13 +142,13 @@ public class ProtoSerializerTest {
         String[] columnNames = {"customer_profile.customer_id"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(1);
 
         element.setField(0, "test-id");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestEnrichedBookingLogMessage actualValue = TestEnrichedBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -160,7 +160,7 @@ public class ProtoSerializerTest {
         String[] columnNames = {"customer_profile.name", "customer_profile.email", "customer_profile.phone_verified"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestEnrichedBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(3);
 
@@ -168,7 +168,7 @@ public class ProtoSerializerTest {
         element.setField(1, "test_email@go-jek.com");
         element.setField(2, true);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestEnrichedBookingLogMessage actualValue = TestEnrichedBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -182,7 +182,7 @@ public class ProtoSerializerTest {
         String[] columnNames = {"order_number", "service_type", "customer_price", "customer_total_fare_without_surge", "driver_pickup_location.name", "driver_pickup_location.latitude"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(6);
 
@@ -193,7 +193,7 @@ public class ProtoSerializerTest {
         element.setField(4, "driver_name");
         element.setField(5, 876D);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         TestBookingLogMessage actualValue = TestBookingLogMessage.parseFrom(producerRecord.value());
 
@@ -210,13 +210,13 @@ public class ProtoSerializerTest {
         String[] columnNames = {"order_number", "driver_pickup_location.invalid"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(2);
         element.setField(0, "order_number");
         element.setField(1, 876D);
 
         InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
-                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
+                () -> kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("column invalid doesn't exists in the proto of io.odpf.dagger.consumer.TestLocation",
                 exception.getMessage());
 
@@ -227,12 +227,12 @@ public class ProtoSerializerTest {
         String[] columnNames = {"blah.invalid", "customer_email"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(2);
         element.setField(0, "order_number");
         element.setField(1, "customer_email@go-jek.com");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals("customer_email@go-jek.com", TestBookingLogMessage.parseFrom(producerRecord.value()).getCustomerEmail());
     }
@@ -242,11 +242,11 @@ public class ProtoSerializerTest {
         String[] columnNames = {"invalid"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(1);
         element.setField(0, "order_number");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals(0, producerRecord.value().length);
     }
@@ -256,12 +256,12 @@ public class ProtoSerializerTest {
         String[] columnNames = {"invalid", "order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(2);
         element.setField(0, "some_data");
         element.setField(1, "order_number");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertEquals("order_number", TestBookingLogMessage.parseFrom(producerRecord.value()).getOrderNumber());
     }
@@ -271,11 +271,11 @@ public class ProtoSerializerTest {
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(1);
         element.setField(0, 1234);
 
-        ProducerRecord<byte[], byte[]> testBookingLogMessage = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> testBookingLogMessage = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
         assertEquals("1234", TestBookingLogMessage.parseFrom(testBookingLogMessage.value()).getOrderNumber());
     }
 
@@ -284,12 +284,12 @@ public class ProtoSerializerTest {
         String[] columnNames = {"customer_price"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(1);
         element.setField(0, "invalid_number");
 
         InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
-                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
+                () -> kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("type mismatch of field: customer_price, expecting DOUBLE type, actual type class java.lang.String",
                 exception.getMessage());
     }
@@ -300,12 +300,12 @@ public class ProtoSerializerTest {
         String[] columnNames = {"meta_array"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
         Row element = new Row(1);
         element.setField(0, 1234);
 
         InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
-                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
+                () -> kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("column invalid: type mismatch of column meta_array, expecting REPEATED STRING type. Actual type class java.lang.Integer",
                 exception.getMessage());
     }
@@ -314,7 +314,7 @@ public class ProtoSerializerTest {
     public void shouldSerializeMessageWhenOnlyMessageProtoProvided() throws InvalidProtocolBufferException {
         String[] columnNames = {"order_number", "driver_id"};
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(null, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         String orderNumber = "RB-1234";
 
@@ -322,7 +322,7 @@ public class ProtoSerializerTest {
         element.setField(0, orderNumber);
         element.setField(1, "DR-124");
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
         TestBookingLogMessage actualMessage = TestBookingLogMessage.parseFrom(producerRecord.value());
 
         assertEquals(orderNumber, actualMessage.getOrderNumber());
@@ -333,7 +333,7 @@ public class ProtoSerializerTest {
 
         String[] columnNames = {};
         DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
-                () -> new ProtoSerializer(null, null, columnNames, stencilClientOrchestrator, outputTopic));
+                () -> new KafkaProtoSerializer(null, null, columnNames, stencilClientOrchestrator, outputTopic));
         assertEquals("messageProtoClassName is required", exception.getMessage());
 
     }
@@ -342,13 +342,13 @@ public class ProtoSerializerTest {
     public void shouldReturnNullKeyWhenOnlyMessageProtoProvided() {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames,
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(null, protoMessage, columnNames,
                 stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(1);
         element.setField(0, 13);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertNull(producerRecord.key());
         assertNotNull(producerRecord.value());
@@ -358,12 +358,12 @@ public class ProtoSerializerTest {
     public void shouldReturnNullKeyWhenKeyIsEmptyString() {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "io.odpf.dagger.consumer.TestSerDeLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer("", protoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer("", protoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         Row element = new Row(1);
         element.setField(0, 13);
 
-        ProducerRecord<byte[], byte[]> producerRecord = protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        ProducerRecord<byte[], byte[]> producerRecord = kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
 
         assertNull(producerRecord.key());
         assertNotNull(producerRecord.value());
@@ -373,13 +373,13 @@ public class ProtoSerializerTest {
     public void shouldThrowDescriptorNotFoundException() {
         String[] columnNames = {"s2_id_level"};
         String protoMessage = "RandomMessageClass";
-        ProtoSerializer protoSerializer = new ProtoSerializer(null, protoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(null, protoMessage, columnNames, stencilClientOrchestrator, outputTopic);
 
         int s2IdLevel = 13;
         Row element = new Row(1);
         element.setField(0, s2IdLevel);
 
-        protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
+        kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000);
     }
 
     @Test
@@ -387,11 +387,11 @@ public class ProtoSerializerTest {
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, null);
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, null);
         Row element = new Row(1);
         element.setField(0, "1234");
         DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
-                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
+                () -> kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("outputTopic is required", exception.getMessage());
     }
 
@@ -400,12 +400,12 @@ public class ProtoSerializerTest {
         String[] columnNames = {"order_number"};
         String outputProtoKey = "io.odpf.dagger.consumer.TestBookingLogKey";
         String outputProtoMessage = "io.odpf.dagger.consumer.TestBookingLogMessage";
-        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, "");
+        KafkaProtoSerializer kafkaProtoSerializer = new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, "");
         Row element = new Row(1);
         element.setField(0, "1234");
 
         DaggerSerializationException exception = assertThrows(DaggerSerializationException.class,
-                () -> protoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
+                () -> kafkaProtoSerializer.serialize(element, null, System.currentTimeMillis() / 1000));
         assertEquals("outputTopic is required", exception.getMessage());
     }
 }
