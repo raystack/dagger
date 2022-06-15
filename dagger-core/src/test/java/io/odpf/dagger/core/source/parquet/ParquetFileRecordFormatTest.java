@@ -93,6 +93,6 @@ public class ParquetFileRecordFormatTest {
         UnsupportedOperationException ex = assertThrows(UnsupportedOperationException.class,
                 () -> parquetFileRecordFormat.restoreReader(configuration, new Path("gs://some-path"), 12, 0, 1024));
 
-        assertEquals("Error: Restoring a reader from saved state is not implemented yet", ex.getMessage());
+        assertEquals("Error: ParquetReader do not have offsets and hence cannot be restored via this method.", ex.getMessage());
     }
 }
