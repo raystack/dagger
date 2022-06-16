@@ -178,6 +178,7 @@ task minimalJar(type: ShadowJar) {
     from sourceSets.main.output
     configurations = [project.configurations.minimalJar]
     archiveVersion = minimalVersion
+    exclude("core-site.xml")
 }
 
 task dependenciesJar(type: ShadowJar) {
