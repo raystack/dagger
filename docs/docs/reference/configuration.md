@@ -14,6 +14,8 @@ This page contains references for all the application configurations for Dagger.
 * [PreProcessor](configuration.md#preprocessor)
 * [PostProcessor](configuration.md#postprocessor)
 * [Telemetry](configuration.md#telemetry)
+* [Python Udfs](configuration.md#python-udfs)
+
 
 ### Generic
 
@@ -497,3 +499,111 @@ Shutdown period of metric telemetry in milliseconds.
 * Example value: `10000`
 * Type: `optional`
 * Default value: `10000`
+
+### Python Udfs
+
+#### `PYTHON_UDF_ENABLE`
+
+Enable/Disable using python udf.
+
+* Example value: `10000`
+* Type: `optional`
+* Default value: `10000`
+
+#### `PYTHON_UDF_CONFIG`
+
+All the configuration need to use python udf.
+
+These following variables need to be configured:
+
+##### `PYTHON_FILES`
+
+Defines the path of python udf files. Currently only support for `.py` and `.zip` data type. Comma (',') could be used as the separator to specify multiple files.
+
+* Example value: `/path/to/files.zip`
+* Type: `required`
+
+##### `PYTHON_ARCHIVES`
+
+Defines the path of files that used on the python udf. Only support for `.zip` data type. Comma (',') could be used as the separator to specify multiple archive files.
+'#' could be used as the separator of the archive file path and the target directory name.
+
+Example:
+* PYTHON_ARCHIVES=/path/to/data.zip
+
+  You should set the path name to `data.zip/data/sample.txt`
+  
+* PYTHON_ARCHIVES=/path/to/data.zip#data
+  
+  You should set the path name to `data/sample.txt` 
+
+* Type: `optional`
+* Default value: `(none)`
+
+##### `PYTHON_REQUIREMENTS`
+
+Defines the path of python dependency files. 
+
+* Example value: `/path/to/requirements.txt`
+* Type: `optional`
+* Default value: `(none)`
+
+##### `PYTHON_EXECUTABLE`
+
+Defines the path of the python interpreter used to execute the python udf worker.
+
+* Example value: `python`
+* Type: `optional`
+* Default value: `python`
+
+##### `PYTHON_CLIENT_EXECUTABLE`
+
+Defines path of the python interpreter used to launch the Python process when submitting the Python jobs via "flink run" or compiling the Java/Scala jobs containing python udf.
+
+* Example value: `python`
+* Type: `python`
+* Default value: `python`
+
+##### `PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE`
+
+The maximum number of elements to include in an arrow batch for python user-defined function execution.
+
+* Example value: `10000`
+* Type: `optional`
+* Default value: `10000`
+
+##### `PYTHON_FN_EXECUTION_BUNDLE_SIZE`
+
+The maximum number of elements to include in a bundle for python user-defined function execution.
+
+* Example value: `100000`
+* Type: `optional`
+* Default value: `100000`
+
+##### `PYTHON_FN_EXECUTION_BUNDLE_TIME`
+
+Sets the waiting timeout(in milliseconds) before processing a bundle for Python user-defined function execution. The timeout defines how long the elements of a bundle will be buffered before being processed.
+
+* Example value: `1000`
+* Type: `optional`
+* Default value: `1000`
+
+##### Sample Configuration
+```
+PYTHON_UDF_CONFIG = [
+   {
+      "PYTHON_FILES": "/path/to/files.py",
+      "PYTHON_ARCHIVES": "/path/to/data.zip",
+      "PYTHON_REQUIREMENTS": "/path/to/requirements.txt",
+      "PYTHON_EXECUTABLE": "python",
+      "PYTHON_CLIENT_EXECUTABLE": "python",
+      "PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE": "10000",
+      "PYTHON_FN_EXECUTION_BUNDLE_SIZE": "100000",
+      "PYTHON_FN_EXECUTION_BUNDLE_TIME": "1000"
+   }
+]
+```
+
+Find more details on python udf config [here](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/python/python_config/#python-options).
+
+

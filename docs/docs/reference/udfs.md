@@ -1,8 +1,12 @@
 # Udfs
 
-This page contains references for all the custom udfs available on Dagger.
+This page contains references for all the custom udfs available on Dagger. 
 
-## List of Udfs
+The udfs on Dagger divided into two parts:
+* [Java Udfs](udfs.md#list-of-java-udfs)
+* [Python Udfs](udfs.md#list-of-python-udfs)
+
+## List of Java Udfs
 
 - [Scalar Functions](udfs.md#scalar-functions)
   - [ArrayAggregate](udfs.md#ArrayAggregate)
@@ -795,3 +799,44 @@ LATERAL TABLE(
   `isOutlier`
 )
 ```
+
+## List of Python Udfs
+
+- [Scalar Functions](python_udfs.md#scalar-functions)
+  - [ArrayAggregate](udfs.md#ArrayAggregate)
+- [Aggregate Functions](python_udfs.md#aggregate-functions)
+- [Table Functions](python_udfs.md#table-functions)
+
+### Scalar Functions
+
+#### Sample
+* Contract: 
+  * **String** `Sample(input_string)`.
+* Functionality:
+  * This is one of sample python udfs. 
+  * Adding extra string from [data/sample.txt](../../../dagger-py-functions/data/sample_data.txt) to the input_string.
+* Example:
+  ```
+  SELECT 
+    sample(inputString) as input_with_additonal_text
+  FROM 
+    data_stream
+  ```
+  
+#### Multiply
+* Contract: 
+  * **Float** `Multiply(input_number1, input_number2)`.
+* Functionality:
+  * This is one of sample python udfs. 
+  * Multiply two input numbers specified.
+* Example:
+  ```
+  SELECT 
+    multiply(input_number1, input_number2) as multiply_result
+  FROM 
+    data_stream
+  ```
+
+### Aggregate Functions
+
+### Table Functions
