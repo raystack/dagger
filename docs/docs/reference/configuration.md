@@ -548,22 +548,6 @@ Defines the path of python dependency files.
 * Type: `optional`
 * Default value: `(none)`
 
-##### `PYTHON_EXECUTABLE`
-
-Defines the path of the python interpreter used to execute the python udf worker.
-
-* Example value: `python`
-* Type: `optional`
-* Default value: `python`
-
-##### `PYTHON_CLIENT_EXECUTABLE`
-
-Defines path of the python interpreter used to launch the Python process when submitting the Python jobs via "flink run" or compiling the Java/Scala jobs containing python udf.
-
-* Example value: `python`
-* Type: `python`
-* Default value: `python`
-
 ##### `PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE`
 
 The maximum number of elements to include in an arrow batch for python user-defined function execution.
@@ -595,8 +579,6 @@ PYTHON_UDF_CONFIG = [
       "PYTHON_FILES": "/path/to/files.py",
       "PYTHON_ARCHIVES": "/path/to/data.zip",
       "PYTHON_REQUIREMENTS": "/path/to/requirements.txt",
-      "PYTHON_EXECUTABLE": "python",
-      "PYTHON_CLIENT_EXECUTABLE": "python",
       "PYTHON_FN_EXECUTION_ARROW_BATCH_SIZE": "10000",
       "PYTHON_FN_EXECUTION_BUNDLE_SIZE": "100000",
       "PYTHON_FN_EXECUTION_BUNDLE_TIME": "1000"
