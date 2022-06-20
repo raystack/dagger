@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ProtoDeserializerTest {
+public class KafkaProtoDeserializerTest {
 
     private StencilClientOrchestrator stencilClientOrchestrator;
 
@@ -50,13 +50,13 @@ public class ProtoDeserializerTest {
 
     @Test
     public void shouldAlwaysReturnFalseForEndOfStream() {
-        assertFalse(new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 4, "rowtime", stencilClientOrchestrator).isEndOfStream(null));
+        assertFalse(new KafkaProtoDeserializer(TestBookingLogKey.class.getTypeName(), 4, "rowtime", stencilClientOrchestrator).isEndOfStream(null));
     }
 
     @Test
     public void shouldReturnProducedType() {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
-        TypeInformation<Row> producedType = protoDeserializer.getProducedType();
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogKey.class.getTypeName(), 3, "rowtime", stencilClientOrchestrator);
+        TypeInformation<Row> producedType = kafkaProtoDeserializer.getProducedType();
         assertArrayEquals(
                 new String[]{"service_type", "order_number", "order_url", "status", "event_timestamp", INTERNAL_VALIDATION_FIELD_KEY, "rowtime"},
                 ((RowTypeInfo) producedType).getFieldNames());
@@ -70,9 +70,9 @@ public class ProtoDeserializerTest {
         String expectedOrderNumber = "111";
         final int expectedIterationNumber = 10;
         byte[] protoBytes = TestBookingLogMessage.newBuilder().setOrderNumber(expectedOrderNumber).setCancelReasonId(expectedIterationNumber).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         assertEquals(expectedOrderNumber, row.getField(bookingLogFieldIndex("order_number")));
         assertEquals(expectedIterationNumber, row.getField(bookingLogFieldIndex("cancel_reason_id")));
@@ -87,9 +87,9 @@ public class ProtoDeserializerTest {
                 .setEventTimestamp(Timestamp.newBuilder().setSeconds(1595548800L).setNanos(0).build())
                 .build()
                 .toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         int size = row.getArity();
         assertEquals(51, size);
@@ -101,9 +101,9 @@ public class ProtoDeserializerTest {
     public void shouldDeserializeEnumAsString() {
 
         byte[] protoBytes = TestBookingLogMessage.newBuilder().setServiceType(TestServiceType.Enum.GO_RIDE).setStatus(TestBookingStatus.Enum.COMPLETED).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         assertEquals(TestServiceType.Enum.GO_RIDE.toString(), row.getField(bookingLogFieldIndex("service_type")));
         assertEquals(TestBookingStatus.Enum.COMPLETED.toString(), row.getField(bookingLogFieldIndex("status")));
@@ -122,9 +122,9 @@ public class ProtoDeserializerTest {
         byte[] protoBytes = TestBookingLogMessage.newBuilder()
                 .setEventTimestamp(expectedTimestamp)
                 .setDriverPickupLocation(testLocation).build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         Row eventTimestampRow = (Row) row.getField(bookingLogFieldIndex("event_timestamp"));
         assertEquals(expectedTimestamp.getSeconds(), eventTimestampRow.getField(0));
@@ -144,9 +144,9 @@ public class ProtoDeserializerTest {
                 .addRoutes(TestRoute.newBuilder().setDistanceInKms(3.0f).setRouteOrder(6).build())
                 .build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         Object[] routes = (Object[]) row.getField(bookingLogFieldIndex("routes"));
         Row firstRouteRow = (Row) routes[0];
@@ -172,9 +172,9 @@ public class ProtoDeserializerTest {
                 .addMetaArray("EXAMPLE-REGISTERED-DEVICE-04")
                 .build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         String[] strings = (String[]) row.getField(bookingLogFieldIndex("meta_array"));
 
@@ -196,9 +196,9 @@ public class ProtoDeserializerTest {
                 .putAllMetadata(currentState)
                 .setOrderNumber(orderNumber).build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         Object[] currentStateRowList = (Object[]) row.getField(bookingLogFieldIndex("metadata"));
 
@@ -221,9 +221,9 @@ public class ProtoDeserializerTest {
                 .putAllMetadata(metaData)
                 .setOrderNumber(orderNumber).build().toByteArray();
 
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
 
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
 
         Object[] currentStateRowList = (Object[]) row.getField(bookingLogFieldIndex("metadata"));
 
@@ -242,23 +242,23 @@ public class ProtoDeserializerTest {
                 .addMetadata(Struct.getDefaultInstance())
                 .setNumberField(5)
                 .build().toByteArray();
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, protoBytes));
         assertNull(row.getField(4));
         assertEquals(row.getField(2), 5);
     }
 
     @Test
     public void shouldThrowExceptionIfNotAbleToDeserialise() {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestNestedRepeatedMessage.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator);
         assertThrows(DaggerDeserializationException.class,
-                () -> protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, null)));
+                () -> kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, null)));
     }
 
     @Test
     public void shouldReturnInvalidRow() {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
-        Row row = protoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getTypeName(), 5, "rowtime", stencilClientOrchestrator);
+        Row row = kafkaProtoDeserializer.deserialize(new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes()));
         assertFalse((boolean) row.getField(row.getArity() - 2));
         assertEquals(new java.sql.Timestamp(0), row.getField(row.getArity() - 1));
     }
@@ -266,7 +266,7 @@ public class ProtoDeserializerTest {
     @Test
     public void shouldThrowDescriptorNotFoundExceptionForStringClass() {
         assertThrows(DescriptorNotFoundException.class,
-                () -> new ProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator));
+                () -> new KafkaProtoDeserializer(String.class.getTypeName(), 6, "rowtime", stencilClientOrchestrator));
     }
 
     private int bookingLogFieldIndex(String propertyName) {

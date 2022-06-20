@@ -20,7 +20,7 @@ public class ProtoSerializer implements Serializable {
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private final String messageProtoClassName;
 
-    public ProtoSerializer(String keyProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String messageProtoClassName) {
+    public ProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
         this.keyProtoClassName = keyProtoClassName;
         this.columnNames = columnNames;
         this.stencilClientOrchestrator = stencilClientOrchestrator;

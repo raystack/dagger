@@ -5,7 +5,7 @@ import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDe
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.DataTypes;
-import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
+import io.odpf.dagger.common.serde.proto.deserialization.KafkaProtoDeserializer;
 import io.odpf.dagger.core.source.StreamConfig;
 
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class ProtoDataStreamBuilder extends StreamBuilder {
     KafkaRecordDeserializationSchema getDeserializationSchema() {
         int timestampFieldIndex = Integer.parseInt(streamConfig.getEventTimestampFieldIndex());
         String rowTimeAttributeName = configuration.getString(FLINK_ROWTIME_ATTRIBUTE_NAME_KEY, FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT);
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator);
-        return KafkaRecordDeserializationSchema.of(protoDeserializer);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(protoClassName, timestampFieldIndex, rowTimeAttributeName, stencilClientOrchestrator);
+        return KafkaRecordDeserializationSchema.of(kafkaProtoDeserializer);
     }
 }

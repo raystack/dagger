@@ -4,7 +4,6 @@ import org.apache.flink.api.common.serialization.SerializationSchema.Initializat
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -17,33 +16,13 @@ public class KafkaProtoSerializer implements KafkaRecordSerializationSchema<Row>
     private final ProtoSerializer protoSerializer;
     private static final Logger LOGGER = LoggerFactory.getLogger("KafkaSink");
 
-    /**
-     * Instantiates a new Proto serializer with specified output topic name.
-     *
-     * @param keyProtoClassName         the key proto class name
-     * @param messageProtoClassName     the message proto class name
-     * @param columnNames               the column names
-     * @param stencilClientOrchestrator the stencil client orchestrator
-     */
-    public KafkaProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
-        this(keyProtoClassName, messageProtoClassName, columnNames, stencilClientOrchestrator, "");
+    public KafkaProtoSerializer(ProtoSerializer protoSerializer) {
+        this(protoSerializer, "");
     }
 
-    /**
-     * Instantiates a new Proto serializer with specified output topic name.
-     *
-     * @param keyProtoClassName         the key proto class name
-     * @param messageProtoClassName     the message proto class name
-     * @param columnNames               the column names
-     * @param stencilClientOrchestrator the stencil client orchestrator
-     * @param outputTopic               the output topic
-     */
-    public KafkaProtoSerializer(String keyProtoClassName, String messageProtoClassName, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, String outputTopic) {
-        if (Objects.isNull(messageProtoClassName)) {
-            throw new DaggerSerializationException("messageProtoClassName is required");
-        }
+    public KafkaProtoSerializer(ProtoSerializer protoSerializer, String outputTopic) {
+        this.protoSerializer = protoSerializer;
         this.outputTopic = outputTopic;
-        this.protoSerializer = new ProtoSerializer(keyProtoClassName, columnNames, stencilClientOrchestrator, messageProtoClassName);
     }
 
     @Override
@@ -60,13 +39,5 @@ public class KafkaProtoSerializer implements KafkaRecordSerializationSchema<Row>
         byte[] key = protoSerializer.serializeKey(row);
         byte[] message = protoSerializer.serializeValue(row);
         return new ProducerRecord<>(outputTopic, key, message);
-    }
-
-    public byte[] serializeKey(Row row) {
-        return protoSerializer.serializeKey(row);
-    }
-
-    public byte[] serializeValue(Row row) {
-        return protoSerializer.serializeValue(row);
     }
 }

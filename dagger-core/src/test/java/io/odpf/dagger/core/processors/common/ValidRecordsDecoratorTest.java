@@ -9,7 +9,7 @@ import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.types.FilterDecorator;
-import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
+import io.odpf.dagger.common.serde.proto.deserialization.KafkaProtoDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,9 +55,9 @@ public class ValidRecordsDecoratorTest {
 
     @Test
     public void shouldThrowExceptionWithBadRecord() throws Exception {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, "test".getBytes());
-        Row invalidRow = protoDeserializer.deserialize(consumerRecord);
+        Row invalidRow = kafkaProtoDeserializer.deserialize(consumerRecord);
         ValidRecordsDecorator filter = new ValidRecordsDecorator("test", getColumns(), configuration);
         filter.errorReporter = this.errorReporter;
         InvalidProtocolBufferException exception = assertThrows(InvalidProtocolBufferException.class, () -> filter.filter(invalidRow));
@@ -66,9 +66,9 @@ public class ValidRecordsDecoratorTest {
 
     @Test
     public void shouldReturnTrueForCorrectRecord() throws Exception {
-        ProtoDeserializer protoDeserializer = new ProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
+        KafkaProtoDeserializer kafkaProtoDeserializer = new KafkaProtoDeserializer(TestBookingLogMessage.class.getName(), 5, "rowtime", stencilClientOrchestrator);
         ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0, null, TestBookingLogMessage.newBuilder().build().toByteArray());
-        Row validRow = protoDeserializer.deserialize(consumerRecord);
+        Row validRow = kafkaProtoDeserializer.deserialize(consumerRecord);
         FilterDecorator filter = new ValidRecordsDecorator("test", getColumns(), configuration);
         assertTrue(filter.filter(validRow));
     }

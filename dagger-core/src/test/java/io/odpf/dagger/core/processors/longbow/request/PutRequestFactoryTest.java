@@ -1,10 +1,10 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,7 +19,7 @@ public class PutRequestFactoryTest {
     private LongbowSchema longbowSchema;
 
     @Mock
-    private KafkaProtoSerializer kafkaProtoSerializer;
+    private ProtoSerializer protoSerializer;
 
     private Row row;
 
@@ -35,7 +35,7 @@ public class PutRequestFactoryTest {
     @Test
     public void shouldCreateTablePutRequestWhenLongbowTypeIsNotLongbowPlus() {
         when(longbowSchema.isLongbowPlus()).thenReturn(false);
-        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, kafkaProtoSerializer, tableId);
+        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
 
         PutRequest putRequest = putRequestFactory.create(row);
         assertEquals(TablePutRequest.class, putRequest.getClass());
@@ -44,7 +44,7 @@ public class PutRequestFactoryTest {
     @Test
     public void shouldCreateProtoPutRequestWhenLongbowTypeIsLongbowPlus() {
         when(longbowSchema.isLongbowPlus()).thenReturn(true);
-        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, kafkaProtoSerializer, tableId);
+        PutRequestFactory putRequestFactory = new PutRequestFactory(longbowSchema, protoSerializer, tableId);
         PutRequest putRequest = putRequestFactory.create(row);
 
         assertEquals(ProtoBytePutRequest.class, putRequest.getClass());

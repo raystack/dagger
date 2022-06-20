@@ -22,13 +22,13 @@ import java.util.List;
 /**
  * Deserializer for protobuf messages.
  */
-public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
+public class KafkaProtoDeserializer implements KafkaDeserializationSchema<Row> {
 
     private final String protoClassName;
     private final int timestampFieldIndex;
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private final TypeInformation<Row> typeInformation;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProtoDeserializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProtoDeserializer.class);
 
     /**
      * Instantiates a new Proto deserializer.
@@ -38,7 +38,7 @@ public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
      * @param rowtimeAttributeName      the rowtime attribute name
      * @param stencilClientOrchestrator the stencil client orchestrator
      */
-    public ProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
+    public KafkaProtoDeserializer(String protoClassName, int timestampFieldIndex, String rowtimeAttributeName, StencilClientOrchestrator stencilClientOrchestrator) {
         this.protoClassName = protoClassName;
         this.timestampFieldIndex = timestampFieldIndex;
         this.stencilClientOrchestrator = stencilClientOrchestrator;

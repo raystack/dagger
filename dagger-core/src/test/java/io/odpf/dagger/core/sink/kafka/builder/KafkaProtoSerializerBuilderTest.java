@@ -18,7 +18,7 @@ import java.util.Map;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class KafkaKafkaProtoSerializerBuilderTest {
+public class KafkaProtoSerializerBuilderTest {
     @Mock
     private Configuration configuration;
     @Mock

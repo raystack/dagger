@@ -1,10 +1,10 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 
 import java.io.Serializable;
 
@@ -13,20 +13,20 @@ import java.io.Serializable;
  */
 public class PutRequestFactory implements Serializable {
 
-    private LongbowSchema longbowSchema;
-    private KafkaProtoSerializer kafkaProtoSerializer;
-    private String tableId;
+    private final LongbowSchema longbowSchema;
+    private final ProtoSerializer protoSerializer;
+    private final String tableId;
 
     /**
      * Instantiates a new Put request factory.
      *
      * @param longbowSchema   the longbow schema
-     * @param kafkaProtoSerializer the proto serializer
+     * @param protoSerializer the proto serializer
      * @param tableId         the table id
      */
-    public PutRequestFactory(LongbowSchema longbowSchema, KafkaProtoSerializer kafkaProtoSerializer, String tableId) {
+    public PutRequestFactory(LongbowSchema longbowSchema, ProtoSerializer protoSerializer, String tableId) {
         this.longbowSchema = longbowSchema;
-        this.kafkaProtoSerializer = kafkaProtoSerializer;
+        this.protoSerializer = protoSerializer;
         this.tableId = tableId;
     }
 
@@ -40,7 +40,7 @@ public class PutRequestFactory implements Serializable {
         if (!longbowSchema.isLongbowPlus()) {
             return new TablePutRequest(longbowSchema, input, tableId);
         } else {
-            return new ProtoBytePutRequest(longbowSchema, input, kafkaProtoSerializer, tableId);
+            return new ProtoBytePutRequest(longbowSchema, input, protoSerializer, tableId);
         }
     }
 }

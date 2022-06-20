@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.longbow.processor;
 
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
@@ -16,7 +17,6 @@ import io.odpf.dagger.core.processors.longbow.outputRow.WriterOutputRow;
 import io.odpf.dagger.core.processors.longbow.request.PutRequestFactory;
 import io.odpf.dagger.core.processors.longbow.storage.LongbowStore;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
-import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -60,7 +60,7 @@ public class LongbowWriterTest {
     private ErrorReporter errorReporter;
 
     @Mock
-    private KafkaProtoSerializer kafkaProtoSerializer;
+    private ProtoSerializer protoSerializer;
 
     @Mock
     private TelemetrySubscriber telemetrySubscriber;
@@ -90,7 +90,7 @@ public class LongbowWriterTest {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime"};
         defaultLongbowSchema = new LongbowSchema(columnNames);
         writerOutputRow = new OutputIdentity();
-        putRequestFactory = new PutRequestFactory(defaultLongbowSchema, kafkaProtoSerializer, tableId);
+        putRequestFactory = new PutRequestFactory(defaultLongbowSchema, protoSerializer, tableId);
         defaultLongbowWriter = new LongbowWriter(configuration, defaultLongbowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         defaultLongbowWriter.setRuntimeContext(runtimeContext);
@@ -229,7 +229,7 @@ public class LongbowWriterTest {
 
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, kafkaProtoSerializer, tableId);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
 
@@ -241,7 +241,7 @@ public class LongbowWriterTest {
     public void shouldNotifySubscribers() {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, kafkaProtoSerializer, tableId);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.notifySubscriber(telemetrySubscriber);
@@ -253,7 +253,7 @@ public class LongbowWriterTest {
     public void shouldCloseLongbowStoreAndNotifyWhenClose() throws Exception {
         String[] columnNames = {"longbow_key", "longbow_data1", "longbow_duration", "rowtime", "longbow_data2"};
         LongbowSchema longBowSchema = new LongbowSchema(columnNames);
-        putRequestFactory = new PutRequestFactory(longBowSchema, kafkaProtoSerializer, tableId);
+        putRequestFactory = new PutRequestFactory(longBowSchema, protoSerializer, tableId);
         LongbowWriter longBowWriter = new LongbowWriter(configuration, longBowSchema, meterStatsManager, errorReporter,
                 longBowStore, putRequestFactory, tableId, writerOutputRow);
         longBowWriter.close();

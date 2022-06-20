@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.sink.kafka.builder;
 
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -39,7 +40,8 @@ public class KafkaProtoSerializerBuilder implements KafkaSerializerBuilder, Tele
         addMetric(TelemetryTypes.OUTPUT_STREAM.getValue(), outputStream);
         notifySubscriber();
 
-        return new KafkaProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator, outputTopic);
+        ProtoSerializer protoSerializer = new ProtoSerializer(outputProtoKey, outputProtoMessage, columnNames, stencilClientOrchestrator);
+        return new KafkaProtoSerializer(protoSerializer, outputTopic);
     }
 
     @Override

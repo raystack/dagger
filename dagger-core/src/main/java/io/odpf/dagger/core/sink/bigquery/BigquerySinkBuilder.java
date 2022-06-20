@@ -23,9 +23,9 @@ public class BigquerySinkBuilder {
     public BigquerySink build() {
         ProtoSerializer protoSerializer = new ProtoSerializer(
                 schemaKeyClass,
+                schemaMessageClass,
                 columnNames,
-                stencilClientOrchestrator,
-                schemaMessageClass);
+                stencilClientOrchestrator);
         return new BigquerySink(batchSize, protoSerializer, sinkConnectorFactory);
     }
 

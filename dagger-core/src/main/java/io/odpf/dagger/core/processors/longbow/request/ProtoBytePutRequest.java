@@ -1,8 +1,8 @@
 package io.odpf.dagger.core.processors.longbow.request;
 
+import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.serde.proto.serialization.KafkaProtoSerializer;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
 import io.odpf.dagger.core.processors.longbow.storage.PutRequest;
 import io.odpf.dagger.core.utils.Constants;
@@ -20,10 +20,10 @@ import static io.odpf.dagger.common.core.Constants.ROWTIME;
 public class ProtoBytePutRequest implements PutRequest {
     private static final byte[] COLUMN_FAMILY_NAME = Bytes.toBytes(Constants.LONGBOW_COLUMN_FAMILY_DEFAULT);
     private static final byte[] QUALIFIER_NAME = Bytes.toBytes(Constants.LONGBOW_QUALIFIER_DEFAULT);
-    private LongbowSchema longbowSchema;
-    private Row input;
-    private KafkaProtoSerializer kafkaProtoSerializer;
-    private String tableId;
+    private final LongbowSchema longbowSchema;
+    private final Row input;
+    private final ProtoSerializer protoSerializer;
+    private final String tableId;
 
 
     /**
@@ -31,13 +31,13 @@ public class ProtoBytePutRequest implements PutRequest {
      *
      * @param longbowSchema   the longbow schema
      * @param input           the input
-     * @param kafkaProtoSerializer the proto serializer
+     * @param protoSerializer the proto serializer
      * @param tableId         the table id
      */
-    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, KafkaProtoSerializer kafkaProtoSerializer, String tableId) {
+    public ProtoBytePutRequest(LongbowSchema longbowSchema, Row input, ProtoSerializer protoSerializer, String tableId) {
         this.longbowSchema = longbowSchema;
         this.input = input;
-        this.kafkaProtoSerializer = kafkaProtoSerializer;
+        this.protoSerializer = protoSerializer;
         this.tableId = tableId;
     }
 
@@ -45,7 +45,7 @@ public class ProtoBytePutRequest implements PutRequest {
     public Put get() {
         Put putRequest = new Put(longbowSchema.getKey(input, 0));
         Timestamp rowtime = convertToTimeStamp(longbowSchema.getValue(input, ROWTIME));
-        putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), kafkaProtoSerializer.serializeValue(input));
+        putRequest.addColumn(COLUMN_FAMILY_NAME, QUALIFIER_NAME, rowtime.getTime(), protoSerializer.serializeValue(input));
         return putRequest;
     }
 

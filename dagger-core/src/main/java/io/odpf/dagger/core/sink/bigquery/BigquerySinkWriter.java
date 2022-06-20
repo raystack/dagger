@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.sink.bigquery;
 
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
+import io.odpf.dagger.core.exception.BigqueryWriterException;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.OdpfSinkResponse;
 import io.odpf.depot.message.OdpfMessage;
@@ -40,12 +41,19 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
             log.info("Pushing " + currentBatchSize + " records to bq");
             OdpfSinkResponse odpfSinkResponse = bigquerySink.pushToSink(messages);
             if (odpfSinkResponse.hasErrors()) {
+
                 log.error("Failed to push " + odpfSinkResponse.getErrors().size() + " records to BigquerySink");
-                throw new IOException("Failed to push " + odpfSinkResponse.getErrors().size() + " records to BigquerySink");
+                throw new BigqueryWriterException("Failed to push " + odpfSinkResponse.getErrors().size() + " records to BigquerySink");
             }
             messages.clear();
             currentBatchSize = 0;
         }
+    }
+
+    protected void logErrors(OdpfSinkResponse sinkResponse, List<OdpfMessage> sentMessages) {
+        sinkResponse.getErrors().forEach((k, v) -> {
+
+        });
     }
 
     @Override

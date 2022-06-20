@@ -148,6 +148,6 @@ public class Constants {
     public static final long MAX_EVENT_LOOP_EXECUTE_TIME_DEFAULT = 10000;
     public static final int LONGBOW_OUTPUT_ADDITIONAL_ARITY = 3;
 
-    public static final String SINK_CONNECTOR_BIGQUERY_BATCH_SIZE = "SINK_CONNECTOR_BIGQUERY_BATCH_SIZE";
-    public static final int SINK_CONNECTOR_BIGQUERY_BATCH_SIZE_DEFAULT = 500;
+    public static final String SINK_BIGQUERY_BATCH_SIZE = "SINK_BIGQUERY_BATCH_SIZE";
+    public static final int SINK_BIGQUERY_BATCH_SIZE_DEFAULT = 500;
 }

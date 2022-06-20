@@ -80,8 +80,8 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
                 BigQuerySinkFactory sinkFactory = new BigQuerySinkFactory(sinkConfig);
                 int batchSize = configuration.getInteger(
-                        Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE,
-                        Constants.SINK_CONNECTOR_BIGQUERY_BATCH_SIZE_DEFAULT);
+                        Constants.SINK_BIGQUERY_BATCH_SIZE,
+                        Constants.SINK_BIGQUERY_BATCH_SIZE_DEFAULT);
                 sink = BigquerySinkBuilder.create()
                         .setColumnNames(columnNames)
                         .setBatchSize(batchSize)
