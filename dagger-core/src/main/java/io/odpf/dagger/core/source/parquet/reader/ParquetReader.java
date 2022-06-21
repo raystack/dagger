@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source.parquet.reader;
 
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
+import org.apache.flink.api.common.functions.AbstractRichFunction;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.connector.file.src.util.CheckpointedPosition;
 import org.apache.flink.types.Row;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-public class ParquetReader implements FileRecordFormat.Reader<Row> {
+public class ParquetReader extends AbstractRichFunction implements FileRecordFormat.Reader<Row> {
     private final Path hadoopFilePath;
     private final SimpleGroupDeserializer simpleGroupDeserializer;
     private long currentRecordIndex;
@@ -42,6 +43,12 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
         this.totalEmittedRowCount = 0L;
+        LOGGER.info("Constructor called in ParquetReader class");
+    }
+
+    @Override
+    public void open(org.apache.flink.configuration.Configuration internalFlinkConfig) throws Exception {
+        LOGGER.info("Lifecycle function open called in ParquetReader class");
     }
 
     private boolean checkIfNullPage(PageReadStore page) {
