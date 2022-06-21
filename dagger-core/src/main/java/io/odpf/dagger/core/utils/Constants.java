@@ -51,8 +51,8 @@ public class Constants {
     public static final String FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY = "FLINK_CHECKPOINT_MIN_PAUSE_MS";
     public static final int FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT = 1;
     public static final String FLINK_CHECKPOINT_MAX_CONCURRENT_KEY = "FLINK_CHECKPOINT_MAX_CONCURRENT";
-    public static final int FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT = 8;
-    public static final String FLINK_RETENTION_IDLE_STATE_HOUR_KEY = "FLINK_RETENTION_IDLE_STATE_HOUR";
+    public static final int FLINK_RETENTION_IDLE_STATE_MINUTE_DEFAULT = 10;
+    public static final String FLINK_RETENTION_IDLE_STATE_MINUTE_KEY = "FLINK_RETENTION_IDLE_STATE_MINUTE";
     public static final long FLINK_WATERMARK_DELAY_MS_DEFAULT = 10000;
     public static final String FLINK_WATERMARK_DELAY_MS_KEY = "FLINK_WATERMARK_DELAY_MS";
     public static final String FLINK_ROWTIME_ATTRIBUTE_NAME_DEFAULT = "";
@@ -96,6 +96,7 @@ public class Constants {
     public static final String STREAM_INPUT_STREAM_NAME_KEY = "SOURCE_KAFKA_NAME";
 
     public static final String STREAM_INPUT_DATATYPE = "INPUT_DATATYPE";
+    public static final String STREAM_INPUT_SOURCE_TYPE = "INPUT_SOURCE_TYPE";
     public static final String STREAM_INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME_KEY = "INPUT_SCHEMA_JSON_EVENT_TIMESTAMP_FIELD_NAME";
     public static final String STREAM_INPUT_SCHEMA_JSON_SCHEMA_KEY = "INPUT_SCHEMA_JSON_SCHEMA";
 
@@ -147,6 +148,7 @@ public class Constants {
 
     public static final long MAX_EVENT_LOOP_EXECUTE_TIME_DEFAULT = 10000;
     public static final int LONGBOW_OUTPUT_ADDITIONAL_ARITY = 3;
+    public enum ExternalPostProcessorVariableType { REQUEST_VARIABLES, HEADER_VARIABLES, QUERY_VARIABLES, ENDPOINT_VARIABLE };
 
     public static final String SINK_BIGQUERY_BATCH_SIZE = "SINK_BIGQUERY_BATCH_SIZE";
     public static final int SINK_BIGQUERY_BATCH_SIZE_DEFAULT = 500;

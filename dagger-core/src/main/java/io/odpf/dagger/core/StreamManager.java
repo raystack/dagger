@@ -1,14 +1,5 @@
 package io.odpf.dagger.core;
 
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.ApiExpression;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
@@ -28,6 +19,14 @@ import io.odpf.dagger.core.sink.SinkOrchestrator;
 import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.ApiExpression;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -81,7 +80,7 @@ public class StreamManager {
         executionEnvironment.getConfig().setGlobalJobParameters(configuration.getParam());
 
 
-        tableEnvironment.getConfig().setIdleStateRetention(Duration.ofHours(configuration.getInteger(FLINK_RETENTION_IDLE_STATE_HOUR_KEY, FLINK_RETENTION_IDLE_STATE_HOUR_DEFAULT)));
+        tableEnvironment.getConfig().setIdleStateRetention(Duration.ofMinutes(configuration.getInteger(FLINK_RETENTION_IDLE_STATE_MINUTE_KEY, FLINK_RETENTION_IDLE_STATE_MINUTE_DEFAULT)));
         return this;
     }
 
@@ -98,8 +97,7 @@ public class StreamManager {
         getStreams().forEach(stream -> {
             String tableName = stream.getStreamName();
             WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
-            DataStream<Row> kafkaStream = executionEnvironment
-                    .fromSource(stream.getSource(), watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), stream.getStreamName());
+            DataStream<Row> kafkaStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay), stream.getStreamName());
             StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
             DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
@@ -199,6 +197,10 @@ public class StreamManager {
         return new StreamInfo(stream, table.getSchema().getFieldNames());
     }
 
+    List<Stream> getStreams() {
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
+    }
+
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
         List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         for (PostProcessor postProcessor : postProcessors) {
@@ -219,9 +221,5 @@ public class StreamManager {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
         sinkOrchestrator.addSubscriber(telemetryExporter);
         streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
-    }
-
-    private List<Stream> getStreams() {
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, telemetryExporter);
     }
 }

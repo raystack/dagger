@@ -206,12 +206,12 @@ public class GrpcAsyncConnectorTest {
         verify(meterStatsManager, times(1)).markEvent(INVALID_CONFIGURATION);
         ArgumentCaptor<InvalidConfigurationException> reportInvalidConfigCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
         verify(errorReporter, times(1)).reportFatalException(reportInvalidConfigCaptor.capture());
-        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable",
+        assertEquals("Column 'invalid_variable' not found as configured in the 'REQUEST_VARIABLES' variable",
                 reportInvalidConfigCaptor.getValue().getMessage());
 
         ArgumentCaptor<InvalidConfigurationException> invalidConfigurationExceptionArgumentCaptor = ArgumentCaptor.forClass(InvalidConfigurationException.class);
         verify(resultFuture, times(1)).completeExceptionally(invalidConfigurationExceptionArgumentCaptor.capture());
-        assertEquals("Column 'invalid_variable' not found as configured in the endpoint/query variable",
+        assertEquals("Column 'invalid_variable' not found as configured in the 'REQUEST_VARIABLES' variable",
                 invalidConfigurationExceptionArgumentCaptor.getValue().getMessage());
 
     }

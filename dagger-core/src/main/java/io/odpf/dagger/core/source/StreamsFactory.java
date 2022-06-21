@@ -3,9 +3,9 @@ package io.odpf.dagger.core.source;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
-import io.odpf.dagger.core.source.builder.JsonDataStreamBuilder;
-import io.odpf.dagger.core.source.builder.ProtoDataStreamBuilder;
-import io.odpf.dagger.core.source.builder.StreamBuilder;
+import io.odpf.dagger.core.source.kafka.builder.JsonDataStreamBuilder;
+import io.odpf.dagger.core.source.kafka.builder.ProtoDataStreamBuilder;
+import io.odpf.dagger.core.source.kafka.builder.StreamBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
