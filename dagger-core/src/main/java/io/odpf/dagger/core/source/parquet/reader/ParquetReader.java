@@ -2,6 +2,7 @@ package io.odpf.dagger.core.source.parquet.reader;
 
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
+import io.odpf.dagger.core.metrics.aspects.ParquetReaderAspects;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.connector.file.src.util.CheckpointedPosition;
 import org.apache.flink.types.Row;
@@ -33,6 +34,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private RecordReader<Group> recordReader;
     private final MessageType schema;
     private long totalEmittedRowCount;
+    private final ParquetReaderMetrics parquetReaderMetrics;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
     private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
@@ -42,6 +44,9 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
         this.totalEmittedRowCount = 0L;
+        this.parquetReaderMetrics = new ParquetReaderMetrics();
+        this.parquetReaderMetrics.enqueueMetric(ParquetReaderAspects.READER_CREATED);
+        LOGGER.info("Constructor for ParquetReader called.");
     }
 
     private boolean checkIfNullPage(PageReadStore page) {
@@ -82,6 +87,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     @Nullable
     @Override
     public Row read() throws IOException {
+        parquetReaderMetrics.flushAll();
         if (!isRecordReaderInitialized) {
             initializeRecordReader();
         }
@@ -98,6 +104,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
 
     @Override
     public void close() throws IOException {
+        parquetReaderMetrics.flushAll();
         parquetFileReader.close();
         closeRecordReader();
         String logMessage = String.format("Closed the ParquetFileReader and de-referenced the RecordReader for file %s", hadoopFilePath.getName());
