@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
+import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
 import io.odpf.dagger.common.exceptions.serde.InvalidColumnMappingException;
 import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
 import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
@@ -25,6 +26,13 @@ public class ProtoSerializer implements Serializable {
         this.columnNames = columnNames;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.messageProtoClassName = messageProtoClassName;
+        checkValidity();
+    }
+
+    private void checkValidity() {
+        if (Objects.isNull(messageProtoClassName) || messageProtoClassName.isEmpty()) {
+            throw new DaggerSerializationException("messageProtoClassName is required");
+        }
     }
 
     /**
@@ -34,13 +42,12 @@ public class ProtoSerializer implements Serializable {
      * @return the byte [ ]
      */
     public byte[] serializeKey(Row row) {
-        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.equals("")) ? null
+        return (Objects.isNull(keyProtoClassName) || keyProtoClassName.isEmpty()) ? null
                 : parse(row, getDescriptor(keyProtoClassName)).toByteArray();
     }
 
     public byte[] serializeValue(Row row) {
-        return (Objects.isNull(messageProtoClassName) || messageProtoClassName.equals("")) ? null
-                : parse(row, getDescriptor(messageProtoClassName)).toByteArray();
+        return parse(row, getDescriptor(messageProtoClassName)).toByteArray();
     }
 
     private DynamicMessage parse(Row element, Descriptors.Descriptor descriptor) {

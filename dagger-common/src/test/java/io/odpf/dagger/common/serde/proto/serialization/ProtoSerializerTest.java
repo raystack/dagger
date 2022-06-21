@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.proto.serialization;
 
+import io.odpf.dagger.common.exceptions.serde.DaggerSerializationException;
 import io.odpf.dagger.common.exceptions.serde.InvalidDataTypeException;
 import org.apache.flink.types.Row;
 
@@ -370,18 +371,25 @@ public class ProtoSerializerTest {
         serializer.serializeValue(element);
     }
 
-    @Test
-    public void shouldReturnNullForIfNoSchemaIsProvided() {
+    @Test(expected = DaggerSerializationException.class)
+    public void shouldThrowExceptionIfTheValueMessageClassIsMissing() {
         String[] columnNames = {"s2_id_level"};
-        ProtoSerializer serializer = new ProtoSerializer(null, null, columnNames, stencilClientOrchestrator);
+        ProtoSerializer serializer = new ProtoSerializer("keyMessage", null, columnNames, stencilClientOrchestrator);
 
         Row element = new Row(1);
         element.setField(0, 13);
 
-        byte[] keyBytes = serializer.serializeKey(element);
-        byte[] valueBytes = serializer.serializeValue(element);
+        serializer.serializeValue(element);
+    }
 
-        assertNull(keyBytes);
-        assertNull(valueBytes);
+    @Test(expected = DaggerSerializationException.class)
+    public void shouldThrowExceptionIfTheValueMessageClassIsEmpty() {
+        String[] columnNames = {"s2_id_level"};
+        ProtoSerializer serializer = new ProtoSerializer("keyMessage", "", columnNames, stencilClientOrchestrator);
+
+        Row element = new Row(1);
+        element.setField(0, 13);
+
+        serializer.serializeValue(element);
     }
 }
