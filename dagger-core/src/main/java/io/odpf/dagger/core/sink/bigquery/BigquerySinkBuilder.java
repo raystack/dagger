@@ -3,7 +3,6 @@ package io.odpf.dagger.core.sink.bigquery;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
-import io.odpf.depot.bigquery.BigQuerySinkFactory;
 import io.odpf.depot.config.BigQuerySinkConfig;
 import org.aeonbits.owner.ConfigFactory;
 
@@ -22,13 +21,12 @@ public class BigquerySinkBuilder {
 
     public BigquerySink build() {
         BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
-        BigQuerySinkFactory sinkFactory = new BigQuerySinkFactory(sinkConfig);
         ProtoSerializer protoSerializer = new ProtoSerializer(
                 sinkConfig.getSinkConnectorSchemaKeyClass(),
                 sinkConfig.getSinkConnectorSchemaMessageClass(),
                 columnNames,
                 stencilClientOrchestrator);
-        return new BigquerySink(configuration, protoSerializer, sinkFactory);
+        return new BigquerySink(configuration, protoSerializer);
     }
 
     public BigquerySinkBuilder setConfiguration(Configuration configuration) {

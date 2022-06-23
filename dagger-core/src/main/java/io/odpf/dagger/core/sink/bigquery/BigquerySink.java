@@ -8,7 +8,9 @@ import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
 import io.odpf.dagger.core.utils.Constants;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
+import io.odpf.depot.config.BigQuerySinkConfig;
 import io.odpf.depot.error.ErrorType;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.flink.api.connector.sink.Committer;
 import org.apache.flink.api.connector.sink.GlobalCommitter;
 import org.apache.flink.api.connector.sink.Sink;
@@ -25,17 +27,29 @@ import java.util.Set;
 public class BigquerySink implements Sink<Row, Void, Void, Void> {
     private final ProtoSerializer protoSerializer;
     private final Configuration configuration;
-    private final BigQuerySinkFactory sinkFactory;
+    private transient BigQuerySinkFactory sinkFactory;
 
+    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer) {
+        this(configuration, protoSerializer, null);
+    }
+
+    /**
+     * Constructor for testing.
+     */
     protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory) {
         this.configuration = configuration;
         this.protoSerializer = protoSerializer;
         this.sinkFactory = sinkFactory;
     }
 
+
     @Override
     public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) throws IOException {
-        sinkFactory.init();
+        BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
+        if (sinkFactory == null) {
+            sinkFactory = new BigQuerySinkFactory(sinkConfig);
+            sinkFactory.init();
+        }
         OdpfSink odpfSink = sinkFactory.create();
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(context.metricGroup(), configuration);
         int batchSize = configuration.getInteger(
