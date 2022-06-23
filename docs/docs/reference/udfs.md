@@ -802,12 +802,13 @@ LATERAL TABLE(
 
 ## List of Python Udfs
 
-- [Scalar Functions](python_udfs.md#scalar-functions)
-  - [ArrayAggregate](udfs.md#ArrayAggregate)
-- [Aggregate Functions](python_udfs.md#aggregate-functions)
-- [Table Functions](python_udfs.md#table-functions)
+- [Scalar Functions](udfs.md#python-scalar-functions)
+  - [Sample](udfs.md#Sample)
+  - [Multiply](udfs.md#Multiply)
+- [Aggregate Functions](udfs.md#python-aggregate-functions)
+- [Table Functions](udfs.md#python-table-functions)
 
-### Scalar Functions
+### Python Scalar Functions
 
 #### Sample
 * Contract: 
@@ -837,6 +838,6 @@ LATERAL TABLE(
     data_stream
   ```
 
-### Aggregate Functions
+### Python Aggregate Functions
 
-### Table Functions
+### Python Table Functions

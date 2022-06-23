@@ -526,17 +526,19 @@ Defines the path of python udf files. Currently only support for `.py` and `.zip
 ##### `PYTHON_ARCHIVES`
 
 Defines the path of files that used on the python udf. Only support for `.zip` data type. Comma (',') could be used as the separator to specify multiple archive files.
-'#' could be used as the separator of the archive file path and the target directory name.
+The archive files will be extracted to the working directory of python UDF worker. For each archive file, a target directory is specified. If the target directory name is specified, the archive file will be extracted to a directory with the specified name. Otherwise, the archive file will be extracted to a directory with the same name of the archive file. '#' could be used as the separator of the archive file path and the target directory name.
 
 Example:
 * PYTHON_ARCHIVES=/path/to/data.zip
 
-  You should set the path name to `data.zip/data/sample.txt`
+  You should set the path name to `data.zip/data/sample.txt` on the udf to be able open the files.
   
 * PYTHON_ARCHIVES=/path/to/data.zip#data
   
-  You should set the path name to `data/sample.txt` 
+  You should set the path name to `data/sample.txt` on the udf to be able open the files.
 
+* Example how to use this, can be found in this [udf](https://github.com/odpf/dagger/tree/main/dagger-py-functions/udfs/scalar/sample.py)
+  
 * Type: `optional`
 * Default value: `(none)`
 
