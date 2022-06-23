@@ -33,3 +33,17 @@ All the supported python udfs present in the [dagger-py-functions](https://githu
 Follow [this](../reference/udfs.md) to find more details about the already supported UDFs in the dagger.
 
 If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow [this](../contribute/add_udf.md) to add your custom UDFs in the dagger.
+
+## Python Environment Setup
+
+Python UDF execution requires Python version (3.6, 3.7 or 3.8) with PyFlink installed.
+
+PyFlink is available in PyPi and can be installed as follows:
+```
+$ python -m pip install apache-flink==1.14.3
+```
+
+To satisfy the PyFlink requirement regarding the Python environment version, you need to soft link python to point to your python3 interpreter:
+```
+ln -s /usr/bin/python3 python
+```
