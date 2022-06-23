@@ -44,9 +44,9 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
 
 
     @Override
-    public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) throws IOException {
-        BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
+    public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) {
         if (sinkFactory == null) {
+            BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
             sinkFactory = new BigQuerySinkFactory(sinkConfig);
             sinkFactory.init();
         }
