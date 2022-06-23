@@ -152,4 +152,7 @@ public class Constants {
 
     public static final String SINK_BIGQUERY_BATCH_SIZE = "SINK_BIGQUERY_BATCH_SIZE";
     public static final int SINK_BIGQUERY_BATCH_SIZE_DEFAULT = 500;
+    // Comma seperated error types
+    public static final String SINK_ERROR_TYPES_FOR_FAILURE = "SINK_ERROR_TYPES_FOR_FAILURE";
+    public static final String SINK_ERROR_TYPES_FOR_FAILURE_DEFAULT = "";
 }

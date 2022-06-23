@@ -1,10 +1,6 @@
 package io.odpf.dagger.core.sink;
 
 import io.odpf.dagger.core.sink.bigquery.BigquerySinkBuilder;
-import io.odpf.dagger.core.utils.Constants;
-import io.odpf.depot.bigquery.BigQuerySinkFactory;
-import io.odpf.depot.config.BigQuerySinkConfig;
-import org.aeonbits.owner.ConfigFactory;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -77,17 +73,9 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 sink = new LogSink(columnNames);
                 break;
             case "bigquery":
-                BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
-                BigQuerySinkFactory sinkFactory = new BigQuerySinkFactory(sinkConfig);
-                int batchSize = configuration.getInteger(
-                        Constants.SINK_BIGQUERY_BATCH_SIZE,
-                        Constants.SINK_BIGQUERY_BATCH_SIZE_DEFAULT);
                 sink = BigquerySinkBuilder.create()
                         .setColumnNames(columnNames)
-                        .setBatchSize(batchSize)
-                        .setSchemaKeyClass(sinkConfig.getSinkConnectorSchemaKeyClass())
-                        .setSchemaMessageClass(sinkConfig.getSinkConnectorSchemaMessageClass())
-                        .setSinkConnectorFactory(sinkFactory)
+                        .setConfiguration(configuration)
                         .setStencilClientOrchestrator(stencilClientOrchestrator)
                         .build();
                 break;
