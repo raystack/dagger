@@ -3,7 +3,7 @@ package io.odpf.dagger.core.processors.external.http;
 import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.exception.InvalidHttpVerbException;

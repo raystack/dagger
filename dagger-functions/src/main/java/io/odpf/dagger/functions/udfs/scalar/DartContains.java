@@ -1,6 +1,6 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
 import io.odpf.dagger.common.udfs.ScalarUdf;
 import io.odpf.dagger.functions.udfs.scalar.dart.DartAspects;
 import io.odpf.dagger.functions.udfs.scalar.dart.store.gcs.GcsDataStore;

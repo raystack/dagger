@@ -1,6 +1,6 @@
-package io.odpf.dagger.common.metrics.managers;
+package io.odpf.dagger.common.metrics.type.flink;
 
-import io.odpf.dagger.common.metrics.managers.utils.TestAspects;
+import io.odpf.dagger.common.metrics.utils.TestAspects;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;

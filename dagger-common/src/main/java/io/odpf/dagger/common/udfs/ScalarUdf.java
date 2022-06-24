@@ -1,6 +1,6 @@
 package io.odpf.dagger.common.udfs;
 
-import io.odpf.dagger.common.metrics.managers.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.type.flink.GaugeStatsManager;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.ScalarFunction;
 

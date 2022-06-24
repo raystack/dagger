@@ -9,7 +9,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.odpf.dagger.common.serde.typehandler.TypeHandler;
 import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
 import io.odpf.dagger.core.exception.HttpFailureException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;

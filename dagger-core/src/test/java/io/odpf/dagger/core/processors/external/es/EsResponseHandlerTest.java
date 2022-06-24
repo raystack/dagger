@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.external.es;
 
 import com.google.protobuf.Descriptors;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
+import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestEnrichedBookingLogMessage;
 import io.odpf.dagger.consumer.TestProfile;

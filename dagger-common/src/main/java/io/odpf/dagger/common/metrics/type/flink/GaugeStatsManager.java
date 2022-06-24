@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.managers;
+package io.odpf.dagger.common.metrics.type.flink;
 
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
