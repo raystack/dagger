@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.exception.InvalidDaggerSourceException;
 import io.odpf.dagger.core.source.config.StreamConfig;
@@ -16,8 +17,8 @@ import java.util.stream.Stream;
 
 public class DaggerSourceFactory {
 
-    public static DaggerSource<Row> create(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
-        List<DaggerSource<Row>> daggerSources = getDaggerSources(streamConfig, configuration, deserializer);
+    public static DaggerSource<Row> create(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDClientSupplier statsDClientSupplier) {
+        List<DaggerSource<Row>> daggerSources = getDaggerSources(streamConfig, configuration, deserializer, statsDClientSupplier);
         return daggerSources.stream()
                 .filter(DaggerSource::canBuild)
                 .findFirst()
@@ -28,10 +29,10 @@ public class DaggerSourceFactory {
                 });
     }
 
-    private static List<DaggerSource<Row>> getDaggerSources(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
+    private static List<DaggerSource<Row>> getDaggerSources(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDClientSupplier statsDClientSupplier) {
         KafkaDaggerSource kafkaDaggerSource = new KafkaDaggerSource(streamConfig, configuration, deserializer);
         FlinkKafkaConsumerDaggerSource flinkKafkaConsumerDaggerSource = new FlinkKafkaConsumerDaggerSource(streamConfig, configuration, deserializer);
-        ParquetDaggerSource parquetDaggerSource = new ParquetDaggerSource(streamConfig, configuration, deserializer);
+        ParquetDaggerSource parquetDaggerSource = new ParquetDaggerSource(streamConfig, configuration, deserializer, statsDClientSupplier);
         return Stream.of(kafkaDaggerSource, flinkKafkaConsumerDaggerSource, parquetDaggerSource)
                 .collect(Collectors.toList());
     }

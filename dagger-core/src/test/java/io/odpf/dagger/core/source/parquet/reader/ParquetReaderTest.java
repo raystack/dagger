@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.source.parquet.reader;
 
 
+import com.timgroup.statsd.StatsDClient;
+import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,6 +27,7 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 import static org.apache.parquet.schema.Types.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -37,6 +40,8 @@ public class ParquetReaderTest {
     @Rule
     public TemporaryFolder tempFolder = TemporaryFolder.builder().assureDeletion().build();
 
+    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
+
     @Before
     public void setup() {
         initMocks(this);
@@ -45,7 +50,7 @@ public class ParquetReaderTest {
     @Test
     public void shouldCreateReadersConfiguredWithTheSameDeserializerButForDifferentFilePaths() throws IOException {
         when(deserializer.deserialize(any(SimpleGroup.class))).thenReturn(Row.of("same", "deserializer"));
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
 
         String filePath1 = classLoader.getResource("test_file.parquet").getPath();
@@ -59,7 +64,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldReadFileAndCallDeserializerWithSimpleGroupWhenReadIsCalled() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
@@ -84,7 +89,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldBeAbleToReadParquetFileContainingMultipleRowGroups() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("multiple_row_groups_test_file.parquet").getPath());
 
@@ -112,7 +117,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldReturnDeserializedValueWhenRecordsPresentAndNullWhenNoMoreDataLeftToRead() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
         when(deserializer.deserialize(any(SimpleGroup.class))).thenReturn(Row.of("some value"));
@@ -125,7 +130,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldThrowIOExceptionIfReadIsCalledAfterCallingClose() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
@@ -137,14 +142,14 @@ public class ParquetReaderTest {
     @Test
     public void shouldThrowParquetFileSourceReaderInitializationExceptionIfCannotConstructReaderForTheFile() throws IOException {
         final File tempFile = tempFolder.newFile("test_file.parquet");
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
 
         assertThrows(ParquetFileSourceReaderInitializationException.class, () -> provider.getReader(tempFile.getPath()));
     }
 
     @Test
     public void shouldReturnCheckPointedPositionWithNoOffsetAndZeroRecordsAfterOffsetWhenReadHasNotBeenCalledYet() {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
@@ -155,7 +160,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldUpdateCheckPointedPositionWithNoOffsetAndCountOfTotalRecordsReadYet() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 
@@ -168,7 +173,7 @@ public class ParquetReaderTest {
 
     @Test
     public void shouldNotUpdateCheckpointedPositionWhenNoMoreRecordsToRead() throws IOException {
-        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer);
+        ParquetReader.ParquetReaderProvider provider = new ParquetReader.ParquetReaderProvider(deserializer, statsDClientSupplierMock);
         ClassLoader classLoader = getClass().getClassLoader();
         ParquetReader reader = provider.getReader(classLoader.getResource("test_file.parquet").getPath());
 

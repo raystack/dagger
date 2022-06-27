@@ -1,5 +1,7 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.common.metrics.type.statsd.DaggerStatsDClient;
+import io.odpf.dagger.core.metrics.telemetry.statsd.DaggerStatsDClientProvider;
 import io.odpf.dagger.core.source.Stream;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -220,6 +222,8 @@ public class StreamManager {
     }
 
     List<Stream> getStreams() {
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator);
+        org.apache.flink.configuration.Configuration flinkConfiguration = (org.apache.flink.configuration.Configuration) this.executionEnvironment.getConfiguration();
+        DaggerStatsDClient daggerStatsDClient = DaggerStatsDClientProvider.provide(flinkConfiguration, configuration);
+        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, daggerStatsDClient);
     }
 }

@@ -1,7 +1,9 @@
 package io.odpf.dagger.core.source;
 
+import com.timgroup.statsd.StatsDClient;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.source.config.StreamConfig;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
@@ -25,6 +27,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +56,8 @@ public class StreamTest {
     @Mock
     private DaggerSource<Row> mockDaggerSource;
 
+    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
+
     @Before
     public void setup() {
         initMocks(this);
@@ -68,7 +73,7 @@ public class StreamTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator, statsDClientSupplierMock);
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof KafkaDaggerSource);
@@ -93,7 +98,7 @@ public class StreamTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator, statsDClientSupplierMock);
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
@@ -106,7 +111,7 @@ public class StreamTest {
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
 
-        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator, statsDClientSupplierMock);
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof KafkaDaggerSource);
@@ -119,7 +124,7 @@ public class StreamTest {
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
 
-        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator, statsDClientSupplierMock);
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
@@ -134,7 +139,7 @@ public class StreamTest {
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator);
+        Stream.Builder builder = new Stream.Builder(streamConfig, configuration, stencilClientOrchestrator, statsDClientSupplierMock);
         Stream stream = builder.build();
 
         assertTrue(stream.getDaggerSource() instanceof ParquetDaggerSource);

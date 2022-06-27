@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
@@ -33,13 +34,15 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;
     private final StreamConfig streamConfig;
     private final Configuration configuration;
+    private final SerializedStatsDClientSupplier statsDClientSupplier;
     private static final SourceType SUPPORTED_SOURCE_TYPE = BOUNDED;
     private static final SourceName SUPPORTED_SOURCE_NAME = PARQUET_SOURCE;
 
-    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
+    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDClientSupplier statsDClientSupplier) {
         this.streamConfig = streamConfig;
         this.configuration = configuration;
         this.deserializer = deserializer;
+        this.statsDClientSupplier = statsDClientSupplier;
     }
 
     @Override
@@ -99,12 +102,13 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
 
     private ParquetFileRecordFormat buildParquetFileRecordFormat() {
         SimpleGroupDeserializer simpleGroupDeserializer = (SimpleGroupDeserializer) deserializer;
-        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer);
+        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer, statsDClientSupplier);
         ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
         Supplier<TypeInformation<Row>> typeInformationProvider = (Supplier<TypeInformation<Row>> & Serializable) simpleGroupDeserializer::getProducedType;
         return parquetFileRecordFormatBuilder
                 .setParquetFileReaderProvider(parquetFileReaderProvider)
                 .setTypeInformationProvider(typeInformationProvider)
+                .setStatsDClientSupplier(statsDClientSupplier)
                 .build();
     }
 }

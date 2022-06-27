@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.source.parquet;
 
+import com.timgroup.statsd.StatsDClient;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
@@ -46,6 +48,8 @@ public class ParquetDaggerSourceTest {
     @Mock
     private StreamExecutionEnvironment streamExecutionEnvironment;
 
+    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
+
     private FileSource<Row> fileSource;
 
     @Before
@@ -59,7 +63,7 @@ public class ParquetDaggerSourceTest {
     @Test
     public void shouldBeAbleToBuildSourceIfSourceDetailsIsBoundedParquetAndDaggerDeserializerIsSimpleGroupDeserializer() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         assertTrue(daggerSource.canBuild());
     }
@@ -68,7 +72,7 @@ public class ParquetDaggerSourceTest {
     public void shouldNotBeAbleToBuildSourceIfSourceDetailsContainsMultipleBackToBackSources() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED),
                 new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         assertFalse(daggerSource.canBuild());
     }
@@ -76,7 +80,7 @@ public class ParquetDaggerSourceTest {
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceNameIsUnsupported() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.BOUNDED)});
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         assertFalse(daggerSource.canBuild());
     }
@@ -84,7 +88,7 @@ public class ParquetDaggerSourceTest {
     @Test
     public void shouldNotBeAbleToBuildSourceIfSourceTypeIsUnsupported() {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         assertFalse(daggerSource.canBuild());
     }
@@ -93,14 +97,14 @@ public class ParquetDaggerSourceTest {
     public void shouldNotBeAbleToBuildSourceIfDeserializerTypeIsUnsupported() {
         DaggerDeserializer<Row> unsupportedDeserializer = Mockito.mock(ProtoDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, unsupportedDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, unsupportedDeserializer, statsDClientSupplierMock);
 
         assertFalse(daggerSource.canBuild());
     }
 
     @Test
     public void shouldBeAbleToRegisterSourceWithExecutionEnvironmentForCorrectConfiguration() {
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
         ParquetDaggerSource daggerSourceSpy = Mockito.spy(daggerSource);
         doReturn(fileSource).when(daggerSourceSpy).buildFileSource();
         when(streamConfig.getSchemaTable()).thenReturn("data_stream_0");
@@ -117,7 +121,7 @@ public class ParquetDaggerSourceTest {
         when(streamConfig.getParquetFilesReadOrderStrategy()).thenReturn(EARLIEST_TIME_URL_FIRST);
         when(streamConfig.getParquetFilePaths()).thenReturn(new String[]{"gs://sshsh", "gs://shadd"});
 
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         daggerSource.register(streamExecutionEnvironment, strategy);
     }
@@ -127,7 +131,7 @@ public class ParquetDaggerSourceTest {
         when(streamConfig.getParquetFilesReadOrderStrategy()).thenReturn(EARLIEST_INDEX_FIRST);
         when(streamConfig.getParquetFilePaths()).thenReturn(new String[]{"gs://sshsh", "gs://shadd"});
 
-        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer);
+        ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDClientSupplierMock);
 
         assertThrows(DaggerConfigurationException.class, () -> daggerSource.register(streamExecutionEnvironment, strategy));
     }
