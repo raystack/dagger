@@ -8,7 +8,6 @@ import io.odpf.dagger.common.metrics.type.Histogram;
 import io.odpf.dagger.common.metrics.type.MeasurementManager;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class DaggerHistogramManager implements MeasurementManager, Histogram {
     private final StatsDClient statsDClient;

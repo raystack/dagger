@@ -15,6 +15,7 @@ public class DaggerStatsDClientProvider {
     private static final String DEFAULT_STATSD_HOST_VALUE = "localhost";
     private static final String FLINK_STATSD_PORT_CONFIG_KEY = "metrics.reporter.stsd.port";
     private static final int DEFAULT_STATSD_PORT_VALUE = 8125;
+    private static StatsDTag[] globalTags;
 
     public static DaggerStatsDClient provide(Configuration flinkConfiguration, io.odpf.dagger.common.configuration.Configuration daggerConfiguration) {
         ConfigOption<String> hostConfigOption = ConfigOptions
@@ -34,8 +35,11 @@ public class DaggerStatsDClientProvider {
     }
 
     public static StatsDTag[] generateGlobalTags(io.odpf.dagger.common.configuration.Configuration daggerConfiguration) {
-        return new StatsDTag[]{
-                new StatsDTag(GlobalTags.JOB_ID, daggerConfiguration.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT))
-        };
+        if (globalTags == null) {
+            globalTags = new StatsDTag[]{
+                    new StatsDTag(GlobalTags.JOB_ID, daggerConfiguration.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT)),
+            };
+        }
+        return globalTags;
     }
 }
