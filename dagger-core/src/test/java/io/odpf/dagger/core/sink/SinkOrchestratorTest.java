@@ -14,10 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static io.odpf.dagger.common.core.Constants.*;
 import static io.odpf.dagger.core.utils.Constants.SINK_KAFKA_BROKERS_KEY;
@@ -110,9 +107,8 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldReturnBigquerySink() {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
-        when(configuration.getParam()).thenReturn(ParameterTool.fromMap(new HashMap<String, String>() {{
-            put("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", "test");
-        }}));
+        when(configuration.getString("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", "")).thenReturn("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS");
+        when(configuration.getParam()).thenReturn(ParameterTool.fromMap(Collections.emptyMap()));
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
         assertThat(sinkFunction, instanceOf(BigquerySink.class));
     }

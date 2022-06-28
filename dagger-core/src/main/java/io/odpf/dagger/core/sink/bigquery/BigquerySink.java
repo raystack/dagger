@@ -42,7 +42,6 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
         this.sinkFactory = sinkFactory;
     }
 
-
     @Override
     public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) {
         if (sinkFactory == null) {

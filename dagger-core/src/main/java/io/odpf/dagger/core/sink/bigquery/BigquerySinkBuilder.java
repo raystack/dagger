@@ -3,8 +3,10 @@ package io.odpf.dagger.core.sink.bigquery;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
-import io.odpf.depot.config.BigQuerySinkConfig;
-import org.aeonbits.owner.ConfigFactory;
+import org.apache.flink.api.java.utils.ParameterTool;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BigquerySinkBuilder {
 
@@ -20,13 +22,24 @@ public class BigquerySinkBuilder {
     }
 
     public BigquerySink build() {
-        BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
         ProtoSerializer protoSerializer = new ProtoSerializer(
-                sinkConfig.getSinkConnectorSchemaKeyClass(),
-                sinkConfig.getSinkConnectorSchemaMessageClass(),
+                configuration.getString("SINK_CONNECTOR_SCHEMA_KEY_CLASS", ""),
+                configuration.getString("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", ""),
                 columnNames,
                 stencilClientOrchestrator);
-        return new BigquerySink(configuration, protoSerializer);
+        Configuration conf = setDefaultValues(configuration);
+        return new BigquerySink(conf, protoSerializer);
+    }
+
+    private Configuration setDefaultValues(Configuration inputConf) {
+        Map<String, String> configMap = new HashMap<>(inputConf.getParam().toMap());
+        configMap.put("SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH", "false");
+        configMap.put("SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS", "86400000");
+        configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES", "4");
+        configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS", "5000");
+        configMap.put("SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY", "LONG_POLLING");
+        ParameterTool parameterTool = ParameterTool.fromMap(configMap);
+        return new Configuration(parameterTool);
     }
 
     public BigquerySinkBuilder setConfiguration(Configuration configuration) {
