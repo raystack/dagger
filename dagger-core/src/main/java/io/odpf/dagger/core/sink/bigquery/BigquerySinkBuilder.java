@@ -38,8 +38,9 @@ public class BigquerySinkBuilder {
         configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES", "4");
         configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS", "5000");
         configMap.put("SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY", "LONG_POLLING");
-        ParameterTool parameterTool = ParameterTool.fromMap(configMap);
-        return new Configuration(parameterTool);
+        configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS", "60000");
+        configMap.put("SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS", "");
+        return new Configuration(ParameterTool.fromMap(configMap));
     }
 
     public BigquerySinkBuilder setConfiguration(Configuration configuration) {
