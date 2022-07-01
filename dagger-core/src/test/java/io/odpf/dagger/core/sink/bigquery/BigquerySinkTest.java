@@ -35,14 +35,14 @@ public class BigquerySinkTest {
     }
 
     @Test
-    public void shouldCreateSinkWriter() throws IOException {
+    public void shouldCreateSinkWriter() {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         BigQuerySinkFactory sinkFactory = Mockito.mock(BigQuerySinkFactory.class);
         Sink.InitContext context = Mockito.mock(Sink.InitContext.class);
         SinkWriterMetricGroup metricGroup = Mockito.mock(SinkWriterMetricGroup.class);
         Mockito.when(context.metricGroup()).thenReturn(metricGroup);
         OdpfSink odpfSink = Mockito.mock(OdpfSink.class);
-        Map<String, String> configMap =  new HashMap<>();
+        Map<String, String> configMap = new HashMap<>();
         Configuration configuration = new Configuration(ParameterTool.fromMap(configMap));
         Mockito.when(sinkFactory.create()).thenReturn(odpfSink);
         BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory);

@@ -44,13 +44,18 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
 
     @Override
     public SinkWriter<Row, Void, Void> createWriter(InitContext context, List<Void> states) {
+        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(context.metricGroup(), configuration);
         if (sinkFactory == null) {
             BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
             sinkFactory = new BigQuerySinkFactory(sinkConfig);
-            sinkFactory.init();
+            try {
+                sinkFactory.init();
+            } catch (Exception e) {
+                errorReporter.reportFatalException(e);
+                throw e;
+            }
         }
         OdpfSink odpfSink = sinkFactory.create();
-        ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(context.metricGroup(), configuration);
         int batchSize = configuration.getInteger(
                 Constants.SINK_BIGQUERY_BATCH_SIZE,
                 Constants.SINK_BIGQUERY_BATCH_SIZE_DEFAULT);
@@ -59,7 +64,7 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
                 Constants.SINK_ERROR_TYPES_FOR_FAILURE_DEFAULT);
         Set<ErrorType> errorTypesForFailing = new HashSet<>();
         for (String s : Splitter.on(",").omitEmptyStrings().split(errorsForFailing)) {
-            errorTypesForFailing.add(ErrorType.valueOf(s));
+            errorTypesForFailing.add(ErrorType.valueOf(s.trim()));
         }
         return new BigquerySinkWriter(protoSerializer, odpfSink, batchSize, errorReporter, errorTypesForFailing);
     }

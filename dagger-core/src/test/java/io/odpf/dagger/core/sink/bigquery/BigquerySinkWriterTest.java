@@ -127,4 +127,26 @@ public class BigquerySinkWriterTest {
         bigquerySinkWriter.close();
         Mockito.verify(sink, Mockito.times(1)).close();
     }
+
+    @Test
+    public void shouldReportExceptionThrownFromSinkConnector() throws IOException {
+        ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
+        OdpfSink sink = Mockito.mock(OdpfSink.class);
+        ErrorReporter reporter = Mockito.mock(ErrorReporter.class);
+        Set<ErrorType> errorTypesForFailing = Collections.emptySet();
+        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
+        Row row = new Row(1);
+        row.setField(0, "some field");
+        Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
+        Mockito.when(protoSerializer.serializeValue(row)).thenReturn("testMessage".getBytes());
+        OdpfSinkResponse response = Mockito.mock(OdpfSinkResponse.class);
+        Mockito.when(sink.pushToSink(Mockito.anyList())).thenThrow(new RuntimeException("test"));
+        bigquerySinkWriter.write(row, null);
+        bigquerySinkWriter.write(row, null);
+        RuntimeException thrown = Assert.assertThrows(RuntimeException.class, () -> bigquerySinkWriter.write(row, null));
+        Assert.assertEquals("test", thrown.getMessage());
+        Mockito.verify(sink, Mockito.times(1)).pushToSink(Mockito.anyList());
+        Mockito.verify(response, Mockito.times(0)).hasErrors();
+        Mockito.verify(reporter, Mockito.times(1)).reportFatalException(thrown);
+    }
 }

@@ -18,7 +18,7 @@ public class BigquerySinkBuilderTest {
         BigquerySinkBuilder builder = BigquerySinkBuilder.create();
         builder.setColumnNames(new String[]{"test", "some_column"});
         builder.setConfiguration(new Configuration(ParameterTool.fromMap(new HashMap<String, String>() {{
-            put("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", "test");
+            put("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", "test");
         }})));
         builder.setStencilClientOrchestrator(stencilClientOrchestrator);
         Assert.assertNotNull(builder.build());

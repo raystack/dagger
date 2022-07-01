@@ -49,7 +49,13 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
         }
         if (currentBatchSize >= batchSize) {
             log.info("Pushing " + currentBatchSize + " records to bq");
-            OdpfSinkResponse odpfSinkResponse = bigquerySink.pushToSink(messages);
+            OdpfSinkResponse odpfSinkResponse;
+            try {
+                odpfSinkResponse = bigquerySink.pushToSink(messages);
+            } catch (Exception e) {
+                errorReporter.reportFatalException(e);
+                throw e;
+            }
             if (odpfSinkResponse.hasErrors()) {
                 logErrors(odpfSinkResponse, messages);
                 checkAndThrow(odpfSinkResponse);

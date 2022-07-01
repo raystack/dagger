@@ -23,8 +23,8 @@ public class BigquerySinkBuilder {
 
     public BigquerySink build() {
         ProtoSerializer protoSerializer = new ProtoSerializer(
-                configuration.getString("SINK_CONNECTOR_SCHEMA_KEY_CLASS", ""),
-                configuration.getString("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", ""),
+                configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_KEY_CLASS", ""),
+                configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", ""),
                 columnNames,
                 stencilClientOrchestrator);
         Configuration conf = setDefaultValues(configuration);

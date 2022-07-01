@@ -107,7 +107,7 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldReturnBigquerySink() {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
-        when(configuration.getString("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS", "")).thenReturn("SINK_CONNECTOR_SCHEMA_MESSAGE_CLASS");
+        when(configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", "")).thenReturn("some.class");
         when(configuration.getParam()).thenReturn(ParameterTool.fromMap(Collections.emptyMap()));
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
         assertThat(sinkFunction, instanceOf(BigquerySink.class));
