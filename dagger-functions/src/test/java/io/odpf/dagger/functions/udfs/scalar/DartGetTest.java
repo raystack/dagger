@@ -1,6 +1,6 @@
 package io.odpf.dagger.functions.udfs.scalar;
 
-import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.functions.exceptions.KeyDoesNotExistException;
 import io.odpf.dagger.functions.exceptions.TagDoesNotExistException;
 import io.odpf.dagger.functions.udfs.scalar.dart.store.gcs.GcsDataStore;

@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.manager;
+package io.odpf.dagger.common.metrics.managers;
 
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;

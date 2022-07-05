@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.processors.external.http;
 
 import io.odpf.dagger.core.exception.InvalidHttpVerbException;
-import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.processors.common.DescriptorManager;

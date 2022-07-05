@@ -5,7 +5,7 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
-import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestGrpcResponse;
 import io.odpf.dagger.consumer.TestLocation;

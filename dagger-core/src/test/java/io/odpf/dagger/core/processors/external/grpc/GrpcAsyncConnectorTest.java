@@ -4,7 +4,7 @@ import io.odpf.stencil.client.StencilClient;
 import com.google.protobuf.DynamicMessage;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
+import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestGrpcRequest;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
