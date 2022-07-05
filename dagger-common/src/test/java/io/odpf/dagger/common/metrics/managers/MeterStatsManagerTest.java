@@ -1,11 +1,11 @@
 package io.odpf.dagger.common.metrics.managers;
 
-import io.odpf.dagger.common.metrics.managers.utils.TestAspects;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 
+import io.odpf.dagger.common.metrics.managers.utils.TestAspects;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
