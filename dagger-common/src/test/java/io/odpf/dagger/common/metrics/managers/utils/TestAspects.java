@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.utils;
+package io.odpf.dagger.common.metrics.managers.utils;
 
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
