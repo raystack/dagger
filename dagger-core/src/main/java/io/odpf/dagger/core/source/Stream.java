@@ -2,7 +2,7 @@ package io.odpf.dagger.core.source;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.core.deserializer.DaggerDeserializerFactory;
 import io.odpf.dagger.core.source.config.StreamConfig;
@@ -33,18 +33,18 @@ public class Stream implements Serializable {
         private final StreamConfig streamConfig;
         private final Configuration configuration;
         private final StencilClientOrchestrator stencilClientOrchestrator;
-        private final SerializedStatsDClientSupplier statsDClientSupplier;
+        private final SerializedStatsDReporterSupplier statsDReporterSupplier;
 
-        public Builder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, SerializedStatsDClientSupplier statsDClientSupplier) {
+        public Builder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, SerializedStatsDReporterSupplier statsDReporterSupplier) {
             this.streamConfig = streamConfig;
             this.configuration = configuration;
             this.stencilClientOrchestrator = stencilClientOrchestrator;
-            this.statsDClientSupplier = statsDClientSupplier;
+            this.statsDReporterSupplier = statsDReporterSupplier;
         }
 
         public Stream build() {
             DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
-            DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer, statsDClientSupplier);
+            DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer, statsDReporterSupplier);
             return new Stream(daggerSource, streamConfig.getSchemaTable());
         }
     }

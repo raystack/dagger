@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
@@ -34,15 +34,15 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;
     private final StreamConfig streamConfig;
     private final Configuration configuration;
-    private final SerializedStatsDClientSupplier statsDClientSupplier;
+    private final SerializedStatsDReporterSupplier statsDReporterSupplier;
     private static final SourceType SUPPORTED_SOURCE_TYPE = BOUNDED;
     private static final SourceName SUPPORTED_SOURCE_NAME = PARQUET_SOURCE;
 
-    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDClientSupplier statsDClientSupplier) {
+    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDReporterSupplier statsDReporterSupplier) {
         this.streamConfig = streamConfig;
         this.configuration = configuration;
         this.deserializer = deserializer;
-        this.statsDClientSupplier = statsDClientSupplier;
+        this.statsDReporterSupplier = statsDReporterSupplier;
     }
 
     @Override
@@ -92,6 +92,7 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
                 ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder chronologyOrderedSplitAssignerBuilder =
                         new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()
                                 .addTimeRanges(streamConfig.getParquetFileDateRange())
+                                .addStatsDReporterSupplier(statsDReporterSupplier)
                                 .addPathParser(new HourDatePathParser());
                 return chronologyOrderedSplitAssignerBuilder::build;
             case EARLIEST_INDEX_FIRST:
@@ -102,13 +103,12 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
 
     private ParquetFileRecordFormat buildParquetFileRecordFormat() {
         SimpleGroupDeserializer simpleGroupDeserializer = (SimpleGroupDeserializer) deserializer;
-        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer, statsDClientSupplier);
+        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer, statsDReporterSupplier);
         ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
         Supplier<TypeInformation<Row>> typeInformationProvider = (Supplier<TypeInformation<Row>> & Serializable) simpleGroupDeserializer::getProducedType;
         return parquetFileRecordFormatBuilder
                 .setParquetFileReaderProvider(parquetFileReaderProvider)
                 .setTypeInformationProvider(typeInformationProvider)
-                .setStatsDClientSupplier(statsDClientSupplier)
                 .build();
     }
 }

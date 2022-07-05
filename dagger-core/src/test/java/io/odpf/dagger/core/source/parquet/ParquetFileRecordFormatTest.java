@@ -1,8 +1,6 @@
 package io.odpf.dagger.core.source.parquet;
 
 
-import com.timgroup.statsd.StatsDClient;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.core.source.parquet.reader.ParquetReader;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -17,7 +15,6 @@ import org.mockito.Mock;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ParquetFileRecordFormatTest {
@@ -33,7 +30,6 @@ public class ParquetFileRecordFormatTest {
 
     private final ReaderProvider readerProviderMock = (filePath) -> parquetReader;
     private final Supplier<TypeInformation<Row>> typeInformationProviderMock = () -> typeInformation;
-    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
 
     @Before
     public void setup() {
@@ -45,7 +41,6 @@ public class ParquetFileRecordFormatTest {
         ParquetFileRecordFormat.Builder builder = ParquetFileRecordFormat.Builder.getInstance();
         ParquetFileRecordFormat parquetFileRecordFormat = builder.setParquetFileReaderProvider(readerProviderMock)
                 .setTypeInformationProvider(typeInformationProviderMock)
-                .setStatsDClientSupplier(statsDClientSupplierMock)
                 .build();
 
         FileRecordFormat.Reader<Row> expectedReader = parquetFileRecordFormat.createReader(configuration, new Path("gs://file-path"), 0, 1024);
@@ -62,7 +57,6 @@ public class ParquetFileRecordFormatTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> builder
                         .setTypeInformationProvider(typeInformationProviderMock)
-                        .setStatsDClientSupplier(statsDClientSupplierMock)
                         .build());
 
         assertEquals("ReaderProvider is required but is set as null", ex.getMessage());
@@ -74,7 +68,6 @@ public class ParquetFileRecordFormatTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> builder
                         .setParquetFileReaderProvider(readerProviderMock)
-                        .setStatsDClientSupplier(statsDClientSupplierMock)
                         .build());
 
         assertEquals("TypeInformationProvider is required but is set as null", ex.getMessage());
@@ -85,7 +78,6 @@ public class ParquetFileRecordFormatTest {
         ParquetFileRecordFormat.Builder builder = ParquetFileRecordFormat.Builder.getInstance();
         ParquetFileRecordFormat parquetFileRecordFormat = builder.setParquetFileReaderProvider(readerProviderMock)
                 .setTypeInformationProvider(typeInformationProviderMock)
-                .setStatsDClientSupplier(statsDClientSupplierMock)
                 .build();
 
         assertFalse(parquetFileRecordFormat.isSplittable());
@@ -96,7 +88,6 @@ public class ParquetFileRecordFormatTest {
         ParquetFileRecordFormat.Builder builder = ParquetFileRecordFormat.Builder.getInstance();
         ParquetFileRecordFormat parquetFileRecordFormat = builder.setTypeInformationProvider(typeInformationProviderMock)
                 .setParquetFileReaderProvider(readerProviderMock)
-                .setStatsDClientSupplier(statsDClientSupplierMock)
                 .build();
 
         UnsupportedOperationException ex = assertThrows(UnsupportedOperationException.class,

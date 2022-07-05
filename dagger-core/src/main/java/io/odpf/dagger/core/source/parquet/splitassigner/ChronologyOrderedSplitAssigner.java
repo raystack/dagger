@@ -1,5 +1,8 @@
 package io.odpf.dagger.core.source.parquet.splitassigner;
 
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.manager.DaggerGaugeManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
 import io.odpf.dagger.core.exception.PathParserNotProvidedException;
 import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import io.odpf.dagger.core.source.parquet.path.PathParser;
@@ -16,19 +19,36 @@ import java.util.Optional;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
+import static io.odpf.dagger.core.metrics.aspects.ChronologyOrderedSplitAssignerAspects.SPLITS_AWAITING_ASSIGNMENT;
+import static io.odpf.dagger.core.metrics.aspects.ChronologyOrderedSplitAssignerAspects.TOTAL_SPLITS_DISCOVERED;
+import static io.odpf.dagger.core.metrics.aspects.ChronologyOrderedSplitAssignerAspects.TOTAL_SPLITS_RECORDED;
+import static io.odpf.dagger.core.metrics.reporters.statsd.tags.ComponentTags.getSplitAssignerTags;
+
 public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private final PriorityBlockingQueue<InstantEnrichedSplit> unassignedSplits;
     private static final int INITIAL_DEFAULT_CAPACITY = 11;
     private PathParser pathParser;
     private TimeRangePool timeRangePool;
+    private DaggerGaugeManager daggerGaugeManager;
 
-    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser, TimeRangePool timeRangePool) {
+    private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser,
+                                           TimeRangePool timeRangePool, SerializedStatsDReporterSupplier statsDReporterSupplier) {
+        this.registerTagsWithMeasurementManagers(statsDReporterSupplier);
+        daggerGaugeManager.registerLong(TOTAL_SPLITS_DISCOVERED, fileSourceSplits.size());
         this.pathParser = pathParser;
         this.timeRangePool = timeRangePool;
         this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
         }
+        daggerGaugeManager.registerLong(TOTAL_SPLITS_RECORDED, unassignedSplits.size());
+        daggerGaugeManager.registerLong(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
+    }
+
+    private void registerTagsWithMeasurementManagers(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+        StatsDTag[] splitAssignerTags = getSplitAssignerTags();
+        daggerGaugeManager = new DaggerGaugeManager(statsDReporterSupplier);
+        daggerGaugeManager.register(splitAssignerTags);
     }
 
     @Override
@@ -37,6 +57,7 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
         if (instantEnrichedSplit == null) {
             return Optional.empty();
         }
+        daggerGaugeManager.registerLong(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
         return Optional.of(instantEnrichedSplit.getFileSourceSplit());
     }
 
@@ -83,6 +104,7 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     public static class ChronologyOrderedSplitAssignerBuilder implements Serializable {
         private PathParser pathParser;
         private TimeRangePool parquetFileDateRange;
+        private SerializedStatsDReporterSupplier supplier;
 
         public ChronologyOrderedSplitAssignerBuilder addPathParser(PathParser parser) {
             this.pathParser = parser;
@@ -94,11 +116,16 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
             return this;
         }
 
+        public ChronologyOrderedSplitAssignerBuilder addStatsDReporterSupplier(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+            this.supplier = statsDReporterSupplier;
+            return this;
+        }
+
         public ChronologyOrderedSplitAssigner build(Collection<FileSourceSplit> fileSourceSplits) {
             if (pathParser == null) {
                 throw new PathParserNotProvidedException("Path parser is null");
             }
-            return new ChronologyOrderedSplitAssigner(fileSourceSplits, pathParser, parquetFileDateRange);
+            return new ChronologyOrderedSplitAssigner(fileSourceSplits, pathParser, parquetFileDateRange, supplier);
         }
     }
 }

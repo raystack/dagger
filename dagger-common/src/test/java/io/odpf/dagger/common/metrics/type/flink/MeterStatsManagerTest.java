@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.metrics.type.flink;
 
+import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
 import io.odpf.dagger.common.metrics.utils.TestAspects;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Histogram;

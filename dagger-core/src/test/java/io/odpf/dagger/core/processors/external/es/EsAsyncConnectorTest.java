@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
-import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
+import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;

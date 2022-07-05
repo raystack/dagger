@@ -6,7 +6,7 @@ import org.apache.flink.types.Row;
 
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import io.odpf.dagger.core.metrics.telemetry.TelemetrySubscriber;
-import io.odpf.dagger.common.metrics.type.flink.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.manager.GaugeStatsManager;
 import io.odpf.dagger.core.metrics.aspects.TelemetryAspects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

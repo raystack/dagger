@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.type.statsd.tags;
+package io.odpf.dagger.core.metrics.reporters.statsd.tags;
 
 import org.apache.flink.util.Preconditions;
 

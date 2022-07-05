@@ -2,7 +2,6 @@ package io.odpf.dagger.core.source.parquet;
 
 import static com.google.api.client.util.Preconditions.checkArgument;
 
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
@@ -15,13 +14,10 @@ import java.util.function.Supplier;
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
     private final ReaderProvider parquetFileReaderProvider;
     private final Supplier<TypeInformation<Row>> typeInformationProvider;
-    private final SerializedStatsDClientSupplier statsDClientSupplier;
 
-    private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>>
-            typeInformationProvider, SerializedStatsDClientSupplier statsDClientSupplier) {
+    private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
         this.typeInformationProvider = typeInformationProvider;
-        this.statsDClientSupplier = statsDClientSupplier;
     }
 
     @Override
@@ -48,7 +44,6 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
     public static class Builder {
         private ReaderProvider parquetFileReaderProvider;
         private Supplier<TypeInformation<Row>> typeInformationProvider;
-        private SerializedStatsDClientSupplier statsDClientSupplier;
 
         public static Builder getInstance() {
             return new Builder();
@@ -69,16 +64,10 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
             return this;
         }
 
-        public Builder setStatsDClientSupplier(SerializedStatsDClientSupplier statsDClientSupplier) {
-            this.statsDClientSupplier = statsDClientSupplier;
-            return this;
-        }
-
         public ParquetFileRecordFormat build() {
             checkArgument(parquetFileReaderProvider != null, "ReaderProvider is required but is set as null");
             checkArgument(typeInformationProvider != null, "TypeInformationProvider is required but is set as null");
-            checkArgument(statsDClientSupplier != null, "StatsDClientSupplier object is required but is set as null");
-            return new ParquetFileRecordFormat(parquetFileReaderProvider, typeInformationProvider, statsDClientSupplier);
+            return new ParquetFileRecordFormat(parquetFileReaderProvider, typeInformationProvider);
         }
     }
 }

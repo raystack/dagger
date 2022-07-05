@@ -6,7 +6,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import io.odpf.dagger.common.metrics.type.flink.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.manager.GaugeStatsManager;
 import io.odpf.dagger.functions.exceptions.BucketDoesNotExistException;
 import io.odpf.dagger.functions.exceptions.TagDoesNotExistException;
 

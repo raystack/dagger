@@ -1,7 +1,7 @@
-package io.odpf.dagger.common.metrics.type;
+package io.odpf.dagger.core.metrics.reporters.statsd.manager;
 
 import io.odpf.dagger.common.metrics.aspects.Aspects;
-import io.odpf.dagger.common.metrics.type.statsd.tags.StatsDTag;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
 
 import java.io.Serializable;
 

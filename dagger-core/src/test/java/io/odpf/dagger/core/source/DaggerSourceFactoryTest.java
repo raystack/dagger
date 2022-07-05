@@ -1,8 +1,7 @@
 package io.odpf.dagger.core.source;
 
-import com.timgroup.statsd.StatsDClient;
 import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.common.serde.json.deserialization.JsonDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
@@ -14,6 +13,7 @@ import io.odpf.dagger.core.source.config.models.SourceType;
 import io.odpf.dagger.core.source.flinkkafkaconsumer.FlinkKafkaConsumerDaggerSource;
 import io.odpf.dagger.core.source.kafka.KafkaDaggerSource;
 import io.odpf.dagger.core.source.parquet.ParquetDaggerSource;
+import io.odpf.depot.metrics.StatsDReporter;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class DaggerSourceFactoryTest {
     @Mock
     private Configuration configuration;
 
-    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +43,7 @@ public class DaggerSourceFactoryTest {
     public void shouldReturnKafkaDaggerSourceWhenConfigured() {
         ProtoDeserializer deserializer = Mockito.mock(ProtoDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_SOURCE, SourceType.UNBOUNDED)});
-        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDClientSupplierMock);
+        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDReporterSupplierMock);
 
         assertTrue(daggerSource instanceof KafkaDaggerSource);
     }
@@ -52,7 +52,7 @@ public class DaggerSourceFactoryTest {
     public void shouldReturnFlinkKafkaConsumerDaggerSourceWhenConfigured() {
         JsonDeserializer deserializer = Mockito.mock(JsonDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.KAFKA_CONSUMER, SourceType.UNBOUNDED)});
-        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDClientSupplierMock);
+        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDReporterSupplierMock);
 
         assertTrue(daggerSource instanceof FlinkKafkaConsumerDaggerSource);
     }
@@ -61,7 +61,7 @@ public class DaggerSourceFactoryTest {
     public void shouldReturnParquetDaggerSourceWhenConfigured() {
         SimpleGroupDeserializer deserializer = Mockito.mock(SimpleGroupDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
-        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDClientSupplierMock);
+        DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDReporterSupplierMock);
 
         assertTrue(daggerSource instanceof ParquetDaggerSource);
     }
@@ -71,6 +71,6 @@ public class DaggerSourceFactoryTest {
         SimpleGroupDeserializer deserializer = Mockito.mock(SimpleGroupDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
 
-        assertThrows(InvalidDaggerSourceException.class, () -> DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDClientSupplierMock));
+        assertThrows(InvalidDaggerSourceException.class, () -> DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDReporterSupplierMock));
     }
 }

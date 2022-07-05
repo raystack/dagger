@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors.common;
 
-import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
+import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 
 import java.time.Instant;

@@ -1,9 +1,9 @@
 package io.odpf.dagger.core.source;
 
-import com.timgroup.statsd.StatsDClient;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.core.source.flinkkafkaconsumer.FlinkKafkaConsumerDaggerSource;
 import io.odpf.dagger.core.source.kafka.KafkaDaggerSource;
+import io.odpf.depot.metrics.StatsDReporter;
 import io.odpf.stencil.client.StencilClient;
 import com.google.gson.JsonSyntaxException;
 import io.odpf.dagger.common.configuration.Configuration;
@@ -34,7 +34,7 @@ public class StreamsFactoryTest {
     @Mock
     private Configuration configuration;
 
-    private final SerializedStatsDClientSupplier statsDClientSupplierMock = () -> mock(StatsDClient.class);
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
 
     @Before
     public void setup() {
@@ -70,7 +70,7 @@ public class StreamsFactoryTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        List<Stream> streams = StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDClientSupplierMock);
+        List<Stream> streams = StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertEquals(2, streams.size());
         assertTrue(streams.get(0).getDaggerSource() instanceof FlinkKafkaConsumerDaggerSource);
@@ -93,7 +93,7 @@ public class StreamsFactoryTest {
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
         assertThrows(JsonSyntaxException.class,
-                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDClientSupplierMock));
+                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDReporterSupplierMock));
     }
 
     @Test
@@ -101,6 +101,6 @@ public class StreamsFactoryTest {
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("");
 
         assertThrows(NullPointerException.class,
-                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDClientSupplierMock));
+                () -> StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDReporterSupplierMock));
     }
 }

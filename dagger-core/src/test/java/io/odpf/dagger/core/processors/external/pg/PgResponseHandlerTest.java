@@ -2,7 +2,7 @@ package io.odpf.dagger.core.processors.external.pg;
 
 import com.google.protobuf.Descriptors;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
-import io.odpf.dagger.common.metrics.type.flink.MeterStatsManager;
+import io.odpf.dagger.common.metrics.manager.MeterStatsManager;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.consumer.TestSurgeFactorLogMessage;
 import io.odpf.dagger.core.exception.HttpFailureException;

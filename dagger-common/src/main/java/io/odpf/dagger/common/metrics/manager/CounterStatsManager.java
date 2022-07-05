@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.type.flink;
+package io.odpf.dagger.common.metrics.manager;
 
 import io.odpf.dagger.common.metrics.aspects.AspectType;
 import io.odpf.dagger.common.metrics.aspects.Aspects;

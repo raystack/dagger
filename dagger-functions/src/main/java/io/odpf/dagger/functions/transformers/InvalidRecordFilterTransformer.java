@@ -7,7 +7,7 @@ import org.apache.flink.types.Row;
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
-import io.odpf.dagger.common.metrics.type.flink.CounterStatsManager;
+import io.odpf.dagger.common.metrics.manager.CounterStatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

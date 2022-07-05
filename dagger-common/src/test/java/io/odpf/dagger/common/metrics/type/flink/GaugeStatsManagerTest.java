@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.metrics.type.flink;
 
+import io.odpf.dagger.common.metrics.manager.GaugeStatsManager;
 import io.odpf.dagger.common.metrics.utils.TestAspects;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;

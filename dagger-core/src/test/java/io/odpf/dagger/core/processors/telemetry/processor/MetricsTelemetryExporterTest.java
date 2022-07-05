@@ -6,7 +6,7 @@ import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.metrics.type.flink.GaugeStatsManager;
+import io.odpf.dagger.common.metrics.manager.GaugeStatsManager;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryPublisher;
 import org.junit.Before;
 import org.junit.Test;

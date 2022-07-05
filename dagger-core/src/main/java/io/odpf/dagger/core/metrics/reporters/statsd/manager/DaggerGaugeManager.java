@@ -1,20 +1,20 @@
-package io.odpf.dagger.common.metrics.type.statsd.manager;
+package io.odpf.dagger.core.metrics.reporters.statsd.manager;
 
-import com.timgroup.statsd.StatsDClient;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
-import io.odpf.dagger.common.metrics.type.statsd.tags.StatsDTag;
-import io.odpf.dagger.common.metrics.type.Gauge;
-import io.odpf.dagger.common.metrics.type.MeasurementManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.measurement.Gauge;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
+import io.odpf.depot.metrics.StatsDReporter;
 
 import java.util.ArrayList;
 
+
 public class DaggerGaugeManager implements MeasurementManager, Gauge {
-    private final StatsDClient statsDClient;
+    private final StatsDReporter statsDReporter;
     private String[] formattedTags;
 
-    public DaggerGaugeManager(SerializedStatsDClientSupplier statsDClientSupplier) {
-        this.statsDClient = statsDClientSupplier.getClient();
+    public DaggerGaugeManager(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
 
     @Override
     public void registerLong(Aspects aspect, long gaugeValue) {
-        statsDClient.gauge(aspect.getValue(), gaugeValue, formattedTags);
+        statsDReporter.getClient().gauge(aspect.getValue(), gaugeValue, formattedTags);
     }
 
     @Override
@@ -43,6 +43,6 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
 
     @Override
     public void registerDouble(Aspects aspect, double gaugeValue) {
-        statsDClient.gauge(aspect.getValue(), gaugeValue, formattedTags);
+        statsDReporter.getClient().gauge(aspect.getValue(), gaugeValue, formattedTags);
     }
 }

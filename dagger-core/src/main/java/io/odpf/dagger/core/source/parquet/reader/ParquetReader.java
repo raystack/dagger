@@ -1,9 +1,9 @@
 package io.odpf.dagger.core.source.parquet.reader;
 
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
-import io.odpf.dagger.common.metrics.type.statsd.manager.DaggerCounterManager;
-import io.odpf.dagger.common.metrics.type.statsd.manager.DaggerHistogramManager;
-import io.odpf.dagger.common.metrics.type.statsd.tags.StatsDTag;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.manager.DaggerCounterManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.manager.DaggerHistogramManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
 import io.odpf.dagger.core.metrics.aspects.ParquetReaderAspects;
@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.Instant;
 
-import static io.odpf.dagger.core.metrics.telemetry.statsd.ComponentTags.getParquetReaderTags;
+import static io.odpf.dagger.core.metrics.reporters.statsd.tags.ComponentTags.getParquetReaderTags;
 
 public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private final Path hadoopFilePath;
@@ -46,22 +46,22 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
     private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader
-            parquetFileReader, SerializedStatsDClientSupplier statsDClientSupplier) throws IOException {
+            parquetFileReader, SerializedStatsDReporterSupplier statsDReporterSupplier) throws IOException {
         this.hadoopFilePath = hadoopFilePath;
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
         this.totalEmittedRowCount = 0L;
-        this.registerTagsWithMeasurementManagers(statsDClientSupplier);
+        this.registerTagsWithMeasurementManagers(statsDReporterSupplier);
         daggerCounterManager.increment(ParquetReaderAspects.READER_CREATED);
     }
 
-    private void registerTagsWithMeasurementManagers(SerializedStatsDClientSupplier statsDClientSupplier) {
+    private void registerTagsWithMeasurementManagers(SerializedStatsDReporterSupplier statsDReporterSupplier) {
         StatsDTag[] parquetReaderTags = getParquetReaderTags();
-        this.daggerCounterManager = new DaggerCounterManager(statsDClientSupplier);
+        this.daggerCounterManager = new DaggerCounterManager(statsDReporterSupplier);
         this.daggerCounterManager.register(parquetReaderTags);
-        this.daggerHistogramManager = new DaggerHistogramManager(statsDClientSupplier);
+        this.daggerHistogramManager = new DaggerHistogramManager(statsDReporterSupplier);
         this.daggerHistogramManager.register(parquetReaderTags);
     }
 
@@ -147,11 +147,11 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
 
     public static class ParquetReaderProvider implements ReaderProvider {
         private final SimpleGroupDeserializer simpleGroupDeserializer;
-        private final SerializedStatsDClientSupplier statsDClientSupplier;
+        private final SerializedStatsDReporterSupplier statsDReporterSupplier;
 
-        public ParquetReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer, SerializedStatsDClientSupplier statsDClientSupplier) {
+        public ParquetReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer, SerializedStatsDReporterSupplier statsDReporterSupplier) {
             this.simpleGroupDeserializer = simpleGroupDeserializer;
-            this.statsDClientSupplier = statsDClientSupplier;
+            this.statsDReporterSupplier = statsDReporterSupplier;
         }
 
         @Override
@@ -160,7 +160,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
                 Configuration conf = new Configuration();
                 Path hadoopFilePath = new Path(filePath);
                 ParquetFileReader parquetFileReader = ParquetFileReader.open(HadoopInputFile.fromPath(hadoopFilePath, conf));
-                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader, statsDClientSupplier);
+                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader, statsDReporterSupplier);
             } catch (IOException | RuntimeException ex) {
                 throw new ParquetFileSourceReaderInitializationException(ex);
             }

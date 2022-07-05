@@ -1,20 +1,19 @@
-package io.odpf.dagger.common.metrics.type.statsd.manager;
+package io.odpf.dagger.core.metrics.reporters.statsd.manager;
 
-import com.timgroup.statsd.StatsDClient;
 import io.odpf.dagger.common.metrics.aspects.Aspects;
-import io.odpf.dagger.common.metrics.type.statsd.SerializedStatsDClientSupplier;
-import io.odpf.dagger.common.metrics.type.statsd.tags.StatsDTag;
-import io.odpf.dagger.common.metrics.type.Histogram;
-import io.odpf.dagger.common.metrics.type.MeasurementManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.measurement.Histogram;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
+import io.odpf.depot.metrics.StatsDReporter;
 
 import java.util.ArrayList;
 
 public class DaggerHistogramManager implements MeasurementManager, Histogram {
-    private final StatsDClient statsDClient;
+    private final StatsDReporter statsDReporter;
     private String[] formattedTags;
 
-    public DaggerHistogramManager(SerializedStatsDClientSupplier statsDClientSupplier) {
-        this.statsDClient = statsDClientSupplier.getClient();
+    public DaggerHistogramManager(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
     }
 
     @Override
@@ -33,11 +32,11 @@ public class DaggerHistogramManager implements MeasurementManager, Histogram {
 
     @Override
     public void recordValue(Aspects aspect, long value) {
-        statsDClient.histogram(aspect.getValue(), value, formattedTags);
+        statsDReporter.getClient().histogram(aspect.getValue(), value, formattedTags);
     }
 
     @Override
     public void recordValue(Aspects aspect, double value) {
-        statsDClient.histogram(aspect.getValue(), value, formattedTags);
+        statsDReporter.getClient().histogram(aspect.getValue(), value, formattedTags);
     }
 }

@@ -1,4 +1,4 @@
-package io.odpf.dagger.common.metrics.type;
+package io.odpf.dagger.core.metrics.reporters.statsd.measurement;
 
 import io.odpf.dagger.common.metrics.aspects.Aspects;
 
