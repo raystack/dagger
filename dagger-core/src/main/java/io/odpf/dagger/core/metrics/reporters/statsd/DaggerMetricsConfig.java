@@ -38,6 +38,6 @@ public class DaggerMetricsConfig implements MetricsConfig {
 
     @Override
     public String getMetricStatsDTags() {
-        return null;
+        return "";
     }
 }
