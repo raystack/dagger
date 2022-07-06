@@ -37,7 +37,7 @@ public class DaggerCounterManager implements MeasurementManager, Counter {
 
     @Override
     public void increment(Aspects aspect, long positiveCount) {
-        statsDReporter.captureCount(aspect.getValue(), positiveCount, formattedTags);
+        statsDReporter.getClient().count(aspect.getValue(), positiveCount, formattedTags);
     }
 
     @Override
@@ -47,6 +47,6 @@ public class DaggerCounterManager implements MeasurementManager, Counter {
 
     @Override
     public void decrement(Aspects aspect, long negativeCount) {
-        statsDReporter.captureCount(aspect.getValue(), negativeCount, formattedTags);
+        statsDReporter.getClient().count(aspect.getValue(), negativeCount, formattedTags);
     }
 }
