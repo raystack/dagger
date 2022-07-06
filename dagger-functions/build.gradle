@@ -44,10 +44,9 @@ sourceSets {
 }
 
 dependencies {
-
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
-
+    
     compileOnly project(path: ':dagger-common', configuration: 'minimalCommonJar')
     compileOnly project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion

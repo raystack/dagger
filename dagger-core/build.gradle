@@ -26,7 +26,7 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '0.2.0'
+def dependenciesVersion = '0.2.2'
 
 description = """dagger to the heart!"""
 
@@ -84,6 +84,7 @@ dependencies {
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
+    dependenciesJar 'org.apache.parquet:parquet-protobuf:1.12.2'
 
     testImplementation project(':dagger-common').sourceSets.test.output
     testImplementation 'junit:junit:4.13'
@@ -177,6 +178,7 @@ task minimalJar(type: ShadowJar) {
     from sourceSets.main.output
     configurations = [project.configurations.minimalJar]
     archiveVersion = minimalVersion
+    exclude("core-site.xml")
 }
 
 task dependenciesJar(type: ShadowJar) {

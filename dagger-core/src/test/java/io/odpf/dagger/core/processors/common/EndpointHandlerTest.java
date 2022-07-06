@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.common;
 
+import io.odpf.dagger.core.utils.Constants.ExternalPostProcessorVariableType;
 import io.odpf.stencil.StencilClientFactory;
 import io.odpf.stencil.client.StencilClient;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
@@ -69,10 +70,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {"123456"});
     }
@@ -88,10 +89,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {"123456"});
     }
@@ -116,10 +117,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "test_enums"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(new Object[] {"[\"+I[UNKNOWN]\",\"+I[TYPE1]\"]"}, endpointOrQueryVariablesValues);
     }
@@ -141,10 +142,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "driver_pickup_location"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, "driver_pickup_location", resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {"{\"name\":\"test_driver\",\"address\":null,\"latitude\":172.5,\"longitude\":175.5,\"type\":null,\"note\":null,\"place_id\":null,\"accuracy_meter\":null,\"gate_id\":null}"});
     }
@@ -161,10 +162,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {"123456"});
     }
@@ -182,10 +183,10 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_url"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {"test_order_number", "customer_url_test"});
     }
@@ -203,16 +204,16 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_url"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
         assertArrayEquals(endpointOrQueryVariablesValues, new Object[] {});
     }
 
     @Test
-    public void shouldThrowErrorIfVariablesAreNotProperlyConfigures() {
+    public void shouldThrowErrorIfRequestVariablesAreNotProperlyConfigures() {
         when(sourceConfig.getVariables()).thenReturn("czx");
         inputProtoClasses = new String[] {"io.odpf.dagger.consumer.TestBookingLogMessage", "io.odpf.dagger.consumer.TestBookingLogMessage"};
 
@@ -224,11 +225,11 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_url"}), descriptorManager);
         InvalidConfigurationException exception = assertThrows(InvalidConfigurationException.class, () -> endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture));
-        assertEquals("Column 'czx' not found as configured in the endpoint/query variable", exception.getMessage());
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture));
+        assertEquals("Column 'czx' not found as configured in the 'REQUEST_VARIABLES' variable", exception.getMessage());
     }
 
     @Test
@@ -249,11 +250,11 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "driver_pickup_location"}), descriptorManager);
 
         assertThrows(NullPointerException.class,
-                () -> endpointHandler.getEndpointOrQueryVariablesValues(rowManager, resultFuture));
+                () -> endpointHandler.getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture));
         verify(errorReporter, times(1)).reportFatalException(any(DescriptorNotFoundException.class));
         verify(resultFuture, times(1)).completeExceptionally(any(DescriptorNotFoundException.class));
     }
@@ -270,12 +271,12 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
-        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, sourceConfig.getVariables(), endpointOrQueryVariablesValues);
         assertFalse(queryInvalid);
     }
 
@@ -291,12 +292,12 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
-        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, sourceConfig.getVariables(), endpointOrQueryVariablesValues);
         assertTrue(queryInvalid);
         verify(resultFuture, times(1)).complete(any());
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_INPUT);
@@ -315,12 +316,12 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
-        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, sourceConfig.getVariables(), endpointOrQueryVariablesValues);
         assertFalse(queryInvalid);
     }
 
@@ -337,12 +338,12 @@ public class EndpointHandlerTest {
         row.setField(1, new Row(1));
         RowManager rowManager = new RowManager(row);
 
-        endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+        endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                 inputProtoClasses, getColumnNameManager(new String[] {"order_number", "customer_id"}), descriptorManager);
         Object[] endpointOrQueryVariablesValues = endpointHandler
-                .getEndpointOrQueryVariablesValues(rowManager, resultFuture);
+                .getVariablesValue(rowManager, ExternalPostProcessorVariableType.REQUEST_VARIABLES, sourceConfig.getVariables(), resultFuture);
 
-        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, endpointOrQueryVariablesValues);
+        boolean queryInvalid = endpointHandler.isQueryInvalid(resultFuture, rowManager, sourceConfig.getVariables(), endpointOrQueryVariablesValues);
         assertTrue(queryInvalid);
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.EMPTY_INPUT);
     }
