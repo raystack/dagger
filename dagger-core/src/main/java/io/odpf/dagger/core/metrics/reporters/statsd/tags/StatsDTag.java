@@ -28,7 +28,7 @@ public class StatsDTag {
         if (tagValue.equals(NIL_TAG_VALUE)) {
             return tagKey;
         } else {
-            return String.format("%s:%s", tagKey, tagValue);
+            return String.format("%s=%s", tagKey, tagValue);
         }
     }
 }
