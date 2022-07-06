@@ -34,15 +34,15 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
     private ChronologyOrderedSplitAssigner(Collection<FileSourceSplit> fileSourceSplits, PathParser pathParser,
                                            TimeRangePool timeRangePool, SerializedStatsDReporterSupplier statsDReporterSupplier) {
         this.registerTagsWithMeasurementManagers(statsDReporterSupplier);
-        daggerGaugeManager.registerLong(TOTAL_SPLITS_DISCOVERED, fileSourceSplits.size());
+        daggerGaugeManager.markValue(TOTAL_SPLITS_DISCOVERED, fileSourceSplits.size());
         this.pathParser = pathParser;
         this.timeRangePool = timeRangePool;
         this.unassignedSplits = new PriorityBlockingQueue<>(INITIAL_DEFAULT_CAPACITY, getFileSourceSplitComparator());
         for (FileSourceSplit split : fileSourceSplits) {
             validateAndAddSplits(split);
         }
-        daggerGaugeManager.registerLong(TOTAL_SPLITS_RECORDED, unassignedSplits.size());
-        daggerGaugeManager.registerLong(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
+        daggerGaugeManager.markValue(TOTAL_SPLITS_RECORDED, unassignedSplits.size());
+        daggerGaugeManager.markValue(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
     }
 
     private void registerTagsWithMeasurementManagers(SerializedStatsDReporterSupplier statsDReporterSupplier) {
@@ -57,7 +57,7 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
         if (instantEnrichedSplit == null) {
             return Optional.empty();
         }
-        daggerGaugeManager.registerLong(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
+        daggerGaugeManager.markValue(SPLITS_AWAITING_ASSIGNMENT, unassignedSplits.size());
         return Optional.of(instantEnrichedSplit.getFileSourceSplit());
     }
 

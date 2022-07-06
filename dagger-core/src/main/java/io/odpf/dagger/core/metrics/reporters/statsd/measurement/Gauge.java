@@ -5,5 +5,5 @@ import io.odpf.dagger.common.metrics.aspects.Aspects;
 import java.io.Serializable;
 
 public interface Gauge extends Serializable {
-    void registerInteger(Aspects aspect, int gaugeValue);
+    void markValue(Aspects aspect, int gaugeValue);
 }

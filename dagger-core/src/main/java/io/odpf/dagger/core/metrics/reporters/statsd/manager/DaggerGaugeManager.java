@@ -31,7 +31,7 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
     }
 
     @Override
-    public void registerInteger(Aspects aspect, int gaugeValue) {
+    public void markValue(Aspects aspect, int gaugeValue) {
         statsDReporter.gauge(aspect.getValue(), gaugeValue, formattedTags);
     }
 }
