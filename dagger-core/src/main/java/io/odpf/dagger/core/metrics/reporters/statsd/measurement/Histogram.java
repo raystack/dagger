@@ -6,6 +6,4 @@ import java.io.Serializable;
 
 public interface Histogram extends Serializable {
     void recordValue(Aspects aspect, long value);
-
-    void recordValue(Aspects aspect, double value);
 }

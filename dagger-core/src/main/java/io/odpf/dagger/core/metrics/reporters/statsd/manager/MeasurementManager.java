@@ -7,5 +7,6 @@ import java.io.Serializable;
 
 public interface MeasurementManager extends Serializable {
     void register(Aspects[] aspect, StatsDTag[] tags);
+
     void register(StatsDTag[] tags);
 }

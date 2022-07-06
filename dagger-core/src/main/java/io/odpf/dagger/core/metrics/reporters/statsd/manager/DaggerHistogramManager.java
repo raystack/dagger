@@ -32,11 +32,6 @@ public class DaggerHistogramManager implements MeasurementManager, Histogram {
 
     @Override
     public void recordValue(Aspects aspect, long value) {
-        statsDReporter.getClient().histogram(aspect.getValue(), value, formattedTags);
-    }
-
-    @Override
-    public void recordValue(Aspects aspect, double value) {
-        statsDReporter.getClient().histogram(aspect.getValue(), value, formattedTags);
+        statsDReporter.captureHistogram(aspect.getValue(), value, formattedTags);
     }
 }

@@ -8,7 +8,6 @@ import io.odpf.depot.metrics.StatsDReporter;
 
 import java.util.ArrayList;
 
-
 public class DaggerGaugeManager implements MeasurementManager, Gauge {
     private final StatsDReporter statsDReporter;
     private String[] formattedTags;
@@ -32,17 +31,7 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
     }
 
     @Override
-    public void registerLong(Aspects aspect, long gaugeValue) {
-        statsDReporter.getClient().gauge(aspect.getValue(), gaugeValue, formattedTags);
-    }
-
-    @Override
-    public void registerString(Aspects aspect, String gaugeValue) {
-        throw new UnsupportedOperationException("DogStatsD library doesn't support reporting non-numeric values as gauge values.");
-    }
-
-    @Override
-    public void registerDouble(Aspects aspect, double gaugeValue) {
-        statsDReporter.getClient().gauge(aspect.getValue(), gaugeValue, formattedTags);
+    public void registerInteger(Aspects aspect, int gaugeValue) {
+        statsDReporter.gauge(aspect.getValue(), gaugeValue, formattedTags);
     }
 }
