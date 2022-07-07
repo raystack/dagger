@@ -43,7 +43,7 @@ public class Stream implements Serializable {
         }
 
         public Stream build() {
-            DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
+            DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplier);
             DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer, statsDReporterSupplier);
             return new Stream(daggerSource, streamConfig.getSchemaTable());
         }
