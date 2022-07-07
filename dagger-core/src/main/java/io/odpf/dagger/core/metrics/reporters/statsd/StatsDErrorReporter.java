@@ -10,8 +10,8 @@ import static io.odpf.dagger.core.utils.Constants.FATAL_EXCEPTION_METRIC_GROUP_K
 import static io.odpf.dagger.core.utils.Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY;
 
 public class StatsDErrorReporter implements ErrorReporter {
-    private static final String fatalExceptionTag = new StatsDTag(FATAL_EXCEPTION_METRIC_GROUP_KEY).getFormattedTag();
-    private static final String nonFatalExceptionTag = new StatsDTag(NONFATAL_EXCEPTION_METRIC_GROUP_KEY).getFormattedTag();
+    private static final String fatalExceptionTagKey = "fatal_exception_type";
+    private static final String nonFatalExceptionTagKey = "non_fatal_exception_type";
     private final StatsDReporter statsDReporter;
 
     public StatsDErrorReporter(SerializedStatsDReporterSupplier statsDReporterSupplier) {
@@ -20,12 +20,14 @@ public class StatsDErrorReporter implements ErrorReporter {
 
     @Override
     public void reportFatalException(Exception exception) {
-        statsDReporter.captureCount(exception.getClass().getName(), 1L, fatalExceptionTag);
+        StatsDTag statsDTag = new StatsDTag(fatalExceptionTagKey, exception.getClass().getName());
+        statsDReporter.captureCount(FATAL_EXCEPTION_METRIC_GROUP_KEY, 1L, statsDTag.getFormattedTag());
     }
 
     @Override
     public void reportNonFatalException(Exception exception) {
-        statsDReporter.captureCount(exception.getClass().getName(), 1L, nonFatalExceptionTag);
+        StatsDTag statsDTag = new StatsDTag(nonFatalExceptionTagKey, exception.getClass().getName());
+        statsDReporter.captureCount(NONFATAL_EXCEPTION_METRIC_GROUP_KEY, 1L, statsDTag.getFormattedTag());
     }
 
     @Override
