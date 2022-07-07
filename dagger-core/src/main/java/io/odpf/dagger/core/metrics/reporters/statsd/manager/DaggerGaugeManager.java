@@ -17,11 +17,6 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
     }
 
     @Override
-    public void register(Aspects[] aspect, StatsDTag[] tags) {
-        register(tags);
-    }
-
-    @Override
     public void register(StatsDTag[] tags) {
         ArrayList<String> tagList = new ArrayList<>();
         for (StatsDTag measurementTag : tags) {

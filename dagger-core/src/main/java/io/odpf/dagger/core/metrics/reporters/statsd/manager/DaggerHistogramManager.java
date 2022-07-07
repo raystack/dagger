@@ -17,11 +17,6 @@ public class DaggerHistogramManager implements MeasurementManager, Histogram {
     }
 
     @Override
-    public void register(Aspects[] aspect, StatsDTag[] tags) {
-        register(tags);
-    }
-
-    @Override
     public void register(StatsDTag[] tags) {
         ArrayList<String> tagList = new ArrayList<>();
         for (StatsDTag measurementTag : tags) {
