@@ -2,9 +2,11 @@ package io.odpf.dagger.core.source.parquet.splitassigner;
 
 
 import io.odpf.dagger.core.exception.PathParserNotProvidedException;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.core.source.config.models.TimeRange;
 import io.odpf.dagger.core.source.config.models.TimeRangePool;
 import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
+import io.odpf.depot.metrics.StatsDReporter;
 import org.apache.flink.connector.file.src.FileSourceSplit;
 import org.apache.flink.core.fs.Path;
 import org.junit.Assert;
@@ -19,10 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class ChronologyOrderedSplitAssignerTest {
+
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
 
     @Test
     public void shouldReturnFileSplitsHavingOldestDateFilePathsFirstWhenFilePathURLHasOnlyDate() {
@@ -35,7 +40,9 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(inputSplits);
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(inputSplits);
 
         for (int i = 0; i < 4; i++) {
             Optional<FileSourceSplit> split = splitAssigner.getNext(null);
@@ -55,7 +62,9 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(inputSplits);
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(inputSplits);
 
         for (int i = 0; i < 4; i++) {
             Optional<FileSourceSplit> split = splitAssigner.getNext(null);
@@ -71,7 +80,10 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(inputSplits);
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.
+                addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(inputSplits);
 
         splitAssigner.getNext(null);
         Optional<FileSourceSplit> nextSplit = splitAssigner.getNext(null);
@@ -86,7 +98,10 @@ public class ChronologyOrderedSplitAssignerTest {
         IllegalArgumentException ex = Assert.assertThrows(IllegalArgumentException.class, () -> {
             ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-            splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(Collections.singleton(split));
+            splitAssignerBuilder
+                    .addPathParser(new HourDatePathParser())
+                    .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                    .build(Collections.singleton(split));
         });
 
         assertEquals("java.text.ParseException: Cannot extract timestamp from filepath for deciding order of processing.\n"
@@ -101,7 +116,10 @@ public class ChronologyOrderedSplitAssignerTest {
         FileSourceSplit fourthSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2020-12-31/hagga6a36dg"), 0, 1024);
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(Collections.singleton(secondSplit));
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
+                .addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(Collections.singleton(secondSplit));
         List<FileSourceSplit> remainingSplitsToAdd = Arrays.asList(fourthSplit, firstSplit, thirdSplit);
         splitAssigner.addSplits(remainingSplitsToAdd);
 
@@ -121,7 +139,10 @@ public class ChronologyOrderedSplitAssignerTest {
         FileSourceSplit fourthSplit = new FileSourceSplit("1", new Path("gs://my-bucket/bid-log/dt=2020-12-31/hr=23/ahaha4a5dg"), 0, 1024);
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(Collections.singleton(secondSplit));
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
+                .addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(Collections.singleton(secondSplit));
         List<FileSourceSplit> remainingSplitsToAdd = Arrays.asList(fourthSplit, firstSplit, thirdSplit);
         splitAssigner.addSplits(remainingSplitsToAdd);
 
@@ -143,7 +164,10 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder.addPathParser(new HourDatePathParser()).build(inputSplits);
+        ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
+                .addPathParser(new HourDatePathParser())
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(inputSplits);
         splitAssigner.getNext(null);
         List<FileSourceSplit> remainingSplits = (List<FileSourceSplit>) splitAssigner.remainingSplits();
 
@@ -160,7 +184,10 @@ public class ChronologyOrderedSplitAssignerTest {
 
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
 
-        splitAssignerBuilder.addPathParser(hourDatePathParser).build(Collections.singleton(split));
+        splitAssignerBuilder
+                .addPathParser(hourDatePathParser)
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .build(Collections.singleton(split));
 
         verify(hourDatePathParser, times(1)).instantFromFilePath(split.path());
     }
@@ -180,6 +207,7 @@ public class ChronologyOrderedSplitAssignerTest {
         ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
                 .addPathParser(new HourDatePathParser())
                 .addTimeRanges(timeRangePool)
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
                 .build(inputSplits);
 
         assertEquals(firstSplit, splitAssigner.getNext(null).get());
@@ -204,6 +232,7 @@ public class ChronologyOrderedSplitAssignerTest {
         ChronologyOrderedSplitAssigner splitAssigner = splitAssignerBuilder
                 .addPathParser(new HourDatePathParser())
                 .addTimeRanges(timeRangePool)
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
                 .build(inputSplits);
 
         assertEquals(firstSplit, splitAssigner.getNext(null).get());
@@ -224,8 +253,11 @@ public class ChronologyOrderedSplitAssignerTest {
         TimeRangePool timeRangePool = new TimeRangePool();
         timeRangePool.add(new TimeRange(Instant.parse("2019-10-12T00:00:00Z"), Instant.parse("2019-10-12T04:00:00Z")));
         timeRangePool.add(new TimeRange(Instant.parse("2020-11-29T00:00:00Z"), Instant.parse("2020-11-30T10:00:00Z")));
-        PathParserNotProvidedException pathParserNotProvidedException = assertThrows(PathParserNotProvidedException.class, () -> splitAssignerBuilder.addTimeRanges(timeRangePool).build(inputSplits));
+        PathParserNotProvidedException pathParserNotProvidedException = assertThrows(PathParserNotProvidedException.class,
+                () -> splitAssignerBuilder
+                        .addTimeRanges(timeRangePool)
+                        .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                        .build(inputSplits));
         assertEquals("Path parser is null", pathParserNotProvidedException.getMessage());
     }
-
 }

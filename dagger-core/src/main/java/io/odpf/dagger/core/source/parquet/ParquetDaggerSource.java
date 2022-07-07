@@ -100,11 +100,10 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
                                 .addPathParser(new HourDatePathParser());
                 return chronologyOrderedSplitAssignerBuilder::build;
             case EARLIEST_INDEX_FIRST:
-            default: {
+            default:
                 DaggerConfigurationException daggerConfigurationException = new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");
                 statsDErrorReporter.reportFatalException(daggerConfigurationException);
                 throw daggerConfigurationException;
-            }
         }
     }
 

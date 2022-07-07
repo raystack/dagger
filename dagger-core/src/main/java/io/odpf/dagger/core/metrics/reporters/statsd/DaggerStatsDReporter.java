@@ -21,7 +21,7 @@ public class DaggerStatsDReporter implements SerializedStatsDReporterSupplier {
         this.daggerConfiguration = daggerConfiguration;
     }
 
-    private String[] generateGlobalTags(io.odpf.dagger.common.configuration.Configuration daggerConfiguration) {
+    private String[] generateGlobalTags() {
         StatsDTag[] globalTags = new StatsDTag[]{
                 new StatsDTag(GlobalTags.JOB_ID, daggerConfiguration.getString(FLINK_JOB_ID_KEY, FLINK_JOB_ID_DEFAULT))};
         return Arrays.stream(globalTags)
@@ -33,7 +33,7 @@ public class DaggerStatsDReporter implements SerializedStatsDReporterSupplier {
     public StatsDReporter getStatsDReporter() {
         if (statsDReporter == null) {
             DaggerMetricsConfig daggerMetricsConfig = new DaggerMetricsConfig(flinkConfiguration);
-            String[] globalTags = generateGlobalTags(daggerConfiguration);
+            String[] globalTags = generateGlobalTags();
             statsDReporter = StatsDReporterBuilder
                     .builder()
                     .withMetricConfig(daggerMetricsConfig)

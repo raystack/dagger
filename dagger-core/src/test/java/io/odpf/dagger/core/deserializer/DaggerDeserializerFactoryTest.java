@@ -8,10 +8,12 @@ import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializ
 import io.odpf.dagger.common.serde.proto.deserialization.ProtoDeserializer;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
 import io.odpf.dagger.core.source.config.models.SourceName;
 import io.odpf.dagger.core.source.config.models.SourceType;
 import io.odpf.dagger.core.source.config.StreamConfig;
+import io.odpf.depot.metrics.StatsDReporter;
 import io.odpf.stencil.client.StencilClient;
 import org.apache.flink.types.Row;
 import org.junit.Before;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -36,6 +39,8 @@ public class DaggerDeserializerFactoryTest {
     @Mock
     private StencilClient stencilClient;
 
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
@@ -47,7 +52,7 @@ public class DaggerDeserializerFactoryTest {
         when(streamConfig.getDataType()).thenReturn("JSON");
         when(streamConfig.getJsonSchema()).thenReturn("{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.com/product.schema.json\", \"title\": \"Product\", \"description\": \"A product from Acme's catalog\", \"type\": \"object\", \"properties\": { \"id\": { \"description\": \"The unique identifier for a product\", \"type\": \"string\" }, \"time\": { \"description\": \"event timestamp of the event\", \"type\": \"string\", \"format\" : \"date-time\" } }, \"required\": [ \"id\", \"time\" ] }");
 
-        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
+        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertTrue(daggerDeserializer instanceof JsonDeserializer);
     }
@@ -61,7 +66,7 @@ public class DaggerDeserializerFactoryTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
+        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertTrue(daggerDeserializer instanceof ProtoDeserializer);
     }
@@ -75,7 +80,7 @@ public class DaggerDeserializerFactoryTest {
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
-        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator);
+        DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertTrue(daggerDeserializer instanceof SimpleGroupDeserializer);
     }
@@ -85,6 +90,6 @@ public class DaggerDeserializerFactoryTest {
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.BOUNDED)});
         when(streamConfig.getDataType()).thenReturn("JSON");
 
-        assertThrows(DaggerConfigurationException.class, () -> DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator));
+        assertThrows(DaggerConfigurationException.class, () -> DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplierMock));
     }
 }

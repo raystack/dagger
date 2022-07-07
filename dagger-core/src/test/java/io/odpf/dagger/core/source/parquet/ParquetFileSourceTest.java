@@ -1,10 +1,12 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.core.source.config.models.SourceType;
 import io.odpf.dagger.core.source.parquet.ParquetFileSource.Builder;
 import io.odpf.dagger.core.source.parquet.path.HourDatePathParser;
 import io.odpf.dagger.core.source.parquet.splitassigner.ChronologyOrderedSplitAssigner;
+import io.odpf.depot.metrics.StatsDReporter;
 import org.apache.flink.connector.file.src.assigners.LocalityAwareSplitAssigner;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ParquetFileSourceTest {
@@ -23,6 +26,8 @@ public class ParquetFileSourceTest {
 
     @Mock
     private FileRecordFormat<Row> fileRecordFormat;
+
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
 
     @Before
     public void setup() {
@@ -34,11 +39,14 @@ public class ParquetFileSourceTest {
         Builder builder = Builder.getInstance();
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
         ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder splitAssignerBuilder = new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder();
-        splitAssignerBuilder.addPathParser(new HourDatePathParser());
+        splitAssignerBuilder
+                .addStatsDReporterSupplier(statsDReporterSupplierMock)
+                .addPathParser(new HourDatePathParser());
         ParquetFileSource parquetFileSource = builder.setConfiguration(configuration)
                 .setFileRecordFormat(fileRecordFormat)
                 .setSourceType(SourceType.BOUNDED)
                 .setFileSplitAssigner(splitAssignerBuilder::build)
+                .setStatsDReporterSupplier(statsDReporterSupplierMock)
                 .setFilePaths(filePaths)
                 .build();
 
@@ -58,6 +66,7 @@ public class ParquetFileSourceTest {
                 () -> builder.setConfiguration(configuration)
                         .setFileRecordFormat(fileRecordFormat)
                         .setSourceType(SourceType.UNBOUNDED)
+                        .setStatsDReporterSupplier(statsDReporterSupplierMock)
                         .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
                         .setFilePaths(filePaths)
                         .build());
@@ -73,6 +82,7 @@ public class ParquetFileSourceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> builder.setConfiguration(configuration)
                         .setSourceType(SourceType.UNBOUNDED)
+                        .setStatsDReporterSupplier(statsDReporterSupplierMock)
                         .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
                         .setFilePaths(filePaths)
                         .build());
@@ -88,6 +98,7 @@ public class ParquetFileSourceTest {
                 () -> builder.setConfiguration(configuration)
                         .setFileRecordFormat(fileRecordFormat)
                         .setSourceType(SourceType.BOUNDED)
+                        .setStatsDReporterSupplier(statsDReporterSupplierMock)
                         .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
                         .build());
 
@@ -100,6 +111,7 @@ public class ParquetFileSourceTest {
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
         ParquetFileSource parquetFileSource = builder.setConfiguration(configuration)
                 .setFileRecordFormat(fileRecordFormat)
+                .setStatsDReporterSupplier(statsDReporterSupplierMock)
                 .setFilePaths(filePaths)
                 .build();
 
@@ -118,6 +130,7 @@ public class ParquetFileSourceTest {
                 .setFileRecordFormat(fileRecordFormat)
                 .setSourceType(SourceType.BOUNDED)
                 .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
+                .setStatsDReporterSupplier(statsDReporterSupplierMock)
                 .setFilePaths(filePaths)
                 .build();
 

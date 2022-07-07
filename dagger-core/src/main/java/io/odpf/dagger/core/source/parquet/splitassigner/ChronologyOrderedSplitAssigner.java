@@ -122,8 +122,8 @@ public class ChronologyOrderedSplitAssigner implements FileSplitAssigner {
             return this;
         }
 
-        public ChronologyOrderedSplitAssignerBuilder addStatsDReporterSupplier(SerializedStatsDReporterSupplier statsDReporterSupplier) {
-            this.statsDReporterSupplier = statsDReporterSupplier;
+        public ChronologyOrderedSplitAssignerBuilder addStatsDReporterSupplier(SerializedStatsDReporterSupplier supplier) {
+            this.statsDReporterSupplier = supplier;
             return this;
         }
 
