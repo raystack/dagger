@@ -12,6 +12,8 @@ import static io.odpf.dagger.core.utils.Constants.NONFATAL_EXCEPTION_METRIC_GROU
 public class StatsDErrorReporter implements ErrorReporter {
     private static final String fatalExceptionTag = new StatsDTag(FATAL_EXCEPTION_METRIC_GROUP_KEY).getFormattedTag();
     private static final String nonFatalExceptionTag = new StatsDTag(NONFATAL_EXCEPTION_METRIC_GROUP_KEY).getFormattedTag();
+    private static final String FATAL_EXCEPTION_EVENT_MEASUREMENT = "fatal_exception_events";
+    private static final String NON_FATAL_EXCEPTION_EVENT_MEASUREMENT = "non_fatal_exception_events";
     private final StatsDReporter statsDReporter;
 
     public StatsDErrorReporter(SerializedStatsDReporterSupplier statsDReporterSupplier) {
@@ -21,11 +23,13 @@ public class StatsDErrorReporter implements ErrorReporter {
     @Override
     public void reportFatalException(Exception exception) {
         statsDReporter.captureCount(exception.getClass().getName(), 1L, fatalExceptionTag);
+        statsDReporter.recordEvent(FATAL_EXCEPTION_EVENT_MEASUREMENT, exception.getMessage(), fatalExceptionTag);
     }
 
     @Override
     public void reportNonFatalException(Exception exception) {
         statsDReporter.captureCount(exception.getClass().getName(), 1L, nonFatalExceptionTag);
+        statsDReporter.recordEvent(NON_FATAL_EXCEPTION_EVENT_MEASUREMENT, exception.getMessage(), nonFatalExceptionTag);
     }
 
     @Override
