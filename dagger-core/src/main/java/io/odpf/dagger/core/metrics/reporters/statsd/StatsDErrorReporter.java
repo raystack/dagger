@@ -32,6 +32,6 @@ public class StatsDErrorReporter implements ErrorReporter {
 
     @Override
     public Counter addExceptionToCounter(Exception exception, MetricGroup metricGroup, String metricGroupKey) {
-        throw new UnsupportedOperationException("This operation is not supported on StatsDReporter");
+        throw new UnsupportedOperationException("This operation is not supported on StatsDErrorReporter");
     }
 }
