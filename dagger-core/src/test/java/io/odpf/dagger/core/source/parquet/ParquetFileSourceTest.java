@@ -17,7 +17,8 @@ import org.mockito.Mock;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ParquetFileSourceTest {
@@ -27,7 +28,10 @@ public class ParquetFileSourceTest {
     @Mock
     private FileRecordFormat<Row> fileRecordFormat;
 
-    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
+    @Mock
+    private StatsDReporter statsDReporter;
+
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> statsDReporter;
 
     @Before
     public void setup() {
@@ -58,7 +62,7 @@ public class ParquetFileSourceTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfSourceTypeConfiguredAsUnbounded() {
+    public void shouldThrowExceptionAndReportErrorIfSourceTypeConfiguredAsUnbounded() {
         Builder builder = Builder.getInstance();
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
 
@@ -72,10 +76,12 @@ public class ParquetFileSourceTest {
                         .build());
 
         assertEquals("Running Parquet FileSource in UNBOUNDED mode is not supported yet", ex.getMessage());
+        verify(statsDReporter, times(1))
+                .captureCount("fatal.exception", 1L, "fatal_exception_type=" + IllegalArgumentException.class.getName());
     }
 
     @Test
-    public void shouldThrowExceptionIfFileRecordFormatIsNotSet() {
+    public void shouldThrowExceptionAndReportErrorIfFileRecordFormatIsNotSet() {
         Builder builder = Builder.getInstance();
         Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
 
@@ -88,10 +94,12 @@ public class ParquetFileSourceTest {
                         .build());
 
         assertEquals("FileRecordFormat is required but is set as null", ex.getMessage());
+        verify(statsDReporter, times(1))
+                .captureCount("fatal.exception", 1L, "fatal_exception_type=" + IllegalArgumentException.class.getName());
     }
 
     @Test
-    public void shouldThrowExceptionIfNoFilePathsSet() {
+    public void shouldThrowExceptionAndReportErrorIfNoFilePathsSet() {
         Builder builder = Builder.getInstance();
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -103,6 +111,24 @@ public class ParquetFileSourceTest {
                         .build());
 
         assertEquals("At least one file path is required but none are provided", ex.getMessage());
+        verify(statsDReporter, times(1))
+                .captureCount("fatal.exception", 1L, "fatal_exception_type=" + IllegalArgumentException.class.getName());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfStatsDReporterSupplierIsNotSet() {
+        Builder builder = Builder.getInstance();
+        Path[] filePaths = new Path[]{new Path("gs://aadadc"), new Path("gs://sjsjhd")};
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> builder.setConfiguration(configuration)
+                        .setFileRecordFormat(fileRecordFormat)
+                        .setSourceType(SourceType.BOUNDED)
+                        .setFileSplitAssigner(new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()::build)
+                        .setFilePaths(filePaths)
+                        .build());
+
+        assertEquals("SerializedStatsDReporterSupplier is required but is set as null", ex.getMessage());
     }
 
     @Test
