@@ -8,16 +8,9 @@ public class StatsDTag {
     private static final String NIL_TAG_VALUE = "NIL_TAG_VALUE";
 
     public StatsDTag(String key, String value) {
-        validate(key, value);
+        Preconditions.checkArgument(key != null && !key.isEmpty(), "Tag key cannot be null or empty");
         this.tagKey = key;
-        this.tagValue = value;
-    }
-
-    private void validate(String key, String value) {
-        Preconditions.checkArgument(key != null && !key.isEmpty(),
-                "Tag key cannot be null or empty");
-        Preconditions.checkArgument(value != null && !value.isEmpty(),
-                "Tag value cannot be null or empty. Refer other constructors for creating a tag with only key");
+        this.tagValue = (value != null && !value.isEmpty()) ? value : NIL_TAG_VALUE;
     }
 
     public StatsDTag(String tagName) {
