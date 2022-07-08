@@ -48,7 +48,10 @@ public class ParquetDaggerSourceTest {
     @Mock
     private StreamExecutionEnvironment streamExecutionEnvironment;
 
-    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
+    @Mock
+    private StatsDReporter statsDReporter;
+
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> statsDReporter;
 
     private FileSource<Row> fileSource;
 
@@ -127,12 +130,14 @@ public class ParquetDaggerSourceTest {
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionIfReadOrderStrategyIsNotSupported() {
+    public void shouldThrowRuntimeExceptionAndReportErrorIfReadOrderStrategyIsNotSupported() {
         when(streamConfig.getParquetFilesReadOrderStrategy()).thenReturn(EARLIEST_INDEX_FIRST);
         when(streamConfig.getParquetFilePaths()).thenReturn(new String[]{"gs://sshsh", "gs://shadd"});
 
         ParquetDaggerSource daggerSource = new ParquetDaggerSource(streamConfig, configuration, daggerDeserializer, statsDReporterSupplierMock);
 
         assertThrows(DaggerConfigurationException.class, () -> daggerSource.register(streamExecutionEnvironment, strategy));
+        verify(statsDReporter, times(1))
+                .captureCount("fatal.exception", 1L, "fatal_exception_type=" + DaggerConfigurationException.class.getName());
     }
 }
