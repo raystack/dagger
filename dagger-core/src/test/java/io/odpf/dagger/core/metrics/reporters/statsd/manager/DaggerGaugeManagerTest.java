@@ -21,7 +21,7 @@ public class DaggerGaugeManagerTest {
         initMocks(this);
     }
 
-    private SerializedStatsDReporterSupplier statsDReporterSupplier = () -> statsDReporter;
+    private final SerializedStatsDReporterSupplier statsDReporterSupplier = () -> statsDReporter;
 
     @Test
     public void shouldMarkGaugeValue() {
