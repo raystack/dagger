@@ -15,7 +15,7 @@ public class StatsDErrorReporter implements ErrorReporter {
     private final StatsDReporter statsDReporter;
 
     public StatsDErrorReporter(SerializedStatsDReporterSupplier statsDReporterSupplier) {
-        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
+        this.statsDReporter = statsDReporterSupplier.buildStatsDReporter();
     }
 
     @Override

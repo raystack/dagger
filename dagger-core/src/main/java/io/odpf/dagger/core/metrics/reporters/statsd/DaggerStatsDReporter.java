@@ -30,7 +30,7 @@ public class DaggerStatsDReporter implements SerializedStatsDReporterSupplier {
     }
 
     @Override
-    public StatsDReporter getStatsDReporter() {
+    public StatsDReporter buildStatsDReporter() {
         if (statsDReporter == null) {
             DaggerMetricsConfig daggerMetricsConfig = new DaggerMetricsConfig(flinkConfiguration);
             String[] globalTags = generateGlobalTags();

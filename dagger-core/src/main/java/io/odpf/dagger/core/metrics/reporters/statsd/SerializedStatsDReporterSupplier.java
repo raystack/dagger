@@ -6,5 +6,5 @@ import java.io.Serializable;
 
 @FunctionalInterface
 public interface SerializedStatsDReporterSupplier extends Serializable {
-    StatsDReporter getStatsDReporter();
+    StatsDReporter buildStatsDReporter();
 }

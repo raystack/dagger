@@ -13,7 +13,7 @@ public class DaggerCounterManager implements MeasurementManager, Counter {
     private String[] formattedTags;
 
     public DaggerCounterManager(SerializedStatsDReporterSupplier statsDReporterSupplier) {
-        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
+        this.statsDReporter = statsDReporterSupplier.buildStatsDReporter();
     }
 
     @Override

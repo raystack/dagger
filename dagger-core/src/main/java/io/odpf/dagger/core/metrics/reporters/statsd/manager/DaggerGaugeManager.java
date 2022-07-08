@@ -13,7 +13,7 @@ public class DaggerGaugeManager implements MeasurementManager, Gauge {
     private String[] formattedTags;
 
     public DaggerGaugeManager(SerializedStatsDReporterSupplier statsDReporterSupplier) {
-        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
+        this.statsDReporter = statsDReporterSupplier.buildStatsDReporter();
     }
 
     @Override

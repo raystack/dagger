@@ -13,7 +13,7 @@ public class DaggerHistogramManager implements MeasurementManager, Histogram {
     private String[] formattedTags;
 
     public DaggerHistogramManager(SerializedStatsDReporterSupplier statsDReporterSupplier) {
-        this.statsDReporter = statsDReporterSupplier.getStatsDReporter();
+        this.statsDReporter = statsDReporterSupplier.buildStatsDReporter();
     }
 
     @Override
