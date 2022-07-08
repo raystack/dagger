@@ -6,6 +6,7 @@ import io.odpf.depot.metrics.StatsDReporter;
 import io.odpf.depot.metrics.StatsDReporterBuilder;
 import org.apache.flink.configuration.Configuration;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import static io.odpf.dagger.core.utils.Constants.FLINK_JOB_ID_DEFAULT;
@@ -41,6 +42,13 @@ public class DaggerStatsDReporter implements SerializedStatsDReporterSupplier {
                     .build();
         }
         return statsDReporter;
+    }
+
+    protected static void close() throws IOException {
+        if (statsDReporter != null) {
+            statsDReporter.close();
+            statsDReporter = null;
+        }
     }
 
     public static class Provider {

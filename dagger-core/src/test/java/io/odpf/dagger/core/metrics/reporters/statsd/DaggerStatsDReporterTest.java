@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -22,24 +24,14 @@ public class DaggerStatsDReporterTest {
     private io.odpf.dagger.common.configuration.Configuration daggerConfiguration;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         initMocks(this);
-    }
-
-    @Test
-    public void shouldBeAbleToBuildAndMaintainSingletonCopyOfStatsDReporter() {
+        DaggerStatsDReporter.close();
         when(daggerConfiguration.getString(anyString(), anyString())).thenReturn("some-tag");
-
-        DaggerStatsDReporter daggerStatsDReporter = DaggerStatsDReporter.Provider.provide(flinkConfiguration, daggerConfiguration);
-
-        assertEquals(daggerStatsDReporter.buildStatsDReporter(), daggerStatsDReporter.buildStatsDReporter());
-
     }
 
     @Test
     public void shouldBuildStatsDReporterWithGlobalTags() {
-        when(daggerConfiguration.getString(anyString(), anyString())).thenReturn("some-tag");
-
         DaggerStatsDReporter.Provider
                 .provide(flinkConfiguration, daggerConfiguration)
                 .buildStatsDReporter();
@@ -51,5 +43,13 @@ public class DaggerStatsDReporterTest {
 
         assertEquals("FLINK_JOB_ID", jobIdCaptor.getValue());
         assertEquals("SQL Flink job", defaultJobIdCaptor.getValue());
+    }
+
+    @Test
+    public void shouldBeAbleToBuildAndMaintainSingletonCopyOfStatsDReporter() {
+        DaggerStatsDReporter daggerStatsDReporter = DaggerStatsDReporter.Provider
+                .provide(flinkConfiguration, daggerConfiguration);
+
+        assertEquals(daggerStatsDReporter.buildStatsDReporter(), daggerStatsDReporter.buildStatsDReporter());
     }
 }
