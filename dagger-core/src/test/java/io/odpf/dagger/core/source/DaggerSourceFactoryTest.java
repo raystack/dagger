@@ -21,7 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -32,7 +33,10 @@ public class DaggerSourceFactoryTest {
     @Mock
     private Configuration configuration;
 
-    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> mock(StatsDReporter.class);
+    @Mock
+    private StatsDReporter statsDReporter;
+
+    private final SerializedStatsDReporterSupplier statsDReporterSupplierMock = () -> statsDReporter;
 
     @Before
     public void setUp() throws Exception {
@@ -67,10 +71,12 @@ public class DaggerSourceFactoryTest {
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionIfNoDaggerSourceCouldBeCreatedAsPerConfigs() {
+    public void shouldThrowRuntimeExceptionAndReportErrorIfNoDaggerSourceCouldBeCreatedAsPerConfigs() {
         SimpleGroupDeserializer deserializer = Mockito.mock(SimpleGroupDeserializer.class);
         when(streamConfig.getSourceDetails()).thenReturn(new SourceDetails[]{new SourceDetails(SourceName.PARQUET_SOURCE, SourceType.UNBOUNDED)});
 
         assertThrows(InvalidDaggerSourceException.class, () -> DaggerSourceFactory.create(streamConfig, configuration, deserializer, statsDReporterSupplierMock));
+        verify(statsDReporter, times(1))
+                .captureCount("fatal.exception", 1L, "fatal_exception_type=" + InvalidDaggerSourceException.class.getName());
     }
 }
