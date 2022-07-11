@@ -6,10 +6,12 @@ import io.odpf.depot.metrics.StatsDReporter;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 
+import java.io.Serializable;
+
 import static io.odpf.dagger.core.utils.Constants.FATAL_EXCEPTION_METRIC_GROUP_KEY;
 import static io.odpf.dagger.core.utils.Constants.NONFATAL_EXCEPTION_METRIC_GROUP_KEY;
 
-public class StatsDErrorReporter implements ErrorReporter {
+public class StatsDErrorReporter implements ErrorReporter, Serializable {
     private static final String FATAL_EXCEPTION_TAG_KEY = "fatal_exception_type";
     private static final String NON_FATAL_EXCEPTION_TAG_KEY = "non_fatal_exception_type";
     private final StatsDReporter statsDReporter;

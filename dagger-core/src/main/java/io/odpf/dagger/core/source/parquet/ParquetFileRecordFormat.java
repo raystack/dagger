@@ -11,17 +11,23 @@ import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
+    /* FileRecordFormat object and all it's fields need to be serializable in order to construct the Flink job graph. Even though
+    StatsDErrorReporter is serializable, it contains StatsDErrorReporter, which in turn contains more fields which may not be
+    serializable.Hence, in order to mitigate job graph creation failures, we wrap the error reporter inside a serializable lambda.
+    This is a common idiom to make un-serializable fields serializable in Java 8: https://stackoverflow.com/a/22808112 */
+
     private final ReaderProvider parquetFileReaderProvider;
     private final Supplier<TypeInformation<Row>> typeInformationProvider;
-    private final StatsDErrorReporter statsDErrorReporter;
+    private final Supplier<StatsDErrorReporter> statsDErrorReporterSupplier;
 
     private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider, SerializedStatsDReporterSupplier statsDReporterSupplier) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
         this.typeInformationProvider = typeInformationProvider;
-        this.statsDErrorReporter = new StatsDErrorReporter(statsDReporterSupplier);
+        this.statsDErrorReporterSupplier = (Supplier<StatsDErrorReporter> & Serializable) () -> new StatsDErrorReporter(statsDReporterSupplier);
     }
 
     @Override
@@ -33,7 +39,7 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
     public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) {
         UnsupportedOperationException ex = new UnsupportedOperationException("Error: ParquetReader do not have offsets and hence cannot be restored "
                 + "via this method.");
-        statsDErrorReporter.reportFatalException(ex);
+        statsDErrorReporterSupplier.get().reportFatalException(ex);
         throw ex;
     }
 
