@@ -12,7 +12,7 @@ For adding custom Transformers follow these steps
 
 - To define a new Transformer implement Transformer interface. The contract of Transformers is defined [here](https://github.com/odpf/dagger/blob/main/dagger-common/src/main/java/io/odpf/dagger/common/core/Transformer.java).
 
-- Since an input DataStream is available in Transformer, all the Flink supported operators which transform `DataStream -> DataStream` can be applied/used by default for the transformations. Operators are how Flink exposes classic Map-reduce type functionalities. Read more about Flink Operators [here](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/stream/operators/).
+- Since an input DataStream is available in Transformer, all the Flink supported operators which transform `DataStream -> DataStream` can be applied/used by default for the transformations. Operators are how Flink exposes classic Map-reduce type functionalities. Read more about Flink Operators [here](https://ci.apache.org/projects/flink/flink-docs-release-1.14/dev/stream/operators/).
 
 - In the case of single Operator Transformation you can extend the desired Operator in the Transformer class itself. For example, follow this code of [HashTransformer](https://github.com/odpf/dagger/blob/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers/HashTransformer.java). You can also define multiple chaining operators to Transform Data.
 

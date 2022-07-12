@@ -19,6 +19,8 @@ import io.odpf.dagger.core.sink.SinkOrchestrator;
 import io.odpf.dagger.core.source.Stream;
 import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
+import io.odpf.dagger.functions.udfs.python.PythonUdfConfig;
+import io.odpf.dagger.functions.udfs.python.PythonUdfManager;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -28,12 +30,15 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.List;
 
 import static io.odpf.dagger.core.utils.Constants.*;
+import static io.odpf.dagger.functions.common.Constants.PYTHON_UDF_ENABLE_DEFAULT;
+import static io.odpf.dagger.functions.common.Constants.PYTHON_UDF_ENABLE_KEY;
 import static org.apache.flink.table.api.Expressions.$;
 
 /**
@@ -138,7 +143,13 @@ public class StreamManager {
      *
      * @return the stream manager
      */
-    public StreamManager registerFunctions() {
+    public StreamManager registerFunctions() throws IOException {
+        if (configuration.getBoolean(PYTHON_UDF_ENABLE_KEY, PYTHON_UDF_ENABLE_DEFAULT)) {
+            PythonUdfConfig pythonUdfConfig = PythonUdfConfig.parse(configuration);
+            PythonUdfManager pythonUdfManager = new PythonUdfManager(tableEnvironment, pythonUdfConfig);
+            pythonUdfManager.registerPythonFunctions();
+        }
+
         String[] functionFactoryClasses = configuration
                 .getString(Constants.FUNCTION_FACTORY_CLASSES_KEY, Constants.FUNCTION_FACTORY_CLASSES_DEFAULT)
                 .split(",");
