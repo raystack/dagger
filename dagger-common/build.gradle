@@ -61,12 +61,13 @@ dependencies {
 
     dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
         exclude module:"commons-cli"
+        exclude module:"commons-compress"
     }
     dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
-    dependenciesCommonJar 'io.odpf:stencil:0.1.6'
+    dependenciesCommonJar 'io.odpf:stencil:0.2.1'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
     dependenciesCommonJar 'org.apache.parquet:parquet-column:1.12.2'
 
