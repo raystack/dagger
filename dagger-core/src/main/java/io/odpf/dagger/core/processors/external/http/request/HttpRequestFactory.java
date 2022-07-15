@@ -19,11 +19,11 @@ public class HttpRequestFactory {
      * @param requestVariablesValues the request variables values
      * @return the bound request builder
      */
-    public static BoundRequestBuilder createRequest(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues) {
+    public static BoundRequestBuilder createRequest(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues,  Object[] headerVariablesValues) {
 
         ArrayList<HttpRequestHandler> httpRequestHandlers = new ArrayList<>();
-        httpRequestHandlers.add(new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues));
-        httpRequestHandlers.add(new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues));
+        httpRequestHandlers.add(new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues, headerVariablesValues));
+        httpRequestHandlers.add(new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues, headerVariablesValues));
 
         HttpRequestHandler httpRequestHandler = httpRequestHandlers
                 .stream()

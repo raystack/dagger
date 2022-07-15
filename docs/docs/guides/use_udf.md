@@ -26,6 +26,24 @@ Some of the use-cases can not be solved using Flink SQL & the Apache Calcite fun
 
   Maps zero or more values to multiple rows and each row may have multiple columns.
 
-All the supported udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory. Follow this to find more details about the already supported UDFs in the dagger.
+All the supported java udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory.
+
+All the supported python udfs present in the [dagger-py-functions](https://github.com/odpf/dagger/tree/main/dagger-py-functions/udfs/) directory.
+
+Follow [this](../reference/udfs.md) to find more details about the already supported UDFs in the dagger.
 
 If any of the predefined functions do not meet your requirement you can create your custom UDFs by extending some implementation. Follow [this](../contribute/add_udf.md) to add your custom UDFs in the dagger.
+
+## Python Environment Setup
+
+Python UDF execution requires Python version (3.6, 3.7 or 3.8) with PyFlink installed.
+
+PyFlink is available in PyPi and can be installed as follows:
+```
+$ python -m pip install apache-flink==1.14.3
+```
+
+To satisfy the PyFlink requirement regarding the Python environment version, you need to soft link python to point to your python3 interpreter:
+```
+ln -s /usr/bin/python3 python
+```

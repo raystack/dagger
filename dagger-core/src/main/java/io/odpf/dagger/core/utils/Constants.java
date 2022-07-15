@@ -165,4 +165,5 @@ public class Constants {
 
     public static final long MAX_EVENT_LOOP_EXECUTE_TIME_DEFAULT = 10000;
     public static final int LONGBOW_OUTPUT_ADDITIONAL_ARITY = 3;
+    public enum ExternalPostProcessorVariableType { REQUEST_VARIABLES, HEADER_VARIABLES, QUERY_VARIABLES, ENDPOINT_VARIABLE };
 }

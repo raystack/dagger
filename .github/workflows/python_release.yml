@@ -1,0 +1,25 @@
+name: Python Package
+on:
+  release:
+    types: [created]
+
+jobs:
+  publishPythonZip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Zip Python Udf
+        run: |
+          cd dagger-py-functions
+          zip -r python_udfs.zip udfs -x "*/__init__.py"
+          zip -jr data.zip data
+          zip -r dagger-py-functions.zip requirements.txt data.zip python_udfs.zip
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: dagger-py-functions/dagger-py-functions.zip
+          allowUpdates: true
+          omitNameDuringUpdate: true
+          omitBodyDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}

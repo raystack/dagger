@@ -161,7 +161,7 @@ public abstract class AsyncConnector extends RichAsyncFunction<Row, Row> impleme
             meterStatsManager = new MeterStatsManager(getRuntimeContext().getMetricGroup(), true);
         }
         if (endpointHandler == null) {
-            endpointHandler = new EndpointHandler(sourceConfig, meterStatsManager, errorReporter,
+            endpointHandler = new EndpointHandler(meterStatsManager, errorReporter,
                     schemaConfig.getInputProtoClasses(), schemaConfig.getColumnNameManager(), descriptorManager);
         }
 
