@@ -2,6 +2,8 @@ package io.odpf.dagger.core.source.parquet;
 
 import static com.google.api.client.util.Preconditions.checkArgument;
 
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.StatsDErrorReporter;
 import io.odpf.dagger.core.source.parquet.reader.ReaderProvider;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
@@ -9,15 +11,23 @@ import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.Row;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
+    /* FileRecordFormat object and all it's fields need to be serializable in order to construct the Flink job graph. Even though
+    StatsDErrorReporter is serializable, it contains StatsDErrorReporter, which in turn contains more fields which may not be
+    serializable.Hence, in order to mitigate job graph creation failures, we wrap the error reporter inside a serializable lambda.
+    This is a common idiom to make un-serializable fields serializable in Java 8: https://stackoverflow.com/a/22808112 */
+
     private final ReaderProvider parquetFileReaderProvider;
     private final Supplier<TypeInformation<Row>> typeInformationProvider;
+    private final Supplier<StatsDErrorReporter> statsDErrorReporterSupplier;
 
-    private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider) {
+    private ParquetFileRecordFormat(ReaderProvider parquetFileReaderProvider, Supplier<TypeInformation<Row>> typeInformationProvider, SerializedStatsDReporterSupplier statsDReporterSupplier) {
         this.parquetFileReaderProvider = parquetFileReaderProvider;
         this.typeInformationProvider = typeInformationProvider;
+        this.statsDErrorReporterSupplier = (Supplier<StatsDErrorReporter> & Serializable) () -> new StatsDErrorReporter(statsDReporterSupplier);
     }
 
     @Override
@@ -27,8 +37,10 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
 
     @Override
     public Reader<Row> restoreReader(Configuration config, Path filePath, long restoredOffset, long splitOffset, long splitLength) {
-        throw new UnsupportedOperationException("Error: ParquetReader do not have offsets and hence cannot be restored "
+        UnsupportedOperationException ex = new UnsupportedOperationException("Error: ParquetReader do not have offsets and hence cannot be restored "
                 + "via this method.");
+        statsDErrorReporterSupplier.get().reportFatalException(ex);
+        throw ex;
     }
 
     @Override
@@ -44,6 +56,7 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
     public static class Builder {
         private ReaderProvider parquetFileReaderProvider;
         private Supplier<TypeInformation<Row>> typeInformationProvider;
+        private SerializedStatsDReporterSupplier statsDReporterSupplier;
 
         public static Builder getInstance() {
             return new Builder();
@@ -52,6 +65,7 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
         private Builder() {
             this.parquetFileReaderProvider = null;
             this.typeInformationProvider = null;
+            this.statsDReporterSupplier = null;
         }
 
         public Builder setParquetFileReaderProvider(ReaderProvider parquetFileReaderProvider) {
@@ -64,10 +78,23 @@ public class ParquetFileRecordFormat implements FileRecordFormat<Row> {
             return this;
         }
 
+        public Builder setStatsDReporterSupplier(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+            this.statsDReporterSupplier = statsDReporterSupplier;
+            return this;
+        }
+
         public ParquetFileRecordFormat build() {
-            checkArgument(parquetFileReaderProvider != null, "ReaderProvider is required but is set as null");
-            checkArgument(typeInformationProvider != null, "TypeInformationProvider is required but is set as null");
-            return new ParquetFileRecordFormat(parquetFileReaderProvider, typeInformationProvider);
+            try {
+                checkArgument(parquetFileReaderProvider != null, "ReaderProvider is required but is set as null");
+                checkArgument(typeInformationProvider != null, "TypeInformationProvider is required but is set as null");
+                checkArgument(statsDReporterSupplier != null, "SerializedStatsDReporterSupplier is required but is set as null");
+                return new ParquetFileRecordFormat(parquetFileReaderProvider, typeInformationProvider, statsDReporterSupplier);
+            } catch (IllegalArgumentException ex) {
+                if (statsDReporterSupplier != null) {
+                    new StatsDErrorReporter(statsDReporterSupplier).reportFatalException(ex);
+                }
+                throw ex;
+            }
         }
     }
 }

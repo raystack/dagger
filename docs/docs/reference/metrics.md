@@ -16,6 +16,7 @@ Service-level Indicators \(SLIs\) are the measurements used to calculate the per
 - [Processors](metrics.md#processors)
 - [Longbow](metrics.md#longbow)
 - [Checkpointing](metrics.md#checkpointing)
+- [Parquet Source](metrics.md#parquet-source)
 
 ## Overview
 
@@ -434,6 +435,49 @@ This shows the details about checkpointing of the dagger job. Checkpointing is F
 ### `Stream`
 
 - The stream where the input topic is read from
+
+## Parquet Source
+
+This shows the metrics related to Parquet Source in Dagger. The metrics included are:
+
+### Row Deserialization Time Percentiles
+
+- This shows the percentile distribution of the time duration required to deserialize a single parquet record from a file
+into a row. 
+
+### Rows Emitted by Source Per Second 
+
+- This shows, as the title suggests, the number of rows emitted by each source-reader aka the task manager per second. This 
+acts as a measure of the throughput of the parquet source.
+
+### Parquet Record Read Time Percentiles
+
+- This shows the percentile distribution of the time duration required to read a single parquet record from a file.
+
+### Total File Splits Discovered
+
+- This shows the net total of all files discovered by Dagger after doing a recursive search on all the GCS URLs as specified by the 
+config `SOURCE_PARQUET_FILE_PATHS`.
+
+### Total File Splits To Be Processed
+
+- This shows the net total of all files which will be processed by this dagger job. It is basically the number of file 
+paths as shown by the metric [`Total File Splits Discovered`](metrics.md#total-file-splits-discovered) minus the files which were skipped after applying the time 
+range filter as specified by config [`SOURCE_PARQUET_FILE_DATE_RANGE`](configuration.md#source_parquet_file_date_range).
+
+### File Splits Remaining For Processing
+
+- This shows the number of files which are pending to be processed by Dagger. It is a live metric and as the job progresses, 
+this value will slowly come down as the files get processed by Dagger and ultimately become 0 when the job completes.
+
+### Readers Created Per Minute
+
+- This shows the number of Parquet File readers which are created by Dagger per minute to process the files. One 
+reader is created for each new file. Readers are not re-used.
+
+### Readers Closed Per Minute
+
+- This shows the number of Parquet File readers which are closed and cleaned up by Dagger per minute.
 
 ## Overview
 

@@ -1,7 +1,14 @@
 package io.odpf.dagger.core.source.parquet.reader;
 
+import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.StatsDErrorReporter;
+import io.odpf.dagger.core.metrics.reporters.statsd.manager.DaggerCounterManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.manager.DaggerHistogramManager;
+import io.odpf.dagger.core.metrics.reporters.statsd.tags.StatsDTag;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.ParquetFileSourceReaderInitializationException;
+import io.odpf.dagger.core.metrics.aspects.ParquetReaderAspects;
 import org.apache.flink.connector.file.src.reader.FileRecordFormat;
 import org.apache.flink.connector.file.src.util.CheckpointedPosition;
 import org.apache.flink.types.Row;
@@ -22,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.time.Instant;
+
+import static io.odpf.dagger.core.metrics.reporters.statsd.tags.ComponentTags.getParquetReaderTags;
 
 public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private final Path hadoopFilePath;
@@ -33,15 +43,30 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     private RecordReader<Group> recordReader;
     private final MessageType schema;
     private long totalEmittedRowCount;
+    private DaggerCounterManager daggerCounterManager;
+    private DaggerHistogramManager daggerHistogramManager;
+    private final StatsDErrorReporter statsDErrorReporter;
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetReader.class.getName());
 
-    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader parquetFileReader) throws IOException {
+    private ParquetReader(Path hadoopFilePath, SimpleGroupDeserializer simpleGroupDeserializer, ParquetFileReader
+            parquetFileReader, SerializedStatsDReporterSupplier statsDReporterSupplier) throws IOException {
         this.hadoopFilePath = hadoopFilePath;
         this.simpleGroupDeserializer = simpleGroupDeserializer;
         this.parquetFileReader = parquetFileReader;
         this.schema = this.parquetFileReader.getFileMetaData().getSchema();
         this.isRecordReaderInitialized = false;
         this.totalEmittedRowCount = 0L;
+        this.registerTagsWithMeasurementManagers(statsDReporterSupplier);
+        this.statsDErrorReporter = new StatsDErrorReporter(statsDReporterSupplier);
+        daggerCounterManager.increment(ParquetReaderAspects.READER_CREATED);
+    }
+
+    private void registerTagsWithMeasurementManagers(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+        StatsDTag[] parquetReaderTags = getParquetReaderTags();
+        this.daggerCounterManager = new DaggerCounterManager(statsDReporterSupplier);
+        this.daggerCounterManager.register(parquetReaderTags);
+        this.daggerHistogramManager = new DaggerHistogramManager(statsDReporterSupplier);
+        this.daggerHistogramManager.register(parquetReaderTags);
     }
 
     private boolean checkIfNullPage(PageReadStore page) {
@@ -69,6 +94,8 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
     }
 
     private Row readRecords() throws IOException {
+        long startReadTime = Instant.now().toEpochMilli();
+
         if (currentRecordIndex >= rowCount) {
             PageReadStore nextPage = parquetFileReader.readNextRowGroup();
             if (checkIfNullPage(nextPage)) {
@@ -76,7 +103,29 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
             }
             changeReaderPosition(nextPage);
         }
-        return readAndDeserialize();
+        SimpleGroup simpleGroup = (SimpleGroup) recordReader.read();
+        long endReadTime = Instant.now().toEpochMilli();
+
+        currentRecordIndex++;
+        long startDeserializationTime = Instant.now().toEpochMilli();
+
+        Row row = deserialize(simpleGroup);
+
+        long endDeserializationTime = Instant.now().toEpochMilli();
+        totalEmittedRowCount++;
+
+        daggerHistogramManager.recordValue(ParquetReaderAspects.READER_ROW_READ_TIME, endReadTime - startReadTime);
+        daggerHistogramManager.recordValue(ParquetReaderAspects.READER_ROW_DESERIALIZATION_TIME, endDeserializationTime - startDeserializationTime);
+        return row;
+    }
+
+    private Row deserialize(SimpleGroup simpleGroup) {
+        try {
+            return simpleGroupDeserializer.deserialize(simpleGroup);
+        } catch (DaggerDeserializationException exception) {
+            statsDErrorReporter.reportFatalException(exception);
+            throw exception;
+        }
     }
 
     @Nullable
@@ -85,14 +134,8 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         if (!isRecordReaderInitialized) {
             initializeRecordReader();
         }
-        return readRecords();
-    }
-
-    private Row readAndDeserialize() {
-        SimpleGroup simpleGroup = (SimpleGroup) recordReader.read();
-        currentRecordIndex++;
-        Row row = simpleGroupDeserializer.deserialize(simpleGroup);
-        totalEmittedRowCount++;
+        Row row = readRecords();
+        daggerCounterManager.increment(ParquetReaderAspects.READER_ROWS_EMITTED);
         return row;
     }
 
@@ -102,6 +145,7 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
         closeRecordReader();
         String logMessage = String.format("Closed the ParquetFileReader and de-referenced the RecordReader for file %s", hadoopFilePath.getName());
         LOGGER.info(logMessage);
+        daggerCounterManager.increment(ParquetReaderAspects.READER_CLOSED);
     }
 
     private void closeRecordReader() {
@@ -118,9 +162,11 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
 
     public static class ParquetReaderProvider implements ReaderProvider {
         private final SimpleGroupDeserializer simpleGroupDeserializer;
+        private final SerializedStatsDReporterSupplier statsDReporterSupplier;
 
-        public ParquetReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer) {
+        public ParquetReaderProvider(SimpleGroupDeserializer simpleGroupDeserializer, SerializedStatsDReporterSupplier statsDReporterSupplier) {
             this.simpleGroupDeserializer = simpleGroupDeserializer;
+            this.statsDReporterSupplier = statsDReporterSupplier;
         }
 
         @Override
@@ -129,9 +175,11 @@ public class ParquetReader implements FileRecordFormat.Reader<Row> {
                 Configuration conf = new Configuration();
                 Path hadoopFilePath = new Path(filePath);
                 ParquetFileReader parquetFileReader = ParquetFileReader.open(HadoopInputFile.fromPath(hadoopFilePath, conf));
-                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader);
+                return new ParquetReader(hadoopFilePath, simpleGroupDeserializer, parquetFileReader, statsDReporterSupplier);
             } catch (IOException | RuntimeException ex) {
-                throw new ParquetFileSourceReaderInitializationException(ex);
+                ParquetFileSourceReaderInitializationException exception = new ParquetFileSourceReaderInitializationException(ex);
+                new StatsDErrorReporter(statsDReporterSupplier).reportFatalException(exception);
+                throw exception;
             }
         }
     }
