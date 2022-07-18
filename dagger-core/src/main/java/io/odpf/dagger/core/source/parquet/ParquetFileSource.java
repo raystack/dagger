@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.core.metrics.reporters.statsd.StatsDErrorReporter;
 import io.odpf.dagger.core.source.config.models.SourceType;
 import lombok.Getter;
 import org.apache.flink.connector.file.src.FileSource;
@@ -51,6 +53,7 @@ public class ParquetFileSource implements Serializable {
         private FileRecordFormat<Row> fileRecordFormat;
         private Configuration configuration;
         private FileSplitAssigner.Provider fileSplitAssigner;
+        private SerializedStatsDReporterSupplier statsDReporterSupplier;
 
         public static Builder getInstance() {
             return new Builder();
@@ -89,12 +92,25 @@ public class ParquetFileSource implements Serializable {
             return this;
         }
 
+        public Builder setStatsDReporterSupplier(SerializedStatsDReporterSupplier statsDReporterSupplier) {
+            this.statsDReporterSupplier = statsDReporterSupplier;
+            return this;
+        }
+
         /* other validations if required before creating the file source can be put here */
         /* for example, checking that all the file paths conform to just one partitioning strategy */
         private void sanityCheck() {
-            checkArgument(fileRecordFormat != null, "FileRecordFormat is required but is set as null");
-            checkArgument(filePaths.length != 0, "At least one file path is required but none are provided");
-            checkArgument(sourceType == BOUNDED, "Running Parquet FileSource in UNBOUNDED mode is not supported yet");
+            try {
+                checkArgument(statsDReporterSupplier != null, "SerializedStatsDReporterSupplier is required but is set as null");
+                checkArgument(fileRecordFormat != null, "FileRecordFormat is required but is set as null");
+                checkArgument(filePaths.length != 0, "At least one file path is required but none are provided");
+                checkArgument(sourceType == BOUNDED, "Running Parquet FileSource in UNBOUNDED mode is not supported yet");
+            } catch (IllegalArgumentException exception) {
+                if (statsDReporterSupplier != null) {
+                    new StatsDErrorReporter(statsDReporterSupplier).reportFatalException(exception);
+                }
+                throw exception;
+            }
         }
 
         public ParquetFileSource build() {

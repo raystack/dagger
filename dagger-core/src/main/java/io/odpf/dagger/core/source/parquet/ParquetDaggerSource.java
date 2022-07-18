@@ -1,9 +1,11 @@
 package io.odpf.dagger.core.source.parquet;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
 import io.odpf.dagger.common.serde.DaggerDeserializer;
 import io.odpf.dagger.common.serde.parquet.deserialization.SimpleGroupDeserializer;
 import io.odpf.dagger.core.exception.DaggerConfigurationException;
+import io.odpf.dagger.core.metrics.reporters.statsd.StatsDErrorReporter;
 import io.odpf.dagger.core.source.DaggerSource;
 import io.odpf.dagger.core.source.config.StreamConfig;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
@@ -33,13 +35,17 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
     private final DaggerDeserializer<Row> deserializer;
     private final StreamConfig streamConfig;
     private final Configuration configuration;
+    private final SerializedStatsDReporterSupplier statsDReporterSupplier;
     private static final SourceType SUPPORTED_SOURCE_TYPE = BOUNDED;
     private static final SourceName SUPPORTED_SOURCE_NAME = PARQUET_SOURCE;
+    private final StatsDErrorReporter statsDErrorReporter;
 
-    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer) {
+    public ParquetDaggerSource(StreamConfig streamConfig, Configuration configuration, DaggerDeserializer<Row> deserializer, SerializedStatsDReporterSupplier statsDReporterSupplier) {
         this.streamConfig = streamConfig;
         this.configuration = configuration;
         this.deserializer = deserializer;
+        this.statsDReporterSupplier = statsDReporterSupplier;
+        this.statsDErrorReporter = new StatsDErrorReporter(statsDReporterSupplier);
     }
 
     @Override
@@ -71,6 +77,7 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
                 .setFileRecordFormat(parquetFileRecordFormat)
                 .setSourceType(SUPPORTED_SOURCE_TYPE)
                 .setFileSplitAssigner(splitAssignerProvider)
+                .setStatsDReporterSupplier(statsDReporterSupplier)
                 .build();
         return parquetFileSource.buildFileSource();
     }
@@ -89,22 +96,26 @@ public class ParquetDaggerSource implements DaggerSource<Row> {
                 ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder chronologyOrderedSplitAssignerBuilder =
                         new ChronologyOrderedSplitAssigner.ChronologyOrderedSplitAssignerBuilder()
                                 .addTimeRanges(streamConfig.getParquetFileDateRange())
+                                .addStatsDReporterSupplier(statsDReporterSupplier)
                                 .addPathParser(new HourDatePathParser());
                 return chronologyOrderedSplitAssignerBuilder::build;
             case EARLIEST_INDEX_FIRST:
             default:
-                throw new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");
+                DaggerConfigurationException daggerConfigurationException = new DaggerConfigurationException("Error: file split assignment strategy not configured or not supported yet.");
+                statsDErrorReporter.reportFatalException(daggerConfigurationException);
+                throw daggerConfigurationException;
         }
     }
 
     private ParquetFileRecordFormat buildParquetFileRecordFormat() {
         SimpleGroupDeserializer simpleGroupDeserializer = (SimpleGroupDeserializer) deserializer;
-        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer);
+        ReaderProvider parquetFileReaderProvider = new ParquetReader.ParquetReaderProvider(simpleGroupDeserializer, statsDReporterSupplier);
         ParquetFileRecordFormat.Builder parquetFileRecordFormatBuilder = ParquetFileRecordFormat.Builder.getInstance();
         Supplier<TypeInformation<Row>> typeInformationProvider = (Supplier<TypeInformation<Row>> & Serializable) simpleGroupDeserializer::getProducedType;
         return parquetFileRecordFormatBuilder
                 .setParquetFileReaderProvider(parquetFileReaderProvider)
                 .setTypeInformationProvider(typeInformationProvider)
+                .setStatsDReporterSupplier(statsDReporterSupplier)
                 .build();
     }
 }
