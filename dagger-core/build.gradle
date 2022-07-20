@@ -48,7 +48,6 @@ configurations {
     dependenciesJar.exclude group: 'org.apache.commons', module: 'commons-math3'
     dependenciesJar.exclude group: 'org.slf4j'
     dependenciesJar.exclude group: 'log4j'
-    minimalJar.exclude group: 'org.apache.httpcomponents'
 
     compile.extendsFrom minimalJar
     testCompile.extendsFrom compileOnly
@@ -62,8 +61,10 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar 'io.odpf:depot:0.1.5'
-
+    minimalJar('io.odpf:depot:0.1.5') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude module: 'stencil', group: 'io.odpf'
+    }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
