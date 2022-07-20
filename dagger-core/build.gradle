@@ -64,7 +64,7 @@ dependencies {
     minimalJar('io.odpf:depot:0.1.5') {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'stencil', group: 'io.odpf'
-        exclude module: 'protobuf-java', group: 'com.google.protobuf'
+        exclude group: 'com.google.protobuf'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
