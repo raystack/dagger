@@ -48,7 +48,7 @@ configurations {
     dependenciesJar.exclude group: 'org.apache.commons', module: 'commons-math3'
     dependenciesJar.exclude group: 'org.slf4j'
     dependenciesJar.exclude group: 'log4j'
-    minimalJar.exclude module: 'httpclient', group: 'org.apache.httpcomponents'
+    minimalJar.exclude group: 'org.apache.httpcomponents'
 
     compile.extendsFrom minimalJar
     testCompile.extendsFrom compileOnly
