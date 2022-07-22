@@ -53,7 +53,12 @@ message TestEnumMessage {
 }
 
 message TestComplexMap {
+    message IdMessage {
+        repeated string ids = 1;
+    }
     map<int32, TestMessage> complex_map = 1;
+    map<int64, IdMessage> int_message = 2;
+    map<string, IdMessage> string_message = 3;
 }
 
 message TestRepeatedPrimitiveMessage {
