@@ -12,8 +12,8 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
-import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -211,7 +211,7 @@ public class EsResponseHandlerTest {
         outputColumnNames.add("driver_id");
         columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
         esResponseHandler = new EsResponseHandler(esSourceConfig, meterStatsManager, rowManager, columnNameManager, defaultDescriptor, resultFuture, errorReporter, new PostResponseTelemetry());
-        outputData.setField(0, ProtoHandlerFactory.getProtoHandler(defaultDescriptor.findFieldByName("driver_id")).transformFromPostProcessor(12345));
+        outputData.setField(0, TypeHandlerFactory.getTypeHandler(defaultDescriptor.findFieldByName("driver_id")).transformFromPostProcessor(12345));
         outputStreamData.setField(1, outputData);
 
         esResponseHandler.startTimer();

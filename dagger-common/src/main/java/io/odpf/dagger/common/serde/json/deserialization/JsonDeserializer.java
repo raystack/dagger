@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.json.deserialization;
 
+import io.odpf.dagger.common.serde.DaggerDeserializer;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.formats.json.JsonRowDeserializationSchema;
@@ -16,7 +17,7 @@ import java.time.Instant;
 
 import static io.odpf.dagger.common.core.Constants.ROWTIME;
 
-public class JsonDeserializer implements KafkaDeserializationSchema<Row> {
+public class JsonDeserializer implements KafkaDeserializationSchema<Row>, DaggerDeserializer<Row> {
     private final JsonRowDeserializationSchema jsonRowDeserializationSchema;
     private final int rowtimeIdx;
     private final TypeInformation<Row> typeInformation;

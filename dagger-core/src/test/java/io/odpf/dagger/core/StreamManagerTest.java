@@ -53,7 +53,6 @@ public class StreamManagerTest {
             + "            \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"flink-sql-flud-gp0330\",\n"
             + "            \"INPUT_SCHEMA_PROTO_CLASS\": \"io.odpf.dagger.consumer.TestBookingLogMessage\",\n"
             + "            \"INPUT_SCHEMA_TABLE\": \"data_stream\",\n"
-            + "            \"INPUT_SOURCE_TYPE\": \"KAFKA_SOURCE\",\n"
             + "            \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\"\n"
             + "        }\n"
             + "]";
@@ -93,9 +92,6 @@ public class StreamManagerTest {
 
     @Mock
     private Stream stream;
-
-    @Mock
-    private WatermarkStrategy<Row> watermarkStrategy;
 
     @Before
     public void setup() {
@@ -147,7 +143,7 @@ public class StreamManagerTest {
     @Test
     public void shouldRegisterSourceWithPreprocessorsWithWaterMarks() {
         when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
-        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class), any(String.class))).thenReturn(singleOutputStream);
+        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
         when(singleOutputStream.getType()).thenReturn(typeInformation);
         when(stream.getStreamName()).thenReturn("data_stream");
 
@@ -161,7 +157,7 @@ public class StreamManagerTest {
     @Test
     public void shouldCreateValidSourceWithWatermarks() {
         when(singleOutputStream.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
-        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class), any(String.class))).thenReturn(singleOutputStream);
+        when(stream.registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
         when(singleOutputStream.getType()).thenReturn(typeInformation);
         when(stream.getStreamName()).thenReturn("data_stream");
 
@@ -169,7 +165,7 @@ public class StreamManagerTest {
         streamManagerStub.registerConfigs();
         streamManagerStub.registerSourceWithPreProcessors();
 
-        verify(stream, Mockito.times(1)).registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class), any(String.class));
+        verify(stream, Mockito.times(1)).registerSource(any(StreamExecutionEnvironment.class), any(WatermarkStrategy.class));
     }
 
     @Test

@@ -1,32 +1,51 @@
 package io.odpf.dagger.core.source;
 
-import io.odpf.dagger.common.serde.DataTypes;
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.StencilClientOrchestrator;
+import io.odpf.dagger.core.metrics.reporters.statsd.SerializedStatsDReporterSupplier;
+import io.odpf.dagger.common.serde.DaggerDeserializer;
+import io.odpf.dagger.core.deserializer.DaggerDeserializerFactory;
+import io.odpf.dagger.core.source.config.StreamConfig;
 import lombok.Getter;
-import lombok.NonNull;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
 
-public class Stream {
-    @Getter
-    @NonNull
-    private final DaggerSource daggerSource;
-    @Getter
-    @NonNull
-    private final String streamName;
-    @Getter
-    @NonNull
-    private DataTypes inputDataType;
+import java.io.Serializable;
 
-    public Stream(DaggerSource daggerSource, String streamName, DataTypes inputDataType) {
+public class Stream implements Serializable {
+    @Getter
+    private final DaggerSource<Row> daggerSource;
+    @Getter
+    private final String streamName;
+
+    Stream(DaggerSource<Row> daggerSource, String streamName) {
         this.daggerSource = daggerSource;
         this.streamName = streamName;
-        this.inputDataType = inputDataType;
     }
 
-    public DataStream<Row> registerSource(StreamExecutionEnvironment executionEnvironment, WatermarkStrategy<Row> watermarkStrategy, String stream) {
-        return daggerSource.register(executionEnvironment, watermarkStrategy, stream);
+    public DataStream<Row> registerSource(StreamExecutionEnvironment executionEnvironment, WatermarkStrategy<Row> watermarkStrategy) {
+        return daggerSource.register(executionEnvironment, watermarkStrategy);
+    }
+
+    public static class Builder {
+        private final StreamConfig streamConfig;
+        private final Configuration configuration;
+        private final StencilClientOrchestrator stencilClientOrchestrator;
+        private final SerializedStatsDReporterSupplier statsDReporterSupplier;
+
+        public Builder(StreamConfig streamConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, SerializedStatsDReporterSupplier statsDReporterSupplier) {
+            this.streamConfig = streamConfig;
+            this.configuration = configuration;
+            this.stencilClientOrchestrator = stencilClientOrchestrator;
+            this.statsDReporterSupplier = statsDReporterSupplier;
+        }
+
+        public Stream build() {
+            DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplier);
+            DaggerSource<Row> daggerSource = DaggerSourceFactory.create(streamConfig, configuration, daggerDeserializer, statsDReporterSupplier);
+            return new Stream(daggerSource, streamConfig.getSchemaTable());
+        }
     }
 }
-

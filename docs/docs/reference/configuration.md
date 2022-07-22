@@ -19,20 +19,33 @@ This page contains references for all the application configurations for Dagger.
 
 ### Generic
 
-All of the sink type of Dagger requires the following variables to be set:
+All the sink types of Dagger require the following variables to be set:
 
 #### `STREAMS`
 
-Dagger can run on multiple streams, so streams config can con consist of multiple streams. Multiple streams could be given in a comma-separated format.
+Dagger can run on multiple streams, so STREAMS config can con consist of multiple streams. Multiple streams could be given in a comma-separated format.
 
 For each stream, these following variables need to be configured: 
+
+#### `SOURCE_DETAILS`
+Defines the type of source to be used as well as its boundedness. This is an ordered JSON array, with each JSON structure 
+containing two fields: `SOURCE_NAME` and `SOURCE_TYPE`. As of the latest release, only one source can be configured per stream and 
+hence arity of this array cannot be more than one. 
+
+| **JSON Field Name**|**Field Name Description**|**Data Type**|**Data Type Description**|
+|--|--|--|--|
+|`SOURCE_TYPE`| Defines the boundedness of the source |**ENUM** [`BOUNDED`, `UNBOUNDED`] |<ul><li>`BOUNDED` is a data source type which is known to be finite and has a fixed start and end point. Once the dagger job is created and running, new additions of data to this source will not be processed.</li><li> `UNBOUNDED` is a data source with a fixed starting point but theoretically infinite end point. New data added will be processed even after dagger has been started and is running.</li></ul>|
+|`SOURCE_NAME`|Defines the formal, registered name of the source in Dagger|**ENUM**[`KAFKA_SOURCE`, `PARQUET_SOURCE`, `KAFKA_CONSUMER`]|<ul><li>`KAFKA_SOURCE` is an `UNBOUNDED` data source type using Apache Kafka as the source.</li><li>`PARQUET_SOURCE` is a `BOUNDED` data source type using Parquet Files present in GCS Buckets as the source.</li><li>`KAFKA_CONSUMER` is a `BOUNDED` source type built on deprecated [FlinkKafkaConsumer](https://nightlies.apache.org/flink/flink-docs-release-1.14/api/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaConsumer.html).</li></ul>|
+
+* Example value: `[{"SOURCE_TYPE": "UNBOUNDED","SOURCE_NAME": "KAFKA_CONSUMER"}]`
+* Type: `required`
 
 ##### `SOURCE_KAFKA_TOPIC_NAMES`
 
 Defines the list of Kafka topics to consume from. To consume from multiple topics, you need to add `|` as separator for each topic.
 
 * Example value: `test-topic1|test-topic2`
-* Type: `required`
+* Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
 ##### `INPUT_SCHEMA_TABLE`
 
@@ -43,7 +56,7 @@ Defines the table name for the stream. `FLINK_SQL_QUERY` will get executed on th
 
 ##### `INPUT_SCHEMA_PROTO_CLASS`
 
-Defines the schema proto class of input data from Kafka.
+Defines the schema proto class of input data.
 
 * Example value: `com.tests.TestMessage`
 * Type: `required`
@@ -60,7 +73,7 @@ Defines the field index of event timestamp from the input proto class that will 
 Defines the bootstrap server of Kafka brokers to consume from. Multiple Kafka brokers could be given in a comma-separated format.
 
 * Example value: `localhost:9092`
-* Type: `required`
+* Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
@@ -83,30 +96,107 @@ Defines the Kafka consumer offset reset policy. Find more details on this config
 Defines the Kafka consumer group ID for Dagger deployment. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_group.id).
 
 * Example value: `dummy-consumer-group`
-* Type: `optional`
+* Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
 ##### `SOURCE_KAFKA_NAME`
 
 Defines a name for the Kafka cluster. It's a logical way to name your Kafka clusters.This helps with identifying different kafka cluster the job might be interacting with.
 
 * Example value: `local-kafka-stream`
-* Type: `required`
+* Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
-##### Sample Configuration
+#### `SOURCE_PARQUET_FILE_PATHS`
+
+Defines the array of date partitioned or hour partitioned file path URLs to be processed by Parquet Source. These can be
+either local file paths such as `/Users/dummy_user/booking_log/dt=2022-01-23/` or GCS file path URLs.
+
+* Example value:  `["gs://my-sample-bucket/booking-log/dt=2022-01-23/", "gs://my-sample-bucket/booking-log/dt=2021-01-23/"]`
+* Type: `required` only when `PARQUET_SOURCE` is configured in `SOURCE_DETAILS`
+
+Note: 
+1. Each file path in the array can be either a fully qualified file path, 
+for example `gs://my-sample-bucket/booking-log/dt=2021-01-23/my_file.parquet` or it can be a directory path, 
+for example `gs://my-sample-bucket/booking-log/`. For the latter, Dagger upon starting will first do a recursive search 
+for all files under the `booking-log` directory. If 
+[SOURCE_PARQUET_FILE_DATE_RANGE](configuration.md#source_parquet_file_date_range) is configured, it will only add those
+files as defined by the range into its internal index for processing and skip the others. If not configured, all the 
+discovered files are processed.
+
+#### `SOURCE_PARQUET_READ_ORDER_STRATEGY`
+
+Defines the ordering in which files discovered from `SOURCE_PARQUET_FILE_PATHS` will be processed. Currently, this takes 
+just one possible value: `EARLIEST_TIME_URL_FIRST`, however more strategies can be added later.
+In `EARLIEST_TIME_URL_FIRST` strategy, Dagger will extract chronological information from the GCS file path URLs and then
+begin to process them in the order of ascending timestamps.
+
+* Example value: `EARLIEST_TIME_URL_FIRST`
+* Type: `optional`
+* Default value: `EARLIEST_TIME_URL_FIRST`
+
+#### `SOURCE_PARQUET_FILE_DATE_RANGE`
+
+Defines the time range which, if present, will be used to decide which files to add for processing post discovery from `SOURCE_PARQUET_FILE_PATHS`.
+Each time range consists of two ISO format timestamps, start time and end time, separated by a comma. Multiple time range
+intervals can also be provided separated by semicolon. 
+
+* Example value: `2022-05-08T00:00:00Z,2022-05-08T23:59:59Z;2022-05-10T00:00:00Z,2022-05-10T23:59:59Z`
+* Type: `optional`
+
+Please follow these guidelines when setting this configuration:
+1. Both the start and end time range are inclusive. For example, 
+   1. For an hour partitioned GCS folder structure,`2022-05-08T00:00:00Z,2022-05-08T10:00:00Z` will imply all files of hour 00, 01,..., 10 will be processed.
+   2. For a date partitioned GCS folder structure, `2022-05-08T00:00:00Z,2022-05-10T23:59:59Z` will imply all files of 8th, 9th and 10th May will be processed.
+2. For a date partitioned GCS folder, it is only the date component that is taken into consideration for selecting which files to process and the time component is ignored. However,
+for start-time, ensure that the time component is always set to 00:00:00. Otherwise, results might be unexpected and there will be data drop. For example, for a date partitioned GCS bucket folder, 
+   1. `2022-05-08T00:00:00Z,2022-05-08T10:00:00Z` is a valid config. All files for 8th May will be processed.
+   2. `2022-05-08T00:00:01Z,2022-05-08T10:00:00Z` is not a valid config and will cause the entire data for 2022-05-08 to be skipped.
+
+##### Sample STREAMS Configuration using KAFKA_CONSUMER as the data source :
 ```
 STREAMS = [
-   {
-      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
-      "INPUT_SCHEMA_TABLE": "data_stream",
-      "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
-      "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
-      "SOURCE_KAFKA_NAME": "local-kafka-stream"
-   }
+ {
+   "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
+   "INPUT_SCHEMA_TABLE": "data_stream",
+   "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+   "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+   "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+   "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+   "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+   "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+   "SOURCE_KAFKA_NAME": "local-kafka-stream",
+   "SOURCE_DETAILS": [
+     {
+       "SOURCE_TYPE": "UNBOUNDED",
+       "SOURCE_NAME": "KAFKA_CONSUMER"
+     }
+   ]
+ }
 ]
+```
+
+##### Sample STREAMS Configuration using PARQUET_SOURCE as the data source :
+```
+STREAMS = [
+ {
+   "INPUT_SCHEMA_TABLE": "data_stream",
+   "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+   "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+   "SOURCE_PARQUET_FILE_PATHS": [
+   "gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-05/",
+   "gs://p-godata-id-mainstream-bedrock/carbon-offset-transaction-log/dt=2022-02-03/"
+   ],
+   "SOURCE_PARQUET_FILE_DATE_RANGE":"2022-02-05T00:00:00Z,2022-02-05T10:59:59Z;2022-02-03T00:00:00Z,2022-02-03T20:59:59Z"
+   "SOURCE_PARQUET_READ_ORDER_STRATEGY": "EARLIEST_TIME_URL_FIRST",
+   "SOURCE_DETAILS": [
+     {
+       "SOURCE_TYPE": "BOUNDED",
+       "SOURCE_NAME": "PARQUET_SOURCE"
+     }
+   ]
+ }
+]
+
+
 ```
 
 #### `SINK_TYPE`
@@ -324,6 +414,14 @@ Defines the flink watermark delay in milliseconds.
 * Example value: `10000`
 * Type: `optional`
 * Default value: `10000`
+
+**Note:** For a stream configured with `PARQUET_SOURCE`, the watermark delay should be configured keeping in mind the 
+partitioning that has been used in the root folder containing the files of `SOURCE_PARQUET_FILE_PATHS` configuration.
+Currently, only [two types](../guides/create_dagger.md#parquet_source) of partitioning are supported: day and hour. Hence, 
+* if partitioning is day wise, `FLINK_WATERMARK_DELAY_MS` should be set to 24 x 60 x 60 x 1000 milliseconds, that is, 
+`86400000`.
+* if partitioning is hour wise, `FLINK_WATERMARK_DELAY_MS` should be set to 60 x 60 x 1000 milliseconds, that is, 
+`3600000`.
 
 #### `FLINK_WATERMARK_PER_PARTITION_ENABLE`
 

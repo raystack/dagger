@@ -10,8 +10,8 @@ import io.odpf.dagger.core.exception.InvalidConfigurationException;
 import io.odpf.dagger.common.metrics.managers.MeterStatsManager;
 import io.odpf.dagger.core.metrics.aspects.ExternalSourceAspects;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -88,8 +88,8 @@ public class EndpointHandler {
             Descriptors.FieldDescriptor fieldDescriptor = descriptorMap.get(inputColumnName);
             Object singleColumnValue;
             if (fieldDescriptor != null) {
-                ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-                singleColumnValue = protoHandler.transformToJson(rowManager.getFromInput(inputColumnIndex));
+                TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
+                singleColumnValue = typeHandler.transformToJson(rowManager.getFromInput(inputColumnIndex));
             } else {
                 singleColumnValue = rowManager.getFromInput(inputColumnIndex);
             }

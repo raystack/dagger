@@ -15,7 +15,7 @@ const Hero = () => {
         <div className="row">
           <div className={clsx('col col--5')}>
             <div className="homeTitle">Stream processing made easy</div>
-            <small className="homeSubTitle">Configuration over code, cloud-native framework built on top of Apache Flink for stateful processing of real-time streaming data.</small>
+            <small className="homeSubTitle">Configuration over code, cloud-native framework built on top of Apache Flink for stateful processing of real-time and historical streaming data.</small>
             <a className="button" href="docs/intro">Documentation</a>
           </div>
           <div className={clsx('col col--1')}></div>
@@ -40,9 +40,9 @@ export default function Home() {
           <h1>Built for scale</h1>
           <p>
             Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native
-            framework built on top of Apache Flink for stateful processing of real-time streaming data.
-            With Dagger, you don't need to write custom applications to process data
-            in real-time. Instead, you can write SQLs to do the processing and analysis on streaming data.
+            framework built on top of Apache Flink for stateful processing of both real time and historical streaming data.
+            With Dagger, you don't need to write custom applications to process data as a stream.
+            Instead, you can write SQLs to do the processing and analysis on streaming data.
           </p>
           <GridBlock
             layout="threeColumn"
@@ -90,7 +90,8 @@ export default function Home() {
                 content: (
                   <div>
                     Add your own sink to dagger with a clearly defined interface or
-                    choose from already provided ones.
+                    choose from already provided ones. Use Kafka Source for processing real time data
+                    or opt for Parquet Source to stream historical data from Parquet Files.
                   </div>
                 ),
               },
@@ -138,7 +139,7 @@ export default function Home() {
                 title: 'Stream Enrichment',
                 content: (
                   <div>
-                    Enrich Kafka messages from HTTP endpoints or database sources to bring
+                    Enrich streamed messages from HTTP endpoints or database sources to bring
                     offline & reference data context to real-time processing.
                   </div>
                 ),
@@ -165,8 +166,17 @@ export default function Home() {
                 title: 'Stream Transformations',
                 content: (
                   <div>
-                    Convert Kafka messages on the fly for a variety of
+                    Convert messages on the fly for a variety of
                     use-cases such as feature engineering.
+                  </div>
+                ),
+              },
+              {
+                title: 'Support for Real Time and Historical Data Streaming',
+                content: (
+                  <div>
+                    Use Kafka Source for processing real time data or opt for Parquet Source
+                    to stream historical data from Parquet Files.
                   </div>
                 ),
               },

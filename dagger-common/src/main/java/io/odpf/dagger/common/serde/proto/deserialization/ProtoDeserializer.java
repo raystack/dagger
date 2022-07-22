@@ -1,5 +1,6 @@
 package io.odpf.dagger.common.serde.proto.deserialization;
 
+import io.odpf.dagger.common.serde.DaggerDeserializer;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.types.Row;
@@ -10,7 +11,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.common.exceptions.serde.DaggerDeserializationException;
-import io.odpf.dagger.common.serde.proto.protohandler.RowFactory;
+import io.odpf.dagger.common.serde.typehandler.RowFactory;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * Deserializer for protobuf messages.
  */
-public class ProtoDeserializer implements KafkaDeserializationSchema<Row> {
+public class ProtoDeserializer implements KafkaDeserializationSchema<Row>, DaggerDeserializer<Row> {
 
     private final String protoClassName;
     private final int timestampFieldIndex;

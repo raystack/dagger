@@ -7,8 +7,8 @@ import io.odpf.dagger.core.processors.ColumnNameManager;
 import io.odpf.dagger.core.processors.common.OutputMapping;
 import io.odpf.dagger.core.processors.common.PostResponseTelemetry;
 import io.odpf.dagger.core.processors.common.RowManager;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandler;
-import io.odpf.dagger.common.serde.proto.protohandler.ProtoHandlerFactory;
+import io.odpf.dagger.common.serde.typehandler.TypeHandler;
+import io.odpf.dagger.common.serde.typehandler.TypeHandlerFactory;
 import com.google.protobuf.Descriptors;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -148,8 +148,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + key);
             reportAndThrowError(illegalArgumentException);
         }
-        ProtoHandler protoHandler = ProtoHandlerFactory.getProtoHandler(fieldDescriptor);
-        rowManager.setInOutput(fieldIndex, protoHandler.transformFromPostProcessor(value));
+        TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
+        rowManager.setInOutput(fieldIndex, typeHandler.transformFromPostProcessor(value));
     }
 
 
