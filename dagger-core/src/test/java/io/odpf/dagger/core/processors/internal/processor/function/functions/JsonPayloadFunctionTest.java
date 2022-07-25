@@ -269,7 +269,7 @@ public class JsonPayloadFunctionTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(complexMapMessage.getDescriptor(), complexMapMessage.toByteArray());
         RowManager rowManager = getRowManagerForMessage(dynamicMessage);
 
-        String expectedJsonPayload = "{\"complex_map\":[{\"key\":1,\"value\":{\"order_number\":\"order-number-123\",\"order_url\":\"https://order-url\",\"order_details\":\"pickup\"}}]}";
+        String expectedJsonPayload = "{\"complex_map\":[{\"key\":1,\"value\":{\"order_number\":\"order-number-123\",\"order_url\":\"https://order-url\",\"order_details\":\"pickup\"}}],\"int_message\":[],\"string_message\":[]}";
         String actualJsonPayload = (String) jsonPayloadFunction.getResult(rowManager);
 
         assertEquals(expectedJsonPayload, actualJsonPayload);

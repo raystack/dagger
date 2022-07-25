@@ -16,7 +16,6 @@ import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -81,13 +80,11 @@ public class MapHandlerTest {
         inputMap.put("b", "456");
 
         DynamicMessage.Builder returnedBuilder = mapHandler.transformToProtoBuilder(builder, inputMap);
-        List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
+        List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
-        assertEquals("a", entries.get(0).getAllFields().values().toArray()[0]);
-        assertEquals("123", entries.get(0).getAllFields().values().toArray()[1]);
-        assertEquals("b", entries.get(1).getAllFields().values().toArray()[0]);
-        assertEquals("456", entries.get(1).getAllFields().values().toArray()[1]);
+        assertArrayEquals(Arrays.asList("a", "123").toArray(), entries.get(0).getAllFields().values().toArray());
+        assertArrayEquals(Arrays.asList("b", "456").toArray(), entries.get(1).getAllFields().values().toArray());
     }
 
     @Test
@@ -111,28 +108,29 @@ public class MapHandlerTest {
         inputRows.add(inputRow2);
 
         DynamicMessage.Builder returnedBuilder = mapHandler.transformToProtoBuilder(builder, inputRows.toArray());
-        List<MapEntry> entries = (List<MapEntry>) returnedBuilder.getField(mapFieldDescriptor);
+        List<DynamicMessage> entries = (List<DynamicMessage>) returnedBuilder.getField(mapFieldDescriptor);
 
         assertEquals(2, entries.size());
-        assertEquals("a", entries.get(0).getAllFields().values().toArray()[0]);
-        assertEquals("123", entries.get(0).getAllFields().values().toArray()[1]);
-        assertEquals("b", entries.get(1).getAllFields().values().toArray()[0]);
-        assertEquals("456", entries.get(1).getAllFields().values().toArray()[1]);
+        assertArrayEquals(Arrays.asList("a", "123").toArray(), entries.get(0).getAllFields().values().toArray());
+        assertArrayEquals(Arrays.asList("b", "456").toArray(), entries.get(1).getAllFields().values().toArray());
     }
 
     @Test
-    public void shouldThrowExceptionIfRowsPassedAreNotOfArityTwo() {
-        Descriptors.FieldDescriptor mapFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("metadata");
-        MapHandler mapHandler = new MapHandler(mapFieldDescriptor);
-        DynamicMessage.Builder builder = DynamicMessage.newBuilder(mapFieldDescriptor.getContainingType());
+    public void shouldHandleComplexTypeValuesForSerialization() throws InvalidProtocolBufferException {
+        Row inputValue1 = Row.of("12345", Row.of(Arrays.asList("a", "b")));
+        Row inputValue2 = Row.of(1234123, Row.of(Arrays.asList("d", "e")));
+        Object input = Arrays.asList(inputValue1, inputValue2).toArray();
 
-        ArrayList<Row> inputRows = new ArrayList<>();
+        Descriptors.FieldDescriptor intMessageDescriptor = TestComplexMap.getDescriptor().findFieldByName("int_message");
+        DynamicMessage.Builder builder = DynamicMessage.newBuilder(TestComplexMap.getDescriptor());
 
-        Row inputRow = new Row(3);
-        inputRows.add(inputRow);
-        IllegalArgumentException exception = Assert.assertThrows(IllegalArgumentException.class,
-                () -> mapHandler.transformToProtoBuilder(builder, inputRows.toArray()));
-        assertEquals("Row: +I[null, null, null] of size: 3 cannot be converted to map", exception.getMessage());
+        byte[] data = new MapHandler(intMessageDescriptor).transformToProtoBuilder(builder, input).build().toByteArray();
+        TestComplexMap actualMsg = TestComplexMap.parseFrom(data);
+        assertArrayEquals(Arrays.asList(12345L, 1234123L).toArray(), actualMsg.getIntMessageMap().keySet().toArray());
+        TestComplexMap.IdMessage idMessage = (TestComplexMap.IdMessage) actualMsg.getIntMessageMap().values().toArray()[0];
+        assertTrue(idMessage.getIdsList().containsAll(Arrays.asList("a", "b")));
+        idMessage = (TestComplexMap.IdMessage) actualMsg.getIntMessageMap().values().toArray()[1];
+        assertTrue(idMessage.getIdsList().containsAll(Arrays.asList("d", "e")));
     }
 
     @Test
@@ -158,12 +156,8 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromPostProcessor(inputMap));
 
-        assertEquals("a", ((Row) outputValues.get(0)).getField(0));
-        assertEquals("123", ((Row) outputValues.get(0)).getField(1));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
-        assertEquals("b", ((Row) outputValues.get(1)).getField(0));
-        assertEquals("456", ((Row) outputValues.get(1)).getField(1));
-        assertEquals(2, ((Row) outputValues.get(1)).getArity());
+        assertEquals(Row.of("a", "123"), outputValues.get(0));
+        assertEquals(Row.of("b", "456"), outputValues.get(1));
     }
 
     @Test
@@ -210,12 +204,8 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals("a", ((Row) outputValues.get(0)).getField(0));
-        assertEquals("123", ((Row) outputValues.get(0)).getField(1));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
-        assertEquals("b", ((Row) outputValues.get(1)).getField(0));
-        assertEquals("456", ((Row) outputValues.get(1)).getField(1));
-        assertEquals(2, ((Row) outputValues.get(1)).getArity());
+        assertEquals(Row.of("a", "123"), outputValues.get(0));
+        assertEquals(Row.of("b", "456"), outputValues.get(1));
     }
 
     @Test
@@ -247,16 +237,11 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals(1, ((Row) outputValues.get(0)).getField(0));
-        assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
-        assertEquals("abc", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
-        assertEquals(2, ((Row) outputValues.get(1)).getField(0));
-        assertEquals("456", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(1));
-        assertEquals("efg", ((Row) ((Row) outputValues.get(1)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(1)).getArity());
+        Row mapEntry1 = Row.of(1, Row.of("123", "", "abc"));
+        Row mapEntry2 = Row.of(2, Row.of("456", "", "efg"));
+
+        assertEquals(mapEntry1, outputValues.get(0));
+        assertEquals(mapEntry2, outputValues.get(1));
     }
 
     @Test
@@ -271,11 +256,8 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
-        assertEquals("123", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
-        assertEquals("abc", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        Row expected = Row.of(0, Row.of("123", "", "abc"));
+        assertEquals(expected, outputValues.get(0));
     }
 
     @Test
@@ -290,11 +272,9 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals(1, ((Row) outputValues.get(0)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        Row expected = Row.of(1, Row.of("", "", ""));
+
+        assertEquals(expected, outputValues.get(0));
     }
 
     @Test
@@ -309,11 +289,9 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        Row expected = Row.of(0, Row.of("", "", ""));
+
+        assertEquals(expected, outputValues.get(0));
     }
 
     @Test
@@ -328,11 +306,8 @@ public class MapHandlerTest {
 
         List<Object> outputValues = Arrays.asList((Object[]) mapHandler.transformFromProto(dynamicMessage.getField(mapFieldDescriptor)));
 
-        assertEquals(0, ((Row) outputValues.get(0)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(0));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(1));
-        assertEquals("", ((Row) ((Row) outputValues.get(0)).getField(1)).getField(2));
-        assertEquals(2, ((Row) outputValues.get(0)).getArity());
+        Row expected = Row.of(0, Row.of("", "", ""));
+        assertEquals(expected, outputValues.get(0));
     }
 
     @Test
