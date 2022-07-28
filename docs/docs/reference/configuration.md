@@ -7,6 +7,7 @@ This page contains references for all the application configurations for Dagger.
 * [Generic](configuration.md#generic)
 * [Influx Sink](configuration.md#influx-sink)
 * [Kafka Sink](configuration.md#kafka-sink)
+* [BigQuery Sink](configuration.md#bq-sink)
 * [Schema Registry](configuration.md#schema-registry)
 * [Flink](configuration.md#flink)
 * [Darts](configuration.md#darts)
@@ -397,7 +398,7 @@ Labels of a bigquery table, key-value information separated by comma attached to
 #### `SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE`
 
 Configuration for enable table partitioning. This config will be used for provide partitioning config when creating the bigquery table.
-Bigquery table partitioning config can only be set once, on the table creation and the partitioning cannot be disabled once created. Changing this value of this config later will cause error when firehose trying to update the bigquery table.
+Bigquery table partitioning config can only be set once, on the table creation and the partitioning cannot be disabled once created. Changing this value of this config later will cause error when dagger trying to update the bigquery table.
 Here is further documentation of bigquery [table partitioning](https://cloud.google.com/bigquery/docs/partitioned-tables).
 
 - Example value: `true`
