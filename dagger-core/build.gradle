@@ -65,6 +65,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'stencil', group: 'io.odpf'
         exclude group: 'com.google.protobuf'
+        exclude group: 'com.datadoghq'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'

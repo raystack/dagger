@@ -94,7 +94,6 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
                     errorInfo.getException().getMessage(),
                     errorInfo.getErrorType().name());
         });
-
     }
 
     /**
@@ -106,9 +105,9 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
      */
     @Override
     public List<Void> prepareCommit(boolean flush) throws IOException {
-        if (flush) {
-            pushToBq();
-        }
+        pushToBq();
+        messages.clear();
+        currentBatchSize = 0;
         return Collections.emptyList();
     }
 
