@@ -241,6 +241,7 @@ OUTPUT_KAFKA_TOPIC=test-kafka-output
 
 ## Bigquery Sink
 
+Bigquery Sink is created using the ODPF Depot library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. You can check out the Depot Github repository [here](https://github.com/odpf/depot/tree/main/docs).
 ### Datatype Protobuf
 Bigquery Sink has several responsibilities, first creation of bigquery table and dataset when they are not exist,
 second update the bigquery table schema based on the latest protobuf schema,
