@@ -358,19 +358,19 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 
 ### BigQuery Sink
 
-A Bigquery sink Firehose \(`SINK_TYPE`=`bigquery`\) requires env variables to be set along with the Generic Dagger env variables as well as the
+A BigQuery sink Dagger \(`SINK_TYPE`=`bigquery`\) requires env variables to be set along with the Generic Dagger env variables as well as the
 env variables in Depot repository. Dagger uses the BigQuery sink connector implementation available in [depot](https://github.com/odpf/depot) repository.
 
 #### `SINK_BIGQUERY_GOOGLE_CLOUD_PROJECT_ID`
 
-Contains information of google cloud project id location of the bigquery table where the records need to be inserted. Further documentation on google cloud [project id](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
+Contains information of Google Cloud project id location of the bigquery table where the records need to be inserted. Further documentation on google cloud [project id](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
 
 - Example value: `gcp-project-id`
 - Type: `required`
 
 #### `SINK_BIGQUERY_TABLE_NAME`
 
-The name of bigquery table. Here is further documentation of bigquery [table naming](https://cloud.google.com/bigquery/docs/tables).
+The name of the BigQuery table. Here is further documentation of bigquery [table naming](https://cloud.google.com/bigquery/docs/tables).
 
 - Example value: `user_profile`
 - Type: `required`
@@ -497,7 +497,7 @@ A boolean value to enable inferring schema from incoming data
 
 #### `SINK_BIGQUERY_DEFAULT_DATATYPE_STRING_ENABLE`
 
-A boolean value to enable converting all incoming json values to string
+A boolean value to enable converting all incoming JSON values to String
 
 * Example value: true
 * Type: optional boolean
