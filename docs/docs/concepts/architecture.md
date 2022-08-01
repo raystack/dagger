@@ -65,7 +65,7 @@ _**Telemetry Processor**_
 _**Sink and Serializer**_
 
 - After the data is processed and results are materialized they need to be sinked to some external persistent storage.
-- Dagger supports Kafka and InfluxDB as supported sinks where the unbounded results are pushed at the end of the lifecycle.
+- Dagger supports Kafka, BigQuery and InfluxDB as supported sinks where the unbounded results are pushed at the end of the lifecycle.
 - In the case of Kafka Sink the final result is protobuf encoded. So the result goes through a serialization stage on some defined output schema. The serializer module of the proto-handler does this. Results in Kafka can be used via any Kafka consumer.
 - Influx Sink helps in real-time analytics and dashboarding. In the case of Influx Sink dagger, converts results in Flink Row to InfluxDB points and add `tag`/`labels` as specified in the SQL.
 
@@ -115,3 +115,4 @@ notified of/updating with the latest schema is abstracted through a homegrown li
 
 - InfluxDB - time-series database for real-time analytics.
 - Kafka - Replayable queue to easy use of generated results.
+- BigQuery - to run super-fast queries of large datasets.

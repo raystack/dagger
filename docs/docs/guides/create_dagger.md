@@ -134,13 +134,9 @@ $ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFi
 
   ##### `BigQuery Sink` :
 
-  - Datatype Protobuf -
-    Bigquery Sink for dagger will create the BigQuery table and the dataset when they do not exist already.
-    It will update the BigQuery table schema based on the latest protobuf schema. It also translates Protobuf messages into BigQuery records and inserts them into the BigQuery tables.
+  - Bigquery Sink is created using the ODPF Depot library. 
+  - Depot is a sink connector, which acts as a bridge between data processing systems and real sink. You can check out the Depot Github repository [here](https://github.com/odpf/depot/tree/main/docs).
 
-  - Datatype JSON -
-    Currently we support dynamic schema by inferring from the incoming JSON data; so the BigQuery schema is updated by taking a diff of fields in the JSON data and the actual table fields.
-    Currently, we only support string data type for the fields, so all the incoming JSON data values are converted to string type, except for metadata columns and the partition key.
 ## Common Configurations
 
 - These configurations are mandatory for dagger creation and are sink independent. Here you need to set configurations such as the source details, the protobuf schema class, the SQL query to be applied on the streaming data, etc. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
