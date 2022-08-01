@@ -80,6 +80,23 @@ SELECT
 from
   `booking`
 ```
+## BigQuery Sink
+
+- `Tag_` prefix should not be used before the dimensions.
+- Ensure that sink type is selected as bigquery.
+
+### Example query
+
+Here booking denotes the booking events stream with [sample booking schema](#sample-booking-event-schema).
+
+```SQL
+SELECT
+ order_number,
+ service_type,
+ status
+from
+  `booking`
+```
 
 ## Aggregation - Tumble window
 

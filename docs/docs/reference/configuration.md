@@ -202,7 +202,7 @@ STREAMS = [
 
 #### `SINK_TYPE`
 
-Defines the Dagger sink type. At present, we support `log`, `influx`, `kafka`
+Defines the Dagger sink type. At present, we support `log`, `influx`, `kafka`, `bigquery`
 
 * Example value: `log`
 * Type: `required`
