@@ -358,7 +358,8 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 
 ### BigQuery Sink
 
-A Bigquery sink Dagger \(`SINK_TYPE`=`bigquery`\) requires the following variables to be set along with Generic ones
+A Bigquery sink Firehose \(`SINK_TYPE`=`bigquery`\) requires env variables to be set along with the Generic Dagger env variables as well as the
+env variables in Depot repository. Dagger uses the BigQuery sink connector implementation available in [depot](https://github.com/odpf/depot) repository.
 
 #### `SINK_BIGQUERY_GOOGLE_CLOUD_PROJECT_ID`
 
@@ -469,6 +470,38 @@ The duration of bigquery client http connection timeout in milliseconds, 0 for a
 - Example value: `20000`
 - Type: `optional`
 - Default value: `-1`
+
+#### Configs for JSON input data type
+
+#### `SINK_BIGQUERY_DEFAULT_COLUMNS`
+
+Default list of columns to be added when creating the table.
+
+* Example value: `event_timstamp=timestamp,first_name=string`
+
+#### `SINK_BIGQUERY_ADD_EVENT_TIMESTAMP_ENABLE`
+
+A boolean value to enable injecting event_timestamp with value as ingestion time
+
+* Example value: true
+* Type: optional boolean
+* Default value: false
+
+#### `SINK_BIGQUERY_DYNAMIC_SCHEMA_ENABLE`
+
+A boolean value to enable inferring schema from incoming data
+
+* Example value: true
+* Type: optional boolean
+* Default value: true
+
+#### `SINK_BIGQUERY_DEFAULT_DATATYPE_STRING_ENABLE`
+
+A boolean value to enable converting all incoming json values to string
+
+* Example value: true
+* Type: optional boolean
+* Default value: true
 
 ### Schema Registry
 
