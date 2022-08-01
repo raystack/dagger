@@ -7,7 +7,7 @@ This page contains references for all the application configurations for Dagger.
 * [Generic](configuration.md#generic)
 * [Influx Sink](configuration.md#influx-sink)
 * [Kafka Sink](configuration.md#kafka-sink)
-* [BigQuery Sink](configuration.md#bq-sink)
+* [BigQuery Sink](configuration.md#bigquery-sink)
 * [Schema Registry](configuration.md#schema-registry)
 * [Flink](configuration.md#flink)
 * [Darts](configuration.md#darts)
