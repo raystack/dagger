@@ -359,7 +359,7 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 ### BigQuery Sink
 
 A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the
-Generic and BigQuery env variables in Depot repository. Dagger uses the BigQuery sink connector implementation available in [depot](https://github.com/odpf/depot) repository.
+[Generic](https://github.com/odpf/depot/blob/main/docs/reference/configuration/generic.md) and  [BigQuery](https://github.com/odpf/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in Depot repository. Dagger uses the BigQuery sink connector implementation available in [depot](https://github.com/odpf/depot) repository.
 
 #### `SINK_BIGQUERY_BATCH_SIZE`
 
