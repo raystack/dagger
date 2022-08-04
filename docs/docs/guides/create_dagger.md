@@ -137,6 +137,20 @@ $ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFi
 - Bigquery Sink is created using the ODPF Depot library. 
 - Depot is a sink connector, which acts as a bridge between data processing systems and real sink. You can check out the Depot Github repository [here](https://github.com/odpf/depot/tree/main/docs).
 
+  ##### `BigQuery Sink Features` :
+- [Datatype Protobuf](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#datatype-protobuf)
+-  [Datatype JSON](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#datatype-json)
+
+- [Bigquery Table Schema Update](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#bigquery-table-schema-update)
+- [Protobuf - Bigquery Table Type Mapping](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#protobuf---bigquery-table-type-mapping)
+
+-  [Partitioning](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#partitioning)
+- [Metadata](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#metadata)
+- [Default columns for json data type](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#default-columns-for-json-data-type)
+- [Errors Handling](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#errors-handling)
+- [Google Cloud Bigquery IAM Permission](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#google-cloud-bigquery-iam-permission)
+
+
 ## Common Configurations
 
 - These configurations are mandatory for dagger creation and are sink independent. Here you need to set configurations such as the source details, the protobuf schema class, the SQL query to be applied on the streaming data, etc. In local execution, they would be set inside [`local.properties`](https://github.com/odpf/dagger/blob/main/dagger-core/env/local.properties) file. In the clustered environment they can be passed as job parameters to the Flink exposed job creation API.
