@@ -359,21 +359,19 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 ### BigQuery Sink
 
 A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the
-[Generic](https://github.com/odpf/depot/blob/main/docs/reference/configuration/generic.md) and  [BigQuery](https://github.com/odpf/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in Depot repository. Dagger uses the BigQuery sink connector implementation available in [depot](https://github.com/odpf/depot) repository.
+[Generic](https://github.com/odpf/depot/blob/main/docs/reference/configuration/generic.md)  and  [BigQuery ](https://github.com/odpf/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the ODPF Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/odpf/depot) repository.
 
 #### `SINK_BIGQUERY_BATCH_SIZE`
 
-Contains information of Google Cloud project id location of the bigquery table where the records need to be inserted. Further documentation on google cloud [project id](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
-
+Controls how many records are loaded into the BigQuery Sink in one network call
 - Example value: 500
 - Type: `required`
 
 #### `SINK_ERROR_TYPES_FOR_FAILURE`
 
-Contains information of Google Cloud project id location of the bigquery table where the records need to be inserted. Further documentation on google cloud [project id](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
-
-- Example value: `gcp-project-id`
-- Type: `required`
+Contains the error types for which the dagger should throw an exception if such an error occurs during runtime. The possible error types are `DESERIALIZATION_ERROR`, `INVALID_MESSAGE_ERROR`, `UNKNOWN_FIELDS_ERROR`, `SINK_4XX_ERROR`, `SINK_5XX_ERROR`, `SINK_UNKNOWN_ERROR`, `DEFAULT_ERROR`
+- Example value: `UNKNOWN_FIELDS_ERROR`
+- Type: `optional`
 
 
 ### Schema Registry
