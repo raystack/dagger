@@ -369,7 +369,7 @@ Controls how many records are loaded into the BigQuery Sink in one network call
 
 #### `SINK_ERROR_TYPES_FOR_FAILURE`
 
-Contains the error types for which the dagger should throw an exception if such an error occurs during runtime. The possible error types are `DESERIALIZATION_ERROR`, `INVALID_MESSAGE_ERROR`, `UNKNOWN_FIELDS_ERROR`, `SINK_4XX_ERROR`, `SINK_5XX_ERROR`, `SINK_UNKNOWN_ERROR`, `DEFAULT_ERROR`
+Contains the error types for which the dagger should throw an exception if such an error occurs during runtime. The possible error types are `DESERIALIZATION_ERROR`, `INVALID_MESSAGE_ERROR`, `UNKNOWN_FIELDS_ERROR`, `SINK_4XX_ERROR`, `SINK_5XX_ERROR`, `SINK_UNKNOWN_ERROR`, `DEFAULT_ERROR` . The error types should be comma-separated.
 - Example value: `UNKNOWN_FIELDS_ERROR`
 - Type: `optional`
 
