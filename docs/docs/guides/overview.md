@@ -4,7 +4,7 @@ The following section describes how to manage Dagger throughout its lifecycle.
 
 ### [Creating Dagger](./guides/create_dagger.md)
 
-Dagger currently supports InfluxDB, Kafka as supported sinks. This section explains
+Dagger currently supports InfluxDB, Kafka and BigQuery as supported sinks. This section explains
 how you can create a dagger and configure different settings.
 
 ### [Deploying Dagger](./guides/deployment.md)

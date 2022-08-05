@@ -80,6 +80,25 @@ SELECT
 from
   `booking`
 ```
+## BigQuery Sink
+
+- `Tag_` prefix should not be used before the dimensions.
+- Ensure that sink type is selected as bigquery.
+- Dimensions & metrics from the SELECT section in the query should be mapped exactly to the field names in the output protobuf type configured for bigquery sink
+- Data types of the selected fields should exactly match to the output protobuf type configured for bigquery sink
+
+### Example query
+
+Here booking denotes the booking events stream with [sample booking schema](#sample-booking-event-schema).
+
+```SQL
+SELECT
+ order_number,
+ service_type,
+ status
+from
+  `booking`
+```
 
 ## Aggregation - Tumble window
 
