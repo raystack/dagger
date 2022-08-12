@@ -6,7 +6,7 @@ Dagger or Data Aggregator is a cloud native framework for processing real-time s
 
 ### Components
 
-![Dagger Architecture](/img/architecture.png)
+![Dagger Architecture](/img/system_design/dagger_system_design.png)
 
 _**Stream**_
 
