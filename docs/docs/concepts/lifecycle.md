@@ -2,7 +2,7 @@
 
 Architecturally after the creation of Dagger, it goes through several stages before materializing the results to an output stream.
 
-![](/img/lifecycle/dagger_lifecycle.png)
+![](../../static/img/lifecycle/dagger_lifecycle.png)
 
 - `Stage-1` : Dagger registers all defined configurations. JobManager validates the configurations and the query and creates a job-graph for the same.
 - `Stage-2` : Data consumption from the source and its deserialization as per the protobuf schema

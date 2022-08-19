@@ -9,7 +9,7 @@ for stateful processing of both real time and historical streaming data. With Da
 applications or complicated code to process data as a stream. Instead, you can write SQL queries and UDFs to do the 
 processing and analysis on streaming data.
 
-![](/img/overview/dagger_overview.png)
+![](../static/img/overview/dagger_overview.png)
 
 ## Key Features
 
