@@ -2,6 +2,11 @@
 
 The following section describes how to manage Dagger throughout its lifecycle.
 
+### [Choosing a Dagger Source](./guides/choose_source.md)
+
+Dagger requires configuring a source from where data will be streamed for processing. This section explains what are the 
+different available sources.
+
 ### [Creating Dagger](./guides/create_dagger.md)
 
 Dagger currently supports InfluxDB, Kafka as supported sinks. This section explains

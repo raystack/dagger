@@ -7,6 +7,7 @@ module.exports = {
       label: "Guides",
       items: [
         "guides/overview",
+        "guides/choose_source",
         "guides/create_dagger",
         "guides/query_examples",
         "guides/use_transformer",
