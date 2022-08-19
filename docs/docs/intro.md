@@ -15,7 +15,7 @@ processing and analysis on streaming data.
 
 Discover why to use Dagger
 
-- **Processing:** Dagger can transform, aggregate, join and enrich Protobuf data in real-time.
+- **Processing:** Dagger can transform, aggregate, join and enrich streaming data, both real-time and historical.
 - **Scale:** Dagger scales in an instant, both vertically and horizontally for high performance streaming sink and zero data drops.
 - **Extensibility:** Add your own sink to dagger with a clearly defined interface or choose from already provided ones. Use Kafka and/or Parquet Files as stream sources.
 - **Flexibility:** Add custom business logic in form of plugins \(UDFs, Transformers, Preprocessors and Post Processors\) independent of the core logic.

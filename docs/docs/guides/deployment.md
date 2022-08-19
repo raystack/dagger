@@ -1,6 +1,6 @@
 # Deployment
 
-Dagger uses Flink for real-time distributed stream processing. It can run locally on your machine on a single JVM process or standalone mode (single machine but separate processes) for testing/debugging purposes.
+Dagger uses Flink for distributed stream processing. It can run locally on your machine on a single JVM process or standalone mode (single machine but separate processes) for testing/debugging purposes.
 
 For the production environment you can set up Flink on some supported resource provider like Kubernetes, YARN etc. which takes care of fault tolerance of processes and resource allocations.
 
