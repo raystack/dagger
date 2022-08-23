@@ -5,9 +5,8 @@
 [![Version](https://img.shields.io/github/v/release/odpf/dagger?logo=semantic-release)](https://github.com/odpf/dagger/releases/latest)
 
 Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native framework built on top of Apache Flink
-for stateful processing of both real time and historical streaming data. With Dagger, you don't need to write custom
-applications or complicated code to process data as a stream. Instead, you can write SQL queries and UDFs to do the
-processing and analysis on streaming data.
+for stateful processing of data. With Dagger, you don't need to write custom applications or complicated code to process 
+data as a stream. Instead, you can write SQL queries and UDFs to do the processing and analysis on streaming data.
 
 ![](docs/static/img/overview/dagger_overview.png)
 
