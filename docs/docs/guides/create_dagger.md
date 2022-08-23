@@ -13,7 +13,7 @@ Dagger is a stream processing framework built with Apache Flink to process/aggre
 ### `A Source`
 
 Dagger requires configuring a source from where data will be streamed for processing. Please check 
-[here](./guides/choose_source.md) for the different available data sources.
+[here](./choose_source.md) for the different available data sources.
 
 #### `Flink [optional]`
 
