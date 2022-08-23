@@ -76,5 +76,9 @@ present in dagger and looks like this:
 </configuration>
 ```
 
-You can look into the official [GCS Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/master/gcs/CONFIGURATION.md)
-documentation to know more on how to edit this xml as per your needs.
+You can look into the official [GCS Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/master/gcs/CONFIGURATION.md) documentation to know more on how to edit 
+this xml as per your needs.
+
+Dagger allows configuring a single data source per stream. The [SOURCE_DETAILS](../reference/configuration.md#source_details) 
+configuration inside STREAMS environment variable needs to be set to the desired source name and source type, along with 
+other dependent configs. For the full list of configuration, please check [here](../reference/configuration.md).
