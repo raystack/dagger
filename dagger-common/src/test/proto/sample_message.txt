@@ -1,0 +1,6 @@
+is_valid: true
+order_number: "INV-53535321"
+event_timestamp: {
+  seconds: 1663565509
+  nanos: 0
+}
