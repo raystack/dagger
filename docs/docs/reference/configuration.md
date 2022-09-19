@@ -7,6 +7,7 @@ This page contains references for all the application configurations for Dagger.
 * [Generic](configuration.md#generic)
 * [Influx Sink](configuration.md#influx-sink)
 * [Kafka Sink](configuration.md#kafka-sink)
+* [BigQuery Sink](configuration.md#bigquery-sink)
 * [Schema Registry](configuration.md#schema-registry)
 * [Flink](configuration.md#flink)
 * [Darts](configuration.md#darts)
@@ -201,7 +202,7 @@ STREAMS = [
 
 #### `SINK_TYPE`
 
-Defines the Dagger sink type. At present, we support `log`, `influx`, `kafka`
+Defines the Dagger sink type. At present, we support `log`, `influx`, `kafka`, `bigquery`
 
 * Example value: `log`
 * Type: `required`
@@ -354,6 +355,24 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 * Example value: `false`
 * Type: `optional`
 * Default value: `false`
+
+### BigQuery Sink
+
+A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the
+[Generic](https://github.com/odpf/depot/blob/main/docs/reference/configuration/generic.md)  and  [BigQuery ](https://github.com/odpf/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the ODPF Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/odpf/depot) repository.
+
+#### `SINK_BIGQUERY_BATCH_SIZE`
+
+Controls how many records are loaded into the BigQuery Sink in one network call
+- Example value: 500
+- Type: `required`
+
+#### `SINK_ERROR_TYPES_FOR_FAILURE`
+
+Contains the error types for which the dagger should throw an exception if such an error occurs during runtime. The possible error types are `DESERIALIZATION_ERROR`, `INVALID_MESSAGE_ERROR`, `UNKNOWN_FIELDS_ERROR`, `SINK_4XX_ERROR`, `SINK_5XX_ERROR`, `SINK_UNKNOWN_ERROR`, `DEFAULT_ERROR` . The error types should be comma-separated.
+- Example value: `UNKNOWN_FIELDS_ERROR`
+- Type: `optional`
+
 
 ### Schema Registry
 

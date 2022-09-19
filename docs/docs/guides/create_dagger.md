@@ -12,8 +12,73 @@ Dagger is a stream processing framework built with Apache Flink to process/aggre
 
 ### `A Source`
 
-Dagger requires configuring a source from where data will be streamed for processing. Please check 
-[here](./choose_source.md) for the different available data sources.
+Dagger currently supports 3 kinds of Data Sources. Here are the requirements for each:
+
+##### `KAFKA_SOURCE` and `KAFKA_CONSUMER`
+
+Both these sources use [Kafka](https://kafka.apache.org/) as the source of data. So you need to set up Kafka(1.0+) either
+in a local or clustered environment. Follow this [quick start](https://kafka.apache.org/quickstart) to set up Kafka in
+the local machine. If you have a clustered Kafka you can configure it to use in Dagger directly.
+
+##### `PARQUET_SOURCE`
+
+This source uses Parquet files as the source of data. The parquet files can be either hourly partitioned, such as
+```text
+root_folder
+    - booking_log
+        - dt=2022-02-05
+            - hr=09
+                * g6agdasgd6asdgvadhsaasd829ajs.parquet
+                * . . . (more parquet files)
+            - (...more hour folders)
+        - (... more date folders)
+
+```
+
+or date partitioned, such as:
+
+```text
+root_folder
+    - shipping_log
+        - dt=2021-01-11
+            * hs7hasd6t63eg7wbs8swssdasdasdasda.parquet
+            * ...(more parquet files)
+        - (... more date folders)
+
+```
+
+The file paths can be either in the local file system or in GCS bucket. When parquet files are provided from GCS bucket,
+Dagger will require a `core_site.xml` to be configured in order to connect and read from GCS. A sample `core_site.xml` is
+present in dagger and looks like this:
+```xml
+<configuration>
+  <property>
+    <name>google.cloud.auth.service.account.enable</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>google.cloud.auth.service.account.json.keyfile</name>
+    <value>/Users/dummy/secrets/google_service_account.json</value>
+  </property>
+  <property>
+    <name>fs.gs.requester.pays.mode</name>
+    <value>CUSTOM</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>fs.gs.requester.pays.buckets</name>
+    <value>my_sample_bucket_name</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>fs.gs.requester.pays.project.id</name>
+    <value>my_billing_project_id</value>
+    <final>true</final>
+  </property>
+</configuration>
+```
+You can look into the official [GCS Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/master/gcs/CONFIGURATION.md)
+documentation to know more on how to edit this xml as per your needs.
 
 #### `Flink [optional]`
 
@@ -39,22 +104,22 @@ $ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFi
 
 #### `Protobuf Schema`
 
-- Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data. That is, for a 
-source reading from Kafka, Dagger consumes protobuf data from Kafka topics and does the processing. For a source reading 
-from Parquet Files, dagger uses protobuf schema to parse the Row Group. When pushing the results to a sink, Dagger produces 
-data as per the output protobuf schema to a Kafka topic(when the sink is Kafka).
-- When using Kafka as a source, you can push data to a Kafka topic as per protobuf format using any of the Kafka client 
-libraries. You can follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/).
-- For all kinds of sources, you need to define the 
-[java compiled protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or 
-use our in-house schema registry tool like [Stencil](https://github.com/odpf/stencil) to let dagger know about the data 
-schema. Stencil is an event schema registry that provides an abstraction layer for schema handling, schema caching, and 
-dynamic schema updates. [These configurations](../reference/configuration.md#schema-registry) needs to be set if you are 
-using stencil for proto schema handling.
+- Dagger exclusively supports [protobuf](https://developers.google.com/protocol-buffers) encoded data. That is, for a
+  source reading from Kafka, Dagger consumes protobuf data from Kafka topics and does the processing. For a source reading
+  from Parquet Files, dagger uses protobuf schema to parse the Row Group. When pushing the results to a sink, Dagger produces
+  data as per the output protobuf schema to a Kafka topic(when the sink is Kafka).
+- When using Kafka as a source, you can push data to a Kafka topic as per protobuf format using any of the Kafka client
+  libraries. You can follow this [tutorial](https://www.conduktor.io/how-to-produce-and-consume-protobuf-records-in-apache-kafka/).
+- For all kinds of sources, you need to define the
+  [java compiled protobuf schema](https://developers.google.com/protocol-buffers/docs/javatutorial) in the classpath or
+  use our in-house schema registry tool like [Stencil](https://github.com/odpf/stencil) to let dagger know about the data
+  schema. Stencil is an event schema registry that provides an abstraction layer for schema handling, schema caching, and
+  dynamic schema updates. [These configurations](../reference/configuration.md#schema-registry) needs to be set if you are
+  using stencil for proto schema handling.
 
 #### `Sinks`
 
-- The current version of dagger supports Log, InfluxDB and Kafka and as supported sinks to push the data after processing. You need to set up the desired sinks beforehand so that data can be pushed seamlessly.
+- The current version of dagger supports Log, BigQuery, InfluxDB and Kafka as supported sinks to push the data after processing. You need to set up the desired sinks beforehand so that data can be pushed seamlessly.
 
   ##### `Influx Sink`
 
@@ -66,6 +131,12 @@ using stencil for proto schema handling.
 
   - With Kafka sink dagger pushes the processed data as protobuf to a Kafka topic.
   - If you have a Kafka cluster set up you are good to run a Kafka sink dagger. Enable auto topic creation in Kafka or create a Kafka topic beforehand to push the data.
+
+  ##### `BigQuery Sink` :
+  - BigQuery is a fully managed enterprise data warehouse that helps you manage and analyze your data with built-in features like machine learning, geospatial analysis, and business intelligence.BigQuery's serverless architecture lets you use SQL queries to answer your organization's biggest questions with zero infrastructure management. BigQuery's scalable, distributed analysis engine lets you query terabytes in seconds and petabytes in minutes.
+  - Bigquery Sink is created using the ODPF Depot library. 
+  - Depot is a sink connector, which acts as a bridge between data processing systems and real sink. You can check out the Depot Github repository [here](https://github.com/odpf/depot/tree/main/docs).
+
 
 ## Common Configurations
 
@@ -164,6 +235,28 @@ OUTPUT_KAFKA_TOPIC=test-kafka-output
 
 - Dimensions & metrics from the SELECT section in the query need to be mapped to field names in the output proto.
 - Find more examples on Kafka sink SQL queries [here](./guides/query_examples.md#kafka-sink).
+
+## Bigquery Sink
+
+
+
+- BigQuery is a data warehouse capable of quickly running SQL queries over large datasets. 
+- Bigquery Sink is created using the ODPF Depot library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. 
+- You can check out the BigQuery Sink Connector in the Depot Github repository [here](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md).
+
+
+### BigQuery Sink Features:
+- [Datatype Protobuf](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#datatype-protobuf)
+-  [Datatype JSON](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#datatype-json)
+
+- [Bigquery Table Schema Update](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#bigquery-table-schema-update)
+- [Protobuf - Bigquery Table Type Mapping](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#protobuf---bigquery-table-type-mapping)
+
+-  [Partitioning](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#partitioning)
+- [Metadata](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#metadata)
+- [Default columns for json data type](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#default-columns-for-json-data-type)
+- [Errors Handling](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#errors-handling)
+- [Google Cloud Bigquery IAM Permission](https://github.com/odpf/depot/blob/main/docs/sinks/bigquery.md#google-cloud-bigquery-iam-permission)
 
 ## Advanced Data Processing
 

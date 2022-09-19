@@ -61,10 +61,11 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar('io.odpf:depot:0.1.5') {
+    minimalJar('io.odpf:depot:0.2.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'stencil', group: 'io.odpf'
         exclude group: 'com.google.protobuf'
+        exclude group: 'com.datadoghq'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'

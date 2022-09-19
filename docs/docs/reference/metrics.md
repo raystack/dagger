@@ -34,7 +34,7 @@ Some of the most important metrics related to a dagger that gives you an overvie
 
 ### `Sink`
 
-- The configured sink type for dagger. Can be Log/Kafka/Influx.
+- The configured sink type for dagger. Can be Log/BigQuery/Kafka/Influx.
 
 ### `Full restarts`
 
