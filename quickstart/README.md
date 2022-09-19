@@ -10,4 +10,53 @@
 
 ## Quickstart
 
-1. 
+1. Clone dagger repository into you local. Checkout into the branch [`doc/add-quickstart-documentation`](https://github.com/odpf/dagger/tree/doc/add-quickstart-documentation). (You should see a folder at the top level called `quickstart` containing this README.)
+2. Next, we will generate our proto descriptor set. Ensure you are at the top level directory(`dagger`) and then fire this command
+
+```
+./gradlew clean dagger-common:generateTestProto
+```
+
+This command will generate a descriptor set containing the proto descriptors of all the proto files present under `dagger-common/src/test/proto`. After running this, you should see a binary file called `dagger-descriptors.bin` under `dagger-common/src/generated-sources/descriptors/`.
+
+3. Next, we will setup a mock Stencil server to serve this proto descriptor set to Dagger. Open up a new tab in your terminal and `cd` into this directory: `dagger-common/src/generated-sources/descriptors`. Then fire this command:
+
+```python
+python -m SimpleHTTPServer 8000
+```
+
+This will spin up a mock HTTP server and serve the descriptor set we just generated in the previous step at port 8000.
+The Stencil client being used in Dagger will fetch it by calling this URL. This has been already configured in `local.properties`, as we have set `SCHEMA_REGISTRY_STENCIL_ENABLE` to true and pointed `SCHEMA_REGISTRY_STENCIL_URLS` to `http://127.0.0.1:8000/dagger-descriptors.bin`.
+
+4. Next, we will generate and send some messages to a sample kafka topic as per some proto schema. Note that, in `local.properties` we have set `INPUT_SCHEMA_PROTO_CLASS` under `STREAMS` to use `io.odpf.dagger.consumer.TestPrimitiveMessage` proto. Hence, we will push messages which conform to this schema into the topic. For doing this, please follow these steps:
+   1. `cd` into the directory `dagger-common/src/test/proto`. You should see a text file `sample_message.txt` which contains just one message. We will encode it into a binary in protobuf format.
+   2. Fire this command:
+   ```protobuf
+   protoc --proto_path=./ --encode=io.odpf.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
+   ```
+   This will generate a binary file called `out.bin`. It contains the binary encoded message of `sample_message.txt`.
+   3. Next, we will push this encoded message to the source Kafka topic as mentioned under `SOURCE_KAFKA_TOPIC_NAMES` inside `STREAMS` inside `local.properties`. Ensure Kafka is running at `localhost:9092` and then, fire this command:
+   ```shell
+   kcat -P -b localhost:9092 -D "\n" -T -t dagger-test-topic-v1 out.bin
+   ```
+   You can also fire this command multiple times, if you want multiple messages to be sent into the topic. Just make sure you increment the `event_timestamp` value every time inside `sample_message.txt` and then repeat the above steps. 
+5. Start Dagger by running the following command:
+```shell
+./gradlew dagger-core:runFlink
+```
+
+After some initialization logs, you should see the output of the SQL query getting printed.
+
+## Troubleshooting
+
+### 1. I am pushing messages to the kafka topic but not seeing any output in the logs. 
+
+**Reason:** This can happen for the following reasons:
+
+a. Pushed messages are not reaching the right topic: Check for any exceptions or errors when pushing messages to the Kafka topic. Ensure that the topic to which you are pushing messages is the same one for which you have configured Dagger to read from under `STREAMS` -> `SOURCE_KAFKA_TOPIC_NAMES` in `local.properties`
+
+b. The consumer group is not updated: Dagger might have already processed those messages. If you have made any changes to the setup, make sure you update the `STREAMS` -> `SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID` variable in `local.properties` to some new value.
+
+### 2. I see an exception `java.lang.RuntimeException: Unable to retrieve any partitions with KafkaTopicsDescriptor: Topic Regex Pattern`
+
+**Reason:** This can happen if the topic configured under `STREAMS` -> `SOURCE_KAFKA_TOPIC_NAMES` in `local.properties` is new and you have not pushed any messages to it yet. Ensure that you have pushed atleast one message to the topic before you start dagger.
