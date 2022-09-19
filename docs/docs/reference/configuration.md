@@ -28,7 +28,7 @@ Dagger can run on multiple streams, so STREAMS config can con consist of multipl
 
 For each stream, these following variables need to be configured: 
 
-#### `SOURCE_DETAILS`
+##### `SOURCE_DETAILS`
 Defines the type of source to be used as well as its boundedness. This is an ordered JSON array, with each JSON structure 
 containing two fields: `SOURCE_NAME` and `SOURCE_TYPE`. As of the latest release, only one source can be configured per stream and 
 hence arity of this array cannot be more than one. 
@@ -106,7 +106,7 @@ Defines a name for the Kafka cluster. It's a logical way to name your Kafka clus
 * Example value: `local-kafka-stream`
 * Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
-#### `SOURCE_PARQUET_FILE_PATHS`
+##### `SOURCE_PARQUET_FILE_PATHS`
 
 Defines the array of date partitioned or hour partitioned file path URLs to be processed by Parquet Source. These can be
 either local file paths such as `/Users/dummy_user/booking_log/dt=2022-01-23/` or GCS file path URLs.
@@ -123,7 +123,7 @@ for all files under the `booking-log` directory. If
 files as defined by the range into its internal index for processing and skip the others. If not configured, all the 
 discovered files are processed.
 
-#### `SOURCE_PARQUET_READ_ORDER_STRATEGY`
+##### `SOURCE_PARQUET_READ_ORDER_STRATEGY`
 
 Defines the ordering in which files discovered from `SOURCE_PARQUET_FILE_PATHS` will be processed. Currently, this takes 
 just one possible value: `EARLIEST_TIME_URL_FIRST`, however more strategies can be added later.
@@ -134,7 +134,7 @@ begin to process them in the order of ascending timestamps.
 * Type: `optional`
 * Default value: `EARLIEST_TIME_URL_FIRST`
 
-#### `SOURCE_PARQUET_FILE_DATE_RANGE`
+##### `SOURCE_PARQUET_FILE_DATE_RANGE`
 
 Defines the time range which, if present, will be used to decide which files to add for processing post discovery from `SOURCE_PARQUET_FILE_PATHS`.
 Each time range consists of two ISO format timestamps, start time and end time, separated by a comma. Multiple time range

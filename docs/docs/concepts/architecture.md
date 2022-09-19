@@ -1,12 +1,12 @@
 # Architecture
 
-Dagger or Data Aggregator is a cloud native framework for processing real-time streaming data built on top of Apache Flink.
+Dagger or Data Aggregator is a cloud native framework built on top of Apache Flink for stateful processing of data.
 
 ## System Design
 
 ### Components
 
-![Dagger Architecture](/img/architecture.png)
+![Dagger Architecture](../../static/img/system_design/dagger_system_design.png)
 
 _**Stream**_
 
@@ -38,10 +38,11 @@ _**SQL Execution**_
 - In this layer dagger executes streaming SQL (similar to ANSI SQL) on registered unbounded DataStream(s). Flink uses apache calcite for SQL execution.
 - In case you have registered any [UDF](../guides/use_udf.md), SQL engines picks them up and lets you use them in your defined SQL query.
 
-_**ProtoHandlers**_
+_**Type Handler**_
 
-- Proto handler handles the SerDe mechanism for protobuf data to Flink understandable Distributed Data format(Flink Row).
-- It recursively parses Source specific messages to Flink Row on the consumer side and Flink row to Kafka messages on the producer side.
+- Type Handler handles the SerDe mechanism for raw source data to Flink understandable Distributed Data format(Flink Row).
+- It recursively parses Source specific messages to Flink Row on the consumer side and Flink row to sink specific 
+messages on the producer side.
 - Dagger supports serialization and deserialization of various data types ranging from primitives such as int, long, float, etc to 
 complex types such as maps, nested messages, repeated types, etc.
 
@@ -83,11 +84,12 @@ notified of/updating with the latest schema is abstracted through a homegrown li
 
 ## Dagger Integration
 
-### Source
+### Dagger Source
 
-- The Data Source configuration used by Dagger to generate streaming data. This can be either 
+- The Data source configuration used by Dagger to generate streaming data. This can be either 
 [Kafka](../reference/configuration.md#sample-streams-configuration-using-kafka_consumer-as-the-data-source-) based or 
-[Parquet files](../reference/configuration.md#sample-streams-configuration-using-parquet_source-as-the-data-source-). 
+[Parquet files](../reference/configuration.md#sample-streams-configuration-using-parquet_source-as-the-data-source-). Check 
+[here](../guides/choose_source.md) for more details about Dagger Sources. 
 
 ### ProtoDescriptors
 

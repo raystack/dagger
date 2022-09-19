@@ -5,17 +5,16 @@ sidebar_position: 1
 # Introduction
 
 Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native framework built on top of Apache Flink 
-for stateful processing of both real time and historical streaming data. With Dagger, you don't need to write custom
-applications or complicated code to process data as a stream. Instead, you can write SQL queries and UDFs to do the 
-processing and analysis on streaming data.
+for stateful processing of data. With Dagger, you don't need to write custom applications or complicated code to process 
+data as a stream. Instead, you can write SQL queries and UDFs to do the processing and analysis on streaming data.
 
-![](/img/overview.svg)
+![](../static/img/overview/dagger_overview.png)
 
 ## Key Features
 
 Discover why to use Dagger
 
-- **Processing:** Dagger can transform, aggregate, join and enrich Protobuf data in real-time.
+- **Processing:** Dagger can transform, aggregate, join and enrich streaming data, both real-time and historical.
 - **Scale:** Dagger scales in an instant, both vertically and horizontally for high performance streaming sink and zero data drops.
 - **Extensibility:** Add your own sink to dagger with a clearly defined interface or choose from already provided ones. Use Kafka and/or Parquet Files as stream sources.
 - **Flexibility:** Add custom business logic in form of plugins \(UDFs, Transformers, Preprocessors and Post Processors\) independent of the core logic.
