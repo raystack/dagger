@@ -76,6 +76,20 @@ Defines the bootstrap server of Kafka brokers to consume from. Multiple Kafka br
 * Example value: `localhost:9092`
 * Type: `required` only when `KAFKA_CONSUMER` or `KAFKA_SOURCE` is configured in `SOURCE_DETAILS`
 
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL`
+
+Defines the security protocol used to communicate with ACL enabled kafka. Valid values are: PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL.
+
+* Example value: `SASL_PLAINTEXT`
+* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE` 
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM`
+
+Defines the SASL mechanism used for client connections with ACL enabled kafka. This may be any mechanism for which a security provider is available.
+
+* Example value: `SCRAM-SHA-512`
+* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
 Enable/Disable Kafka consumer auto-commit. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_enable.auto.commit).

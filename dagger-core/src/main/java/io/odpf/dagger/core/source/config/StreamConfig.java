@@ -66,6 +66,14 @@ public class StreamConfig {
     @Getter
     private String bootstrapServers;
 
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL_KEY)
+    @Getter
+    private String securityProtocol;
+
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM_KEY)
+    @Getter
+    private String saslMechanism;
+
     @SerializedName(STREAM_INPUT_STREAM_NAME_KEY)
     @Getter
     private String kafkaName;
