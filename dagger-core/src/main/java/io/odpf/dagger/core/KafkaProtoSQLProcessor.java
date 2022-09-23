@@ -1,13 +1,12 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.core.config.ConfigurationProvider;
+import io.odpf.dagger.core.config.ConfigurationProviderFactory;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.core.config.ConfigurationProvider;
-import io.odpf.dagger.core.config.ConfigurationProviderFactory;
 
 import java.util.TimeZone;
 
@@ -34,6 +33,7 @@ public class KafkaProtoSQLProcessor {
             StreamManager streamManager = new StreamManager(configuration, executionEnvironment, tableEnvironment);
             streamManager
                     .registerConfigs()
+                    .registerStatsDReporter()
                     .registerSourceWithPreProcessors()
                     .registerFunctions()
                     .registerOutputStream()

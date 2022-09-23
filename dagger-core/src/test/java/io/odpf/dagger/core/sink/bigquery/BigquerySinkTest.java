@@ -2,6 +2,7 @@ package io.odpf.dagger.core.sink.bigquery;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
+import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
 import org.apache.flink.api.connector.sink.Sink;
@@ -25,8 +26,9 @@ public class BigquerySinkTest {
     public void shouldReturnCommittersAndSerializer() throws IOException {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         BigQuerySinkFactory sinkFactory = Mockito.mock(BigQuerySinkFactory.class);
+        DaggerStatsDReporter daggerStatsDReporter = Mockito.mock(DaggerStatsDReporter.class);
         Configuration configuration = new Configuration(ParameterTool.fromMap(Collections.emptyMap()));
-        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory);
+        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
         Assert.assertEquals(Optional.empty(), sink.createCommitter());
         Assert.assertEquals(Optional.empty(), sink.getWriterStateSerializer());
         Assert.assertEquals(Optional.empty(), sink.createGlobalCommitter());
@@ -38,6 +40,7 @@ public class BigquerySinkTest {
     public void shouldCreateSinkWriter() {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         BigQuerySinkFactory sinkFactory = Mockito.mock(BigQuerySinkFactory.class);
+        DaggerStatsDReporter daggerStatsDReporter = Mockito.mock(DaggerStatsDReporter.class);
         Sink.InitContext context = Mockito.mock(Sink.InitContext.class);
         SinkWriterMetricGroup metricGroup = Mockito.mock(SinkWriterMetricGroup.class);
         Mockito.when(context.metricGroup()).thenReturn(metricGroup);
@@ -45,7 +48,7 @@ public class BigquerySinkTest {
         Map<String, String> configMap = new HashMap<>();
         Configuration configuration = new Configuration(ParameterTool.fromMap(configMap));
         Mockito.when(sinkFactory.create()).thenReturn(odpfSink);
-        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory);
+        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
         SinkWriter<Row, Void, Void> writer = sink.createWriter(context, null);
         Assert.assertTrue(writer instanceof BigquerySinkWriter);
         Mockito.verify(sinkFactory, Mockito.times(1)).create();

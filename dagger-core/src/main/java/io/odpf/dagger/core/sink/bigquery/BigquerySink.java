@@ -5,6 +5,7 @@ import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporterFactory;
+import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
 import io.odpf.dagger.core.utils.Constants;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.bigquery.BigQuerySinkFactory;
@@ -27,19 +28,21 @@ import java.util.Set;
 public class BigquerySink implements Sink<Row, Void, Void, Void> {
     private final ProtoSerializer protoSerializer;
     private final Configuration configuration;
+    private final DaggerStatsDReporter daggerStatsDReporter;
     private transient BigQuerySinkFactory sinkFactory;
 
-    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer) {
-        this(configuration, protoSerializer, null);
+    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, DaggerStatsDReporter daggerStatsDReporter) {
+        this(configuration, protoSerializer, null, daggerStatsDReporter);
     }
 
     /**
      * Constructor for testing.
      */
-    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory) {
+    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory, DaggerStatsDReporter daggerStatsDReporter) {
         this.configuration = configuration;
         this.protoSerializer = protoSerializer;
         this.sinkFactory = sinkFactory;
+        this.daggerStatsDReporter = daggerStatsDReporter;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
         ErrorReporter errorReporter = ErrorReporterFactory.getErrorReporter(context.metricGroup(), configuration);
         if (sinkFactory == null) {
             BigQuerySinkConfig sinkConfig = ConfigFactory.create(BigQuerySinkConfig.class, configuration.getParam().toMap());
-            sinkFactory = new BigQuerySinkFactory(sinkConfig);
+            sinkFactory = new BigQuerySinkFactory(sinkConfig, daggerStatsDReporter.buildStatsDReporter());
             try {
                 sinkFactory.init();
             } catch (Exception e) {
