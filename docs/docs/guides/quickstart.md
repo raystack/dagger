@@ -10,7 +10,11 @@
 
 ## Quickstart
 
-1. Clone dagger repository into you local. Git checkout into the main branch.
+1. Clone Dagger repository into your local
+
+```shell
+git clone https://github.com/odpf/dagger.git
+```
 2. Next, we will generate our proto descriptor set. Ensure you are at the top level directory(`dagger`) and then fire this command
 
 ```
