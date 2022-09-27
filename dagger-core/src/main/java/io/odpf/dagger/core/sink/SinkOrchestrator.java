@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.sink.bigquery.BigquerySinkBuilder;
+import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
+import io.odpf.dagger.core.sink.bigquery.BigQuerySinkBuilder;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -48,7 +49,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
      * @columnNames columnNames               the column names
      * @StencilClientOrchestrator stencilClientOrchestrator the stencil client orchestrator
      */
-    public Sink getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator) {
+    public Sink getSink(Configuration configuration, String[] columnNames, StencilClientOrchestrator stencilClientOrchestrator, DaggerStatsDReporter daggerStatsDReporter) {
         String sinkType = configuration.getString("SINK_TYPE", "influx");
         addMetric(TelemetryTypes.SINK_TYPE.getValue(), sinkType);
         Sink sink;
@@ -73,8 +74,9 @@ public class SinkOrchestrator implements TelemetryPublisher {
                 sink = new LogSink(columnNames);
                 break;
             case "bigquery":
-                sink = BigquerySinkBuilder.create()
+                sink = BigQuerySinkBuilder.create()
                         .setColumnNames(columnNames)
+                        .setDaggerStatsDReporter(daggerStatsDReporter)
                         .setConfiguration(configuration)
                         .setStencilClientOrchestrator(stencilClientOrchestrator)
                         .build();

@@ -1,16 +1,5 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
-import io.odpf.dagger.core.source.Stream;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.ApiExpression;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.types.Row;
-
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
@@ -20,6 +9,7 @@ import io.odpf.dagger.common.watermark.NoWatermark;
 import io.odpf.dagger.common.watermark.StreamWatermarkAssigner;
 import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
+import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
 import io.odpf.dagger.core.processors.PreProcessorConfig;
 import io.odpf.dagger.core.processors.PreProcessorFactory;
@@ -31,6 +21,14 @@ import io.odpf.dagger.core.source.StreamsFactory;
 import io.odpf.dagger.core.utils.Constants;
 import io.odpf.dagger.functions.udfs.python.PythonUdfConfig;
 import io.odpf.dagger.functions.udfs.python.PythonUdfManager;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.ApiExpression;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -48,11 +46,12 @@ import static org.apache.flink.table.api.Expressions.$;
  */
 public class StreamManager {
 
-    private StencilClientOrchestrator stencilClientOrchestrator;
     private final Configuration configuration;
     private final StreamExecutionEnvironment executionEnvironment;
-    private StreamTableEnvironment tableEnvironment;
-    private MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
+    private final StreamTableEnvironment tableEnvironment;
+    private final MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
+    private StencilClientOrchestrator stencilClientOrchestrator;
+    private DaggerStatsDReporter daggerStatsDReporter;
 
     /**
      * Instantiates a new Stream manager.
@@ -74,6 +73,8 @@ public class StreamManager {
      */
     public StreamManager registerConfigs() {
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        org.apache.flink.configuration.Configuration flinkConfiguration = (org.apache.flink.configuration.Configuration) this.executionEnvironment.getConfiguration();
+        daggerStatsDReporter = DaggerStatsDReporter.Provider.provide(flinkConfiguration, configuration);
 
         executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
         executionEnvironment.setParallelism(configuration.getInteger(FLINK_PARALLELISM_KEY, FLINK_PARALLELISM_DEFAULT));
@@ -85,7 +86,6 @@ public class StreamManager {
         executionEnvironment.getCheckpointConfig().setMinPauseBetweenCheckpoints(configuration.getLong(FLINK_CHECKPOINT_MIN_PAUSE_MS_KEY, FLINK_CHECKPOINT_MIN_PAUSE_MS_DEFAULT));
         executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(configuration.getParam());
-
 
         tableEnvironment.getConfig().setIdleStateRetention(Duration.ofMinutes(configuration.getInteger(FLINK_RETENTION_IDLE_STATE_MINUTE_KEY, FLINK_RETENTION_IDLE_STATE_MINUTE_DEFAULT)));
         return this;
@@ -100,22 +100,23 @@ public class StreamManager {
         long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
         PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
-        getStreams().forEach(stream -> {
-            String tableName = stream.getStreamName();
-            WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
-            DataStream<Row> dataStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay));
-            StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
+        StreamsFactory.getStreams(configuration, stencilClientOrchestrator, daggerStatsDReporter)
+                .forEach(stream -> {
+                    String tableName = stream.getStreamName();
+                    WatermarkStrategyDefinition watermarkStrategyDefinition = getSourceWatermarkDefinition(enablePerPartitionWatermark);
+                    DataStream<Row> dataStream = stream.registerSource(executionEnvironment, watermarkStrategyDefinition.getWatermarkStrategy(watermarkDelay));
+                    StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(new LastColumnWatermark());
 
-            DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
-                    .assignTimeStampAndWatermark(dataStream, watermarkDelay, enablePerPartitionWatermark);
+                    DataStream<Row> rowSingleOutputStreamOperator = streamWatermarkAssigner
+                            .assignTimeStampAndWatermark(dataStream, watermarkDelay, enablePerPartitionWatermark);
 
-            TableSchema tableSchema = TableSchema.fromTypeInfo(dataStream.getType());
-            StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
-            streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
+                    TableSchema tableSchema = TableSchema.fromTypeInfo(dataStream.getType());
+                    StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
+                    streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
 
-            Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
-            tableEnvironment.createTemporaryView(tableName, table);
-        });
+                    Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
+                    tableEnvironment.createTemporaryView(tableName, table);
+                });
         return this;
     }
 
@@ -228,12 +229,7 @@ public class StreamManager {
     private void addSink(StreamInfo streamInfo) {
         SinkOrchestrator sinkOrchestrator = new SinkOrchestrator(telemetryExporter);
         sinkOrchestrator.addSubscriber(telemetryExporter);
-        streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator));
+        streamInfo.getDataStream().sinkTo(sinkOrchestrator.getSink(configuration, streamInfo.getColumnNames(), stencilClientOrchestrator, daggerStatsDReporter));
     }
 
-    List<Stream> getStreams() {
-        org.apache.flink.configuration.Configuration flinkConfiguration = (org.apache.flink.configuration.Configuration) this.executionEnvironment.getConfiguration();
-        DaggerStatsDReporter daggerStatsDReporter = DaggerStatsDReporter.Provider.provide(flinkConfiguration, configuration);
-        return StreamsFactory.getStreams(configuration, stencilClientOrchestrator, daggerStatsDReporter);
-    }
 }
