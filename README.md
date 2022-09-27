@@ -41,20 +41,9 @@ Explore the following resources to get started with Dagger:
 * [Usecase](https://odpf.github.io/dagger/docs/usecase/overview) describes examples use cases which can be solved via Dagger.
 
 ## Running locally
-Make sure you have Java8 and local kafka-2.4+ setup pre-installed on your local machine.
-```sh
-# Clone the repo
-$ git clone https://github.com/odpf/dagger.git  
 
-# Build the jar
-$ ./gradlew clean build 
+Please follow this [Dagger Quickstart Guide](https://odpf.github.io/dagger/docs/guides/quickstart) for setting up a local running Dagger consuming from Kafka.
 
-# Configure env variables
-$ cat dagger-core/env/local.properties
-
-# Run a Dagger
-$ ./gradlew dagger-core:runFlink
-```
 **Note:** Sample configuration for running a basic dagger can be found [here](https://odpf.github.io/dagger/docs/guides/create_dagger#common-configurations). For detailed configurations, refer [here](https://odpf.github.io/dagger/docs/reference/configuration).
 
 Find more detailed steps on local setup [here](https://odpf.github.io/dagger/docs/guides/create_dagger).
