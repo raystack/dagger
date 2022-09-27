@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class BigquerySinkTest {
+public class BigQuerySinkTest {
 
     @Test
     public void shouldReturnCommittersAndSerializer() throws IOException {
@@ -28,7 +28,7 @@ public class BigquerySinkTest {
         BigQuerySinkFactory sinkFactory = Mockito.mock(BigQuerySinkFactory.class);
         DaggerStatsDReporter daggerStatsDReporter = Mockito.mock(DaggerStatsDReporter.class);
         Configuration configuration = new Configuration(ParameterTool.fromMap(Collections.emptyMap()));
-        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
+        BigQuerySink sink = new BigQuerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
         Assert.assertEquals(Optional.empty(), sink.createCommitter());
         Assert.assertEquals(Optional.empty(), sink.getWriterStateSerializer());
         Assert.assertEquals(Optional.empty(), sink.createGlobalCommitter());
@@ -48,9 +48,9 @@ public class BigquerySinkTest {
         Map<String, String> configMap = new HashMap<>();
         Configuration configuration = new Configuration(ParameterTool.fromMap(configMap));
         Mockito.when(sinkFactory.create()).thenReturn(odpfSink);
-        BigquerySink sink = new BigquerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
+        BigQuerySink sink = new BigQuerySink(configuration, protoSerializer, sinkFactory, daggerStatsDReporter);
         SinkWriter<Row, Void, Void> writer = sink.createWriter(context, null);
-        Assert.assertTrue(writer instanceof BigquerySinkWriter);
+        Assert.assertTrue(writer instanceof BigQuerySinkWriter);
         Mockito.verify(sinkFactory, Mockito.times(1)).create();
     }
 }

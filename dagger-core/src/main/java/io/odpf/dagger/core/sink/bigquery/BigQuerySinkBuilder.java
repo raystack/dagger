@@ -9,28 +9,28 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BigquerySinkBuilder {
+public class BigQuerySinkBuilder {
 
     private String[] columnNames;
     private StencilClientOrchestrator stencilClientOrchestrator;
     private Configuration configuration;
     private DaggerStatsDReporter daggerStatsDReporter;
 
-    private BigquerySinkBuilder() {
+    private BigQuerySinkBuilder() {
     }
 
-    public static BigquerySinkBuilder create() {
-        return new BigquerySinkBuilder();
+    public static BigQuerySinkBuilder create() {
+        return new BigQuerySinkBuilder();
     }
 
-    public BigquerySink build() {
+    public BigQuerySink build() {
         ProtoSerializer protoSerializer = new ProtoSerializer(
                 configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_KEY_CLASS", ""),
                 configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", ""),
                 columnNames,
                 stencilClientOrchestrator);
         Configuration conf = setDefaultValues(configuration);
-        return new BigquerySink(conf, protoSerializer, daggerStatsDReporter);
+        return new BigQuerySink(conf, protoSerializer, daggerStatsDReporter);
     }
 
     private Configuration setDefaultValues(Configuration inputConf) {
@@ -47,22 +47,22 @@ public class BigquerySinkBuilder {
         return new Configuration(ParameterTool.fromMap(configMap));
     }
 
-    public BigquerySinkBuilder setConfiguration(Configuration configuration) {
+    public BigQuerySinkBuilder setConfiguration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
 
-    public BigquerySinkBuilder setColumnNames(String[] columnNames) {
+    public BigQuerySinkBuilder setColumnNames(String[] columnNames) {
         this.columnNames = columnNames;
         return this;
     }
 
-    public BigquerySinkBuilder setStencilClientOrchestrator(StencilClientOrchestrator stencilClientOrchestrator) {
+    public BigQuerySinkBuilder setStencilClientOrchestrator(StencilClientOrchestrator stencilClientOrchestrator) {
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         return this;
     }
 
-    public BigquerySinkBuilder setDaggerStatsDReporter(DaggerStatsDReporter daggerStatsDReporter) {
+    public BigQuerySinkBuilder setDaggerStatsDReporter(DaggerStatsDReporter daggerStatsDReporter) {
         this.daggerStatsDReporter = daggerStatsDReporter;
         return this;
     }

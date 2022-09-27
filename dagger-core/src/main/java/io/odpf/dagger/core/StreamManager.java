@@ -73,6 +73,8 @@ public class StreamManager {
      */
     public StreamManager registerConfigs() {
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        org.apache.flink.configuration.Configuration flinkConfiguration = (org.apache.flink.configuration.Configuration) this.executionEnvironment.getConfiguration();
+        daggerStatsDReporter = DaggerStatsDReporter.Provider.provide(flinkConfiguration, configuration);
 
         executionEnvironment.setMaxParallelism(configuration.getInteger(Constants.FLINK_PARALLELISM_MAX_KEY, Constants.FLINK_PARALLELISM_MAX_DEFAULT));
         executionEnvironment.setParallelism(configuration.getInteger(FLINK_PARALLELISM_KEY, FLINK_PARALLELISM_DEFAULT));
@@ -85,14 +87,7 @@ public class StreamManager {
         executionEnvironment.getCheckpointConfig().setMaxConcurrentCheckpoints(configuration.getInteger(FLINK_CHECKPOINT_MAX_CONCURRENT_KEY, FLINK_CHECKPOINT_MAX_CONCURRENT_DEFAULT));
         executionEnvironment.getConfig().setGlobalJobParameters(configuration.getParam());
 
-
         tableEnvironment.getConfig().setIdleStateRetention(Duration.ofMinutes(configuration.getInteger(FLINK_RETENTION_IDLE_STATE_MINUTE_KEY, FLINK_RETENTION_IDLE_STATE_MINUTE_DEFAULT)));
-        return this;
-    }
-
-    public StreamManager registerStatsDReporter() {
-        org.apache.flink.configuration.Configuration flinkConfiguration = (org.apache.flink.configuration.Configuration) this.executionEnvironment.getConfiguration();
-        this.daggerStatsDReporter = DaggerStatsDReporter.Provider.provide(flinkConfiguration, configuration);
         return this;
     }
 

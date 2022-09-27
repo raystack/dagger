@@ -25,20 +25,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class BigquerySink implements Sink<Row, Void, Void, Void> {
+public class BigQuerySink implements Sink<Row, Void, Void, Void> {
     private final ProtoSerializer protoSerializer;
     private final Configuration configuration;
     private final DaggerStatsDReporter daggerStatsDReporter;
     private transient BigQuerySinkFactory sinkFactory;
 
-    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, DaggerStatsDReporter daggerStatsDReporter) {
+    protected BigQuerySink(Configuration configuration, ProtoSerializer protoSerializer, DaggerStatsDReporter daggerStatsDReporter) {
         this(configuration, protoSerializer, null, daggerStatsDReporter);
     }
 
     /**
      * Constructor for testing.
      */
-    protected BigquerySink(Configuration configuration, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory, DaggerStatsDReporter daggerStatsDReporter) {
+    protected BigQuerySink(Configuration configuration, ProtoSerializer protoSerializer, BigQuerySinkFactory sinkFactory, DaggerStatsDReporter daggerStatsDReporter) {
         this.configuration = configuration;
         this.protoSerializer = protoSerializer;
         this.sinkFactory = sinkFactory;
@@ -69,7 +69,7 @@ public class BigquerySink implements Sink<Row, Void, Void, Void> {
         for (String s : Splitter.on(",").omitEmptyStrings().split(errorsForFailing)) {
             errorTypesForFailing.add(ErrorType.valueOf(s.trim()));
         }
-        return new BigquerySinkWriter(protoSerializer, odpfSink, batchSize, errorReporter, errorTypesForFailing);
+        return new BigQuerySinkWriter(protoSerializer, odpfSink, batchSize, errorReporter, errorTypesForFailing);
     }
 
     @Override

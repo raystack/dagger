@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.sink;
 
 import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
-import io.odpf.dagger.core.sink.bigquery.BigquerySink;
+import io.odpf.dagger.core.sink.bigquery.BigQuerySink;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -108,11 +108,11 @@ public class SinkOrchestratorTest {
     }
 
     @Test
-    public void shouldReturnBigquerySink() {
+    public void shouldReturnBigQuerySink() {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
         when(configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", "")).thenReturn("some.class");
         when(configuration.getParam()).thenReturn(ParameterTool.fromMap(Collections.emptyMap()));
         Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
-        assertThat(sinkFunction, instanceOf(BigquerySink.class));
+        assertThat(sinkFunction, instanceOf(BigQuerySink.class));
     }
 }

@@ -33,7 +33,6 @@ public class KafkaProtoSQLProcessor {
             StreamManager streamManager = new StreamManager(configuration, executionEnvironment, tableEnvironment);
             streamManager
                     .registerConfigs()
-                    .registerStatsDReporter()
                     .registerSourceWithPreProcessors()
                     .registerFunctions()
                     .registerOutputStream()

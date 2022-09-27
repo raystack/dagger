@@ -10,12 +10,12 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 
 
-public class BigquerySinkBuilderTest {
+public class BigQuerySinkBuilderTest {
 
     @Test
-    public void shouldBuildBigquerySink() {
+    public void shouldBuildBigQuerySink() {
         StencilClientOrchestrator stencilClientOrchestrator = Mockito.mock(StencilClientOrchestrator.class);
-        BigquerySinkBuilder builder = BigquerySinkBuilder.create();
+        BigQuerySinkBuilder builder = BigQuerySinkBuilder.create();
         builder.setColumnNames(new String[]{"test", "some_column"});
         builder.setConfiguration(new Configuration(ParameterTool.fromMap(new HashMap<String, String>() {{
             put("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", "test");

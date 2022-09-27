@@ -149,7 +149,6 @@ public class StreamManagerTest {
 
         StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
-        streamManagerStub.registerStatsDReporter();
         streamManagerStub.registerSourceWithPreProcessors();
 
         verify(tableEnvironment, Mockito.times(1)).fromDataStream(any(), new ApiExpression[]{});
