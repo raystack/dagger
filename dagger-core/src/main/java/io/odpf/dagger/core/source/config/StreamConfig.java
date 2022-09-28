@@ -74,6 +74,10 @@ public class StreamConfig {
     @Getter
     private String saslMechanism;
 
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG_KEY)
+    @Getter
+    private String saslJaasConfig;
+
     @SerializedName(STREAM_INPUT_STREAM_NAME_KEY)
     @Getter
     private String kafkaName;

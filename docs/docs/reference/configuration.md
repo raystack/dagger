@@ -88,7 +88,14 @@ Defines the security protocol used to communicate with ACL enabled kafka. Valid 
 Defines the SASL mechanism used for client connections with ACL enabled kafka. This may be any mechanism for which a security provider is available.
 
 * Example value: `SCRAM-SHA-512`
-* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+* Type: Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG`
+
+Defines the SASL JAAS Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
+
+* Example value: `loginModuleClass controlFlag (optionName=optionValue)*`
+* Type: `optional`
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
