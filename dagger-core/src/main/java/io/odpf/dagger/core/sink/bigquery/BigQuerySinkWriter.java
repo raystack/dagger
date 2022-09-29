@@ -1,7 +1,7 @@
 package io.odpf.dagger.core.sink.bigquery;
 
 import io.odpf.dagger.common.serde.proto.serialization.ProtoSerializer;
-import io.odpf.dagger.core.exception.BigqueryWriterException;
+import io.odpf.dagger.core.exception.BigQueryWriterException;
 import io.odpf.dagger.core.metrics.reporters.ErrorReporter;
 import io.odpf.depot.OdpfSink;
 import io.odpf.depot.OdpfSinkResponse;
@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
+public class BigQuerySinkWriter implements SinkWriter<Row, Void, Void> {
     private final ProtoSerializer protoSerializer;
     private final OdpfSink bigquerySink;
     private final int batchSize;
@@ -31,7 +31,7 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
     private final List<OdpfMessage> messages = new ArrayList<>();
     private int currentBatchSize;
 
-    public BigquerySinkWriter(ProtoSerializer protoSerializer, OdpfSink bigquerySink, int batchSize, ErrorReporter errorReporter, Set<ErrorType> errorTypesForFailing) {
+    public BigQuerySinkWriter(ProtoSerializer protoSerializer, OdpfSink bigquerySink, int batchSize, ErrorReporter errorReporter, Set<ErrorType> errorTypesForFailing) {
         this.protoSerializer = protoSerializer;
         this.bigquerySink = bigquerySink;
         this.batchSize = batchSize;
@@ -56,7 +56,7 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
         }
     }
 
-    private void pushToBq() throws OdpfSinkException, BigqueryWriterException {
+    private void pushToBq() throws OdpfSinkException, BigQueryWriterException {
         log.info("Pushing " + currentBatchSize + " records to bq");
         OdpfSinkResponse odpfSinkResponse;
         try {
@@ -71,7 +71,7 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
         }
     }
 
-    protected void checkAndThrow(OdpfSinkResponse sinkResponse) throws BigqueryWriterException {
+    protected void checkAndThrow(OdpfSinkResponse sinkResponse) throws BigQueryWriterException {
         Map<Boolean, List<ErrorInfo>> failedErrorTypes = sinkResponse.getErrors().values().stream().collect(
                 Collectors.partitioningBy(errorInfo -> errorTypesForFailing.contains(errorInfo.getErrorType())));
         failedErrorTypes.get(Boolean.FALSE).forEach(errorInfo -> {
@@ -81,12 +81,12 @@ public class BigquerySinkWriter implements SinkWriter<Row, Void, Void> {
             errorReporter.reportFatalException(errorInfo.getException());
         });
         if (failedErrorTypes.get(Boolean.TRUE).size() > 0) {
-            throw new BigqueryWriterException("Error occurred during writing to Bigquery");
+            throw new BigQueryWriterException("Error occurred during writing to BigQuery");
         }
     }
 
     protected void logErrors(OdpfSinkResponse sinkResponse, List<OdpfMessage> sentMessages) {
-        log.error("Failed to push " + sinkResponse.getErrors().size() + " records to BigquerySink");
+        log.error("Failed to push " + sinkResponse.getErrors().size() + " records to BigQuerySink");
         sinkResponse.getErrors().forEach((index, errorInfo) -> {
             OdpfMessage message = sentMessages.get(index.intValue());
             log.error("Failed to pushed message with metadata {}. The exception was {}. The ErrorType was {}",

@@ -14,13 +14,13 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.*;
 
-public class BigquerySinkWriterTest {
+public class BigQuerySinkWriterTest {
 
     @Test
     public void shouldWriteToOdpfSinkInBatches() throws IOException {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         OdpfSink sink = Mockito.mock(OdpfSink.class);
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, null, null);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, null, null);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
@@ -43,7 +43,7 @@ public class BigquerySinkWriterTest {
     public void shouldNotWriteIfCurrentSizeIsLessThanTheBatchSize() throws IOException {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         OdpfSink sink = Mockito.mock(OdpfSink.class);
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 10, null, null);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 10, null, null);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
@@ -66,7 +66,7 @@ public class BigquerySinkWriterTest {
             add(ErrorType.DESERIALIZATION_ERROR);
             add(ErrorType.SINK_4XX_ERROR);
         }};
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
@@ -82,7 +82,7 @@ public class BigquerySinkWriterTest {
         bigquerySinkWriter.write(row, null);
         bigquerySinkWriter.write(row, null);
         IOException ioException = Assert.assertThrows(IOException.class, () -> bigquerySinkWriter.write(row, null));
-        Assert.assertEquals("Error occurred during writing to Bigquery", ioException.getMessage());
+        Assert.assertEquals("Error occurred during writing to BigQuery", ioException.getMessage());
         Mockito.verify(sink, Mockito.times(1)).pushToSink(Mockito.anyList());
         Mockito.verify(response, Mockito.times(1)).hasErrors();
         Mockito.verify(reporter, Mockito.times(0)).reportNonFatalException(Mockito.any());
@@ -96,7 +96,7 @@ public class BigquerySinkWriterTest {
         OdpfSink sink = Mockito.mock(OdpfSink.class);
         ErrorReporter reporter = Mockito.mock(ErrorReporter.class);
         Set<ErrorType> errorTypesForFailing = Collections.emptySet();
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
@@ -123,7 +123,7 @@ public class BigquerySinkWriterTest {
     public void shouldCallClose() throws Exception {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         OdpfSink sink = Mockito.mock(OdpfSink.class);
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, null, null);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, null, null);
         bigquerySinkWriter.close();
         Mockito.verify(sink, Mockito.times(1)).close();
     }
@@ -134,7 +134,7 @@ public class BigquerySinkWriterTest {
         OdpfSink sink = Mockito.mock(OdpfSink.class);
         ErrorReporter reporter = Mockito.mock(ErrorReporter.class);
         Set<ErrorType> errorTypesForFailing = Collections.emptySet();
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, reporter, errorTypesForFailing);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());
@@ -154,7 +154,7 @@ public class BigquerySinkWriterTest {
     public void shouldFlushWhilePrepareForCommit() throws IOException {
         ProtoSerializer protoSerializer = Mockito.mock(ProtoSerializer.class);
         OdpfSink sink = Mockito.mock(OdpfSink.class);
-        BigquerySinkWriter bigquerySinkWriter = new BigquerySinkWriter(protoSerializer, sink, 3, null, null);
+        BigQuerySinkWriter bigquerySinkWriter = new BigQuerySinkWriter(protoSerializer, sink, 3, null, null);
         Row row = new Row(1);
         row.setField(0, "some field");
         Mockito.when(protoSerializer.serializeKey(row)).thenReturn("test".getBytes());

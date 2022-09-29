@@ -2,6 +2,10 @@
 
 The following section describes how to manage Dagger throughout its lifecycle.
 
+### [Dagger Quickstart](./quickstart.md)
+
+Get quickly up and running by setting up a local Dagger instance consuming from Kafka.   
+
 ### [Choosing a Dagger Source](./choose_source.md)
 
 Dagger requires configuring a source from where data will be streamed for processing. This section explains what are the 

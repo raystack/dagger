@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.sink;
 
-import io.odpf.dagger.core.sink.bigquery.BigquerySink;
+import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
+import io.odpf.dagger.core.sink.bigquery.BigQuerySink;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -32,6 +33,8 @@ public class SinkOrchestratorTest {
     private SinkOrchestrator sinkOrchestrator;
     @Mock
     private MetricsTelemetryExporter telemetryExporter;
+    @Mock
+    private DaggerStatsDReporter daggerStatsDReporter;
 
     @Before
     public void setup() {
@@ -47,7 +50,7 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveInfluxSinkWhenConfiguredToUseInflux() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
 
         assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
@@ -55,7 +58,7 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveLogSinkWhenConfiguredToUseLog() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("log");
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
 
         assertThat(sinkFunction, instanceOf(LogSink.class));
     }
@@ -63,7 +66,7 @@ public class SinkOrchestratorTest {
     @Test
     public void shouldGiveInfluxWhenConfiguredToUseNothing() throws Exception {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("");
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
 
         assertThat(sinkFunction, instanceOf(InfluxDBSink.class));
     }
@@ -86,7 +89,7 @@ public class SinkOrchestratorTest {
         when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
         when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
 
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
 
         assertThat(sinkFunction, instanceOf(KafkaSink.class));
     }
@@ -100,16 +103,16 @@ public class SinkOrchestratorTest {
 
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("influx");
 
-        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
+        sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
         assertEquals(expectedMetrics, sinkOrchestrator.getTelemetry());
     }
 
     @Test
-    public void shouldReturnBigquerySink() {
+    public void shouldReturnBigQuerySink() {
         when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("bigquery");
         when(configuration.getString("SINK_CONNECTOR_SCHEMA_PROTO_MESSAGE_CLASS", "")).thenReturn("some.class");
         when(configuration.getParam()).thenReturn(ParameterTool.fromMap(Collections.emptyMap()));
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator);
-        assertThat(sinkFunction, instanceOf(BigquerySink.class));
+        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
+        assertThat(sinkFunction, instanceOf(BigQuerySink.class));
     }
 }

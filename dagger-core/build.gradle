@@ -61,7 +61,7 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar('io.odpf:depot:0.2.0') {
+    minimalJar('io.odpf:depot:0.3.1') {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'stencil', group: 'io.odpf'
         exclude group: 'com.google.protobuf'
