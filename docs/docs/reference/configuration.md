@@ -85,17 +85,22 @@ Defines the security protocol used to communicate with ACL enabled kafka. Valid 
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM`
 
-Defines the SASL mechanism used for client connections with ACL enabled kafka. This may be any mechanism for which a security provider is available.
+Defines the Simple Authentication and Security Layer (SASL) mechanism used for client connections with ACL enabled kafka. This may be any mechanism for which a security provider is available.
 
 * Example value: `SCRAM-SHA-512`
-* Type: Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG`
 
-Defines the SASL JAAS Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
+Defines the SASL Java Authentication and Authorization Service (JAAS) Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
+There are two ways to configure `KAFKA_CONSUMER` or `KAFKA_SOURCE` to provide the necessary information for JAAS:
+   1. Specify the JAAS configuration using the `sasl.jaas.config` configuration property
+   2. Pass a static JAAS configuration file into the JVM using the `java.security.auth.login.config` property at runtime in TaskManager.  
+
+If a Dagger specifies both the client property `sasl.jaas.config` and the static JAAS configuration system property `java.security.auth.login.config`, then the client property `sasl.jaas.config` will be used.
 
 * Example value: `loginModuleClass controlFlag (optionName=optionValue)*`
-* Type: `optional`
+* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
