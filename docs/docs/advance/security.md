@@ -44,7 +44,7 @@ Defines the Simple Authentication and Security Layer (SASL) mechanism used for c
 Defines the SASL Java Authentication and Authorization Service (JAAS) Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
 There are two ways to configure `KAFKA_CONSUMER` or `KAFKA_SOURCE` to provide the necessary information for JAAS:
 1. Specify the JAAS configuration using the `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG` configuration property
-2. Pass a static JAAS configuration file into the flink-conf.yaml using the `env.java.opts: -Djava.security.auth.login.config=<jaas_file_path>/<jaas_file_name>` property, at runtime dagger job will use static JAAS file configured with TaskManager JVM.
+2. Pass a static JAAS configuration file into the flink-conf.yaml using the `env.java.opts: -Djava.security.auth.login.config=<jaas_file_path>/<jaas_file_name>` property, at runtime dagger job will use static JAAS config details configured with the flink TaskManager JVM.
 
 If a Dagger specifies both the client property `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG` and the static JAAS configuration system property `java.security.auth.login.config`, then the client property `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG` will be used.
 
