@@ -78,7 +78,7 @@ Defines the bootstrap server of Kafka brokers to consume from. Multiple Kafka br
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL`
 
-Defines the security protocol used to communicate with ACL enabled kafka. Dagger supported values are: SASL_PLAINTEXT, SASL_SSL.
+Defines the security protocol used to communicate with [ACL enabled](https://kafka.apache.org/documentation/#security_authz) kafka. Dagger supported values are: SASL_PLAINTEXT, SASL_SSL.
 Find more details on this config [here](../advance/security.md#Configurations)
 
 * Example value: `SASL_PLAINTEXT`
@@ -86,7 +86,7 @@ Find more details on this config [here](../advance/security.md#Configurations)
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM`
 
-Defines the Simple Authentication and Security Layer (SASL) mechanism used for kafka consumer connections with ACL enabled kafka. Dagger supported values are: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512.
+Defines the Simple Authentication and Security Layer (SASL) mechanism used for kafka consumer connections with [ACL enabled](https://kafka.apache.org/documentation/#security_authz) kafka. Dagger supported values are: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512.
 Find more details on this config [here](../advance/security.md#Configurations)
 
 * Example value: `SCRAM-SHA-512`

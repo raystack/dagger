@@ -4,18 +4,21 @@ The primary goals of the Dagger security needs are to enable secure data access 
 
 # Supported secure data access sources 
 
-We currently support only secure data access from kafka source using simple authentication security layer([SASL](https://docs.confluent.io/platform/current/kafka/overview-authentication-methods.html#))
+We currently support only secure data access from kafka source using simple authentication security layer([SASL](https://kafka.apache.org/documentation/#security_sasl))
 
 - [KAFKA_SOURCE](../guides/choose_source.md)
 - [KAFKA_CONSUMER](../guides/choose_source.md)
 
-## Supported SASL authentication methods 
+## Supported SASL authentication methods and mechanisms
 
 SASL (Simple Authentication Security Layer) is a framework that provides developers of applications and shared libraries with mechanisms for authentication, data integrity-checking, and encryption.
-We currently support SASL based authentication for `KAFKA_SOURCE` and `KAFKA_CONSUMER` source using - 
 
-- [SASL/SCRAM](https://docs.confluent.io/platform/current/kafka/authentication_sasl/authentication_sasl_scram.html#clients)
-- [SASL/PLAIN](https://docs.confluent.io/platform/current/kafka/authentication_sasl/authentication_sasl_plain.html#clients)
+Dagger currently support SASL based authentication with `KAFKA_SOURCE` and `KAFKA_CONSUMER` sources using - 
+
+- [SASL/SCRAM](https://kafka.apache.org/documentation/#security_sasl_scram)
+- [SASL/PLAIN](https://kafka.apache.org/documentation/#security_sasl_plain)
+
+**Note:** You must configure your Kafka cluster to enable SASL authentication. See the [Kafka documentation](https://kafka.apache.org/documentation/#security_overview) for your Kafka version to learn how to configure SASL authentication.
 
 ### Configurations
 
@@ -54,7 +57,7 @@ If a Dagger specifies both the client property `SOURCE_KAFKA_CONSUMER_CONFIG_SAS
 
 ### Example
 
-To consume data from SASL/SCRAM authentication enabled a kafka -
+STREAMS config to consume data from the SASL/SCRAM authentication enabled kafka -
 
 ```
 STREAMS = [
@@ -81,22 +84,23 @@ STREAMS = [
 ]
 ```
 
-To consume data from multiple SASL/SCRAM authentication enabled a kafka source-
+STREAMS config to consume data from multiple kafka source-
 
 ```
 STREAMS = [
     {
-      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
-      "INPUT_SCHEMA_TABLE": "data_stream",
+      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic-0",
+      "INPUT_SCHEMA_TABLE": "data_stream_0",
       "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
       "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost-1:9092",
       "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
       "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
       "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL": "SASL_PLAINTEXT",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM": "SCRAM-SHA-512",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"kafkaclient1\" password=\"kafkaclient1-secret\";""SOURCE_KAFKA_NAME": "local-kafka-stream",
+      "SOURCE_KAFKA_NAME": "local-kafka-stream-0",
       "SOURCE_DETAILS": [
         {
           "SOURCE_TYPE": "UNBOUNDED",
@@ -105,18 +109,35 @@ STREAMS = [
       ]
     },
     {
-      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
-      "INPUT_SCHEMA_TABLE": "data_stream",
+      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic-1",
+      "INPUT_SCHEMA_TABLE": "data_stream_1",
       "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
       "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
-      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost-2:9092",
       "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
       "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
       "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL": "SASL_SSL",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM": "SCRAM-SHA-512",
       "SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"kafkaclient2\" password=\"kafkaclient2-secret\";",
-      "SOURCE_KAFKA_NAME": "local-kafka-stream",
+      "SOURCE_KAFKA_NAME": "local-kafka-stream-1",
+      "SOURCE_DETAILS": [
+        {
+          "SOURCE_TYPE": "UNBOUNDED",
+          "SOURCE_NAME": "KAFKA_CONSUMER"
+        }
+      ]
+    },
+    {
+      "SOURCE_KAFKA_TOPIC_NAMES": "test-topic-2",
+      "INPUT_SCHEMA_TABLE": "data_stream-2",
+      "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+      "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+      "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+      "SOURCE_KAFKA_NAME": "local-kafka-stream-2", 
       "SOURCE_DETAILS": [
         {
           "SOURCE_TYPE": "UNBOUNDED",
