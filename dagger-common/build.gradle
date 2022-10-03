@@ -59,9 +59,9 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
 
-    dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
-        exclude module:"commons-cli"
-        exclude module:"commons-compress"
+    dependenciesCommonJar('org.apache.hadoop:hadoop-client:2.8.3') {
+        exclude module: "commons-cli"
+        exclude module: "commons-compress"
     }
     dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
@@ -135,11 +135,14 @@ publishing {
         }
     }
 }
-
 protobuf {
     generatedFilesBaseDir = "$projectDir/src/generated"
     protoc {
-        artifact = "com.google.protobuf:protoc:3.1.0"
+        if (osdetector.os == "osx") {
+            artifact = 'com.google.protobuf:protoc:3.1.0:osx-x86_64'
+        } else {
+            artifact = 'com.google.protobuf:protoc:3.1.0'
+        }
     }
     plugins {
         grpc {
