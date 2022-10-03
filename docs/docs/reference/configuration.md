@@ -78,29 +78,26 @@ Defines the bootstrap server of Kafka brokers to consume from. Multiple Kafka br
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL`
 
-Defines the security protocol used to communicate with ACL enabled kafka. Valid values are: PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL.
+Defines the security protocol used to communicate with [ACL enabled](https://kafka.apache.org/documentation/#security_authz) kafka. Dagger supported values are: SASL_PLAINTEXT, SASL_SSL.
+Find more details on this config [here](../advance/security.md#Configurations)
 
 * Example value: `SASL_PLAINTEXT`
 * Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE` 
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM`
 
-Defines the Simple Authentication and Security Layer (SASL) mechanism used for client connections with ACL enabled kafka. This may be any mechanism for which a security provider is available.
+Defines the Simple Authentication and Security Layer (SASL) mechanism used for kafka consumer connections with [ACL enabled](https://kafka.apache.org/documentation/#security_authz) kafka. Dagger supported values are: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512.
+Find more details on this config [here](../advance/security.md#Configurations)
 
 * Example value: `SCRAM-SHA-512`
 * Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
 
 ##### `SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG`
 
-Defines the SASL Java Authentication and Authorization Service (JAAS) Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
-There are two ways to configure `KAFKA_CONSUMER` or `KAFKA_SOURCE` to provide the necessary information for JAAS:
-   1. Specify the JAAS configuration using the `sasl.jaas.config` configuration property
-   2. Pass a static JAAS configuration file into the JVM using the `java.security.auth.login.config` property at runtime in TaskManager.  
+Defines the SASL Java Authentication and Authorization Service (JAAS) Config used for JAAS login context parameters for SASL connections in the format used by JAAS configuration files. Find more details on this config [here](../advance/security.md#Configurations).
 
-If a Dagger specifies both the client property `sasl.jaas.config` and the static JAAS configuration system property `java.security.auth.login.config`, then the client property `sasl.jaas.config` will be used.
-
-* Example value: `loginModuleClass controlFlag (optionName=optionValue)*`
-* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+* Example value: `org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="admin";`
+* Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE` if static JAAS configuration system property `java.security.auth.login.config` is not configured in flink cluster.
 
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
