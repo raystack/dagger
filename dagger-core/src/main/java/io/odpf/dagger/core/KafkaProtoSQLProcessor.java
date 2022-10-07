@@ -30,7 +30,7 @@ public class KafkaProtoSQLProcessor {
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
             EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().inStreamingMode().build();
             StreamTableEnvironment tableEnvironment = StreamTableEnvironment.create(executionEnvironment, environmentSettings);
-
+            DaggerContext.init(executionEnvironment, tableEnvironment, configuration);
             StreamManager streamManager = new StreamManager(configuration, executionEnvironment, tableEnvironment);
             streamManager
                     .registerConfigs()
