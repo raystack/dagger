@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -60,9 +61,12 @@ public class SQLTransformerTest {
     @Mock
     private Configuration configuration;
 
+    private DaggerContext context ;
+
     @Before
     public void setup() {
         initMocks(this);
+        context = DaggerContext.init(streamExecutionEnvironment,streamTableEnvironment,configuration);
         when(inputStream.getExecutionEnvironment()).thenReturn(streamExecutionEnvironment);
     }
 

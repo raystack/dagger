@@ -53,8 +53,7 @@ public class SQLTransformer implements Serializable, Transformer {
             schema = schema.replace(ROWTIME, ROWTIME + ".rowtime");
             inputStream = assignTimeAttribute(inputStream);
         }
-        StreamExecutionEnvironment streamExecutionEnvironment = inputStream.getExecutionEnvironment();
-        StreamTableEnvironment streamTableEnvironment = getStreamTableEnvironment(streamExecutionEnvironment);
+        StreamTableEnvironment streamTableEnvironment = Transformer.daggerContextGenerator().getTableEnvironment();
         streamTableEnvironment.registerDataStream(tableName, inputStream, schema);
 
         Table table = streamTableEnvironment.sqlQuery(sqlQuery);

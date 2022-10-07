@@ -1,5 +1,6 @@
 package io.odpf.dagger.core;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -30,6 +31,8 @@ public class KafkaProtoSQLProcessor {
             StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
             EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().inStreamingMode().build();
             StreamTableEnvironment tableEnvironment = StreamTableEnvironment.create(executionEnvironment, environmentSettings);
+
+            DaggerContext.init(executionEnvironment, tableEnvironment, configuration);
 
             StreamManager streamManager = new StreamManager(configuration, executionEnvironment, tableEnvironment);
             streamManager
