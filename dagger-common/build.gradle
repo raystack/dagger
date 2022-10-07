@@ -147,6 +147,12 @@ protobuf {
         }
     }
     generateProtoTasks {
+        all().each { task ->
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.includeImports = true
+            task.descriptorSetOptions.includeSourceInfo = false
+            task.descriptorSetOptions.path = "$projectDir/src/generated-sources/descriptors/dagger-descriptors.bin"
+        }
         all()*.plugins {
             grpc {}
         }
