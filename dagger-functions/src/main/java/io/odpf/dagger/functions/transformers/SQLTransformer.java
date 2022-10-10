@@ -2,7 +2,6 @@ package io.odpf.dagger.functions.transformers;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
@@ -53,8 +52,7 @@ public class SQLTransformer implements Serializable, Transformer {
             schema = schema.replace(ROWTIME, ROWTIME + ".rowtime");
             inputStream = assignTimeAttribute(inputStream);
         }
-        StreamExecutionEnvironment streamExecutionEnvironment = inputStream.getExecutionEnvironment();
-        StreamTableEnvironment streamTableEnvironment = getStreamTableEnvironment(streamExecutionEnvironment);
+        StreamTableEnvironment streamTableEnvironment = Transformer.daggerContextGenerator().getTableEnvironment();
         streamTableEnvironment.registerDataStream(tableName, inputStream, schema);
 
         Table table = streamTableEnvironment.sqlQuery(sqlQuery);
@@ -63,16 +61,6 @@ public class SQLTransformer implements Serializable, Transformer {
                 .filter(value -> value.f0)
                 .map(value -> value.f1);
         return new StreamInfo(outputStream, table.getSchema().getFieldNames());
-    }
-
-    /**
-     * Gets stream table environment.
-     *
-     * @param streamExecutionEnvironment the stream execution environment
-     * @return the stream table environment
-     */
-    protected StreamTableEnvironment getStreamTableEnvironment(StreamExecutionEnvironment streamExecutionEnvironment) {
-        return StreamTableEnvironment.create(streamExecutionEnvironment);
     }
 
     private DataStream<Row> assignTimeAttribute(DataStream<Row> inputStream) {
