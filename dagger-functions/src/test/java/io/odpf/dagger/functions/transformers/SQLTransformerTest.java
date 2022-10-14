@@ -1,19 +1,17 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.junit.After;
 import org.junit.Before;
@@ -32,16 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class SQLTransformerTest {
-
-    @Mock
-    private DataStream<Row> inputStream;
-
-    @Mock
-    private StreamExecutionEnvironment streamExecutionEnvironment;
-
-    @Mock
-    private StreamTableEnvironment streamTableEnvironment;
+public class SQLTransformerTest extends DaggerContextTestBase {
 
     @Mock
     private Table table;
@@ -61,22 +50,16 @@ public class SQLTransformerTest {
     @Mock
     private SingleOutputStreamOperator watermarkedStream;
 
-    @Mock
-    private Configuration configuration;
-
-    @Mock
-    private DaggerContext context ;
-
     private Multiply multiply;
 
     @Before
     public void setup() {
         initMocks(this);
-        setMock(context);
-        when(context.getConfiguration()).thenReturn(configuration);
+        setMock(daggerContext);
+        when(daggerContext.getConfiguration()).thenReturn(configuration);
         when(inputStream.getExecutionEnvironment()).thenReturn(streamExecutionEnvironment);
-        when(context.getExecutionEnvironment()).thenReturn(streamExecutionEnvironment);
-        when(context.getTableEnvironment()).thenReturn(streamTableEnvironment);
+        when(daggerContext.getExecutionEnvironment()).thenReturn(streamExecutionEnvironment);
+        when(daggerContext.getTableEnvironment()).thenReturn(streamTableEnvironment);
         multiply = new Multiply();
     }
 
@@ -247,7 +230,7 @@ public class SQLTransformerTest {
     class SQLTransformerStub extends SQLTransformer {
 
         SQLTransformerStub(Map<String, String> transformationArguments, String[] columnNames) {
-            super(transformationArguments, columnNames, configuration);
+            super(transformationArguments, columnNames, daggerContext);
         }
     }
 

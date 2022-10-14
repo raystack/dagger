@@ -25,9 +25,7 @@ public class KafkaProtoSQLProcessor {
             Configuration configuration = provider.get();
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             DaggerContext daggerContext = DaggerContext.init(configuration);
-            StreamManager streamManager = new StreamManager(configuration,
-                    daggerContext.getExecutionEnvironment(),
-                    daggerContext.getTableEnvironment());
+            StreamManager streamManager = new StreamManager(daggerContext);
             streamManager
                     .registerConfigs()
                     .registerSourceWithPreProcessors()

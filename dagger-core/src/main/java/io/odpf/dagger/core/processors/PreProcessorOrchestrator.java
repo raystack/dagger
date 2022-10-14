@@ -1,12 +1,19 @@
 package io.odpf.dagger.core.processors;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.jayway.jsonpath.InvalidJsonException;
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.DaggerContext;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
 import io.odpf.dagger.core.processors.common.ValidRecordsDecorator;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.transformers.TransformProcessor;
 import io.odpf.dagger.core.processors.types.Preprocessor;
+import io.odpf.dagger.core.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,23 +24,43 @@ import java.util.List;
 public class PreProcessorOrchestrator implements Preprocessor {
 
     private final MetricsTelemetryExporter metricsTelemetryExporter;
-    private Configuration configuration;
     private final PreProcessorConfig processorConfig;
     private final String tableName;
+    private final DaggerContext daggerContext;
+    private final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     /**
      * Instantiates a new Preprocessor orchestrator.
      *
-     * @param configuration            the configuration
-     * @param processorConfig          the processor config
+     * @param daggerContext            the daggerContext
      * @param metricsTelemetryExporter the metrics telemetry exporter
      * @param tableName                the table name
      */
-    public PreProcessorOrchestrator(Configuration configuration, PreProcessorConfig processorConfig, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
-        this.configuration = configuration;
-        this.processorConfig = processorConfig;
+    public PreProcessorOrchestrator(DaggerContext daggerContext, MetricsTelemetryExporter metricsTelemetryExporter, String tableName) {
+        this.daggerContext = daggerContext;
+        this.processorConfig = parseConfig(daggerContext.getConfiguration());
         this.metricsTelemetryExporter = metricsTelemetryExporter;
         this.tableName = tableName;
+    }
+
+    /**
+     * Parse config preprocessor config.
+     *
+     * @param configuration the configuration
+     * @return the preprocessor config
+     */
+    public PreProcessorConfig parseConfig(Configuration configuration) {
+        if (!configuration.getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)) {
+            return null;
+        }
+        String configJson = configuration.getString(Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY, "");
+        PreProcessorConfig config;
+        try {
+            config = GSON.fromJson(configJson, PreProcessorConfig.class);
+        } catch (JsonSyntaxException exception) {
+            throw new InvalidJsonException("Invalid JSON Given for " + Constants.PROCESSOR_PREPROCESSOR_CONFIG_KEY);
+        }
+        return config;
     }
 
     @Override
@@ -42,7 +69,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
             streamInfo = processor.process(streamInfo);
         }
         return new StreamInfo(
-                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames(), configuration)
+                new ValidRecordsDecorator(tableName, streamInfo.getColumnNames(), daggerContext.getConfiguration())
                         .decorate(streamInfo.getDataStream()),
                 streamInfo.getColumnNames());
     }
@@ -64,7 +91,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
                                 elem.getTableName(),
                                 TelemetryTypes.PRE_PROCESSOR_TYPE,
                                 elem.getTransformers(),
-                                configuration);
+                                daggerContext);
                         processor.notifySubscriber(metricsTelemetryExporter);
                         preprocessors.add(processor);
                     });

@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
@@ -7,7 +8,6 @@ import org.apache.flink.types.Row;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class InvalidRecordFilterTransformerTest {
+public class InvalidRecordFilterTransformerTest extends DaggerContextTestBase {
     @Mock
     private RuntimeContext runtimeContext;
 
@@ -34,9 +34,6 @@ public class InvalidRecordFilterTransformerTest {
     private OperatorMetricGroup metricGroup;
     @Mock
     private Counter counter;
-
-    @Mock
-    private Configuration configuration;
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
@@ -85,7 +82,7 @@ public class InvalidRecordFilterTransformerTest {
     public void shouldFilterBadRecords() throws Exception {
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), configuration);
+        }}, getColumns(), daggerContext);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);
@@ -106,7 +103,7 @@ public class InvalidRecordFilterTransformerTest {
     public void shouldPassValidRecords() throws Exception {
         InvalidRecordFilterTransformer filter = new InvalidRecordFilterTransformer(new HashMap<String, Object>() {{
             put("table_name", "test");
-        }}, getColumns(), configuration);
+        }}, getColumns(), daggerContext);
         filter.setRuntimeContext(runtimeContext);
         when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
         when(metricGroup.addGroup("per_table", "test")).thenReturn(metricGroup);

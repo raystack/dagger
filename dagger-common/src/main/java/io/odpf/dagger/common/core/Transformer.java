@@ -5,11 +5,4 @@ package io.odpf.dagger.common.core;
  */
 public interface Transformer {
     StreamInfo transform(StreamInfo streamInfo);
-
-    /**
-     * Each created {@link DaggerContext} instance
-     */
-    static DaggerContext daggerContextGenerator() {
-        return DaggerContext.getInstance();
-    }
 }

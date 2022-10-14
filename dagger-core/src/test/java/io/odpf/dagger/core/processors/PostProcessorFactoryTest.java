@@ -1,6 +1,6 @@
 package io.odpf.dagger.core.processors;
 
-import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.longbow.LongbowProcessor;
 import io.odpf.dagger.core.processors.telemetry.TelemetryProcessor;
@@ -19,9 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
-public class PostProcessorFactoryTest {
-    @Mock
-    private Configuration configuration;
+public class PostProcessorFactoryTest extends DaggerContextTestBase {
 
     @Mock
     private StencilClientOrchestrator stencilClientOrchestrator;
@@ -58,7 +56,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn(jsonArray);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         assertEquals(1, postProcessors.size());
         assertEquals(LongbowProcessor.class, postProcessors.get(0).getClass());
@@ -69,7 +67,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getString(FLINK_SQL_QUERY_KEY, FLINK_SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         assertEquals(1, postProcessors.size());
         assertEquals(ParentPostProcessor.class, postProcessors.get(0).getClass());
@@ -81,7 +79,7 @@ public class PostProcessorFactoryTest {
         when(configuration.getBoolean(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
         when(configuration.getBoolean(METRIC_TELEMETRY_ENABLE_KEY, METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)).thenReturn(true);
 
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         assertEquals(1, postProcessors.size());
         assertEquals(TelemetryProcessor.class, postProcessors.get(0).getClass());
@@ -91,7 +89,7 @@ public class PostProcessorFactoryTest {
     public void shouldNotReturnAnyPostProcessor() {
         when(configuration.getString(FLINK_SQL_QUERY_KEY, FLINK_SQL_QUERY_DEFAULT)).thenReturn("test-sql");
         when(configuration.getBoolean(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)).thenReturn(false);
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, columnNames, metricsTelemetryExporter);
 
         assertEquals(0, postProcessors.size());
     }

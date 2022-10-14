@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors.transformers;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -12,7 +13,7 @@ import io.odpf.dagger.common.core.Transformer;
 import java.util.Map;
 
 public class MockTransformer implements Transformer, MapFunction<Row, Row> {
-    public MockTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
+    public MockTransformer(Map<String, String> transformationArguments, String[] columnNames, DaggerContext daggerContext) {
     }
 
     @Override

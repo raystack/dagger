@@ -1,6 +1,7 @@
 package io.odpf.dagger.core;
 
-import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.DaggerContextTestBase;
+import io.odpf.dagger.common.core.DaggerContext;
 import io.odpf.dagger.common.core.StreamInfo;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -11,13 +12,11 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
 import org.apache.flink.table.api.ApiExpression;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableConfig;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @PrepareForTest(TableSchema.class)
 @RunWith(PowerMockRunner.class)
-public class StreamManagerTest {
+public class StreamManagerTest extends DaggerContextTestBase {
 
     private StreamManager streamManager;
 
@@ -56,9 +55,6 @@ public class StreamManagerTest {
             + "]";
 
     @Mock
-    private StreamExecutionEnvironment env;
-
-    @Mock
     private ExecutionConfig executionConfig;
 
     @Mock
@@ -66,9 +62,6 @@ public class StreamManagerTest {
 
     @Mock
     private CheckpointConfig checkpointConfig;
-
-    @Mock
-    private StreamTableEnvironment tableEnvironment;
 
     @Mock
     private DataStream<Row> dataStream;
@@ -84,10 +77,6 @@ public class StreamManagerTest {
 
     @Mock
     private TableSchema schema;
-
-    @Mock
-    private Configuration configuration;
-
 
     @Mock
     private org.apache.flink.configuration.Configuration flinkConfiguration;
@@ -113,26 +102,26 @@ public class StreamManagerTest {
         when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
         when(configuration.getInteger("FLINK_RETENTION_IDLE_STATE_MINUTE", 10)).thenReturn(10);
         when(flinkConfiguration.getString(any())).thenReturn("10");
-        when(env.getConfig()).thenReturn(executionConfig);
-        when(env.getConfiguration()).thenReturn(flinkConfiguration);
-        when(env.getCheckpointConfig()).thenReturn(checkpointConfig);
-        when(env.addSource(any(FlinkKafkaConsumerBase.class))).thenReturn(source);
-        when(tableEnvironment.getConfig()).thenReturn(tableConfig);
-        when(env.fromSource(any(KafkaSource.class), any(WatermarkStrategy.class), any(String.class))).thenReturn(source);
+        when(streamExecutionEnvironment.getConfig()).thenReturn(executionConfig);
+        when(streamExecutionEnvironment.getConfiguration()).thenReturn(flinkConfiguration);
+        when(streamExecutionEnvironment.getCheckpointConfig()).thenReturn(checkpointConfig);
+        when(streamExecutionEnvironment.addSource(any(FlinkKafkaConsumerBase.class))).thenReturn(source);
+        when(streamTableEnvironment.getConfig()).thenReturn(tableConfig);
+        when(streamExecutionEnvironment.fromSource(any(KafkaSource.class), any(WatermarkStrategy.class), any(String.class))).thenReturn(source);
         when(source.getType()).thenReturn(typeInformation);
         when(typeInformation.getTypeClass()).thenReturn(Row.class);
         when(schema.getFieldNames()).thenReturn(new String[0]);
         PowerMockito.mockStatic(TableSchema.class);
         when(TableSchema.fromTypeInfo(typeInformation)).thenReturn(schema);
-        streamManager = new StreamManager(configuration, env, tableEnvironment);
+        streamManager = new StreamManager(daggerContext);
     }
 
     @Test
     public void shouldRegisterRequiredConfigsOnExecutionEnvironment() {
         streamManager.registerConfigs();
 
-        verify(env, Mockito.times(1)).setParallelism(1);
-        verify(env, Mockito.times(1)).enableCheckpointing(30000);
+        verify(streamExecutionEnvironment, Mockito.times(1)).setParallelism(1);
+        verify(streamExecutionEnvironment, Mockito.times(1)).enableCheckpointing(30000);
         verify(executionConfig, Mockito.times(1)).setAutoWatermarkInterval(10000);
         verify(executionConfig, Mockito.times(1)).setGlobalJobParameters(configuration.getParam());
         verify(checkpointConfig, Mockito.times(1)).setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
@@ -147,33 +136,33 @@ public class StreamManagerTest {
         when(source.assignTimestampsAndWatermarks(any(WatermarkStrategy.class))).thenReturn(singleOutputStream);
         when(singleOutputStream.getType()).thenReturn(typeInformation);
 
-        StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        StreamManagerStub streamManagerStub = new StreamManagerStub(daggerContext, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerConfigs();
         streamManagerStub.registerSourceWithPreProcessors();
 
-        verify(tableEnvironment, Mockito.times(1)).fromDataStream(any(), new ApiExpression[]{});
+        verify(streamTableEnvironment, Mockito.times(1)).fromDataStream(any(), new ApiExpression[]{});
     }
 
     @Test
     public void shouldCreateOutputStream() {
-        StreamManagerStub streamManagerStub = new StreamManagerStub(configuration, env, tableEnvironment, new StreamInfo(dataStream, new String[]{}));
+        StreamManagerStub streamManagerStub = new StreamManagerStub(daggerContext, new StreamInfo(dataStream, new String[]{}));
         streamManagerStub.registerOutputStream();
-        verify(tableEnvironment, Mockito.times(1)).sqlQuery("");
+        verify(streamTableEnvironment, Mockito.times(1)).sqlQuery("");
     }
 
     @Test
     public void shouldExecuteJob() throws Exception {
         streamManager.execute();
 
-        verify(env, Mockito.times(1)).execute("SQL Flink job");
+        verify(streamExecutionEnvironment, Mockito.times(1)).execute("SQL Flink job");
     }
 
     final class StreamManagerStub extends StreamManager {
 
         private final StreamInfo streamInfo;
 
-        private StreamManagerStub(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment, StreamInfo streamInfo) {
-            super(configuration, executionEnvironment, tableEnvironment);
+        private StreamManagerStub(DaggerContext daggerContext, StreamInfo streamInfo) {
+            super(daggerContext);
             this.streamInfo = streamInfo;
         }
 

@@ -1,12 +1,12 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.common.watermark.RowtimeFieldWatermark;
@@ -26,19 +26,21 @@ public class SQLTransformer implements Serializable, Transformer {
     private final String tableName;
     private final long allowedLatenessInMs;
     private static final String ROWTIME = "rowtime";
+    private final DaggerContext daggerContext;
 
     /**
      * Instantiates a new Sql transformer.
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param daggerContext           the daggerContext
      */
-    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
+    public SQLTransformer(Map<String, String> transformationArguments, String[] columnNames, DaggerContext daggerContext) {
         this.columnNames = columnNames;
         this.sqlQuery = transformationArguments.get("sqlQuery");
         this.tableName = transformationArguments.getOrDefault("tableName", "data_stream");
         this.allowedLatenessInMs = Long.parseLong(transformationArguments.getOrDefault("allowedLatenessInMs", "0"));
+        this.daggerContext = daggerContext;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class SQLTransformer implements Serializable, Transformer {
             schema = schema.replace(ROWTIME, ROWTIME + ".rowtime");
             inputStream = assignTimeAttribute(inputStream);
         }
-        StreamTableEnvironment streamTableEnvironment = Transformer.daggerContextGenerator().getTableEnvironment();
+        StreamTableEnvironment streamTableEnvironment = daggerContext.getTableEnvironment();
         streamTableEnvironment.registerDataStream(tableName, inputStream, schema);
 
         Table table = streamTableEnvironment.sqlQuery(sqlQuery);

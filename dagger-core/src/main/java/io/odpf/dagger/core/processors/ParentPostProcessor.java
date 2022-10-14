@@ -1,5 +1,6 @@
 package io.odpf.dagger.core.processors;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -26,23 +27,29 @@ import java.util.stream.Collectors;
  */
 public class ParentPostProcessor implements PostProcessor {
     private final PostProcessorConfig postProcessorConfig;
-    private Configuration configuration;
+
     private final StencilClientOrchestrator stencilClientOrchestrator;
     private TelemetrySubscriber telemetrySubscriber;
+
+    private final DaggerContext daggerContext;
 
     /**
      * Instantiates a new Parent post processor.
      *
-     * @param postProcessorConfig       the post processor config
-     * @param configuration             the configuration
+     * @param daggerContext             the daggerContext
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param telemetrySubscriber       the telemetry subscriber
      */
-    public ParentPostProcessor(PostProcessorConfig postProcessorConfig, Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
-        this.postProcessorConfig = postProcessorConfig;
-        this.configuration = configuration;
+    public ParentPostProcessor(DaggerContext daggerContext, StencilClientOrchestrator stencilClientOrchestrator, TelemetrySubscriber telemetrySubscriber) {
+        this.daggerContext = daggerContext;
         this.stencilClientOrchestrator = stencilClientOrchestrator;
         this.telemetrySubscriber = telemetrySubscriber;
+        this.postProcessorConfig = parsePostProcessorConfig(daggerContext.getConfiguration());
+    }
+
+    private static PostProcessorConfig parsePostProcessorConfig(Configuration configuration) {
+        String postProcessorConfigString = configuration.getString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, "");
+        return PostProcessorConfig.parse(postProcessorConfigString);
     }
 
     @Override
@@ -56,7 +63,7 @@ public class ParentPostProcessor implements PostProcessor {
         InitializationDecorator initializationDecorator = new InitializationDecorator(columnNameManager);
         resultStream = initializationDecorator.decorate(resultStream);
         streamInfo = new StreamInfo(resultStream, streamInfo.getColumnNames());
-        SchemaConfig schemaConfig = new SchemaConfig(configuration, stencilClientOrchestrator, columnNameManager);
+        SchemaConfig schemaConfig = new SchemaConfig(daggerContext.getConfiguration(), stencilClientOrchestrator, columnNameManager);
 
         List<PostProcessor> enabledPostProcessors = getEnabledPostProcessors(telemetrySubscriber, schemaConfig);
         for (PostProcessor postProcessor : enabledPostProcessors) {
@@ -66,7 +73,7 @@ public class ParentPostProcessor implements PostProcessor {
         FetchOutputDecorator fetchOutputDecorator = new FetchOutputDecorator(schemaConfig, postProcessorConfig.hasSQLTransformer());
         resultStream = fetchOutputDecorator.decorate(streamInfo.getDataStream());
         StreamInfo resultantStreamInfo = new StreamInfo(resultStream, columnNameManager.getOutputColumnNames());
-        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(postProcessorConfig.getTransformers(), daggerContext);
         if (transformProcessor.canProcess(postProcessorConfig)) {
             transformProcessor.notifySubscriber(telemetrySubscriber);
             resultantStreamInfo = transformProcessor.process(resultantStreamInfo);
@@ -80,11 +87,11 @@ public class ParentPostProcessor implements PostProcessor {
     }
 
     private List<PostProcessor> getEnabledPostProcessors(TelemetrySubscriber subscriber, SchemaConfig schemaConfig) {
-        if (!configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+        if (!daggerContext.getConfiguration().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
             return new ArrayList<>();
         }
 
-        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(configuration, subscriber);
+        ExternalMetricConfig externalMetricConfig = getExternalMetricConfig(daggerContext.getConfiguration(), subscriber);
         ArrayList<PostProcessor> processors = new ArrayList<>();
         processors.add(new ExternalPostProcessor(schemaConfig, postProcessorConfig.getExternalSource(), externalMetricConfig));
         processors.add(new InternalPostProcessor(postProcessorConfig, schemaConfig));

@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.types.Row;
@@ -34,9 +35,9 @@ public class InvalidRecordFilterTransformer extends RichFilterFunction<Row> impl
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param daggerContext           the daggerContext
      */
-    public InvalidRecordFilterTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+    public InvalidRecordFilterTransformer(Map<String, Object> transformationArguments, String[] columnNames, DaggerContext daggerContext) {
         this.tableName = (String) transformationArguments.getOrDefault("table_name", "");
         validationIndex = Arrays.asList(columnNames).indexOf(INTERNAL_VALIDATION_FILED);
     }

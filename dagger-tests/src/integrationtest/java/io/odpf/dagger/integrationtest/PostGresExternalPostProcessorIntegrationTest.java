@@ -1,10 +1,13 @@
 package io.odpf.dagger.integrationtest;
 
+import io.odpf.dagger.common.core.DaggerContext;
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.apache.flink.types.Row;
 
@@ -18,13 +21,11 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +39,9 @@ import static io.odpf.dagger.core.utils.Constants.PROCESSOR_POSTPROCESSOR_ENABLE
 import static io.vertx.pgclient.PgPool.pool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @Ignore
 public class PostGresExternalPostProcessorIntegrationTest {
@@ -56,6 +60,15 @@ public class PostGresExternalPostProcessorIntegrationTest {
     private StencilClientOrchestrator stencilClientOrchestrator;
     private final MetricsTelemetryExporter telemetryExporter = new MetricsTelemetryExporter();
 
+    private static DaggerContext daggerContext;
+
+    private static StreamExecutionEnvironment streamExecutionEnvironment;
+
+    private static StreamTableEnvironment streamTableEnvironment;
+
+    private static Configuration configuration;
+
+
     @BeforeClass
     public static void setUp() {
         host = System.getenv("PG_HOST");
@@ -63,11 +76,20 @@ public class PostGresExternalPostProcessorIntegrationTest {
             host = "localhost";
         }
 
-        try {
+        String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
+        configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
+        configurationMap.put(INPUT_STREAMS, streams);
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
 
-            String streams = "[{\"SOURCE_KAFKA_TOPIC_NAMES\":\"dummy-topic\",\"INPUT_SCHEMA_TABLE\":\"testbooking\",\"INPUT_SCHEMA_PROTO_CLASS\":\"io.odpf.dagger.consumer.TestBookingLogMessage\",\"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\":\"41\",\"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\":\"localhost:6668\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\":\"\",\"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\":\"latest\",\"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\":\"test-consumer\",\"SOURCE_KAFKA_NAME\":\"localkafka\"}]";
-            configurationMap.put(PROCESSOR_POSTPROCESSOR_ENABLE_KEY, "true");
-            configurationMap.put(INPUT_STREAMS, streams);
+        daggerContext = mock(DaggerContext.class);
+        streamExecutionEnvironment = mock(StreamExecutionEnvironment.class);
+        streamTableEnvironment = mock(StreamTableEnvironment.class);
+        setMock(daggerContext);
+        when(daggerContext.getConfiguration()).thenReturn(configuration);
+        when(daggerContext.getExecutionEnvironment()).thenReturn(streamExecutionEnvironment);
+        when(daggerContext.getTableEnvironment()).thenReturn(streamTableEnvironment);
+
+        try {
 
             pgClient = getPGClient();
 
@@ -95,6 +117,23 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @AfterClass
+    public static void resetSingleton() throws Exception {
+        Field instance = DaggerContext.class.getDeclaredField("daggerContext");
+        instance.setAccessible(true);
+        instance.set(null, null);
+    }
+
+    private static void setMock(DaggerContext mock) {
+        try {
+            Field instance = DaggerContext.class.getDeclaredField("daggerContext");
+            instance.setAccessible(true);
+            instance.set(instance, mock);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -316,7 +355,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
 
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(new Configuration(ParameterTool.fromMap(configurationMap)), stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         StreamInfo postProcessedStream = streamInfo;
         for (PostProcessor postProcessor : postProcessors) {
             postProcessedStream = postProcessor.process(postProcessedStream);
