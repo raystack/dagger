@@ -115,6 +115,58 @@ public class StreamConfigTest {
     }
 
     @Test
+    public void shouldParseKafkaPropertiesWithSASLConfig() {
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL\": \"SASL_PLAINTEXT\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM\":\"SCRAM-SHA-512\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG\":\"org.apache.kafka.common.security.scram.ScramLoginModule required username=\\\"username\\\" password=\\\"password\\\";\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        when(configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)).thenReturn(false);
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        HashMap<String, String> kafkaPropMap = new HashMap<>();
+        kafkaPropMap.put("group.id", "dummy-consumer-group");
+        kafkaPropMap.put("bootstrap.servers", "localhost:9092");
+        kafkaPropMap.put("auto.offset.reset", "latest");
+        kafkaPropMap.put("auto.commit.enable", "");
+        kafkaPropMap.put("sasl.mechanism", "SCRAM-SHA-512");
+        kafkaPropMap.put("security.protocol", "SASL_PLAINTEXT");
+        kafkaPropMap.put("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"username\" password=\"password\";");
+
+        Properties properties = new Properties();
+        properties.putAll(kafkaPropMap);
+
+        assertEquals(properties, streamConfigs[0].getKafkaProps(configuration));
+    }
+
+    @Test
+    public void shouldParseMultipleStreamsFromStreamConfigWithSASLConfig() {
+        when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL\": \"SASL_PLAINTEXT\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM\":\"SCRAM-SHA-512\",\"SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG\":\"org.apache.kafka.common.security.scram.ScramLoginModule required username=\\\"username\\\" password=\\\"password\\\";\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"false\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" }, {\"INPUT_SCHEMA_TABLE\": \"data_stream_1\", \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_DATATYPE\": \"JSON\", \"INPUT_SCHEMA_JSON_SCHEMA\": \"{ \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\", \\\"$id\\\": \\\"https://example.com/product.schema.json\\\", \\\"title\\\": \\\"Product\\\", \\\"description\\\": \\\"A product from Acme's catalog\\\", \\\"type\\\": \\\"object\\\", \\\"properties\\\": { \\\"id\\\": { \\\"description\\\": \\\"The unique identifier for a product\\\", \\\"type\\\": \\\"string\\\" }, \\\"time\\\": { \\\"description\\\": \\\"event timestamp of the event\\\", \\\"type\\\": \\\"string\\\", \\\"format\\\" : \\\"date-time\\\" } }, \\\"required\\\": [ \\\"id\\\", \\\"time\\\" ] }\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"true\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
+        StreamConfig[] streamConfigs = StreamConfig.parse(configuration);
+
+        assertEquals(2, streamConfigs.length);
+
+        StreamConfig currConfig = streamConfigs[0];
+        assertEquals("false", currConfig.getAutoCommitEnable());
+        assertEquals("latest", currConfig.getAutoOffsetReset());
+        assertEquals("PROTO", currConfig.getDataType());
+        assertEquals("dummy-consumer-group", currConfig.getConsumerGroupId());
+        assertEquals("41", currConfig.getEventTimestampFieldIndex());
+        assertEquals("test-topic", currConfig.getKafkaTopicNames());
+        assertEquals("data_stream", currConfig.getSchemaTable());
+        assertEquals("local-kafka-stream", currConfig.getKafkaName());
+        assertEquals("SCRAM-SHA-512", currConfig.getSaslMechanism());
+        assertEquals("SASL_PLAINTEXT", currConfig.getSecurityProtocol());
+        assertEquals("org.apache.kafka.common.security.scram.ScramLoginModule required username=\"username\" password=\"password\";", currConfig.getSaslJaasConfig());
+
+        StreamConfig currConfigNext = streamConfigs[1];
+        assertEquals("true", currConfigNext.getAutoCommitEnable());
+        assertEquals("latest", currConfigNext.getAutoOffsetReset());
+        assertEquals("JSON", currConfigNext.getDataType());
+        assertEquals("dummy-consumer-group", currConfigNext.getConsumerGroupId());
+        assertEquals("41", currConfigNext.getEventTimestampFieldIndex());
+        assertEquals("test-topic", currConfigNext.getKafkaTopicNames());
+        assertEquals("data_stream_1", currConfigNext.getSchemaTable());
+        assertEquals("local-kafka-stream", currConfigNext.getKafkaName());
+    }
+
+    @Test
     public void shouldAddAdditionalKafkaConfigToKafkaProperties() {
         when(configuration.getString(INPUT_STREAMS, "")).thenReturn("[ { \"SOURCE_KAFKA_TOPIC_NAMES\": \"test-topic\", \"INPUT_SCHEMA_TABLE\": \"data_stream\", \"INPUT_SCHEMA_PROTO_CLASS\": \"com.tests.TestMessage\", \"INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX\": \"41\", \"SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS\": \"localhost:9092\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE\": \"\", \"SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET\": \"latest\", \"SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID\": \"dummy-consumer-group\", \"SOURCE_KAFKA_NAME\": \"local-kafka-stream\" } ]");
         when(configuration.getBoolean(SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_KEY, SOURCE_KAFKA_CONSUME_LARGE_MESSAGE_ENABLE_DEFAULT)).thenReturn(true);

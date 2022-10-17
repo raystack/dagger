@@ -1,6 +1,8 @@
 package io.odpf.dagger.core.source.config;
 
 import com.google.gson.annotations.JsonAdapter;
+import io.odpf.dagger.core.source.config.adapter.DaggerSASLMechanismAdaptor;
+import io.odpf.dagger.core.source.config.adapter.DaggerSecurityProtocolAdaptor;
 import io.odpf.dagger.core.source.config.adapter.FileDateRangeAdaptor;
 import io.odpf.dagger.core.source.config.adapter.SourceParquetFilePathsAdapter;
 import io.odpf.dagger.core.source.config.models.SourceDetails;
@@ -65,6 +67,20 @@ public class StreamConfig {
     @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS_KEY)
     @Getter
     private String bootstrapServers;
+
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL_KEY)
+    @Getter
+    @JsonAdapter(value = DaggerSecurityProtocolAdaptor.class)
+    private String securityProtocol;
+
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SASL_MECHANISM_KEY)
+    @JsonAdapter(value = DaggerSASLMechanismAdaptor.class)
+    @Getter
+    private String saslMechanism;
+
+    @SerializedName(SOURCE_KAFKA_CONSUMER_CONFIG_SASL_JAAS_CONFIG_KEY)
+    @Getter
+    private String saslJaasConfig;
 
     @SerializedName(STREAM_INPUT_STREAM_NAME_KEY)
     @Getter
