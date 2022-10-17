@@ -37,6 +37,7 @@ module.exports = {
         "advance/longbow",
         "advance/longbow_plus",
         "advance/DARTS",
+        "advance/security"
       ],
     },
     {
