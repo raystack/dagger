@@ -21,3 +21,7 @@ Longbow+ is an enhanced version of longbow. It has additional support for comple
 ### [DARTS](./DARTS.md)
 
 DARTS allows you to join streaming data from a reference data store. It supports reference data store in the form of a list or <key, value> map. It enables the refer-table with the help of UDFs which can be used in the SQL query. Currently we only support GCS as reference data source.
+
+### [Security](./security.md)
+
+Enable secure data access from ACL enabled kafka source using SASL (Simple Authentication Security Layer) authentication.
