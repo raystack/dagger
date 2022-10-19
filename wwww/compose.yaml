@@ -1,0 +1,107 @@
+version: '2.1'
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.1.1
+    ports:
+      - "2187:2187"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2187
+
+  # reachable on 9094 from the host and on 29094 from inside docker compose
+  kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - zookeeper
+    ports:
+      - '9094:9094'
+    expose:
+      - '29094'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2187'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_MIN_INSYNC_REPLICAS: '1'
+
+  stencil:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - kafka
+    volumes:
+      - ${PWD}/ee:/ee
+    ports:
+      - '2917:2917'
+    expose:
+      - '2917'
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      pwd
+      cd ee
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt-get install protobuf-compiler
+      yes Y | apt-get install python3
+      protoc --descriptor_set_out=file.desc --include_imports *.proto
+      yes Y | apt-get install python3-pip
+      python3 -m pip install simple_http_server
+      python3 -m http.server 2917
+      "
+
+
+  kafkaproducer:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - kafka
+    volumes:
+      - ${PWD}/ss:/ss
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      cd ss
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt-get install protobuf-compiler
+      echo $PATH
+      touch sddd
+      protoc --proto_path=./ --encode=io.odpf.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
+      yes Y | apt-get install kafkacat
+      echo -e 'Creating kafka topics'
+      kafkacat -P -b localhost:29094 -D "\n" -T -t dagger-test-topic-v1 out.bin
+      "
+
+  dagger:
+    image: gradle:jdk8
+    depends_on:
+      - kafka
+    volumes:
+      - ${PWD}/cc:/cc
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      git clone https://github.com/odpf/dagger
+      yes y | cp /cc/local.properties /dagger
+      cd dagger
+      ./gradlew runFlink
+      "
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29094 --list
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29094 --list
+      "
