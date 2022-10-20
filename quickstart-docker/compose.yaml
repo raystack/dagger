@@ -25,12 +25,29 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
       KAFKA_MIN_INSYNC_REPLICAS: '1'
 
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29094 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29094 --list
+      "
+
   stencil:
     image: amd64/ubuntu:latest
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/resources:/ee
+      - ${PWD}/resources:/eqe
     ports:
       - '2917:2917'
     expose:
@@ -39,7 +56,7 @@ services:
     command: |
       "
       pwd
-      cd ee
+      cd eqe
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
@@ -68,16 +85,14 @@ services:
       yes Y | add-apt-repository universe
       yes Y | apt-get update
       yes Y | apt-get install protobuf-compiler
-      echo $PATH
-      touch sddd
       protoc --proto_path=./ --encode=io.odpf.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
       yes Y | apt-get install kafkacat
-      echo -e 'Creating kafka topics'
-      kafkacat -P -b localhost:29094 -D "\n" -T -t dagger-test-topic-v1 out.bin
+      echo -e 'Sending message to Kafka topic'
+      kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 out.bin
       "
 
   dagger:
-    image: amd64/gradle:jdk8
+    image: amd64/ubuntu:latest
     depends_on:
       - kafka
     volumes:
@@ -85,24 +100,15 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt install git
+      yes Y | apt install openjdk-8-jdk
+      yes Y | apt install gradle
       git clone https://github.com/odpf/dagger
-      yes y | cp /cc/local.properties /dagger/dagger-core/env/
+      cp /cc/local.properties /dagger/dagger-core/env/
       cd dagger
-      ./gradlew clean build
       ./gradlew runFlink
-      "
-
-  init-kafka:
-    image: confluentinc/cp-kafka:6.1.1
-    depends_on:
-      - kafka
-    entrypoint: [ '/bin/sh', '-c' ]
-    command: |
-      "
-      # blocks until kafka is reachable
-      kafka-topics --bootstrap-server kafka:29094 --list
-      echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
-      echo -e 'Successfully created the following topics:'
-      kafka-topics --bootstrap-server kafka:29094 --list
       "
