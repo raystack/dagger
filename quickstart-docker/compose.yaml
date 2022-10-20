@@ -30,7 +30,7 @@ services:
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/ee:/ee
+      - ${PWD}/resources:/ee
     ports:
       - '2917:2917'
     expose:
@@ -58,7 +58,7 @@ services:
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/ss:/ss
+      - ${PWD}/resources:/ss
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
@@ -77,17 +77,18 @@ services:
       "
 
   dagger:
-    image: gradle:jdk8
+    image: amd64/gradle:jdk8
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/cc:/cc
+      - ${PWD}/resources:/cc
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
       git clone https://github.com/odpf/dagger
-      yes y | cp /cc/local.properties /dagger
+      yes y | cp /cc/local.properties /dagger/dagger-core/env/
       cd dagger
+      ./gradlew clean build
       ./gradlew runFlink
       "
 
