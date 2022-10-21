@@ -85,10 +85,14 @@ services:
       yes Y | add-apt-repository universe
       yes Y | apt-get update
       yes Y | apt-get install protobuf-compiler
-      protoc --proto_path=./ --encode=io.odpf.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
       yes Y | apt-get install kafkacat
       echo -e 'Sending message to Kafka topic'
-      kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 out.bin
+      while :
+      do
+        ./kafkafeeder.sh
+        kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 message.bin
+      	sleep 100
+      done
       "
 
   dagger:
@@ -107,6 +111,7 @@ services:
       yes Y | apt install git
       yes Y | apt install openjdk-8-jdk
       yes Y | apt install gradle
+      /var/lib/dpkg/info/ca-certificates-java.postinst configure
       git clone https://github.com/odpf/dagger
       cp /cc/local.properties /dagger/dagger-core/env/
       cd dagger

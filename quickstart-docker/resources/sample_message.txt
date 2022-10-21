@@ -1,6 +1,14 @@
-is_valid: true
-order_number: "INV-53535321"
-event_timestamp: {
-  seconds: 1663565509
-  nanos: 0
+service_type: replace_service_type_here
+order_number: "tolol"
+event_timestamp {
+  seconds: replace_timestamp_here
+}
+customer_id: "customer-replace_customer_suffix_here"
+driver_pickup_location {
+  latitude: 19.075983
+  longitude: 72.877655
+}
+driver_dropoff_location {
+  latitude: 19.237188
+  longitude: 72.844139
 }
