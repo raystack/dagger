@@ -47,7 +47,7 @@ services:
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/resources:/eqe
+      - ${PWD}/resources:/resources
     ports:
       - '2917:2917'
     expose:
@@ -56,7 +56,7 @@ services:
     command: |
       "
       pwd
-      cd eqe
+      cd resources
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
@@ -75,11 +75,11 @@ services:
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/resources:/ss
+      - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      cd ss
+      cd resources
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
@@ -102,7 +102,7 @@ services:
     depends_on:
       - kafka
     volumes:
-      - ${PWD}/resources:/cc
+      - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
@@ -115,7 +115,7 @@ services:
       yes Y | apt install gradle
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
       git clone https://github.com/odpf/dagger
-      cp /cc/local.properties /dagger/dagger-core/env/
+      cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
       ./gradlew runFlink
       "
