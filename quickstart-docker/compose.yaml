@@ -87,6 +87,7 @@ services:
       yes Y | apt-get install protobuf-compiler
       yes Y | apt-get install kafkacat
       echo -e 'Sending message to Kafka topic'
+      chmod 777 kafkafeeder.sh
       while :
       do
         ./kafkafeeder.sh
