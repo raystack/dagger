@@ -92,7 +92,7 @@ services:
       do
         ./kafkafeeder.sh
         kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 message.bin
-      	sleep 50
+      	sleep 1
       	rm message.bin
       done
       "
