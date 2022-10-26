@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The DaggerContext singleton object initializes with StreamExecutionEnvironment, StreamTableEnvironment and Configuration
+ * The DaggerContext singleton object.
+ * It initializes with StreamExecutionEnvironment, StreamTableEnvironment and Configuration.
  */
 public class DaggerContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(DaggerContext.class.getName());
@@ -31,7 +32,7 @@ public class DaggerContext {
     }
 
     /**
-     * Get the instance of DaggerContext
+     * Get the instance of DaggerContext.
      */
     public static DaggerContext getInstance() {
         if (daggerContext == null) {
@@ -42,9 +43,10 @@ public class DaggerContext {
 
     /**
      * Initialization of a new DaggerContext.
-     * @param configuration        the Configuration
+     *
+     * @param configuration the Configuration
      */
-    public synchronized static DaggerContext init(Configuration configuration) {
+    public static synchronized DaggerContext init(Configuration configuration) {
         if (daggerContext != null) {
             throw new DaggerContextException("DaggerContext object is already initialized");
         }
