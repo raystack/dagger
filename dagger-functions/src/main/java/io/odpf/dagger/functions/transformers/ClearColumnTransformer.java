@@ -1,6 +1,7 @@
 package io.odpf.dagger.functions.transformers;
 
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -26,9 +27,9 @@ public class ClearColumnTransformer implements MapFunction<Row, Row>, Transforme
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param daggerContext           the daggerContext
      */
-    public ClearColumnTransformer(Map<String, String> transformationArguments, String[] columnNames, Configuration configuration) {
+    public ClearColumnTransformer(Map<String, String> transformationArguments, String[] columnNames, DaggerContext daggerContext) {
         this.columnNames = columnNames;
         this.targetColumnName = transformationArguments.get(TARGET_KEY_COLUMN_NAME);
     }

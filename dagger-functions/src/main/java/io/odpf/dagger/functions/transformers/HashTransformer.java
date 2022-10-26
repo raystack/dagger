@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.transformers;
 
+import io.odpf.dagger.common.core.DaggerContext;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -28,8 +29,7 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
     private static final String SINK_KAFKA_PROTO_MESSAGE = "SINK_KAFKA_PROTO_MESSAGE";
     private static final String ENCRYPTION_FIELD_KEY = "maskColumns";
     private final List<String> fieldsToHash;
-    private Configuration configuration;
-
+    private final DaggerContext daggerContext;
     private final String[] columnNames;
     private Map<String, RowHasher> rowHasherMap;
 
@@ -38,12 +38,12 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
      *
      * @param transformationArguments the transformation arguments
      * @param columnNames             the column names
-     * @param configuration           the configuration
+     * @param daggerContext           the daggerContext
      */
-    public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, Configuration configuration) {
+    public HashTransformer(Map<String, Object> transformationArguments, String[] columnNames, DaggerContext daggerContext) {
         this.fieldsToHash = getFieldsToHash(transformationArguments);
         this.columnNames = columnNames;
-        this.configuration = configuration;
+        this.daggerContext = daggerContext;
     }
 
     private ArrayList<String> getFieldsToHash(Map<String, Object> transformationArguments) {
@@ -71,8 +71,8 @@ public class HashTransformer extends RichMapFunction<Row, Row> implements Serial
      * @return the map
      */
     protected Map<String, RowHasher> createRowHasherMap() {
-        String outputProtoClassName = configuration.getString(SINK_KAFKA_PROTO_MESSAGE, "");
-        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
+        String outputProtoClassName = daggerContext.getConfiguration().getString(SINK_KAFKA_PROTO_MESSAGE, "");
+        StencilClientOrchestrator stencilClientOrchestrator = new StencilClientOrchestrator(daggerContext.getConfiguration());
         Descriptors.Descriptor outputDescriptor = stencilClientOrchestrator.getStencilClient().get(outputProtoClassName);
         if (outputDescriptor == null) {
             throw new DescriptorNotFoundException("Output Descriptor for class: " + outputProtoClassName

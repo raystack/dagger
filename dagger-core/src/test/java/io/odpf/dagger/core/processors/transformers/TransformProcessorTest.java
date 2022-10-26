@@ -1,11 +1,9 @@
 package io.odpf.dagger.core.processors.transformers;
 
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.core.metrics.telemetry.TelemetryTypes;
@@ -28,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class TransformProcessorTest {
+public class TransformProcessorTest extends DaggerContextTestBase {
 
 
     @Mock
@@ -38,16 +36,10 @@ public class TransformProcessorTest {
     private StreamInfo streamInfo;
 
     @Mock
-    private DataStream<Row> dataStream;
-
-    @Mock
     private SingleOutputStreamOperator mappedDataStream;
 
     @Mock
     private Transformer transformer;
-
-    @Mock
-    private Configuration configuration;
 
     @Mock
     private MetricsTelemetryExporter metricsTelemetryExporter;
@@ -59,35 +51,35 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldThrowExceptionInCaseOfWrongClassName() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("wrongClassName", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, daggerContext);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
         assertEquals("wrongClassName", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionInCaseOfWrongConstructorTypeSupported() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("io.odpf.dagger.core.processors.transformers.TransformProcessor", transformationArguments));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, daggerContext);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
         assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.Configuration)", exception.getMessage());
     }
 
     @Test
     public void shouldProcessClassExtendingMapFunction() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
@@ -102,7 +94,7 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldAddPostProcessorTypeMetrics() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
@@ -122,7 +114,7 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldAddPreProcessorTypeMetrics() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
@@ -142,7 +134,7 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldNotifySubscribers() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
         HashMap<String, Object> transformationArguments = new HashMap<>();
         transformationArguments.put("keyField", "keystore");
@@ -158,9 +150,9 @@ public class TransformProcessorTest {
 
     @Test
     public void shouldProcessTwoPostTransformers() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
-        when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
+        when(inputStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("io.odpf.dagger.core.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
             put("keyField", "keystore");
@@ -169,16 +161,16 @@ public class TransformProcessorTest {
             put("keyField", "keystore");
         }}));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, daggerContext);
         transformProcessor.process(streamInfo);
         verify(mappedDataStream, times(1)).map(any());
     }
 
     @Test
     public void shouldProcessMultiplePostTransformers() {
-        when(streamInfo.getDataStream()).thenReturn(dataStream);
+        when(streamInfo.getDataStream()).thenReturn(inputStream);
         when(streamInfo.getColumnNames()).thenReturn(null);
-        when(dataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
+        when(inputStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         when(mappedDataStream.map(any(MapFunction.class))).thenReturn(mappedDataStream);
         transfromConfigs = new ArrayList<>();
         transfromConfigs.add(new TransformConfig("io.odpf.dagger.core.processors.transformers.MockTransformer", new HashMap<String, Object>() {{
@@ -191,7 +183,7 @@ public class TransformProcessorTest {
             put("keyField", "keystore");
         }}));
 
-        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, configuration);
+        TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, daggerContext);
         transformProcessor.process(streamInfo);
 
         verify(mappedDataStream, times(2)).map(any());
@@ -202,7 +194,7 @@ public class TransformProcessorTest {
         TransformConfig config = new TransformConfig("io.odpf.TestProcessor", new HashMap<String, Object>() {{
             put("test-key", "test-value");
         }});
-        TransformProcessor processor = new TransformProcessor("test_table", PRE_PROCESSOR_TYPE, Collections.singletonList(config), configuration);
+        TransformProcessor processor = new TransformProcessor("test_table", PRE_PROCESSOR_TYPE, Collections.singletonList(config), daggerContext);
         assertEquals("test_table", processor.tableName);
         assertEquals(PRE_PROCESSOR_TYPE, processor.type);
         assertEquals(1, processor.transformConfigs.size());
@@ -223,12 +215,12 @@ public class TransformProcessorTest {
         private Transformer mockMapFunction;
 
         private TransformProcessorMock(Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
-            super(transformConfigs, configuration);
+            super(transformConfigs, daggerContext);
             this.mockMapFunction = mockMapFunction;
         }
 
         private TransformProcessorMock(String table, TelemetryTypes type, Transformer mockMapFunction, List<TransformConfig> transformConfigs) {
-            super(table, type, transformConfigs, configuration);
+            super(table, type, transformConfigs, daggerContext);
             this.mockMapFunction = mockMapFunction;
         }
 
