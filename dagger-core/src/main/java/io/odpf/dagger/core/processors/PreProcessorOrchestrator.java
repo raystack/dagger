@@ -27,7 +27,7 @@ public class PreProcessorOrchestrator implements Preprocessor {
     private final PreProcessorConfig processorConfig;
     private final String tableName;
     private final DaggerContext daggerContext;
-    private final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+    private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     /**
      * Instantiates a new Preprocessor orchestrator.
