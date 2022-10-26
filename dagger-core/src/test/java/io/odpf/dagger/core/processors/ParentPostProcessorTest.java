@@ -15,7 +15,7 @@ public class ParentPostProcessorTest {
 
     @Test
     public void shouldNotBeAbleToProcessWhenConfigIsNull() {
-        ParentPostProcessor parentPostProcessor = new ParentPostProcessor( null, null, telemetrySubscriber);
+        ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, telemetrySubscriber);
         assertFalse(parentPostProcessor.canProcess(null));
     }
 
@@ -29,7 +29,7 @@ public class ParentPostProcessorTest {
 
     @Test
     public void shouldBeAbleToProcessWhenConfigIsNotEmpty() {
-        ParentPostProcessor parentPostProcessor = new ParentPostProcessor( null, null, telemetrySubscriber);
+        ParentPostProcessor parentPostProcessor = new ParentPostProcessor(null, null, telemetrySubscriber);
         PostProcessorConfig mockConfig = mock(PostProcessorConfig.class);
         when(mockConfig.isEmpty()).thenReturn(false);
         assertTrue(parentPostProcessor.canProcess(mockConfig));

@@ -2,7 +2,7 @@ package io.odpf.dagger.integrationtest;
 
 import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.api.java.utils.ParameterTool;
-//import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
