@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeatureTransformerTest extends DaggerContextTestBase {
-    
     @Before
     public void setup() {
         initMocks(this);

@@ -2,6 +2,7 @@ package io.odpf.dagger.core.processors;
 
 import com.jayway.jsonpath.InvalidJsonException;
 import io.odpf.dagger.common.core.DaggerContextTestBase;
+import io.odpf.dagger.core.utils.Constants;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.types.Row;
 
@@ -64,6 +65,14 @@ public class PreProcessorOrchestratorTest extends DaggerContextTestBase {
             + "  }\n"
             + " ]\n"
             + "}";
+    private String preProcessorFilterConfigJson = "{\n"
+            + "  \"table_transformers\": [{\n"
+            + "    \"table_name\": \"test\",\n"
+            + "    \"transformers\": [{\n"
+            + "      \"transformation_class\": \"InvalidRecordFilterTransformer\"\n"
+            + "    }]\n"
+            + "  }]\n"
+            + "}";
 
     @Test
     public void shouldGetProcessors() {
@@ -72,6 +81,8 @@ public class PreProcessorOrchestratorTest extends DaggerContextTestBase {
         transformConfigs.add(new TransformConfig("InvalidRecordFilterTransformer", new HashMap<>()));
         TableTransformConfig ttc = new TableTransformConfig("test", transformConfigs);
         config.tableTransformers = Collections.singletonList(ttc);
+        when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn(preProcessorFilterConfigJson);
+        when(configuration.getBoolean(Constants.PROCESSOR_PREPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
         PreProcessorOrchestrator ppo = new PreProcessorOrchestrator(daggerContext, exporter, "test");
         Mockito.when(streamInfo.getColumnNames()).thenReturn(new String[0]);
         Mockito.when(streamInfo.getDataStream()).thenReturn(stream);
@@ -117,8 +128,8 @@ public class PreProcessorOrchestratorTest extends DaggerContextTestBase {
     public void shouldThrowExceptionForInvalidJson() {
         when(configuration.getBoolean(PROCESSOR_PREPROCESSOR_ENABLE_KEY, PROCESSOR_PREPROCESSOR_ENABLE_DEFAULT)).thenReturn(true);
         when(configuration.getString(PROCESSOR_PREPROCESSOR_CONFIG_KEY, "")).thenReturn("blah");
-        PreProcessorOrchestrator ppo = new PreProcessorOrchestrator(daggerContext, exporter, "test");
-        InvalidJsonException exception = assertThrows(InvalidJsonException.class, () -> ppo.parseConfig(configuration));
+        InvalidJsonException exception = assertThrows(InvalidJsonException.class,
+                () -> new PreProcessorOrchestrator(daggerContext, exporter, "test"));
         assertEquals("Invalid JSON Given for PROCESSOR_PREPROCESSOR_CONFIG", exception.getMessage());
     }
 

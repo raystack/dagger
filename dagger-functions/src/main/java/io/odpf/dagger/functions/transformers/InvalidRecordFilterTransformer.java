@@ -5,7 +5,6 @@ import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.types.Row;
 
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.core.Transformer;
 import io.odpf.dagger.common.metrics.managers.CounterStatsManager;

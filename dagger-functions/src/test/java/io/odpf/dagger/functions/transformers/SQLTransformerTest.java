@@ -109,11 +109,11 @@ public class SQLTransformerTest extends DaggerContextTestBase {
         String sqlQuery = "SELECT order_number, service_type, multiply(1,100) product FROM data_stream";
         transformationArguments.put("sqlQuery", sqlQuery);
         String[] columnNames = {"order_number", "service_type", "status", "product"};
-        streamTableEnvironment.createTemporaryFunction("multiply",multiply);
+        streamTableEnvironment.createTemporaryFunction("multiply", multiply);
 
         when(streamTableEnvironment.sqlQuery(sqlQuery)).thenReturn(table);
         when(table.getSchema()).thenReturn(tableSchema);
-        String[] outputColumns = {"order_number", "service_type","product"};
+        String[] outputColumns = {"order_number", "service_type", "product"};
         when(tableSchema.getFieldNames()).thenReturn(outputColumns);
         when(streamTableEnvironment.toRetractStream(table, Row.class)).thenReturn(retractStream);
         when(retractStream.filter(any())).thenReturn(filteredRetractStream);
@@ -124,6 +124,7 @@ public class SQLTransformerTest extends DaggerContextTestBase {
 
         assertArrayEquals(outputColumns, outputStreamInfo.getColumnNames());
     }
+
     @Test
     public void shouldReturnColumnNamesReturnedBySQL() {
         HashMap<String, String> transformationArguments = new HashMap<>();
@@ -234,8 +235,8 @@ public class SQLTransformerTest extends DaggerContextTestBase {
         }
     }
 
-    class Multiply extends ScalarFunction{
-        public Integer eval(Integer i1, Integer i2){
+    class Multiply extends ScalarFunction {
+        public Integer eval(Integer i1, Integer i2) {
             return i1 * i2;
         }
     }
