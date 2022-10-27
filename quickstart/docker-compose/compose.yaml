@@ -4,6 +4,10 @@ services:
     image: confluentinc/cp-zookeeper:6.1.1
     ports:
       - "2187:2187"
+    expose:
+      - '21871'
+    healthcheck:
+      test: [ "CMD-SHELL", " netstat -an | grep -q 2187" ]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2187
 
@@ -11,11 +15,14 @@ services:
   kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - '9094:9094'
     expose:
       - '29094'
+    healthcheck:
+      test: [ "CMD-SHELL", " netstat -an | grep -q 9094" ]
     environment:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2187'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
@@ -33,6 +40,7 @@ services:
       "
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29094 --list
+      kafka-topics --zookeeper zookeeper:21871 --delete --topic dagger-test-topic-v1
 
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
@@ -42,7 +50,7 @@ services:
       "
 
   stencil:
-    image: amd64/ubuntu:latest
+    image: ubuntu:latest
     depends_on:
       - kafka
     volumes:
@@ -60,7 +68,7 @@ services:
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
       yes Y | apt-get update
-      yes Y | apt-get install protobuf-compiler
+      yes Y | apt-get install protobuf-compiler=3.6.1.3-2ubuntu5
       yes Y | apt-get install python3
       protoc --descriptor_set_out=file.desc --include_imports *.proto
       yes Y | apt-get install python3-pip
@@ -72,7 +80,8 @@ services:
   kafkaproducer:
     image: amd64/ubuntu:latest
     depends_on:
-      - kafka
+      init-kafka:
+        condition: service_healthy
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
@@ -83,8 +92,8 @@ services:
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
       yes Y | apt-get update
-      yes Y | apt-get install protobuf-compiler
-      yes Y | apt-get install kafkacat
+      yes Y | apt-get install protobuf-compiler=3.6.1.3-2ubuntu5
+      yes Y | apt-get install kafkacat=1.5.0
       echo -e 'Sending message to Kafka topic'
       chmod 777 kafkafeeder.sh
       while :
