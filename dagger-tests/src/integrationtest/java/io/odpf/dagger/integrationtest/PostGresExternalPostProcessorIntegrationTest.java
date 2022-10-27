@@ -1,7 +1,6 @@
 package io.odpf.dagger.integrationtest;
 
 import io.odpf.dagger.common.core.DaggerContext;
-import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -41,8 +40,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 @Ignore
 public class PostGresExternalPostProcessorIntegrationTest {
 

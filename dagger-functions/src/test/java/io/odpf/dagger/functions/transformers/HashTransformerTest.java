@@ -26,7 +26,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class HashTransformerTest extends DaggerContextTestBase {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-    
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
 

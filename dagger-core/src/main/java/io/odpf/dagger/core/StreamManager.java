@@ -12,7 +12,6 @@ import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
-import io.odpf.dagger.core.processors.PreProcessorConfig;
 import io.odpf.dagger.core.processors.PreProcessorFactory;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;

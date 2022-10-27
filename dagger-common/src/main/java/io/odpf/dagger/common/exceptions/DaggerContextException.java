@@ -3,7 +3,7 @@ package io.odpf.dagger.common.exceptions;
 /**
  * The class Exception if there is something wrong with Dagger context object.
  */
-public class DaggerContextException extends RuntimeException{
+public class DaggerContextException extends RuntimeException {
 
     /**
      * Instantiates a new Dagger context exception with specified error message.

@@ -74,7 +74,7 @@ public class TransformProcessorTest extends DaggerContextTestBase {
 
         TransformProcessor transformProcessor = new TransformProcessor(transfromConfigs, daggerContext);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> transformProcessor.process(streamInfo));
-        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.configuration.Configuration)", exception.getMessage());
+        assertEquals("io.odpf.dagger.core.processors.transformers.TransformProcessor.<init>(java.util.Map, [Ljava.lang.String;, io.odpf.dagger.common.core.DaggerContext)", exception.getMessage());
     }
 
     @Test
