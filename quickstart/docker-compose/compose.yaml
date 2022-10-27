@@ -7,7 +7,7 @@ services:
     expose:
       - '21871'
     healthcheck:
-      test: [ "CMD-SHELL", " netstat -an | grep -q 2187" ]
+      test: [ "CMD-SHELL", " netstat -an | grep -q 21871" ]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2187
 
@@ -22,7 +22,7 @@ services:
     expose:
       - '29094'
     healthcheck:
-      test: [ "CMD-SHELL", " netstat -an | grep -q 9094" ]
+      test: [ "CMD-SHELL", " netstat -an | grep -q 29094" ]
     environment:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2187'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
