@@ -14,6 +14,11 @@ services:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
       - zookeeper
+    healthcheck:
+      test: [ "CMD-SHELL", " kafka-topics.sh --version" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5000
     ports:
       - '9094:9094'
     expose:
@@ -29,7 +34,13 @@ services:
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", " kafka-topics --bootstrap-server kafka:29094 --list | grep -q dagger-test-topic-v1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5000
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
@@ -102,7 +113,8 @@ services:
   dagger:
     image: amd64/ubuntu:latest
     depends_on:
-      - kafka
+      init-kafka:
+        condition: service_healthy
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
