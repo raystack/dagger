@@ -1,10 +1,9 @@
 package io.odpf.dagger.functions.transformers;
 
-import org.apache.flink.streaming.api.datastream.DataStream;
+import io.odpf.dagger.common.core.DaggerContextTestBase;
 import org.apache.flink.types.Row;
 
 import com.google.protobuf.Timestamp;
-import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.exceptions.DescriptorNotFoundException;
 import io.odpf.dagger.consumer.TestBookingLogMessage;
@@ -24,16 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class HashTransformerTest {
+public class HashTransformerTest extends DaggerContextTestBase {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    @Mock
-    private DataStream<Row> inputStream;
-
-    @Mock
-    private Configuration configuration;
-
     @Mock
     private org.apache.flink.configuration.Configuration flinkInternalConfig;
 
@@ -64,7 +56,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -93,7 +85,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, false);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -125,7 +117,7 @@ public class HashTransformerTest {
         inputRow.setField(1, 1);
         inputRow.setField(2, 1L);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -170,7 +162,7 @@ public class HashTransformerTest {
 
         inputRow.setField(0, bookingLogRow);
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
 
         Row outputRow = hashTransformer.map(inputRow);
@@ -195,7 +187,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
 
         verify(configuration, times(1)).getString("SINK_KAFKA_PROTO_MESSAGE", "");
@@ -215,7 +207,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
     }
 
@@ -234,7 +226,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
         hashTransformer.open(flinkInternalConfig);
     }
 
@@ -249,7 +241,7 @@ public class HashTransformerTest {
         transformationArguments.put("valueColumnName", fieldsToEncrypt);
         String[] columnNames = {"order_number", "cancel_reason_id", "is_reblast"};
 
-        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, configuration);
+        HashTransformer hashTransformer = new HashTransformer(transformationArguments, columnNames, daggerContext);
 
         hashTransformer.transform(new StreamInfo(inputStream, columnNames));
         verify(inputStream, times(1)).map(hashTransformer);

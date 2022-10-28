@@ -1,6 +1,7 @@
 package io.odpf.dagger.core.processors;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.DaggerContext;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.core.processors.longbow.LongbowFactory;
 import io.odpf.dagger.core.processors.longbow.LongbowSchema;
@@ -22,22 +23,22 @@ public class PostProcessorFactory {
     /**
      * Gets post processors.
      *
-     * @param configuration             the configuration
+     * @param daggerContext             the daggerContext
      * @param stencilClientOrchestrator the stencil client orchestrator
      * @param columnNames               the column names
      * @param metricsTelemetryExporter  the metrics telemetry exporter
      * @return the post processors
      */
-    public static List<PostProcessor> getPostProcessors(Configuration configuration, StencilClientOrchestrator stencilClientOrchestrator, String[] columnNames, MetricsTelemetryExporter metricsTelemetryExporter) {
+    public static List<PostProcessor> getPostProcessors(DaggerContext daggerContext, StencilClientOrchestrator stencilClientOrchestrator, String[] columnNames, MetricsTelemetryExporter metricsTelemetryExporter) {
         List<PostProcessor> postProcessors = new ArrayList<>();
 
         if (Arrays.stream(columnNames).anyMatch(s -> Pattern.compile(".*\\blongbow.*key\\b.*").matcher(s).find())) {
-            postProcessors.add(getLongBowProcessor(columnNames, configuration, metricsTelemetryExporter, stencilClientOrchestrator));
+            postProcessors.add(getLongBowProcessor(columnNames, daggerContext.getConfiguration(), metricsTelemetryExporter, stencilClientOrchestrator));
         }
-        if (configuration.getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
-            postProcessors.add(new ParentPostProcessor(parsePostProcessorConfig(configuration), configuration, stencilClientOrchestrator, metricsTelemetryExporter));
+        if (daggerContext.getConfiguration().getBoolean(Constants.PROCESSOR_POSTPROCESSOR_ENABLE_KEY, Constants.PROCESSOR_POSTPROCESSOR_ENABLE_DEFAULT)) {
+            postProcessors.add(new ParentPostProcessor(daggerContext, stencilClientOrchestrator, metricsTelemetryExporter));
         }
-        if (configuration.getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
+        if (daggerContext.getConfiguration().getBoolean(Constants.METRIC_TELEMETRY_ENABLE_KEY, Constants.METRIC_TELEMETRY_ENABLE_VALUE_DEFAULT)) {
             postProcessors.add(new TelemetryProcessor(metricsTelemetryExporter));
         }
         return postProcessors;
@@ -48,10 +49,5 @@ public class PostProcessorFactory {
         LongbowFactory longbowFactory = new LongbowFactory(longbowSchema, configuration, stencilClientOrchestrator, metricsTelemetryExporter);
 
         return longbowFactory.getLongbowProcessor();
-    }
-
-    private static PostProcessorConfig parsePostProcessorConfig(Configuration configuration) {
-        String postProcessorConfigString = configuration.getString(Constants.PROCESSOR_POSTPROCESSOR_CONFIG_KEY, "");
-        return PostProcessorConfig.parse(postProcessorConfigString);
     }
 }

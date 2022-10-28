@@ -1,6 +1,7 @@
 package io.odpf.dagger.core;
 
 import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.core.DaggerContext;
 import io.odpf.dagger.common.core.StencilClientOrchestrator;
 import io.odpf.dagger.common.core.StreamInfo;
 import io.odpf.dagger.common.udfs.UdfFactory;
@@ -11,7 +12,6 @@ import io.odpf.dagger.common.watermark.WatermarkStrategyDefinition;
 import io.odpf.dagger.core.exception.UDFFactoryClassNotDefinedException;
 import io.odpf.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
 import io.odpf.dagger.core.processors.PostProcessorFactory;
-import io.odpf.dagger.core.processors.PreProcessorConfig;
 import io.odpf.dagger.core.processors.PreProcessorFactory;
 import io.odpf.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import io.odpf.dagger.core.processors.types.PostProcessor;
@@ -53,17 +53,18 @@ public class StreamManager {
     private StencilClientOrchestrator stencilClientOrchestrator;
     private DaggerStatsDReporter daggerStatsDReporter;
 
+    private final DaggerContext daggerContext;
+
     /**
      * Instantiates a new Stream manager.
      *
-     * @param configuration        the configuration in form of param
-     * @param executionEnvironment the execution environment
-     * @param tableEnvironment     the table environment
+     * @param daggerContext        the daggerContext in form of param
      */
-    public StreamManager(Configuration configuration, StreamExecutionEnvironment executionEnvironment, StreamTableEnvironment tableEnvironment) {
-        this.configuration = configuration;
-        this.executionEnvironment = executionEnvironment;
-        this.tableEnvironment = tableEnvironment;
+    public StreamManager(DaggerContext daggerContext) {
+        this.daggerContext = daggerContext;
+        this.configuration = daggerContext.getConfiguration();
+        this.executionEnvironment = daggerContext.getExecutionEnvironment();
+        this.tableEnvironment = daggerContext.getTableEnvironment();
     }
 
     /**
@@ -99,7 +100,6 @@ public class StreamManager {
     public StreamManager registerSourceWithPreProcessors() {
         long watermarkDelay = configuration.getLong(FLINK_WATERMARK_DELAY_MS_KEY, FLINK_WATERMARK_DELAY_MS_DEFAULT);
         Boolean enablePerPartitionWatermark = configuration.getBoolean(FLINK_WATERMARK_PER_PARTITION_ENABLE_KEY, FLINK_WATERMARK_PER_PARTITION_ENABLE_DEFAULT);
-        PreProcessorConfig preProcessorConfig = PreProcessorFactory.parseConfig(configuration);
         StreamsFactory.getStreams(configuration, stencilClientOrchestrator, daggerStatsDReporter)
                 .forEach(stream -> {
                     String tableName = stream.getStreamName();
@@ -112,7 +112,7 @@ public class StreamManager {
 
                     TableSchema tableSchema = TableSchema.fromTypeInfo(dataStream.getType());
                     StreamInfo streamInfo = new StreamInfo(rowSingleOutputStreamOperator, tableSchema.getFieldNames());
-                    streamInfo = addPreProcessor(streamInfo, tableName, preProcessorConfig);
+                    streamInfo = addPreProcessor(streamInfo, tableName);
 
                     Table table = tableEnvironment.fromDataStream(streamInfo.getDataStream(), getApiExpressions(streamInfo));
                     tableEnvironment.createTemporaryView(tableName, table);
@@ -211,15 +211,15 @@ public class StreamManager {
     }
 
     private StreamInfo addPostProcessor(StreamInfo streamInfo) {
-        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(configuration, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
+        List<PostProcessor> postProcessors = PostProcessorFactory.getPostProcessors(daggerContext, stencilClientOrchestrator, streamInfo.getColumnNames(), telemetryExporter);
         for (PostProcessor postProcessor : postProcessors) {
             streamInfo = postProcessor.process(streamInfo);
         }
         return streamInfo;
     }
 
-    private StreamInfo addPreProcessor(StreamInfo streamInfo, String tableName, PreProcessorConfig preProcessorConfig) {
-        List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(configuration, preProcessorConfig, tableName, telemetryExporter);
+    private StreamInfo addPreProcessor(StreamInfo streamInfo, String tableName) {
+        List<Preprocessor> preProcessors = PreProcessorFactory.getPreProcessors(daggerContext, tableName, telemetryExporter);
         for (Preprocessor preprocessor : preProcessors) {
             streamInfo = preprocessor.process(streamInfo);
         }
