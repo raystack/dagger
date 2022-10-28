@@ -15,7 +15,7 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-      test: [ "CMD-SHELL", " kafka-topics.sh --version" ]
+      test: [ "CMD-SHELL", " kafka-topics --version" ]
       interval: 10s
       timeout: 5s
       retries: 5000
@@ -107,6 +107,7 @@ services:
     image: amd64/ubuntu:latest
     depends_on:
       - init-kafka
+      - stencil
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
