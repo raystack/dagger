@@ -107,7 +107,6 @@ services:
     image: amd64/ubuntu:latest
     depends_on:
       - init-kafka
-      - stencil
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
