@@ -8,16 +8,6 @@ option java_outer_classname = "TestLogMessageProto";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
-
-
-message TestVehicleType {
-  enum Enum {
-    UNKNOWN = 0;
-    CAR = 1;
-    BIKE = 2;
-  }
-}
 
 message TestBookingLogMessage {
   TestServiceType.Enum service_type = 1;

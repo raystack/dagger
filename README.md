@@ -42,7 +42,7 @@ Explore the following resources to get started with Dagger:
 
 ## Running locally
 
-Please follow this [Dagger Quickstart Guide](https://odpf.github.io/dagger/docs/guides/quickstart) for setting up a local running Dagger consuming from Kafka.
+Please follow this [Dagger Quickstart Guide](https://odpf.github.io/dagger/docs/guides/quickstart) for setting up a local running Dagger consuming from Kafka or to set up a Docker Compose for Dagger.
 
 **Note:** Sample configuration for running a basic dagger can be found [here](https://odpf.github.io/dagger/docs/guides/create_dagger#common-configurations). For detailed configurations, refer [here](https://odpf.github.io/dagger/docs/reference/configuration).
 
