@@ -57,14 +57,13 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      pwd
-      cd resources
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
       yes Y | apt-get update
-      yes Y | apt-get install protobuf-compiler=3.6.1.3-2ubuntu5
+      yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
       yes Y | apt-get install python3
+      cd resources
       protoc --descriptor_set_out=file.desc --include_imports *.proto
       yes Y | apt-get install python3-pip
       python3 -m pip install simple_http_server
