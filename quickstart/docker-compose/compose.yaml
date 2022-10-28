@@ -56,7 +56,7 @@ services:
       "
 
   stencil:
-    image: ubuntu:latest
+    image: amd64/ubuntu:latest
     depends_on:
       - kafka
     volumes:
