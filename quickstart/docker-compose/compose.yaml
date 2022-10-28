@@ -36,11 +36,6 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", " kafka-topics --bootstrap-server kafka:29094 --list | grep -q dagger-test-topic-v1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5000
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
@@ -57,8 +52,6 @@ services:
 
   stencil:
     image: amd64/ubuntu:latest
-    depends_on:
-      - kafka
     volumes:
       - ${PWD}/resources:/resources
     ports:
@@ -85,7 +78,7 @@ services:
   kafkaproducer:
     image: amd64/ubuntu:latest
     depends_on:
-      - kafka
+      - init-kafka
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
@@ -113,8 +106,8 @@ services:
   dagger:
     image: amd64/ubuntu:latest
     depends_on:
-      init-kafka:
-        condition: service_healthy
+      - init-kafka
+      - stencil
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
