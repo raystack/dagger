@@ -65,3 +65,30 @@ After some initialization logs, you should see the output of the SQL query getti
 2. **I see an exception `java.lang.RuntimeException: Unable to retrieve any partitions with KafkaTopicsDescriptor: Topic Regex Pattern`**
 
    This can happen if the topic configured under `STREAMS` -> `SOURCE_KAFKA_TOPIC_NAMES` in `local.properties` is new and you have not pushed any messages to it yet. Ensure that you have pushed atleast one message to the topic before you start dagger.
+
+## Docker Compose Setup
+
+### Prerequisites
+
+1. **You must have docker installed**
+
+Following are the steps for setting up dagger in docker compose - 
+1. Clone Dagger repository into your local
+
+   ```shell
+   git clone https://github.com/odpf/dagger.git
+   ```
+2. cd into the docker-compose directory:
+   ```shell
+   cd dagger/quickstart/docker-compose 
+   ```
+3. fire this command to spin up the docker compose:
+   ```shell
+   docker compose up 
+   ```
+This will spin up docker containers for the kafka, zookeeper, stencil, kafka-producer and the dagger.
+4. fire this command to gracefully close the docker compose:
+   ```shell
+   docker compose down 
+   ```
+   

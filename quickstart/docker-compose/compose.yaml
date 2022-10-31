@@ -1,0 +1,126 @@
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.1.1
+    ports:
+      - "2187:2187"
+    expose:
+      - '21871'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2187
+
+  # reachable on 9094 from the host and on 29094 from inside docker compose
+  kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: [ "CMD-SHELL", " kafka-topics --version" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5000
+    ports:
+      - '9094:9094'
+    expose:
+      - '29094'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2187'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_MIN_INSYNC_REPLICAS: '1'
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29094 --list
+      "
+
+  stencil:
+    image: amd64/ubuntu:latest
+    volumes:
+      - ${PWD}/resources:/resources
+    ports:
+      - '2917:2917'
+    expose:
+      - '2917'
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
+      yes Y | apt-get install python3
+      cd resources
+      protoc --descriptor_set_out=file.desc --include_imports *.proto
+      yes Y | apt-get install python3-pip
+      python3 -m pip install simple_http_server
+      python3 -m http.server 2917
+      "
+
+
+  kafkaproducer:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - init-kafka
+    volumes:
+      - ${PWD}/resources:/resources
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      cd resources
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
+      yes Y | apt-get install kafkacat=1.6.0-1
+      yes Y | apt-get install pwgen
+      echo -e 'Sending message to Kafka topic'
+      chmod 777 kafkafeeder.sh
+      while :
+      do
+        ./kafkafeeder.sh
+        kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 message.bin
+      	sleep 1
+      	rm message.bin
+      done
+      "
+
+  dagger:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - init-kafka
+      - stencil
+    volumes:
+      - ${PWD}/resources:/resources
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt install git
+      yes Y | apt install openjdk-8-jdk
+      yes Y | apt install gradle
+      /var/lib/dpkg/info/ca-certificates-java.postinst configure
+      git clone https://github.com/odpf/dagger
+      cp /resources/local.properties /dagger/dagger-core/env/
+      cd dagger
+      ./gradlew runFlink
+      "
