@@ -66,9 +66,10 @@ After some initialization logs, you should see the output of the SQL query getti
 
    This can happen if the topic configured under `STREAMS` -> `SOURCE_KAFKA_TOPIC_NAMES` in `local.properties` is new and you have not pushed any messages to it yet. Ensure that you have pushed atleast one message to the topic before you start dagger.
 
-##Docker Compose Setup
+## Docker Compose Setup
 
-###Prerequisites
+### Prerequisites
+
 1. **You must have docker installed**
 
 Following are the steps for setting up dagger in docker compose - 
@@ -90,3 +91,4 @@ This will spin up docker containers for the kafka, zookeeper, stencil, kafka-pro
    ```shell
    docker compose down 
    ```
+   
