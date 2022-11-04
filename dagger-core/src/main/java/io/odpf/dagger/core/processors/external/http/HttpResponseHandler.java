@@ -25,14 +25,15 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-
-import static org.apache.http.HttpStatus.SC_OK;
+import java.util.regex.Pattern;
 
 /**
  * The Http response handler.
  */
 public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseHandler.class.getName());
+
+    protected static final String SUCCESS_CODE_PATTERN = "^2.*";
     private final RowManager rowManager;
     private ColumnNameManager columnNameManager;
     private Descriptors.Descriptor descriptor;
@@ -80,7 +81,8 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     @Override
     public Object onCompleted(Response response) {
         int statusCode = response.getStatusCode();
-        if (statusCode == SC_OK) {
+        boolean isSuccess = Pattern.compile(SUCCESS_CODE_PATTERN).matcher(String.valueOf(statusCode)).matches();
+        if (isSuccess) {
             successHandler(response);
         } else {
             postResponseTelemetry.validateResponseCode(meterStatsManager, statusCode);
