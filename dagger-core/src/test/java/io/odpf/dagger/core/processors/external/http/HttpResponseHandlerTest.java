@@ -400,4 +400,29 @@ public class HttpResponseHandlerTest {
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
     }
+
+    @Test
+    public void shouldHandleAnySuccessResponseCodeOtherThan200() {
+        outputMapping.put("surge_factor", new OutputMapping("$.surge"));
+        outputColumnNames = Collections.singletonList("surge_factor");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "POST", "{\"key\": \"%s\"}", "customer_id", "", "", "123", "234", false, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, 0.732f);
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(201);
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"surge\": 0.732\n"
+                + "}");
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(meterStatsManager, times(1)).markEvent(SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
+    }
 }

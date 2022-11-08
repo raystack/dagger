@@ -191,7 +191,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                         + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigString);
-        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -249,7 +249,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                         + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithInternalSourceString);
-        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -324,7 +324,7 @@ public class PostGresExternalPostProcessorIntegrationTest {
                         + "}";
 
         configurationMap.put(PROCESSOR_POSTPROCESSOR_CONFIG_KEY, postProcessorConfigWithTransformerString);
-        Configuration configuration = new Configuration(ParameterTool.fromMap(configurationMap));
+        configuration = new Configuration(ParameterTool.fromMap(configurationMap));
         stencilClientOrchestrator = new StencilClientOrchestrator(configuration);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
