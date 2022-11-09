@@ -29,6 +29,7 @@ public class StreamWatermarkAssignerTest {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
         streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L);
+
         verify(inputStream, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
