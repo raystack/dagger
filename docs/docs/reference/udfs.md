@@ -34,6 +34,8 @@ The udfs on Dagger divided into two parts:
   - [StartOfWeek](udfs.md#StartOfWeek)
   - [TimeInDate](udfs.md#TimeInDate)
   - [TimestampFromUnix](udfs.md#TimestampFromUnix)
+  - [JsonUpdate](udfs.md#JsonUpdate)
+  - [JsonQuery](udfs.md#JsonQuery)
 - [Aggregate Functions](udfs.md#aggregate-functions)
   - [CollectArray](udfs.md#CollectArray)
   - [DistinctCount](udfs.md#DistinctCount)
@@ -648,6 +650,46 @@ SELECT
 FROM 
   data_stream
 ```
+
+#### JsonUpdate
+ * Contract: 
+   * **String** `JsonUpdate(String jsonEvent, String jPath, Object newValue)`
+ * Functionality:
+   * Returns the json string with updated value in a given jsonPath. 
+   * It uses special notation (JsonPath) and it traverses nodes and their connections to adjacent nodes mentioned in a JsonPath and updates the existing json with the provided newValue.
+ * Example:
+   * Example 1: Adds the new key k3 with value v3 to the existing Json
+```
+SELECT 
+  JsonUpdate('{"k1":null,"k2":"v2"}','$.k3','v3') AS T
+FROM 
+  data_stream
+```
+Result: `{"k1":null,"k2":"v2","k2":"v3"}`
+
+   * Example 2: Updates the new value v1 to the existing Json at jpath $.k1
+```
+SELECT 
+  JsonUpdate('{"k1":null,"k2":"v2"}','$.k1','v1') AS T
+FROM 
+  data_stream
+```
+Result: `{"k1":"v1","k2":"v2"}`
+
+#### JsonQuery
+* Contract:
+  * **String** `JsonQuery(String jsonEvent, String jPath)`
+* Functionality:
+  * Returns the json string with child object mentioned in jsonPath.
+  * It uses special notation (JsonPath) and it traverses nodes and their connections to adjacent nodes mentioned in a JsonPath and extracts the value.
+* Example:
+```
+SELECT 
+  JsonQuery('{"k1":null,"k2":{"key1":"value1","key2":"value2"}}','$.k2') AS T
+FROM 
+  data_stream
+```
+Result: `{"key1":"value1","key2":"value2"}`
 
 ### Aggregate Functions
 

@@ -40,6 +40,8 @@ import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
+import io.odpf.dagger.functions.udfs.scalar.JsonQuery;
+import io.odpf.dagger.functions.udfs.scalar.JsonUpdate;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 
@@ -105,6 +107,8 @@ public class FunctionFactory extends UdfFactory {
         scalarUdfs.add(new ArrayAggregate());
         scalarUdfs.add(new ArrayOperate());
         scalarUdfs.add(new ByteToString());
+        scalarUdfs.add(new JsonQuery());
+        scalarUdfs.add(new JsonUpdate());
         return scalarUdfs;
     }
 

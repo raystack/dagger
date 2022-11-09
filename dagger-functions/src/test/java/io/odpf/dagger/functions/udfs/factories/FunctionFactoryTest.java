@@ -1,5 +1,6 @@
 package io.odpf.dagger.functions.udfs.factories;
 
+import io.odpf.dagger.functions.udfs.scalar.*;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import io.odpf.dagger.common.configuration.Configuration;
@@ -11,32 +12,6 @@ import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
 import io.odpf.dagger.functions.udfs.aggregate.FeaturesWithType;
 import io.odpf.dagger.functions.udfs.aggregate.PercentileAggregator;
-import io.odpf.dagger.functions.udfs.scalar.ArrayAggregate;
-import io.odpf.dagger.functions.udfs.scalar.ArrayOperate;
-import io.odpf.dagger.functions.udfs.scalar.ByteToString;
-import io.odpf.dagger.functions.udfs.scalar.CondEq;
-import io.odpf.dagger.functions.udfs.scalar.DartContains;
-import io.odpf.dagger.functions.udfs.scalar.DartGet;
-import io.odpf.dagger.functions.udfs.scalar.Distance;
-import io.odpf.dagger.functions.udfs.scalar.ElementAt;
-import io.odpf.dagger.functions.udfs.scalar.EndOfMonth;
-import io.odpf.dagger.functions.udfs.scalar.EndOfWeek;
-import io.odpf.dagger.functions.udfs.scalar.ExponentialMovingAverage;
-import io.odpf.dagger.functions.udfs.scalar.Filters;
-import io.odpf.dagger.functions.udfs.scalar.FormatTimeInZone;
-import io.odpf.dagger.functions.udfs.scalar.GeoHash;
-import io.odpf.dagger.functions.udfs.scalar.LinearTrend;
-import io.odpf.dagger.functions.udfs.scalar.ListContains;
-import io.odpf.dagger.functions.udfs.scalar.MapGet;
-import io.odpf.dagger.functions.udfs.scalar.S2AreaInKm2;
-import io.odpf.dagger.functions.udfs.scalar.S2Id;
-import io.odpf.dagger.functions.udfs.scalar.SelectFields;
-import io.odpf.dagger.functions.udfs.scalar.SingleFeatureWithType;
-import io.odpf.dagger.functions.udfs.scalar.Split;
-import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
-import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
-import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
-import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.junit.Assert;
@@ -117,6 +92,8 @@ public class FunctionFactoryTest {
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayOperate"), any(ArrayOperate.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ByteToString"), any(ByteToString.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("JsonUpdate"), any(JsonUpdate.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("JsonQuery"), any(JsonQuery.class));
     }
 
     @Test
