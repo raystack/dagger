@@ -29,7 +29,7 @@ public class StreamWatermarkAssignerTest {
         LastColumnWatermark lastColumnWatermark = new LastColumnWatermark();
         StreamWatermarkAssigner streamWatermarkAssigner = new StreamWatermarkAssigner(lastColumnWatermark);
         streamWatermarkAssigner.assignTimeStampAndWatermark(inputStream, 10L);
-
+String ss="{\n  \"internal_source\": [\n    {\n      \"output_field\": \"data1\",\n      \"value\": \"data1\",\n      \"type\": \"sql\"\n    },\n    {\n      \"output_field\": \"data2\",\n      \"value\": \"data2\",\n      \"type\": \"sql\"\n    }\n  ],\n  \"transformers\": [\n    {\n      \"transformation_arguments\": {\n        \"key_column\": \"data1\",\n        \"ttl_in_seconds\": \"3600\"\n      },\n      \"transformation_class\": \"io.odpf.dagger.functions.transformers.DeDuplicationTransformer\"\n    }\n  ]\n}";
         verify(inputStream, times(1)).assignTimestampsAndWatermarks(any(WatermarkStrategy.class));
     }
 
