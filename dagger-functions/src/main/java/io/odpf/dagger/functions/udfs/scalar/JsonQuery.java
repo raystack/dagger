@@ -27,9 +27,9 @@ public class JsonQuery extends ScalarUdf implements Serializable {
      */
     public @DataTypeHint("STRING") String eval(@DataTypeHint("STRING") String jsonEvent, @DataTypeHint("STRING") String jPath) throws JsonProcessingException {
         Configuration configuration = Configuration.defaultConfiguration().setOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
-        Object object = JsonPath.using(configuration).parse(jsonEvent).read(JsonPath.compile(jPath));
+        Object jChildObject = JsonPath.using(configuration).parse(jsonEvent).read(JsonPath.compile(jPath));
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
-        return Objects.isNull(object) ? null : mapper.writeValueAsString(object);
+        return Objects.isNull(jChildObject) ? null : mapper.writeValueAsString(jChildObject);
     }
 }

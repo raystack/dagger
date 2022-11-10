@@ -87,12 +87,31 @@ public class JsonQueryTest {
     }
 
     @Test
+    public void shouldThrowErrorWhenEmptyJPath() throws JsonProcessingException {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("json can not be null or empty");
+        JsonQuery jsonQuery = new JsonQuery();
+        String jsonEvent = "{\"k1\":null,\"k2\":\"v2\"}";
+        String jPath = "";
+        jsonQuery.eval(jsonEvent, jPath);
+    }
+
+    @Test
     public void shouldThrowErrorWhenImproperJPath() throws JsonProcessingException {
         thrown.expect(com.jayway.jsonpath.InvalidPathException.class);
         thrown.expectMessage("Illegal character at position 1 expected '.' or '[");
         JsonQuery jsonQuery = new JsonQuery();
         String jsonEvent = "{\"k1\":null,\"k2\":\"v2\"}";
         String jPath = "$ .k1";
-        System.out.println(jsonQuery.eval(jsonEvent, jPath));
+        jsonQuery.eval(jsonEvent, jPath);
+    }
+
+    @Test
+    public void shouldThrowErrorWhenInvalidJPath() throws JsonProcessingException {
+        thrown.expect(com.jayway.jsonpath.PathNotFoundException.class);
+        JsonQuery jsonQuery = new JsonQuery();
+        String jsonEvent = "{\"k1\":null,\"k2\":\"v2\"}";
+        String jPath = "$.k2.k4";
+        jsonQuery.eval(jsonEvent, jPath);
     }
 }

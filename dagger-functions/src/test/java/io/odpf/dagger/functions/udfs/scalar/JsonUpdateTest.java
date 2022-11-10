@@ -49,7 +49,6 @@ public class JsonUpdateTest {
         String jPath = "$.k1";
         String updateValue = "v1";
         String actual = jsonUpdate.eval(jsonEvent, jPath, updateValue);
-        System.out.println(actual);
         Assert.assertEquals(expectedJsonEvent, actual);
     }
 
@@ -153,6 +152,17 @@ public class JsonUpdateTest {
         JsonUpdate jsonUpdate = new JsonUpdate();
         String jsonEvent = "{\"k1\":null,\"k2\":\"v2\"}";
         String jPath = null;
+        String updateValue = "updatedValue";
+        jsonUpdate.eval(jsonEvent, jPath, updateValue);
+    }
+
+    @Test
+    public void shouldThrowErrorWhenEmptyJPath() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("json can not be null or empty");
+        JsonUpdate jsonUpdate = new JsonUpdate();
+        String jsonEvent = "{\"k1\":null,\"k2\":\"v2\"}";
+        String jPath = "";
         String updateValue = "updatedValue";
         jsonUpdate.eval(jsonEvent, jPath, updateValue);
     }
