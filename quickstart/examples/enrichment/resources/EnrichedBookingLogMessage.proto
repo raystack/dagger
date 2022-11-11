@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package io.odpf.dagger.consumer;
+
+option java_multiple_files = true;
+option java_package = "io.odpf.dagger.consumer";
+option java_outer_classname = "EnrichedBookingLogMessageProto";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message EnrichedBookingLogMessage {
+    TestServiceType.Enum service_type = 1;
+    string order_number = 2;
+    string order_url = 3;
+    google.protobuf.Timestamp event_timestamp = 5;
+    string customer_id = 6;
+    string customer_url = 7;
+    string driver_id = 8;
+    string driver_url = 9;
+
+    string activity_source = 11;
+    string service_area_id = 12;
+
+    float amount_paid_by_cash = 16;
+
+    TestLocation driver_pickup_location = 26;
+    TestLocation driver_dropoff_location = 27;
+
+    string customer_email = 28;
+    string customer_name = 29;
+    string customer_phone = 30;
+
+    string driver_email = 31;
+    string driver_name = 32;
+    string driver_phone = 33;
+
+    int32 cancel_reason_id = 36;
+    string cancel_reason_description = 37;
+
+    google.protobuf.Timestamp booking_creation_time = 41;
+
+    float total_customer_discount = 40;
+    float gopay_customer_discount = 42;
+    float voucher_customer_discount = 43;
+
+    google.protobuf.Timestamp pickup_time = 44;
+    float driver_paid_in_cash = 45;
+    float driver_paid_in_credit = 46;
+
+    int64 customer_total_fare_without_surge = 52;
+    bool customer_dynamic_surge_enabled = 55;
+
+    int64 driver_total_fare_without_surge = 56;
+    bool driver_dynamic_surge_enabled = 59;
+    repeated string meta_array = 60;
+
+    google.protobuf.Struct profile_data = 61;
+    google.protobuf.Struct event_properties = 62;
+    google.protobuf.Struct key_values = 63;
+
+    double cash_amount = 64;
+
+    repeated int32 int_array_field = 65;
+
+    map<string, string> metadata = 66;
+
+    double customer_price = 70;
+
+    repeated bool boolean_array_field = 71;
+
+    repeated double double_array_field = 72;
+
+    repeated float float_array_field = 73;
+
+    repeated int64 long_array_field = 74;
+    CustomerLogMessage customer_profile = 75;
+
+}
+
+message TestServiceType {
+    enum Enum {
+        UNKNOWN = 0;
+        FLIGHT = 1;
+        BUS = 2;
+        TRAIN = 3;
+    }
+}
+
+message CustomerLogMessage {
+    string customer_id = 1;                        // required
+    string customer_url = 2;                       // required
+    google.protobuf.Timestamp event_timestamp = 3; // required
+    string name = 4;                               // required
+    string email = 5;                              // required
+    string phone = 6;                              // required
+    bool phone_verified = 7;
+    bool email_verified = 8;
+    bool blacklisted = 9;
+    bool active = 10;
+    string wallet_id = 11;
+    google.protobuf.Timestamp dob = 13;
+    string facebook_id = 14;
+    bool new_user = 15;
+    string signed_up_country = 16;
+    string locale = 17;
+    google.protobuf.Timestamp created_at = 18;
+    google.protobuf.Timestamp updated_at = 19;
+    string onboarding_partner = 20;
+    string old_identifier_value = 23;
+    string bio = 24;
+    string profile_image_url = 25;
+    string deactivating_partner = 26;
+    string deactivating_reason = 27;
+    string created_by = 28;
+    string gopay_account_id = 29;
+    string revival_reason = 30;
+    string reviving_partner = 31;
+    string toko_id = 32;
+}
+
+message TestLocation {
+    string name = 1;
+    string address = 2;
+    double latitude = 3;
+    double longitude = 4;
+    string type = 5;
+    string note = 6;
+    string place_id = 7;
+    float accuracy_meter = 8;
+    string gate_id = 9;
+}
+

@@ -9,6 +9,6 @@ driver_pickup_location {
   longitude: 72.877655
 }
 driver_dropoff_location {
-  latitude: 19.237188
-  longitude: 72.844139
+  latitude: 59.237188
+  longitude: 23.844139
 }
