@@ -104,9 +104,9 @@ services:
   elasticsearch:
     image: elasticsearch:8.5.0
     ports:
-      - '7819:7819'
+      - '9200:9200'
     expose:
-      - '7819'
+      - '9200'
 
   elasticsearch_feeder:
     image: amd64/ubuntu:latest
@@ -122,7 +122,8 @@ services:
       yes Y | add-apt-repository universe
       yes Y | apt-get update
       yes Y | apt install curl
-      curl -H "Content-Type: application/json" -XPOST "elasticsearch:7819/customers/_doc/11" -d @seed1.json
+      cd resources
+      curl --header "Content-Type: application/json" --request POST --data @seed1.json http://elasticsearch:9200/customers/_doc/11
       "
 
   dagger:
@@ -131,7 +132,6 @@ services:
       - init-kafka
       - stencil
       - elasticsearch
-      - elasticsearch_feeder
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
