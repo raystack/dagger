@@ -43,6 +43,7 @@ services:
 
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v2 --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29094 --list
@@ -96,6 +97,10 @@ services:
       do
         ./kafkafeeder.sh
         kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v1 message.bin
+      	sleep 1
+      	rm message.bin
+        ./kafkafeeder.sh
+        kafkacat -P -b kafka:29094 -D "\n" -T -t dagger-test-topic-v2 message.bin
       	sleep 1
       	rm message.bin
       done

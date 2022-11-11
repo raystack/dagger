@@ -101,11 +101,37 @@ services:
       done
       "
 
+  elasticsearch:
+    image: elasticsearch:8.5.0
+    ports:
+      - '7819:7819'
+    expose:
+      - '7819'
+
+  elasticsearch_feeder:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ${PWD}/resources:/resources
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt install curl
+      curl -H "Content-Type: application/json" -XPOST "elasticsearch:7819/customers/_doc/11" -d @seed1.json
+      "
+
   dagger:
     image: amd64/ubuntu:latest
     depends_on:
       - init-kafka
       - stencil
+      - elasticsearch
+      - elasticsearch_feeder
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
