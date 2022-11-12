@@ -8,7 +8,7 @@ option java_outer_classname = "EnrichedBookingLogMessageProto";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "io/odpf/dagger/consumer/TestLogMessage.proto"
+import "io/odpf/dagger/consumer/TestLogMessage.proto";
 
 message EnrichedBookingLogMessage {
     TestServiceType.Enum service_type = 1;
