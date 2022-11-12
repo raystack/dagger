@@ -123,7 +123,7 @@ services:
       yes Y | apt-get update
       yes Y | apt install curl
       cd resources
-      curl --header "Content-Type: application/json" --request POST --data @seed1.json http://elasticsearch:9200/customers/_doc/11
+      curl --header 'Content-Type: application/json' --request POST --data @seed1.json http://elasticsearch:9200/customers/_doc/11
       "
 
   dagger:
