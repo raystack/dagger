@@ -114,4 +114,12 @@ public class JsonQueryTest {
         String jPath = "$.k2.k4";
         jsonQuery.eval(jsonEvent, jPath);
     }
+    @Test
+    public void shouldThrowErrorWhenInvalidJsonEvent() throws JsonProcessingException {
+        thrown.expect(com.jayway.jsonpath.InvalidJsonException.class);
+        JsonQuery jsonQuery = new JsonQuery();
+        String jsonEvent = "{\"k1\":null,\"k2\"\"v2\"}";
+        String jPath = "$.k2";
+        jsonQuery.eval(jsonEvent, jPath);
+    }
 }

@@ -187,4 +187,13 @@ public class JsonUpdateTest {
         String updateValue = "updatedValue";
         jsonUpdate.eval(jsonEvent, jPath, updateValue);
     }
+    @Test
+    public void shouldThrowErrorWhenInvalidJsonEvent() {
+        thrown.expect(com.jayway.jsonpath.InvalidJsonException.class);
+        JsonUpdate jsonUpdate = new JsonUpdate();
+        String jsonEvent = "{\"k1\":null,\"k2\"\"v2\"}";
+        String jPath = "$.k2";
+        String updateValue = "updatedValue";
+        jsonUpdate.eval(jsonEvent, jPath, updateValue);
+    }
 }
