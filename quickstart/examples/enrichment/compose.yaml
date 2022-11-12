@@ -66,6 +66,7 @@ services:
       yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
       yes Y | apt-get install python3
       cd resources
+      echo wwww
       protoc --descriptor_set_out=file.desc --include_imports io/odpf/dagger/consumer/*.proto
       yes Y | apt-get install python3-pip
       python3 -m pip install simple_http_server
