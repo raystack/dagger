@@ -8,6 +8,7 @@ option java_outer_classname = "EnrichedBookingLogMessageProto";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "io/odpf/dagger/consumer/TestLogMessage.proto"
 
 message EnrichedBookingLogMessage {
     TestServiceType.Enum service_type = 1;
@@ -78,15 +79,6 @@ message EnrichedBookingLogMessage {
 
 }
 
-message TestServiceType {
-    enum Enum {
-        UNKNOWN = 0;
-        FLIGHT = 1;
-        BUS = 2;
-        TRAIN = 3;
-    }
-}
-
 message CustomerLogMessage {
     string customer_id = 1;                        // required
     string customer_url = 2;                       // required
@@ -117,17 +109,5 @@ message CustomerLogMessage {
     string revival_reason = 30;
     string reviving_partner = 31;
     string toko_id = 32;
-}
-
-message TestLocation {
-    string name = 1;
-    string address = 2;
-    double latitude = 3;
-    double longitude = 4;
-    string type = 5;
-    string note = 6;
-    string place_id = 7;
-    float accuracy_meter = 8;
-    string gate_id = 9;
 }
 
