@@ -59,7 +59,7 @@ public class JsonDeleteTest {
     }
 
     @Test
-    public void  shouldDeleteNestedValueAndReturnAsJsonString() {
+    public void shouldDeleteNestedValueAndReturnAsJsonString() {
         JsonDelete jsonDelete = new JsonDelete();
         String jsonEvent = "{\"k1\":\"v1\",\"k2\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}}";
         String expectedJsonEvent = "{\"k1\":\"v1\",\"k2\":{\"key2\":\"value2\",\"key3\":\"value3\"}}";
