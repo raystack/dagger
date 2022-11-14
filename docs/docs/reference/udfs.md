@@ -36,6 +36,7 @@ The udfs on Dagger divided into two parts:
   - [TimestampFromUnix](udfs.md#TimestampFromUnix)
   - [JsonUpdate](udfs.md#JsonUpdate)
   - [JsonQuery](udfs.md#JsonQuery)
+  - [JsonDelete](udfs.md#JsonDelete)
 - [Aggregate Functions](udfs.md#aggregate-functions)
   - [CollectArray](udfs.md#CollectArray)
   - [DistinctCount](udfs.md#DistinctCount)

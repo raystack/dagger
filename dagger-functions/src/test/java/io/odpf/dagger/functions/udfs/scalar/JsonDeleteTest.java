@@ -39,7 +39,7 @@ public class JsonDeleteTest {
     }
 
     @Test
-    public void shouldReturnDeletedValueAsJsonString() {
+    public void shouldDeleteValueAndReturnAsJsonString() {
         JsonDelete jsonDelete = new JsonDelete();
         String jsonEvent = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
         String expectedJsonEvent = "{\"k1\":\"v1\"}";
@@ -49,7 +49,7 @@ public class JsonDeleteTest {
     }
 
     @Test
-    public void shouldReturnDeletedNodeAsJsonString() {
+    public void shouldDeleteNodeValueAndReturnAsJsonString() {
         JsonDelete jsonDelete = new JsonDelete();
         String jsonEvent = "{\"k1\":\"v1\",\"k2\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}}";
         String expectedJsonEvent = "{\"k1\":\"v1\"}";
@@ -59,7 +59,7 @@ public class JsonDeleteTest {
     }
 
     @Test
-    public void shouldReturnDeletedNestedValueAsJsonString() {
+    public void  shouldDeleteNestedValueAndReturnAsJsonString() {
         JsonDelete jsonDelete = new JsonDelete();
         String jsonEvent = "{\"k1\":\"v1\",\"k2\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}}";
         String expectedJsonEvent = "{\"k1\":\"v1\",\"k2\":{\"key2\":\"value2\",\"key3\":\"value3\"}}";
@@ -69,7 +69,7 @@ public class JsonDeleteTest {
     }
 
     @Test
-    public void shouldReturnDeletedArrayValueAsJsonString() {
+    public void shouldDeleteArrayValueAndReturnAsJsonString() {
         JsonDelete jsonDelete = new JsonDelete();
         String jsonEvent = "{\"k1\":\"v1\",\"k2\":[\"value1\",\"value2\",\"value3\"]}";
         String expectedJsonEvent = "{\"k1\":\"v1\",\"k2\":[\"value1\",\"value3\"]}";
