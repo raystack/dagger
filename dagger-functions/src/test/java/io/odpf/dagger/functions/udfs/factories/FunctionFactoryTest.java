@@ -1,11 +1,5 @@
 package io.odpf.dagger.functions.udfs.factories;
 
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import io.odpf.dagger.common.configuration.Configuration;
-import io.odpf.dagger.common.udfs.AggregateUdf;
-import io.odpf.dagger.common.udfs.ScalarUdf;
-import io.odpf.dagger.common.udfs.TableUdf;
 import io.odpf.dagger.functions.udfs.aggregate.CollectArray;
 import io.odpf.dagger.functions.udfs.aggregate.DistinctCount;
 import io.odpf.dagger.functions.udfs.aggregate.Features;
@@ -37,6 +31,15 @@ import io.odpf.dagger.functions.udfs.scalar.StartOfMonth;
 import io.odpf.dagger.functions.udfs.scalar.StartOfWeek;
 import io.odpf.dagger.functions.udfs.scalar.TimeInDate;
 import io.odpf.dagger.functions.udfs.scalar.TimestampFromUnix;
+import io.odpf.dagger.functions.udfs.scalar.JsonQuery;
+import io.odpf.dagger.functions.udfs.scalar.JsonUpdate;
+import io.odpf.dagger.functions.udfs.scalar.JsonDelete;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
+import io.odpf.dagger.common.configuration.Configuration;
+import io.odpf.dagger.common.udfs.AggregateUdf;
+import io.odpf.dagger.common.udfs.ScalarUdf;
+import io.odpf.dagger.common.udfs.TableUdf;
 import io.odpf.dagger.functions.udfs.table.HistogramBucket;
 import io.odpf.dagger.functions.udfs.table.OutlierMad;
 import org.junit.Assert;
@@ -117,6 +120,9 @@ public class FunctionFactoryTest {
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayAggregate"), any(ArrayAggregate.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ArrayOperate"), any(ArrayOperate.class));
         verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("ByteToString"), any(ByteToString.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("JsonUpdate"), any(JsonUpdate.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("JsonDelete"), any(JsonDelete.class));
+        verify(streamTableEnvironment, times(1)).createTemporaryFunction(eq("JsonQuery"), any(JsonQuery.class));
     }
 
     @Test
