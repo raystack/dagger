@@ -24,6 +24,7 @@ public class HttpRequestFactory {
         ArrayList<HttpRequestHandler> httpRequestHandlers = new ArrayList<>();
         httpRequestHandlers.add(new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues, headerVariablesValues));
         httpRequestHandlers.add(new HttpGetRequestHandler(httpSourceConfig, httpClient, requestVariablesValues, headerVariablesValues));
+        httpRequestHandlers.add(new HttpPutRequestHandler(httpSourceConfig, httpClient, requestVariablesValues, headerVariablesValues));
 
         HttpRequestHandler httpRequestHandler = httpRequestHandlers
                 .stream()

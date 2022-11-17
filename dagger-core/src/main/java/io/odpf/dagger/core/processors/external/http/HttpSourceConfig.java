@@ -17,6 +17,7 @@ import java.util.Objects;
  */
 public class HttpSourceConfig implements Serializable, SourceConfig {
     private String endpoint;
+    private String endpointVariables;
     private String verb;
     private String requestPattern;
     private String requestVariables;
@@ -39,6 +40,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
      * Instantiates a new Http source config.
      *
      * @param endpoint           the endpoint
+     * @param endpointVariables  the endpoint variables
      * @param verb               the verb
      * @param requestPattern     the request pattern
      * @param requestVariables   the request variables
@@ -54,8 +56,9 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
      * @param metricId           the metric id
      * @param retainResponseType the retain response type
      */
-    public HttpSourceConfig(String endpoint, String verb, String requestPattern, String requestVariables, String headerPattern, String headerVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
+    public HttpSourceConfig(String endpoint, String endpointVariables, String verb, String requestPattern, String requestVariables, String headerPattern, String headerVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
         this.endpoint = endpoint;
+        this.endpointVariables = endpointVariables;
         this.verb = verb;
         this.requestPattern = requestPattern;
         this.requestVariables = requestVariables;
@@ -89,6 +92,16 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     public String getEndpoint() {
         return endpoint;
     }
+
+    /**
+     * Gets endpoint variables.
+     *
+     * @return the endpointVariables
+     */
+    public String getEndpointVariables() {
+        return endpointVariables;
+    }
+
 
     /**
      * Gets verb.
