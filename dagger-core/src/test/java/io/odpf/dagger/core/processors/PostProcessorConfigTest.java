@@ -290,4 +290,11 @@ public class PostProcessorConfigTest {
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
         assertNotNull(postProcessorConfig.getInternalSource().get(0).getInternalProcessorConfig());
     }
+
+    @Test
+    public void shouldParseEndpointVariablesConfig() {
+        String configuration = "{\"external_source\":{\"es\":[{\"host\":\"localhost\",\"port\":\"9200\",\"output_mapping\":{\"customer_profile\":{\"path\":\"$._source\"}},\"endpoint_pattern\":\"/customers/customer/%s\",\"endpoint_variables\":\"customer_id\",\"retry_timeout\":\"5000\",\"socket_timeout\":\"6000\",\"stream_timeout\":\"5000\",\"type\":\"TestLogMessage\"}],\"http\":[{\"body_column_from_sql\":\"request_body\",\"connect_timeout\":\"5000\",\"endpoint\":\"http://localhost:8000/%s\",\"endpoint_variables\":\"some-id\",\"fail_on_errors\":\"true\",\"headers\":{\"content-type\":\"application/json\"},\"output_mapping\":{\"surge_factor\":{\"path\":\"$.data.tensor.values[0]\"}},\"stream_timeout\":\"5000\",\"verb\":\"put\"}]},\"internal_source\":[{\"output_field\":\"event_timestamp\",\"value\":\"CURRENT_TIMESTAMP\",\"type\":\"function\"},{\"output_field\":\"s2_id_level\",\"value\":\"7\",\"type\":\"constant\"}],\"transformers\":[{\"transformation_arguments\":{\"keyColumnName\":\"s2id\",\"valueColumnName\":\"features\"},\"transformation_class\":\"test.postprocessor.FeatureTransformer\"}]}";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertEquals("some-id", postProcessorConfig.getExternalSource().getHttpConfig().get(0).getEndpointVariables());
+    }
 }
