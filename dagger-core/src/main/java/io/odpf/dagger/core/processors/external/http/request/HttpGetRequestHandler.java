@@ -38,6 +38,11 @@ public class HttpGetRequestHandler implements HttpRequestHandler {
     public BoundRequestBuilder create() {
         String endpointPath = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
         String endpoint = httpSourceConfig.getEndpoint();
+
+        if (httpSourceConfig.getEndpointVariables().length() > 0) {
+            endpoint = String.format(httpSourceConfig.getEndpoint(), httpSourceConfig.getEndpointVariables());
+        }
+
         String requestEndpoint = endpoint + endpointPath;
         BoundRequestBuilder getRequest = httpClient.prepareGet(requestEndpoint);
         Map<String, String> headers = httpSourceConfig.getHeaders();
