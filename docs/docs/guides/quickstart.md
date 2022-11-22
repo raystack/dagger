@@ -49,7 +49,7 @@ Following are the containers that are created, in chronological order, when you 
 5. **kafka-producer** - It runs a script to generate the random kafka messages and sends one message to the kafka topic every second.
 6. **Dagger** - Clones the Dagger Github repository and builds the jar. Then it creates an in-memory flink cluster and uploads the dagger job jar and starts the job.
 
-The dagger runs a simple aggregation query which will count the number of bookings , i.e. kafka messages, in every 30 seconds interval. The output will be visible in the logs in the terminal itself. You can edit this query (`FLINK_SQL_QUERY` variable) in the `local.properties` file inside the `quickstart/docker-compose/resources` directory.
+The dagger environment variables are present in the `local.properties` file inside the `quickstart/docker-compose/resources` directory. The dagger runs a simple aggregation query which will count the number of bookings , i.e. kafka messages, in every 30 seconds interval. The output will be visible in the logs in the terminal itself. You can edit this query (`FLINK_SQL_QUERY` variable) in the `local.properties` file inside the `quickstart/docker-compose/resources` directory.
 
 ## Local Installation Setup
 
