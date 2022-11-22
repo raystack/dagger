@@ -38,7 +38,7 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
         String requestBody = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
         String endpoint = httpSourceConfig.getEndpoint();
 
-        if (httpSourceConfig.getEndpointVariables().length() > 0) {
+        if (!StringUtil.isNullOrEmpty(httpSourceConfig.getEndpointVariables())) {
             endpoint = String.format(httpSourceConfig.getEndpoint(), httpSourceConfig.getEndpointVariables());
         }
 

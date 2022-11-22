@@ -39,7 +39,7 @@ public class HttpPostRequestHandlerTest {
 
     @Test
     public void shouldReturnTrueForPostVerbOnCanCreate() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test","", "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test",null, "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", false);
         HttpPostRequestHandler httpPostRequestBuilder = new HttpPostRequestHandler(httpSourceConfig, httpClient, requestVariablesValues.toArray(), dynamicHeaderVariablesValues.toArray());
         assertTrue(httpPostRequestBuilder.canCreate());
     }
