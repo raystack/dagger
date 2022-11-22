@@ -37,6 +37,19 @@ This will spin up docker containers for the kafka, zookeeper, stencil, kafka-pro
    ```shell
    docker compose down 
    ```
+   
+### Workflow
+
+Following are the containers that are created, in chronological order, when you run `docker compose up`  - 
+
+1. **Zookeeper** -  Container for Zookeeper service is created and listening on port 2187. Zookeeper is a service required by the Kafka server.
+2. **Kafka** - Container for Kafka server is created and is exposed on port 29094. This will serve as the input data source for the Dagger.
+3. **init-kafka** - This container creates the kafka topic `dagger-test-topic-v1` from which the dagger will pull the Kafka messages.
+4. **Stencil** - It compiles the proto file and creates a proto descriptor. Also it sets up an http server serving the proto descriptors required by dagger to parse the Kafka messages. 
+5. **kafka-producer** - It runs a script to generate the random kafka messages and sends one message to the kafka topic every second.
+6. **Dagger** - Clones the Dagger Github repository and builds it. Then it creates an in-memory flink cluster and uploads the dagger job jar and starts the job.
+
+
 ## Local Installation Setup
 
 ### Prerequisites
