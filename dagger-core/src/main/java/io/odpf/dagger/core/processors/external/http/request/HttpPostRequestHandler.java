@@ -39,11 +39,7 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
     @Override
     public BoundRequestBuilder create() {
         String requestBody = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
-        String endpoint = httpSourceConfig.getEndpoint();
-
-        if (!StringUtil.isNullOrEmpty(httpSourceConfig.getEndpointVariables())) {
-            endpoint = String.format(httpSourceConfig.getEndpoint(), endpointVariablesValues);
-        }
+        String endpoint = String.format(httpSourceConfig.getEndpoint(), endpointVariablesValues);
 
         BoundRequestBuilder postRequest = httpClient
                 .preparePost(endpoint)
