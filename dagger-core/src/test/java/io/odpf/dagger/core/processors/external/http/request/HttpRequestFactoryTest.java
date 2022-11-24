@@ -52,6 +52,20 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
+    public void shouldReturnPostRequestWithMultiEndpointVariablesOnTheBasisOfConfiguration() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s/%s", "exp, 222", "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        when(httpClient.preparePost("http://localhost:8080/test/exp/222")).thenReturn(request);
+        when(request.setBody("{\"key\": \"123456\"}")).thenReturn(request);
+        endpointVariablesValues.add("exp");
+        endpointVariablesValues.add("222");
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
+
+        verify(httpClient, times(1)).preparePost("http://localhost:8080/test/exp/222");
+        verify(httpClient, times(0)).prepareGet(any(String.class));
+        verify(httpClient, times(0)).preparePut(any(String.class));
+    }
+
+    @Test
     public void shouldReturnGetRequestOnTheBasisOfConfiguration() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", null, "GET", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
@@ -63,7 +77,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void shouldReturnGetRequestWithEndpointVariablesOnTheBasisOfConfiguration() {
+    public void shouldReturnGetRequestWithMultiEndpointVariablesOnTheBasisOfConfiguration() {
         httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s/%s", "123, 332", "GET", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
         endpointVariablesValues.add("123");
@@ -83,6 +97,20 @@ public class HttpRequestFactoryTest {
         HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
 
         verify(httpClient, times(1)).preparePut("http://localhost:8080/test/123");
+        verify(httpClient, times(0)).prepareGet(any(String.class));
+        verify(httpClient, times(0)).preparePost(any(String.class));
+    }
+
+    @Test
+    public void shouldReturnPutRequestWithMultiEndpointVariablesOnTheBasisOfConfiguration() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s/abc/%s", "123, 321, asd", "PUT", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        when(httpClient.preparePut("http://localhost:8080/test/123/abc/asd")).thenReturn(request);
+        when(request.setBody("{\"key\": \"123456\"}")).thenReturn(request);
+        endpointVariablesValues.add("123");
+        endpointVariablesValues.add("asd");
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
+
+        verify(httpClient, times(1)).preparePut("http://localhost:8080/test/123/abc/asd");
         verify(httpClient, times(0)).prepareGet(any(String.class));
         verify(httpClient, times(0)).preparePost(any(String.class));
     }
