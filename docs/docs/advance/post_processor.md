@@ -202,7 +202,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
 
 ### **HTTP**
 
-HTTP Post Processor connects to an external API endpoint and does enrichment based on data from the response of the API call. Currently, we support POST and GET verbs for the API call.
+HTTP Post Processor connects to an external API endpoint and does enrichment based on data from the response of the API call. Currently, we support POST, PUT and GET verbs for the API call.
 
 #### Workflow
 
@@ -210,7 +210,7 @@ On applying only this post processor, dagger will perform the following operatio
 
 - Consume the message from configured Kafka stream.
 - Apply the SQL query configured.
-- Generate the endpoint URL in case of GET call or request body in case of POST call using [request_pattern](post_processor.md#request_pattern) and [request_variables](post_processor.md#request_variables).
+- Generate the endpoint URL in case of GET call or request body in case of POST/PUT call using [request_pattern](post_processor.md#request_pattern) and [request_variables](post_processor.md#request_variables).
 - Make the HTTP call.
 - Read the response from HTTP API and populate the message according to [output_mapping](post_processor.md#output_mapping-1).
 - Push the enriched message to configured sink.
@@ -221,21 +221,29 @@ Following variables need to be configured as part of [PROCESSOR_POSTPROCESSOR_CO
 
 ##### `endpoint`
 
-API endpoint. For POST call, URL will be just the endpoint. For GET, URL will be a combination of endpoint and request pattern.
+API endpoint. For POST and PUT call, URL will be a combination of endpoint and endpoint_variables. For GET, URL will be a combination of endpoint, endpoint_variables and request pattern.
 
-- Example value: `http://127.0.0.1/api/customer`
+- Example value: `http://127.0.0.1/api/customer` or `http://127.0.0.1/api/customer/%s`
 - Type: `required`
+
+##### `endpoint_variables`
+
+List of comma-separated parameters to be replaced in endpoint, these variables must be present in the input proto and selected via the SQL query. Endpoint should also contains %s.
+
+- Example value: `customer_id`
+- Type: `optional`
+
 
 ##### `verb`
 
-HTTP verb (currently support POST and GET).
+HTTP verb (currently support POST, PUT and GET).
 
 - Example value: `GET`
 - Type: `required`
 
 ##### `request_pattern`
 
-Template for the body in case of POST and endpoint path in case of GET.
+Template for the body in case of POST/PUT and endpoint path in case of GET.
 
 - Example value: `/customers/customer/%s`
 - Type: `required`
