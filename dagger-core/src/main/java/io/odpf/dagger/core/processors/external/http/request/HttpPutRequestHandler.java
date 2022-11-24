@@ -19,18 +19,21 @@ public class HttpPutRequestHandler implements HttpRequestHandler {
     private AsyncHttpClient httpClient;
     private Object[] requestVariablesValues;
     private Object[] dynamicHeaderVariablesValues;
+    private Object[] endpointVariablesValues;
     /**
      * Instantiates a new Http post request handler.
      *
-     * @param httpSourceConfig       the http source config
-     * @param httpClient             the http client
-     * @param requestVariablesValues the request variables values
+     * @param httpSourceConfig        the http source config
+     * @param httpClient              the http client
+     * @param requestVariablesValues  the request variables values
+     * @param endpointVariablesValues the endpoint variables values
      */
-    public HttpPutRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues) {
+    public HttpPutRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues, Object[] endpointVariablesValues) {
         this.httpSourceConfig = httpSourceConfig;
         this.httpClient = httpClient;
         this.requestVariablesValues = requestVariablesValues;
         this.dynamicHeaderVariablesValues = dynamicHeaderVariablesValues;
+        this.endpointVariablesValues = endpointVariablesValues;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class HttpPutRequestHandler implements HttpRequestHandler {
         String endpoint = httpSourceConfig.getEndpoint();
 
         if (!StringUtil.isNullOrEmpty(httpSourceConfig.getEndpointVariables())) {
-            endpoint = String.format(httpSourceConfig.getEndpoint(), httpSourceConfig.getEndpointVariables());
+            endpoint = String.format(httpSourceConfig.getEndpoint(), endpointVariablesValues);
         }
 
         BoundRequestBuilder putRequest = httpClient

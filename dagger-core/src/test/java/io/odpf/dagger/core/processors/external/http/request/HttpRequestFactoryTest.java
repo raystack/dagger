@@ -26,6 +26,7 @@ public class HttpRequestFactoryTest {
     private HttpSourceConfig httpSourceConfig;
     private ArrayList<Object> requestVariablesValues;
     private ArrayList<Object> headerVariablesValues;
+    private ArrayList<Object> endpointVariablesValues;
     private boolean retainResponseType;
 
     @Before
@@ -34,15 +35,16 @@ public class HttpRequestFactoryTest {
         requestVariablesValues = new ArrayList<>();
         headerVariablesValues = new ArrayList<>();
         requestVariablesValues.add(1);
+        endpointVariablesValues = new ArrayList<>();
         retainResponseType = false;
     }
 
     @Test
     public void shouldReturnPostRequestOnTheBasisOfConfiguration() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test",null,"POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", null, "POST", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
         when(httpClient.preparePost("http://localhost:8080/test")).thenReturn(request);
         when(request.setBody("{\"key\": \"123456\"}")).thenReturn(request);
-        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray());
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
 
         verify(httpClient, times(1)).preparePost("http://localhost:8080/test");
         verify(httpClient, times(0)).prepareGet(any(String.class));
@@ -51,9 +53,9 @@ public class HttpRequestFactoryTest {
 
     @Test
     public void shouldReturnGetRequestOnTheBasisOfConfiguration() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test",null, "GET", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", null, "GET", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
         when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
-        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray());
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
 
         verify(httpClient, times(1)).prepareGet("http://localhost:8080/test/key/1");
         verify(httpClient, times(0)).preparePost(any(String.class));
@@ -61,11 +63,24 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
+    public void shouldReturnGetRequestWithEndpointVariablesOnTheBasisOfConfiguration() {
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s/%s", "123, 332", "GET", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        when(httpClient.prepareGet("http://localhost:8080/test/key/1")).thenReturn(request);
+        endpointVariablesValues.add("123");
+        endpointVariablesValues.add("332");
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
+        verify(httpClient, times(1)).prepareGet("http://localhost:8080/test/123/332/key/1");
+        verify(httpClient, times(0)).preparePost(any(String.class));
+        verify(httpClient, times(0)).preparePut(any(String.class));
+    }
+
+    @Test
     public void shouldReturnPutRequestOnTheBasisOfConfiguration() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s","123","PUT", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test/%s", "123", "PUT", "{\"key\": \"%s\"}", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
         when(httpClient.preparePut("http://localhost:8080/test/123")).thenReturn(request);
         when(request.setBody("{\"key\": \"123456\"}")).thenReturn(request);
-        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray());
+        endpointVariablesValues.add("123");
+        HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray());
 
         verify(httpClient, times(1)).preparePut("http://localhost:8080/test/123");
         verify(httpClient, times(0)).prepareGet(any(String.class));
@@ -75,8 +90,8 @@ public class HttpRequestFactoryTest {
 
     @Test
     public void shouldThrowExceptionForUnsupportedHttpVerb() {
-        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test","", "PATCH", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
-        assertThrows(InvalidHttpVerbException.class, () -> HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray()));
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "", "PATCH", "/key/%s", "1", "", "", "123", "234", false, "type", "345", new HashMap<>(), null, "metricId_01", retainResponseType);
+        assertThrows(InvalidHttpVerbException.class, () -> HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues.toArray(), headerVariablesValues.toArray(), endpointVariablesValues.toArray()));
     }
 
 }

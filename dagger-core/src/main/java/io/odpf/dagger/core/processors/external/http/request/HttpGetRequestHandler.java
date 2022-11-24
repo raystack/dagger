@@ -19,19 +19,22 @@ public class HttpGetRequestHandler implements HttpRequestHandler {
     private AsyncHttpClient httpClient;
     private Object[] requestVariablesValues;
     private Object[] dynamicHeaderVariablesValues;
+    private Object[] endpointVariablesValues;
 
     /**
      * Instantiates a new Http get request handler.
      *
-     * @param httpSourceConfig       the http source config
-     * @param httpClient             the http client
-     * @param requestVariablesValues the request variables values
+     * @param httpSourceConfig        the http source config
+     * @param httpClient              the http client
+     * @param requestVariablesValues  the request variables values
+     * @param endpointVariablesValues the request variables values
      */
-    public HttpGetRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues) {
+    public HttpGetRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues, Object[] endpointVariablesValues) {
         this.httpSourceConfig = httpSourceConfig;
         this.httpClient = httpClient;
         this.requestVariablesValues = requestVariablesValues;
         this.dynamicHeaderVariablesValues = dynamicHeaderVariablesValues;
+        this.endpointVariablesValues = endpointVariablesValues;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class HttpGetRequestHandler implements HttpRequestHandler {
         String endpoint = httpSourceConfig.getEndpoint();
 
         if (!StringUtil.isNullOrEmpty(httpSourceConfig.getEndpointVariables())) {
-            endpoint = String.format(httpSourceConfig.getEndpoint(), httpSourceConfig.getEndpointVariables());
+            endpoint = String.format(httpSourceConfig.getEndpoint(), endpointVariablesValues);
         }
 
         String requestEndpoint = endpoint + endpointPath;
