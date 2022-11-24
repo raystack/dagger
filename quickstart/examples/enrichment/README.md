@@ -7,28 +7,40 @@ This allows you to enrich your data stream with the data on any remote [Elastics
 #### Sample Configuration
 
 ```properties
-PROCESSOR_POSTPROCESSOR_ENABLE = true
-PROCESSOR_POSTPROCESSOR_CONFIG = {
-  "external_source": {
-    "es": [
-      {
-        "host": "127.0.0.1",
-        "port": "9200",
-        "endpoint_pattern": "/customers/customer/%s",
-        "endpoint_variables": "customer_id",
-        "retry_timeout": "5000",
-        "socket_timeout": "6000",
-        "stream_timeout": "5000",
-        "connect_timeout": "5000",
-        "capacity": "30",
-        "output_mapping": {
-          "customer_profile": {
-            "path": "$._source"
-          }
-        }
-      }
-    ]
-  }
+{
+"external_source": {
+"es": [
+{
+"capacity": "10",
+"connect_timeout": "5000",
+"endpoint_pattern": "/customers/_doc/%s",
+"endpoint_variables": "customer_id",
+"host": "localhost",
+"output_mapping": {
+"customer_profile": {
+"path": "$._source"
+}
+},
+"port": "9200",
+"retry_timeout": "5000",
+"socket_timeout": "6000",
+"stream_timeout": "5000",
+"type": "io.odpf.dagger.consumer.EnrichedBookingLogMessage"
+}
+]
+},
+"internal_source": [
+{
+"output_field": "booking_log",
+"type": "sql",
+"value": "*"
+},
+{
+"output_field": "event_timestamp",
+"type": "function",
+"value": "CURRENT_TIMESTAMP"
+}
+]
 }
 ```
 
