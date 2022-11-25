@@ -6,22 +6,23 @@
 
 ### Example query
 
-Here booking denotes the booking events stream with sample booking schema and payment denotes payment stream with sample payment schema.
 
 ```SQL
-SELECT
-  booking.service_type as tag_service_type,
-  count(order_number) as number_of_orders,
-  sum(order_amount) as total_amount,
-  TUMBLE_END(booking.rowtime, INTERVAL '60' MINUTE) AS window_timestamp
-from
-  `booking`
-  join `payment` ON booking.order_number = payment.order_id
-  AND payment.rowtime BETWEEN booking.rowtime
-  AND booking.rowtime + INTERVAL '5' MINUTE
-GROUP BY
-  TUMBLE (booking.rowtime, INTERVAL '60' MINUTE),
-  booking.service_type
+SELECT 
+  data_stream_0.service_type as tag_service_type, 
+  count(data_stream_0.order_number) as number_of_orders, 
+  TUMBLE_END(
+    data_stream_0.rowtime, INTERVAL '5' SECOND
+  ) AS window_timestamp 
+from 
+  `data_stream_0` 
+  join `data_stream_1` ON data_stream_1.rowtime BETWEEN data_stream_0.rowtime 
+  AND data_stream_0.rowtime + INTERVAL '5' MINUTE 
+GROUP BY 
+  TUMBLE (
+    data_stream_0.rowtime, INTERVAL '5' SECOND
+  ), 
+  data_stream_0.service_type
 ```
 
 ## Docker Compose Setup
