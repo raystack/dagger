@@ -1,0 +1,1 @@
+# Joining two Kafka topics using Inner join

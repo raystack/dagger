@@ -64,6 +64,17 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Examples",
+      items: [
+        "examples/aggregation_tumble_window",
+        "examples/deduplication_transformer",
+        "examples/distance_java_udf",
+        "examples/elasticsearch_enrichment",
+        "examples/kafka_inner_join"
+      ],
+    },
+    {
+      type: "category",
       label: "Contribute",
       items: [
         "contribute/contribution",
