@@ -64,7 +64,7 @@ public class PostProcessorConfigTest {
         outputMapping = new OutputMapping("$.data.tensor.values[0]");
         outputMappings.put("surge_factor", outputMapping);
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8000", "post", null, null, null, null, "5000", "5000", true, null, null, headerMap, outputMappings, null, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8000", "", "post", null, null, null, null, "5000", "5000", true, null, null, headerMap, outputMappings, null, false);
 
         assertEquals(httpSourceConfig, defaultPostProcessorConfig.getExternalSource().getHttpConfig().get(0));
     }
@@ -120,7 +120,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        http.add(new HttpSourceConfig("", "", "", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
+        http.add(new HttpSourceConfig("", "", "", "", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, new ArrayList<>());
@@ -289,5 +289,19 @@ public class PostProcessorConfigTest {
         String configuration = "{\"internal_source\":[{\"output_field\":\"payload\",\"value\":\"JSON_PAYLOAD\",\"type\":\"function\",\"internal_processor_config\":{\"schema_proto_class\":\"com.foo.bar.RestaurantMessage\"}}]}";
         PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
         assertNotNull(postProcessorConfig.getInternalSource().get(0).getInternalProcessorConfig());
+    }
+
+    @Test
+    public void shouldParseEndpointVariablesConfig() {
+        String configuration = "{\"external_source\":{\"es\":[{\"host\":\"localhost\",\"port\":\"9200\",\"output_mapping\":{\"customer_profile\":{\"path\":\"$._source\"}},\"endpoint_pattern\":\"/customers/customer/%s\",\"endpoint_variables\":\"customer_id\",\"retry_timeout\":\"5000\",\"socket_timeout\":\"6000\",\"stream_timeout\":\"5000\",\"type\":\"TestLogMessage\"}],\"http\":[{\"body_column_from_sql\":\"request_body\",\"connect_timeout\":\"5000\",\"endpoint\":\"http://localhost:8000/%s\",\"endpoint_variables\":\"some-id\",\"fail_on_errors\":\"true\",\"headers\":{\"content-type\":\"application/json\"},\"output_mapping\":{\"surge_factor\":{\"path\":\"$.data.tensor.values[0]\"}},\"stream_timeout\":\"5000\",\"verb\":\"put\"}]},\"internal_source\":[{\"output_field\":\"event_timestamp\",\"value\":\"CURRENT_TIMESTAMP\",\"type\":\"function\"},{\"output_field\":\"s2_id_level\",\"value\":\"7\",\"type\":\"constant\"}],\"transformers\":[{\"transformation_arguments\":{\"keyColumnName\":\"s2id\",\"valueColumnName\":\"features\"},\"transformation_class\":\"test.postprocessor.FeatureTransformer\"}]}";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertEquals("some-id", postProcessorConfig.getExternalSource().getHttpConfig().get(0).getEndpointVariables());
+    }
+
+    @Test
+    public void shouldParseEmptyEndpointVariablesConfig() {
+        String configuration = "{\"external_source\":{\"es\":[{\"host\":\"localhost\",\"port\":\"9200\",\"output_mapping\":{\"customer_profile\":{\"path\":\"$._source\"}},\"endpoint_pattern\":\"/customers/customer/%s\",\"endpoint_variables\":\"customer_id\",\"retry_timeout\":\"5000\",\"socket_timeout\":\"6000\",\"stream_timeout\":\"5000\",\"type\":\"TestLogMessage\"}],\"http\":[{\"body_column_from_sql\":\"request_body\",\"connect_timeout\":\"5000\",\"endpoint\":\"http://localhost:8000/%s\",\"fail_on_errors\":\"true\",\"headers\":{\"content-type\":\"application/json\"},\"output_mapping\":{\"surge_factor\":{\"path\":\"$.data.tensor.values[0]\"}},\"stream_timeout\":\"5000\",\"verb\":\"put\"}]},\"internal_source\":[{\"output_field\":\"event_timestamp\",\"value\":\"CURRENT_TIMESTAMP\",\"type\":\"function\"},{\"output_field\":\"s2_id_level\",\"value\":\"7\",\"type\":\"constant\"}],\"transformers\":[{\"transformation_arguments\":{\"keyColumnName\":\"s2id\",\"valueColumnName\":\"features\"},\"transformation_class\":\"test.postprocessor.FeatureTransformer\"}]}";
+        PostProcessorConfig postProcessorConfig = PostProcessorConfig.parse(configuration);
+        assertEquals(null, postProcessorConfig.getExternalSource().getHttpConfig().get(0).getEndpointVariables());
     }
 }

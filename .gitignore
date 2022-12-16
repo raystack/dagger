@@ -13,3 +13,4 @@ bin
 .settings
 .gradletasknamecache
 .DS_Store
+dagger-common/src/generated-sources/

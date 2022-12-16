@@ -14,7 +14,7 @@ import java.util.UnknownFormatConversionException;
 /**
  * The Http post request handler.
  */
-public class HttpPostRequestHandler implements HttpRequestHandler {
+public class HttpPutRequestHandler implements HttpRequestHandler {
     private HttpSourceConfig httpSourceConfig;
     private AsyncHttpClient httpClient;
     private Object[] requestVariablesValues;
@@ -28,7 +28,7 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
      * @param requestVariablesValues  the request variables values
      * @param endpointVariablesValues the endpoint variables values
      */
-    public HttpPostRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues, Object[] endpointVariablesValues) {
+    public HttpPutRequestHandler(HttpSourceConfig httpSourceConfig, AsyncHttpClient httpClient, Object[] requestVariablesValues, Object[] dynamicHeaderVariablesValues, Object[] endpointVariablesValues) {
         this.httpSourceConfig = httpSourceConfig;
         this.httpClient = httpClient;
         this.requestVariablesValues = requestVariablesValues;
@@ -41,8 +41,8 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
         String requestBody = String.format(httpSourceConfig.getPattern(), requestVariablesValues);
         String endpoint = String.format(httpSourceConfig.getEndpoint(), endpointVariablesValues);
 
-        BoundRequestBuilder postRequest = httpClient
-                .preparePost(endpoint)
+        BoundRequestBuilder putRequest = httpClient
+                .preparePut(endpoint)
                 .setBody(requestBody);
         Map<String, String> headers = httpSourceConfig.getHeaders();
         if (!StringUtil.isNullOrEmpty(httpSourceConfig.getHeaderPattern())) {
@@ -55,11 +55,11 @@ public class HttpPostRequestHandler implements HttpRequestHandler {
                 throw new InvalidConfigurationException(String.format("pattern config '%s' is incompatible with the variable config '%s'", httpSourceConfig.getHeaderPattern(), httpSourceConfig.getHeaderVariables()));
             }
         }
-        return addHeaders(postRequest, headers);
+        return addHeaders(putRequest, headers);
     }
 
     @Override
     public boolean canCreate() {
-        return httpSourceConfig.getVerb().equalsIgnoreCase("post");
+        return httpSourceConfig.getVerb().equalsIgnoreCase("put");
     }
 }
