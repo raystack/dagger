@@ -1,73 +1,36 @@
-### DeDuplicationTransformer
-* Transformation Class:
-    * `io.odpf.dagger.functions.transformers.DeDuplicationTransformer`
-* Contract:
-    * After Selecting columns by SQL, you need to reselect the desired columns with the help of an internal source. Following transformation arguments can be passed:
-        * `key_column`: This value will be used as the deduplication key (other events with the same key will be stopped).
-        * `ttl_in_seconds`: The TTL configuration will decide how long to keep the keys in memory. Once the keys are cleared from memory the data with the same keys will be sent again.
-* Functionality:
-    * Allows deduplication of data produced by the dagger i.e records with the same key will not be sent again till the TTL expires.
-    * Can be used both on `post-processor` and `pre-processor`
-* Example:
-    * SQL:
-      ```
-      SELECT
-        data1,
-        data2
-      FROM
-        data_stream
-      ```
-    * POST PROCESSOR CONFIG:
-      ```
-      {
-        "internal_source": [
-          {
-            "output_field": "data1",
-            "value": "data1",
-            "type": "sql"
-          },
-          {
-            "output_field": "data2",
-            "value": "data2",
-            "type": "sql"
-          }
-        ],
-        "transformers": [
-          {
-            "transformation_arguments": {
-              "key_column": "data1",
-              "ttl_in_seconds": "3600"
-            },
-            "transformation_class": "io.odpf.dagger.functions.transformers.DeDuplicationTransformer"
-          }
-        ]
-      }
-      ```
+# Removing duplicate records using Transformers
+
+## About this example
+In this example, we will use the DeDuplication Transformer in Dagger to remove the booking orders (as Kafka records) having duplicate `order_number`. By the end of this example we will understand how to use Dagger to remove duplicate data from Kafka source.
 
 
-## Docker Compose Setup
+## Before Trying This Example
 
-### Prerequisites
 
-1. **You must have docker installed**
-
-Following are the steps for setting up dagger in docker compose -
-1. Clone Dagger repository into your local
+1. **We must have Docker installed**. We can follow [this guide](https://docs.docker.com/get-docker/) on how to install and set up Docker in your local machine.
+2. Clone Dagger repository into your local
 
    ```shell
    git clone https://github.com/odpf/dagger.git
    ```
-2. cd into the transformer directory:
+
+## Steps
+
+Following are the steps for setting up dagger in docker compose -
+
+1. cd into the aggregation directory:
    ```shell
-   cd dagger/quickstart/examples/transformer 
+   cd dagger/quickstart/examples/aggregation/tumble_window 
    ```
-3. fire this command to spin up the docker compose:
+2. fire this command to spin up the docker compose:
    ```shell
    docker compose up 
    ```
-This will spin up docker containers for the kafka, zookeeper, stencil, kafka-producer and the dagger.
-4. fire this command to gracefully close the docker compose:
+   Hang on for a while as it installs all the required dependencies and starts all the required services. After a while we should see the output of the Dagger SQL query in the terminal, which will be the booking logs without any duplicate `order_number`.
+3. fire this command to gracefully close the docker compose:
    ```shell
    docker compose down 
    ```
-   
+   This will stop and remove all the containers.
+
+Congratulations, we are now able to use Dagger to remove duplicate data from Kafka source!   

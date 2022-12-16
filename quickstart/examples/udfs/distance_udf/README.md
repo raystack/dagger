@@ -1,56 +1,36 @@
-## Explore Custom UDFs
+# Distance computation using Java UDF
 
-Some of the use-cases can not be solved using Flink SQL & the Apache Calcite functions. In such a scenario, Dagger can be extended to meet the requirements using User Defined Functions (UDFs). We use the Scalar UDF Distance in our example. Scalar UDFs map zero or more values to a new value. These functions are invoked for each data in the stream.
+## About this example
+In this example, we will use a User-Defined Function in Dagger to compute the distance between the driver pickup location and the driver dropoff location for each booking log (as Kafka record) . By the end of this example we will understand how to use Dagger UDFs to add more functionality and simplify our queries.
 
 
-#### Distance UDF
-* Contract:
-    * **Double** `Distance(Double latitude1, Double longitude1, Double latitude2, Double longitude2)`
-* Functionality:
-    * Calculates the distance between two points in km with given latitude and longitude.
-* Example:
-```
-SELECT
-  Distance(
-    data1_location.latitude,
-    data1_location.longitude,
-    data2_location.latitude,
-    data2_location.longitude
-  ) AS distance_data,
-  TUMBLE_END(rowtime, INTERVAL '60' SECOND) AS window_timestamp
-FROM
-  data_stream
-where
-  status = 'CUSTOMER_CANCELLED'
-GROUP BY
-  TUMBLE (rowtime, INTERVAL '60' SECOND),
-  data1_location.latitude,
-  data1_location.longitude,
-  data2_location.latitude,
-  data2_location.longitude
-```
+## Before Trying This Example
 
-### Prerequisites
 
-1. **You must have docker installed**
-
-Following are the steps for setting up dagger in docker compose -
-1. Clone Dagger repository into your local
+1. **We must have Docker installed**. We can follow [this guide](https://docs.docker.com/get-docker/) on how to install and set up Docker in your local machine.
+2. Clone Dagger repository into your local
 
    ```shell
    git clone https://github.com/odpf/dagger.git
    ```
-2. cd into the udfs directory:
+
+## Steps
+
+Following are the steps for setting up dagger in docker compose -
+
+1. cd into the aggregation directory:
    ```shell
-   cd dagger/quickstart/examples/udfs
+   cd dagger/quickstart/examples/aggregation/tumble_window 
    ```
-3. fire this command to spin up the docker compose:
+2. fire this command to spin up the docker compose:
    ```shell
    docker compose up 
    ```
-This will spin up docker containers for the kafka, zookeeper, stencil, kafka-producer and the dagger.
-4. fire this command to gracefully close the docker compose:
+   Hang on for a while as it installs all the required dependencies and starts all the required services. After a while we should see the output of the Dagger SQL query in the terminal, which will be the distance between the driver pickup location and the driver dropoff location for each booking log.
+3. fire this command to gracefully close the docker compose:
    ```shell
    docker compose down 
    ```
-   
+   This will stop and remove all the containers.
+
+Congratulations, we are now able to use Dagger UDF to calculate distance easily!   

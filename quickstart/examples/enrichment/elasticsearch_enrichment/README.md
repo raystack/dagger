@@ -1,73 +1,35 @@
-## Enrichment using Post Processors
-External Post Processor is the one that connects to an external data source to fetch data in an async manner and perform enrichment of the stream message. 
+# Stream enrichment using ElasticSearch source
 
-In this example we use Elasticsearch as the external source.
-This allows you to enrich your data stream with the data on any remote [Elasticsearch](https://www.elastic.co/). For example, let's say you have payment transaction logs in the input stream but user profile information in Elasticsearch, then you can use this post processor to get the profile information in each record.
+## About this example
+In this example, we will use Dagger Post-processors to enrich the payment transaction logs (from Kafka source), in the input stream with user profile information from an external source i.e. Elasticsearch, to get the user profile information in each record. At the end of this example, we will be able to use Dagger to enrich our data stream from Kafka with the data on any remote ElasticSearch server.
 
-#### Sample Configuration
-
-```properties
-{
-"external_source": {
-"es": [
-{
-"capacity": "10",
-"connect_timeout": "5000",
-"endpoint_pattern": "/customers/_doc/%s",
-"endpoint_variables": "customer_id",
-"host": "localhost",
-"output_mapping": {
-"customer_profile": {
-"path": "$._source"
-}
-},
-"port": "9200",
-"retry_timeout": "5000",
-"socket_timeout": "6000",
-"stream_timeout": "5000",
-"type": "io.odpf.dagger.consumer.EnrichedBookingLogMessage"
-}
-]
-},
-"internal_source": [
-{
-"output_field": "booking_log",
-"type": "sql",
-"value": "*"
-},
-{
-"output_field": "event_timestamp",
-"type": "function",
-"value": "CURRENT_TIMESTAMP"
-}
-]
-}
-```
+## Before Trying This Example
 
 
-## Docker Compose Setup
-
-### Prerequisites
-
-1. **You must have docker installed**
-
-Following are the steps for setting up dagger in docker compose -
-1. Clone Dagger repository into your local
+1. **You must have Docker installed**. We can follow [this guide](https://docs.docker.com/get-docker/) on how to install and set up Docker in your local machine.
+2. Clone Dagger repository into your local
 
    ```shell
    git clone https://github.com/odpf/dagger.git
    ```
-2. cd into the enrichment directory:
+
+## Steps
+
+Following are the steps for setting up dagger in docker compose -
+
+1. cd into the aggregation directory:
    ```shell
-   cd dagger/quickstart/examples/enrichment 
+   cd dagger/quickstart/examples/enrichment/elasticsearch_enrichment 
    ```
-3. fire this command to spin up the docker compose:
+2. fire this command to spin up the docker compose:
    ```shell
    docker compose up 
    ```
-This will spin up docker containers for the kafka, zookeeper, stencil, kafka-producer and the dagger.
-4. fire this command to gracefully close the docker compose:
+   Hang on for a while as it installs all the required dependencies and starts all the required services. After a while we should see the output of the Dagger SQL query in the terminal, which will be the enriched booking log with the customer profile information.
+3. fire this command to gracefully close the docker compose:
    ```shell
    docker compose down 
    ```
-   
+   This will stop all services and remove all the containers.
+
+Congratulations, we are now able to use Dagger to enrich our data stream from Kafka with the data on any remote ElasticSearch server.   
