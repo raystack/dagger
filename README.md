@@ -39,7 +39,7 @@ Explore the following resources to get started with Dagger:
 * [Reference](https://odpf.github.io/dagger/docs/reference/overview) contains details about configurations, metrics and other aspects of Dagger.
 * [Contribute](https://odpf.github.io/dagger/docs/contribute/contribution) contains resources for anyone who wants to contribute to Dagger.
 * [Usecase](https://odpf.github.io/dagger/docs/usecase/overview) describes examples use cases which can be solved via Dagger.
-
+* [Examples](https://odpf.github.io/dagger/docs/examples/overview) contains tutorials to try out some of Dagger's features with real-world usecases
 ## Running locally
 
 Please follow this [Dagger Quickstart Guide](https://odpf.github.io/dagger/docs/guides/quickstart) for setting up a local running Dagger consuming from Kafka or to set up a Docker Compose for Dagger.
