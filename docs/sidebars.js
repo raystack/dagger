@@ -66,6 +66,7 @@ module.exports = {
       type: "category",
       label: "Examples",
       items: [
+        "examples/overview",
         "examples/aggregation_tumble_window",
         "examples/deduplication_transformer",
         "examples/distance_java_udf",
