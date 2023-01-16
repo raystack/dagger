@@ -27,7 +27,8 @@ public class LogSinkWriter implements SinkWriter<Row, Void, Void> {
                 map.put(columnNames[i], field.toString());
             }
         }
-        LOGGER.info(map.toString());
+        throw new RuntimeException("fail fail fail");
+        //LOGGER.info(map.toString());
     }
 
     @Override
