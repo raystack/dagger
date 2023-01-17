@@ -41,7 +41,7 @@ services:
       "
       # blocks until kafka is reachable
 
-      echo -e 'Creating the kafka topic'
+      echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29094 --create --if-not-exists --topic dagger-test-topic-v1 --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
@@ -59,20 +59,17 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      echo -e 'Installing required dependencies'
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
       yes Y | apt-get update
       yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
       yes Y | apt-get install python3
-      echo -e 'Finished installing all dependencies'
       cd resources
-      echo -e 'Compiling proto files into proto descriptors set'
-      protoc --descriptor_set_out=file.desc --include_imports *.proto
+      echo wwww
+      protoc --descriptor_set_out=file.desc --include_imports io/odpf/dagger/consumer/*.proto
       yes Y | apt-get install python3-pip
       python3 -m pip install simple_http_server
-      echo -e 'Starting HTTP Server on port 2917'
       python3 -m http.server 2917
       "
 
@@ -86,7 +83,6 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      echo -e 'Installing required dependencies'
       cd resources
       yes Y | apt-get update
       yes Y | apt install software-properties-common
@@ -95,8 +91,7 @@ services:
       yes Y | apt-get install protobuf-compiler=3.12.4-1ubuntu7
       yes Y | apt-get install kafkacat=1.6.0-1
       yes Y | apt-get install pwgen
-      echo -e 'Finished installing all dependencies'
-      echo -e 'Sending messages to Kafka topic'
+      echo -e 'Sending message to Kafka topic'
       chmod 777 kafkafeeder.sh
       while :
       do
@@ -107,17 +102,44 @@ services:
       done
       "
 
-  dagger:
+  elasticsearch:
+    image: elasticsearch:8.5.0
+    ports:
+      - '9200:9200'
+    expose:
+      - '9200'
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  elasticsearch_feeder:
     image: amd64/ubuntu:latest
     depends_on:
-      - init-kafka
-      - stencil
+      - elasticsearch
     volumes:
       - ${PWD}/resources:/resources
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      echo -e 'Installing required dependencies'
+      yes Y | apt-get update
+      yes Y | apt install software-properties-common
+      yes Y | add-apt-repository universe
+      yes Y | apt-get update
+      yes Y | apt install curl
+      cd resources
+      curl --header 'Content-Type: application/json' --request POST --data @seed1.json http://elasticsearch:9200/customers/_doc/11
+      "
+
+  dagger:
+    image: amd64/ubuntu:latest
+    depends_on:
+      - init-kafka
+      - stencil
+      - elasticsearch
+    volumes:
+      - ${PWD}/resources:/resources
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
       yes Y | apt-get update
       yes Y | apt install software-properties-common
       yes Y | add-apt-repository universe
@@ -125,11 +147,9 @@ services:
       yes Y | apt install git
       yes Y | apt install openjdk-8-jdk
       yes Y | apt install gradle
-      echo -e 'Finished installing all dependencies'
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
       git clone https://github.com/odpf/dagger
       cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
-      echo -e 'Building and starting Dagger Job'
       ./gradlew runFlink
       "
