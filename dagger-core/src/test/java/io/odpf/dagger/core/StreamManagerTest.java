@@ -28,7 +28,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
+import static io.odpf.dagger.common.core.Constants.*;
+import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_DEFAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,6 +100,9 @@ public class StreamManagerTest extends DaggerContextTestBase {
         when(configuration.getString("STREAMS", "")).thenReturn(jsonArray);
         when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_ENABLE", false)).thenReturn(false);
         when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", "")).thenReturn("");
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH", false)).thenReturn(false);
+        when(configuration.getLong("SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS", TimeUnit.HOURS.toMillis(2))).thenReturn(TimeUnit.HOURS.toMillis(2));
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY", "LONG_POLLING")).thenReturn("LONG_POLLING");
         when(configuration.getString("FLINK_JOB_ID", "SQL Flink job")).thenReturn("SQL Flink job");
         when(configuration.getString("SINK_TYPE", "influx")).thenReturn("influx");
         when(configuration.getString("FLINK_SQL_QUERY", "")).thenReturn("");
