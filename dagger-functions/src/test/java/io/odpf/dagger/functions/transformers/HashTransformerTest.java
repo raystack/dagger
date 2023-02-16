@@ -17,6 +17,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,13 @@ public class HashTransformerTest extends DaggerContextTestBase {
                 .thenReturn(false);
         when(configuration.getString("SCHEMA_REGISTRY_STENCIL_URLS", ""))
                 .thenReturn("");
+        when(configuration.getBoolean("SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH", false))
+                .thenReturn(false);
+        when(configuration.getLong("SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS", TimeUnit.HOURS.toMillis(2)))
+                .thenReturn(TimeUnit.HOURS.toMillis(2));
+        when(configuration.getString("SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY", "LONG_POLLING"))
+                .thenReturn("LONG_POLLING");
+
     }
 
     @Test
