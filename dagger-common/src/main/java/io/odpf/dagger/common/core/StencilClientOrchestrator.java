@@ -41,7 +41,8 @@ public class StencilClientOrchestrator implements Serializable {
         return StencilConfig.builder()
                 .fetchHeaders(getHeaders(configuration))
                 .fetchTimeoutMs(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS, SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS_DEFAULT))
-                .build();
+                .cacheAutoRefresh(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_DEFAULT))
+                .cacheTtlMs().build();
     }
 
     private List<Header> getHeaders(Configuration config) {

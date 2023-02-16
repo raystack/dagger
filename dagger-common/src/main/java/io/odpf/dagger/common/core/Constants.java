@@ -9,7 +9,10 @@ public class Constants {
     public static final Integer SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS_DEFAULT = 60000;
     public static final String SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_KEY = "SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS";
     public static final String SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_DEFAULT = "";
-
+    public static final String SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY = "SCHEMA_REGISTRY_STENCIL_AUTO_REFRESH";
+    public static final boolean SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_DEFAULT = false;
+    public static final String SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_KEY = "SCHEMA_REGISTRY_STENCIL_TTL_MS_KEY";
+    public static final boolean SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_DEFAULT = false;
     public static final String UDF_TELEMETRY_GROUP_KEY = "udf";
     public static final String GAUGE_ASPECT_NAME = "value";
 
