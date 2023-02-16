@@ -2,6 +2,7 @@ package io.odpf.dagger.common.core;
 
 import io.odpf.dagger.common.configuration.Configuration;
 import io.odpf.stencil.StencilClientFactory;
+import io.odpf.stencil.cache.SchemaRefreshStrategy;
 import io.odpf.stencil.client.StencilClient;
 import io.odpf.stencil.config.StencilConfig;
 import org.apache.http.Header;
@@ -41,8 +42,18 @@ public class StencilClientOrchestrator implements Serializable {
         return StencilConfig.builder()
                 .fetchHeaders(getHeaders(configuration))
                 .fetchTimeoutMs(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS, SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS_DEFAULT))
-                .cacheAutoRefresh(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_HEADERS_DEFAULT))
-                .cacheTtlMs().build();
+                .cacheAutoRefresh(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_DEFAULT))
+                .cacheTtlMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_DEFAULT))
+                .refreshStrategy(getSchemaRefreshStrategy(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_DEFAULT)))
+                .build();
+    }
+
+    private SchemaRefreshStrategy getSchemaRefreshStrategy(String refreshStrategy) {
+
+        if (refreshStrategy.equals("LONG_POLLING")) return SchemaRefreshStrategy.longPollingStrategy();
+        if (refreshStrategy.equals("VERSION_BASED")) return SchemaRefreshStrategy.versionBasedRefresh();
+        LOGGER.error("Invalid Schema Refresh Strategy - {} , only LONG_POLLING or VERSION_BASED allowed", refreshStrategy);
+        throw new IllegalArgumentException("Invalid Schema Refresh Strategy - " + refreshStrategy);
     }
 
     private List<Header> getHeaders(Configuration config) {
