@@ -30,8 +30,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static io.odpf.dagger.common.core.Constants.*;
-import static io.odpf.dagger.common.core.Constants.SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_DEFAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
