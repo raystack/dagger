@@ -45,8 +45,8 @@ public class StencilClientOrchestrator implements Serializable {
                 .cacheAutoRefresh(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_DEFAULT))
                 .cacheTtlMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_DEFAULT))
                 .refreshStrategy(getSchemaRefreshStrategy(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_DEFAULT)))
-                .fetchBackoffMinMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_KEY,SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_DEFAULT))
-                .fetchRetries(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_KEY,SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_DEFAULT))
+                .fetchBackoffMinMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_DEFAULT))
+                .fetchRetries(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_DEFAULT))
                 .build();
     }
 
