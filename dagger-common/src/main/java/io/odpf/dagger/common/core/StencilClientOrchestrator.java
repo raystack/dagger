@@ -51,7 +51,9 @@ public class StencilClientOrchestrator implements Serializable {
     }
 
     private SchemaRefreshStrategy getSchemaRefreshStrategy(String refreshStrategy) {
-        if (refreshStrategy == null) return SchemaRefreshStrategy.longPollingStrategy();
+        if (refreshStrategy == null) {
+            return SchemaRefreshStrategy.longPollingStrategy();
+        }
 
         if (refreshStrategy.equalsIgnoreCase("LONG_POLLING")) {
             return SchemaRefreshStrategy.longPollingStrategy();
