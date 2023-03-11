@@ -74,11 +74,14 @@ public class Constants {
     public static final String SINK_KAFKA_JSON_SCHEMA_KEY = "SINK_KAFKA_JSON_SCHEMA";
     public static final String SINK_KAFKA_DATA_TYPE = "SINK_KAFKA_DATA_TYPE";
     public static final String SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY = "SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE";
+    public static final String SINK_KAFKA_LINGER_MS_KEY = "SINK_KAFKA_LINGER_MS";
     public static final boolean SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_DEFAULT = false;
     public static final String SINK_KAFKA_COMPRESSION_TYPE_KEY = "compression.type";
+    public static final String SINK_KAFKA_LINGER_MS_CONFIG_KEY = "linger.ms";
     public static final String SINK_KAFKA_COMPRESSION_TYPE_DEFAULT = "snappy";
     public static final String SINK_KAFKA_MAX_REQUEST_SIZE_KEY = "max.request.size";
     public static final String SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT = "20971520";
+    public static final String SINK_KAFKA_LINGER_MS_DEFAULT = "5";
 
     public static final String ES_TYPE = "ES";
     public static final String HTTP_TYPE = "HTTP";
