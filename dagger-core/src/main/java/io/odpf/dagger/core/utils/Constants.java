@@ -81,7 +81,7 @@ public class Constants {
     public static final String SINK_KAFKA_COMPRESSION_TYPE_DEFAULT = "snappy";
     public static final String SINK_KAFKA_MAX_REQUEST_SIZE_KEY = "max.request.size";
     public static final String SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT = "20971520";
-    public static final String SINK_KAFKA_LINGER_MS_DEFAULT = "5";
+    public static final String SINK_KAFKA_LINGER_MS_DEFAULT = "0";
 
     public static final String ES_TYPE = "ES";
     public static final String HTTP_TYPE = "HTTP";
