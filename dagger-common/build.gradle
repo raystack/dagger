@@ -53,7 +53,7 @@ sourceSets {
 }
 
 dependencies {
-    minimalCommonJar 'com.gotocompany:stencil:0.1.0'
+    minimalCommonJar 'com.gotocompany:stencil:0.4.0'
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
