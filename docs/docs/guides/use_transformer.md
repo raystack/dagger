@@ -17,7 +17,7 @@ In this section, we will know more about transformers, how to use them and how y
 
 - There are some transformers to solve some generic use cases pre-built in the dagger.
 
-- All the pre-supported transformers present in the `dagger-functions` sub-module in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers) directory. Find more details about each of the existing transformers and some sample examples [here](../reference/transformers.md).
+- All the pre-supported transformers present in the `dagger-functions` sub-module in [this](https://github.com/goto/dagger/tree/main/dagger-functions/src/main/java/com/gotocompany/dagger/functions/transformers) directory. Find more details about each of the existing transformers and some sample examples [here](../reference/transformers.md).
 
 - In case any of the predefined transformers do not meet your requirement, you can create your custom Transformers by extending some contract. Follow this [contribution guidelines](../contribute/add_transformer.md) on how to add a transformer in dagger.
 
@@ -38,7 +38,7 @@ In this section, we will know more about transformers, how to use them and how y
     ],
     "transformers": [
         {
-            "transformation_class": "io.odpf.dagger.functions.transformers.HashTransformer",
+            "transformation_class": "HashTransformer",
             "transformation_arguments": {
                 "maskColumns": [
                     "data_2",

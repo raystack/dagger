@@ -793,7 +793,7 @@ The type of internal post processor. This could be ‘SQL’, ‘constant’ or 
 
 The configuration argument needed to specify inputs for certain function type internal post processors. As of now, this is only required for `JSON_PAYLOAD` internal post processor.
 
-- Example value: `{"schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"}`
+- Example value: `{"schema_proto_class": "com.gotocompany.dagger.consumer.TestBookingLogMessage"}`
 - Type: `optional`
 
 ### Sample Query
@@ -884,7 +884,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
       "type": "function",
       "value": "JSON_PAYLOAD",
       "internal_processor_config": {
-        "schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"
+        "schema_proto_class": "com.gotocompany.dagger.consumer.TestBookingLogMessage"
       }
     }
   ]

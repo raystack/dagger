@@ -4,7 +4,7 @@ The following is a set of guidelines for contributing to Dagger. These are mostl
 
 - [Concepts](../concepts/overview) section will explain to you about Dagger architecture.
 - Our [roadmap](../roadmap.md) is the 10000-foot view of where we're heading in near future.
-- Github [issues](https://github.com/odpf/dagger/issues) track the ongoing and reported issues.
+- Github [issues](https://github.com/goto/dagger/issues) track the ongoing and reported issues.
 
 ## How can I contribute?
 
@@ -34,7 +34,7 @@ Some rules need to be followed to contribute.
 - If you are introducing a completely new feature or making any major changes to an existing one, we recommend starting with an RFC and get consensus on the basic design first.
 - Make sure your local build is running with all the tests and check style passing.
 - If your change is related to user-facing protocols/configurations, you need to make the corresponding change in the documentation as well.
-- Docs live in the code repo under [docs](https://github.com/odpf/dagger/tree/main/docs) so that changes to that can be done in the same PR as changes to the code.
+- Docs live in the code repo under [docs](https://github.com/goto/dagger/tree/main/docs) so that changes to that can be done in the same PR as changes to the code.
 
 ## Making a pull request
 

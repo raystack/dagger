@@ -26,9 +26,9 @@ Some of the use-cases can not be solved using Flink SQL & the Apache Calcite fun
 
   Maps zero or more values to multiple rows and each row may have multiple columns.
 
-All the supported java udfs present in the `dagger-functions` subproject in [this](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) directory.
+All the supported java udfs present in the `dagger-functions` subproject in [this](https://github.com/goto/dagger/tree/main/dagger-functions/src/main/java/com/gotocompany/dagger/functions/udfs) directory.
 
-All the supported python udfs present in the [dagger-py-functions](https://github.com/odpf/dagger/tree/main/dagger-py-functions/udfs/) directory.
+All the supported python udfs present in the [dagger-py-functions](https://github.com/goto/dagger/tree/main/dagger-py-functions/udfs/) directory.
 
 Follow [this](../reference/udfs.md) to find more details about the already supported UDFs in the dagger.
 

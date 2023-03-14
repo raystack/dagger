@@ -250,9 +250,9 @@ Defines the time attribute field name on the data stream. Find more details on t
 
 Defines the factory class of the UDF. Multiple factory classes could be given in a comma-separated format.
 
-* Example value: `io.odpf.dagger.functions.udfs.factories.FunctionFactory`
+* Example value: `FunctionFactory`
 * Type: `Optional`
-* Default value: `io.odpf.dagger.functions.udfs.factories.FunctionFactory`
+* Default value: `FunctionFactory`
 
 #### `SQL_QUERY`
 
@@ -382,7 +382,7 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 ### BigQuery Sink
 
 A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the
-[Generic](https://github.com/odpf/depot/blob/main/docs/reference/configuration/generic.md)  and  [BigQuery ](https://github.com/odpf/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the ODPF Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/odpf/depot) repository.
+[Generic](https://github.com/goto/depot/blob/main/docs/reference/configuration/generic.md)  and  [BigQuery ](https://github.com/goto/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the GOTO Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/goto/depot) repository.
 
 #### `SINK_BIGQUERY_BATCH_SIZE`
 
@@ -399,7 +399,7 @@ Contains the error types for which the dagger should throw an exception if such 
 
 ### Schema Registry
 
-Stencil is dynamic schema registry for protobuf. Find more details about Stencil [here](https://github.com/odpf/stencil#stencil).
+Stencil is dynamic schema registry for protobuf. Find more details about Stencil [here](https://github.com/goto/stencil#stencil).
 
 #### `SCHEMA_REGISTRY_STENCIL_ENABLE`
 
@@ -677,7 +677,7 @@ Example:
   
   You should set the path name to `data/sample.txt` on the udf to be able open the files.
 
-* Example how to use this, can be found in this [udf](https://github.com/odpf/dagger/tree/main/dagger-py-functions/udfs/scalar/sample.py)
+* Example how to use this, can be found in this [udf](https://github.com/goto/dagger/tree/main/dagger-py-functions/udfs/scalar/sample.py)
   
 * Type: `optional`
 * Default value: `(none)`

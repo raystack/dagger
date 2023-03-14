@@ -8,13 +8,13 @@ For adding custom Transformers follow these steps
 
 - Ensure none of the [built-in Transformers](../reference/transformers.md) suits your requirement.
 
-- Transformers take [StreamInfo](https://github.com/odpf/dagger/blob/main/dagger-common/src/main/java/io/odpf/dagger/common/core/StreamInfo.java) which is a wrapper around Flink DataStream as input and transform them to some other StreamInfo/DataStream.
+- Transformers take [StreamInfo](https://github.com/goto/dagger/blob/main/dagger-common/src/main/java/com/gotocompany/dagger/common/core/StreamInfo.java) which is a wrapper around Flink DataStream as input and transform them to some other StreamInfo/DataStream.
 
-- To define a new Transformer implement Transformer interface. The contract of Transformers is defined [here](https://github.com/odpf/dagger/blob/main/dagger-common/src/main/java/io/odpf/dagger/common/core/Transformer.java).
+- To define a new Transformer implement Transformer interface. The contract of Transformers is defined [here](https://github.com/goto/dagger/blob/main/dagger-common/src/main/java/com/gotocompany/dagger/common/core/Transformer.java).
 
 - Since an input DataStream is available in Transformer, all the Flink supported operators which transform `DataStream -> DataStream` can be applied/used by default for the transformations. Operators are how Flink exposes classic Map-reduce type functionalities. Read more about Flink Operators [here](https://ci.apache.org/projects/flink/flink-docs-release-1.14/dev/stream/operators/).
 
-- In the case of single Operator Transformation you can extend the desired Operator in the Transformer class itself. For example, follow this code of [HashTransformer](https://github.com/odpf/dagger/blob/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers/HashTransformer.java). You can also define multiple chaining operators to Transform Data.
+- In the case of single Operator Transformation you can extend the desired Operator in the Transformer class itself. For example, follow this code of [HashTransformer](https://github.com/goto/dagger/blob/main/dagger-functions/src/main/java/com/gotocompany/dagger/functions/transformers/HashTransformer.java). You can also define multiple chaining operators to Transform Data.
 
 - A configuration `transformation_arguments` inject the required parameters as a Constructor argument to the Transformer class. From the config point of view, these are simple Map of String and Object. So you need to cast them to your desired data types. Find a more detailed overview of the transformer example [here](../guides/use_transformer.md).
 

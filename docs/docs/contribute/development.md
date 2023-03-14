@@ -41,7 +41,7 @@ Dagger follows a multi-project build structure with multiple sub-projects. This 
 
 - **`dagger-core`**: The core module in Dagger. Accommodates All the core functionalities like SerDE, SQL execution, Processors and many more. Also efficiently interacts with other subprojects.
 - **`dagger-common`**: This module contains all the code/contracts that are shared between other submodules. This allows reducing code duplicate and an efficient sharing of code between other submodules. For example, MetricsManagers are part of this submodule since metrics need to be recorded both in `dagger-common` and `dagger-functions`.
-- **`dagger-functions`**: Submodule that defines all the plugin components in Dagger like [UDFs](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/udfs) and [Transformers](https://github.com/odpf/dagger/tree/main/dagger-functions/src/main/java/io/odpf/dagger/functions/transformers).
+- **`dagger-functions`**: Submodule that defines all the plugin components in Dagger like [UDFs](https://github.com/goto/dagger/tree/main/dagger-functions/src/main/java/com/gotocompany/dagger/functions/udfs) and [Transformers](https://github.com/goto/dagger/tree/main/dagger-functions/src/main/java/com/gotocompany/dagger/functions/transformers).
 - **`dagger-tests`**: Integration test framework to test some central end to end flows in Dagger.
 
 ## Dependencies Configuration
