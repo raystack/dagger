@@ -67,7 +67,7 @@ services:
       yes Y | apt-get install python3
       cd resources
       echo wwww
-      protoc --descriptor_set_out=file.desc --include_imports io/odpf/dagger/consumer/*.proto
+      protoc --descriptor_set_out=file.desc --include_imports com/gotocompany/dagger/consumer/*.proto
       yes Y | apt-get install python3-pip
       python3 -m pip install simple_http_server
       python3 -m http.server 2917
@@ -148,7 +148,7 @@ services:
       yes Y | apt install openjdk-8-jdk
       yes Y | apt install gradle
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
-      git clone https://github.com/odpf/dagger
+      git clone https://github.com/goto/dagger
       cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
       ./gradlew runFlink

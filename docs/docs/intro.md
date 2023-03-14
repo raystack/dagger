@@ -29,7 +29,7 @@ Discover why to use Dagger
 - [Data Deduplication with Transformer](./reference/transformers.md#DeDuplicationTransformer)
 - [Realtime long window processing with Longbow](./advance/longbow.md)
 
-To know more, follow the detailed [documentation](https://odpf.gitbook.io/dagger).
+To know more, follow the detailed [documentation](https://goto.gitbook.io/dagger).
 
 ## Where to go from here
 

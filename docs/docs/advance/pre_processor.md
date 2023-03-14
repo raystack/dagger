@@ -27,7 +27,7 @@ Following variables need to be configured as part of [PROCESSOR_PREPROCESSOR_CON
 
 A list of transformer configs.
 
-- Example value: `[{"table_name": "testtable","transformers": [{"transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"}]}]`
+- Example value: `[{"table_name": "testtable","transformers": [{"transformation_class": "InvalidRecordFilterTransformer"}]}]`
 - Type: `required`
 
 ## `table_name`
@@ -41,14 +41,14 @@ Table name for the transformer.
 
 List of transformers per table.
 
-- Example value: `[{"transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"}]`
+- Example value: `[{"transformation_class": "InvalidRecordFilterTransformer"}]`
 - Type: `required`
 
 ## `transformation_class`
 
 Fully qualified name of the class to be used for transformation.
 
-- Example value: `"io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"`
+- Example value: `"InvalidRecordFilterTransformer"`
 - Type: `required`
 
 ## `transformation_arguments`
@@ -67,7 +67,7 @@ PROCESSOR_PREPROCESSOR_CONFIG = {
   "table_transformers": [{
     "table_name": "data_stream",
     "transformers": [{
-      "transformation_class": "io.odpf.dagger.functions.transformers.InvalidRecordFilterTransformer"
+      "transformation_class": "InvalidRecordFilterTransformer"
     }]
   }]
 }

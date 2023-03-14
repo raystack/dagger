@@ -11,7 +11,7 @@ In this example, we will use a User-Defined Function in Dagger to compute the di
 2. Clone Dagger repository into your local
 
    ```shell
-   git clone https://github.com/odpf/dagger.git
+   git clone https://github.com/goto/dagger.git
    ```
 
 ## Steps

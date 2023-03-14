@@ -69,7 +69,7 @@ _**Sink and Serializer**_
 - Dagger supports Kafka, BigQuery and InfluxDB as supported sinks where the unbounded results are pushed at the end of the lifecycle.
 - In the case of Kafka Sink the final result is protobuf encoded. So the result goes through a serialization stage on some defined output schema. The serializer module of the proto-handler does this. Results in Kafka can be used via any Kafka consumer.
 - Influx Sink helps in real-time analytics and dashboarding. In the case of Influx Sink dagger, converts results in Flink Row to InfluxDB points and add `tag`/`labels` as specified in the SQL.
-- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [ODPF Depot](https://github.com/odpf/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration. 
+- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [GOTO Depot](https://github.com/goto/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration.
 
 
 ### Schema Handling
@@ -78,7 +78,7 @@ _**Sink and Serializer**_
 Each stream, irrespective of the data source, should produce data according to a fixed, configured protobuf schema.
 - Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts. 
 The schema handling i:e, finding the mapped schema for the topic, downloading the descriptors, and dynamically being 
-notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
+notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/goto/stencil).
 - Stencil is a proprietary library that provides an abstraction layer, for schema handling.
 - Schema Caching, dynamic schema updates are features of the stencil client library.
 

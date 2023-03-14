@@ -6,12 +6,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 (module.exports = {
   title: 'Dagger',
   tagline: 'Stream processing framework',
-  url: 'https://odpf.github.io/',
+  url: 'https://goto.github.io/',
   baseUrl: '/dagger/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'ODPF',
+  organizationName: 'GOTO',
   projectName: 'dagger',
 
   presets: [
@@ -20,12 +20,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/odpf/dagger/edit/master/docs/',
+          editUrl: 'https://github.com/goto/dagger/edit/master/docs/',
         },
         blog: {
           showReadingTime: true,
           editUrl:
-            'https://github.com/odpf/optimus/edit/master/docs/blog/',
+            'https://github.com/goto/optimus/edit/master/docs/blog/',
         },
         theme: {
           customCss: [
@@ -65,7 +65,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
             className: 'header-slack-link',
           },
           {
-            href: 'https://github.com/odpf/dagger',
+            href: 'https://github.com/goto/dagger',
             className: 'navbar-item-github',
             position: 'right',
           },
@@ -77,10 +77,10 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
           {
             title: 'Products',
             items: [
-              { label: 'Optimus', href: 'https://github.com/odpf/optimus' },
-              { label: 'Firehose', href: 'https://github.com/odpf/firehose' },
-              { label: 'Raccoon', href: 'https://github.com/odpf/raccoon' },
-              { label: 'Stencil', href: 'https://github.com/odpf/stencil' },
+              { label: 'Optimus', href: 'https://github.com/goto/optimus' },
+              { label: 'Firehose', href: 'https://github.com/goto/firehose' },
+              { label: 'Raccoon', href: 'https://github.com/goto/raccoon' },
+              { label: 'Stencil', href: 'https://github.com/goto/stencil' },
             ],
           },
           {
@@ -95,7 +95,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
             title: 'Community',
             items: [
               { label: 'Slack', href: 'https://bit.ly/2RzPbtn' },
-              { label: 'GitHub', href: 'https://github.com/odpf/dagger' }
+              { label: 'GitHub', href: 'https://github.com/goto/dagger' }
             ],
           },
         ],
@@ -109,7 +109,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       },
       announcementBar: {
         id: 'star-repo',
-        content: '⭐️ If you like Dagger, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/odpf/dagger">GitHub</a>! ⭐',
+        content: '⭐️ If you like Dagger, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/goto/dagger">GitHub</a>! ⭐',
         backgroundColor: '#222',
         textColor: '#eee',
         isCloseable: true,

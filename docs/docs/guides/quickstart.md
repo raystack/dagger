@@ -14,7 +14,7 @@ Following are the steps for setting up dagger in docker compose -
 1. Clone Dagger repository into your local
 
    ```shell
-   git clone https://github.com/odpf/dagger.git
+   git clone https://github.com/goto/dagger.git
    ```
 2. cd into the docker-compose directory:
    ```shell
@@ -66,7 +66,7 @@ The dagger environment variables are present in the `local.properties` file insi
 1. Clone Dagger repository into your local
 
 ```shell
-git clone https://github.com/odpf/dagger.git
+git clone https://github.com/goto/dagger.git
 ```
 2. Next, we will generate our proto descriptor set. Ensure you are at the top level directory(`dagger`) and then fire this command
 
@@ -85,11 +85,11 @@ python -m SimpleHTTPServer 8000
 This will spin up a mock HTTP server and serve the descriptor set we just generated in the previous step at port 8000.
 The Stencil client being used in Dagger will fetch it by calling this URL. This has been already configured in `local.properties`, as we have set `SCHEMA_REGISTRY_STENCIL_ENABLE` to true and pointed `SCHEMA_REGISTRY_STENCIL_URLS` to `http://127.0.0.1:8000/dagger-descriptors.bin`.
 
-4. Next, we will generate and send some messages to a sample kafka topic as per some proto schema. Note that, in `local.properties` we have set `INPUT_SCHEMA_PROTO_CLASS` under `STREAMS` to use `io.odpf.dagger.consumer.TestPrimitiveMessage` proto. Hence, we will push messages which conform to this schema into the topic. For doing this, please follow these steps:
+4. Next, we will generate and send some messages to a sample kafka topic as per some proto schema. Note that, in `local.properties` we have set `INPUT_SCHEMA_PROTO_CLASS` under `STREAMS` to use `com.gotocompany.dagger.consumer.TestPrimitiveMessage` proto. Hence, we will push messages which conform to this schema into the topic. For doing this, please follow these steps:
    1. `cd` into the directory `dagger-common/src/test/proto`. You should see a text file `sample_message.txt` which contains just one message. We will encode it into a binary in protobuf format.
    2. Fire this command:
    ```protobuf
-   protoc --proto_path=./ --encode=io.odpf.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
+   protoc --proto_path=./ --encode=com.gotocompany.dagger.consumer.TestPrimitiveMessage ./TestLogMessage.proto < ./sample_message.txt > out.bin
    ```
    This will generate a binary file called `out.bin`. It contains the binary encoded message of `sample_message.txt`.
 

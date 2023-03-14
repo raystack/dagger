@@ -10,7 +10,7 @@ In this example, we will use Dagger Post-processors to enrich the payment transa
 2. Clone Dagger repository into your local
 
    ```shell
-   git clone https://github.com/odpf/dagger.git
+   git clone https://github.com/goto/dagger.git
    ```
 
 ## Steps

@@ -11,7 +11,7 @@ In this example, we will use the Inner joins in Dagger to join the data streams 
 2. Clone Dagger repository into your local
 
    ```shell
-   git clone https://github.com/odpf/dagger.git
+   git clone https://github.com/goto/dagger.git
    ```
 
 ## Steps

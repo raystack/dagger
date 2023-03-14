@@ -119,7 +119,7 @@ services:
       yes Y | apt install openjdk-8-jdk
       yes Y | apt install gradle
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
-      git clone https://github.com/odpf/dagger
+      git clone https://github.com/goto/dagger
       cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
       ./gradlew runFlink
