@@ -1,4 +1,4 @@
-name: core-dependencies
+name: dependencies-publish
 
 on:
   workflow_dispatch
