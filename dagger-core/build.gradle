@@ -26,7 +26,7 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '0.1.0'
+def dependenciesVersion = "0.3.0"
 
 description = """dagger to the heart!"""
 
@@ -61,7 +61,7 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar('com.gotocompany:depot:0.1.0') {
+    minimalJar('com.gotocompany:depot:0.4.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'stencil', group: 'com.gotocompany'
         exclude group: 'com.google.protobuf'
