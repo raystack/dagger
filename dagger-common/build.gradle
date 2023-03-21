@@ -53,7 +53,6 @@ sourceSets {
 }
 
 dependencies {
-    minimalCommonJar 'com.gotocompany:stencil:0.4.0'
     compileOnly 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-common', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
@@ -67,6 +66,7 @@ dependencies {
     dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
+    dependenciesCommonJar 'com.gotocompany:stencil:0.4.0'
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
     dependenciesCommonJar 'org.apache.parquet:parquet-column:1.12.2'
