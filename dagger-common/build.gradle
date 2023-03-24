@@ -58,6 +58,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
+    compileOnly 'com.gotocompany:stencil:0.4.0'
 
     dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
         exclude module:"commons-cli"
@@ -66,7 +67,6 @@ dependencies {
     dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
-    dependenciesCommonJar 'com.gotocompany:stencil:0.4.0'
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
     dependenciesCommonJar 'org.apache.parquet:parquet-column:1.12.2'

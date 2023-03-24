@@ -57,6 +57,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-metrics-dropwizard', version: flinkVersion
+    compileOnly 'com.gotocompany:stencil:0.4.0'
 
     dependenciesFunctionsJar 'com.github.davidmoten:geo:0.7.6'
     dependenciesFunctionsJar 'org.apache.flink:flink-python_2.11:' + flinkVersion
