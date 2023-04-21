@@ -99,6 +99,68 @@ Defines the SASL Java Authentication and Authorization Service (JAAS) Config use
 * Example value: `org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="admin";`
 * Type: `optional` required only for ACL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE` if static JAAS configuration system property `java.security.auth.login.config` is not configured in flink cluster.
 
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_PROTOCOL`
+
+Defines the security protocol used to communicate with SSL enabled kafka. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.protocol)
+Dagger supported values are: TLSv1.2, TLSv1.3, TLS, TLSv1.1, SSL, SSLv2 and SSLv3
+
+* Example value 1: `SSL`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+* Example value 2: `TLS`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEY_PASSWORD`
+
+Defines the SSL Key Password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.key.password)
+
+* Example value: `myKeyPass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_LOCATION`
+
+Defines the SSL KeyStore location or path for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.location)
+
+* Example value: `myKeyStore.jks`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_PASSWORD`
+
+Defines the SSL KeyStore password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.password)
+
+* Example value: `myKeyStorePass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_TYPE`
+
+Defines the SSL KeyStore Type like JKS, PKCS12 etc  for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.type)
+Dagger supported values are: JKS, PKCS12, PEM
+
+* Example value: `JKS`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_LOCATION`
+
+Defines the SSL TrustStore location or path for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.location)
+
+* Example value: `myTrustStore.jks`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_PASSWORD`
+
+Defines the SSL TrustStore password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.password)
+
+* Example value: `myTrustStorePass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_TYPE`
+
+Defines the SSL TrustStore Type like JKS, PKCS12 for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.type)
+Dagger supported values are: JKS, PKCS12, PEM
+
+* Example value: `JKS`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
 ##### `SOURCE_KAFKA_CONFIG_AUTO_COMMIT_ENABLE`
 
 Enable/Disable Kafka consumer auto-commit. Find more details on this config [here](https://kafka.apache.org/documentation/#consumerconfigs_enable.auto.commit).

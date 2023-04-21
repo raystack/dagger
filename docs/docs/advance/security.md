@@ -4,7 +4,7 @@ The primary goals of the Dagger security needs are to enable secure data access 
 
 # Supported secure data access sources 
 
-We currently support only secure data access from kafka source using simple authentication security layer([SASL](https://kafka.apache.org/documentation/#security_sasl))
+We currently support secure data access from kafka source using simple authentication security layer([SASL](https://kafka.apache.org/documentation/#security_sasl)) and SSL encryption for data-in-transit between the source kafka and the dagger client.
 
 - [KAFKA_SOURCE](../guides/choose_source.md)
 - [KAFKA_CONSUMER](../guides/choose_source.md)
@@ -146,4 +146,168 @@ STREAMS = [
       ]
     }
   ]
+```
+## Encryption and Authentication using SSL
+
+SSL is used for encryption of traffic as well as authentication. By default, SSL is disabled in dagger kafka source but can be turned on if needed.
+
+Dagger currently support SSL based encryption and authentication with `KAFKA_SOURCE` and `KAFKA_CONSUMER`.
+
+**Note:** You must configure your Kafka cluster to enable encryption and authentication using SSL. See the [Kafka documentation](https://kafka.apache.org/34/documentation.html#security_ssl) for your Kafka version to learn how to configure SSL encryption of traffic as well as authentication.
+
+### Configurations
+
+To consume data from SSL/TLS enabled kafka, following variables need to be configured as part of [STREAMS](../reference/configuration.md) JSON
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL`
+
+Defines the security protocol used to communicate with SSL enabled kafka. Other than SASL supported values, as mentioned above, Dagger supports,
+* `SSL`: to enable SSL/TLS for encryption and authentication
+
+* Example value: `SSL`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_PROTOCOL`
+
+Defines the security protocol used to communicate with SSL enabled kafka. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.protocol)
+Dagger supported values are: TLSv1.2, TLSv1.3, TLS, TLSv1.1, SSL, SSLv2 and SSLv3
+
+* Example value 1: `SSL`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+* Example value 2: `TLS`
+* Type: `optional` required only for TLS enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEY_PASSWORD`
+
+Defines the SSL Key Password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.key.password)
+
+* Example value: `myKeyPass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_LOCATION`
+
+Defines the SSL KeyStore location or path for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.location)
+
+* Example value: `/tmp/myKeyStore.jks`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_PASSWORD`
+
+Defines the SSL KeyStore password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.password)
+
+* Example value: `myKeyStorePass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_TYPE`
+
+Defines the SSL KeyStore Type like JKS, PKCS12 etc  for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.keystore.type)
+Dagger supported values are: JKS, PKCS12, PEM
+
+* Example value: `JKS`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_LOCATION`
+
+Defines the SSL TrustStore location or path for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.location)
+
+* Example value: `/tmp/myTrustStore.jks`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_PASSWORD`
+
+Defines the SSL TrustStore password for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.password)
+
+* Example value: `myTrustStorePass`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+##### `SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_TYPE`
+
+Defines the SSL TrustStore Type like JKS, PKCS12 for Kafka source. Find more details on this config [here](https://kafka.apache.org/documentation/#brokerconfigs_ssl.truststore.type)
+Dagger supported values are: JKS, PKCS12, PEM
+
+* Example value: `JKS`
+* Type: `optional` required only for SSL enabled `KAFKA_CONSUMER` or `KAFKA_SOURCE`
+
+### Example
+
+STREAMS configurations to consume data from the SSL/TLS enabled kafka -
+
+```
+STREAMS = [
+  {
+    "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
+    "INPUT_SCHEMA_TABLE": "data_stream",
+    "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+    "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL": "SSL", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_PROTOCOL": "TLS",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_LOCATION": "my-keystore.jks", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_PASSWORD": "test-keystore-pass", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_TYPE": "JKS", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_LOCATION": "my-truststore.jks", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_PASSWORD": "test-truststore-pass", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_TYPE": "JKS", 
+    "SOURCE_KAFKA_NAME": "local-kafka-stream",
+    "SOURCE_DETAILS": [
+      {
+        "SOURCE_TYPE": "UNBOUNDED",
+        "SOURCE_NAME": "KAFKA_CONSUMER"
+      }
+    ]
+  }
+]
+```
+
+STREAMS configurations to consume data from multiple kafka sources -
+
+```
+STREAMS = [
+  {
+    "SOURCE_KAFKA_TOPIC_NAMES": "test-topic",
+    "INPUT_SCHEMA_TABLE": "data_stream",
+    "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+    "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9092",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SECURITY_PROTOCOL": "SSL", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_PROTOCOL": "TLS",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_LOCATION": "my-keystore.jks", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_PASSWORD": "test-keystore-pass", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_KEYSTORE_TYPE": "JKS", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_LOCATION": "my-truststore.jks", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_PASSWORD": "test-truststore-pass", 
+    "SOURCE_KAFKA_CONSUMER_CONFIG_SSL_TRUSTSTORE_TYPE": "JKS", 
+    "SOURCE_KAFKA_NAME": "local-kafka-stream",
+    "SOURCE_DETAILS": [
+      {
+        "SOURCE_TYPE": "UNBOUNDED",
+        "SOURCE_NAME": "KAFKA_CONSUMER"
+      }
+    ]
+  },
+  {
+    "SOURCE_KAFKA_TOPIC_NAMES": "test-topic-2",
+    "INPUT_SCHEMA_TABLE": "data_stream-2",
+    "INPUT_SCHEMA_PROTO_CLASS": "com.tests.TestMessage",
+    "INPUT_SCHEMA_EVENT_TIMESTAMP_FIELD_INDEX": "41",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_BOOTSTRAP_SERVERS": "localhost:9091",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_COMMIT_ENABLE": "false",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_AUTO_OFFSET_RESET": "latest",
+    "SOURCE_KAFKA_CONSUMER_CONFIG_GROUP_ID": "dummy-consumer-group",
+    "SOURCE_KAFKA_NAME": "local-kafka-stream-2", 
+    "SOURCE_DETAILS": [
+      {
+        "SOURCE_TYPE": "UNBOUNDED",
+        "SOURCE_NAME": "KAFKA_CONSUMER"
+      }
+    ]
+  }
+]
 ```
