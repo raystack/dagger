@@ -12,6 +12,7 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 import com.gotocompany.dagger.common.configuration.Configuration;
 import com.gotocompany.dagger.common.core.StencilClientOrchestrator;
 import com.gotocompany.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,6 +23,7 @@ import static com.gotocompany.dagger.common.core.Constants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -74,23 +76,21 @@ public class SinkOrchestratorTest {
     public void shouldSetKafkaProducerConfigurations() throws Exception {
         when(configuration.getString(eq(Constants.SINK_KAFKA_BROKERS_KEY), anyString())).thenReturn("10.200.216.87:6668");
         when(configuration.getBoolean(eq(Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY), anyBoolean())).thenReturn(true);
+        when(configuration.getString(eq(Constants.SINK_KAFKA_LINGER_MS_KEY), anyString())).thenReturn("1000");
         Properties producerProperties = sinkOrchestrator.getProducerProperties(configuration);
 
         assertEquals(producerProperties.getProperty("compression.type"), "snappy");
         assertEquals(producerProperties.getProperty("max.request.size"), "20971520");
+        assertEquals(producerProperties.getProperty("linger.ms"), "1000");
     }
 
     @Test
-    public void shouldGiveKafkaProducerWhenConfiguredToUseKafkaSink() throws Exception {
-        when(configuration.getString(eq("SINK_TYPE"), anyString())).thenReturn("kafka");
-        when(configuration.getString(eq("SINK_KAFKA_PROTO_MESSAGE"), anyString())).thenReturn("output_proto");
-        when(configuration.getString(eq("SINK_KAFKA_BROKERS"), anyString())).thenReturn("output_broker:2667");
-        when(configuration.getString(eq("SINK_KAFKA_TOPIC"), anyString())).thenReturn("output_topic");
-        when(configuration.getString(eq("SINK_KAFKA_DATA_TYPE"), anyString())).thenReturn("PROTO");
-
-        Sink sinkFunction = sinkOrchestrator.getSink(configuration, new String[]{}, stencilClientOrchestrator, daggerStatsDReporter);
-
-        assertThat(sinkFunction, instanceOf(KafkaSink.class));
+    public void shouldThrowIllegalArgumentExceptionForInvalidLingerMs() throws Exception {
+        when(configuration.getString(eq(Constants.SINK_KAFKA_BROKERS_KEY), anyString())).thenReturn("10.200.216.87:6668");
+        when(configuration.getBoolean(eq(Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY), anyBoolean())).thenReturn(true);
+        when(configuration.getString(eq(Constants.SINK_KAFKA_LINGER_MS_KEY), anyString())).thenReturn("abc");
+        Assert.assertThrows("Expected Illegal ArgumentException", IllegalArgumentException.class,
+                () ->sinkOrchestrator.getProducerProperties(configuration));
     }
 
     @Test

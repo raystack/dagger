@@ -441,6 +441,14 @@ Enable/Disable to produce large messages to Kafka. by default, it's configuratio
 * Type: `optional`
 * Default value: `false`
 
+#### `SINK_KAFKA_LINGER_MS`
+
+Defines the max interval in milliseconds, the producer will wait for the sink/producer buffer to fill.
+
+* Example value: `1000`
+* Type: `optional`
+* Default value: `0`
+
 ### BigQuery Sink
 
 A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the

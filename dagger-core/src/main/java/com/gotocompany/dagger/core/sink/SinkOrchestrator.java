@@ -106,7 +106,19 @@ public class SinkOrchestrator implements TelemetryPublisher {
             kafkaProducerConfigs.setProperty(Constants.SINK_KAFKA_COMPRESSION_TYPE_KEY, Constants.SINK_KAFKA_COMPRESSION_TYPE_DEFAULT);
             kafkaProducerConfigs.setProperty(Constants.SINK_KAFKA_MAX_REQUEST_SIZE_KEY, Constants.SINK_KAFKA_MAX_REQUEST_SIZE_DEFAULT);
         }
+        String lingerMs = configuration.getString(Constants.SINK_KAFKA_LINGER_MS_KEY, Constants.SINK_KAFKA_LINGER_MS_DEFAULT);
+        validateLingerMs(lingerMs);
+        kafkaProducerConfigs.setProperty(Constants.SINK_KAFKA_LINGER_MS_CONFIG_KEY, lingerMs);
+
         return kafkaProducerConfigs;
+    }
+
+    private void validateLingerMs(String lingerMs) {
+        try {
+            Integer.parseInt(lingerMs);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Provided value for Linger Ms : " + lingerMs+ " is not a valid integer , Error: " + e.getMessage() );
+        }
     }
 
     @Override
