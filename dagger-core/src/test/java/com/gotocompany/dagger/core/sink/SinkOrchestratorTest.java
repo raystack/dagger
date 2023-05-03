@@ -1,17 +1,15 @@
 package com.gotocompany.dagger.core.sink;
 
+import com.gotocompany.dagger.common.configuration.Configuration;
+import com.gotocompany.dagger.common.core.StencilClientOrchestrator;
 import com.gotocompany.dagger.core.metrics.reporters.statsd.DaggerStatsDReporter;
+import com.gotocompany.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import com.gotocompany.dagger.core.sink.bigquery.BigQuerySink;
 import com.gotocompany.dagger.core.sink.influx.InfluxDBSink;
 import com.gotocompany.dagger.core.sink.log.LogSink;
 import com.gotocompany.dagger.core.utils.Constants;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
-
-import com.gotocompany.dagger.common.configuration.Configuration;
-import com.gotocompany.dagger.common.core.StencilClientOrchestrator;
-import com.gotocompany.dagger.core.processors.telemetry.processor.MetricsTelemetryExporter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +21,6 @@ import static com.gotocompany.dagger.common.core.Constants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -90,7 +87,7 @@ public class SinkOrchestratorTest {
         when(configuration.getBoolean(eq(Constants.SINK_KAFKA_PRODUCE_LARGE_MESSAGE_ENABLE_KEY), anyBoolean())).thenReturn(true);
         when(configuration.getString(eq(Constants.SINK_KAFKA_LINGER_MS_KEY), anyString())).thenReturn("abc");
         Assert.assertThrows("Expected Illegal ArgumentException", IllegalArgumentException.class,
-                () ->sinkOrchestrator.getProducerProperties(configuration));
+                () -> sinkOrchestrator.getProducerProperties(configuration));
     }
 
     @Test

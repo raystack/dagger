@@ -117,7 +117,7 @@ public class SinkOrchestrator implements TelemetryPublisher {
         try {
             Integer.parseInt(lingerMs);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Provided value for Linger Ms : " + lingerMs+ " is not a valid integer , Error: " + e.getMessage() );
+            throw new IllegalArgumentException("Provided value for Linger Ms : " + lingerMs + " is not a valid integer , Error: " + e.getMessage());
         }
     }
 
