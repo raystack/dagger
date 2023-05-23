@@ -2,6 +2,7 @@ package com.gotocompany.dagger.common.serde.typehandler.complex;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
 import com.gotocompany.dagger.consumer.*;
 import com.gotocompany.dagger.common.exceptions.serde.EnumFieldNotFoundException;
@@ -155,6 +156,16 @@ public class EnumHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
         EnumHandler enumHandler = new EnumHandler(fieldDescriptor);
         assertEquals("DRIVER_FOUND", enumHandler.transformFromProto("DRIVER_FOUND"));
+    }
+
+    @Test
+    public void shouldTransformValueFromProtoUsingCache() {
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("status");
+        EnumHandler enumHandler = new EnumHandler(fieldDescriptor);
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        assertEquals("DRIVER_FOUND", enumHandler.transformFromProtoUsingCache("DRIVER_FOUND", fieldDescriptorCache));
     }
 
     @Test

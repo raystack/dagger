@@ -10,6 +10,8 @@ import com.gotocompany.dagger.common.serde.typehandler.complex.MapHandler;
 import com.gotocompany.dagger.common.serde.typehandler.complex.MessageHandler;
 import com.gotocompany.dagger.common.serde.typehandler.complex.StructMessageHandler;
 import com.gotocompany.dagger.common.serde.typehandler.complex.TimestampHandler;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The factory class for Type handler.
  */
 public class TypeHandlerFactory {
-    private static Map<String, TypeHandler> typeHandlerMap = new ConcurrentHashMap<>();
+    private static Map<String, Pair<Integer, TypeHandler>> typeHandlerMap = new ConcurrentHashMap<>();
 
     /**
      * Gets type handler.
@@ -29,9 +31,25 @@ public class TypeHandlerFactory {
      * @return the type handler
      */
     public static TypeHandler getTypeHandler(final Descriptors.FieldDescriptor fieldDescriptor) {
-        return typeHandlerMap.computeIfAbsent(fieldDescriptor.getFullName(),
-                k -> getSpecificHandlers(fieldDescriptor).stream().filter(TypeHandler::canHandle)
-                        .findFirst().orElseGet(() -> new PrimitiveTypeHandler(fieldDescriptor)));
+        int newHashCode = fieldDescriptor.hashCode();
+
+        /* this means we have already created and persisted the handler corresponding to
+         the field descriptor in the map and hence we can directly return it */
+        if (typeHandlerMap.containsKey(fieldDescriptor.getFullName()) && typeHandlerMap.get(fieldDescriptor.getFullName()).getKey() == newHashCode) {
+            Pair<Integer, TypeHandler> pair = typeHandlerMap.get(fieldDescriptor.getFullName());
+            return pair.getValue();
+        } else {
+            /* this means that either it is a new field not encountered before and/or same field but with an updated field descriptor object
+            in either case, we create a new handler and persist it in the map */
+            TypeHandler handler = getSpecificHandlers(fieldDescriptor)
+                    .stream()
+                    .filter(TypeHandler::canHandle)
+                    .findFirst()
+                    .orElseGet(() -> new PrimitiveTypeHandler(fieldDescriptor));
+            Pair<Integer, TypeHandler> pair = ImmutablePair.of(newHashCode, handler);
+            typeHandlerMap.put(fieldDescriptor.getFullName(), pair);
+            return handler;
+        }
     }
 
     /**

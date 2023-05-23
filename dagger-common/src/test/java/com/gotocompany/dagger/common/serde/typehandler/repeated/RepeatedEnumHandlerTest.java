@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -112,6 +113,31 @@ public class RepeatedEnumHandlerTest {
         RepeatedEnumHandler repeatedEnumHandler = new RepeatedEnumHandler(repeatedEnumFieldDescriptor);
 
         String[] outputValues = (String[]) repeatedEnumHandler.transformFromProto(null);
+
+        assertEquals(0, outputValues.length);
+    }
+
+    @Test
+    public void shouldTransformValueFromProtoUsingCacheAsStringArray() throws InvalidProtocolBufferException {
+        TestRepeatedEnumMessage testRepeatedEnumMessage = TestRepeatedEnumMessage.newBuilder().addTestEnums(TestEnumMessage.Enum.UNKNOWN).build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestRepeatedEnumMessage.getDescriptor(), testRepeatedEnumMessage.toByteArray());
+
+        Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumHandler repeatedEnumHandler = new RepeatedEnumHandler(repeatedEnumFieldDescriptor);
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestRepeatedEnumMessage.getDescriptor());
+
+        String[] outputValues = (String[]) repeatedEnumHandler.transformFromProtoUsingCache(dynamicMessage.getField(repeatedEnumFieldDescriptor), fieldDescriptorCache);
+
+        assertEquals("UNKNOWN", outputValues[0]);
+    }
+
+    @Test
+    public void shouldTransformValueFromProtoUsingCacheAsEmptyStringArrayForNull() {
+        Descriptors.FieldDescriptor repeatedEnumFieldDescriptor = TestRepeatedEnumMessage.getDescriptor().findFieldByName("test_enums");
+        RepeatedEnumHandler repeatedEnumHandler = new RepeatedEnumHandler(repeatedEnumFieldDescriptor);
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestRepeatedEnumMessage.getDescriptor());
+
+        String[] outputValues = (String[]) repeatedEnumHandler.transformFromProtoUsingCache(null, fieldDescriptorCache);
 
         assertEquals(0, outputValues.length);
     }

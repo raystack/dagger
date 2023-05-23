@@ -486,21 +486,53 @@ Defines the stencil URL. Multiple URLs could be given in a comma-separated forma
 * Example value: `http://localhost:8000/testproto.desc`
 * Type: `required`
 
-#### `SCHEMA_REGISTRY_STENCIL_REFRESH_CACHE`
+#### `SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS`
 
-Enable/Disable the stencil refresh cache.
+Defines the timeout in milliseconds while fetching the descriptor set from the Stencil server.
 
-* Example value: `false`
+* Example value: `607800`
+* Type: `optional`
+* Default value: `60000`
+
+#### `SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH`
+
+Defines whether to enable/disable the auto schema refresh. Please note that auto schema refresh will only work for additions in Enum types in the Proto. It will not fail for other scenarios but it will just ignore any new field additions at the root or nested level, unless the job is restarted.
+
+* Example value: `true`
 * Type: `optional`
 * Default value: `false`
 
-#### `SCHEMA_REGISTRY_STENCIL_TIMEOUT_MS`
+#### `SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY`
 
-Defines the stencil timeout in milliseconds.
+Defines the schema refresh strategy i.e. `VERSION_BASED_REFRESH` or `LONG_POLLING` when auto schema refresh is enabled. Please note that if the schema refresh strategy is set to `VERSION_BASED_REFRESH` then the `SCHEMA_REGISTRY_STENCIL_URLS` should not be a versioned URL, i.e. it should not have `/versions/xx` at the end. Also note that `VERSION_BASED_REFRESH` strategy will only work if you are using a Stencil server as the schema registry.
+
+* Example value: `VERSION_BASED_REFRESH`
+* Type: `optional`
+* Default value: `LONG_POLLING`
+
+#### `SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS`
+
+Defines the ttl in milliseconds of the Stencil schema cache after which it will fetch the new descriptors.
 
 * Example value: `60000`
 * Type: `optional`
-* Default value: `60000`
+* Default value: `7200000`
+
+#### `SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS`
+
+Defines the time interval in milliseconds for after which the stencil client will retry to fetch the descriptors after the first failed attempt.
+
+* Example value: `7000`
+* Type: `optional`
+* Default value: `5000`
+
+#### `SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES`
+
+Defines the maximum no. of retries to fetch the descriptors from the Stencil server.
+
+* Example value: `7`
+* Type: `optional`
+* Default value: `4`
 
 ### Flink
 

@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.complex;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -267,5 +268,43 @@ public class MessageHandlerTest {
         assertEquals(2, row.getArity());
         assertEquals("", row.getField(0));
         assertEquals("", row.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueArePassedForTransformFromProtoMap() throws InvalidProtocolBufferException {
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").setNetwork("test2").build())
+                .build();
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestPaymentOptionMetadata.getDescriptor());
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageHandler(fieldDescriptor).transformFromProtoUsingCache(dynamicMessage.getField(fieldDescriptor), fieldDescriptorCache);
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("test2", value.getField(1));
+    }
+
+    @Test
+    public void shouldReturnRowGivenAMapForFieldDescriptorOfTypeMessageIfAllValueAreNotPassedForTransformFromProtoMap() throws InvalidProtocolBufferException {
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setPaymentOptionMetadata(TestPaymentOptionMetadata.newBuilder().setMaskedCard("test1").build())
+                .build();
+
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestPaymentOptionMetadata.getDescriptor());
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("payment_option_metadata");
+
+        Row value = (Row) new MessageHandler(fieldDescriptor).transformFromProtoUsingCache(dynamicMessage.getField(fieldDescriptor), fieldDescriptorCache);
+
+        assertEquals("test1", value.getField(0));
+        assertEquals("", value.getField(1));
     }
 }

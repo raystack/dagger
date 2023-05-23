@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.complex;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.exceptions.serde.EnumFieldNotFoundException;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import com.gotocompany.dagger.common.serde.parquet.SimpleGroupValidation;
@@ -58,6 +59,11 @@ public class EnumHandler implements TypeHandler {
 
     @Override
     public Object transformFromProto(Object field) {
+        return String.valueOf(field).trim();
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
         return String.valueOf(field).trim();
     }
 

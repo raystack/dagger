@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
@@ -217,6 +218,36 @@ public class RepeatedPrimitiveHandlerTest {
         RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
         DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
                 () -> repeatedPrimitiveHandler.transformFromProto("CREATED"));
+        assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
+    }
+
+    @Test
+    public void shouldReturnAllFieldsInAListOfObjectsIfMultipleFieldsPassedWithSameTypeAsFieldDescriptorForTransformFromProtoUsingCache() throws InvalidProtocolBufferException {
+        Descriptors.FieldDescriptor repeatedFieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("meta_array");
+        RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(repeatedFieldDescriptor);
+
+        TestBookingLogMessage goLifeBookingLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .addMetaArray("1")
+                .addMetaArray("2")
+                .addMetaArray("3")
+                .build();
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), goLifeBookingLogMessage.toByteArray());
+
+        String[] outputValues = (String[]) repeatedPrimitiveHandler.transformFromProtoUsingCache(dynamicMessage.getField(repeatedFieldDescriptor), fieldDescriptorCache);
+        assertArrayEquals(new String[]{"1", "2", "3"}, outputValues);
+    }
+
+    @Test
+    public void shouldThrowUnsupportedDataTypeExceptionInCaseOfInCaseOfEnumForTransformFromProtoUsingCache() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("status");
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        RepeatedPrimitiveHandler repeatedPrimitiveHandler = new RepeatedPrimitiveHandler(fieldDescriptor);
+        DataTypeNotSupportedException exception = Assert.assertThrows(DataTypeNotSupportedException.class,
+                () -> repeatedPrimitiveHandler.transformFromProtoUsingCache("CREATED", fieldDescriptorCache));
         assertEquals("Data type ENUM not supported in primitive type handlers", exception.getMessage());
     }
 

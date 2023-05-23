@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.complex;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -61,6 +62,15 @@ public class StructMessageHandlerTest {
         Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
         StructMessageHandler structMessageHandler = new StructMessageHandler(fieldDescriptor);
         assertNull(structMessageHandler.transformFromProto("test"));
+    }
+
+    @Test
+    public void shouldReturnNullForTransformFromProtoUsingCache() {
+        Descriptors.FieldDescriptor fieldDescriptor = TestBookingLogMessage.getDescriptor().findFieldByName("profile_data");
+        StructMessageHandler structMessageHandler = new StructMessageHandler(fieldDescriptor);
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        assertNull(structMessageHandler.transformFromProtoUsingCache("test", fieldDescriptorCache));
     }
 
     @Test

@@ -1,16 +1,16 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
-import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
-
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
+import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
 import com.gotocompany.dagger.consumer.TestBookingLogMessage;
 import com.gotocompany.dagger.consumer.TestFeedbackLogMessage;
 import com.gotocompany.dagger.consumer.TestReason;
 import net.minidev.json.JSONArray;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.PrimitiveType;
@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.apache.flink.api.common.typeinfo.Types.OBJECT_ARRAY;
-import static org.apache.flink.api.common.typeinfo.Types.ROW_NAMED;
-import static org.apache.flink.api.common.typeinfo.Types.STRING;
+import static org.apache.flink.api.common.typeinfo.Types.*;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 import static org.apache.parquet.schema.Types.buildMessage;
 import static org.apache.parquet.schema.Types.repeatedGroup;
@@ -375,4 +373,37 @@ public class RepeatedMessageHandlerTest {
 
         assertEquals(0, actualRows.length);
     }
+
+    @Test
+    public void shouldReturnEmptyArrayOfRowsIfNullPassedForTransformFromProtoUsingCache() {
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestFeedbackLogMessage.getDescriptor());
+        Object[] values = (Object[]) new RepeatedMessageHandler(repeatedMessageFieldDescriptor).transformFromProtoUsingCache(null, fieldDescriptorCache);
+
+
+        assertEquals(0, values.length);
+    }
+
+    @Test
+    public void shouldReturnArrayOfRowsGivenAListForFieldDescriptorOfTypeRepeatedMessageOfAsDescriptorForTransformFromProtoUsingCache() throws InvalidProtocolBufferException {
+        TestFeedbackLogMessage logMessage = TestFeedbackLogMessage
+                .newBuilder()
+                .addReason(TestReason.newBuilder().setReasonId("reason1").setGroupId("group1").build())
+                .addReason(TestReason.newBuilder().setReasonId("reason2").setGroupId("group2").build())
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestFeedbackLogMessage.getDescriptor(), logMessage.toByteArray());
+
+        Descriptors.FieldDescriptor repeatedMessageFieldDescriptor = TestFeedbackLogMessage.getDescriptor().findFieldByName("reason");
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestFeedbackLogMessage.getDescriptor());
+
+        Object[] values = (Object[]) new RepeatedMessageHandler(repeatedMessageFieldDescriptor).transformFromProtoUsingCache(dynamicMessage.getField(repeatedMessageFieldDescriptor), fieldDescriptorCache);
+
+        assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[0]).getArity());
+        assertEquals(repeatedMessageFieldDescriptor.getMessageType().getFields().size(), ((Row) values[1]).getArity());
+        assertEquals("reason1", ((Row) values[0]).getField(0));
+        assertEquals("group1", ((Row) values[0]).getField(1));
+        assertEquals("reason2", ((Row) values[1]).getField(0));
+        assertEquals("group2", ((Row) values[1]).getField(1));
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 import com.google.protobuf.DynamicMessage;
@@ -40,6 +41,15 @@ public interface TypeHandler {
      * @return the object
      */
     Object transformFromProto(Object field);
+
+    /**
+     * Transform from protobuf message.
+     *
+     * @param field the field
+     * @param cache
+     * @return the object
+     */
+    Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache);
 
     /**
      * Transform from parquet SimpleGroup.

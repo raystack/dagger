@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.parquet.SimpleGroupValidation;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -50,6 +51,11 @@ public class RepeatedEnumHandler implements TypeHandler {
 
     @Override
     public Object transformFromProto(Object field) {
+        return getValue(field);
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
         return getValue(field);
     }
 

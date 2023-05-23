@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -41,6 +42,11 @@ public class RepeatedStructMessageHandler implements TypeHandler {
 
     @Override
     public Object transformFromProto(Object field) {
+        return null;
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
         return null;
     }
 

@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.exceptions.serde.InvalidDataTypeException;
 import com.gotocompany.dagger.common.serde.typehandler.primitive.PrimitiveHandler;
 import com.gotocompany.dagger.common.serde.typehandler.primitive.PrimitiveHandlerFactory;
@@ -51,6 +52,11 @@ public class PrimitiveTypeHandler implements TypeHandler {
 
     @Override
     public Object transformFromProto(Object field) {
+        return field;
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
         return field;
     }
 

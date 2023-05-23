@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.complex;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -246,6 +247,38 @@ public class TimestampHandlerTest {
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
         TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
         Row row = (Row) timestampHandler.transformFromProto(dynamicMessage.getField(fieldDescriptor));
+        assertEquals(Row.of(0L, 0), row);
+    }
+
+
+    @Test
+    public void shouldTransformTimestampForDynamicMessageForTransformFromProtoUsingCache() throws InvalidProtocolBufferException {
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setEventTimestamp(com.google.protobuf.Timestamp.newBuilder().setSeconds(10L).setNanos(10).build())
+                .build();
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+        Row row = (Row) timestampHandler.transformFromProtoUsingCache(dynamicMessage.getField(fieldDescriptor), fieldDescriptorCache);
+        assertEquals(Row.of(10L, 10), row);
+    }
+
+    @Test
+    public void shouldSetDefaultValueForDynamicMessageForTransformFromProtoUsingCacheIfValuesNotSet() throws InvalidProtocolBufferException {
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName("event_timestamp");
+        TestBookingLogMessage bookingLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .build();
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), bookingLogMessage.toByteArray());
+        TimestampHandler timestampHandler = new TimestampHandler(fieldDescriptor);
+        Row row = (Row) timestampHandler.transformFromProtoUsingCache(dynamicMessage.getField(fieldDescriptor), fieldDescriptorCache);
         assertEquals(Row.of(0L, 0), row);
     }
 

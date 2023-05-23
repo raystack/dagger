@@ -15,6 +15,7 @@ import com.gotocompany.dagger.core.source.config.models.SourceType;
 import com.gotocompany.dagger.consumer.TestBookingLogMessage;
 import com.gotocompany.depot.metrics.StatsDReporter;
 import com.gotocompany.stencil.client.StencilClient;
+import com.gotocompany.stencil.config.StencilConfig;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,9 @@ public class DaggerDeserializerFactoryTest {
 
     @Mock
     private StreamConfig streamConfig;
+
+    @Mock
+    private StencilConfig stencilConfig;
 
     @Mock
     private Configuration configuration;
@@ -65,7 +69,8 @@ public class DaggerDeserializerFactoryTest {
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-
+        when(stencilConfig.getCacheAutoRefresh()).thenReturn(false);
+        when(stencilClientOrchestrator.createStencilConfig()).thenReturn(stencilConfig);
         DaggerDeserializer<Row> daggerDeserializer = DaggerDeserializerFactory.create(streamConfig, configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertTrue(daggerDeserializer instanceof ProtoDeserializer);

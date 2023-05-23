@@ -9,6 +9,7 @@ import com.google.gson.JsonSyntaxException;
 import com.gotocompany.dagger.common.configuration.Configuration;
 import com.gotocompany.dagger.common.core.StencilClientOrchestrator;
 import com.gotocompany.dagger.consumer.TestBookingLogMessage;
+import com.gotocompany.stencil.config.StencilConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,6 +31,9 @@ public class StreamsFactoryTest {
 
     @Mock
     private StencilClient stencilClient;
+
+    @Mock
+    private StencilConfig stencilConfig;
 
     @Mock
     private Configuration configuration;
@@ -69,7 +73,8 @@ public class StreamsFactoryTest {
 
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
-
+        when(stencilConfig.getCacheAutoRefresh()).thenReturn(false);
+        when(stencilClientOrchestrator.createStencilConfig()).thenReturn(stencilConfig);
         List<Stream> streams = StreamsFactory.getStreams(configuration, stencilClientOrchestrator, statsDReporterSupplierMock);
 
         assertEquals(2, streams.size());

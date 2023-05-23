@@ -13,6 +13,7 @@ import com.gotocompany.dagger.core.source.parquet.ParquetDaggerSource;
 import com.gotocompany.dagger.consumer.TestBookingLogMessage;
 import com.gotocompany.depot.metrics.StatsDReporter;
 import com.gotocompany.stencil.client.StencilClient;
+import com.gotocompany.stencil.config.StencilConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
@@ -40,6 +41,9 @@ public class StreamTest {
 
     @Mock
     private StencilClient stencilClient;
+
+    @Mock
+    private StencilConfig stencilConfig;
 
     @Mock
     private Configuration configuration;
@@ -70,6 +74,8 @@ public class StreamTest {
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
+        when(stencilConfig.getCacheAutoRefresh()).thenReturn(false);
+        when(stencilClientOrchestrator.createStencilConfig()).thenReturn(stencilConfig);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
@@ -95,6 +101,8 @@ public class StreamTest {
         when(streamConfig.getDataType()).thenReturn("PROTO");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(streamConfig.getSchemaTable()).thenReturn("data_stream");
+        when(stencilConfig.getCacheAutoRefresh()).thenReturn(false);
+        when(stencilClientOrchestrator.createStencilConfig()).thenReturn(stencilConfig);
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 

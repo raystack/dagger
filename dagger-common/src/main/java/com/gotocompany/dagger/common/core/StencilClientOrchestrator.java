@@ -2,6 +2,7 @@ package com.gotocompany.dagger.common.core;
 
 import com.gotocompany.dagger.common.configuration.Configuration;
 import com.gotocompany.stencil.StencilClientFactory;
+import com.gotocompany.stencil.cache.SchemaRefreshStrategy;
 import com.gotocompany.stencil.client.StencilClient;
 import com.gotocompany.stencil.config.StencilConfig;
 import org.apache.http.Header;
@@ -37,11 +38,27 @@ public class StencilClientOrchestrator implements Serializable {
         this.stencilUrls = getStencilUrls();
     }
 
-    StencilConfig createStencilConfig() {
+    public StencilConfig createStencilConfig() {
         return StencilConfig.builder()
                 .fetchHeaders(getHeaders(configuration))
                 .fetchTimeoutMs(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS, SCHEMA_REGISTRY_STENCIL_FETCH_TIMEOUT_MS_DEFAULT))
+                .cacheAutoRefresh(configuration.getBoolean(SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_AUTO_REFRESH_DEFAULT))
+                .cacheTtlMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_KEY, SCHEMA_REGISTRY_STENCIL_CACHE_TTL_MS_DEFAULT))
+                .refreshStrategy(getSchemaRefreshStrategy(configuration.getString(SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_KEY, SCHEMA_REGISTRY_STENCIL_REFRESH_STRATEGY_DEFAULT)))
+                .fetchBackoffMinMs(configuration.getLong(SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_BACKOFF_MIN_MS_DEFAULT))
+                .fetchRetries(configuration.getInteger(SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_KEY, SCHEMA_REGISTRY_STENCIL_FETCH_RETRIES_DEFAULT))
                 .build();
+    }
+
+    private SchemaRefreshStrategy getSchemaRefreshStrategy(String refreshStrategy) {
+        if (refreshStrategy == null) {
+            return SchemaRefreshStrategy.longPollingStrategy();
+        }
+        if (refreshStrategy.equalsIgnoreCase("VERSION_BASED_REFRESH")) {
+            return SchemaRefreshStrategy.versionBasedRefresh();
+        }
+        return SchemaRefreshStrategy.longPollingStrategy();
+
     }
 
     private List<Header> getHeaders(Configuration config) {
@@ -55,6 +72,7 @@ public class StencilClientOrchestrator implements Serializable {
      * @return the stencil client
      */
     public StencilClient getStencilClient() {
+
         if (stencilClient != null) {
             return stencilClient;
         }

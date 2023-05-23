@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.primitive.PrimitiveHandler;
 import com.gotocompany.dagger.common.serde.typehandler.primitive.PrimitiveHandlerFactory;
 import com.gotocompany.dagger.common.serde.typehandler.PrimitiveTypeHandler;
@@ -65,6 +66,12 @@ public class RepeatedPrimitiveHandler implements TypeHandler {
 
     @Override
     public Object transformFromProto(Object field) {
+        PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
+        return primitiveHandler.parseRepeatedObjectField(field);
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
         PrimitiveHandler primitiveHandler = PrimitiveHandlerFactory.getTypeHandler(fieldDescriptor);
         return primitiveHandler.parseRepeatedObjectField(field);
     }

@@ -1,6 +1,7 @@
 package com.gotocompany.dagger.common.serde.typehandler;
 
 import com.google.protobuf.ByteString;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.consumer.TestMessageEnvelope;
 import org.apache.flink.api.common.typeinfo.Types;
 
@@ -101,6 +102,17 @@ public class PrimitiveTypeHandlerTest {
 
         assertEquals(123, primitiveTypeHandler.transformFromProto(123));
         assertEquals("123", primitiveTypeHandler.transformFromProto("123"));
+    }
+
+    @Test
+    public void shouldReturnSameValueForTransformFromProtoUsingCache() {
+        Descriptors.Descriptor descriptor = TestBookingLogMessage.getDescriptor();
+        Descriptors.FieldDescriptor stringFieldDescriptor = descriptor.findFieldByName("order_number");
+        PrimitiveTypeHandler primitiveTypeHandler = new PrimitiveTypeHandler(stringFieldDescriptor);
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        assertEquals(123, primitiveTypeHandler.transformFromProtoUsingCache(123, fieldDescriptorCache));
+        assertEquals("123", primitiveTypeHandler.transformFromProtoUsingCache("123", fieldDescriptorCache));
     }
 
     @Test

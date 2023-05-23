@@ -2,6 +2,7 @@ package com.gotocompany.dagger.common.serde.typehandler.complex;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import com.gotocompany.dagger.common.serde.typehandler.TypeInformationFactory;
 import com.gotocompany.dagger.common.serde.typehandler.repeated.RepeatedMessageHandler;
@@ -87,6 +88,11 @@ public class MapHandler implements TypeHandler {
     @Override
     public Object transformFromProto(Object field) {
         return repeatedMessageHandler.transformFromProto(field);
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
+        return repeatedMessageHandler.transformFromProtoUsingCache(field, cache);
     }
 
     @Override

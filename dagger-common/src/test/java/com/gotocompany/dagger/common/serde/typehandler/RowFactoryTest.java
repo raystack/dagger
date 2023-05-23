@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.consumer.TestPrimitiveMessage;
 import com.gotocompany.dagger.consumer.TestReason;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -108,6 +109,62 @@ public class RowFactoryTest {
                 .build();
         DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
         Row row = RowFactory.createRow(dynamicMessage);
+        assertEquals("144614", row.getField(5));
+        assertEquals("https://www.abcd.com/1234", row.getField(6));
+        ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();
+        ExecutionConfig config = new ExecutionConfig();
+        TestBookingLogMessage.getDescriptor().getFields().forEach(fieldDescriptor -> {
+            typeInformations.add(TypeHandlerFactory.getTypeHandler(fieldDescriptor).getTypeInformation());
+        });
+        ArrayList<TypeSerializer<Row>> typeSerializers = new ArrayList<>();
+        typeInformations.forEach(rowTypeInformation -> {
+            typeSerializers.add(rowTypeInformation.createSerializer(config));
+        });
+        RowSerializer rowSerializer = new RowSerializer(typeSerializers.toArray(new TypeSerializer[0]));
+
+        Row copy = rowSerializer.copy(row);
+
+        assertEquals(copy.toString(), row.toString());
+    }
+
+    @Test
+    public void shouldCreateRowUsingCacheForDynamicMessage() throws InvalidProtocolBufferException {
+        TestBookingLogMessage customerLogMessage = TestBookingLogMessage.newBuilder().build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        Row row = RowFactory.createRow(dynamicMessage, fieldDescriptorCache);
+        assertNotNull(row);
+        assertEquals(49, row.getArity());
+    }
+
+    @Test
+    public void shouldCreateRowUsingCacheWithPSetFieldsForDynamicMessage() throws InvalidProtocolBufferException {
+        TestBookingLogMessage customerLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setCustomerId("144614")
+                .setCustomerUrl("https://www.abcd.com/1234")
+                .build();
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        Row row = RowFactory.createRow(dynamicMessage, fieldDescriptorCache);
+        assertEquals("144614", row.getField(5));
+        assertEquals("https://www.abcd.com/1234", row.getField(6));
+    }
+
+
+    @Test
+    public void shouldBeAbleToCreateAValidCopyOfTheRowCreatedUsingCache() throws InvalidProtocolBufferException {
+        TestBookingLogMessage customerLogMessage = TestBookingLogMessage
+                .newBuilder()
+                .setCustomerId("144614")
+                .setCustomerUrl("https://www.abcd.com/1234")
+                .build();
+        DynamicMessage dynamicMessage = DynamicMessage.parseFrom(TestBookingLogMessage.getDescriptor(), customerLogMessage.toByteArray());
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestBookingLogMessage.getDescriptor());
+
+        Row row = RowFactory.createRow(dynamicMessage, fieldDescriptorCache);
         assertEquals("144614", row.getField(5));
         assertEquals("https://www.abcd.com/1234", row.getField(6));
         ArrayList<TypeInformation<Row>> typeInformations = new ArrayList<>();

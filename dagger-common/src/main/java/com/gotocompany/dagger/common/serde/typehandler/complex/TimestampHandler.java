@@ -1,6 +1,7 @@
 package com.gotocompany.dagger.common.serde.typehandler.complex;
 
 import com.google.protobuf.Timestamp;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.parquet.SimpleGroupValidation;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import com.gotocompany.dagger.common.serde.typehandler.RowFactory;
@@ -106,6 +107,11 @@ public class TimestampHandler implements TypeHandler {
     @Override
     public Object transformFromProto(Object field) {
         return RowFactory.createRow((DynamicMessage) field);
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
+        return RowFactory.createRow((DynamicMessage) field, cache);
     }
 
     @Override

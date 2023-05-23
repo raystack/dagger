@@ -1,5 +1,6 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
@@ -62,6 +63,15 @@ public class RepeatedStructMessageHandlerTest {
         Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
         RepeatedStructMessageHandler repeatedStructMessageHandler = new RepeatedStructMessageHandler(repeatedStructFieldDescriptor);
         assertNull(repeatedStructMessageHandler.transformFromProto("test"));
+    }
+
+    @Test
+    public void shouldReturnNullForTransformFromProtoUsingCache() {
+        Descriptors.FieldDescriptor repeatedStructFieldDescriptor = TestNestedRepeatedMessage.getDescriptor().findFieldByName("metadata");
+        FieldDescriptorCache fieldDescriptorCache = new FieldDescriptorCache(TestNestedRepeatedMessage.getDescriptor());
+
+        RepeatedStructMessageHandler repeatedStructMessageHandler = new RepeatedStructMessageHandler(repeatedStructFieldDescriptor);
+        assertNull(repeatedStructMessageHandler.transformFromProtoUsingCache("test", fieldDescriptorCache));
     }
 
     @Test

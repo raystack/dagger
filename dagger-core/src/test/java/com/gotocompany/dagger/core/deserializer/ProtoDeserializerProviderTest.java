@@ -10,6 +10,7 @@ import com.gotocompany.dagger.core.source.config.models.SourceName;
 import com.gotocompany.dagger.core.source.config.models.SourceType;
 import com.gotocompany.dagger.consumer.TestBookingLogMessage;
 import com.gotocompany.stencil.client.StencilClient;
+import com.gotocompany.stencil.config.StencilConfig;
 import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +23,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ProtoDeserializerProviderTest {
     @Mock
     private StreamConfig streamConfig;
+
+    @Mock
+    private StencilConfig stencilConfig;
 
     @Mock
     private Configuration configuration;
@@ -84,6 +88,8 @@ public class ProtoDeserializerProviderTest {
         when(streamConfig.getEventTimestampFieldIndex()).thenReturn("5");
         when(streamConfig.getProtoClass()).thenReturn("com.tests.TestMessage");
         when(stencilClientOrchestrator.getStencilClient()).thenReturn(stencilClient);
+        when(stencilConfig.getCacheAutoRefresh()).thenReturn(false);
+        when(stencilClientOrchestrator.createStencilConfig()).thenReturn(stencilConfig);
         when(stencilClient.get("com.tests.TestMessage")).thenReturn(TestBookingLogMessage.getDescriptor());
 
         ProtoDeserializerProvider provider = new ProtoDeserializerProvider(streamConfig, configuration, stencilClientOrchestrator);

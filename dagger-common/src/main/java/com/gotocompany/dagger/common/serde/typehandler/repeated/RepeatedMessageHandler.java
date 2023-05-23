@@ -1,6 +1,7 @@
 package com.gotocompany.dagger.common.serde.typehandler.repeated;
 
 import com.google.protobuf.Descriptors;
+import com.gotocompany.dagger.common.core.FieldDescriptorCache;
 import com.gotocompany.dagger.common.serde.parquet.SimpleGroupValidation;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandler;
 import com.gotocompany.dagger.common.serde.typehandler.TypeHandlerFactory;
@@ -90,6 +91,16 @@ public class RepeatedMessageHandler implements TypeHandler {
         if (field != null) {
             List<DynamicMessage> protos = (List<DynamicMessage>) field;
             protos.forEach(proto -> rows.add(RowFactory.createRow(proto)));
+        }
+        return rows.toArray();
+    }
+
+    @Override
+    public Object transformFromProtoUsingCache(Object field, FieldDescriptorCache cache) {
+        ArrayList<Row> rows = new ArrayList<>();
+        if (field != null) {
+            List<DynamicMessage> protos = (List<DynamicMessage>) field;
+            protos.forEach(proto -> rows.add(RowFactory.createRow(proto, cache)));
         }
         return rows.toArray();
     }
