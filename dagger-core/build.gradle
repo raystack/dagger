@@ -65,7 +65,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.protobuf'
         exclude group: 'com.datadoghq'
-        exclude group: 'com.google.cloud.bigtable'
+        exclude group: 'com.google.cloud', module:'google-cloud-bigtable'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
