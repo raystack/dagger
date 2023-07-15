@@ -456,7 +456,7 @@ Defines the max interval in milliseconds, the producer will wait for the sink/pr
 ### BigQuery Sink
 
 A BigQuery sink Dagger (`SINK_TYPE=bigquery`) requires following env variables to be set along with the Generic Dagger env variables, as well as the
-[Generic](https://github.com/raystack/depot/blob/main/docs/reference/configuration/generic.md) and [BigQuery ](https://github.com/raystack/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the GOTO Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/raystack/depot) repository.
+[Generic](https://github.com/raystack/depot/blob/main/docs/reference/configuration/generic.md) and [BigQuery ](https://github.com/raystack/depot/blob/main/docs/reference/configuration/bigquery-sink.md)env variables in the Raystack Depot repository, since Dagger uses the BigQuery sink connector implementation available in [Depot](https://github.com/raystack/depot) repository.
 
 #### `SINK_BIGQUERY_BATCH_SIZE`
 

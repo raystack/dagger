@@ -109,7 +109,7 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToSuccessHandlerAndMarkSuccessResponseIfEventSucceedsAndResultSetHasOnlyOneRow() {
+    public void shouldRaystackSuccessHandlerAndMarkSuccessResponseIfEventSucceedsAndResultSetHasOnlyOneRow() {
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
@@ -124,7 +124,7 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToSuccessHandlerButReturnWithMarkingInvalidConfigIfEventSucceedsAndResultSetHasMultipleRow() {
+    public void shouldRaystackSuccessHandlerButReturnWithMarkingInvalidConfigIfEventSucceedsAndResultSetHasMultipleRow() {
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
@@ -139,7 +139,7 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToSuccessHandlerButCompleteWithNonFatalErrorWhenFailOnErrorIsFalseAndIfEventSucceedsAndResultSetHasMultipleRow() {
+    public void shouldRaystackSuccessHandlerButCompleteWithNonFatalErrorWhenFailOnErrorIsFalseAndIfEventSucceedsAndResultSetHasMultipleRow() {
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(true);
         when(event.result()).thenReturn(resultRowSet);
@@ -155,7 +155,7 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
+    public void shouldRaystackSuccessHandlerButCompleteExceptionallyWithFatalErrorWhenFailOnErrorIsTrueAndIfEventSucceedsAndResultSetHasMultipleRow() {
         pgSourceConfig = getPgSourceConfigBuilder()
                 .setFailOnErrors(true)
                 .createPgSourceConfig();
@@ -174,7 +174,7 @@ public class PgResponseHandlerTest {
     }
 
     @Test
-    public void shouldGoToFailureHandlerIfEventFails() {
+    public void shouldRaystackFailureHandlerIfEventFails() {
         PgResponseHandler pgResponseHandler = new PgResponseHandler(pgSourceConfig, meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
         when(event.succeeded()).thenReturn(false);
         when(event.cause()).thenReturn(new Exception("failure message!"));

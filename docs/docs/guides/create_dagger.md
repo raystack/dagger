@@ -138,7 +138,7 @@ $ java -jar dagger-core/build/libs/dagger-core-<dagger-version>-fat.jar ConfigFi
   ##### `BigQuery Sink` :
 
   - BigQuery is a fully managed enterprise data warehouse that helps you manage and analyze your data with built-in features like machine learning, geospatial analysis, and business intelligence.BigQuery's serverless architecture lets you use SQL queries to answer your organization's biggest questions with zero infrastructure management. BigQuery's scalable, distributed analysis engine lets you query terabytes in seconds and petabytes in minutes.
-  - Bigquery Sink is created using the GOTO Depot library.
+  - Bigquery Sink is created using the Raystack Depot library.
   - Depot is a sink connector, which acts as a bridge between data processing systems and real sink. You can check out the Depot Github repository [here](https://github.com/raystack/depot/tree/main/docs).
 
 ## Common Configurations
@@ -242,7 +242,7 @@ OUTPUT_KAFKA_TOPIC=test-kafka-output
 ## Bigquery Sink
 
 - BigQuery is a data warehouse capable of quickly running SQL queries over large datasets.
-- Bigquery Sink is created using the GOTO Depot library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink.
+- Bigquery Sink is created using the Raystack Depot library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink.
 - You can check out the BigQuery Sink Connector in the Depot Github repository [here](https://github.com/raystack/depot/blob/main/docs/sinks/bigquery.md).
 
 ### BigQuery Sink Features:

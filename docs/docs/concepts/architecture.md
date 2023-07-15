@@ -69,7 +69,7 @@ _**Sink and Serializer**_
 - Dagger supports Kafka, BigQuery and InfluxDB as supported sinks where the unbounded results are pushed at the end of the lifecycle.
 - In the case of Kafka Sink the final result is protobuf encoded. So the result goes through a serialization stage on some defined output schema. The serializer module of the proto-handler does this. Results in Kafka can be used via any Kafka consumer.
 - Influx Sink helps in real-time analytics and dashboarding. In the case of Influx Sink dagger, converts results in Flink Row to InfluxDB points and add `tag`/`labels` as specified in the SQL.
-- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [GOTO Depot](https://github.com/raystack/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration.
+- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [Raystack Depot](https://github.com/raystack/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration.
 
 ### Schema Handling
 
