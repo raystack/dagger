@@ -58,6 +58,7 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
+    compileOnly 'org.raystack:stencil:0.4.0'
 
     dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
         exclude module:"commons-cli"
@@ -67,7 +68,6 @@ dependencies {
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
-    dependenciesCommonJar 'io.odpf:stencil:0.2.1'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
     dependenciesCommonJar 'org.apache.parquet:parquet-column:1.12.2'
 
@@ -127,7 +127,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/odpf/dagger"
+            url = "https://maven.pkg.github.com/raystack/dagger"
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")

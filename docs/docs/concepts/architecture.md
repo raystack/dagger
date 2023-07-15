@@ -10,11 +10,11 @@ Dagger or Data Aggregator is a cloud native framework built on top of Apache Fli
 
 _**Stream**_
 
-- A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers) 
-schema. All data produced by a source follows the protobuf schema. The source can be an unbounded one such as
-`KAFKA_SOURCE` or `KAFKA_CONSUMER` in which case, a single stream can consume from one or more topics all sharing the 
-same schema. Otherwise, the source can be a bounded one such as `PARQUET_SOURCE` in which case, one or more parquet 
-files as provided are consumed in a single stream.
+- A Stream defines a logical grouping of a data source and its associated [`protobuf`](https://developers.google.com/protocol-buffers)
+  schema. All data produced by a source follows the protobuf schema. The source can be an unbounded one such as
+  `KAFKA_SOURCE` or `KAFKA_CONSUMER` in which case, a single stream can consume from one or more topics all sharing the
+  same schema. Otherwise, the source can be a bounded one such as `PARQUET_SOURCE` in which case, one or more parquet
+  files as provided are consumed in a single stream.
 - Dagger can support multiple streams at a time.
 - For a kafka based source, many Kafka consumer-level configurations like consumer groups and auto offset reset can be set in the stream itself.
 
@@ -41,10 +41,10 @@ _**SQL Execution**_
 _**Type Handler**_
 
 - Type Handler handles the SerDe mechanism for raw source data to Flink understandable Distributed Data format(Flink Row).
-- It recursively parses Source specific messages to Flink Row on the consumer side and Flink row to sink specific 
-messages on the producer side.
-- Dagger supports serialization and deserialization of various data types ranging from primitives such as int, long, float, etc to 
-complex types such as maps, nested messages, repeated types, etc.
+- It recursively parses Source specific messages to Flink Row on the consumer side and Flink row to sink specific
+  messages on the producer side.
+- Dagger supports serialization and deserialization of various data types ranging from primitives such as int, long, float, etc to
+  complex types such as maps, nested messages, repeated types, etc.
 
 _**Post-Processor**_
 
@@ -69,16 +69,15 @@ _**Sink and Serializer**_
 - Dagger supports Kafka, BigQuery and InfluxDB as supported sinks where the unbounded results are pushed at the end of the lifecycle.
 - In the case of Kafka Sink the final result is protobuf encoded. So the result goes through a serialization stage on some defined output schema. The serializer module of the proto-handler does this. Results in Kafka can be used via any Kafka consumer.
 - Influx Sink helps in real-time analytics and dashboarding. In the case of Influx Sink dagger, converts results in Flink Row to InfluxDB points and add `tag`/`labels` as specified in the SQL.
-- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [ODPF Depot](https://github.com/odpf/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration. 
-
+- BigQuery is a data warehouse capable of running SQL queries over large datasets. Bigquery Sink is created using the [GOTO Depot](https://github.com/raystack/depot/tree/main/docs) library. Depot is a sink connector, which acts as a bridge between data processing systems and real sink. In BigQuery Sink, each Flink Row is converted into one BigQuery table row. The schema, table and partitioning details of the table are fetched from user supplied configuration.
 
 ### Schema Handling
 
-- Protocol buffers are Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data. 
-Each stream, irrespective of the data source, should produce data according to a fixed, configured protobuf schema.
-- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts. 
-The schema handling i:e, finding the mapped schema for the topic, downloading the descriptors, and dynamically being 
-notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/odpf/stencil).
+- Protocol buffers are Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data.
+  Each stream, irrespective of the data source, should produce data according to a fixed, configured protobuf schema.
+- Dagger deserializes the data consumed from the topics using the Protobuf descriptors generated out of the artifacts.
+  The schema handling i:e, finding the mapped schema for the topic, downloading the descriptors, and dynamically being
+  notified of/updating with the latest schema is abstracted through a homegrown library called [stencil](https://github.com/raystack/stencil).
 - Stencil is a proprietary library that provides an abstraction layer, for schema handling.
 - Schema Caching, dynamic schema updates are features of the stencil client library.
 
@@ -86,10 +85,10 @@ notified of/updating with the latest schema is abstracted through a homegrown li
 
 ### Dagger Source
 
-- The Data source configuration used by Dagger to generate streaming data. This can be either 
-[Kafka](../reference/configuration.md#sample-streams-configuration-using-kafka_consumer-as-the-data-source-) based or 
-[Parquet files](../reference/configuration.md#sample-streams-configuration-using-parquet_source-as-the-data-source-). Check 
-[here](../guides/choose_source.md) for more details about Dagger Sources. 
+- The Data source configuration used by Dagger to generate streaming data. This can be either
+  [Kafka](../reference/configuration.md#sample-streams-configuration-using-kafka_consumer-as-the-data-source-) based or
+  [Parquet files](../reference/configuration.md#sample-streams-configuration-using-parquet_source-as-the-data-source-). Check
+  [here](../guides/choose_source.md) for more details about Dagger Sources.
 
 ### ProtoDescriptors
 

@@ -53,7 +53,7 @@ message FeatureMessage {
     google.protobuf.Timestamp event_timestamp = 4;
     string country_code = 5;
     string locality_id = 6;
-    gojek.esb.types.ServiceType.Enum service_type = 7;
+    raystack.esb.types.ServiceType.Enum service_type = 7;
 }
 ```
 

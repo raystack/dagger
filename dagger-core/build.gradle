@@ -26,7 +26,7 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = '0.2.2'
+def dependenciesVersion = "0.3.2"
 
 description = """dagger to the heart!"""
 
@@ -37,7 +37,7 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-def mainClassName = "io.odpf.dagger.core.KafkaProtoSQLProcessor"
+def mainClassName = "org.raystack.dagger.core.KafkaProtoSQLProcessor"
 
 configurations {
     minimalJar
@@ -61,11 +61,11 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar('io.odpf:depot:0.3.1') {
+    minimalJar('org.raystack:depot:0.4.0') {
         exclude group: 'org.apache.httpcomponents'
-        exclude module: 'stencil', group: 'io.odpf'
         exclude group: 'com.google.protobuf'
         exclude group: 'com.datadoghq'
+        exclude group: 'com.google.cloud', module:'google-cloud-bigtable'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
@@ -76,6 +76,7 @@ dependencies {
     implementation 'org.apache.flink:flink-table:' + flinkVersion
     implementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-table-planner_2.11:' + flinkVersion
+    implementation 'org.raystack:stencil:0.4.0'
 
     dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
@@ -237,7 +238,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/odpf/dagger"
+            url = "https://maven.pkg.github.com/raystack/dagger"
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")

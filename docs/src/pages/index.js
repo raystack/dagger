@@ -214,7 +214,7 @@ export default function Home() {
               },
               // {
               //   content: (
-              //     <img src={useBaseUrl('users/goto.png')} />
+              //     <img src={useBaseUrl('users/raystack.png')} />
               //   ),
               // },
               // {

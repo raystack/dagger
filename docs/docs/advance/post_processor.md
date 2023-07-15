@@ -233,7 +233,6 @@ List of comma-separated parameters to be replaced in endpoint, these variables m
 - Example value: `customer_id`
 - Type: `optional`
 
-
 ##### `verb`
 
 HTTP verb (currently support POST, PUT and GET).
@@ -793,7 +792,7 @@ The type of internal post processor. This could be ‘SQL’, ‘constant’ or 
 
 The configuration argument needed to specify inputs for certain function type internal post processors. As of now, this is only required for `JSON_PAYLOAD` internal post processor.
 
-- Example value: `{"schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"}`
+- Example value: `{"schema_proto_class": "org.raystack.dagger.consumer.TestBookingLogMessage"}`
 - Type: `optional`
 
 ### Sample Query
@@ -858,6 +857,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
 **Function**
 
 This configuration will populate field `event_timestamp` with a timestamp of when the event is processed.
+
 ```properties
 FLINK_SQL_QUERY=SELECT * from data_stream
 PROCESSOR_POSTPROCESSOR_ENABLE = true
@@ -884,7 +884,7 @@ PROCESSOR_POSTPROCESSOR_CONFIG = {
       "type": "function",
       "value": "JSON_PAYLOAD",
       "internal_processor_config": {
-        "schema_proto_class": "io.odpf.dagger.consumer.TestBookingLogMessage"
+        "schema_proto_class": "org.raystack.dagger.consumer.TestBookingLogMessage"
       }
     }
   ]

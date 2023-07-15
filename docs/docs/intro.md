@@ -4,8 +4,8 @@ sidebar_position: 1
 
 # Introduction
 
-Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native framework built on top of Apache Flink 
-for stateful processing of data. With Dagger, you don't need to write custom applications or complicated code to process 
+Dagger or Data Aggregator is an easy-to-use, configuration over code, cloud-native framework built on top of Apache Flink
+for stateful processing of data. With Dagger, you don't need to write custom applications or complicated code to process
 data as a stream. Instead, you can write SQL queries and UDFs to do the processing and analysis on streaming data.
 
 ![](../static/img/overview/dagger_overview.png)
@@ -29,7 +29,7 @@ Discover why to use Dagger
 - [Data Deduplication with Transformer](./reference/transformers.md#DeDuplicationTransformer)
 - [Realtime long window processing with Longbow](./advance/longbow.md)
 
-To know more, follow the detailed [documentation](https://odpf.gitbook.io/dagger).
+To know more, follow the detailed [documentation](https://raystack.gitbook.io/dagger).
 
 ## Where to go from here
 
