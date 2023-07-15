@@ -80,9 +80,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -94,15 +92,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -114,9 +108,7 @@
           "select": [
             [
               {
-                "params": [
-                  "uptime"
-                ],
+                "params": ["uptime"],
                 "type": "field"
               },
               {
@@ -184,9 +176,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -206,9 +196,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -282,9 +270,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "first"
-          ],
+          "calcs": ["first"],
           "fields": "",
           "values": false
         },
@@ -296,15 +282,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -318,9 +300,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -382,9 +362,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -404,9 +382,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -480,9 +456,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -495,15 +469,11 @@
           "dsType": "influxdb",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -515,9 +485,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -600,27 +568,19 @@
           "alias": "Task: $tag_subtask_index : $tag_host",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "host"
-              ],
+              "params": ["host"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -632,9 +592,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -749,21 +707,15 @@
           "alias": "Task $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "5m"
-              ],
+              "params": ["5m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -775,9 +727,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               },
               {
@@ -896,21 +846,15 @@
           "alias": "Task ($tag_subtask_index): Input",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -924,9 +868,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -947,21 +889,15 @@
           "alias": "Task ($tag_subtask_index): Output",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -976,9 +912,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -1107,21 +1041,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1133,9 +1061,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1248,21 +1174,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1274,9 +1194,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1389,21 +1307,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1415,9 +1327,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1531,21 +1441,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1557,9 +1461,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1672,21 +1574,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1698,9 +1594,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1814,21 +1708,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1840,9 +1728,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1956,21 +1842,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -1982,9 +1862,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2097,21 +1975,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2123,9 +1995,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2238,21 +2108,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2264,9 +2128,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2379,21 +2241,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2405,9 +2261,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2520,21 +2374,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2546,9 +2394,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2661,21 +2507,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2687,9 +2527,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2802,21 +2640,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2828,9 +2660,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2943,21 +2773,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -2969,9 +2793,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3084,21 +2906,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -3110,9 +2926,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3225,21 +3039,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -3251,9 +3059,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3366,21 +3172,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -3392,9 +3192,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3507,21 +3305,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -3533,9 +3325,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3651,9 +3441,7 @@
         {
           "groupBy": [
             {
-              "params": [
-                "input_topic"
-              ],
+              "params": ["input_topic"],
               "type": "tag"
             }
           ],
@@ -3667,9 +3455,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               }
             ]
@@ -3735,15 +3521,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -3756,9 +3538,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3822,15 +3602,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -3843,9 +3619,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -3928,15 +3702,11 @@
           "alias": "[[tag_fatal.exception]]",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -3949,9 +3719,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4059,15 +3827,11 @@
           "alias": "[[tag_non.fatal.exception]]",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -4080,9 +3844,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4188,15 +3950,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -4208,9 +3966,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               },
               {
@@ -4337,21 +4093,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -4363,9 +4113,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4478,21 +4226,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -4504,9 +4246,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4619,21 +4359,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -4645,9 +4379,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4760,21 +4492,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -4786,9 +4512,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -4901,21 +4625,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -4927,9 +4645,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5042,21 +4758,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5068,9 +4778,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5183,21 +4891,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5209,9 +4911,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5324,21 +5024,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5350,9 +5044,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5465,21 +5157,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5491,9 +5177,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5606,21 +5290,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5632,9 +5310,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5747,21 +5423,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5773,9 +5443,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -5888,21 +5556,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -5914,9 +5576,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6029,21 +5689,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -6055,9 +5709,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6170,21 +5822,15 @@
           "alias": "Task: $tag_subtask_index",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "subtask_index"
-              ],
+              "params": ["subtask_index"],
               "type": "tag"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -6196,9 +5842,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6319,15 +5963,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6340,9 +5980,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6406,15 +6044,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6427,9 +6061,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6493,15 +6125,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6514,9 +6142,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6580,15 +6206,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6601,9 +6223,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6636,7 +6256,7 @@
     {
       "columns": [],
       "datasource": "$datasource",
-      "description": "List of UDFs used in the dagger query", 
+      "description": "List of UDFs used in the dagger query",
       "fontSize": "100%",
       "gridPos": {
         "h": 6,
@@ -6667,15 +6287,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6689,9 +6305,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6741,15 +6355,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6762,9 +6372,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6833,15 +6441,11 @@
           "alias": "Task ($tag_subtask_index)",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6855,9 +6459,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -6965,15 +6567,11 @@
           "alias": "Task ($tag_subtask_index)",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -6986,9 +6584,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -7096,15 +6692,11 @@
           "alias": "Task ($tag_subtask_index)",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7117,9 +6709,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -7227,15 +6817,11 @@
           "alias": "Task ($tag_subtask_index)",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7248,9 +6834,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -7367,15 +6951,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7388,9 +6968,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -7454,15 +7032,11 @@
         {
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7475,9 +7049,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -7547,21 +7119,15 @@
           "alias": "Total External Calls Rate ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7573,9 +7139,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -7688,21 +7252,15 @@
           "alias": "p50 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7716,9 +7274,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               },
               {
@@ -7739,21 +7295,15 @@
           "alias": "p95 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7767,9 +7317,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               },
               {
@@ -7790,21 +7338,15 @@
           "alias": "p99 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7818,9 +7360,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               },
               {
@@ -7841,21 +7381,15 @@
           "alias": "mean ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -7867,9 +7401,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               },
               {
@@ -7982,21 +7514,15 @@
           "alias": "success response rate ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8008,9 +7534,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -8123,21 +7647,15 @@
           "alias": "p50 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8149,9 +7667,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               },
               {
@@ -8172,21 +7688,15 @@
           "alias": "p95 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8198,9 +7708,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               },
               {
@@ -8221,21 +7729,15 @@
           "alias": "p99 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8247,9 +7749,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               },
               {
@@ -8270,21 +7770,15 @@
           "alias": "mean ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8296,9 +7790,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               },
               {
@@ -8411,21 +7903,15 @@
           "alias": "Total Failure Rate ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8437,9 +7923,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -8552,21 +8036,15 @@
           "alias": "Failure Rate on 404 ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8578,9 +8056,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -8693,21 +8169,15 @@
           "alias": "Failure Rate on 4XX ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8719,9 +8189,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -8834,21 +8302,15 @@
           "alias": "Failures Rate on 5XX ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -8860,9 +8322,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -8975,21 +8435,15 @@
           "alias": "Timeouts Rate ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9001,9 +8455,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9116,21 +8568,15 @@
           "alias": "Close Connection On Client Rate ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9142,9 +8588,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9257,21 +8701,15 @@
           "alias": "Failures Rate On Reading Path ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9283,9 +8721,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9398,21 +8834,15 @@
           "alias": "Other Failures Count ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9424,9 +8854,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9539,21 +8967,15 @@
           "alias": "Empty Request Variables Values ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9565,9 +8987,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9588,21 +9008,15 @@
           "alias": "Empty Endpoint ($tag_source_metricId)",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "source_metricId"
-              ],
+              "params": ["source_metricId"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9614,9 +9028,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -9729,21 +9141,15 @@
           "alias": "$tag_operator_name",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "operator_name"
-              ],
+              "params": ["operator_name"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -9757,9 +9163,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               },
               {
@@ -9767,9 +9171,7 @@
                 "type": "mean"
               },
               {
-                "params": [
-                  "1m"
-                ],
+                "params": ["1m"],
                 "type": "non_negative_derivative"
               }
             ]
@@ -9891,15 +9293,11 @@
           "alias": "docs per second",
           "groupBy": [
             {
-              "params": [
-                "1s"
-              ],
+              "params": ["1s"],
               "type": "time"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -9911,9 +9309,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -10025,21 +9421,15 @@
           "alias": "p50",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "operator_name"
-              ],
+              "params": ["operator_name"],
               "type": "tag"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -10051,9 +9441,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               },
               {
@@ -10074,15 +9462,11 @@
           "alias": "p95",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -10094,9 +9478,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               },
               {
@@ -10117,15 +9499,11 @@
           "alias": "p99",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -10137,9 +9515,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               },
               {
@@ -10160,15 +9536,11 @@
           "alias": "mean",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -10180,9 +9552,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               },
               {
@@ -10301,15 +9671,11 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               },
               {
-                "params": [
-                  "10s"
-                ],
+                "params": ["10s"],
                 "type": "non_negative_derivative"
               }
             ]
@@ -10424,9 +9790,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               }
             ]
@@ -10450,9 +9814,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               }
             ]
@@ -10476,9 +9838,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               }
             ]
@@ -10502,9 +9862,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               }
             ]
@@ -10619,9 +9977,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -10736,9 +10092,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -10853,9 +10207,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               }
             ]
@@ -10879,9 +10231,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               }
             ]
@@ -10905,9 +10255,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               }
             ]
@@ -10931,9 +10279,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               }
             ]
@@ -11048,9 +10394,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -11165,9 +10509,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -11289,15 +10631,11 @@
           "alias": "docs per second",
           "groupBy": [
             {
-              "params": [
-                "1s"
-              ],
+              "params": ["1s"],
               "type": "time"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -11309,9 +10647,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate"
-                ],
+                "params": ["rate"],
                 "type": "field"
               },
               {
@@ -11423,15 +10759,11 @@
           "alias": "p50",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -11443,9 +10775,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               },
               {
@@ -11466,15 +10796,11 @@
           "alias": "p95",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -11486,9 +10812,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               },
               {
@@ -11509,15 +10833,11 @@
           "alias": "p99",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -11529,9 +10849,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               },
               {
@@ -11552,15 +10870,11 @@
           "alias": "mean",
           "groupBy": [
             {
-              "params": [
-                "1m"
-              ],
+              "params": ["1m"],
               "type": "time"
             },
             {
-              "params": [
-                "0"
-              ],
+              "params": ["0"],
               "type": "fill"
             }
           ],
@@ -11572,9 +10886,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               },
               {
@@ -11693,15 +11005,11 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               },
               {
-                "params": [
-                  "10s"
-                ],
+                "params": ["10s"],
                 "type": "non_negative_derivative"
               }
             ]
@@ -11816,9 +11124,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -11933,9 +11239,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p50"
-                ],
+                "params": ["p50"],
                 "type": "field"
               }
             ]
@@ -11959,9 +11263,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               }
             ]
@@ -11985,9 +11287,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p99"
-                ],
+                "params": ["p99"],
                 "type": "field"
               }
             ]
@@ -12011,9 +11311,7 @@
           "select": [
             [
               {
-                "params": [
-                  "mean"
-                ],
+                "params": ["mean"],
                 "type": "field"
               }
             ]
@@ -12128,9 +11426,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -12245,9 +11541,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -12362,9 +11656,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -12388,9 +11680,7 @@
           "select": [
             [
               {
-                "params": [
-                  "count"
-                ],
+                "params": ["count"],
                 "type": "field"
               }
             ]
@@ -12502,9 +11792,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -12517,15 +11805,11 @@
           "dsType": "influxdb",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -12537,9 +11821,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -12622,15 +11904,11 @@
           "dsType": "influxdb",
           "groupBy": [
             {
-              "params": [
-                "10s"
-              ],
+              "params": ["10s"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -12642,9 +11920,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -12766,15 +12042,11 @@
           "dsType": "influxdb",
           "groupBy": [
             {
-              "params": [
-                "$__interval"
-              ],
+              "params": ["$__interval"],
               "type": "time"
             },
             {
-              "params": [
-                "none"
-              ],
+              "params": ["none"],
               "type": "fill"
             }
           ],
@@ -12786,9 +12058,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -12898,9 +12168,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -12913,15 +12181,11 @@
           "dsType": "influxdb",
           "groupBy": [
             {
-              "params": [
-                "10s"
-              ],
+              "params": ["10s"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -12933,9 +12197,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -13339,9 +12601,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -13400,9 +12660,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -13460,9 +12718,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -13754,20 +13010,10 @@
       "2h",
       "1d"
     ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
   },
   "timezone": "browser",
-  "title": "ODPF Dagger Timeboard open source",
+  "title": "Raystack Dagger Timeboard open source",
   "uid": "Y3jyYmm7k",
   "version": 4
 }

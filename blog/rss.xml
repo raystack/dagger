@@ -2,17 +2,17 @@
 <rss version="2.0">
     <channel>
         <title>Dagger Blog</title>
-        <link>https://odpf.github.io/dagger/blog</link>
+        <link>https://raystack.github.io/dagger/blog</link>
         <description>Dagger Blog</description>
-        <lastBuildDate>Fri, 20 Aug 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 23 May 2023 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <item>
-            <title><![CDATA[Introducing Dagger]]></title>
-            <link>https://odpf.github.io/dagger/blog/introducing-dagger</link>
+            <title><![CDATA[Introducing Dagger Documentation page]]></title>
+            <link>https://raystack.github.io/dagger/blog/introducing-dagger</link>
             <guid>introducing-dagger</guid>
-            <pubDate>Fri, 20 Aug 2021 00:00:00 GMT</pubDate>
-            <description><![CDATA[We are live!]]></description>
+            <pubDate>Tue, 23 May 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[Our docs website is live.]]></description>
         </item>
     </channel>
 </rss>
