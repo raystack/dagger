@@ -4,11 +4,11 @@ The following section describes how to manage Dagger throughout its lifecycle.
 
 ### [Dagger Quickstart](./quickstart.md)
 
-Get quickly up and running by setting up a local Dagger instance consuming from Kafka.   
+Get quickly up and running by setting up a local Dagger instance consuming from Kafka.
 
 ### [Choosing a Dagger Source](./choose_source.md)
 
-Dagger requires configuring a source from where data will be streamed for processing. This section explains what are the 
+Dagger requires configuring a source from where data will be streamed for processing. This section explains what are the
 different available sources.
 
 ### [Creating Dagger](./create_dagger.md)
@@ -22,7 +22,7 @@ Dagger runs inside a Flink cluster which can be set up in some distributed resou
 
 ### [Monitoring Dagger with exposed metrics](./monitoring.md)
 
-Dagger support first-class monitoring support. You can get a lot of insights about a running dagger from the pre-exported [monitoring dashboards](https://github.com/odpf/dagger/blob/main/docs/static/assets/dagger-grafana-dashboard.json). This section contains guides, best practices and pieces of advice related to managing Dagger in production.
+Dagger support first-class monitoring support. You can get a lot of insights about a running dagger from the pre-exported [monitoring dashboards](https://github.com/raystack/dagger/blob/main/docs/static/assets/dagger-grafana-dashboard.json). This section contains guides, best practices and pieces of advice related to managing Dagger in production.
 
 ### [Query Examples](./query_examples.md)
 

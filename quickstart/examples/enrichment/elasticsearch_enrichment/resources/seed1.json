@@ -1,7 +1,7 @@
 {
   "created_at": "2017-05-18T01:19:54Z",
   "customer_id": 11,
-  "email": "dummy_customer@gojek.com",
+  "email": "dummy_customer@raystack.org",
   "name": "dummy customer",
   "phone": "+666666000666666",
   "updated_at": "2017-05-18T01:20:00Z",

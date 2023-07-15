@@ -127,7 +127,7 @@ services:
       yes Y | apt install gradle
       echo -e 'Finished installing all dependencies'
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
-      git clone https://github.com/odpf/dagger
+      git clone https://github.com/raystack/dagger
       cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
       echo -e 'Building and starting Dagger Job'

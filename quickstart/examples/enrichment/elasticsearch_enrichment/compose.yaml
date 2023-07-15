@@ -1,11 +1,10 @@
 services:
-
   zookeeper:
     image: confluentinc/cp-zookeeper:6.1.1
     ports:
       - "2187:2187"
     expose:
-      - '21871'
+      - "21871"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2187
 
@@ -15,28 +14,28 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-      test: [ "CMD-SHELL", " kafka-topics --version" ]
+      test: ["CMD-SHELL", " kafka-topics --version"]
       interval: 10s
       timeout: 5s
       retries: 5000
     ports:
-      - '9094:9094'
+      - "9094:9094"
     expose:
-      - '29094'
+      - "29094"
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2187'
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2187"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29094,PLAINTEXT_HOST://localhost:9094
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
-      KAFKA_MIN_INSYNC_REPLICAS: '1'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_MIN_INSYNC_REPLICAS: "1"
 
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
       kafka:
         condition: service_healthy
-    entrypoint: [ '/bin/sh', '-c' ]
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       # blocks until kafka is reachable
@@ -53,10 +52,10 @@ services:
     volumes:
       - ${PWD}/resources:/resources
     ports:
-      - '2917:2917'
+      - "2917:2917"
     expose:
-      - '2917'
-    entrypoint: [ '/bin/sh', '-c' ]
+      - "2917"
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       yes Y | apt-get update
@@ -67,12 +66,11 @@ services:
       yes Y | apt-get install python3
       cd resources
       echo wwww
-      protoc --descriptor_set_out=file.desc --include_imports io/odpf/dagger/consumer/*.proto
+      protoc --descriptor_set_out=file.desc --include_imports org/raystack/dagger/consumer/*.proto
       yes Y | apt-get install python3-pip
       python3 -m pip install simple_http_server
       python3 -m http.server 2917
       "
-
 
   kafkaproducer:
     image: amd64/ubuntu:latest
@@ -80,7 +78,7 @@ services:
       - init-kafka
     volumes:
       - ${PWD}/resources:/resources
-    entrypoint: [ '/bin/sh', '-c' ]
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       cd resources
@@ -105,9 +103,9 @@ services:
   elasticsearch:
     image: elasticsearch:8.5.0
     ports:
-      - '9200:9200'
+      - "9200:9200"
     expose:
-      - '9200'
+      - "9200"
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
@@ -117,7 +115,7 @@ services:
       - elasticsearch
     volumes:
       - ${PWD}/resources:/resources
-    entrypoint: [ '/bin/sh', '-c' ]
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       yes Y | apt-get update
@@ -137,7 +135,7 @@ services:
       - elasticsearch
     volumes:
       - ${PWD}/resources:/resources
-    entrypoint: [ '/bin/sh', '-c' ]
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       yes Y | apt-get update
@@ -148,7 +146,7 @@ services:
       yes Y | apt install openjdk-8-jdk
       yes Y | apt install gradle
       /var/lib/dpkg/info/ca-certificates-java.postinst configure
-      git clone https://github.com/odpf/dagger
+      git clone https://github.com/raystack/dagger
       cp /resources/local.properties /dagger/dagger-core/env/
       cd dagger
       ./gradlew runFlink

@@ -24,4 +24,4 @@ DARTS allows you to join streaming data from a reference data store. It supports
 
 ### [Security](./security.md)
 
-Enable secure data access from ACL enabled kafka source using SASL (Simple Authentication Security Layer) authentication.
+Enable secure data access from ACL enabled kafka source using SASL (Simple Authentication Security Layer) authentication. Also enable data access from SSL/TLS enabled kafka source.

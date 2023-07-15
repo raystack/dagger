@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package io.odpf.dagger.consumer;
+package org.raystack.dagger.consumer;
 
 option java_multiple_files = true;
-option java_package = "io.odpf.dagger.consumer";
+option java_package = "org.raystack.dagger.consumer";
 option java_outer_classname = "TestLogMessageProto";
 
 import "google/protobuf/struct.proto";
