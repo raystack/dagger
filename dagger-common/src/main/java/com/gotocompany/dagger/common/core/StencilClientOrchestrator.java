@@ -5,8 +5,8 @@ import com.gotocompany.stencil.StencilClientFactory;
 import com.gotocompany.stencil.cache.SchemaRefreshStrategy;
 import com.gotocompany.stencil.client.StencilClient;
 import com.gotocompany.stencil.config.StencilConfig;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

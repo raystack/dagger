@@ -103,7 +103,7 @@ public class ProtoSerializer implements Serializable {
         if (data != null) {
             try {
                 builder = typeHandler.transformToProtoBuilder(builder, data);
-            } catch (IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 String protoType = fieldDescriptor.getType().toString();
                 if (fieldDescriptor.isRepeated()) {
                     protoType = String.format("REPEATED %s", fieldDescriptor.getType());

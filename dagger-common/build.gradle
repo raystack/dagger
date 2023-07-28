@@ -58,26 +58,26 @@ dependencies {
     compileOnly group: 'org.apache.flink', name: 'flink-table', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-table-api-java-bridge_2.11', version: flinkVersion
     compileOnly group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: flinkVersion
-    compileOnly 'com.gotocompany:stencil:0.4.0'
+    compileOnly 'com.gotocompany:stencil:0.6.0'
 
-    dependenciesCommonJar ('org.apache.hadoop:hadoop-client:2.8.3') {
-        exclude module:"commons-cli"
-        exclude module:"commons-compress"
+    dependenciesCommonJar('org.apache.hadoop:hadoop-client:3.3.6') {
+        exclude module: "commons-cli"
+        exclude module: "commons-compress"
     }
-    dependenciesCommonJar 'com.google.cloud.bigdataoss:gcs-connector:1.9.0-hadoop2'
+    dependenciesCommonJar group: 'com.google.cloud.bigdataoss', name: 'gcs-connector', version: 'hadoop2-2.2.16'
     dependenciesCommonJar 'org.apache.flink:flink-metrics-dropwizard:' + flinkVersion
     dependenciesCommonJar 'org.apache.flink:flink-json:' + flinkVersion
     dependenciesCommonJar 'com.jayway.jsonpath:json-path:2.4.0'
     dependenciesCommonJar 'com.google.code.gson:gson:2.8.2'
     dependenciesCommonJar 'org.apache.parquet:parquet-column:1.12.2'
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.jmockit:jmockit:1.25'
     testImplementation 'org.mockito:mockito-core:2.25.1'
     testImplementation 'io.grpc:grpc-protobuf:1.18.0'
     testImplementation 'io.grpc:grpc-api:1.37.0'
     testImplementation 'io.grpc:grpc-stub:1.18.0'
-    testImplementation 'com.google.protobuf:protobuf-java:3.5.0'
+    testImplementation 'com.google.protobuf:protobuf-java:3.16.3'
     testImplementation 'com.google.protobuf:protobuf-java-util:3.5.0'
     testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
 }

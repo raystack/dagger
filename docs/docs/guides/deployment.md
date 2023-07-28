@@ -15,7 +15,7 @@ To know more about Flink's cluster mode deployment follow [this](https://ci.apac
 ./gradlew clean build
 
 #creating a fat jar
-./gradlew :dagger-core:shadowJar
+./gradlew :dagger-core:fatJar
 
 ```
 

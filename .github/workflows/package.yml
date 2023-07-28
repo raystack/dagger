@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew :dagger-common:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish minimal and shadow packages of core
-        run: ./gradlew :dagger-core:minimalAndShadowPublish
+      - name: Publish minimal package of core
+        run: ./gradlew :dagger-core:minimalPublish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

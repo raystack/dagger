@@ -7,9 +7,12 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        maven {
+            url 'https://repo1.maven.org/maven2'
+        }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.17.0"
     }
 }
@@ -17,7 +20,7 @@ buildscript {
 plugins {
     id 'maven-publish'
     id 'com.jfrog.artifactory' version '4.17.0'
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 
@@ -26,12 +29,15 @@ def flinkVersion = rootProject.flinkVersion
 version = rootProject.file('version.txt').text.trim()
 
 def minimalVersion = version
-def dependenciesVersion = "0.3.2"
+def dependenciesVersion = "0.4.0"
 
 description = """dagger to the heart!"""
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -61,47 +67,62 @@ configurations {
 dependencies {
     minimalJar project(path: ':dagger-common', configuration: 'minimalCommonJar')
     minimalJar project(path: ':dagger-functions', configuration: 'minimalFunctionsJar')
-    minimalJar('com.gotocompany:depot:0.4.0') {
-        exclude group: 'org.apache.httpcomponents'
-        exclude group: 'com.google.protobuf'
-        exclude group: 'com.datadoghq'
-        exclude group: 'com.google.cloud', module:'google-cloud-bigtable'
+    minimalJar('com.gotocompany:depot:0.6.0') {
+        exclude group: 'com.google.cloud', module: 'google-cloud-bigtable'
+        exclude group: 'com.google.cloud', module: 'google-cloud-bigquerystorage'
+        exclude group: 'com.google.cloud', module: 'google-cloud-bigquery'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+        exclude group: "io.grpc"
+    }
+    minimalJar('com.gotocompany:stencil:0.6.0') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
     }
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
-    implementation 'org.slf4j:slf4j-log4j12:1.7.7'
+    implementation group: 'org.slf4j', name: 'slf4j-reload4j', version: '2.0.7'
     implementation 'org.apache.flink:flink-streaming-java_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-clients_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-table:' + flinkVersion
     implementation 'org.apache.flink:flink-table-api-java-bridge_2.11:' + flinkVersion
     implementation 'org.apache.flink:flink-table-planner_2.11:' + flinkVersion
-    implementation 'com.gotocompany:stencil:0.4.0'
 
+    dependenciesJar 'io.grpc:grpc-all:1.55.1'
     dependenciesJar project(path: ':dagger-common', configuration: 'dependenciesCommonJar')
     dependenciesJar project(path: ':dagger-functions', configuration: 'dependenciesFunctionsJar')
-
+    dependenciesJar(group: 'com.google.cloud', name: 'google-cloud-bigquerystorage', version: '2.39.1') {
+        exclude group: "io.grpc"
+    }
+    dependenciesJar(group: 'com.google.cloud', name: 'google-cloud-bigtable', version: '2.24.1') {
+        exclude group: "io.grpc"
+    }
+    dependenciesJar(group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '2.29.0') {
+        exclude group: "io.grpc"
+    }
     dependenciesJar 'org.apache.flink:flink-connector-kafka_2.11:' + flinkVersion
-    dependenciesJar 'com.google.protobuf:protobuf-java:3.1.0'
+    dependenciesJar 'com.google.protobuf:protobuf-java:3.23.2'
     dependenciesJar 'com.google.protobuf:protobuf-java-util:3.1.0'
     dependenciesJar 'org.influxdb:influxdb-java:2.8'
     dependenciesJar 'org.elasticsearch.client:elasticsearch-rest-client:6.6.1'
-    dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:1.11.0'
+    dependenciesJar 'com.google.cloud.bigtable:bigtable-hbase-2.x:2.10.0'
     dependenciesJar 'org.asynchttpclient:async-http-client:2.10.1'
     dependenciesJar 'io.vertx:vertx-pg-client:3.9.0'
     dependenciesJar 'org.apache.commons:commons-pool2:2.4.3'
     dependenciesJar 'org.apache.parquet:parquet-protobuf:1.12.2'
 
     testImplementation project(':dagger-common').sourceSets.test.output
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.apache.flink:flink-test-utils_2.11:' + flinkVersion
-    testImplementation 'org.apache.kafka:kafka-clients:2.5.0'
+    testImplementation 'org.apache.kafka:kafka-clients:2.6.3'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.0'
     testImplementation 'org.jmockit:jmockit:1.25'
     testImplementation 'org.mockito:mockito-core:2.25.1'
+    testImplementation 'io.grpc:grpc-all:1.55.1'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
-    testImplementation 'com.google.guava:guava:27.0.1-jre'
+    testImplementation 'com.google.guava:guava:30.0-jre'
     testImplementation 'org.grpcmock:grpcmock-junit5:0.5.0'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
 }
@@ -163,20 +184,7 @@ jar {
     }
 }
 
-shadowJar {
-    mergeServiceFiles()
-    minimize {
-        exclude(dependency('io.vertx:vertx-pg-client:.*'))
-        exclude(dependency('com.google.cloud.bigtable:bigtable-hbase-2.x:.*'))
-    }
-    zip64 true
-    configurations = [project.configurations.minimalJar, project.configurations.dependenciesJar]
-    relocate('com.google.protobuf', 'shaded.com.google.protobuf') {
-        exclude 'combine.self="override"'
-    }
-}
-
-task minimalJar(type: ShadowJar) {
+tasks.register('minimalJar', ShadowJar) {
     manifest.attributes 'Main-Class': mainClassName
     archiveClassifier = 'minimal'
     zip64 true
@@ -187,7 +195,7 @@ task minimalJar(type: ShadowJar) {
     exclude("core-site.xml")
 }
 
-task dependenciesJar(type: ShadowJar) {
+tasks.register('dependenciesJar', ShadowJar) {
     mergeServiceFiles()
     manifest.attributes 'Main-Class': mainClassName
     archiveClassifier = 'dependencies'
@@ -197,7 +205,7 @@ task dependenciesJar(type: ShadowJar) {
     archiveVersion = dependenciesVersion
 }
 
-task fatJar(type: ShadowJar) {
+tasks.register('fatJar', ShadowJar) {
     description = "Builds a executable jar"
     manifest.attributes 'Main-Class': mainClassName
     archiveClassifier = 'fat'
@@ -217,10 +225,6 @@ private Properties loadEnv() {
 
 publishing {
     publications {
-        shadow(MavenPublication) {
-            publication ->
-                project.shadow.component(publication)
-        }
         minimalArtifact(MavenPublication) {
             artifact file("$buildDir/libs/dagger-core-${minimalVersion}-minimal.jar")
             groupId project.group
@@ -264,9 +268,9 @@ artifactory {
     clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
 }
 
-task minimalAndShadowPublish(dependsOn: 'minimalJar') {
-    dependsOn('publishMinimalArtifactPublicationToGitHubPackagesRepository', 'publishShadowPublicationToGitHubPackagesRepository')
-    description('Publishes minimal and shadow jar')
+task minimalPublish(dependsOn: 'minimalJar') {
+    dependsOn('publishMinimalArtifactPublicationToGitHubPackagesRepository')
+    description('Publishes minimal jar')
 }
 
 task dependenciesPublish(dependsOn: 'dependenciesJar') {

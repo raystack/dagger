@@ -5,7 +5,6 @@ import com.gotocompany.dagger.common.core.StencilClientOrchestrator;
 import com.gotocompany.dagger.common.exceptions.DescriptorNotFoundException;
 import com.gotocompany.dagger.common.exceptions.serde.DaggerSerializationException;
 import com.gotocompany.dagger.common.exceptions.serde.InvalidColumnMappingException;
-import com.gotocompany.dagger.common.exceptions.serde.InvalidDataTypeException;
 import com.gotocompany.dagger.consumer.*;
 import com.gotocompany.stencil.StencilClientFactory;
 import com.gotocompany.stencil.client.StencilClient;
@@ -279,9 +278,9 @@ public class ProtoSerializerTest {
         Row element = new Row(1);
         element.setField(0, "invalid_number");
 
-        InvalidDataTypeException exception = assertThrows(InvalidDataTypeException.class,
+        InvalidColumnMappingException exception = assertThrows(InvalidColumnMappingException.class,
                 () -> serializer.serializeValue(element));
-        assertEquals("type mismatch of field: customer_price, expecting DOUBLE type, actual type class java.lang.String",
+        assertEquals("column invalid: type mismatch of column customer_price, expecting DOUBLE type. Actual type class java.lang.String",
                 exception.getMessage());
     }
 
