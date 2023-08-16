@@ -26,6 +26,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
     private String streamTimeout;
     private String connectTimeout;
     private boolean failOnErrors;
+    private String excludeFailOnErrorsCodeRange;
     @SerializedName(value = "type", alternate = {"Type", "TYPE"})
     private String type;
     private String capacity;
@@ -49,6 +50,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
      * @param streamTimeout      the stream timeout
      * @param connectTimeout     the connect timeout
      * @param failOnErrors       the fail on errors
+     * @param excludeFailOnErrorsCodeRange the exclude fail on errors code range
      * @param type               the type
      * @param capacity           the capacity
      * @param headers            the static headers
@@ -56,7 +58,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
      * @param metricId           the metric id
      * @param retainResponseType the retain response type
      */
-    public HttpSourceConfig(String endpoint, String endpointVariables, String verb, String requestPattern, String requestVariables, String headerPattern, String headerVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
+    public HttpSourceConfig(String endpoint, String endpointVariables, String verb, String requestPattern, String requestVariables, String headerPattern, String headerVariables, String streamTimeout, String connectTimeout, boolean failOnErrors, String excludeFailOnErrorsCodeRange,  String type, String capacity, Map<String, String> headers, Map<String, OutputMapping> outputMapping, String metricId, boolean retainResponseType) {
         this.endpoint = endpoint;
         this.endpointVariables = endpointVariables;
         this.verb = verb;
@@ -67,6 +69,7 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         this.streamTimeout = streamTimeout;
         this.connectTimeout = connectTimeout;
         this.failOnErrors = failOnErrors;
+        this.excludeFailOnErrorsCodeRange = excludeFailOnErrorsCodeRange;
         this.type = type;
         this.capacity = capacity;
         this.headers = headers;
@@ -162,6 +165,16 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
         return failOnErrors;
     }
 
+    /**
+     * Gets failOnErrorsCodeRange Variable.
+     *
+     * @return the failOnErrorsCodeRange Variable
+     */
+    public String getExcludeFailOnErrorsCodeRange() {
+        return excludeFailOnErrorsCodeRange;
+    }
+
+
     @Override
     public String getMetricId() {
         return metricId;
@@ -245,11 +258,11 @@ public class HttpSourceConfig implements Serializable, SourceConfig {
             return false;
         }
         HttpSourceConfig that = (HttpSourceConfig) o;
-        return failOnErrors == that.failOnErrors && retainResponseType == that.retainResponseType && Objects.equals(endpoint, that.endpoint) && Objects.equals(verb, that.verb) && Objects.equals(requestPattern, that.requestPattern) && Objects.equals(requestVariables, that.requestVariables) && Objects.equals(headerPattern, that.headerPattern) && Objects.equals(headerVariables, that.headerVariables) && Objects.equals(streamTimeout, that.streamTimeout) && Objects.equals(connectTimeout, that.connectTimeout) && Objects.equals(type, that.type) && Objects.equals(capacity, that.capacity) && Objects.equals(headers, that.headers) && Objects.equals(outputMapping, that.outputMapping) && Objects.equals(metricId, that.metricId);
+        return failOnErrors == that.failOnErrors && excludeFailOnErrorsCodeRange == that.excludeFailOnErrorsCodeRange && retainResponseType == that.retainResponseType && Objects.equals(endpoint, that.endpoint) && Objects.equals(verb, that.verb) && Objects.equals(requestPattern, that.requestPattern) && Objects.equals(requestVariables, that.requestVariables) && Objects.equals(headerPattern, that.headerPattern) && Objects.equals(headerVariables, that.headerVariables) && Objects.equals(streamTimeout, that.streamTimeout) && Objects.equals(connectTimeout, that.connectTimeout) && Objects.equals(type, that.type) && Objects.equals(capacity, that.capacity) && Objects.equals(headers, that.headers) && Objects.equals(outputMapping, that.outputMapping) && Objects.equals(metricId, that.metricId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(endpoint, endpointVariables, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headers, outputMapping, metricId, retainResponseType);
+        return Objects.hash(endpoint, endpointVariables, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, excludeFailOnErrorsCodeRange, type, capacity, headers, outputMapping, metricId, retainResponseType);
     }
 }

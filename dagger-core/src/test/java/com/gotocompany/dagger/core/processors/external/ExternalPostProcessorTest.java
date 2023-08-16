@@ -69,7 +69,7 @@ public class ExternalPostProcessorTest {
         HashMap<String, OutputMapping> httpColumnNames = new HashMap<>();
         httpColumnNames.put("http_field_1", new OutputMapping(""));
         httpColumnNames.put("http_field_2", new OutputMapping(""));
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "", "POST", "/some/patttern/%s", "variable", "", "", "123", "234", false, "type", "20", new HashMap<>(), httpColumnNames, "metricId_01", false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "", "POST", "/some/patttern/%s", "variable", "", "", "123", "234", false, null, "type", "20", new HashMap<>(), httpColumnNames, "metricId_01", false);
         HashMap<String, OutputMapping> esOutputMapping = new HashMap<>();
         esOutputMapping.put("es_field_1", new OutputMapping(""));
         EsSourceConfig esSourceConfig = new EsSourceConfig("host", "port", "", "", "endpointPattern",
@@ -132,7 +132,7 @@ public class ExternalPostProcessorTest {
         outputMapping.put("order_id", new OutputMapping("path"));
 
         List<HttpSourceConfig> httpSourceConfigs = new ArrayList<>();
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "", "POST", "/some/patttern/%s", "variable", "", "", "123", "234", false, "type", "20", new HashMap<>(), outputMapping, "metricId_01", false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("endpoint", "", "POST", "/some/patttern/%s", "variable", "", "", "123", "234", false, null, "type", "20", new HashMap<>(), outputMapping, "metricId_01", false);
         httpSourceConfigs.add(httpSourceConfig);
 
         List<EsSourceConfig> esSourceConfigs = new ArrayList<>();

@@ -64,7 +64,7 @@ public class PostProcessorConfigTest {
         outputMapping = new OutputMapping("$.data.tensor.values[0]");
         outputMappings.put("surge_factor", outputMapping);
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8000", "", "post", null, null, null, null, "5000", "5000", true, null, null, headerMap, outputMappings, null, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("http://localhost:8000", "", "post", null, null, null, null, "5000", "5000", true, null, null, null, headerMap, outputMappings, null, false);
 
         assertEquals(httpSourceConfig, defaultPostProcessorConfig.getExternalSource().getHttpConfig().get(0));
     }
@@ -120,7 +120,7 @@ public class PostProcessorConfigTest {
     @Test
     public void shouldNotBeEmptyWhenExternalSourceHasHttpConfigExist() {
         ArrayList<HttpSourceConfig> http = new ArrayList<>();
-        http.add(new HttpSourceConfig("", "", "", "", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
+        http.add(new HttpSourceConfig("", "", "", "", "", "", "", "", "", false, null, "", "", new HashMap<>(), new HashMap<>(), "metricId_01", false));
         ArrayList<EsSourceConfig> es = new ArrayList<>();
         ArrayList<PgSourceConfig> pg = new ArrayList<>();
         ExternalSourceConfig externalSourceConfig = new ExternalSourceConfig(http, es, pg, new ArrayList<>());

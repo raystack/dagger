@@ -27,6 +27,7 @@ public class HttpSourceConfigTest {
     private String headerVariables;
     private String connectTimeout;
     private boolean failOnErrors;
+    private String failOnErrorsCodeRange;
     private String type;
     private String capacity;
     private String metricId;
@@ -49,11 +50,12 @@ public class HttpSourceConfigTest {
         headerVariables = "customer_id";
         connectTimeout = "234";
         failOnErrors = false;
+        failOnErrorsCodeRange = "";
         type = "InputProtoMessage";
         capacity = "345";
         metricId = "metricId-http-01";
         retainResponseType = false;
-        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, endpointVariable, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, outputMappings, metricId, retainResponseType);
+        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, endpointVariable, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, failOnErrorsCodeRange, type, capacity, headerMap, outputMappings, metricId, retainResponseType);
     }
 
     @Test
@@ -113,13 +115,13 @@ public class HttpSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", null, "", false, null, "", new HashMap<>(), new HashMap<>(), metricId, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", null, "", false, null, null, "", new HashMap<>(), new HashMap<>(), metricId, false);
         assertFalse(httpSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), metricId, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", "", "", false, null, "", "", new HashMap<>(), new HashMap<>(), metricId, false);
         assertFalse(httpSourceConfig.hasType());
     }
 
@@ -153,7 +155,7 @@ public class HttpSourceConfigTest {
     @Test
     public void shouldThrowExceptionIfAllFieldsMissing() {
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, null, requestVariables, null, null, null, null, false, null, capacity, null, null, metricId, retainResponseType);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig(null, null, null, null, requestVariables, null, null, null, null, false, null, null, capacity, null, null, metricId, retainResponseType);
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> httpSourceConfig.validateFields());
         assertEquals("Missing required fields: [endpoint, streamTimeout, requestPattern, verb, connectTimeout, outputMapping]", exception.getMessage());
@@ -162,7 +164,7 @@ public class HttpSourceConfigTest {
     @Test
     public void shouldThrowExceptionIfSomeFieldsMissing() {
 
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "", "post", "body", requestVariables, null, null, null, null, false, null, capacity, null, null, "metricId_01", retainResponseType);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("localhost", "", "post", "body", requestVariables, null, null, null, null, false, null, null, capacity, null, null, "metricId_01", retainResponseType);
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> httpSourceConfig.validateFields());
         assertEquals("Missing required fields: [streamTimeout, connectTimeout, outputMapping]", exception.getMessage());
@@ -176,7 +178,7 @@ public class HttpSourceConfigTest {
         outputMappings.put("field", outputMappingWithNullField);
 
         defaultHttpSourceConfig = new HttpSourceConfig("http://localhost", "",
-                "post", "request_body", requestVariables, "", "", "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
+                "post", "request_body", requestVariables, "", "", "4000", "1000", false, null, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> defaultHttpSourceConfig.validateFields());
         assertEquals("Missing required fields: [path]", exception.getMessage());
@@ -191,7 +193,7 @@ public class HttpSourceConfigTest {
         outputMappings.put("field", outputMappingWithNullField);
 
         defaultHttpSourceConfig = new HttpSourceConfig("http://localhost", "",
-                "post", "", requestVariables, "", "", "4000", "1000", false, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
+                "post", "", requestVariables, "", "", "4000", "1000", false, null, "", capacity, headerMap, outputMappings, "metricId_01", retainResponseType);
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> defaultHttpSourceConfig.validateFields());
         assertEquals("Missing required fields: [requestPattern]", exception.getMessage());
@@ -226,7 +228,7 @@ public class HttpSourceConfigTest {
     @Test
     public void shouldValidateWhenOutputMappingIsEmpty() {
 
-        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, endpointVariable, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, type, capacity, headerMap, new HashMap<>(), "metricId_01", retainResponseType);
+        defaultHttpSourceConfig = new HttpSourceConfig(endpoint, endpointVariable, verb, requestPattern, requestVariables, headerPattern, headerVariables, streamTimeout, connectTimeout, failOnErrors, failOnErrorsCodeRange, type, capacity, headerMap, new HashMap<>(), "metricId_01", retainResponseType);
 
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> defaultHttpSourceConfig.validateFields());

@@ -291,6 +291,13 @@ A flag for deciding whether the job should fail on encountering errors(timeout a
 - Type: `optional`
 - Default value: `false`
 
+##### `exclude_fail_on_errors_code_range`
+
+Defines the exclusion range of HTTP status codes for which job should not fail if `fail_on_errors` is true.
+
+- Example value: `400,404-499`
+- Type: `optional`
+
 ##### `capacity`
 
 This parameter(Async I/O capacity) defines how many max asynchronous requests may be in progress at the same time.

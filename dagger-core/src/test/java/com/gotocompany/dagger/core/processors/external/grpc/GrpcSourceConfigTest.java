@@ -119,13 +119,13 @@ public class GrpcSourceConfigTest {
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsNull() {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", null, "", false, null, "", new HashMap<>(), new HashMap<>(), metricId, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "", "", "", "", "", "", null, "", false, "", null, "", new HashMap<>(), new HashMap<>(), metricId, false);
         assertFalse(httpSourceConfig.hasType());
     }
 
     @Test
     public void hasTypeShouldBeFalseWhenTypeIsEmpty() {
-        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "",  "", "", "", "", "", "", "", false, "", "", new HashMap<>(), new HashMap<>(), metricId, false);
+        HttpSourceConfig httpSourceConfig = new HttpSourceConfig("", "",  "", "", "", "", "", "", "", false, "", "", "", new HashMap<>(), new HashMap<>(), metricId, false);
         assertFalse(httpSourceConfig.hasType());
     }
 

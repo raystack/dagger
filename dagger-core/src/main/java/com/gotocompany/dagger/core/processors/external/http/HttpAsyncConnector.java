@@ -12,6 +12,8 @@ import com.gotocompany.dagger.core.utils.Constants;
 import com.gotocompany.dagger.common.metrics.managers.MeterStatsManager;
 import com.gotocompany.dagger.core.processors.external.AsyncConnector;
 import com.gotocompany.dagger.core.processors.external.ExternalMetricConfig;
+import io.netty.util.internal.StringUtil;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.types.Row;
 
@@ -19,6 +21,13 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 import static org.asynchttpclient.Dsl.config;
@@ -31,6 +40,7 @@ public class HttpAsyncConnector extends AsyncConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpAsyncConnector.class.getName());
     private AsyncHttpClient httpClient;
     private HttpSourceConfig httpSourceConfig;
+    private Set<Integer> failOnErrorsExclusionSet;
 
     /**
      * Instantiates a new Http async connector with specified http client.
@@ -81,6 +91,12 @@ public class HttpAsyncConnector extends AsyncConnector {
     }
 
     @Override
+    public void open(Configuration configuration) throws Exception {
+        super.open(configuration);
+        setFailOnErrorsExclusionSet(httpSourceConfig.getExcludeFailOnErrorsCodeRange());
+    }
+
+    @Override
     public void close() throws Exception {
         httpClient.close();
         httpClient = null;
@@ -102,9 +118,8 @@ public class HttpAsyncConnector extends AsyncConnector {
             if (getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getRequestVariables(), requestVariablesValues) || getEndpointHandler().isQueryInvalid(resultFuture, rowManager, httpSourceConfig.getHeaderVariables(), dynamicHeaderVariablesValues)) {
                 return;
             }
-
             BoundRequestBuilder request = HttpRequestFactory.createRequest(httpSourceConfig, httpClient, requestVariablesValues, dynamicHeaderVariablesValues, endpointVariablesValues);
-            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, getMeterStatsManager(),
+            HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, getFailOnErrorsExclusionSet(), getMeterStatsManager(),
                     rowManager, getColumnNameManager(), getOutputDescriptor(resultFuture), resultFuture, getErrorReporter(), new PostResponseTelemetry());
             httpResponseHandler.startTimer();
             request.execute(httpResponseHandler);
@@ -113,5 +128,20 @@ public class HttpAsyncConnector extends AsyncConnector {
             resultFuture.completeExceptionally(e);
         }
 
+    }
+
+    protected Set<Integer> getFailOnErrorsExclusionSet() {
+        return failOnErrorsExclusionSet;
+    }
+
+    private void setFailOnErrorsExclusionSet(String excludeFailOnErrorsCodeRange) {
+        failOnErrorsExclusionSet = new HashSet<Integer>();
+        if (!StringUtil.isNullOrEmpty(excludeFailOnErrorsCodeRange)) {
+            String[] ranges = excludeFailOnErrorsCodeRange.split(",");
+            Arrays.stream(ranges).forEach(range -> {
+                List<Integer> rangeList = Arrays.stream(range.split("-")).map(Integer::parseInt).collect(Collectors.toList());
+                IntStream.rangeClosed(rangeList.get(0), rangeList.get(rangeList.size() - 1)).forEach(statusCode -> failOnErrorsExclusionSet.add(statusCode));
+            });
+        }
     }
 }
