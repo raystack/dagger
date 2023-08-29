@@ -659,6 +659,24 @@ The timeout value for gRPC client in ms.
 - Example value: `5000`
 - Type: `required`
 
+##### `grpc_arg_keepalive_time_ms`
+
+The keepalive ping is a way to check if a channel is currently working by sending HTTP2 pings over the transport. It is sent periodically, and if the ping is not acknowledged by the peer within a certain timeout period, the transport is disconnected. Other keepalive configurations are described [here](https://github.com/grpc/grpc/blob/master/doc/keepalive.md).
+
+This channel argument controls the period (in milliseconds) after which a keepalive ping is sent on the transport. If smaller than 10000, 10000 will be used instead.
+
+- Example value: `60000`
+- Type: `optional`
+- Default value: `infinite` 
+
+##### `grpc_arg_keepalive_timeout_ms`
+
+This channel argument controls the amount of time (in milliseconds) the sender of the keepalive ping waits for an acknowledgement. If it does not receive an acknowledgment within this time, it will close the connection.
+
+- Example value: `5000`
+- Type: `optional`
+- Default value: `20000`
+
 ##### `fail_on_errors`
 
 A flag for deciding whether the job should fail on encountering errors or not. If set false the job won’t fail and enrich with empty fields otherwise the job will fail.

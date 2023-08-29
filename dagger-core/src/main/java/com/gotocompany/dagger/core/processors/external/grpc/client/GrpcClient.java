@@ -5,18 +5,14 @@ import com.gotocompany.dagger.core.processors.external.grpc.GrpcSourceConfig;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 
-import io.grpc.Channel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.ClientInterceptors;
-import io.grpc.Metadata;
-import io.grpc.CallOptions;
-import io.grpc.ClientCall;
-import io.grpc.MethodDescriptor;
+import io.grpc.*;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Grpc client.
@@ -24,7 +20,7 @@ import java.util.Map;
 public class GrpcClient {
     private final GrpcSourceConfig grpcConfig;
 
-    private Channel decoratedChannel;
+    private ManagedChannel decoratedChannel;
 
     /**
      * Instantiates a new Grpc client.
@@ -39,19 +35,27 @@ public class GrpcClient {
      * Add channel.
      */
     public void addChannel() {
-        Channel channel = ManagedChannelBuilder.forAddress(grpcConfig.getEndpoint(), grpcConfig.getServicePort()).usePlaintext().build();
+        ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(grpcConfig.getEndpoint(), grpcConfig.getServicePort()).usePlaintext();
+        channelBuilder = decorateManagedChannelBuilder(channelBuilder);
+        decoratedChannel = channelBuilder.build();
+    }
 
-        Metadata metadata = new Metadata();
-
+    protected  ManagedChannelBuilder<?> decorateManagedChannelBuilder(ManagedChannelBuilder<?> channelBuilder){
+        if(StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeMs())){
+            channelBuilder = channelBuilder.keepAliveTime(Long.parseLong(grpcConfig.getGrpcArgKeepaliveTimeMs()), TimeUnit.MILLISECONDS);
+        }
+        if(StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeoutMs())){
+            channelBuilder = channelBuilder.keepAliveTimeout(Long.parseLong(grpcConfig.getGrpcArgKeepaliveTimeoutMs()), TimeUnit.MILLISECONDS);
+        }
         if (grpcConfig.getHeaders() != null && !grpcConfig.getHeaders().isEmpty()) {
+            Metadata metadata = new Metadata();
             for (Map.Entry<String, String> header : grpcConfig.getHeaders().entrySet()) {
                 metadata.put(Metadata.Key.of(header.getKey(), Metadata.ASCII_STRING_MARSHALLER), header.getValue());
             }
+            channelBuilder.intercept(MetadataUtils.newAttachHeadersInterceptor(metadata));
         }
-        decoratedChannel = ClientInterceptors.intercept(channel,
-                MetadataUtils.newAttachHeadersInterceptor(metadata));
 
-
+        return channelBuilder;
     }
 
     /**
@@ -89,6 +93,10 @@ public class GrpcClient {
      * Close channel.
      */
     public void close() {
+        if(decoratedChannel !=null && decoratedChannel.isShutdown())
+        {
+            decoratedChannel.shutdown();
+        }
         this.decoratedChannel = null;
     }
 
