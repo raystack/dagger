@@ -11,6 +11,7 @@ import com.gotocompany.dagger.core.processors.ColumnNameManager;
 import com.gotocompany.dagger.core.processors.common.OutputMapping;
 import com.gotocompany.dagger.core.processors.common.PostResponseTelemetry;
 import com.gotocompany.dagger.core.processors.common.RowManager;
+import com.gotocompany.dagger.core.utils.DescriptorsUtil;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -157,10 +158,14 @@ public class HttpResponseHandler extends AsyncCompletionHandler<Object> {
     }
 
     private void setFieldUsingType(String key, Object value, Integer fieldIndex) {
-        Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(key);
-        if (fieldDescriptor == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Field Descriptor not found for field: " + key);
-            reportAndThrowError(illegalArgumentException);
+        Descriptors.FieldDescriptor fieldDescriptor = null;
+        try {
+            fieldDescriptor = DescriptorsUtil.getFieldDescriptor(descriptor, key);
+            if (fieldDescriptor == null) {
+                throw new IllegalArgumentException("Field Descriptor not found for field: " + key);
+            }
+        } catch (RuntimeException exception) {
+            reportAndThrowError(exception);
         }
         TypeHandler typeHandler = TypeHandlerFactory.getTypeHandler(fieldDescriptor);
         rowManager.setInOutput(fieldIndex, typeHandler.transformFromPostProcessor(value));

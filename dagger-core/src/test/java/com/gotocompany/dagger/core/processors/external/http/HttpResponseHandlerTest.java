@@ -60,7 +60,7 @@ public class HttpResponseHandlerTest {
         initMocks(this);
         descriptor = TestSurgeFactorLogMessage.getDescriptor();
         outputColumnNames = Collections.singletonList("value");
-        inputColumnNames = new String[] {"order_id", "customer_id", "driver_id"};
+        inputColumnNames = new String[]{"order_id", "customer_id", "driver_id"};
         outputMapping = new HashMap<>();
         headers = new HashMap<>();
         headers.put("content-type", "application/json");
@@ -520,5 +520,117 @@ public class HttpResponseHandlerTest {
         verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.SUCCESS_RESPONSE);
         verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
         verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
+    }
+
+    @Test
+    public void shouldPopulateSingleResultFromHttpCallInInputRowForNestedColumnSetRetainTypeFalse() {
+        descriptor = com.gotocompany.dagger.consumer.TestEnrichedBookingLogMessage.getDescriptor();
+        outputMapping.put("customer_profile.email", new OutputMapping("$.email"));
+        outputMapping.put("customer_profile.name", new OutputMapping("$.name"));
+        outputColumnNames = Arrays.asList("customer_profile.email", "customer_profile.name");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "", "POST", "{\"key\": \"%s\"}", "customer_id", "", "", "123", "234", false, null, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, new HashSet<Integer>(), meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, "test_email@go-jek.com");
+        outputData.setField(1, "test_name");
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"email\": \"test_email@go-jek.com\",\n"
+                + "  \"name\": \"test_name\"\n"
+                + "}");
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
+    }
+
+    @Test
+    public void shouldPopulateSingleResultFromHttpCallInInputRowForNestedColumnSetRetainTypeTrue() {
+        descriptor = com.gotocompany.dagger.consumer.TestEnrichedBookingLogMessage.getDescriptor();
+        outputMapping.put("customer_profile.email", new OutputMapping("$.email"));
+        outputMapping.put("customer_profile.name", new OutputMapping("$.name"));
+        outputColumnNames = Arrays.asList("customer_profile.email", "customer_profile.name");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "", "POST", "{\"key\": \"%s\"}", "customer_id", "", "", "123", "234", false, null, httpConfigType, "345", headers, outputMapping, "metricId_02", true);
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, new HashSet<Integer>(), meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, "test_email@go-jek.com");
+        outputData.setField(1, "test_name");
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"email\": \"test_email@go-jek.com\",\n"
+                + "  \"name\": \"test_name\"\n"
+                + "}");
+
+        httpResponseHandler.startTimer();
+        httpResponseHandler.onCompleted(response);
+
+        verify(meterStatsManager, times(1)).markEvent(ExternalSourceAspects.SUCCESS_RESPONSE);
+        verify(meterStatsManager, times(1)).updateHistogram(any(Aspects.class), any(Long.class));
+        verify(resultFuture, times(1)).complete(Collections.singleton(resultStreamData));
+    }
+
+    @Test
+    public void shouldThrowNullPointerExceptionWhenNestedFieldIsNotPresentInOutputDescriptor() {
+        descriptor = com.gotocompany.dagger.consumer.TestEnrichedBookingLogMessage.getDescriptor();
+        outputMapping.put("customer_profile.invalid_email", new OutputMapping("$.email"));
+        outputColumnNames = Arrays.asList("customer_profile.invalid_email");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "", "POST", "{\"key\": \"%s\"}", "customer_id", "", "", "123", "234", false, null, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, "test_email@go-jek.com");
+        outputData.setField(1, "test_name");
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"email\": \"test_email@go-jek.com\",\n"
+                + "  \"name\": \"test_name\"\n"
+                + "}");
+
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, new HashSet<Integer>(), meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+        httpResponseHandler.startTimer();
+        assertThrows(NullPointerException.class,
+                () -> httpResponseHandler.onCompleted(response));
+        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNestedParentFieldIsNotPresentInOutputDescriptor() {
+        descriptor = com.gotocompany.dagger.consumer.TestEnrichedBookingLogMessage.getDescriptor();
+        outputMapping.put("customer-profile.email", new OutputMapping("$.email"));
+        outputColumnNames = Arrays.asList("customer-profile.email");
+        columnNameManager = new ColumnNameManager(inputColumnNames, outputColumnNames);
+        httpSourceConfig = new HttpSourceConfig("http://localhost:8080/test", "", "POST", "{\"key\": \"%s\"}", "customer_id", "", "", "123", "234", false, null, httpConfigType, "345", headers, outputMapping, "metricId_02", false);
+        Row resultStreamData = new Row(2);
+        Row outputData = new Row(2);
+        outputData.setField(0, "test_email@go-jek.com");
+        outputData.setField(1, "test_name");
+        resultStreamData.setField(0, inputData);
+        resultStreamData.setField(1, outputData);
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn("{\n"
+                + "  \"email\": \"test_email@go-jek.com\",\n"
+                + "  \"name\": \"test_name\"\n"
+                + "}");
+
+        HttpResponseHandler httpResponseHandler = new HttpResponseHandler(httpSourceConfig, new HashSet<Integer>(), meterStatsManager, rowManager, columnNameManager, descriptor, resultFuture, errorReporter, new PostResponseTelemetry());
+
+        httpResponseHandler.startTimer();
+
+        assertThrows(NullPointerException.class,
+                () -> httpResponseHandler.onCompleted(response));
+        verify(resultFuture, times(1)).completeExceptionally(any(RuntimeException.class));
     }
 }
