@@ -5,7 +5,13 @@ import com.gotocompany.dagger.core.processors.external.grpc.GrpcSourceConfig;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 
-import io.grpc.*;
+import io.grpc.CallOptions;
+import io.grpc.ClientCall;
+import io.grpc.Channel;
+import io.grpc.MethodDescriptor;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
@@ -40,11 +46,11 @@ public class GrpcClient {
         decoratedChannel = channelBuilder.build();
     }
 
-    protected  ManagedChannelBuilder<?> decorateManagedChannelBuilder(ManagedChannelBuilder<?> channelBuilder){
-        if(StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeMs())){
+    protected  ManagedChannelBuilder<?> decorateManagedChannelBuilder(ManagedChannelBuilder<?> channelBuilder) {
+        if (StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeMs())) {
             channelBuilder = channelBuilder.keepAliveTime(Long.parseLong(grpcConfig.getGrpcArgKeepaliveTimeMs()), TimeUnit.MILLISECONDS);
         }
-        if(StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeoutMs())){
+        if (StringUtils.isNotEmpty(grpcConfig.getGrpcArgKeepaliveTimeoutMs())) {
             channelBuilder = channelBuilder.keepAliveTimeout(Long.parseLong(grpcConfig.getGrpcArgKeepaliveTimeoutMs()), TimeUnit.MILLISECONDS);
         }
         if (grpcConfig.getHeaders() != null && !grpcConfig.getHeaders().isEmpty()) {
@@ -93,8 +99,7 @@ public class GrpcClient {
      * Close channel.
      */
     public void close() {
-        if(decoratedChannel !=null && decoratedChannel.isShutdown())
-        {
+        if (decoratedChannel != null && decoratedChannel.isShutdown()) {
             decoratedChannel.shutdown();
         }
         this.decoratedChannel = null;

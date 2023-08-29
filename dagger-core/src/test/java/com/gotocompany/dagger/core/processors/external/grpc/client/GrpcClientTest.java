@@ -1,8 +1,5 @@
 package com.gotocompany.dagger.core.processors.external.grpc.client;
 
-import com.gotocompany.dagger.common.exceptions.DescriptorNotFoundException;
-import com.gotocompany.dagger.core.processors.common.OutputMapping;
-import com.gotocompany.dagger.core.processors.external.grpc.GrpcSourceConfigBuilder;
 import io.grpc.Channel;
 import com.gotocompany.dagger.core.processors.external.grpc.GrpcSourceConfig;
 import io.grpc.ManagedChannelBuilder;
@@ -10,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -23,8 +19,9 @@ public class GrpcClientTest {
 
     @Mock
     private GrpcSourceConfig grpcSourceConfig;
+
     @Mock
-    ManagedChannelBuilder channelBuilder;
+    private ManagedChannelBuilder channelBuilder;
 
     @Before
     public void setUp() {
@@ -59,7 +56,7 @@ public class GrpcClientTest {
 
         GrpcClient grpcClient = new GrpcClient(grpcSourceConfig);
         grpcClient.decorateManagedChannelBuilder(channelBuilder);
-        verify(channelBuilder, times(1)).keepAliveTime(Long.parseLong("1000"),TimeUnit.MILLISECONDS);
+        verify(channelBuilder, times(1)).keepAliveTime(Long.parseLong("1000"), TimeUnit.MILLISECONDS);
         verify(channelBuilder, never()).keepAliveTimeout(anyLong(), any());
     }
 
@@ -67,11 +64,11 @@ public class GrpcClientTest {
     public void channelBuilderShouldBeDecoratedWithKeepaliveAndTimeOutMS() {
         when(grpcSourceConfig.getGrpcArgKeepaliveTimeMs()).thenReturn("1000");
         when(grpcSourceConfig.getGrpcArgKeepaliveTimeoutMs()).thenReturn("100");
-        when(channelBuilder.keepAliveTime(anyLong(),any())).thenReturn(channelBuilder);
+        when(channelBuilder.keepAliveTime(anyLong(), any())).thenReturn(channelBuilder);
 
         GrpcClient grpcClient = new GrpcClient(grpcSourceConfig);
         grpcClient.decorateManagedChannelBuilder(channelBuilder);
-        verify(channelBuilder, times(1)).keepAliveTimeout(Long.parseLong("100"),TimeUnit.MILLISECONDS);
+        verify(channelBuilder, times(1)).keepAliveTimeout(Long.parseLong("100"), TimeUnit.MILLISECONDS);
         verify(channelBuilder, times(1)).keepAliveTime(Long.parseLong("1000"), TimeUnit.MILLISECONDS);
     }
 
